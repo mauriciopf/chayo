@@ -2,12 +2,7 @@ import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-import Services from "./components/Services";
-import Process from "./components/Process";
-import Solutions from "./components/Solutions";
-import PricingReplacement from "./components/PricingReplacement";
 import Contact from "./components/Contact";
-import Mascot from "./components/Mascot";
 import { motion } from "framer-motion";
 import AnimatedCounter from "./components/AnimatedCounter";
 import DemoModal from "./components/DemoModal";
@@ -141,105 +136,41 @@ export default function AgenticAIHome() {
         </motion.section>
 
         <div className="section-divider" />
-        {/* Automation Service Section */}
+        {/* What We Offer Section (modern, no cards) */}
         <motion.section
-          className="section-glass relative p-10 text-center shadow-2xl border border-gray-800 overflow-hidden"
+          className="section-glass relative p-10 md:p-16 text-center shadow-2xl border border-orange-800 overflow-hidden"
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 1 }}
         >
-          {/* Animated orange glow */}
           <motion.div
-            className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-96 h-32 bg-orange-500 opacity-20 blur-3xl rounded-full z-0 animate-pulse"
+            className="absolute -top-10 left-1/2 -translate-x-1/2 w-[32rem] h-32 bg-gradient-to-r from-orange-500 via-cyan-400 to-orange-400 opacity-20 blur-3xl rounded-full z-0 animate-pulse"
             aria-hidden="true"
           />
-          <h2 className="text-3xl md:text-4xl font-extrabold mb-4 bg-gradient-to-r from-orange-400 to-orange-500 bg-clip-text text-transparent">
-            Automation Service
+          <h2 className="text-3xl md:text-4xl font-extrabold mb-10 bg-gradient-to-r from-orange-400 to-orange-500 bg-clip-text text-transparent">
+            What We Offer
           </h2>
-          <p className="text-lg md:text-xl mb-4 text-orange-100">
-            We build a tailored team of AI agents designed to reduce costs for your business with automation tools.
-          </p>
-          <div className="flex flex-col md:flex-row justify-center gap-6 mt-6">
-            <motion.div className="flex-1 bg-black/60 rounded-xl p-6 border border-cyan-800 shadow-lg" whileHover={{ scale: 1.04 }}>
-              <h4 className="text-xl font-bold mb-2 text-cyan-300">⚡ What you get:</h4>
-              <ul className="space-y-1 text-cyan-100 text-left mx-auto max-w-xs">
-                <li>✅ Faster responses</li>
-                <li>✅ Happier customers</li>
-                <li>✅ More time to grow your business</li>
-              </ul>
-              <p className="mt-4 text-cyan-200 text-sm">💡 DM us “AUTO” to see how it works — or let our AI agent reply 😉</p>
-            </motion.div>
+          <div className="flex flex-col md:flex-row gap-8 justify-center items-stretch">
+            <div className="flex-1 flex flex-col items-center justify-center px-4 py-8">
+              <span className="text-6xl mb-4 bg-gradient-to-br from-orange-400 via-orange-300 to-yellow-200 bg-clip-text text-transparent">🤖</span>
+              <h3 className="text-2xl font-bold mb-2 text-white drop-shadow-lg">AI Automation Agents</h3>
+              <p className="text-orange-100 text-lg opacity-90 leading-relaxed max-w-xs">Automate customer support, lead qualification, and more with intelligent AI agents that work 24/7 for your business.</p>
+            </div>
+            <div className="flex-1 flex flex-col items-center justify-center px-4 py-8">
+              <span className="text-6xl mb-4 bg-gradient-to-br from-cyan-400 via-blue-400 to-cyan-200 bg-clip-text text-transparent">💬</span>
+              <h3 className="text-2xl font-bold mb-2 text-white drop-shadow-lg">Omnichannel Messaging</h3>
+              <p className="text-cyan-100 text-lg opacity-90 leading-relaxed max-w-xs">Connect with customers on Instagram, WhatsApp, SMS, and voice — all managed by smart automation.</p>
+            </div>
+            <div className="flex-1 flex flex-col items-center justify-center px-4 py-8">
+              <span className="text-6xl mb-4 bg-gradient-to-br from-orange-400 via-cyan-400 to-yellow-200 bg-clip-text text-transparent">📊</span>
+              <h3 className="text-2xl font-bold mb-2 text-white drop-shadow-lg">Data Insights & Analytics</h3>
+              <p className="text-orange-100 text-lg opacity-90 leading-relaxed max-w-xs">Unlock actionable insights and automate reporting to drive smarter business decisions.</p>
+            </div>
           </div>
         </motion.section>
 
         <div className="section-divider" />
-        {/* Chatbot vs AI Agent Comparison Section */}
-        <motion.section
-          className="section-glass relative p-10 text-center shadow-2xl border border-orange-800 my-16 overflow-hidden"
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 1 }}
-        >
-          {/* Animated orange glow */}
-          <motion.div
-            className="absolute -top-10 left-1/2 -translate-x-1/2 w-96 h-32 bg-orange-500 opacity-20 blur-3xl rounded-full z-0 animate-pulse"
-            aria-hidden="true"
-          />
-          <h2 className="text-3xl md:text-4xl font-extrabold mb-8 bg-gradient-to-r from-orange-400 to-orange-500 bg-clip-text text-transparent">
-            Chatbot vs <span className="text-cyan-300">🤖 AI Agent</span>
-          </h2>
-          <p className="text-lg md:text-xl mb-10 text-cyan-100 font-medium">
-            Which One Is Right for Your Business?
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-8">
-            {/* Chatbot Card */}
-            <motion.div
-              className="rounded-xl bg-gray-800 border border-gray-700 p-8 flex flex-col items-center shadow-lg"
-              whileHover={{ scale: 1.04, boxShadow: "0 0 24px #38bdf8" }}
-            >
-              <div className="text-3xl mb-2">🔹 Chatbot</div>
-              <ul className="text-left text-cyan-100 space-y-2 text-base">
-                <li>✅ Answers basic FAQs</li>
-                <li>✅ Works with scripted flows</li>
-                <li>⛔️ Gets stuck outside pre-defined rules</li>
-                <li>⛔️ Limited personalization</li>
-              </ul>
-            </motion.div>
-            {/* AI Agent Card */}
-            <motion.div
-              className="rounded-xl bg-gradient-to-br from-cyan-900 to-blue-900 border border-cyan-700 p-8 flex flex-col items-center shadow-lg"
-              whileHover={{ scale: 1.07, boxShadow: "0 0 32px #38bdf8" }}
-            >
-              <div className="text-3xl mb-2">🔹 AI Agent</div>
-              <ul className="text-left text-cyan-50 space-y-2 text-base">
-                <li>✅ Understands context & intent</li>
-                <li>✅ Handles complex, dynamic tasks</li>
-                <li>✅ Can take actions (not just reply)</li>
-                <li>✅ Learns and improves over time</li>
-              </ul>
-            </motion.div>
-          </div>
-          <motion.p
-            className="text-cyan-200 text-lg mb-4"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.5 }}
-          >
-            💡 <span className="font-semibold text-cyan-100">AI Agents are not just smarter</span>—they’re built to automate processes, boost productivity, and grow with your business.
-          </motion.p>
-          <motion.a
-            href="#contact"
-            className="inline-block mt-4 bg-gradient-to-r from-orange-400 to-orange-600 text-white px-8 py-4 rounded-lg font-semibold text-lg shadow-lg hover:from-orange-500 hover:to-orange-700 transition"
-            whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.96 }}
-          >
-            🚀 Ready to upgrade from a chatbot to a full AI workforce?
-          </motion.a>
-        </motion.section>
-
         {/* Why Agentic AI Section */}
         <motion.section
           className="section-glass relative p-10 text-center shadow-2xl border border-orange-800 overflow-hidden"
