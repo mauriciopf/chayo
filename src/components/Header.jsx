@@ -12,19 +12,19 @@ const Header = ({ darkMode, setDarkMode }) => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <header className="fixed top-0 left-0 w-full z-50 px-2 md:px-8 py-2 md:py-4 flex justify-between items-center border-b border-gray-800 bg-black/70 backdrop-blur-2xl shadow-2xl">
-      {/* Layered animated gradients and glassy overlays for header */}
+    <header className="fixed top-0 left-0 w-full z-50 px-2 xs:px-4 md:px-8 py-2 xs:py-3 md:py-4 flex justify-between items-center border-b border-gray-800 bg-black/80 backdrop-blur-xl shadow-2xl">
+      {/* Layered animated gradients and glassy overlays for header - hide on mobile */}
       <motion.div
-        className="absolute left-1/2 top-0 -translate-x-1/2 w-[60vw] h-20 bg-gradient-to-r from-orange-400 via-cyan-400 to-orange-600 opacity-30 blur-2xl rounded-full z-0 pointer-events-none hidden sm:block"
+        className="absolute left-1/2 top-0 -translate-x-1/2 w-[90vw] sm:w-[60vw] h-12 sm:h-20 bg-gradient-to-r from-orange-400 via-cyan-400 to-orange-600 opacity-30 blur-2xl rounded-full z-0 pointer-events-none hidden xs:block"
         animate={{ opacity: [0.18, 0.32, 0.18], scale: [1, 1.08, 1] }}
         transition={{ duration: 6, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
       />
       <motion.div
-        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[40vw] h-10 bg-gradient-to-r from-white/40 via-cyan-400/20 to-orange-400/20 opacity-20 blur-lg rounded-full z-0 pointer-events-none hidden sm:block"
+        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] sm:w-[40vw] h-6 sm:h-10 bg-gradient-to-r from-white/40 via-cyan-400/20 to-orange-400/20 opacity-20 blur-lg rounded-full z-0 pointer-events-none hidden xs:block"
         animate={{ opacity: [0.12, 0.22, 0.12], scale: [1, 1.04, 1] }}
         transition={{ duration: 8, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
       />
-      {/* Subtle floating accent dots */}
+      {/* Subtle floating accent dots - hide on mobile */}
       {[...Array(4)].map((_, i) => (
         <motion.span
           key={i}
@@ -43,10 +43,10 @@ const Header = ({ darkMode, setDarkMode }) => {
         />
       ))}
       <div className="relative z-10 flex items-center gap-2">
-        {/* Ultra-premium, editorial Agentic AI text */}
+        {/* Ultra-premium, editorial Agentic AI text - mobile font size and padding */}
         <span
-          className="font-black text-xl md:text-3xl bg-gradient-to-r from-orange-400 via-cyan-400 to-orange-600 bg-clip-text text-transparent tracking-widest sm:inline-block px-8 py-3 rounded-2xl shadow-2xl select-none cursor-default border-0 uppercase drop-shadow-[0_2px_24px_rgba(6,182,212,0.18)]"
-          style={{ letterSpacing: '0.16em', textShadow: '0 2px 24px #06b6d4, 0 0 8px #fff', filter: 'none' }}
+          className="font-black text-lg xs:text-xl md:text-3xl bg-gradient-to-r from-orange-400 via-cyan-400 to-orange-600 bg-clip-text text-transparent tracking-widest sm:inline-block px-4 xs:px-6 md:px-8 py-2 xs:py-3 md:py-3 rounded-2xl shadow-2xl select-none cursor-default border-0 uppercase drop-shadow-[0_2px_24px_rgba(6,182,212,0.18)]"
+          style={{ letterSpacing: '0.13em', textShadow: '0 2px 16px #06b6d4, 0 0 4px #fff', filter: 'none' }}
         >
           <span className="relative z-10 font-black tracking-widest">
             <span className="pr-1">Agentic</span>
