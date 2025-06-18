@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
 import Header from "./components/Header";
 import Contact from "./components/Contact";
+import Footer from "./components/Footer";
 import { motion } from "framer-motion";
 import AnimatedCounter from "./components/AnimatedCounter";
 import DemoModal from "./components/DemoModal";
@@ -299,30 +300,7 @@ export default function AgenticAIHome() {
           <Contact />
         </section>
         <div className="section-divider" />
-        {/* Footer Section */}
-        <footer className="relative w-full py-24 flex flex-col items-center bg-transparent text-gray-400 text-center text-lg mt-24">
-          {/* Animated blurred accent shapes, parallax divider, and floating accent dots */}
-          <motion.div
-            className="absolute -top-24 left-1/2 -translate-x-1/2 w-[28rem] h-16 bg-gradient-to-r from-cyan-400 via-orange-400 to-cyan-400 opacity-10 blur-2xl rounded-full z-0 animate-float-slow"
-            style={{ filter: 'blur(60px)' }}
-            initial={{ y: -10, scale: 0.98, opacity: 0.7 }}
-            whileInView={{ y: 0, scale: 1, opacity: 1 }}
-            transition={{ duration: 1.2, type: 'spring' }}
-            animate={{ rotate: [0, 8, -8, 0] }}
-          />
-          <motion.span className="absolute left-1/4 top-1/2 w-3 h-3 bg-cyan-400 rounded-full blur-md opacity-60 animate-float-slow"
-            animate={{ y: [0, -8, 8, 0] }} transition={{ duration: 3, repeat: Infinity }} />
-          <motion.span className="absolute right-1/4 bottom-1/2 w-2 h-2 bg-orange-400 rounded-full blur-md opacity-60 animate-float-slower"
-            animate={{ y: [0, 8, -8, 0] }} transition={{ duration: 3, repeat: Infinity }} />
-          <div className="relative z-10">
-            <p>
-              © Agentic AI. All rights reserved. Contact us:{" "}
-              <a href="mailto:mauricio.perezflores@gmail.com" className="underline hover:text-cyan-400 transition-colors">
-                mauricio.perezflores@gmail.com
-              </a>
-            </p>
-          </div>
-        </footer>
+        <Footer />
       </main>
     </div>
   );

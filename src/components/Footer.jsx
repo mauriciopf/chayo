@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 export default function Footer() {
   return (
@@ -26,15 +27,24 @@ export default function Footer() {
         <p className="font-black tracking-widest uppercase bg-gradient-to-r from-orange-400 via-cyan-400 to-orange-600 bg-clip-text text-transparent drop-shadow-xl mb-2 text-xs xs:text-sm md:text-lg">
           © Agentic AI. All rights reserved.
         </p>
-        <p>
-          Contact us: {" "}
-          <a
-            href="mailto:mauricio.perezflores@gmail.com"
-            className="underline hover:text-orange-400 transition-colors font-semibold"
+        <div className="flex flex-col xs:flex-row items-center justify-center gap-2 xs:gap-4 mb-2">
+          <p>
+            Contact us: {" "}
+            <a
+              href="mailto:mauricio.perezflores@gmail.com"
+              className="underline hover:text-orange-400 transition-colors font-semibold"
+            >
+              mauricio.perezflores@gmail.com
+            </a>
+          </p>
+          <span className="hidden xs:inline text-gray-500">•</span>
+          <Link
+            to="/privacy"
+            className="underline hover:text-cyan-400 transition-colors font-semibold hover:bg-gradient-to-r hover:from-orange-400 hover:to-cyan-400 hover:bg-clip-text hover:text-transparent"
           >
-            mauricio.perezflores@gmail.com
-          </a>
-        </p>
+            Privacy Policy
+          </Link>
+        </div>
       </div>
     </footer>
   );
