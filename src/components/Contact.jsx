@@ -31,105 +31,113 @@ const Contact = () => {
   return (
     <section
       id="contact"
-      className="py-20 max-w-3xl mx-auto px-6 bg-black text-white rounded-2xl shadow-2xl border border-gray-800"
+      className="relative py-24 max-w-2xl mx-auto px-6 flex flex-col items-center"
     >
-      <h2 className="text-3xl font-bold mb-8 text-center text-white">
-        Get in Touch
-      </h2>
-      {submitted ? (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-center text-green-400 font-semibold"
-        >
-          Thank you for reaching out! We will get back to you soon.
-        </motion.div>
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <motion.div
-              animate={focus === "name" ? "focus" : ""}
-              variants={fieldVariants}
-              className="relative"
-            >
-              <input
-                required
-                id="name"
-                name="name"
-                type="text"
-                value={formData.name}
-                onChange={handleChange}
-                onFocus={() => handleFocus("name")}
-                onBlur={handleBlur}
-                className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-orange-400 transition"
-                placeholder="Your Name"
-                autoComplete="name"
-              />
-            </motion.div>
-            <motion.div
-              animate={focus === "email" ? "focus" : ""}
-              variants={fieldVariants}
-              className="relative"
-            >
-              <input
-                required
-                id="email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                onFocus={() => handleFocus("email")}
-                onBlur={handleBlur}
-                className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-orange-400 transition"
-                placeholder="Your Email"
-                autoComplete="email"
-              />
-            </motion.div>
-          </div>
+      {/* Floating blurred accent shape */}
+      <motion.div
+        className="absolute -top-20 left-1/2 -translate-x-1/2 w-96 h-32 bg-gradient-to-r from-orange-400 via-cyan-400 to-orange-300 opacity-30 blur-3xl rounded-full z-0 animate-pulse"
+        aria-hidden="true"
+      />
+      <div className="relative z-10 w-full flex flex-col items-center">
+        <h2 className="text-4xl font-extrabold text-center bg-gradient-to-r from-orange-400 via-cyan-400 to-orange-400 bg-clip-text text-transparent mb-8 drop-shadow-xl">
+          Get in Touch
+        </h2>
+        {submitted ? (
           <motion.div
-            animate={focus === "company" ? "focus" : ""}
-            variants={fieldVariants}
-            className="relative"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center text-green-500 font-semibold text-lg mt-8"
           >
-            <input
-              id="company"
-              name="company"
-              type="text"
-              value={formData.company}
-              onChange={handleChange}
-              onFocus={() => handleFocus("company")}
-              onBlur={handleBlur}
-              className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-orange-400 transition"
-              placeholder="Company (optional)"
-              autoComplete="organization"
-            />
+            Thank you for reaching out! We will get back to you soon.
           </motion.div>
-          <motion.div
-            animate={focus === "message" ? "focus" : ""}
-            variants={fieldVariants}
-            className="relative"
-          >
-            <textarea
-              required
-              id="message"
-              name="message"
-              rows="5"
-              value={formData.message}
-              onChange={handleChange}
-              onFocus={() => handleFocus("message")}
-              onBlur={handleBlur}
-              className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-orange-400 transition resize-none"
-              placeholder="How can we help you?"
-            />
-          </motion.div>
-          <button
-            type="submit"
-            className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold rounded-lg px-6 py-3 hover:from-orange-600 hover:to-orange-700 shadow-lg transition text-lg tracking-wide"
-          >
-            Send Message
-          </button>
-        </form>
-      )}
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-8 w-full">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <motion.div
+                animate={focus === "name" ? "focus" : ""}
+                variants={fieldVariants}
+                className="relative"
+              >
+                <input
+                  required
+                  id="name"
+                  name="name"
+                  type="text"
+                  value={formData.name}
+                  onChange={handleChange}
+                  onFocus={() => handleFocus("name")}
+                  onBlur={handleBlur}
+                  placeholder="Name"
+                  className="w-full bg-white/70 dark:bg-black/60 text-gray-900 dark:text-white placeholder-gray-400 rounded-xl py-4 px-6 outline-none focus:ring-2 focus:ring-orange-400 transition-all shadow-md"
+                />
+              </motion.div>
+              <motion.div
+                animate={focus === "email" ? "focus" : ""}
+                variants={fieldVariants}
+                className="relative"
+              >
+                <input
+                  required
+                  id="email"
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  onFocus={() => handleFocus("email")}
+                  onBlur={handleBlur}
+                  placeholder="Email"
+                  className="w-full bg-white/70 dark:bg-black/60 text-gray-900 dark:text-white placeholder-gray-400 rounded-xl py-4 px-6 outline-none focus:ring-2 focus:ring-orange-400 transition-all shadow-md"
+                />
+              </motion.div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <motion.div
+                animate={focus === "company" ? "focus" : ""}
+                variants={fieldVariants}
+                className="relative"
+              >
+                <input
+                  id="company"
+                  name="company"
+                  type="text"
+                  value={formData.company}
+                  onChange={handleChange}
+                  onFocus={() => handleFocus("company")}
+                  onBlur={handleBlur}
+                  placeholder="Company (optional)"
+                  className="w-full bg-white/70 dark:bg-black/60 text-gray-900 dark:text-white placeholder-gray-400 rounded-xl py-4 px-6 outline-none focus:ring-2 focus:ring-orange-400 transition-all shadow-md"
+                />
+              </motion.div>
+              <motion.div
+                animate={focus === "message" ? "focus" : ""}
+                variants={fieldVariants}
+                className="relative md:col-span-1 col-span-1"
+              >
+                <textarea
+                  required
+                  id="message"
+                  name="message"
+                  value={formData.message}
+                  onChange={handleChange}
+                  onFocus={() => handleFocus("message")}
+                  onBlur={handleBlur}
+                  placeholder="Your message"
+                  rows={3}
+                  className="w-full bg-white/70 dark:bg-black/60 text-gray-900 dark:text-white placeholder-gray-400 rounded-xl py-4 px-6 outline-none focus:ring-2 focus:ring-orange-400 transition-all shadow-md resize-none"
+                />
+              </motion.div>
+            </div>
+            <div className="flex justify-center">
+              <button
+                type="submit"
+                className="bg-gradient-to-r from-orange-400 via-cyan-400 to-orange-400 text-white font-bold py-3 px-10 rounded-full shadow-lg hover:scale-105 transition-transform text-lg"
+              >
+                Send Message
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
     </section>
   );
 };

@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
 import Header from "./components/Header";
-import Footer from "./components/Footer";
 import Contact from "./components/Contact";
 import { motion } from "framer-motion";
 import AnimatedCounter from "./components/AnimatedCounter";
 import DemoModal from "./components/DemoModal";
 import FAQAccordion from "./components/FAQAccordion";
 import ScrollToTopButton from "./components/ScrollToTopButton";
+import IndustryProcess from "./components/IndustryProcess";
 
 export default function AgenticAIHome() {
   const [darkMode, setDarkMode] = useState(true);
@@ -67,137 +67,140 @@ export default function AgenticAIHome() {
       <DemoModal open={demoOpen} onClose={() => setDemoOpen(false)} />
       <ScrollToTopButton />
 
-      <main className="pt-16 md:pt-20 max-w-7xl mx-auto px-2 md:px-4 space-y-12 md:space-y-20">
+      <main className="pt-20 max-w-7xl mx-auto px-2 md:px-8 space-y-24 bg-black text-white">
+        {/* Apple-inspired ultra-clean, spacious layout */}
         {/* Animated CTA Section */}
         <motion.section
-          className="section-glass relative p-10 text-center shadow-2xl border border-gray-800 overflow-hidden"
+          className="relative py-20 md:py-32 text-center overflow-visible"
+          style={{ background: 'none' }}
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 1 }}
+          whileHover={{ scale: 1.01, boxShadow: '0 8px 64px 0 rgba(6,182,212,0.10)' }}
+          animate={{ backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'] }}
         >
-          {/* Animated orange glow */}
-          <motion.div
-            className="absolute -top-10 left-1/2 -translate-x-1/2 w-96 h-32 bg-orange-500 opacity-30 blur-3xl rounded-full z-0 animate-pulse"
-            aria-hidden="true"
-          />
-          <motion.h2 className="text-3xl md:text-4xl font-extrabold mb-4 bg-gradient-to-r from-orange-400 to-orange-500 bg-clip-text text-transparent" initial={{ scale: 0.95 }} animate={{ scale: 1 }} transition={{ duration: 1, delay: 0.2 }}>
-            🚀 Ready to see <span className="text-orange-300">AGENTIC AI</span> in action?
+          {/* Floating blurred accent shape (subtle, Apple-style) */}
+          <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[90vw] h-40 bg-gradient-to-r from-cyan-400 via-white/10 to-orange-400 opacity-10 blur-3xl rounded-full z-0 animate-float-slow" />
+          <motion.h2 className="text-5xl md:text-7xl font-extrabold mb-8 tracking-wide leading-tight text-white drop-shadow-xl"
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 1, delay: 0.2 }}
+            whileHover={{ letterSpacing: '0.2em', color: '#06b6d4', textShadow: '0 2px 32px #06b6d4' }}
+          >
+            <span className="block text-[2.5rem] md:text-[4rem] font-black tracking-widest uppercase">Lead the Era of AI</span>
+            <span className="block text-cyan-400 font-bold text-2xl md:text-4xl mt-2 tracking-tight">with Agentic AI</span>
           </motion.h2>
-          <motion.p className="text-lg md:text-xl mb-8 text-orange-100" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
-            Let our AI agents show you how they can automate your Instagram, WhatsApp, SMS, and even voice calls — in real time.
+          <motion.p className="text-lg md:text-2xl mb-12 text-white/70 max-w-2xl mx-auto font-light tracking-wide"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            whileHover={{ scale: 1.04, color: '#06b6d4' }}
+          >
+            Experience the next level of automation, intelligence, and business growth—powered by elegant, human-centered AI.
           </motion.p>
           <motion.a
             href="#contact"
-            className="inline-block bg-gradient-to-r from-orange-400 to-orange-600 text-white px-8 py-4 rounded-lg font-semibold text-lg shadow-lg hover:from-orange-500 hover:to-orange-700 hover:scale-105 focus:scale-95 transition-all"
-            whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.96 }}
+            className="inline-block bg-cyan-400 text-black px-12 py-5 rounded-full font-bold text-xl shadow-xl hover:bg-cyan-300 focus:bg-cyan-500 transition-all duration-200 drop-shadow-lg tracking-wide uppercase"
+            whileHover={{ scale: 1.12, backgroundColor: '#06b6d4', color: '#fff', boxShadow: '0 4px 32px 0 #06b6d4' }}
+            whileTap={{ scale: 0.97 }}
           >
-            👉 Request a Demo
+            Get Started
           </motion.a>
-          <motion.p className="mt-8 text-orange-200" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}>
-            With Agentic AI, your business can automatically reply to customer inquiries — instantly, 24/7 — using smart, customized AI agents designed just for your brand.
-          </motion.p>
-          <motion.p className="mt-2 text-orange-200" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }}>
-            ✨ Whether it’s product questions, order updates, or appointment bookings — we’ve got it handled.
-          </motion.p>
         </motion.section>
 
         <div className="section-divider" />
         {/* Value Proposition Section */}
         <motion.section
-          className="section-glass relative grid md:grid-cols-2 gap-8 items-center overflow-hidden"
+          className="relative grid md:grid-cols-2 gap-32 items-center overflow-visible py-36 md:py-52"
+          style={{ background: 'none' }}
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 1 }}
+          whileHover={{ scale: 1.01, boxShadow: '0 8px 64px 0 rgba(6,182,212,0.10)' }}
         >
-          {/* Animated orange glow */}
+          {/* Animated blurred accent shapes and parallax divider */}
           <motion.div
-            className="absolute -top-10 left-1/2 -translate-x-1/2 w-96 h-32 bg-orange-500 opacity-20 blur-3xl rounded-full z-0 animate-pulse"
-            aria-hidden="true"
+            className="absolute -top-40 left-1/3 w-[28rem] h-[28rem] bg-gradient-to-br from-cyan-400 to-white/10 opacity-10 blur-3xl rounded-full z-0 animate-float-slow"
+            style={{ filter: 'blur(80px)' }}
+            initial={{ y: -30 }}
+            whileInView={{ y: 0 }}
+            transition={{ duration: 1.2, type: 'spring' }}
           />
-          <motion.div className="relative bg-black/80 backdrop-blur-md rounded-2xl p-8 shadow-xl border border-gray-800 z-10" whileHover={{ scale: 1.03 }}>
-            <h3 className="text-2xl font-bold mb-4 text-red-400 flex items-center gap-2">🔴 In-House</h3>
-            <ul className="space-y-2 text-lg text-gray-300">
-              <li>✖️ Higher costs</li>
-              <li>✖️ Slower response times</li>
-              <li>✖️ Limited scalability</li>
+          <motion.div
+            className="absolute -bottom-56 right-1/3 w-[36rem] h-[36rem] bg-gradient-to-br from-orange-300 to-cyan-400 opacity-10 blur-3xl rounded-full z-0 animate-float-slower"
+            style={{ filter: 'blur(100px)' }}
+            initial={{ y: 30 }}
+            whileInView={{ y: 0 }}
+            transition={{ duration: 1.2, type: 'spring' }}
+          />
+          {/* Animated vertical line accent */}
+          <motion.div
+            className="absolute left-1/2 top-0 -translate-x-1/2 w-1 h-full bg-gradient-to-b from-cyan-400/60 via-white/0 to-orange-400/60 opacity-60 rounded-full pointer-events-none"
+            initial={{ scaleY: 0.7, opacity: 0 }}
+            whileInView={{ scaleY: 1, opacity: 1 }}
+            animate={{ scaleX: [1, 1.08, 1], opacity: [0.7, 1, 0.7] }}
+            transition={{ duration: 2.2, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
+            style={{ zIndex: 1 }}
+          />
+          <motion.div className="relative p-0 z-10 flex flex-col items-center text-center md:text-left"
+            whileHover={{ scale: 1.06, rotate: -2 }}
+          >
+            <h3 className="text-3xl md:text-4xl font-black mb-12 text-cyan-400 uppercase tracking-[.25em] letter-spacing-wide drop-shadow-xl">In-House</h3>
+            <ul className="space-y-8 text-2xl text-white/70 font-light">
+              <li className="flex items-center gap-4"><span className="text-3xl">✖️</span> Higher costs</li>
+              <li className="flex items-center gap-4"><span className="text-3xl">✖️</span> Slower response times</li>
+              <li className="flex items-center gap-4"><span className="text-3xl">✖️</span> Limited scalability</li>
             </ul>
           </motion.div>
-          <motion.div className="relative bg-black/80 backdrop-blur-md rounded-2xl p-8 shadow-xl border border-gray-800 z-10" whileHover={{ scale: 1.05 }}>
-            <h3 className="text-2xl font-bold mb-4 text-orange-200 flex items-center gap-2">🟠 With AGENTIC AI</h3>
-            <ul className="space-y-2 text-lg text-white">
-              <li>✅ Reduced costs</li>
-              <li>✅ 24/7 instant responses</li>
-              <li>✅ Scales with your business</li>
+          <motion.div className="relative p-0 z-10 flex flex-col items-center text-center md:text-left"
+            whileHover={{ scale: 1.06, rotate: 2 }}
+          >
+            <h3 className="text-3xl md:text-4xl font-black mb-12 text-cyan-400 uppercase tracking-[.25em] letter-spacing-wide drop-shadow-xl">With AGENTIC AI</h3>
+            <ul className="space-y-8 text-2xl text-white/90 font-light">
+              <li className="flex items-center gap-4"><span className="text-3xl">✅</span> Reduced costs</li>
+              <li className="flex items-center gap-4"><span className="text-3xl">✅</span> 24/7 instant responses</li>
+              <li className="flex items-center gap-4"><span className="text-3xl">✅</span> Scales with your business</li>
             </ul>
           </motion.div>
         </motion.section>
 
         <div className="section-divider" />
-        {/* What We Offer Section (modern, no cards) */}
-        <motion.section
-          className="section-glass relative p-10 md:p-16 text-center shadow-2xl border border-orange-800 overflow-hidden"
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 1 }}
-        >
-          <motion.div
-            className="absolute -top-10 left-1/2 -translate-x-1/2 w-[32rem] h-32 bg-gradient-to-r from-orange-500 via-cyan-400 to-orange-400 opacity-20 blur-3xl rounded-full z-0 animate-pulse"
-            aria-hidden="true"
-          />
-          <h2 className="text-3xl md:text-4xl font-extrabold mb-10 bg-gradient-to-r from-orange-400 to-orange-500 bg-clip-text text-transparent">
-            What We Offer
-          </h2>
-          <div className="flex flex-col md:flex-row gap-8 justify-center items-stretch">
-            <div className="flex-1 flex flex-col items-center justify-center px-4 py-8">
-              <span className="text-6xl mb-4 bg-gradient-to-br from-orange-400 via-orange-300 to-yellow-200 bg-clip-text text-transparent">🤖</span>
-              <h3 className="text-2xl font-bold mb-2 text-white drop-shadow-lg">AI Automation Agents</h3>
-              <p className="text-orange-100 text-lg opacity-90 leading-relaxed max-w-xs">Automate customer support, lead qualification, and more with intelligent AI agents that work 24/7 for your business.</p>
-            </div>
-            <div className="flex-1 flex flex-col items-center justify-center px-4 py-8">
-              <span className="text-6xl mb-4 bg-gradient-to-br from-cyan-400 via-blue-400 to-cyan-200 bg-clip-text text-transparent">💬</span>
-              <h3 className="text-2xl font-bold mb-2 text-white drop-shadow-lg">Omnichannel Messaging</h3>
-              <p className="text-cyan-100 text-lg opacity-90 leading-relaxed max-w-xs">Connect with customers on Instagram, WhatsApp, SMS, and voice — all managed by smart automation.</p>
-            </div>
-            <div className="flex-1 flex flex-col items-center justify-center px-4 py-8">
-              <span className="text-6xl mb-4 bg-gradient-to-br from-orange-400 via-cyan-400 to-yellow-200 bg-clip-text text-transparent">📊</span>
-              <h3 className="text-2xl font-bold mb-2 text-white drop-shadow-lg">Data Insights & Analytics</h3>
-              <p className="text-orange-100 text-lg opacity-90 leading-relaxed max-w-xs">Unlock actionable insights and automate reporting to drive smarter business decisions.</p>
-            </div>
-          </div>
-        </motion.section>
-
+        {/* Unified AI Solutions & Process Section */}
+        <IndustryProcess />
         <div className="section-divider" />
         {/* Why Agentic AI Section */}
         <motion.section
-          className="section-glass relative p-10 text-center shadow-2xl border border-orange-800 overflow-hidden"
+          className="relative p-10 text-center overflow-visible"
+          style={{ background: 'linear-gradient(120deg, rgba(255,255,255,0.01) 0%, rgba(255,255,255,0.04) 100%)' }}
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 1 }}
+          whileHover={{ scale: 1.01, boxShadow: '0 8px 64px 0 rgba(6,182,212,0.10)' }}
         >
-          {/* Animated orange glow */}
-          <motion.div
-            className="absolute -top-10 left-1/2 -translate-x-1/2 w-96 h-32 bg-orange-500 opacity-20 blur-3xl rounded-full z-0 animate-pulse"
-            aria-hidden="true"
-          />
-          <h2 className="text-3xl md:text-4xl font-extrabold mb-6 bg-gradient-to-r from-orange-400 to-orange-500 bg-clip-text text-transparent">
-            Why Choose <span className="text-orange-300">Agentic AI?</span>
+          {/* Floating blurred accent shape */}
+          <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-80 h-32 bg-gradient-to-r from-orange-400 via-cyan-400 to-violet-500 opacity-20 blur-2xl rounded-full z-0 animate-float-slow" />
+          <h2 className="text-4xl md:text-5xl font-extrabold mb-10 bg-gradient-to-r from-orange-400 via-cyan-400 to-violet-500 bg-clip-text text-transparent drop-shadow-xl tracking-tight"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1 }}
+            whileHover={{ letterSpacing: '0.15em', color: '#06b6d4', textShadow: '0 2px 32px #06b6d4' }}
+          >
+            Why Choose <span className="text-white/90">Agentic AI?</span>
           </h2>
-          <div className="grid md:grid-cols-2 gap-8 text-left mt-6">
+          <div className="grid md:grid-cols-2 gap-12 text-left mt-10 relative z-10">
             <div>
-              <h3 className="text-xl font-bold mb-2 text-orange-200">Business Outcomes</h3>
-              <ul className="space-y-2 text-orange-100 text-base">
+              <h3 className="text-xl font-bold mb-4 text-orange-200">Business Outcomes</h3>
+              <ul className="space-y-3 text-lg text-white/80">
                 <li>• Reduce operational costs by up to <AnimatedCounter value={60} duration={1.5} className="text-orange-400 font-bold text-2xl inline" />%</li>
                 <li>• <AnimatedCounter value={24} duration={1.2} className="text-orange-400 font-bold text-2xl inline" />/<AnimatedCounter value={7} duration={1.2} className="text-orange-400 font-bold text-2xl inline" /> instant customer service—no downtime</li>
                 <li>• Eliminate manual errors and repetitive tasks</li>
                 <li>• Scale your team instantly as your business grows</li>
               </ul>
-              <h3 className="text-xl font-bold mt-6 mb-2 text-orange-200">Industries & Use Cases</h3>
-              <ul className="space-y-2 text-orange-100 text-base">
+              <h3 className="text-xl font-bold mt-8 mb-4 text-orange-200">Industries & Use Cases</h3>
+              <ul className="space-y-3 text-lg text-white/80">
                 <li>• E-commerce: Automated order updates, product Q&A</li>
                 <li>• Healthcare: Appointment scheduling, patient support</li>
                 <li>• Real Estate: Lead qualification, property info</li>
@@ -205,15 +208,15 @@ export default function AgenticAIHome() {
               </ul>
             </div>
             <div>
-              <h3 className="text-xl font-bold mb-2 text-orange-200">Security & Integration</h3>
-              <ul className="space-y-2 text-orange-100 text-base">
+              <h3 className="text-xl font-bold mb-4 text-orange-200">Security & Integration</h3>
+              <ul className="space-y-3 text-lg text-white/80">
                 <li>• Enterprise-grade security & compliance</li>
                 <li>• Seamless integration with your existing tools</li>
                 <li>• GDPR-ready and privacy-focused</li>
                 <li>• Ongoing support and continuous improvement</li>
               </ul>
-              <h3 className="text-xl font-bold mt-6 mb-2 text-orange-200">Our Promise</h3>
-              <ul className="space-y-2 text-orange-100 text-base">
+              <h3 className="text-xl font-bold mt-8 mb-4 text-orange-200">Our Promise</h3>
+              <ul className="space-y-3 text-lg text-white/80">
                 <li>• Dedicated AI experts for your business</li>
                 <li>• Transparent pricing, no hidden fees</li>
                 <li>• Fast onboarding and personalized setup</li>
@@ -224,12 +227,103 @@ export default function AgenticAIHome() {
 
         <div className="section-divider" />
         {/* FAQ Section */}
-        <FAQAccordion />
+        <section id="faq" className="relative max-w-3xl mx-auto py-44 md:py-[15vw] px-2 sm:px-8 flex flex-col items-center">
+          {/* Animated blurred accent shapes, parallax divider, and floating accent dots */}
+          <motion.div
+            className="absolute -top-48 left-1/2 -translate-x-1/2 w-[36rem] h-[36rem] bg-gradient-to-br from-cyan-400 to-white/10 opacity-10 blur-3xl rounded-full z-0 animate-float-slow"
+            style={{ filter: 'blur(100px)' }}
+            initial={{ y: -40, scale: 0.95, opacity: 0.7 }}
+            whileInView={{ y: 0, scale: 1, opacity: 1 }}
+            transition={{ duration: 1.4, type: 'spring' }}
+            animate={{ rotate: [0, 8, -8, 0] }}
+          />
+          <motion.div
+            className="absolute -bottom-64 left-1/2 -translate-x-1/2 w-[44rem] h-[44rem] bg-gradient-to-br from-orange-300 to-cyan-400 opacity-10 blur-3xl rounded-full z-0 animate-float-slower"
+            style={{ filter: 'blur(120px)' }}
+            initial={{ y: 40, scale: 0.95, opacity: 0.7 }}
+            whileInView={{ y: 0, scale: 1, opacity: 1 }}
+            transition={{ duration: 1.4, type: 'spring' }}
+            animate={{ rotate: [0, -8, 8, 0] }}
+          />
+          {/* Animated vertical line accent */}
+          <motion.div
+            className="absolute left-1/2 top-0 -translate-x-1/2 w-1 h-full bg-gradient-to-b from-cyan-400/60 via-white/0 to-orange-400/60 opacity-60 rounded-full pointer-events-none"
+            initial={{ scaleY: 0.7, opacity: 0 }}
+            whileInView={{ scaleY: 1, opacity: 1 }}
+            animate={{ scaleX: [1, 1.08, 1], opacity: [0.7, 1, 0.7] }}
+            transition={{ duration: 2.2, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
+            style={{ zIndex: 1 }}
+          />
+          {/* Floating accent dots */}
+          <motion.span className="absolute left-12 top-1/3 w-4 h-4 bg-cyan-400 rounded-full blur-md opacity-60 animate-float-slow"
+            animate={{ y: [0, -10, 10, 0] }} transition={{ duration: 3, repeat: Infinity }} />
+          <motion.span className="absolute right-12 bottom-1/4 w-3 h-3 bg-orange-400 rounded-full blur-md opacity-60 animate-float-slower"
+            animate={{ y: [0, 10, -10, 0] }} transition={{ duration: 3, repeat: Infinity }} />
+          <motion.span className="absolute left-1/4 bottom-1/4 w-2 h-2 bg-cyan-300 rounded-full blur-sm opacity-60 animate-float"
+            animate={{ x: [0, 8, -8, 0] }} transition={{ duration: 3, repeat: Infinity }} />
+          <FAQAccordion />
+        </section>
         <div className="section-divider" />
         {/* Contact Section */}
-        <Contact />
+        <section id="contact" className="relative max-w-2xl mx-auto py-44 md:py-[15vw] px-2 sm:px-8 flex flex-col items-center">
+          {/* Animated blurred accent shapes, parallax divider, and floating accent dots */}
+          <motion.div
+            className="absolute -top-48 left-1/2 -translate-x-1/2 w-[36rem] h-[36rem] bg-gradient-to-br from-cyan-400 to-white/10 opacity-10 blur-3xl rounded-full z-0 animate-float-slow"
+            style={{ filter: 'blur(100px)' }}
+            initial={{ y: -40, scale: 0.95, opacity: 0.7 }}
+            whileInView={{ y: 0, scale: 1, opacity: 1 }}
+            transition={{ duration: 1.4, type: 'spring' }}
+            animate={{ rotate: [0, 8, -8, 0] }}
+          />
+          <motion.div
+            className="absolute -bottom-64 left-1/2 -translate-x-1/2 w-[44rem] h-[44rem] bg-gradient-to-br from-orange-300 to-cyan-400 opacity-10 blur-3xl rounded-full z-0 animate-float-slower"
+            style={{ filter: 'blur(120px)' }}
+            initial={{ y: 40, scale: 0.95, opacity: 0.7 }}
+            whileInView={{ y: 0, scale: 1, opacity: 1 }}
+            transition={{ duration: 1.4, type: 'spring' }}
+            animate={{ rotate: [0, -8, 8, 0] }}
+          />
+          {/* Animated vertical line accent */}
+          <motion.div
+            className="absolute left-1/2 top-0 -translate-x-1/2 w-1 h-full bg-gradient-to-b from-cyan-400/60 via-white/0 to-orange-400/60 opacity-60 rounded-full pointer-events-none"
+            initial={{ scaleY: 0.7, opacity: 0 }}
+            whileInView={{ scaleY: 1, opacity: 1 }}
+            animate={{ scaleX: [1, 1.08, 1], opacity: [0.7, 1, 0.7] }}
+            transition={{ duration: 2.2, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
+            style={{ zIndex: 1 }}
+          />
+          {/* Floating accent dots */}
+          <motion.span className="absolute left-12 top-1/3 w-4 h-4 bg-cyan-400 rounded-full blur-md opacity-60 animate-float-slow" />
+          <motion.span className="absolute right-12 bottom-1/4 w-3 h-3 bg-orange-400 rounded-full blur-md opacity-60 animate-float-slower" />
+          <motion.span className="absolute left-1/4 bottom-1/4 w-2 h-2 bg-cyan-300 rounded-full blur-sm opacity-60 animate-float" />
+          <Contact />
+        </section>
+        <div className="section-divider" />
+        {/* Footer Section */}
+        <footer className="relative w-full py-24 flex flex-col items-center bg-transparent text-gray-400 text-center text-lg mt-24">
+          {/* Animated blurred accent shapes, parallax divider, and floating accent dots */}
+          <motion.div
+            className="absolute -top-24 left-1/2 -translate-x-1/2 w-[28rem] h-16 bg-gradient-to-r from-cyan-400 via-orange-400 to-cyan-400 opacity-10 blur-2xl rounded-full z-0 animate-float-slow"
+            style={{ filter: 'blur(60px)' }}
+            initial={{ y: -10, scale: 0.98, opacity: 0.7 }}
+            whileInView={{ y: 0, scale: 1, opacity: 1 }}
+            transition={{ duration: 1.2, type: 'spring' }}
+            animate={{ rotate: [0, 8, -8, 0] }}
+          />
+          <motion.span className="absolute left-1/4 top-1/2 w-3 h-3 bg-cyan-400 rounded-full blur-md opacity-60 animate-float-slow"
+            animate={{ y: [0, -8, 8, 0] }} transition={{ duration: 3, repeat: Infinity }} />
+          <motion.span className="absolute right-1/4 bottom-1/2 w-2 h-2 bg-orange-400 rounded-full blur-md opacity-60 animate-float-slower"
+            animate={{ y: [0, 8, -8, 0] }} transition={{ duration: 3, repeat: Infinity }} />
+          <div className="relative z-10">
+            <p>
+              © Agentic AI. All rights reserved. Contact us:{" "}
+              <a href="mailto:mauricio.perezflores@gmail.com" className="underline hover:text-cyan-400 transition-colors">
+                mauricio.perezflores@gmail.com
+              </a>
+            </p>
+          </div>
+        </footer>
       </main>
-      <Footer darkMode={darkMode} />
     </div>
   );
 }

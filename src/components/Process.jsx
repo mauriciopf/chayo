@@ -2,31 +2,11 @@ import React from "react";
 import { motion } from "framer-motion";
 
 const steps = [
-	{
-		title: "Consultation & Strategy",
-		desc: "We learn about your business, goals, and challenges to design a custom AI automation roadmap.",
-		icon: "🧑‍💼",
-	},
-	{
-		title: "Data Collection & Training",
-		desc: "We gather and prepare your data, then train AI models tailored to your unique needs.",
-		icon: "📊",
-	},
-	{
-		title: "Custom AI Development",
-		desc: "We build and integrate AI agents that automate your workflows and customer interactions.",
-		icon: "🤖",
-	},
-	{
-		title: "Testing & Deployment",
-		desc: "We rigorously test, deploy, and monitor your AI solutions for reliability and performance.",
-		icon: "🚀",
-	},
-	{
-		title: "Ongoing Support & Improvement",
-		desc: "We provide continuous support and optimize your AI agents as your business grows.",
-		icon: "🔄",
-	},
+	{ title: "Consultation", icon: "🧑‍💼" },
+	{ title: "Data & Training", icon: "📊" },
+	{ title: "AI Build", icon: "🤖" },
+	{ title: "Deploy", icon: "🚀" },
+	{ title: "Support", icon: "🔄" },
 ];
 
 const containerVariants = {
@@ -51,10 +31,15 @@ const stepVariants = {
 const Process = () => (
 	<section
 		id="process"
-		className="py-12 md:py-20 bg-black text-white rounded-lg max-w-5xl mx-auto px-2 md:px-6"
+		className="relative py-32 bg-transparent max-w-5xl mx-auto px-2 md:px-6"
 	>
+		{/* Floating blurred accent shape */}
+		<motion.div
+			className="absolute -top-16 left-1/2 -translate-x-1/2 w-[32rem] h-32 bg-gradient-to-r from-orange-400 via-cyan-400 to-orange-300 opacity-20 blur-3xl rounded-full z-0 animate-pulse"
+			aria-hidden="true"
+		/>
 		<motion.h2
-			className="text-3xl font-bold text-center mb-12 text-white"
+			className="text-4xl md:text-5xl font-extrabold text-center mb-8 bg-gradient-to-r from-orange-400 via-cyan-400 to-orange-400 bg-clip-text text-transparent drop-shadow-xl"
 			initial={{ opacity: 0, y: -30 }}
 			whileInView={{ opacity: 1, y: 0 }}
 			viewport={{ once: true }}
@@ -62,33 +47,29 @@ const Process = () => (
 		>
 			Our Process
 		</motion.h2>
+		<p className="text-xl text-center text-white/70 mb-16 max-w-2xl mx-auto">
+			From strategy to support, our streamlined process gets you AI-powered fast.
+		</p>
 		<motion.div
-			className="flex flex-col md:flex-row md:flex-wrap gap-6 md:gap-8 justify-center items-stretch"
+			className="relative z-10 max-w-4xl mx-auto flex flex-wrap justify-center gap-16"
 			variants={containerVariants}
 			initial="hidden"
 			whileInView="show"
 			viewport={{ once: true }}
 		>
-			{steps.map((step, i) => (
+			{steps.map(({ title, icon }, i) => (
 				<motion.div
-					key={step.title}
+					key={title}
 					variants={stepVariants}
-					className="flex-1 min-w-[220px] bg-white/10 backdrop-blur-xl border border-orange-300/30 rounded-3xl p-7 shadow-2xl flex flex-col items-center text-center hover:scale-105 transition-all duration-300 group relative overflow-hidden"
-					whileHover={{ scale: 1.08 }}
+					whileHover={{ scale: 1.12 }}
+					className="flex flex-col items-center text-center transition-all duration-300 group bg-transparent shadow-none border-none rounded-none p-0 relative"
 				>
-					{/* Animated glowing border */}
-					<span className="absolute inset-0 rounded-3xl pointer-events-none border-2 border-transparent group-hover:border-orange-400 group-hover:shadow-[0_0_32px_8px_#fb923c] transition-all duration-300" />
-					{/* Floating accent spark */}
-					<span className="absolute top-3 right-3 w-3 h-3 bg-gradient-to-br from-orange-400 to-orange-300 rounded-full blur-sm opacity-80 animate-pulse" />
-					<div className="text-4xl mb-3 bg-gradient-to-br from-orange-400 via-orange-300 to-yellow-200 bg-clip-text text-transparent animate-float-slow drop-shadow-lg">
-						{step.icon}
-					</div>
-					<h3 className="text-lg font-bold mb-2 text-white drop-shadow-lg tracking-tight">
-						{step.title}
-					</h3>
-					<p className="text-orange-100 text-base opacity-90 leading-relaxed">
-						{step.desc}
-					</p>
+					<span className="text-5xl md:text-6xl mb-4 drop-shadow-xl animate-float-slow">
+						{icon}
+					</span>
+					<span className="text-lg md:text-xl font-bold text-white tracking-widest uppercase">
+						{title}
+					</span>
 				</motion.div>
 			))}
 		</motion.div>

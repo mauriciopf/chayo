@@ -3,8 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const navLinks = [
   { href: "#services", label: "Services" },
-  { href: "#process", label: "Process" },
-  { href: "#solutions", label: "Solutions" },
+  { href: "#industry-process", label: "How It Works" },
   { href: "#faq", label: "FAQ" },
   { href: "#contact", label: "Let’s Talk" },
 ];
@@ -14,31 +13,40 @@ const Header = ({ darkMode, setDarkMode }) => {
 
   return (
     <header className="fixed top-0 left-0 w-full z-50 px-2 md:px-8 py-2 md:py-4 flex justify-between items-center border-b border-gray-800 bg-black/60 backdrop-blur-xl shadow-lg">
-      {/* Animated orange glow behind logo */}
+      {/* Animated orange glow behind logo + floating accent dots + animated gradient ring */}
       <motion.div
         className="absolute left-4 top-1/2 -translate-y-1/2 w-20 h-10 bg-orange-500 opacity-20 blur-2xl rounded-full z-0 pointer-events-none hidden sm:block"
-        animate={{ opacity: [0.15, 0.3, 0.15] }}
-        transition={{ duration: 3, repeat: Infinity }}
+        animate={{ opacity: [0.15, 0.3, 0.15], scale: [1, 1.08, 1] }}
+        transition={{ duration: 3, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
+      />
+      <motion.span
+        className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-cyan-400 rounded-full blur-md opacity-60 animate-float-slow z-0 hidden sm:block"
+        animate={{ y: [0, -8, 8, 0], scale: [1, 1.2, 1] }} transition={{ duration: 4, repeat: Infinity }}
+      />
+      <motion.span
+        className="absolute left-16 top-1/3 w-2 h-2 bg-orange-400 rounded-full blur-md opacity-60 animate-float-slower z-0 hidden sm:block"
+        animate={{ x: [0, 6, -6, 0], scale: [1, 1.3, 1] }} transition={{ duration: 5, repeat: Infinity }}
+      />
+      <motion.span
+        className="absolute left-10 top-1/4 w-3 h-3 bg-white rounded-full blur-lg opacity-30 animate-float z-0 hidden sm:block"
+        animate={{ y: [0, 10, -10, 0], scale: [1, 1.15, 1] }} transition={{ duration: 6, repeat: Infinity }}
       />
       <div className="relative z-10 flex items-center gap-2">
-        {/* Creative SVG logo */}
-        <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-8 md:h-10 w-8 md:w-10 drop-shadow-lg">
-          <defs>
-            <radialGradient id="agentic-glow" cx="50%" cy="50%" r="60%" fx="50%" fy="50%">
-              <stop offset="0%" stopColor="#FFB066" stopOpacity="0.8" />
-              <stop offset="80%" stopColor="#E87811" stopOpacity="0.9" />
-              <stop offset="100%" stopColor="#E87811" stopOpacity="0.2" />
-            </radialGradient>
-            <linearGradient id="agentic-main" x1="0" y1="0" x2="38" y2="38" gradientUnits="userSpaceOnUse">
-              <stop stopColor="#FFB066" />
-              <stop offset="1" stopColor="#E87811" />
-            </linearGradient>
-          </defs>
-          <circle cx="19" cy="19" r="18" fill="url(#agentic-glow)" />
-          <path d="M11 27L19 7L27 27" stroke="url(#agentic-main)" strokeWidth="3.5" strokeLinecap="round"/>
-          <circle cx="19" cy="23" r="2.5" fill="#fff" stroke="#E87811" strokeWidth="1.5" />
-        </svg>
-        <span className="font-extrabold text-lg md:text-xl bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent tracking-tight hidden sm:inline-block">Agentic <span className="font-black">AI</span></span>
+        {/* Elegant, editorial Agentic AI text (no interactivity, no blur) */}
+        <span
+          className="font-extrabold text-lg md:text-2xl bg-gradient-to-r from-orange-400 via-cyan-400 to-orange-600 bg-clip-text text-transparent tracking-tight sm:inline-block px-6 py-2 rounded-2xl shadow-lg select-none cursor-default border-0"
+          style={{ letterSpacing: '0.08em', textShadow: '0 2px 12px #06b6d4, 0 0 4px #fff', filter: 'none' }}
+        >
+          <span className="relative z-10 font-black tracking-widest">
+            <span className="pr-1">Agentic</span>
+            <span className="font-black italic underline decoration-wavy decoration-cyan-300/80 text-cyan-200">AI</span>
+          </span>
+          {/* Elegant underline accent */}
+          <span
+            className="absolute left-0 -bottom-1 w-full h-1 bg-gradient-to-r from-cyan-300 via-orange-200 to-cyan-200 rounded-full opacity-70 shadow-lg"
+            style={{ display: 'block' }}
+          />
+        </span>
       </div>
       {/* Hamburger for mobile */}
       <button
@@ -61,12 +69,13 @@ const Header = ({ darkMode, setDarkMode }) => {
       </button>
       {/* Desktop nav */}
       <nav className="hidden md:flex gap-6 text-sm font-medium items-center relative z-10">
-        {navLinks.map((link) => (
+        {navLinks.map((link, idx) => (
           <motion.a
             key={link.href}
             href={link.href}
             className="relative px-2 py-1 text-white group"
-            whileHover="hover"
+            whileHover={{ scale: 1.13, y: -2, color: '#06b6d4', textShadow: '0 2px 16px #06b6d4' }}
+            transition={{ type: 'spring', stiffness: 400, damping: 22 }}
             initial="rest"
             animate="rest"
             variants={{}}

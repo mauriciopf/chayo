@@ -36,71 +36,139 @@ const faqs = [
 	},
 ];
 
+const sparkVariants = {
+	initial: { opacity: 0, scale: 0.5 },
+	animate: (i) => ({
+		opacity: 0.5,
+		scale: 1,
+		transition: { delay: 1.2 + i * 0.2, duration: 0.8, yoyo: Infinity },
+	}),
+};
+const sparks = [
+	{ top: "8%", left: "18%", color: "#E87811" },
+	{ top: "22%", left: "80%", color: "#FFB066" },
+	{ top: "70%", left: "10%", color: "#06b6d4" },
+	{ top: "60%", left: "70%", color: "#a78bfa" },
+	{ top: "30%", left: "60%", color: "#FFB066" },
+];
+
 export default function FAQAccordion() {
 	const [open, setOpen] = useState(null);
 	return (
-		<section id="faq" className="relative max-w-3xl mx-auto my-16 px-4">
-			{/* Animated orange/cyan glow */}
+		<section id="faq" className="relative max-w-3xl mx-auto my-24 px-2 sm:px-4">
+			{/* Remove orange background, keep only subtle gradients and floating sparkles */}
 			<motion.div
-				className="absolute -top-10 left-1/2 -translate-x-1/2 w-80 h-24 bg-gradient-to-r from-orange-500 via-cyan-400 to-orange-400 opacity-30 blur-3xl rounded-full z-0 animate-pulse"
+				className="absolute -top-24 left-1/2 -translate-x-1/2 w-full h-48 bg-gradient-to-r from-cyan-400 via-white/10 to-cyan-400 opacity-10 blur-3xl rounded-full z-0 animate-float-slow"
 				aria-hidden="true"
 			/>
+			{/* Floating accent sparkles */}
+			{sparks.map((spark, i) => (
+				<motion.span
+					key={i}
+					className="absolute rounded-full blur-2xl"
+					style={{
+						width: 24,
+						height: 24,
+						background: spark.color,
+						top: spark.top,
+						left: spark.left,
+						opacity: 0.5,
+						zIndex: 1,
+					}}
+					initial="initial"
+					animate="animate"
+					variants={sparkVariants}
+					custom={i}
+				/>
+			))}
 			<motion.div
-				className="section-glass border-2 border-orange-400/40 shadow-2xl p-8 md:p-12 relative overflow-hidden"
+				className="relative z-10 py-12 px-2 sm:px-6 md:px-16 bg-transparent shadow-none flex flex-col items-center"
 				initial={{ opacity: 0, y: 40 }}
 				whileInView={{ opacity: 1, y: 0 }}
 				viewport={{ once: true }}
 				transition={{ duration: 0.8 }}
 			>
-				<div className="flex flex-col items-center mb-8">
-					<span className="text-4xl md:text-5xl mb-2 animate-float-slow">
+				<div className="flex flex-col items-center mb-10">
+					<motion.span
+						className="text-5xl md:text-6xl mb-2 animate-float-slow select-none drop-shadow-2xl"
+						animate={{ rotate: [0, 10, -10, 0] }}
+						transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+					>
 						💡
-					</span>
-					<h2 className="text-3xl md:text-4xl font-extrabold text-center bg-gradient-to-r from-orange-400 via-cyan-400 to-orange-400 bg-clip-text text-transparent mb-2 drop-shadow-lg">
+					</motion.span>
+					<h2 className="text-4xl md:text-5xl font-extrabold text-center bg-gradient-to-r from-orange-400 via-cyan-400 to-orange-400 bg-clip-text text-transparent mb-2 drop-shadow-2xl">
 						Frequently Asked Questions
 					</h2>
-					<p className="text-orange-100 text-center max-w-xl mx-auto text-lg mb-2">
-						Everything you need to know about Agentic AI, automation, and how we
-						help your business grow.
+					<p className="text-lg text-gray-700 dark:text-gray-200 max-w-xl text-center mt-2">
+						Everything you need to know about Agentic AI.
 					</p>
 				</div>
-				<div className="space-y-5">
+				<div className="w-full space-y-2 sm:space-y-4">
 					{faqs.map((faq, i) => (
 						<motion.div
 							key={i}
-							className="bg-white/10 backdrop-blur-xl rounded-2xl border border-orange-300/30 shadow-lg overflow-hidden group"
-							whileHover={{
-								scale: 1.03,
-								boxShadow: "0 0 32px #fb923c",
-							}}
-							transition={{ type: "spring", duration: 0.4 }}
+							className="relative group border-l-4 border-cyan-400/60 pl-6 py-2 bg-transparent transition-all duration-300"
+							initial={{ opacity: 0, y: 40, scale: 0.96, rotate: -2 }}
+							whileInView={{ opacity: 1, y: 0, scale: 1, rotate: 0 }}
+							viewport={{ once: true }}
+							whileHover={{ scale: 1.06, boxShadow: '0 4px 32px 0 rgba(6,182,212,0.18)', rotate: 2 }}
+							animate={{ y: [0, -4, 4, 0], rotate: [0, 2, -2, 0] }}
+							transition={{ duration: 3, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut', ...{ delay: i * 0.08 } }}
 						>
 							<button
-								className="w-full text-left px-6 py-5 text-lg md:text-xl font-semibold text-orange-200 flex justify-between items-center focus:outline-none group-hover:text-orange-300 transition-colors"
 								onClick={() => setOpen(open === i ? null : i)}
+								className={`w-full flex justify-between items-center py-3 px-0 focus:outline-none bg-transparent hover:bg-cyan-400/10 dark:hover:bg-cyan-300/10 rounded-none transition-all duration-300 border-none shadow-none`}
 								aria-expanded={open === i}
+								whileHover={{ x: 10, scale: 1.04, color: '#06b6d4', textShadow: '0 2px 16px #06b6d4' }}
 							>
-								<span className="flex items-center gap-2">
-									<span className="text-2xl md:text-3xl">
-										{open === i ? "🟠" : "🔸"}
-									</span>
+								<span
+									className={`text-lg md:text-xl font-semibold uppercase tracking-wider letter-spacing-wide transition-all duration-300 flex items-center gap-2 ${
+										open === i
+											? "text-cyan-400 dark:text-cyan-300 font-bold drop-shadow-cyan animate-pulse"
+											: "text-gray-900 dark:text-white"
+									}`}
+								>
 									{faq.q}
+									{/* Animated accent ✦ for open item */}
+									{open === i && (
+										<motion.span
+											className="ml-2 text-cyan-400 text-xl animate-float-slow"
+											initial={{ opacity: 0, y: -6 }}
+											animate={{ opacity: 1, y: 0 }}
+											exit={{ opacity: 0, y: -6 }}
+											transition={{ duration: 0.3 }}
+										/>
+									)}
 								</span>
-								<span className="ml-4 text-orange-400 text-3xl font-bold transition-transform group-hover:rotate-90">
-									{open === i ? "-" : "+"}
-								</span>
+								<motion.span
+									className={`ml-4 transition-transform ${open === i ? 'text-cyan-400 drop-shadow-cyan animate-float-slow' : 'text-gray-400 group-hover:text-cyan-400'}`}
+									animate={{ rotate: open === i ? 180 : 0 }}
+									whileHover={{ rotate: 25, scale: 1.25, color: '#06b6d4' }}
+								>
+									▾
+								</motion.span>
 							</button>
+							{/* Animated glowing underline accent for open item */}
+							<motion.div
+								className="absolute left-0 right-0 h-1 rounded-full bg-gradient-to-r from-cyan-400 via-cyan-300 to-cyan-400 shadow-cyan-400/30 shadow-lg"
+								initial={{ scaleX: 0 }}
+								animate={{ scaleX: open === i ? 1 : 0 }}
+								transition={{ duration: 0.35, type: 'spring' }}
+								style={{ originX: 0 }}
+								whileHover={{ scaleY: 1.3, background: 'linear-gradient(90deg,#06b6d4,#fff,#06b6d4)' }}
+							/>
 							<AnimatePresence initial={false}>
 								{open === i && (
 									<motion.div
-										key="content"
-										initial={{ height: 0, opacity: 0 }}
-										animate={{ height: "auto", opacity: 1 }}
-										exit={{ height: 0, opacity: 0 }}
+										initial={{ height: 0, opacity: 0, x: -20 }}
+										animate={{ height: "auto", opacity: 1, x: 0 }}
+										exit={{ height: 0, opacity: 0, x: 20 }}
 										transition={{ duration: 0.3 }}
-										className="overflow-hidden px-8 pb-6 text-orange-100 text-base md:text-lg mt-2"
+										className="overflow-hidden"
 									>
-										{faq.a}
+										<p className="text-base text-gray-700 dark:text-gray-200 mt-2 px-1 animate-pulse">
+											{faq.a}
+										</p>
 									</motion.div>
 								)}
 							</AnimatePresence>
