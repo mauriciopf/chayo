@@ -27,6 +27,9 @@ export default function Footer() {
         <p className="font-black tracking-widest uppercase bg-gradient-to-r from-orange-400 via-cyan-400 to-orange-600 bg-clip-text text-transparent drop-shadow-xl mb-2 text-xs xs:text-sm md:text-lg">
           © Agentic AI. All rights reserved.
         </p>
+        <p className="text-xs xs:text-sm text-gray-500 mb-3 font-medium tracking-wide">
+          Formerly as WappDevelopers S.A. de C.V.
+        </p>
         <div className="flex flex-col xs:flex-row items-center justify-center gap-2 xs:gap-4 mb-2">
           <p>
             Contact us: {" "}
