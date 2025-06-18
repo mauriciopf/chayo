@@ -12,30 +12,41 @@ const Header = ({ darkMode, setDarkMode }) => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <header className="fixed top-0 left-0 w-full z-50 px-2 md:px-8 py-2 md:py-4 flex justify-between items-center border-b border-gray-800 bg-black/60 backdrop-blur-xl shadow-lg">
-      {/* Animated orange glow behind logo + floating accent dots + animated gradient ring */}
+    <header className="fixed top-0 left-0 w-full z-50 px-2 md:px-8 py-2 md:py-4 flex justify-between items-center border-b border-gray-800 bg-black/70 backdrop-blur-2xl shadow-2xl">
+      {/* Layered animated gradients and glassy overlays for header */}
       <motion.div
-        className="absolute left-4 top-1/2 -translate-y-1/2 w-20 h-10 bg-orange-500 opacity-20 blur-2xl rounded-full z-0 pointer-events-none hidden sm:block"
-        animate={{ opacity: [0.15, 0.3, 0.15], scale: [1, 1.08, 1] }}
-        transition={{ duration: 3, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
+        className="absolute left-1/2 top-0 -translate-x-1/2 w-[60vw] h-20 bg-gradient-to-r from-orange-400 via-cyan-400 to-orange-600 opacity-30 blur-2xl rounded-full z-0 pointer-events-none hidden sm:block"
+        animate={{ opacity: [0.18, 0.32, 0.18], scale: [1, 1.08, 1] }}
+        transition={{ duration: 6, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
       />
-      <motion.span
-        className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-cyan-400 rounded-full blur-md opacity-60 animate-float-slow z-0 hidden sm:block"
-        animate={{ y: [0, -8, 8, 0], scale: [1, 1.2, 1] }} transition={{ duration: 4, repeat: Infinity }}
+      <motion.div
+        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[40vw] h-10 bg-gradient-to-r from-white/40 via-cyan-400/20 to-orange-400/20 opacity-20 blur-lg rounded-full z-0 pointer-events-none hidden sm:block"
+        animate={{ opacity: [0.12, 0.22, 0.12], scale: [1, 1.04, 1] }}
+        transition={{ duration: 8, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
       />
-      <motion.span
-        className="absolute left-16 top-1/3 w-2 h-2 bg-orange-400 rounded-full blur-md opacity-60 animate-float-slower z-0 hidden sm:block"
-        animate={{ x: [0, 6, -6, 0], scale: [1, 1.3, 1] }} transition={{ duration: 5, repeat: Infinity }}
-      />
-      <motion.span
-        className="absolute left-10 top-1/4 w-3 h-3 bg-white rounded-full blur-lg opacity-30 animate-float z-0 hidden sm:block"
-        animate={{ y: [0, 10, -10, 0], scale: [1, 1.15, 1] }} transition={{ duration: 6, repeat: Infinity }}
-      />
+      {/* Subtle floating accent dots */}
+      {[...Array(4)].map((_, i) => (
+        <motion.span
+          key={i}
+          className="absolute rounded-full blur-2xl hidden sm:block"
+          style={{
+            width: 12 + i * 4,
+            height: 12 + i * 4,
+            background: i % 2 === 0 ? '#E87811' : '#06b6d4',
+            top: `${30 + i * 8}%`,
+            left: `${10 + i * 20}%`,
+            opacity: 0.3 + (i % 2) * 0.1,
+            zIndex: 1,
+          }}
+          animate={{ y: [0, -6, 6, 0] }}
+          transition={{ duration: 6 + i, repeat: Infinity, repeatType: 'mirror', delay: i * 0.2 }}
+        />
+      ))}
       <div className="relative z-10 flex items-center gap-2">
-        {/* Elegant, editorial Agentic AI text (no interactivity, no blur) */}
+        {/* Ultra-premium, editorial Agentic AI text */}
         <span
-          className="font-extrabold text-lg md:text-2xl bg-gradient-to-r from-orange-400 via-cyan-400 to-orange-600 bg-clip-text text-transparent tracking-tight sm:inline-block px-6 py-2 rounded-2xl shadow-lg select-none cursor-default border-0"
-          style={{ letterSpacing: '0.08em', textShadow: '0 2px 12px #06b6d4, 0 0 4px #fff', filter: 'none' }}
+          className="font-black text-xl md:text-3xl bg-gradient-to-r from-orange-400 via-cyan-400 to-orange-600 bg-clip-text text-transparent tracking-widest sm:inline-block px-8 py-3 rounded-2xl shadow-2xl select-none cursor-default border-0 uppercase drop-shadow-[0_2px_24px_rgba(6,182,212,0.18)]"
+          style={{ letterSpacing: '0.16em', textShadow: '0 2px 24px #06b6d4, 0 0 8px #fff', filter: 'none' }}
         >
           <span className="relative z-10 font-black tracking-widest">
             <span className="pr-1">Agentic</span>

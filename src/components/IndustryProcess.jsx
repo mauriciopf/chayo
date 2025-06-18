@@ -39,39 +39,40 @@ const itemVariants = {
 
 export default function IndustryProcess() {
 	return (
-		<section id="industry-process" className="relative py-44 md:py-60 bg-transparent max-w-7xl mx-auto px-2 md:px-8 overflow-visible">
-			{/* Innovative animated background: layered gradients, floating lines, and accent dots */}
+		<section id="industry-process" className="relative py-56 md:py-[18rem] bg-transparent max-w-7xl mx-auto px-2 md:px-8 overflow-visible">
+			{/* Dramatic animated background: layered gradients, glassy overlays, floating lines, and accent dots */}
 			<motion.div
 				className="absolute inset-0 w-full h-full pointer-events-none z-0"
 				aria-hidden="true"
 			>
 				<motion.div
-					className="absolute left-1/2 top-0 -translate-x-1/2 w-[60vw] h-48 bg-gradient-to-r from-cyan-400 via-orange-400 to-cyan-400 opacity-20 blur-3xl rounded-full animate-float-slow"
-					animate={{ scale: [1, 1.08, 1], rotate: [0, 12, -12, 0] }}
+					className="absolute left-1/2 top-0 -translate-x-1/2 w-[70vw] h-64 bg-gradient-to-r from-cyan-400 via-orange-400 to-cyan-400 opacity-30 blur-3xl rounded-full animate-float-slow"
+					animate={{ scale: [1, 1.12, 1], rotate: [0, 16, -16, 0] }}
+					transition={{ duration: 12, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
+				/>
+				<motion.div
+					className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[50vw] h-24 bg-gradient-to-r from-white/40 via-cyan-400/20 to-orange-400/20 opacity-20 blur-lg rounded-full z-0 pointer-events-none"
+					animate={{ opacity: [0.12, 0.22, 0.12], scale: [1, 1.04, 1] }}
 					transition={{ duration: 10, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
 				/>
-				<motion.div
-					className="absolute left-0 top-1/3 w-1 h-1/2 bg-gradient-to-b from-cyan-400/40 via-white/0 to-orange-400/40 opacity-40 rounded-full"
-					animate={{ scaleY: [1, 1.2, 1], y: [0, 20, -20, 0] }}
-					transition={{ duration: 12, repeat: Infinity }}
-				/>
-				<motion.div
-					className="absolute right-0 top-1/4 w-1 h-1/2 bg-gradient-to-b from-orange-400/40 via-white/0 to-cyan-400/40 opacity-40 rounded-full"
-					animate={{ scaleY: [1, 1.15, 1], y: [0, -20, 20, 0] }}
-					transition={{ duration: 12, repeat: Infinity }}
-				/>
-				<motion.span
-					className="absolute left-1/4 top-1/3 w-8 h-8 bg-cyan-400 rounded-full blur-2xl opacity-30 animate-float-slow"
-					animate={{ y: [0, -24, 24, 0], scale: [1, 1.2, 1] }} transition={{ duration: 9, repeat: Infinity }}
-				/>
-				<motion.span
-					className="absolute right-1/4 top-1/2 w-6 h-6 bg-orange-400 rounded-full blur-xl opacity-30 animate-float-slower"
-					animate={{ y: [0, 18, -18, 0], scale: [1, 1.15, 1] }} transition={{ duration: 8, repeat: Infinity }}
-				/>
-				<motion.span
-					className="absolute left-1/2 bottom-1/4 w-4 h-4 bg-white rounded-full blur-lg opacity-20 animate-float"
-					animate={{ x: [0, 16, -16, 0], scale: [1, 1.1, 1] }} transition={{ duration: 10, repeat: Infinity }}
-				/>
+				{/* Floating accent dots */}
+				{[...Array(5)].map((_, i) => (
+					<motion.span
+						key={i}
+						className="absolute rounded-full blur-2xl"
+						style={{
+							width: 18 + i * 4,
+							height: 18 + i * 4,
+							background: i % 2 === 0 ? '#E87811' : '#06b6d4',
+							top: `${30 + i * 10}%`,
+							left: `${10 + i * 18}%`,
+							opacity: 0.3 + (i % 2) * 0.1,
+							zIndex: 1,
+						}}
+						animate={{ y: [0, -10, 10, 0] }}
+						transition={{ duration: 8 + i, repeat: Infinity, repeatType: 'mirror', delay: i * 0.2 }}
+					/>
+				))}
 			</motion.div>
 			<motion.h2
 				className="text-5xl md:text-7xl font-extrabold text-center mb-20 bg-gradient-to-r from-cyan-400 via-orange-400 to-cyan-400 bg-clip-text text-transparent drop-shadow-2xl tracking-widest uppercase"

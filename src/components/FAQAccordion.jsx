@@ -55,30 +55,35 @@ const sparks = [
 export default function FAQAccordion() {
 	const [open, setOpen] = useState(null);
 	return (
-		<section id="faq" className="relative max-w-3xl mx-auto my-24 px-2 sm:px-4">
-			{/* Remove orange background, keep only subtle gradients and floating sparkles */}
+		<section id="faq" className="relative max-w-4xl mx-auto my-32 px-2 sm:px-6">
+			{/* Dramatic animated gradient and glassy overlays for FAQ */}
 			<motion.div
-				className="absolute -top-24 left-1/2 -translate-x-1/2 w-full h-48 bg-gradient-to-r from-cyan-400 via-white/10 to-cyan-400 opacity-10 blur-3xl rounded-full z-0 animate-float-slow"
+				className="absolute -top-32 left-1/2 -translate-x-1/2 w-[60vw] h-40 bg-gradient-to-r from-cyan-400 via-orange-400 to-cyan-400 opacity-30 blur-3xl rounded-full z-0 animate-float-slow"
 				aria-hidden="true"
+				animate={{ scale: [1, 1.08, 1], rotate: [0, 8, -8, 0] }}
+				transition={{ duration: 8, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
+			/>
+			<motion.div
+				className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[40vw] h-16 bg-gradient-to-r from-white/40 via-cyan-400/20 to-orange-400/20 opacity-20 blur-lg rounded-full z-0 pointer-events-none"
+				animate={{ opacity: [0.12, 0.22, 0.12], scale: [1, 1.04, 1] }}
+				transition={{ duration: 10, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
 			/>
 			{/* Floating accent sparkles */}
-			{sparks.map((spark, i) => (
+			{[...Array(6)].map((_, i) => (
 				<motion.span
 					key={i}
 					className="absolute rounded-full blur-2xl"
 					style={{
-						width: 24,
-						height: 24,
-						background: spark.color,
-						top: spark.top,
-						left: spark.left,
-						opacity: 0.5,
+						width: 18 + i * 4,
+						height: 18 + i * 4,
+						background: i % 2 === 0 ? '#E87811' : '#06b6d4',
+						top: `${20 + i * 10}%`,
+						left: `${10 + i * 15}%`,
+						opacity: 0.3 + (i % 2) * 0.1,
 						zIndex: 1,
 					}}
-					initial="initial"
-					animate="animate"
-					variants={sparkVariants}
-					custom={i}
+					animate={{ y: [0, -10, 10, 0] }}
+					transition={{ duration: 7 + i, repeat: Infinity, repeatType: 'mirror', delay: i * 0.2 }}
 				/>
 			))}
 			<motion.div
