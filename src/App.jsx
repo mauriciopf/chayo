@@ -5,6 +5,7 @@ import Mascot from './components/Mascot';
 import Services from './components/Services';
 import PricingReplacement from './components/PricingReplacement';
 import PrivacyPolicy from './components/PrivacyPolicy';
+import Blog from './components/Blog';
 import './App.css'
 import AgenticAIHome from "./AgenticAIHome";
 
@@ -22,6 +23,7 @@ function App() {
         </>
       } />
       <Route path="/privacy" element={<PrivacyPolicy />} />
+      <Route path="/blog" element={<Blog />} />
     </Routes>
   );
 }
