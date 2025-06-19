@@ -42,6 +42,11 @@ const Contact = () => {
           company: formData.company,
           message: formData.message,
           _replyto: formData.email,
+          _subject: `New AI Consultation Request from ${formData.name}`,
+          _cc: "mauricio.perezflores@gmail.com",
+          _format: "plain",
+          _language: "en",
+          _next: "https://ageantic.ai/thank-you"
         }),
       });
 
