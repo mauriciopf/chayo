@@ -35,10 +35,10 @@ export default function AgenticAIHome() {
         {/* Open Graph Tags */}
         <meta property="og:title" content="Agentic AI – AI Automation & Business Intelligence Solutions" />
         <meta property="og:description" content="Transform your business with custom AI automation. Expert consulting, chatbot development, and 24/7 AI agents. Scale instantly with 60% cost reduction." />
-        <meta property="og:image" content="https://agentic.ai/agentic-logo.svg" />
+        <meta property="og:image" content="https://ageantic.ai/agentic-logo.svg" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
-        <meta property="og:url" content="https://agentic.ai" />
+        <meta property="og:url" content="https://ageantic.ai" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Agentic AI" />
         <meta property="og:locale" content="en_US" />
@@ -47,7 +47,7 @@ export default function AgenticAIHome() {
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Agentic AI – AI Automation & Business Intelligence Solutions" />
         <meta name="twitter:description" content="Transform your business with custom AI automation. Expert consulting, chatbot development, and 24/7 AI agents." />
-        <meta name="twitter:image" content="https://agentic.ai/agentic-logo.svg" />
+        <meta name="twitter:image" content="https://ageantic.ai/agentic-logo.svg" />
         
         {/* Business & Local SEO */}
         <meta name="geo.region" content="US" />
@@ -57,7 +57,7 @@ export default function AgenticAIHome() {
         {/* Additional SEO Meta Tags */}
         <meta name="theme-color" content="#E87811" />
         <meta name="msapplication-TileColor" content="#E87811" />
-        <link rel="canonical" href="https://agentic.ai" />
+        <link rel="canonical" href="https://ageantic.ai" />
         
         <html lang="en" />
         <script type="application/ld+json">{`
@@ -66,8 +66,8 @@ export default function AgenticAIHome() {
             "@type": "Organization",
             "name": "Agentic AI",
             "alternateName": "Agentic Artificial Intelligence",
-            "url": "https://agentic.ai",
-            "logo": "https://agentic.ai/agentic-logo.svg",
+            "url": "https://ageantic.ai",
+            "logo": "https://ageantic.ai/agentic-logo.svg",
             "sameAs": [
               "https://mauriciopf.github.io/ageantic/"
             ],
@@ -111,10 +111,10 @@ export default function AgenticAIHome() {
             "@context": "https://schema.org",
             "@type": "WebSite",
             "name": "Agentic AI",
-            "url": "https://agentic.ai",
+            "url": "https://ageantic.ai",
             "potentialAction": {
               "@type": "SearchAction",
-              "target": "https://agentic.ai/?s={search_term_string}",
+              "target": "https://ageantic.ai/?s={search_term_string}",
               "query-input": "required name=search_term_string"
             }
           }

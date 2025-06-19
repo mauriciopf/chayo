@@ -3,7 +3,7 @@ export const additionalSchema = {
   "@type": "LocalBusiness",
   "name": "Agentic AI",
   "description": "Expert AI automation and consulting services for business transformation",
-  "url": "https://agentic.ai",
+  "url": "https://ageantic.ai",
   "telephone": "Contact via email",
   "email": "mauricio.perezflores@gmail.com",
   "areaServed": "Worldwide",
