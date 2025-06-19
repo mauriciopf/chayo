@@ -22,32 +22,135 @@ export default function AgenticAIHome() {
   return (
     <div className="min-h-screen bg-black text-white transition-colors duration-700">
       <Helmet>
-        <title>Agentic AI – Lead the Era of Intelligence</title>
+        <title>Agentic AI – AI Automation & Business Intelligence Solutions | Custom AI Development</title>
         <meta
           name="description"
-          content="Agentic AI helps you lead the era of intelligence with cutting-edge artificial intelligence services, automation, and business solutions."
+          content="Transform your business with custom AI automation solutions. Expert AI consulting, chatbot development, and process automation services. Scale instantly with 24/7 AI agents. Get 60% cost reduction."
         />
-        <meta name="keywords" content="Agentic AI, Artificial Intelligence, AI Solutions, Automation, Business Intelligence, Machine Learning" />
+        <meta name="keywords" content="AI automation, AI consulting services, business automation solutions, AI implementation, custom AI development, AI chatbots for business, process automation, AI transformation consulting, business intelligence, machine learning solutions, AI agents, automated customer service" />
         <meta name="author" content="Agentic AI" />
-        <meta property="og:title" content="Agentic AI – Lead the Era of Intelligence" />
-        <meta property="og:description" content="AI-powered innovation for modern businesses. Automate, scale, and thrive with Agentic AI." />
-        <meta property="og:image" content="/agentic-logo.svg" />
+        <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+        <meta name="googlebot" content="index, follow" />
+        
+        {/* Open Graph Tags */}
+        <meta property="og:title" content="Agentic AI – AI Automation & Business Intelligence Solutions" />
+        <meta property="og:description" content="Transform your business with custom AI automation. Expert consulting, chatbot development, and 24/7 AI agents. Scale instantly with 60% cost reduction." />
+        <meta property="og:image" content="https://agentic.ai/agentic-logo.svg" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
         <meta property="og:url" content="https://agentic.ai" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Agentic AI" />
+        <meta property="og:locale" content="en_US" />
+        
+        {/* Twitter Card Tags */}
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Agentic AI – AI Automation & Business Intelligence Solutions" />
+        <meta name="twitter:description" content="Transform your business with custom AI automation. Expert consulting, chatbot development, and 24/7 AI agents." />
+        <meta name="twitter:image" content="https://agentic.ai/agentic-logo.svg" />
+        
+        {/* Business & Local SEO */}
+        <meta name="geo.region" content="US" />
+        <meta name="geo.placename" content="United States" />
+        <meta name="ICBM" content="39.8283, -98.5795" />
+        
+        {/* Additional SEO Meta Tags */}
+        <meta name="theme-color" content="#E87811" />
+        <meta name="msapplication-TileColor" content="#E87811" />
+        <link rel="canonical" href="https://agentic.ai" />
+        
         <html lang="en" />
         <script type="application/ld+json">{`
           {
             "@context": "https://schema.org",
             "@type": "Organization",
             "name": "Agentic AI",
+            "alternateName": "Agentic Artificial Intelligence",
             "url": "https://agentic.ai",
             "logo": "https://agentic.ai/agentic-logo.svg",
+            "sameAs": [
+              "https://mauriciopf.github.io/ageantic/"
+            ],
             "contactPoint": {
               "@type": "ContactPoint",
               "email": "mauricio.perezflores@gmail.com",
               "contactType": "Customer Support",
               "areaServed": "Worldwide",
               "availableLanguage": ["English", "Spanish"]
+            },
+            "foundingDate": "2024",
+            "description": "Expert AI automation and business intelligence solutions. Custom AI development, chatbot services, and process automation for modern businesses.",
+            "keywords": "AI automation, AI consulting, business automation, AI chatbots, process automation, AI implementation",
+            "services": [
+              {
+                "@type": "Service",
+                "name": "AI Automation Agents",
+                "description": "24/7 intelligent agents that automate customer service, lead generation, and business processes"
+              },
+              {
+                "@type": "Service", 
+                "name": "Custom AI Solutions",
+                "description": "Tailored AI implementations designed specifically for your business needs and industry"
+              },
+              {
+                "@type": "Service",
+                "name": "AI Consulting & Strategy",
+                "description": "Expert guidance on AI transformation, implementation roadmaps, and business optimization"
+              }
+            ],
+            "offers": {
+              "@type": "Offer",
+              "description": "Custom AI automation solutions with 60% cost reduction and 24/7 service capabilities",
+              "availability": "InStock"
+            }
+          }
+        `}</script>
+        
+        <script type="application/ld+json">{`
+          {
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            "name": "Agentic AI",
+            "url": "https://agentic.ai",
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": "https://agentic.ai/?s={search_term_string}",
+              "query-input": "required name=search_term_string"
+            }
+          }
+        `}</script>
+        
+        <script type="application/ld+json">{`
+          {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "How fast can Agentic AI deploy automation for my business?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "We deploy AI automation solutions in as little as 2-4 weeks, depending on complexity. Our rapid deployment process includes consultation, custom development, testing, and full integration with your existing systems."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "What business outcomes can I expect from AI automation?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Our clients typically see up to 60% cost reduction, 24/7 instant customer service capabilities, and the ability to scale their team instantly as their business grows."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "What industries benefit from AI automation?",
+                "acceptedAnswer": {
+                  "@type": "Answer", 
+                  "text": "E-commerce, healthcare, real estate, and professional services all benefit from our tailored AI automation solutions. We customize our approach for each industry's specific needs."
+                }
+              }
+            ]
+          }
             },
             "sameAs": [
               "https://www.instagram.com/agenticai"

@@ -5,17 +5,17 @@ const services = [
 	{
 		title: "AI Automation Agents",
 		icon: "🤖",
-		description: "Custom AI agents for support, sales, and operations.",
+		description: "24/7 intelligent AI chatbots and automation agents for customer support, lead generation, and business process optimization.",
 	},
 	{
-		title: "Omnichannel Messaging",
+		title: "Custom AI Development",
 		icon: "💬",
-		description: "Automate conversations across Instagram, WhatsApp, SMS, and more.",
+		description: "Tailored AI solutions including chatbot development, process automation, and AI implementation for your specific business needs.",
 	},
 	{
-		title: "Data Insights & Analytics",
+		title: "Business Intelligence & Analytics",
 		icon: "📊",
-		description: "Unlock actionable insights and automate reporting.",
+		description: "AI-powered data insights, automated reporting, and business intelligence solutions to drive informed decision-making.",
 	},
 	{
 		title: "Custom Integrations",

@@ -73,8 +73,8 @@ const Hero = () => (
         animate="visible"
         variants={heroVariants}
       >
-        <span className="block text-white/90 tracking-widest">Lead the Era of</span>
-        <span className="block bg-gradient-to-r from-orange-400 via-cyan-400 to-violet-500 bg-clip-text text-transparent">Intelligence</span>
+        <span className="block text-white/90 tracking-widest">AI Automation</span>
+        <span className="block bg-gradient-to-r from-orange-400 via-cyan-400 to-violet-500 bg-clip-text text-transparent">Solutions</span>
       </motion.h1>
       <motion.p
         className="text-base xs:text-lg sm:text-2xl md:text-3xl mb-8 sm:mb-14 text-white/80 max-w-xs xs:max-w-sm sm:max-w-xl md:max-w-2xl mx-auto drop-shadow-lg font-light tracking-wide"
@@ -82,7 +82,7 @@ const Hero = () => (
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5, duration: 1 }}
       >
-        <span className="bg-gradient-to-r from-orange-400 via-cyan-400 to-violet-500 bg-clip-text text-transparent font-semibold">AI for visionaries</span> — automate, optimize, and innovate with <span className="text-orange-400 font-semibold">Agentic AI</span>.
+        <span className="bg-gradient-to-r from-orange-400 via-cyan-400 to-violet-500 bg-clip-text text-transparent font-semibold">Custom AI Development</span> — Transform your business with intelligent automation, chatbots, and <span className="text-orange-400 font-semibold">24/7 AI agents</span>.
       </motion.p>
       <motion.a
         href="#contact"
