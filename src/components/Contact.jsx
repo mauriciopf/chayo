@@ -13,6 +13,8 @@ const Contact = () => {
     message: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
   const [focus, setFocus] = useState("");
 
   const handleChange = (e) => {
@@ -22,10 +24,43 @@ const Contact = () => {
   const handleFocus = (field) => setFocus(field);
   const handleBlur = () => setFocus("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
-    // No backend, so just simulate submit
+    setIsSubmitting(true);
+    setError("");
+
+    try {
+      // Replace YOUR_FORM_ID with your actual Formspree form ID
+      const response = await fetch("https://formspree.io/f/YOUR_FORM_ID", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          company: formData.company,
+          message: formData.message,
+          _replyto: formData.email,
+        }),
+      });
+
+      if (response.ok) {
+        setSubmitted(true);
+        setFormData({
+          name: "",
+          email: "",
+          company: "",
+          message: "",
+        });
+      } else {
+        throw new Error("Failed to send message");
+      }
+    } catch (err) {
+      setError("Failed to send message. Please try again or contact us directly at mauricio.perezflores@gmail.com");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -44,14 +79,25 @@ const Contact = () => {
         </h2>
         {submitted ? (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center text-green-500 font-semibold text-lg mt-8"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="text-center text-green-400 font-semibold text-lg mt-8 p-6 bg-green-400/10 rounded-xl border border-green-400/20"
           >
+            <div className="text-2xl mb-2">✅</div>
             Thank you for reaching out! We will get back to you soon.
           </motion.div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-8 w-full">
+          <div className="w-full">
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-center text-red-400 font-medium text-sm mb-6 p-4 bg-red-400/10 rounded-xl border border-red-400/20"
+              >
+                {error}
+              </motion.div>
+            )}
+            <form onSubmit={handleSubmit} className="space-y-8 w-full">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <motion.div
                 animate={focus === "name" ? "focus" : ""}
@@ -130,12 +176,24 @@ const Contact = () => {
             <div className="flex justify-center">
               <button
                 type="submit"
-                className="bg-gradient-to-r from-orange-400 via-cyan-400 to-orange-400 text-white font-bold py-3 px-10 rounded-full shadow-lg hover:scale-105 transition-transform text-lg"
+                disabled={isSubmitting}
+                className="bg-gradient-to-r from-orange-400 via-cyan-400 to-orange-400 text-white font-bold py-3 px-10 rounded-full shadow-lg hover:scale-105 transition-transform text-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
-                Send Message
+                {isSubmitting ? (
+                  <span className="flex items-center">
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Sending...
+                  </span>
+                ) : (
+                  "Send Message"
+                )}
               </button>
             </div>
-          </form>
+            </form>
+          </div>
         )}
       </div>
     </section>
