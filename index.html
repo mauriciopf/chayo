@@ -16,14 +16,26 @@
     <!-- DNS Prefetch for Performance -->
     <link rel="dns-prefetch" href="//fonts.googleapis.com" />
     <link rel="dns-prefetch" href="//formspree.io" />
+    <link rel="dns-prefetch" href="//unpkg.com" />
     
     <!-- Preconnect for Critical Resources -->
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
-    <script type="module" crossorigin src="/assets/index-63c06228.js"></script>
-    <link rel="stylesheet" href="/assets/index-f7166956.css">
+    
+    <!-- ElevenLabs ConvAI Widget Script -->
+    <script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
+    <script type="module" crossorigin src="/assets/index-e9172062.js"></script>
+    <link rel="stylesheet" href="/assets/index-261614f8.css">
   </head>
   <body>
     <div id="root"></div>
+    
+    <!-- ElevenLabs ConvAI Widget - Floating Call-to-Action -->
+    <elevenlabs-convai 
+      agent-id="agent_01jyc95f0be1v9xww6h31366mw"
+      style="position: fixed; bottom: 24px; right: 24px; z-index: 1000; border-radius: 50%; box-shadow: 0 8px 32px rgba(232, 120, 17, 0.3); transition: all 0.3s ease;"
+      title="Talk to our AI Agent - Click to start a conversation"
+    ></elevenlabs-convai>
+    
     
   </body>
 </html>
