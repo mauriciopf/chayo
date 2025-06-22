@@ -5,14 +5,12 @@ import Contact from "./components/Contact";
 import Footer from "./components/Footer";
 import { motion } from "framer-motion";
 import AnimatedCounter from "./components/AnimatedCounter";
-import DemoModal from "./components/DemoModal";
 import FAQAccordion from "./components/FAQAccordion";
 import ScrollToTopButton from "./components/ScrollToTopButton";
 import IndustryProcess from "./components/IndustryProcess";
 
 export default function AgenticAIHome() {
   const [darkMode, setDarkMode] = useState(true);
-  const [demoOpen, setDemoOpen] = useState(false);
 
   useEffect(() => {
     document.body.className = darkMode ? "dark" : "";
@@ -160,15 +158,6 @@ export default function AgenticAIHome() {
       </Helmet>
 
       <Header darkMode={darkMode} setDarkMode={setDarkMode} />
-      {/* Floating Try Demo Button */}
-      <button
-        className="fixed bottom-6 right-6 z-40 bg-gradient-to-r from-orange-400 to-orange-600 text-white px-6 py-3 rounded-full shadow-xl font-bold text-lg hover:from-orange-500 hover:to-orange-700 transition-all animate-bounce focus:outline-none focus:ring-4 focus:ring-orange-400/50"
-        onClick={() => setDemoOpen(true)}
-        aria-label="Try Agentic AI Demo"
-      >
-        🤖 Try AI Demo
-      </button>
-      <DemoModal open={demoOpen} onClose={() => setDemoOpen(false)} />
       <ScrollToTopButton />
 
       <main className="pt-20 max-w-7xl mx-auto px-2 md:px-8 space-y-24 bg-black text-white">
