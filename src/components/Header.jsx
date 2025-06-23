@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
+const Header = ({ darkMode, setDarkMode }) => {
+  const [menuOpen, setMenuOpen] = useState(false);
+
 const navLinks = [
   { href: "#services", label: "Services" },
   { href: "#industry-process", label: "How It Works" },
   { href: "#faq", label: "FAQ" },
-  { href: "#contact", label: "Let’s Talk" },
-];
-
-const Header = ({ darkMode, setDarkMode }) => {
-  const [menuOpen, setMenuOpen] = useState(false);
+  { href: "/startaicall", label: "Start AI Call", isButton: true },
+  { href: "#contact", label: "Let's Talk" }]
 
   return (
     <header className="fixed top-0 left-0 w-full z-50 px-2 xs:px-4 md:px-8 py-2 xs:py-3 md:py-4 flex justify-between items-center border-b border-gray-800 bg-black/80 backdrop-blur-xl shadow-2xl">
@@ -43,21 +43,37 @@ const Header = ({ darkMode, setDarkMode }) => {
         />
       ))}
       <div className="relative z-10 flex items-center gap-2">
-        {/* Ultra-premium, editorial Agentic AI text - mobile font size and padding */}
-        <span
-          className="font-black text-lg xs:text-xl md:text-3xl bg-gradient-to-r from-orange-400 via-cyan-400 to-orange-600 bg-clip-text text-transparent tracking-widest sm:inline-block px-4 xs:px-6 md:px-8 py-2 xs:py-3 md:py-3 rounded-2xl shadow-2xl select-none cursor-default border-0 uppercase drop-shadow-[0_2px_24px_rgba(6,182,212,0.18)]"
-          style={{ letterSpacing: '0.13em', textShadow: '0 2px 16px #06b6d4, 0 0 4px #fff', filter: 'none' }}
+        {/* Professional Logo Design */}
+        <motion.div 
+          className="flex items-center gap-3 group cursor-pointer"
+          whileHover={{ scale: 1.02 }}
+          onClick={() => window.location.href = '/'}
         >
-          <span className="relative z-10 font-black tracking-widest">
-            <span className="pr-1">Agentic</span>
-            <span className="font-black italic underline decoration-wavy decoration-cyan-300/80 text-cyan-200">AI</span>
-          </span>
-          {/* Elegant underline accent */}
-          <span
-            className="absolute left-0 -bottom-1 w-full h-1 bg-gradient-to-r from-cyan-300 via-orange-200 to-cyan-200 rounded-full opacity-70 shadow-lg"
-            style={{ display: 'block' }}
-          />
-        </span>
+          {/* Professional Logo Icon */}
+          <motion.div 
+            className="relative w-10 h-10 sm:w-12 sm:h-12"
+            animate={{ rotate: [0, 1, -1, 0] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-orange-400 to-cyan-400 rounded-xl opacity-90 shadow-lg" />
+            <div className="absolute inset-1 bg-black rounded-lg flex items-center justify-center">
+              <span className="text-white font-black text-lg sm:text-xl">A</span>
+            </div>
+          </motion.div>
+          
+          {/* Enhanced Agentic AI text */}
+          <div className="flex flex-col">
+            <span
+              className="font-black text-lg xs:text-xl md:text-2xl bg-gradient-to-r from-orange-400 via-cyan-400 to-orange-600 bg-clip-text text-transparent tracking-wide group-hover:scale-105 transition-transform select-none"
+              style={{ letterSpacing: '0.1em' }}
+            >
+              Agentic AI
+            </span>
+            <span className="text-xs text-white/60 font-light tracking-wider hidden sm:block">
+              Neural Intelligence
+            </span>
+          </div>
+        </motion.div>
       </div>
       {/* Hamburger for mobile */}
       <button
@@ -81,23 +97,48 @@ const Header = ({ darkMode, setDarkMode }) => {
       {/* Desktop nav */}
       <nav className="hidden md:flex gap-6 text-sm font-medium items-center relative z-10">
         {navLinks.map((link, idx) => (
-          <motion.a
-            key={link.href}
-            href={link.href}
-            className="relative px-2 py-1 text-white group"
-            whileHover={{ scale: 1.13, y: -2, color: '#06b6d4', textShadow: '0 2px 16px #06b6d4' }}
-            transition={{ type: 'spring', stiffness: 400, damping: 22 }}
-            initial="rest"
-            animate="rest"
-            variants={{}}
-          >
-            <span>{link.label}</span>
-            <motion.span
-              className="absolute left-0 -bottom-1 w-full h-0.5 bg-gradient-to-r from-orange-400 to-orange-600 scale-x-0 group-hover:scale-x-100 transition-transform origin-left rounded-full"
-              layoutId="nav-underline"
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            />
-          </motion.a>
+          link.isButton ? (
+            <motion.a
+              key={link.href}
+              href={link.href}
+              className="relative px-6 py-2.5 bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white font-medium text-sm tracking-wide hover:bg-white/10 hover:border-white/20 transition-all duration-300 group"
+              whileHover={{ 
+                scale: 1.02,
+                y: -1
+              }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <span className="relative z-10">{link.label}</span>
+              
+              {/* Subtle hover glow */}
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-white/5 via-white/10 to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-lg"
+              />
+              
+              {/* Minimal active indicator */}
+              <motion.div
+                className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-white/60 group-hover:w-1/2 transition-all duration-300 -translate-x-1/2 rounded-full"
+              />
+            </motion.a>
+          ) : (
+            <motion.a
+              key={link.href}
+              href={link.href}
+              className="relative px-2 py-1 text-white group"
+              whileHover={{ scale: 1.13, y: -2, color: '#06b6d4', textShadow: '0 2px 16px #06b6d4' }}
+              transition={{ type: 'spring', stiffness: 400, damping: 22 }}
+              initial="rest"
+              animate="rest"
+              variants={{}}
+            >
+              <span>{link.label}</span>
+              <motion.span
+                className="absolute left-0 -bottom-1 w-full h-0.5 bg-gradient-to-r from-orange-400 to-orange-600 scale-x-0 group-hover:scale-x-100 transition-transform origin-left rounded-full"
+                layoutId="nav-underline"
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              />
+            </motion.a>
+          )
         ))}
         <motion.button
           onClick={() => setDarkMode(!darkMode)}
@@ -124,23 +165,46 @@ const Header = ({ darkMode, setDarkMode }) => {
             className="fixed top-0 left-0 w-full bg-black/95 backdrop-blur-lg shadow-lg flex flex-col items-center py-8 gap-6 text-lg font-semibold z-40"
           >
             {navLinks.map((link) => (
-              <motion.a
-                key={link.href}
-                href={link.href}
-                className="relative px-2 py-1 text-white group"
-                whileHover="hover"
-                initial="rest"
-                animate="rest"
-                variants={{}}
-                onClick={() => setMenuOpen(false)}
-              >
-                <span>{link.label}</span>
-                <motion.span
-                  className="absolute left-0 -bottom-1 w-full h-0.5 bg-gradient-to-r from-orange-400 to-orange-600 scale-x-0 group-hover:scale-x-100 transition-transform origin-left rounded-full"
-                  layoutId="nav-underline-mobile"
-                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                />
-              </motion.a>
+              link.isButton ? (
+                <motion.a
+                  key={link.href}
+                  href={link.href}
+                  className="relative px-8 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white font-medium text-base tracking-wide hover:bg-white/10 hover:border-white/20 transition-all duration-300 group"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <span className="relative z-10">{link.label}</span>
+                  
+                  {/* Subtle hover glow */}
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-white/5 via-white/10 to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-lg"
+                  />
+                  
+                  {/* Minimal active indicator */}
+                  <motion.div
+                    className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-white/60 group-hover:w-1/3 transition-all duration-300 -translate-x-1/2 rounded-full"
+                  />
+                </motion.a>
+              ) : (
+                <motion.a
+                  key={link.href}
+                  href={link.href}
+                  className="relative px-2 py-1 text-white group"
+                  whileHover="hover"
+                  initial="rest"
+                  animate="rest"
+                  variants={{}}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <span>{link.label}</span>
+                  <motion.span
+                    className="absolute left-0 -bottom-1 w-full h-0.5 bg-gradient-to-r from-orange-400 to-orange-600 scale-x-0 group-hover:scale-x-100 transition-transform origin-left rounded-full"
+                    layoutId="nav-underline-mobile"
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  />
+                </motion.a>
+              )
             ))}
             <motion.button
               onClick={() => { setDarkMode(!darkMode); setMenuOpen(false); }}
