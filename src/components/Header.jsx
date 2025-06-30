@@ -12,7 +12,11 @@ const navLinks = [
   { href: "#contact", label: "Let's Talk" }]
 
   return (
-    <header className="fixed top-0 left-0 w-full z-50 px-2 xs:px-4 md:px-8 py-2 xs:py-3 md:py-4 flex justify-between items-center border-b border-gray-800 bg-black/80 backdrop-blur-xl shadow-2xl">
+    <header className={`fixed top-0 left-0 w-full z-50 px-2 xs:px-4 md:px-8 py-2 xs:py-3 md:py-4 flex justify-between items-center border-b shadow-2xl transition-all duration-300 ${
+      darkMode 
+        ? 'border-gray-800 bg-black/80 backdrop-blur-xl' 
+        : 'border-gray-200 bg-white/80 backdrop-blur-xl'
+    }`}>
       {/* Layered animated gradients and glassy overlays for header - hide on mobile */}
       <motion.div
         className="absolute left-1/2 top-0 -translate-x-1/2 w-[90vw] sm:w-[60vw] h-12 sm:h-20 bg-gradient-to-r from-orange-400 via-cyan-400 to-orange-600 opacity-30 blur-2xl rounded-full z-0 pointer-events-none hidden xs:block"
@@ -101,7 +105,11 @@ const navLinks = [
             <motion.a
               key={link.href}
               href={link.href}
-              className="relative px-6 py-2.5 bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white font-medium text-sm tracking-wide hover:bg-white/10 hover:border-white/20 transition-all duration-300 group"
+              className={`relative px-6 py-2.5 backdrop-blur-sm border rounded-lg font-medium text-sm tracking-wide transition-all duration-300 group ${
+                darkMode 
+                  ? 'bg-white/5 border-white/10 text-white hover:bg-white/10 hover:border-white/20' 
+                  : 'bg-black/5 border-black/10 text-gray-900 hover:bg-black/10 hover:border-black/20'
+              }`}
               whileHover={{ 
                 scale: 1.02,
                 y: -1
@@ -117,14 +125,18 @@ const navLinks = [
               
               {/* Minimal active indicator */}
               <motion.div
-                className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-white/60 group-hover:w-1/2 transition-all duration-300 -translate-x-1/2 rounded-full"
+                className={`absolute bottom-0 left-1/2 w-0 h-0.5 group-hover:w-1/2 transition-all duration-300 -translate-x-1/2 rounded-full ${
+                  darkMode ? 'bg-white/60' : 'bg-black/60'
+                }`}
               />
             </motion.a>
           ) : (
             <motion.a
               key={link.href}
               href={link.href}
-              className="relative px-2 py-1 text-white group"
+              className={`relative px-2 py-1 group ${
+                darkMode ? 'text-white' : 'text-gray-900'
+              }`}
               whileHover={{ scale: 1.13, y: -2, color: '#06b6d4', textShadow: '0 2px 16px #06b6d4' }}
               transition={{ type: 'spring', stiffness: 400, damping: 22 }}
               initial="rest"
@@ -142,7 +154,11 @@ const navLinks = [
         ))}
         <motion.button
           onClick={() => setDarkMode(!darkMode)}
-          className="ml-4 text-xs px-3 py-2 border border-orange-500 rounded bg-black/60 backdrop-blur hover:bg-orange-500 hover:text-white transition relative overflow-hidden shadow-orange-500/30 shadow-md"
+          className={`ml-4 text-xs px-3 py-2 border rounded backdrop-blur transition relative overflow-hidden shadow-md ${
+            darkMode 
+              ? 'border-orange-500 bg-black/60 hover:bg-orange-500 hover:text-white shadow-orange-500/30' 
+              : 'border-blue-500 bg-white/60 hover:bg-blue-500 hover:text-white shadow-blue-500/30 text-gray-900'
+          }`}
           whileHover={{ scale: 1.08, boxShadow: "0 0 16px #E87811" }}
           whileTap={{ scale: 0.96 }}
           aria-label="Toggle Dark Mode"
@@ -162,14 +178,20 @@ const navLinks = [
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: -60, opacity: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="fixed top-0 left-0 w-full bg-black/95 backdrop-blur-lg shadow-lg flex flex-col items-center py-8 gap-6 text-lg font-semibold z-40"
+            className={`fixed top-0 left-0 w-full backdrop-blur-lg shadow-lg flex flex-col items-center py-8 gap-6 text-lg font-semibold z-40 ${
+              darkMode ? 'bg-black/95' : 'bg-white/95'
+            }`}
           >
             {navLinks.map((link) => (
               link.isButton ? (
                 <motion.a
                   key={link.href}
                   href={link.href}
-                  className="relative px-8 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg text-white font-medium text-base tracking-wide hover:bg-white/10 hover:border-white/20 transition-all duration-300 group"
+                  className={`relative px-8 py-3 backdrop-blur-sm border rounded-lg font-medium text-base tracking-wide transition-all duration-300 group ${
+                    darkMode 
+                      ? 'bg-white/5 border-white/10 text-white hover:bg-white/10 hover:border-white/20' 
+                      : 'bg-black/5 border-black/10 text-gray-900 hover:bg-black/10 hover:border-black/20'
+                  }`}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setMenuOpen(false)}
@@ -183,14 +205,18 @@ const navLinks = [
                   
                   {/* Minimal active indicator */}
                   <motion.div
-                    className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-white/60 group-hover:w-1/3 transition-all duration-300 -translate-x-1/2 rounded-full"
+                    className={`absolute bottom-0 left-1/2 w-0 h-0.5 group-hover:w-1/3 transition-all duration-300 -translate-x-1/2 rounded-full ${
+                      darkMode ? 'bg-white/60' : 'bg-black/60'
+                    }`}
                   />
                 </motion.a>
               ) : (
                 <motion.a
                   key={link.href}
                   href={link.href}
-                  className="relative px-2 py-1 text-white group"
+                  className={`relative px-2 py-1 group ${
+                    darkMode ? 'text-white' : 'text-gray-900'
+                  }`}
                   whileHover="hover"
                   initial="rest"
                   animate="rest"

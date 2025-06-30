@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Helmet } from "react-helmet";
 import { useState, useEffect } from "react";
 
-export default function StartACall() {
+export default function StartACall({ darkMode = true, setDarkMode }) {
   const [widgetReady, setWidgetReady] = useState(false);
 
   useEffect(() => {
@@ -285,7 +285,11 @@ export default function StartACall() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-gray-950 text-white flex items-center justify-center p-8">
+    <div className={`min-h-screen flex items-center justify-center p-8 transition-all duration-300 ${
+      darkMode 
+        ? 'bg-gradient-to-br from-gray-950 via-slate-900 to-gray-950 text-white' 
+        : 'bg-gradient-to-br from-gray-50 via-white to-gray-100 text-gray-900'
+    }`}>
       <Helmet>
         <title>Start Your AI Call - Agentic AI</title>
         <meta name="description" content="Connect with our AI agent for instant business consultation" />
@@ -302,7 +306,9 @@ export default function StartACall() {
         </motion.h1>
         
         <motion.p
-          className="text-xl mb-12 text-gray-300"
+          className={`text-xl mb-12 transition-colors duration-300 ${
+            darkMode ? 'text-gray-300' : 'text-gray-600'
+          }`}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.8 }}
@@ -318,7 +324,11 @@ export default function StartACall() {
         >
           <motion.a
             href="/"
-            className="text-cyan-400 hover:text-cyan-300 transition-colors"
+            className={`transition-colors ${
+              darkMode 
+                ? 'text-cyan-400 hover:text-cyan-300' 
+                : 'text-blue-600 hover:text-blue-500'
+            }`}
             whileHover={{ scale: 1.05 }}
           >
             ← Back to Home

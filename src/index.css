@@ -2,11 +2,50 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Root variables for theme colors */
+:root {
+  --bg-primary: #000000;
+  --bg-secondary: #111111;
+  --text-primary: #ffffff;
+  --text-secondary: #e5e5e5;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --font-sans: 'Inter', 'Segoe UI', 'Helvetica Neue', system-ui, sans-serif;
+}
+
+/* Light mode variables */
+.light {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --text-primary: #1a1a1a;
+  --text-secondary: #4a5568;
+  --border-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Dark mode variables */
+.dark {
+  --bg-primary: #000000;
+  --bg-secondary: #111111;
+  --text-primary: #ffffff;
+  --text-secondary: #e5e5e5;
+  --border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Base typography improvements */
+body {
+  font-family: var(--font-sans);
+  font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
+}
+
 html, body {
   overflow-x: hidden;
-  background: #000;
   min-height: 100vh;
   scroll-behavior: smooth;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 body {
@@ -14,8 +53,6 @@ body {
   min-width: 320px;
   min-height: 100vh;
   font-family: 'Inter', 'Montserrat', 'Segoe UI', Arial, sans-serif;
-  color: #fff;
-  background: none;
 }
 
 .section-glass {
@@ -121,7 +158,6 @@ button:hover {
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
-    background-color: #ffffff;
   }
   a:hover {
     color: #747bff;

@@ -1,159 +1,189 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 
-const industries = [
-	{ title: "Customer AI", icon: "💬", tagline: "Instant support, always on." },
-	{ title: "Analytics", icon: "🔮", tagline: "Smarter decisions, faster." },
-	{ title: "Marketing", icon: "📈", tagline: "Automated, targeted growth." },
-	{ title: "Voice & Messaging", icon: "📞", tagline: "Omnichannel, seamless." },
-	{ title: "Booking", icon: "🛒", tagline: "Frictionless scheduling." },
-	{ title: "Integrations", icon: "🔗", tagline: "Connect everything." },
-];
-
 const steps = [
-	{ title: "Consultation", icon: "🧑‍💼", tagline: "We listen, strategize, and plan." },
-	{ title: "Data & Training", icon: "📊", tagline: "Your data, our expertise." },
-	{ title: "AI Build", icon: "🤖", tagline: "Custom AI, built for you." },
-	{ title: "Deploy", icon: "🚀", tagline: "Go live, instantly." },
-	{ title: "Support", icon: "🔄", tagline: "Continuous improvement." },
+	{ title: "Consultation", icon: "🤝", description: "Understanding your unique business needs and AI opportunities" },
+	{ title: "Strategy", icon: "�", description: "Designing tailored AI solutions that align with your goals" },
+	{ title: "Development", icon: "⚙️", description: "Building and testing your custom AI systems" },
+	{ title: "Deployment", icon: "�", description: "Seamless integration and go-live support" }
 ];
 
-const containerVariants = {
-	hidden: {},
-	show: {
-		transition: {
-			staggerChildren: 0.15,
-		},
-	},
-};
+const industries = [
+	{ title: "E-commerce", icon: "�", description: "Automated customer service and order management" },
+	{ title: "Healthcare", icon: "🏥", description: "Patient scheduling and support automation" },
+	{ title: "Real Estate", icon: "🏠", description: "Lead qualification and property inquiries" },
+	{ title: "Professional Services", icon: "💼", description: "Client onboarding and consultation booking" }
+];
 
-const itemVariants = {
-	hidden: { opacity: 0, y: 40, scale: 0.95 },
-	show: {
-		opacity: 1,
-		y: 0,
-		scale: 1,
-		transition: { duration: 0.7, type: "spring" },
-	},
-};
+export default function IndustryProcess({ darkMode }) {
+	const [selectedStep, setSelectedStep] = useState(null);
 
-export default function IndustryProcess() {
 	return (
-		<section id="industry-process" className="relative py-16 xs:py-24 sm:py-44 md:py-[18rem] bg-transparent max-w-7xl mx-auto px-2 xs:px-4 md:px-8 overflow-visible">
-			{/* Dramatic animated background: layered gradients, glassy overlays, floating lines, and accent dots */}
-			<motion.div
-				className="absolute inset-0 w-full h-full pointer-events-none z-0"
-				aria-hidden="true"
-			>
-				<motion.div
-					className="absolute left-1/2 top-0 -translate-x-1/2 w-[90vw] sm:w-[70vw] h-32 sm:h-64 bg-gradient-to-r from-cyan-400 via-orange-400 to-cyan-400 opacity-30 blur-3xl rounded-full animate-float-slow"
-					animate={{ scale: [1, 1.12, 1], rotate: [0, 16, -16, 0] }}
-					transition={{ duration: 12, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
-				/>
-				<motion.div
-					className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[70vw] sm:w-[50vw] h-12 sm:h-24 bg-gradient-to-r from-white/40 via-cyan-400/20 to-orange-400/20 opacity-20 blur-lg rounded-full z-0 pointer-events-none"
-					animate={{ opacity: [0.12, 0.22, 0.12], scale: [1, 1.04, 1] }}
-					transition={{ duration: 10, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
-				/>
-				{/* Floating accent dots */}
-				{[...Array(5)].map((_, i) => (
-					<motion.span
-						key={i}
-						className={`absolute rounded-full blur-2xl ${i > 2 ? 'hidden xs:block' : ''}`}
-						style={{
-							width: 12 + i * 4,
-							height: 12 + i * 4,
-							background: i % 2 === 0 ? '#E87811' : '#06b6d4',
-							top: `${30 + i * 10}%`,
-							left: `${10 + i * 18}%`,
-							opacity: 0.3 + (i % 2) * 0.1,
-							zIndex: 1,
-						}}
-						animate={{ y: [0, -10, 10, 0] }}
-						transition={{ duration: 8 + i, repeat: Infinity, repeatType: 'mirror', delay: i * 0.2 }}
-					/>
-				))}
-			</motion.div>
-			<motion.h2
-				className="text-2xl xs:text-3xl sm:text-5xl md:text-7xl font-extrabold text-center mb-8 sm:mb-20 bg-gradient-to-r from-cyan-400 via-orange-400 to-cyan-400 bg-clip-text text-transparent drop-shadow-2xl tracking-widest uppercase"
-				initial={{ opacity: 0, y: -40 }}
-				whileInView={{ opacity: 1, y: 0 }}
-				viewport={{ once: true }}
-				transition={{ duration: 1 }}
-			>
-				How Agentic AI Works for Your Industry
-			</motion.h2>
-			<motion.p className="text-base xs:text-lg sm:text-2xl text-center text-white/80 mb-8 sm:mb-24 max-w-lg sm:max-w-3xl mx-auto font-light tracking-wide animate-fade-in"
-				initial={{ opacity: 0, y: 20 }}
-				whileInView={{ opacity: 1, y: 0 }}
-				viewport={{ once: true }}
-				transition={{ duration: 1, delay: 0.2 }}
-			>
-				From tailored solutions to seamless deployment—see how we deliver AI-powered transformation for every business.
-			</motion.p>
-			{/* Timeline for process steps - vertical on mobile, horizontal on desktop */}
-			<motion.div
-				className="relative z-10 max-w-xl xs:max-w-2xl sm:max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-16 md:gap-0 mb-10 sm:mb-24"
-				initial={{ opacity: 0, y: 40 }}
-				whileInView={{ opacity: 1, y: 0 }}
-				viewport={{ once: true }}
-				transition={{ duration: 1 }}
-			>
-				<div className="block sm:hidden absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-cyan-400 via-white/30 to-orange-400 opacity-40 blur-md -z-10" />
-				<div className="hidden sm:block absolute left-0 right-0 top-1/2 h-1 bg-gradient-to-r from-cyan-400 via-white/30 to-orange-400 opacity-40 blur-md -z-10" />
-				{steps.map(({ title, icon, tagline }, i) => (
-					<motion.div
-						key={title}
-						whileHover={{ scale: 1.15, rotate: i % 2 === 0 ? 6 : -6, boxShadow: '0 8px 48px 0 rgba(6,182,212,0.18)' }}
-						className="flex flex-col items-center text-center transition-all duration-300 group bg-transparent p-0 relative"
-						style={{ zIndex: 2 }}
+		<section 
+			id="industry-process" 
+			className={`relative py-20 md:py-32 transition-colors duration-300 ${
+				darkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'
+			}`}
+		>
+			{/* Subtle background gradient */}
+			<div className="absolute inset-0 bg-gradient-to-br from-cyan-400/5 via-transparent to-orange-400/5 pointer-events-none" />
+			
+			<div className="relative z-10 max-w-6xl mx-auto px-6 md:px-8">
+				{/* Section Header */}
+				<div className="text-center mb-20 md:mb-28">
+					<motion.h2
+						className="text-4xl md:text-5xl lg:text-6xl font-light mb-8 tracking-tight leading-tight"
+						initial={{ opacity: 0, y: 20 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ duration: 0.8 }}
 					>
-						<motion.div
-							className="flex items-center justify-center w-14 h-14 xs:w-20 xs:h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-cyan-400 via-white/10 to-orange-400 shadow-xl mb-3 xs:mb-6 border-4 border-white/10"
-							animate={{ scale: [1, 1.08, 1], boxShadow: [
-								'0 0 0 0 rgba(6,182,212,0.12)',
-								'0 0 32px 8px rgba(6,182,212,0.18)',
-								'0 0 0 0 rgba(6,182,212,0.12)'
-							] }}
-							transition={{ duration: 6, repeat: Infinity }}
-						>
-							<span className="text-2xl xs:text-4xl md:text-5xl drop-shadow-xl animate-float-slow">{icon}</span>
-						</motion.div>
-						<span className="text-base xs:text-lg md:text-xl font-black text-white tracking-widest uppercase mb-1 xs:mb-2 bg-gradient-to-r from-cyan-400 via-orange-400 to-cyan-400 bg-clip-text text-transparent drop-shadow-xl">
-							{title}
-						</span>
-						<span className="text-xs xs:text-base md:text-lg text-white/70 max-w-xs font-light">
-							{tagline}
-						</span>
-					</motion.div>
-				))}
-			</motion.div>
-			{/* Animated floating industry badges below timeline - grid adjusts for mobile */}
-			<motion.div
-				className="relative z-10 max-w-xl xs:max-w-2xl sm:max-w-5xl mx-auto grid grid-cols-1 xs:grid-cols-2 sm:flex flex-wrap justify-center gap-6 xs:gap-10 md:gap-16 mt-4 sm:mt-8"
-				initial={{ opacity: 0, y: 40 }}
-				whileInView={{ opacity: 1, y: 0 }}
-				viewport={{ once: true }}
-				transition={{ duration: 1 }}
-			>
-				{industries.map(({ title, icon, tagline }, i) => (
-					<motion.div
-						key={title}
-						whileHover={{ scale: 1.13, rotate: i % 2 === 0 ? -8 : 8, boxShadow: '0 8px 48px 0 rgba(6,182,212,0.18)' }}
-						animate={{ y: [0, -8, 8, 0] }}
-						transition={{ duration: 7 + i, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
-						className="flex flex-col items-center text-center transition-all duration-300 group bg-gradient-to-br from-white/5 via-cyan-400/5 to-orange-400/5 shadow-xl border border-cyan-400/10 rounded-full px-6 xs:px-8 md:px-10 py-4 xs:py-6 md:py-8 relative overflow-visible hover:scale-105 hover:shadow-2xl hover:border-cyan-400/30"
+						<span className={darkMode ? 'text-white' : 'text-gray-900'}>How</span>{' '}
+						<span className="bg-gradient-to-r from-cyan-500 to-orange-500 bg-clip-text text-transparent font-medium">
+							AI Works
+						</span>{' '}
+						<span className={darkMode ? 'text-white' : 'text-gray-900'}>for Your Industry</span>
+					</motion.h2>
+					<motion.p 
+						className={`text-lg md:text-xl font-light max-w-3xl mx-auto leading-relaxed ${
+							darkMode ? 'text-gray-300' : 'text-gray-600'
+						}`}
+						initial={{ opacity: 0, y: 20 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ duration: 0.8, delay: 0.2 }}
 					>
-						<span className="text-xl xs:text-3xl md:text-4xl mb-1 xs:mb-2 drop-shadow-xl animate-float-slow">{icon}</span>
-						<span className="text-xs xs:text-base md:text-lg font-bold text-white tracking-widest uppercase mb-0.5 xs:mb-1 bg-gradient-to-r from-cyan-400 via-orange-400 to-cyan-400 bg-clip-text text-transparent drop-shadow-xl">
-							{title}
-						</span>
-						<span className="text-[10px] xs:text-xs md:text-base text-white/70 max-w-xs font-light">
-							{tagline}
-						</span>
-					</motion.div>
-				))}
-			</motion.div>
+						From strategy to deployment—see how we deliver AI-powered transformation tailored to your business
+					</motion.p>
+				</div>
+
+				{/* Process Steps */}
+				<div className="mb-24 md:mb-32">
+					<h3 className={`text-2xl md:text-3xl font-light text-center mb-16 ${
+						darkMode ? 'text-white' : 'text-gray-900'
+					}`}>
+						Our Process
+					</h3>
+					
+					<div className="grid md:grid-cols-4 gap-8 md:gap-6">
+						{steps.map((step, index) => (
+							<motion.div
+								key={step.title}
+								className={`relative p-8 rounded-2xl text-center cursor-pointer transition-all duration-300 ${
+									darkMode 
+										? 'bg-gray-800/40 border border-gray-700/30 hover:bg-gray-800/60 hover:border-cyan-400/30'
+										: 'bg-gray-50/60 border border-gray-200/40 hover:bg-white/80 hover:border-cyan-400/40'
+								} ${selectedStep === index ? 'ring-2 ring-cyan-400/50' : ''} backdrop-blur-sm`}
+								onClick={() => setSelectedStep(selectedStep === index ? null : index)}
+								whileHover={{ y: -4 }}
+								initial={{ opacity: 0, y: 30 }}
+								animate={{ opacity: 1, y: 0 }}
+								transition={{ duration: 0.6, delay: index * 0.15 }}
+							>
+								{/* Step number */}
+								<div className={`absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+									darkMode ? 'bg-cyan-500 text-white' : 'bg-cyan-500 text-white'
+								} shadow-lg`}>
+									{index + 1}
+								</div>
+
+								{/* Icon */}
+								<div className="text-4xl mb-6">{step.icon}</div>
+								
+								{/* Title */}
+								<h4 className={`text-lg font-semibold mb-4 ${
+									darkMode ? 'text-white' : 'text-gray-900'
+								}`}>
+									{step.title}
+								</h4>
+								
+								{/* Description */}
+								<p className={`text-sm leading-relaxed ${
+									darkMode ? 'text-gray-300' : 'text-gray-600'
+								}`}>
+									{step.description}
+								</p>
+
+								{/* Connection line for desktop */}
+								{index < steps.length - 1 && (
+									<div className="hidden md:block absolute top-1/2 -right-3 w-6 h-0.5 bg-gradient-to-r from-cyan-400/60 to-orange-400/60" />
+								)}
+							</motion.div>
+						))}
+					</div>
+				</div>
+
+				{/* Industries */}
+				<div className="mb-16">
+					<h3 className={`text-2xl md:text-3xl font-light text-center mb-16 ${
+						darkMode ? 'text-white' : 'text-gray-900'
+					}`}>
+						Industries We Serve
+					</h3>
+					
+					<div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+						{industries.map((industry, index) => (
+							<motion.div
+								key={industry.title}
+								className={`p-6 rounded-xl text-center transition-all duration-300 ${
+									darkMode 
+										? 'bg-gray-800/40 border border-gray-700/30 hover:bg-gray-800/60 hover:border-orange-400/30'
+										: 'bg-gray-50/60 border border-gray-200/40 hover:bg-white/80 hover:border-orange-400/40'
+								} backdrop-blur-sm`}
+								whileHover={{ y: -2 }}
+								initial={{ opacity: 0, y: 20 }}
+								animate={{ opacity: 1, y: 0 }}
+								transition={{ duration: 0.6, delay: 0.4 + index * 0.1 }}
+							>
+								{/* Icon */}
+								<div className="text-3xl mb-4">{industry.icon}</div>
+								
+								{/* Title */}
+								<h4 className={`text-lg font-semibold mb-3 ${
+									darkMode ? 'text-white' : 'text-gray-900'
+								}`}>
+									{industry.title}
+								</h4>
+								
+								{/* Description */}
+								<p className={`text-sm leading-relaxed ${
+									darkMode ? 'text-gray-300' : 'text-gray-600'
+								}`}>
+									{industry.description}
+								</p>
+							</motion.div>
+						))}
+					</div>
+				</div>
+
+				{/* Call to Action */}
+				<motion.div 
+					className="text-center"
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.8, delay: 0.8 }}
+				>
+					<h3 className={`text-2xl md:text-3xl font-light mb-6 ${
+						darkMode ? 'text-white' : 'text-gray-900'
+					}`}>
+						Ready to Transform Your Business?
+					</h3>
+					<p className={`text-lg mb-8 max-w-2xl mx-auto ${
+						darkMode ? 'text-gray-300' : 'text-gray-600'
+					}`}>
+						Let's discuss how our AI solutions can streamline your operations and drive growth.
+					</p>
+					<motion.a
+						href="/startaicall"
+						className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-cyan-500 to-orange-500 text-white font-medium rounded-full hover:from-cyan-600 hover:to-orange-600 transition-all duration-300 shadow-lg hover:shadow-xl"
+						whileHover={{ scale: 1.05, y: -2 }}
+						whileTap={{ scale: 0.98 }}
+					>
+						Start Your AI Transformation
+						<svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+						</svg>
+					</motion.a>
+				</motion.div>
+			</div>
 		</section>
 	);
 }

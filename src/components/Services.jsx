@@ -5,108 +5,180 @@ const services = [
 	{
 		title: "AI Automation Agents",
 		icon: "🤖",
-		description: "24/7 intelligent AI chatbots and automation agents for customer support, lead generation, and business process optimization.",
+		shortDescription: "24/7 intelligent automation",
+		description: "Smart AI chatbots and automation agents that handle customer support, lead generation, and business processes around the clock. Increase efficiency while reducing operational costs.",
+		features: ["Customer Support Automation", "Lead Generation", "Process Optimization", "24/7 Availability"],
 	},
 	{
 		title: "Custom AI Development",
-		icon: "💬",
-		description: "Tailored AI solutions including chatbot development, process automation, and AI implementation for your specific business needs.",
+		icon: "�",
+		shortDescription: "Tailored AI solutions",
+		description: "Bespoke AI solutions designed specifically for your business needs. From chatbot development to complex process automation, we build AI that fits your unique requirements.",
+		features: ["Custom Chatbots", "Process Automation", "AI Integration", "Scalable Solutions"],
 	},
 	{
-		title: "Business Intelligence & Analytics",
+		title: "Business Intelligence",
 		icon: "📊",
-		description: "AI-powered data insights, automated reporting, and business intelligence solutions to drive informed decision-making.",
+		shortDescription: "AI-powered insights",
+		description: "Transform your data into actionable insights with AI-powered analytics. Automated reporting and business intelligence that drives informed decision-making and strategic growth.",
+		features: ["Data Analytics", "Automated Reporting", "Predictive Insights", "Business Intelligence"],
 	},
 	{
-		title: "Custom Integrations",
+		title: "System Integration",
 		icon: "🔗",
-		description: "Seamlessly connect AI with your existing tools and workflows.",
+		shortDescription: "Seamless connectivity",
+		description: "Connect AI seamlessly with your existing tools and workflows. We ensure smooth integration that enhances rather than disrupts your current operations.",
+		features: ["API Integration", "Workflow Automation", "System Connectivity", "Legacy Support"],
 	},
 ];
 
-const Services = () => (
-	<section id="services" className="relative py-20 xs:py-28 sm:py-44 md:py-60 bg-transparent overflow-visible">
-		{/* Layered animated gradients and glassy overlays for services */}
-		<motion.div
-			className="absolute -top-24 xs:-top-32 left-1/2 -translate-x-1/2 w-[90vw] sm:w-[60vw] h-20 sm:h-40 bg-gradient-to-r from-cyan-400 via-orange-400 to-cyan-400 opacity-30 blur-3xl rounded-full z-0 animate-pulse"
-			aria-hidden="true"
-			animate={{ scale: [1, 1.06, 1], rotate: [0, 8, -8, 0] }}
-			transition={{ duration: 8, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
-		/>
-		<motion.div
-			className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[70vw] sm:w-[40vw] h-8 sm:h-16 bg-gradient-to-r from-white/40 via-cyan-400/20 to-orange-400/20 opacity-20 blur-lg rounded-full z-0 pointer-events-none"
-			animate={{ opacity: [0.12, 0.22, 0.12], scale: [1, 1.04, 1] }}
-			transition={{ duration: 10, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
-		/>
-		{/* Subtle floating accent dots */}
-		{[...Array(4)].map((_, i) => (
-			<motion.span
-				key={i}
-				className={`absolute rounded-full blur-2xl ${i > 1 ? 'hidden xs:block' : ''}`}
-				style={{
-					width: 12 + i * 4,
-					height: 12 + i * 4,
-					background: i % 2 === 0 ? '#E87811' : '#06b6d4',
-					top: `${40 + i * 8}%`,
-					left: `${10 + i * 20}%`,
-					opacity: 0.3 + (i % 2) * 0.1,
-					zIndex: 1,
-				}}
-				animate={{ y: [0, -8, 8, 0] }}
-				transition={{ duration: 7 + i, repeat: Infinity, repeatType: 'mirror', delay: i * 0.2 }}
-			/>
-		))}
-		<motion.h2
-			className="text-3xl xs:text-4xl sm:text-6xl md:text-8xl font-black text-center mb-8 sm:mb-16 bg-gradient-to-r from-cyan-400 via-orange-400 to-cyan-400 bg-clip-text text-transparent drop-shadow-[0_4px_64px_rgba(6,182,212,0.25)] tracking-widest uppercase"
-			initial={{ opacity: 0, y: -30 }}
-			whileInView={{ opacity: 1, y: 0 }}
-			viewport={{ once: true }}
-			transition={{ duration: 0.8 }}
-			whileHover={{ letterSpacing: '0.22em', color: '#06b6d4', textShadow: '0 2px 32px #06b6d4' }}
-		>
-			Our Services
-		</motion.h2>
-		<p className="text-lg xs:text-xl sm:text-2xl md:text-3xl text-center text-white/70 mb-10 sm:mb-24 max-w-xl sm:max-w-3xl mx-auto font-light tracking-wide animate-fade-in">
-			Everything you need to automate, connect, and grow—at a glance.
-		</p>
-		<div className="relative z-10 max-w-xl xs:max-w-2xl sm:max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 xs:gap-16 sm:gap-24 md:gap-32 justify-center items-stretch">
-			{services.map(({ title, icon, description }, i) => (
-				<motion.div
-					key={title}
-					initial={{ opacity: 0, y: 40, scale: 0.96, rotate: -2 }}
-					whileInView={{ opacity: 1, y: 0, scale: 1, rotate: 0 }}
-					viewport={{ once: true }}
-					whileHover={{ scale: 1.13, boxShadow: '0 8px 48px 0 rgba(6,182,212,0.18)', rotate: 2 }}
-					animate={{ y: [0, -8, 8, 0], rotate: [0, 2, -2, 0] }}
-					transition={{ duration: 4, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut', delay: i * 0.08 }}
-					className="flex flex-col items-center text-center transition-all duration-300 group bg-gradient-to-br from-white/10 via-cyan-400/10 to-orange-400/10 shadow-2xl border border-cyan-400/20 rounded-3xl p-6 xs:p-10 sm:p-14 md:p-20 relative overflow-visible hover:scale-110 hover:shadow-2xl hover:border-cyan-400/40"
+const Services = ({ darkMode }) => (
+	<section id="services" className={`relative py-16 md:py-24 transition-colors duration-300 ${
+		darkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'
+	}`}>
+		{/* Subtle background gradient */}
+		<div className="absolute inset-0 bg-gradient-to-br from-orange-400/5 via-cyan-400/5 to-violet-500/5 opacity-60" />
+		
+		<div className="relative z-10 max-w-7xl mx-auto px-4 md:px-8">
+			{/* Section Header */}
+			<div className="text-center mb-16 md:mb-20">
+				<motion.h2
+					className="text-4xl md:text-6xl font-black mb-6 tracking-tight"
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.8 }}
 				>
-					<motion.span
-						className="text-5xl xs:text-7xl md:text-9xl mb-6 xs:mb-10 drop-shadow-2xl animate-float-slow"
-						whileHover={{ scale: 1.22, rotate: 8 }}
-						transition={{ type: 'spring', stiffness: 300 }}
-					>
-						{icon}
-					</motion.span>
-					<motion.span
-						className="text-xl xs:text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-widest uppercase mb-2 xs:mb-4 sm:mb-6 bg-gradient-to-r from-cyan-400 via-orange-400 to-cyan-400 bg-clip-text text-transparent drop-shadow-xl"
-						whileHover={{ letterSpacing: '0.22em', color: '#06b6d4', textShadow: '0 2px 32px #06b6d4' }}
-					>
-						{title}
-					</motion.span>
-					<motion.span
-						className="text-base xs:text-lg sm:text-xl md:text-2xl text-white/80 max-w-xs font-light"
-						whileHover={{ color: '#06b6d4' }}
-					>
-						{description}
-					</motion.span>
+					<span className={darkMode ? 'text-white' : 'text-gray-900'}>Our</span>{' '}
+					<span className="bg-gradient-to-r from-orange-400 via-cyan-400 to-violet-500 bg-clip-text text-transparent">
+						Services
+					</span>
+				</motion.h2>
+				<motion.p
+					className={`text-lg md:text-xl max-w-3xl mx-auto leading-relaxed ${
+						darkMode ? 'text-gray-300' : 'text-gray-600'
+					}`}
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.8, delay: 0.2 }}
+				>
+					Comprehensive AI solutions designed to streamline operations, enhance customer experiences, 
+					and accelerate business growth through intelligent automation.
+				</motion.p>
+			</div>
+
+			{/* Services Grid */}
+			<div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
+				{services.map(({ title, icon, shortDescription, description, features }, index) => (
 					<motion.div
-						className="absolute -top-6 xs:-top-10 right-6 xs:right-10 w-8 xs:w-12 h-8 xs:h-12 bg-gradient-to-br from-cyan-400 to-orange-400 opacity-30 blur-2xl rounded-full z-0 animate-float"
-						animate={{ scale: [1, 1.2, 1], rotate: [0, 20, -20, 0] }}
-						transition={{ duration: 5, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
-					/>
-				</motion.div>
-			))}
+						key={title}
+						className={`group relative p-8 md:p-10 rounded-3xl border-2 transition-all duration-300 hover:scale-[1.02] ${
+							darkMode 
+								? 'bg-gradient-to-br from-gray-800/60 to-gray-900/60 border-gray-700/50 hover:border-cyan-400/50 backdrop-blur-lg' 
+								: 'bg-gradient-to-br from-white/80 to-gray-100/40 border-gray-200/60 hover:border-orange-400/50 backdrop-blur-lg'
+						} shadow-xl hover:shadow-2xl`}
+						initial={{ opacity: 0, y: 30 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ duration: 0.6, delay: index * 0.1 }}
+						whileHover={{ 
+							boxShadow: darkMode 
+								? "0 25px 50px rgba(6, 182, 212, 0.15)" 
+								: "0 25px 50px rgba(232, 120, 17, 0.15)"
+						}}
+					>
+						{/* Service Icon */}
+						<motion.div
+							className="flex items-center mb-6"
+							whileHover={{ scale: 1.05 }}
+							transition={{ type: "spring", stiffness: 300 }}
+						>
+							<div className={`w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center text-3xl md:text-4xl mr-6 ${
+								darkMode 
+									? 'bg-gradient-to-br from-gray-700 to-gray-800 border border-gray-600' 
+									: 'bg-gradient-to-br from-white to-gray-100 border border-gray-200'
+							} shadow-lg`}>
+								{icon}
+							</div>
+							<div>
+								<h3 className={`text-xl md:text-2xl font-bold mb-2 ${
+									darkMode ? 'text-white' : 'text-gray-900'
+								}`}>
+									{title}
+								</h3>
+								<p className={`text-sm md:text-base ${
+									darkMode ? 'text-cyan-400' : 'text-orange-500'
+								} font-semibold`}>
+									{shortDescription}
+								</p>
+							</div>
+						</motion.div>
+
+						{/* Service Description */}
+						<p className={`text-base md:text-lg leading-relaxed mb-6 ${
+							darkMode ? 'text-gray-300' : 'text-gray-600'
+						}`}>
+							{description}
+						</p>
+
+						{/* Features List */}
+						<div className="space-y-3">
+							<h4 className={`text-sm font-semibold uppercase tracking-wider mb-3 ${
+								darkMode ? 'text-gray-400' : 'text-gray-500'
+							}`}>
+								Key Features
+							</h4>
+							<ul className="grid grid-cols-2 gap-2">
+								{features.map((feature, idx) => (
+									<motion.li
+										key={idx}
+										className={`flex items-center text-sm ${
+											darkMode ? 'text-gray-300' : 'text-gray-600'
+										}`}
+										initial={{ opacity: 0, x: -10 }}
+										animate={{ opacity: 1, x: 0 }}
+										transition={{ duration: 0.4, delay: index * 0.1 + idx * 0.1 }}
+									>
+										<span className="w-2 h-2 bg-gradient-to-r from-orange-400 to-cyan-400 rounded-full mr-3 flex-shrink-0" />
+										{feature}
+									</motion.li>
+								))}
+							</ul>
+						</div>
+
+						{/* Hover Effect Gradient */}
+						<motion.div
+							className="absolute inset-0 rounded-3xl bg-gradient-to-r from-orange-400/10 via-cyan-400/10 to-violet-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+							style={{ pointerEvents: 'none' }}
+						/>
+					</motion.div>
+				))}
+			</div>
+
+			{/* Call to Action */}
+			<motion.div
+				className="text-center mt-16 md:mt-20"
+				initial={{ opacity: 0, y: 30 }}
+				animate={{ opacity: 1, y: 0 }}
+				transition={{ duration: 0.8, delay: 0.6 }}
+			>
+				<h3 className={`text-2xl md:text-3xl font-bold mb-4 ${
+					darkMode ? 'text-white' : 'text-gray-900'
+				}`}>
+					Ready to Transform Your Business?
+				</h3>
+				<p className={`text-lg mb-8 max-w-2xl mx-auto ${
+					darkMode ? 'text-gray-300' : 'text-gray-600'
+				}`}>
+					Let's discuss how our AI solutions can streamline your operations and drive growth.
+				</p>
+				<motion.a
+					href="/startaicall"
+					className="inline-block px-8 py-4 bg-gradient-to-r from-orange-400 via-cyan-400 to-violet-500 text-white font-bold rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 text-lg"
+					whileHover={{ scale: 1.05, y: -2 }}
+					whileTap={{ scale: 0.98 }}
+				>
+					Start Your AI Journey
+				</motion.a>
+			</motion.div>
 		</div>
 	</section>
 );

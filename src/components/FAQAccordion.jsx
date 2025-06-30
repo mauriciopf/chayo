@@ -52,10 +52,10 @@ const sparks = [
 	{ top: "30%", left: "60%", color: "#FFB066" },
 ];
 
-export default function FAQAccordion() {
+export default function FAQAccordion({ darkMode }) {
 	const [open, setOpen] = useState(null);
 	return (
-		<section id="faq" className="relative max-w-md xs:max-w-xl sm:max-w-2xl md:max-w-4xl mx-auto my-16 xs:my-24 sm:my-32 px-2 xs:px-4 sm:px-6">
+		<section id="faq" className="relative w-full my-16 xs:my-24 sm:my-32 px-4 md:px-8">
 			{/* Dramatic animated gradient and glassy overlays for FAQ */}
 			<motion.div
 				className="absolute -top-16 xs:-top-24 left-1/2 -translate-x-1/2 w-[90vw] sm:w-[60vw] h-16 sm:h-40 bg-gradient-to-r from-cyan-400 via-orange-400 to-cyan-400 opacity-30 blur-3xl rounded-full z-0 animate-float-slow"
@@ -104,7 +104,9 @@ export default function FAQAccordion() {
 					<h2 className="text-2xl xs:text-4xl md:text-5xl font-extrabold text-center bg-gradient-to-r from-orange-400 via-cyan-400 to-orange-400 bg-clip-text text-transparent mb-2 drop-shadow-2xl">
 						Frequently Asked Questions
 					</h2>
-					<p className="text-base xs:text-lg text-gray-700 dark:text-gray-200 max-w-xs xs:max-w-xl text-center mt-2">
+					<p className={`text-base xs:text-lg max-w-xs xs:max-w-xl text-center mt-2 ${
+						darkMode ? 'text-gray-200' : 'text-gray-700'
+					}`}>
 						Everything you need to know about Agentic AI.
 					</p>
 				</div>
@@ -122,7 +124,11 @@ export default function FAQAccordion() {
 						>
 							<button
 								onClick={() => setOpen(open === i ? null : i)}
-								className={`w-full flex justify-between items-center py-3 px-0 focus:outline-none bg-transparent hover:bg-cyan-400/10 dark:hover:bg-cyan-300/10 rounded-none transition-all duration-300 border-none shadow-none text-left text-base xs:text-lg md:text-xl font-bold`}
+								className={`w-full flex justify-between items-center py-3 px-0 focus:outline-none bg-transparent rounded-none transition-all duration-300 border-none shadow-none text-left text-base xs:text-lg md:text-xl font-bold ${
+									darkMode 
+										? 'text-white hover:bg-cyan-300/10' 
+										: 'text-gray-900 hover:bg-cyan-400/10'
+								}`}
 							>
 								<span>{faq.q}</span>
 								<span className="ml-2 text-cyan-400 text-xl xs:text-2xl">{open === i ? "–" : "+"}</span>
@@ -134,7 +140,9 @@ export default function FAQAccordion() {
 										animate={{ opacity: 1, height: 'auto' }}
 										exit={{ opacity: 0, height: 0 }}
 										transition={{ duration: 0.3 }}
-										className="overflow-hidden text-gray-700 dark:text-gray-200 text-sm xs:text-base md:text-lg pl-2 xs:pl-4 pr-2 xs:pr-4 py-2"
+										className={`overflow-hidden text-sm xs:text-base md:text-lg pl-2 xs:pl-4 pr-2 xs:pr-4 py-2 ${
+											darkMode ? 'text-gray-200' : 'text-gray-700'
+										}`}
 									>
 										{faq.a}
 									</motion.div>

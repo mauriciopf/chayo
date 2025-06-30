@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
 import Header from "./components/Header";
+import Hero from "./components/Hero";
+import Services from "./components/Services";
+import PricingReplacement from "./components/PricingReplacement";
 import Contact from "./components/Contact";
 import Footer from "./components/Footer";
 import { motion } from "framer-motion";
@@ -9,13 +12,14 @@ import FAQAccordion from "./components/FAQAccordion";
 import ScrollToTopButton from "./components/ScrollToTopButton";
 import IndustryProcess from "./components/IndustryProcess";
 
-export default function AgenticAIHome() {
-  const [darkMode, setDarkMode] = useState(true);
+export default function AgenticAIHome({ darkMode: parentDarkMode }) {
+  const [darkMode, setDarkMode] = useState(parentDarkMode ?? true);
 
   useEffect(() => {
-    document.body.className = darkMode ? "dark" : "";
-    localStorage.setItem("darkMode", JSON.stringify(darkMode));
-  }, [darkMode]);
+    if (parentDarkMode !== undefined) {
+      setDarkMode(parentDarkMode);
+    }
+  }, [parentDarkMode]);
 
   return (
     <div className="min-h-screen bg-black text-white transition-colors duration-700">
@@ -158,9 +162,14 @@ export default function AgenticAIHome() {
       </Helmet>
 
       <Header darkMode={darkMode} setDarkMode={setDarkMode} />
-      <ScrollToTopButton />
+      <ScrollToTopButton darkMode={darkMode} />
 
-      <main className="pt-20 max-w-7xl mx-auto px-2 md:px-8 space-y-24 bg-black text-white">
+      <main className="transition-colors duration-300">
+        <Hero darkMode={darkMode} />
+        <Services darkMode={darkMode} />
+        <PricingReplacement darkMode={darkMode} setDarkMode={setDarkMode} />
+        
+        {/* Additional content sections from original AgenticAIHome */}
         {/* Apple-inspired ultra-clean, spacious layout */}
         {/* Animated CTA Section */}
         <motion.section
@@ -175,16 +184,19 @@ export default function AgenticAIHome() {
         >
           {/* Floating blurred accent shape (subtle, Apple-style) */}
           <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[90vw] h-40 bg-gradient-to-r from-cyan-400 via-white/10 to-orange-400 opacity-10 blur-3xl rounded-full z-0 animate-float-slow" />
-          <motion.h2 className="text-5xl md:text-7xl font-extrabold mb-8 tracking-wide leading-tight text-white drop-shadow-xl"
+          <motion.h2 className={`text-4xl md:text-6xl font-light mb-8 tracking-tight leading-tight ${
+            darkMode ? 'text-white' : 'text-gray-900'
+          }`}
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 1, delay: 0.2 }}
-            whileHover={{ letterSpacing: '0.2em', color: '#06b6d4', textShadow: '0 2px 32px #06b6d4' }}
           >
-            <span className="block text-[2.5rem] md:text-[4rem] font-black tracking-widest uppercase">Lead the Era of AI</span>
-            <span className="block text-cyan-400 font-bold text-2xl md:text-4xl mt-2 tracking-tight">with Agentic AI</span>
+            <span className="block text-2xl md:text-3xl font-light tracking-wide mb-2">Lead the Era of</span>
+            <span className="block bg-gradient-to-r from-blue-400 via-purple-500 to-blue-600 bg-clip-text text-transparent font-medium">Intelligent AI</span>
           </motion.h2>
-          <motion.p className="text-lg md:text-2xl mb-12 text-white/70 max-w-2xl mx-auto font-light tracking-wide"
+          <motion.p className={`text-lg md:text-2xl mb-12 font-light tracking-wide leading-relaxed max-w-3xl mx-auto text-center ${
+            darkMode ? 'text-white/70' : 'text-gray-600'
+          }`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
@@ -193,7 +205,7 @@ export default function AgenticAIHome() {
             Experience the next level of automation, intelligence, and business growth—powered by elegant, human-centered AI.
           </motion.p>
           <motion.a
-            href="#contact"
+            href="/startaicall"
             className="inline-block bg-cyan-400 text-black px-12 py-5 rounded-full font-bold text-xl shadow-xl hover:bg-cyan-300 focus:bg-cyan-500 transition-all duration-200 drop-shadow-lg tracking-wide uppercase"
             whileHover={{ scale: 1.12, backgroundColor: '#06b6d4', color: '#fff', boxShadow: '0 4px 32px 0 #06b6d4' }}
             whileTap={{ scale: 0.97 }}

@@ -5,7 +5,7 @@ const fieldVariants = {
   focus: { borderColor: "#E87811", boxShadow: "0 0 0 2px #E87811" },
 };
 
-const Contact = () => {
+const Contact = ({ darkMode }) => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -71,7 +71,7 @@ const Contact = () => {
   return (
     <section
       id="contact"
-      className="relative py-24 max-w-2xl mx-auto px-6 flex flex-col items-center"
+      className="relative py-24 w-full px-6 flex flex-col items-center"
     >
       {/* Floating blurred accent shape */}
       <motion.div
@@ -79,8 +79,9 @@ const Contact = () => {
         aria-hidden="true"
       />
       <div className="relative z-10 w-full flex flex-col items-center">
-        <h2 className="text-4xl font-extrabold text-center bg-gradient-to-r from-orange-400 via-cyan-400 to-orange-400 bg-clip-text text-transparent mb-8 drop-shadow-xl">
-          Get in Touch
+        <h2 className="text-3xl md:text-4xl font-light text-center mb-8 tracking-tight">
+          <span className={`${darkMode ? 'text-white' : 'text-gray-900'}`}>Get in</span>{' '}
+          <span className="bg-gradient-to-r from-blue-400 via-purple-500 to-blue-600 bg-clip-text text-transparent">Touch</span>
         </h2>
         {submitted ? (
           <motion.div
@@ -119,7 +120,11 @@ const Contact = () => {
                   onFocus={() => handleFocus("name")}
                   onBlur={handleBlur}
                   placeholder="Name"
-                  className="w-full bg-white/70 dark:bg-black/60 text-gray-900 dark:text-white placeholder-gray-400 rounded-xl py-4 px-6 outline-none focus:ring-2 focus:ring-orange-400 transition-all shadow-md"
+                  className={`w-full rounded-xl py-4 px-6 outline-none focus:ring-2 focus:ring-orange-400 transition-all shadow-md ${
+                    darkMode 
+                      ? 'bg-black/60 text-white placeholder-gray-400' 
+                      : 'bg-white/90 text-gray-900 placeholder-gray-500'
+                  }`}
                 />
               </motion.div>
               <motion.div
@@ -137,7 +142,11 @@ const Contact = () => {
                   onFocus={() => handleFocus("email")}
                   onBlur={handleBlur}
                   placeholder="Email"
-                  className="w-full bg-white/70 dark:bg-black/60 text-gray-900 dark:text-white placeholder-gray-400 rounded-xl py-4 px-6 outline-none focus:ring-2 focus:ring-orange-400 transition-all shadow-md"
+                  className={`w-full rounded-xl py-4 px-6 outline-none focus:ring-2 focus:ring-orange-400 transition-all shadow-md ${
+                    darkMode 
+                      ? 'bg-black/60 text-white placeholder-gray-400' 
+                      : 'bg-white/90 text-gray-900 placeholder-gray-500'
+                  }`}
                 />
               </motion.div>
             </div>
@@ -156,7 +165,11 @@ const Contact = () => {
                   onFocus={() => handleFocus("company")}
                   onBlur={handleBlur}
                   placeholder="Company (optional)"
-                  className="w-full bg-white/70 dark:bg-black/60 text-gray-900 dark:text-white placeholder-gray-400 rounded-xl py-4 px-6 outline-none focus:ring-2 focus:ring-orange-400 transition-all shadow-md"
+                  className={`w-full rounded-xl py-4 px-6 outline-none focus:ring-2 focus:ring-orange-400 transition-all shadow-md ${
+                    darkMode 
+                      ? 'bg-black/60 text-white placeholder-gray-400' 
+                      : 'bg-white/90 text-gray-900 placeholder-gray-500'
+                  }`}
                 />
               </motion.div>
               <motion.div
@@ -174,7 +187,11 @@ const Contact = () => {
                   onBlur={handleBlur}
                   placeholder="Your message"
                   rows={3}
-                  className="w-full bg-white/70 dark:bg-black/60 text-gray-900 dark:text-white placeholder-gray-400 rounded-xl py-4 px-6 outline-none focus:ring-2 focus:ring-orange-400 transition-all shadow-md resize-none"
+                  className={`w-full rounded-xl py-4 px-6 outline-none focus:ring-2 focus:ring-orange-400 transition-all shadow-md resize-none ${
+                    darkMode 
+                      ? 'bg-black/60 text-white placeholder-gray-400' 
+                      : 'bg-white/90 text-gray-900 placeholder-gray-500'
+                  }`}
                 />
               </motion.div>
             </div>
@@ -182,7 +199,7 @@ const Contact = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="bg-gradient-to-r from-orange-400 via-cyan-400 to-orange-400 text-white font-bold py-3 px-10 rounded-full shadow-lg hover:scale-105 transition-transform text-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                className="bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium py-3 px-10 rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 text-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
                 {isSubmitting ? (
                   <span className="flex items-center">
