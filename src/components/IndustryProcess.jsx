@@ -3,13 +3,13 @@ import { motion } from "framer-motion";
 
 const steps = [
 	{ title: "Consultation", icon: "🤝", description: "Understanding your unique business needs and AI opportunities" },
-	{ title: "Strategy", icon: "�", description: "Designing tailored AI solutions that align with your goals" },
+	{ title: "Strategy", icon: "📋", description: "Designing tailored AI solutions that align with your goals" },
 	{ title: "Development", icon: "⚙️", description: "Building and testing your custom AI systems" },
-	{ title: "Deployment", icon: "�", description: "Seamless integration and go-live support" }
+	{ title: "Deployment", icon: "🚀", description: "Seamless integration and go-live support" }
 ];
 
 const industries = [
-	{ title: "E-commerce", icon: "�", description: "Automated customer service and order management" },
+	{ title: "E-commerce", icon: "🛒", description: "Automated customer service and order management" },
 	{ title: "Healthcare", icon: "🏥", description: "Patient scheduling and support automation" },
 	{ title: "Real Estate", icon: "🏠", description: "Lead qualification and property inquiries" },
 	{ title: "Professional Services", icon: "💼", description: "Client onboarding and consultation booking" }
@@ -172,7 +172,7 @@ export default function IndustryProcess({ darkMode }) {
 						Let's discuss how our AI solutions can streamline your operations and drive growth.
 					</p>
 					<motion.a
-						href="/startaicall"
+						href="http://ageantic.ai/#/startaicall"
 						className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-cyan-500 to-orange-500 text-white font-medium rounded-full hover:from-cyan-600 hover:to-orange-600 transition-all duration-300 shadow-lg hover:shadow-xl"
 						whileHover={{ scale: 1.05, y: -2 }}
 						whileTap={{ scale: 0.98 }}

@@ -312,7 +312,7 @@ const Hero = ({ darkMode = false }) => {
         <span className="bg-gradient-to-r from-orange-400 via-cyan-400 to-violet-500 bg-clip-text text-transparent font-semibold">Custom AI Development</span> — Transform your business with intelligent automation, chatbots, and <span className="text-orange-400 font-semibold">24/7 AI agents</span>.
       </motion.p>
       <motion.a
-        href="/startaicall"
+        href="http://ageantic.ai/#/startaicall"
         className="inline-block w-full xs:w-auto bg-gradient-to-r from-orange-400 via-cyan-400 to-violet-500 text-white px-6 py-3 xs:px-10 xs:py-4 sm:px-14 sm:py-5 rounded-full font-black text-lg xs:text-2xl sm:text-3xl shadow-2xl hover:from-orange-500 hover:to-violet-700 hover:scale-110 focus:scale-95 transition-all drop-shadow-xl border-4 border-white/10 backdrop-blur-lg tracking-widest uppercase"
         variants={buttonVariants}
         whileHover="hover"

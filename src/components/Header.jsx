@@ -8,7 +8,7 @@ const navLinks = [
   { href: "#services", label: "Services" },
   { href: "#industry-process", label: "How It Works" },
   { href: "#faq", label: "FAQ" },
-  { href: "/startaicall", label: "Start AI Call", isButton: true },
+  { href: "http://ageantic.ai/#/startaicall", label: "Start AI Call", isButton: true },
   { href: "#contact", label: "Let's Talk" }]
 
   return (

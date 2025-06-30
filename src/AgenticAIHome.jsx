@@ -205,7 +205,7 @@ export default function AgenticAIHome({ darkMode: parentDarkMode }) {
             Experience the next level of automation, intelligence, and business growth—powered by elegant, human-centered AI.
           </motion.p>
           <motion.a
-            href="/startaicall"
+            href="http://ageantic.ai/#/startaicall"
             className="inline-block bg-cyan-400 text-black px-12 py-5 rounded-full font-bold text-xl shadow-xl hover:bg-cyan-300 focus:bg-cyan-500 transition-all duration-200 drop-shadow-lg tracking-wide uppercase"
             whileHover={{ scale: 1.12, backgroundColor: '#06b6d4', color: '#fff', boxShadow: '0 4px 32px 0 #06b6d4' }}
             whileTap={{ scale: 0.97 }}
