@@ -289,31 +289,31 @@ const Hero = ({ darkMode = false }) => {
       animate={{ y: 0, opacity: 0.13 }}
       transition={{ delay: 1.1, duration: 1.2, type: "spring" }}
     >
-      <span className="text-[3rem] xs:text-[4.5rem] sm:text-[7rem] md:text-[10rem] drop-shadow-2xl animate-float-slow">
+      <span className="text-[2rem] xs:text-[3rem] sm:text-[5rem] md:text-[8rem] drop-shadow-lg animate-float-slow opacity-40">
         🤖
       </span>
     </motion.div>
-    <div className="relative z-20 w-full max-w-xl xs:max-w-2xl mx-auto px-2 xs:px-4 flex flex-col items-center justify-center">
+    <div className="relative z-20 w-full max-w-lg sm:max-w-xl md:max-w-2xl mx-auto px-4 sm:px-6 flex flex-col items-center justify-center">
       <motion.h1
-        className="text-3xl xs:text-4xl sm:text-6xl md:text-8xl font-black mb-6 sm:mb-12 bg-gradient-to-r from-orange-400 via-cyan-400 to-violet-500 bg-clip-text text-transparent drop-shadow-[0_4px_64px_rgba(6,182,212,0.25)] tracking-tight leading-tight uppercase"
+        className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light mb-6 sm:mb-8 md:mb-10 bg-gradient-to-r from-orange-400 via-cyan-400 to-violet-500 bg-clip-text text-transparent drop-shadow-sm tracking-tight leading-tight text-center"
         initial="hidden"
         animate="visible"
         variants={heroVariants}
       >
-        <span className={`block ${darkMode ? 'text-white/90' : 'text-gray-900/90'} tracking-widest`}>AI Automation</span>
-        <span className="block bg-gradient-to-r from-orange-400 via-cyan-400 to-violet-500 bg-clip-text text-transparent">Solutions</span>
+        <span className={`block ${darkMode ? 'text-white/90' : 'text-gray-900/90'} font-extralight tracking-normal mb-2`}>AI Automation</span>
+        <span className="block bg-gradient-to-r from-orange-400 via-cyan-400 to-violet-500 bg-clip-text text-transparent font-medium">Solutions</span>
       </motion.h1>
       <motion.p
-        className={`text-base xs:text-lg sm:text-2xl md:text-3xl mb-8 sm:mb-14 ${darkMode ? 'text-white/80' : 'text-gray-700/80'} max-w-xs xs:max-w-sm sm:max-w-xl md:max-w-2xl mx-auto drop-shadow-lg font-light tracking-wide`}
+        className={`text-sm sm:text-base md:text-lg lg:text-xl mb-8 sm:mb-10 md:mb-12 ${darkMode ? 'text-white/70' : 'text-gray-600'} max-w-sm sm:max-w-md md:max-w-lg mx-auto font-light leading-relaxed text-center px-2`}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5, duration: 1 }}
       >
-        <span className="bg-gradient-to-r from-orange-400 via-cyan-400 to-violet-500 bg-clip-text text-transparent font-semibold">Custom AI Development</span> — Transform your business with intelligent automation, chatbots, and <span className="text-orange-400 font-semibold">24/7 AI agents</span>.
+        Transform your business with intelligent automation, chatbots, and <span className="text-orange-400 font-medium">24/7 AI agents</span>.
       </motion.p>
       <motion.a
         href="http://ageantic.ai/#/startaicall"
-        className="inline-block w-full xs:w-auto bg-gradient-to-r from-orange-400 via-cyan-400 to-violet-500 text-white px-6 py-3 xs:px-10 xs:py-4 sm:px-14 sm:py-5 rounded-full font-black text-lg xs:text-2xl sm:text-3xl shadow-2xl hover:from-orange-500 hover:to-violet-700 hover:scale-110 focus:scale-95 transition-all drop-shadow-xl border-4 border-white/10 backdrop-blur-lg tracking-widest uppercase"
+        className="inline-block w-full xs:w-auto bg-gradient-to-r from-orange-400 via-cyan-400 to-violet-500 text-white px-8 py-4 xs:px-10 xs:py-4 sm:px-12 sm:py-5 rounded-full font-semibold text-base xs:text-lg sm:text-xl shadow-lg hover:shadow-xl hover:scale-105 focus:scale-95 transition-all duration-300 backdrop-blur-sm border border-white/20"
         variants={buttonVariants}
         whileHover="hover"
         whileTap="tap"
@@ -327,13 +327,13 @@ const Hero = ({ darkMode = false }) => {
 
     {/* Interactive Mascots Section - Integrated */}
     <motion.div
-      className="relative z-20 w-full max-w-5xl mx-auto px-4 mt-16 md:mt-24"
+      className="relative z-20 w-full max-w-4xl mx-auto px-4 sm:px-6 mt-16 sm:mt-20 md:mt-24"
       initial={{ opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 1.5, duration: 0.8 }}
     >
       {/* Mascot Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 md:gap-10">
         {mascots.map((mascot, index) => (
           <motion.div
             key={mascot.key}

@@ -71,17 +71,19 @@ const Contact = ({ darkMode }) => {
   return (
     <section
       id="contact"
-      className="relative py-24 w-full px-6 flex flex-col items-center"
+      className={`relative py-12 sm:py-16 md:py-20 lg:py-24 w-full px-4 sm:px-6 md:px-8 flex flex-col items-center transition-colors duration-300 ${
+        darkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'
+      }`}
     >
-      {/* Floating blurred accent shape */}
+      {/* Floating blurred accent shape - mobile optimized */}
       <motion.div
-        className="absolute -top-20 left-1/2 -translate-x-1/2 w-96 h-32 bg-gradient-to-r from-orange-400 via-cyan-400 to-orange-300 opacity-30 blur-3xl rounded-full z-0 animate-pulse"
+        className="absolute -top-20 left-1/2 -translate-x-1/2 w-64 sm:w-96 h-24 sm:h-32 bg-gradient-to-r from-orange-400 via-cyan-400 to-orange-300 opacity-30 blur-3xl rounded-full z-0 animate-pulse"
         aria-hidden="true"
       />
-      <div className="relative z-10 w-full flex flex-col items-center">
-        <h2 className="text-3xl md:text-4xl font-light text-center mb-8 tracking-tight">
+      <div className="relative z-10 w-full max-w-4xl flex flex-col items-center">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-light text-center mb-6 sm:mb-8 tracking-tight">
           <span className={`${darkMode ? 'text-white' : 'text-gray-900'}`}>Get in</span>{' '}
-          <span className="bg-gradient-to-r from-blue-400 via-purple-500 to-blue-600 bg-clip-text text-transparent">Touch</span>
+          <span className="bg-gradient-to-r from-orange-400 via-cyan-400 to-violet-500 bg-clip-text text-transparent">Touch</span>
         </h2>
         {submitted ? (
           <motion.div

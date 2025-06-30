@@ -3,20 +3,21 @@ import { Link } from "react-router-dom";
 
 export default function Footer({ darkMode }) {
   return (
-    <footer className={`relative w-full py-8 xs:py-12 sm:py-16 flex flex-col items-center bg-transparent text-center text-xs xs:text-sm md:text-lg mt-12 xs:mt-16 md:mt-24 transition-colors duration-300 ${
+    <footer className={`relative w-full py-8 sm:py-12 md:py-16 flex flex-col items-center bg-transparent text-center text-xs sm:text-sm md:text-base mt-8 sm:mt-12 md:mt-16 lg:mt-24 transition-colors duration-300 ${
       darkMode ? 'text-gray-200' : 'text-gray-700'
     }`}>
-      {/* Dramatic animated gradient and glassy overlays for footer */}
-      <div className="absolute -top-8 xs:-top-16 left-1/2 -translate-x-1/2 w-[90vw] sm:w-[40vw] h-8 sm:h-20 bg-gradient-to-r from-orange-400 via-cyan-400 to-orange-300 opacity-30 blur-2xl rounded-full z-0 animate-pulse" aria-hidden="true" />
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[70vw] sm:w-[30vw] h-4 sm:h-8 bg-gradient-to-r from-white/40 via-cyan-400/20 to-orange-400/20 opacity-20 blur-lg rounded-full z-0 pointer-events-none" aria-hidden="true" />
-      {/* Floating accent dots */}
+      {/* Dramatic animated gradient - mobile optimized */}
+      <div className="absolute -top-6 sm:-top-12 md:-top-16 left-1/2 -translate-x-1/2 w-[90vw] sm:w-[60vw] md:w-[40vw] h-6 sm:h-12 md:h-20 bg-gradient-to-r from-orange-400 via-cyan-400 to-orange-300 opacity-30 blur-2xl rounded-full z-0 animate-pulse" aria-hidden="true" />
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[70vw] sm:w-[40vw] md:w-[30vw] h-3 sm:h-6 md:h-8 bg-gradient-to-r from-white/40 via-cyan-400/20 to-orange-400/20 opacity-20 blur-lg rounded-full z-0 pointer-events-none" aria-hidden="true" />
+      
+      {/* Floating accent dots - fewer on mobile */}
       {[...Array(3)].map((_, i) => (
         <span
           key={i}
-          className={`absolute rounded-full blur-2xl ${i > 1 ? 'hidden xs:block' : ''}`}
+          className={`absolute rounded-full blur-2xl ${i > 0 ? 'hidden sm:block' : ''}`}
           style={{
-            width: 10 + i * 4,
-            height: 10 + i * 4,
+            width: 8 + i * 3,
+            height: 8 + i * 3,
             background: i % 2 === 0 ? '#E87811' : '#06b6d4',
             top: `${60 + i * 8}%`,
             left: `${30 + i * 20}%`,
@@ -25,28 +26,31 @@ export default function Footer({ darkMode }) {
           }}
         />
       ))}
-      <div className="relative z-10">
-        <p className="font-medium tracking-wide mb-2 text-sm md:text-base">
+      
+      <div className="relative z-10 px-4 sm:px-6">
+        <p className="font-medium tracking-wide mb-2 text-sm sm:text-base">
           <span className={`${darkMode ? 'text-white/80' : 'text-gray-700'}`}>© 2024</span>{' '}
-          <span className="bg-gradient-to-r from-blue-400 via-purple-500 to-blue-600 bg-clip-text text-transparent font-semibold">Agentic AI</span>
+          <span className="bg-gradient-to-r from-orange-400 via-cyan-400 to-violet-500 bg-clip-text text-transparent font-semibold">Agentic AI</span>
           <span className={`${darkMode ? 'text-white/80' : 'text-gray-700'}`}>. All rights reserved.</span>
         </p>
-        <p className={`text-xs xs:text-sm mb-3 font-medium tracking-wide ${
+        <p className={`text-xs sm:text-sm mb-3 font-medium tracking-wide ${
           darkMode ? 'text-gray-500' : 'text-gray-400'
         }`}>
           Formerly as WappDevelopers S.A. de C.V.
         </p>
-        <div className="flex flex-col xs:flex-row items-center justify-center gap-2 xs:gap-4 mb-2">
-          <p>
+        
+        {/* Mobile-first contact layout */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 mb-2">
+          <p className="text-center">
             Contact us: {" "}
             <a
               href="mailto:mauricio.perezflores@gmail.com"
-              className={`underline hover:text-orange-400 transition-colors font-semibold`}
+              className={`underline hover:text-orange-400 transition-colors font-semibold break-all sm:break-normal`}
             >
               mauricio.perezflores@gmail.com
             </a>
           </p>
-          <span className={`hidden xs:inline ${
+          <span className={`hidden sm:inline ${
             darkMode ? 'text-gray-500' : 'text-gray-400'
           }`}>•</span>
           <Link

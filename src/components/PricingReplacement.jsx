@@ -62,16 +62,16 @@ const PricingReplacement = ({ darkMode }) => {
   return (
     <section
       id="pricing"
-      className={`py-20 transition-colors duration-300 ${
+      className={`py-12 sm:py-16 md:py-20 transition-colors duration-300 ${
         darkMode 
           ? 'text-white' 
           : 'text-gray-900'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="text-center mb-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+        <div className="text-center mb-12 sm:mb-16">
           <motion.div
-            className={`inline-flex items-center gap-2 backdrop-blur-sm border rounded-full px-6 py-2 mb-6 ${
+            className={`inline-flex items-center gap-2 backdrop-blur-sm border rounded-full px-4 sm:px-6 py-2 mb-4 sm:mb-6 ${
               darkMode 
                 ? 'bg-white/5 border-white/10' 
                 : 'bg-gray-900/5 border-gray-900/10'
@@ -81,23 +81,23 @@ const PricingReplacement = ({ darkMode }) => {
             viewport={{ once: true }}
           >
             <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
-            <span className={`text-sm font-medium ${
+            <span className={`text-xs sm:text-sm font-medium ${
               darkMode ? 'text-white/80' : 'text-gray-700'
             }`}>Senior Engineering Hours</span>
           </motion.div>
 
           <motion.h2
-            className="text-3xl md:text-5xl font-light mb-6 tracking-tight"
+            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light mb-4 sm:mb-6 tracking-tight px-2"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
             <span className={`${darkMode ? 'text-white' : 'text-gray-900'}`}>Transparent</span>{' '}
-            <span className="bg-gradient-to-r from-blue-400 via-purple-500 to-blue-600 bg-clip-text text-transparent">Pricing</span>
+            <span className="bg-gradient-to-r from-orange-400 via-cyan-400 to-violet-500 bg-clip-text text-transparent">Pricing</span>
           </motion.h2>
 
           <motion.p
-            className={`text-xl leading-relaxed text-center ${
+            className={`text-base sm:text-lg md:text-xl leading-relaxed text-center px-2 max-w-3xl mx-auto ${
               darkMode ? 'text-gray-300' : 'text-gray-600'
             }`}
             initial={{ opacity: 0, y: 20 }}
