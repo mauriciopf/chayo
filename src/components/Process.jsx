@@ -39,7 +39,7 @@ const Process = () => (
 			aria-hidden="true"
 		/>
 		<motion.h2
-			className="text-4xl md:text-5xl font-extrabold text-center mb-8 bg-gradient-to-r from-orange-400 via-cyan-400 to-orange-400 bg-clip-text text-transparent drop-shadow-xl"
+			className="text-3xl md:text-4xl font-light text-center mb-8 bg-gradient-to-r from-emerald-600 to-emerald-800 bg-clip-text text-transparent"
 			initial={{ opacity: 0, y: -30 }}
 			whileInView={{ opacity: 1, y: 0 }}
 			viewport={{ once: true }}
@@ -47,7 +47,7 @@ const Process = () => (
 		>
 			Our Process
 		</motion.h2>
-		<p className="text-xl text-center text-white/70 mb-16 max-w-2xl mx-auto">
+		<p className="text-lg text-center text-gray-600 mb-16 max-w-2xl mx-auto">
 			From strategy to support, our streamlined process gets you AI-powered fast.
 		</p>
 		<motion.div
@@ -67,7 +67,7 @@ const Process = () => (
 					<span className="text-5xl md:text-6xl mb-4 drop-shadow-xl animate-float-slow">
 						{icon}
 					</span>
-					<span className="text-lg md:text-xl font-bold text-white tracking-widest uppercase">
+					<span className="text-lg md:text-xl font-bold text-gray-900 tracking-wide uppercase">
 						{title}
 					</span>
 				</motion.div>

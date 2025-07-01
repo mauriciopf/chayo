@@ -12,7 +12,7 @@ export default function ScrollToTopButton({ darkMode }) {
     <AnimatePresence>
       {show && (
         <motion.button
-          className="fixed bottom-24 right-6 z-50 bg-gradient-to-r from-orange-400 to-orange-600 text-white p-4 rounded-full shadow-xl hover:from-orange-500 hover:to-orange-700 transition-all focus:outline-none focus:ring-4 focus:ring-orange-400/50"
+          className="fixed bottom-24 right-6 z-50 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white p-4 rounded-full shadow-xl hover:from-emerald-600 hover:to-emerald-700 transition-all focus:outline-none focus:ring-4 focus:ring-emerald-400/50"
           initial={{ opacity: 0, scale: 0.7 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.7 }}

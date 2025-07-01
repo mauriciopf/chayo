@@ -33,7 +33,7 @@ export default function AgenticAIHome({ darkMode: parentDarkMode }) {
   }, []);
 
   return (
-    <div className="bg-black text-white transition-colors duration-700">
+    <div className="bg-gray-50 text-gray-900 transition-colors duration-700">
       <Helmet>
         <title>Agentic AI – AI Automation & Business Intelligence Solutions | Custom AI Development</title>
         <meta
@@ -176,7 +176,7 @@ export default function AgenticAIHome({ darkMode: parentDarkMode }) {
       <ScrollToTopButton darkMode={darkMode} />
 
       <main className="transition-colors duration-300">
-        <Hero darkMode={darkMode} />
+        <Hero darkMode={false} />
         <Services darkMode={darkMode} />
         <PricingReplacement darkMode={darkMode} setDarkMode={setDarkMode} />
         
@@ -197,19 +197,15 @@ export default function AgenticAIHome({ darkMode: parentDarkMode }) {
           {!isMobile && (
             <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[90vw] h-40 bg-gradient-to-r from-cyan-400 via-white/10 to-orange-400 opacity-10 blur-3xl rounded-full z-0 animate-float-slow" />
           )}
-          <motion.h2 className={`text-4xl md:text-6xl font-light mb-8 tracking-tight leading-tight ${
-            darkMode ? 'text-white' : 'text-gray-900'
-          }`}
+          <motion.h2 className="text-4xl md:text-6xl font-light mb-8 tracking-tight leading-tight text-gray-900"
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 1, delay: 0.2 }}
           >
             <span className="block text-2xl md:text-3xl font-light tracking-wide mb-2">Lead the Era of</span>
-            <span className="block bg-gradient-to-r from-blue-400 via-purple-500 to-blue-600 bg-clip-text text-transparent font-medium">Intelligent AI</span>
+            <span className="block bg-gradient-to-r from-emerald-600 to-emerald-800 bg-clip-text text-transparent font-medium">Intelligent AI</span>
           </motion.h2>
-          <motion.p className={`text-lg md:text-2xl mb-12 font-light tracking-wide leading-relaxed max-w-3xl mx-auto text-center ${
-            darkMode ? 'text-white/70' : 'text-gray-600'
-          }`}
+          <motion.p className="text-lg md:text-2xl mb-12 font-light tracking-wide leading-relaxed max-w-3xl mx-auto text-center text-gray-600"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
@@ -271,8 +267,8 @@ export default function AgenticAIHome({ darkMode: parentDarkMode }) {
           <motion.div className="relative p-0 z-10 flex flex-col items-center text-center md:text-left"
             whileHover={isMobile ? {} : { scale: 1.06, rotate: -2 }}
           >
-            <h3 className="text-3xl md:text-4xl font-black mb-12 text-cyan-400 uppercase tracking-[.25em] letter-spacing-wide drop-shadow-xl">In-House</h3>
-            <ul className="space-y-8 text-2xl text-white/70 font-light">
+            <h3 className="text-3xl md:text-4xl font-black mb-12 text-emerald-600 uppercase tracking-[.25em] letter-spacing-wide">In-House</h3>
+            <ul className="space-y-8 text-2xl text-gray-600 font-light">
               <li className="flex items-center gap-4"><span className="text-3xl">✖️</span> Higher costs</li>
               <li className="flex items-center gap-4"><span className="text-3xl">✖️</span> Slower response times</li>
               <li className="flex items-center gap-4"><span className="text-3xl">✖️</span> Limited scalability</li>
@@ -281,8 +277,8 @@ export default function AgenticAIHome({ darkMode: parentDarkMode }) {
           <motion.div className="relative p-0 z-10 flex flex-col items-center text-center md:text-left"
             whileHover={isMobile ? {} : { scale: 1.06, rotate: 2 }}
           >
-            <h3 className="text-3xl md:text-4xl font-black mb-12 text-cyan-400 uppercase tracking-[.25em] letter-spacing-wide drop-shadow-xl">With AGENTIC AI</h3>
-            <ul className="space-y-8 text-2xl text-white/90 font-light">
+            <h3 className="text-3xl md:text-4xl font-black mb-12 text-emerald-700 uppercase tracking-[.25em] letter-spacing-wide">With AGENTIC AI</h3>
+            <ul className="space-y-8 text-2xl text-gray-700 font-light">
               <li className="flex items-center gap-4"><span className="text-3xl">✅</span> Reduced costs</li>
               <li className="flex items-center gap-4"><span className="text-3xl">✅</span> 24/7 instant responses</li>
               <li className="flex items-center gap-4"><span className="text-3xl">✅</span> Scales with your business</li>
@@ -306,25 +302,25 @@ export default function AgenticAIHome({ darkMode: parentDarkMode }) {
         >
           {/* Floating blurred accent shape */}
           <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-80 h-32 bg-gradient-to-r from-orange-400 via-cyan-400 to-violet-500 opacity-20 blur-2xl rounded-full z-0 animate-float-slow" />
-          <h2 className="text-4xl md:text-5xl font-extrabold mb-10 bg-gradient-to-r from-orange-400 via-cyan-400 to-violet-500 bg-clip-text text-transparent drop-shadow-xl tracking-tight"
+          <h2 className="text-3xl md:text-4xl font-light mb-10 bg-gradient-to-r from-emerald-600 to-emerald-800 bg-clip-text text-transparent tracking-tight"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1 }}
-            whileHover={{ letterSpacing: '0.15em', color: '#06b6d4', textShadow: '0 2px 32px #06b6d4' }}
+            whileHover={{ letterSpacing: '0.15em', color: '#10b981', textShadow: '0 2px 32px #10b981' }}
           >
-            Why Choose <span className="text-white/90">Agentic AI?</span>
+            Why Choose <span className="text-gray-900">Agentic AI?</span>
           </h2>
           <div className="grid md:grid-cols-2 gap-12 text-left mt-10 relative z-10">
             <div>
-              <h3 className="text-xl font-bold mb-4 text-orange-200">Business Outcomes</h3>
-              <ul className="space-y-3 text-lg text-white/80">
-                <li>• Reduce operational costs by up to <AnimatedCounter value={60} duration={1.5} className="text-orange-400 font-bold text-2xl inline" />%</li>
-                <li>• <AnimatedCounter value={24} duration={1.2} className="text-orange-400 font-bold text-2xl inline" />/<AnimatedCounter value={7} duration={1.2} className="text-orange-400 font-bold text-2xl inline" /> instant customer service—no downtime</li>
+              <h3 className="text-xl font-bold mb-4 text-emerald-700">Business Outcomes</h3>
+              <ul className="space-y-3 text-lg text-gray-700">
+                <li>• Reduce operational costs by up to <AnimatedCounter value={60} duration={1.5} className="text-emerald-600 font-bold text-2xl inline" />%</li>
+                <li>• <AnimatedCounter value={24} duration={1.2} className="text-emerald-600 font-bold text-2xl inline" />/<AnimatedCounter value={7} duration={1.2} className="text-emerald-600 font-bold text-2xl inline" /> instant customer service—no downtime</li>
                 <li>• Eliminate manual errors and repetitive tasks</li>
                 <li>• Scale your team instantly as your business grows</li>
               </ul>
-              <h3 className="text-xl font-bold mt-8 mb-4 text-orange-200">Industries & Use Cases</h3>
-              <ul className="space-y-3 text-lg text-white/80">
+              <h3 className="text-xl font-bold mt-8 mb-4 text-emerald-700">Industries & Use Cases</h3>
+              <ul className="space-y-3 text-lg text-gray-700">
                 <li>• E-commerce: Automated order updates, product Q&A</li>
                 <li>• Healthcare: Appointment scheduling, patient support</li>
                 <li>• Real Estate: Lead qualification, property info</li>
@@ -332,15 +328,15 @@ export default function AgenticAIHome({ darkMode: parentDarkMode }) {
               </ul>
             </div>
             <div>
-              <h3 className="text-xl font-bold mb-4 text-orange-200">Security & Integration</h3>
-              <ul className="space-y-3 text-lg text-white/80">
+              <h3 className="text-xl font-bold mb-4 text-emerald-700">Security & Integration</h3>
+              <ul className="space-y-3 text-lg text-gray-700">
                 <li>• Enterprise-grade security & compliance</li>
                 <li>• Seamless integration with your existing tools</li>
                 <li>• GDPR-ready and privacy-focused</li>
                 <li>• Ongoing support and continuous improvement</li>
               </ul>
-              <h3 className="text-xl font-bold mt-8 mb-4 text-orange-200">Our Promise</h3>
-              <ul className="space-y-3 text-lg text-white/80">
+              <h3 className="text-xl font-bold mt-8 mb-4 text-emerald-700">Our Promise</h3>
+              <ul className="space-y-3 text-lg text-gray-700">
                 <li>• Dedicated AI experts for your business</li>
                 <li>• Transparent pricing, no hidden fees</li>
                 <li>• Fast onboarding and personalized setup</li>

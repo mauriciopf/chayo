@@ -62,28 +62,18 @@ const PricingReplacement = ({ darkMode }) => {
   return (
     <section
       id="pricing"
-      className={`py-12 sm:py-16 md:py-20 transition-colors duration-300 ${
-        darkMode 
-          ? 'text-white' 
-          : 'text-gray-900'
-      }`}
+      className="py-12 sm:py-16 md:py-20 transition-colors duration-300 text-gray-900"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
         <div className="text-center mb-12 sm:mb-16">
           <motion.div
-            className={`inline-flex items-center gap-2 backdrop-blur-sm border rounded-full px-4 sm:px-6 py-2 mb-4 sm:mb-6 ${
-              darkMode 
-                ? 'bg-white/5 border-white/10' 
-                : 'bg-gray-900/5 border-gray-900/10'
-            }`}
+            className="inline-flex items-center gap-2 backdrop-blur-sm border rounded-full px-4 sm:px-6 py-2 mb-4 sm:mb-6 bg-gray-900/5 border-gray-900/10"
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
           >
-            <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
-            <span className={`text-xs sm:text-sm font-medium ${
-              darkMode ? 'text-white/80' : 'text-gray-700'
-            }`}>Senior Engineering Hours</span>
+            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+            <span className="text-xs sm:text-sm font-medium text-gray-700">Senior Engineering Hours</span>
           </motion.div>
 
           <motion.h2
@@ -92,14 +82,12 @@ const PricingReplacement = ({ darkMode }) => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <span className={`${darkMode ? 'text-white' : 'text-gray-900'}`}>Transparent</span>{' '}
-            <span className="bg-gradient-to-r from-orange-400 via-cyan-400 to-violet-500 bg-clip-text text-transparent">Pricing</span>
+            <span className="text-gray-900">Transparent</span>{' '}
+            <span className="bg-gradient-to-r from-emerald-600 to-emerald-800 bg-clip-text text-transparent">Pricing</span>
           </motion.h2>
 
           <motion.p
-            className={`text-base sm:text-lg md:text-xl leading-relaxed text-center px-2 max-w-3xl mx-auto ${
-              darkMode ? 'text-gray-300' : 'text-gray-600'
-            }`}
+            className="text-base sm:text-lg md:text-xl leading-relaxed text-center px-2 max-w-3xl mx-auto text-gray-600"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -133,11 +121,7 @@ const PricingReplacement = ({ darkMode }) => {
 
               {/* Card */}
               <div 
-                className={`relative h-full backdrop-blur-xl border rounded-2xl p-8 overflow-hidden group-hover:border-opacity-30 transition-all duration-300 ${
-                  darkMode 
-                    ? `bg-gradient-to-br ${pkg.gradient} border-white/10 group-hover:border-white/20` 
-                    : `bg-gradient-to-br from-white/80 to-gray-50/80 border-gray-200/50 group-hover:border-gray-300/50 shadow-lg`
-                }`}
+                className="relative h-full backdrop-blur-xl border rounded-2xl p-8 overflow-hidden group-hover:border-opacity-30 transition-all duration-300 bg-gradient-to-br from-white/80 to-gray-50/80 border-gray-200/50 group-hover:border-gray-300/50 shadow-lg"
               >
                 {/* Glow Effect */}
                 <div 
@@ -150,22 +134,14 @@ const PricingReplacement = ({ darkMode }) => {
                     <div className={`inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br ${pkg.borderGradient} rounded-full mb-4`}>
                       <span className="text-2xl font-bold text-white">{pkg.hours}</span>
                     </div>
-                    <h3 className={`text-2xl font-bold mb-2 ${
-                      darkMode ? 'text-white' : 'text-gray-900'
-                    }`}>{pkg.title}</h3>
-                    <p className={`text-sm ${
-                      darkMode ? 'text-gray-300' : 'text-gray-600'
-                    }`}>{pkg.description}</p>
+                    <h3 className="text-2xl font-bold mb-2 text-gray-900">{pkg.title}</h3>
+                    <p className="text-sm text-gray-600">{pkg.description}</p>
                   </div>
 
                   {/* Pricing */}
                   <div className="text-center mb-8">
-                    <div className={`text-4xl font-bold mb-1 ${
-                      darkMode ? 'text-white' : 'text-gray-900'
-                    }`}>{pkg.price}</div>
-                    <div className={`text-sm mb-2 ${
-                      darkMode ? 'text-gray-400' : 'text-gray-600'
-                    }`}>{pkg.hours} engineering hours</div>
+                    <div className="text-4xl font-bold mb-1 text-gray-900">{pkg.price}</div>
+                    <div className="text-sm mb-2 text-gray-600">{pkg.hours} engineering hours</div>
                     <div className={`text-sm font-medium bg-gradient-to-r ${pkg.borderGradient} bg-clip-text text-transparent`}>
                       {pkg.hourlyRate} (Save ${150 * pkg.hours - parseInt(pkg.price.replace(/[^0-9]/g, ''))})
                     </div>
@@ -180,9 +156,7 @@ const PricingReplacement = ({ darkMode }) => {
                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                           </svg>
                         </div>
-                        <span className={`text-sm leading-tight ${
-                          darkMode ? 'text-gray-300' : 'text-gray-600'
-                        }`}>{feature}</span>
+                        <span className="text-sm leading-tight text-gray-600">{feature}</span>
                       </li>
                     ))}
                   </ul>
@@ -192,10 +166,8 @@ const PricingReplacement = ({ darkMode }) => {
                     href="#contact"
                     className={`block w-full text-center py-4 rounded-xl font-semibold transition-all duration-300 ${
                       pkg.popular 
-                        ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg hover:shadow-orange-500/25' 
-                        : darkMode 
-                          ? 'bg-white/10 text-white hover:bg-white/20' 
-                          : 'bg-gray-900/10 text-gray-900 hover:bg-gray-900/20'
+                        ? 'bg-gradient-to-r from-emerald-600 to-emerald-700 text-white shadow-lg hover:shadow-emerald-500/25' 
+                        : 'bg-gray-900/10 text-gray-900 hover:bg-gray-900/20'
                     }`}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
@@ -221,48 +193,34 @@ const PricingReplacement = ({ darkMode }) => {
               ? 'bg-white/5 border-white/10' 
               : 'bg-white/60 border-gray-200/50 shadow-lg'
           }`}>
-            <h3 className={`text-2xl font-bold mb-4 ${
-              darkMode ? 'text-white' : 'text-gray-900'
-            }`}>Why Choose Hourly Consulting?</h3>
+            <h3 className="text-2xl font-bold mb-4 text-gray-900">Why Choose Hourly Consulting?</h3>
             <div className="grid md:grid-cols-3 gap-6 text-left">
               <div>
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-lg flex items-center justify-center mb-4">
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                 </div>
-                <h4 className={`font-semibold mb-2 ${
-                  darkMode ? 'text-white' : 'text-gray-900'
-                }`}>Flexibility</h4>
-                <p className={`text-sm ${
-                  darkMode ? 'text-gray-400' : 'text-gray-600'
-                }`}>Scale up or down based on your project needs and timeline</p>
+                <h4 className="font-semibold mb-2 text-gray-900">Flexibility</h4>
+                <p className="text-sm text-gray-600">Scale up or down based on your project needs and timeline</p>
               </div>
               <div>
-                <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-amber-500 rounded-lg flex items-center justify-center mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-emerald-600 to-emerald-800 rounded-lg flex items-center justify-center mb-4">
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <h4 className={`font-semibold mb-2 ${
-                  darkMode ? 'text-white' : 'text-gray-900'
-                }`}>Transparency</h4>
-                <p className={`text-sm ${
-                  darkMode ? 'text-gray-400' : 'text-gray-600'
-                }`}>Know exactly what you're paying for with detailed time tracking</p>
+                <h4 className="font-semibold mb-2 text-gray-900">Transparency</h4>
+                <p className="text-sm text-gray-600">Know exactly what you're paying for with detailed time tracking</p>
               </div>
               <div>
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-gray-600 to-gray-800 rounded-lg flex items-center justify-center mb-4">
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
                   </svg>
                 </div>
-                <h4 className={`font-semibold mb-2 ${
-                  darkMode ? 'text-white' : 'text-gray-900'
-                }`}>Customization</h4>
-                <p className={`text-sm ${
-                  darkMode ? 'text-gray-400' : 'text-gray-600'
-                }`}>Every solution is tailored specifically to your business requirements</p>
+                <h4 className="font-semibold mb-2 text-gray-900">Customization</h4>
+                <p className="text-sm text-gray-600">Every solution is tailored specifically to your business requirements</p>
               </div>
             </div>
           </div>

@@ -47,9 +47,9 @@ const PrivacyPolicy = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          <div className="space-y-8 text-gray-200">
+          <div className="space-y-8 text-gray-900">
             <section>
-              <p className="text-gray-400 mb-6">
+              <p className="text-gray-600 mb-6">
                 <strong>Effective Date:</strong> June 18, 2025
               </p>
               <p className="mb-6">
@@ -166,8 +166,8 @@ const PrivacyPolicy = () => {
               </div>
             </section>
 
-            <section className="border-t border-gray-600 pt-8">
-              <p className="text-gray-400 text-center">
+            <section className="border-t border-gray-300 pt-8">
+              <p className="text-gray-600 text-center">
                 This Privacy Policy is designed to comply with GDPR, CCPA, and other applicable privacy regulations. 
                 Your privacy is important to us, and we are committed to maintaining the confidentiality and security of your information.
               </p>

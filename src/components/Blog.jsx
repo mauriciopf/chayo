@@ -13,7 +13,7 @@ const BlogPost = ({ title, excerpt, slug, date, readTime, category }) => (
       <span className="px-3 py-1 bg-gradient-to-r from-orange-400 to-cyan-400 text-black text-xs font-bold rounded-full">
         {category}
       </span>
-      <span className="text-gray-400 text-sm">{readTime} min read</span>
+      <span className="text-gray-600 text-sm">{readTime} min read</span>
     </div>
     
     <h3 className="text-xl font-bold text-white mb-3 hover:text-orange-400 transition-colors">
