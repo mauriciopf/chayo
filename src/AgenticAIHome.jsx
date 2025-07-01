@@ -14,12 +14,23 @@ import IndustryProcess from "./components/IndustryProcess";
 
 export default function AgenticAIHome({ darkMode: parentDarkMode }) {
   const [darkMode, setDarkMode] = useState(parentDarkMode ?? true);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     if (parentDarkMode !== undefined) {
       setDarkMode(parentDarkMode);
     }
   }, [parentDarkMode]);
+
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768 || /Mobi|Android/i.test(navigator.userAgent));
+    };
+    
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
 
   return (
     <div className="bg-black text-white transition-colors duration-700">
@@ -182,8 +193,10 @@ export default function AgenticAIHome({ darkMode: parentDarkMode }) {
           whileHover={{ scale: 1.01, boxShadow: '0 8px 64px 0 rgba(6,182,212,0.10)' }}
           animate={{ backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'] }}
         >
-          {/* Floating blurred accent shape (subtle, Apple-style) */}
-          <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[90vw] h-40 bg-gradient-to-r from-cyan-400 via-white/10 to-orange-400 opacity-10 blur-3xl rounded-full z-0 animate-float-slow" />
+          {/* Floating blurred accent shape (subtle, Apple-style) - hidden on mobile */}
+          {!isMobile && (
+            <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[90vw] h-40 bg-gradient-to-r from-cyan-400 via-white/10 to-orange-400 opacity-10 blur-3xl rounded-full z-0 animate-float-slow" />
+          )}
           <motion.h2 className={`text-4xl md:text-6xl font-light mb-8 tracking-tight leading-tight ${
             darkMode ? 'text-white' : 'text-gray-900'
           }`}
@@ -225,32 +238,38 @@ export default function AgenticAIHome({ darkMode: parentDarkMode }) {
           transition={{ duration: 1 }}
           whileHover={{ scale: 1.01, boxShadow: '0 8px 64px 0 rgba(6,182,212,0.10)' }}
         >
-          {/* Animated blurred accent shapes and parallax divider */}
-          <motion.div
-            className="absolute -top-40 left-1/3 w-[28rem] h-[28rem] bg-gradient-to-br from-cyan-400 to-white/10 opacity-10 blur-3xl rounded-full z-0 animate-float-slow"
-            style={{ filter: 'blur(80px)' }}
-            initial={{ y: -30 }}
-            whileInView={{ y: 0 }}
-            transition={{ duration: 1.2, type: 'spring' }}
-          />
-          <motion.div
-            className="absolute -bottom-56 right-1/3 w-[36rem] h-[36rem] bg-gradient-to-br from-orange-300 to-cyan-400 opacity-10 blur-3xl rounded-full z-0 animate-float-slower"
-            style={{ filter: 'blur(100px)' }}
-            initial={{ y: 30 }}
-            whileInView={{ y: 0 }}
-            transition={{ duration: 1.2, type: 'spring' }}
-          />
-          {/* Animated vertical line accent */}
-          <motion.div
-            className="absolute left-1/2 top-0 -translate-x-1/2 w-1 h-full bg-gradient-to-b from-cyan-400/60 via-white/0 to-orange-400/60 opacity-60 rounded-full pointer-events-none"
-            initial={{ scaleY: 0.7, opacity: 0 }}
-            whileInView={{ scaleY: 1, opacity: 1 }}
-            animate={{ scaleX: [1, 1.08, 1], opacity: [0.7, 1, 0.7] }}
-            transition={{ duration: 2.2, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
-            style={{ zIndex: 1 }}
-          />
+          {/* Animated blurred accent shapes and parallax divider - hide heavy animations on mobile */}
+          {!isMobile && (
+            <motion.div
+              className="absolute -top-40 left-1/3 w-[28rem] h-[28rem] bg-gradient-to-br from-cyan-400 to-white/10 opacity-10 blur-3xl rounded-full z-0 animate-float-slow"
+              style={{ filter: 'blur(80px)' }}
+              initial={{ y: -30 }}
+              whileInView={{ y: 0 }}
+              transition={{ duration: 1.2, type: 'spring' }}
+            />
+          )}
+          {!isMobile && (
+            <motion.div
+              className="absolute -bottom-56 right-1/3 w-[36rem] h-[36rem] bg-gradient-to-br from-orange-300 to-cyan-400 opacity-10 blur-3xl rounded-full z-0 animate-float-slower"
+              style={{ filter: 'blur(100px)' }}
+              initial={{ y: 30 }}
+              whileInView={{ y: 0 }}
+              transition={{ duration: 1.2, type: 'spring' }}
+            />
+          )}
+          {/* Animated vertical line accent - simplified on mobile */}
+          {!isMobile && (
+            <motion.div
+              className="absolute left-1/2 top-0 -translate-x-1/2 w-1 h-full bg-gradient-to-b from-cyan-400/60 via-white/0 to-orange-400/60 opacity-60 rounded-full pointer-events-none"
+              initial={{ scaleY: 0.7, opacity: 0 }}
+              whileInView={{ scaleY: 1, opacity: 1 }}
+              animate={{ scaleX: [1, 1.08, 1], opacity: [0.7, 1, 0.7] }}
+              transition={{ duration: 2.2, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
+              style={{ zIndex: 1 }}
+            />
+          )}
           <motion.div className="relative p-0 z-10 flex flex-col items-center text-center md:text-left"
-            whileHover={{ scale: 1.06, rotate: -2 }}
+            whileHover={isMobile ? {} : { scale: 1.06, rotate: -2 }}
           >
             <h3 className="text-3xl md:text-4xl font-black mb-12 text-cyan-400 uppercase tracking-[.25em] letter-spacing-wide drop-shadow-xl">In-House</h3>
             <ul className="space-y-8 text-2xl text-white/70 font-light">
@@ -260,7 +279,7 @@ export default function AgenticAIHome({ darkMode: parentDarkMode }) {
             </ul>
           </motion.div>
           <motion.div className="relative p-0 z-10 flex flex-col items-center text-center md:text-left"
-            whileHover={{ scale: 1.06, rotate: 2 }}
+            whileHover={isMobile ? {} : { scale: 1.06, rotate: 2 }}
           >
             <h3 className="text-3xl md:text-4xl font-black mb-12 text-cyan-400 uppercase tracking-[.25em] letter-spacing-wide drop-shadow-xl">With AGENTIC AI</h3>
             <ul className="space-y-8 text-2xl text-white/90 font-light">
@@ -333,74 +352,94 @@ export default function AgenticAIHome({ darkMode: parentDarkMode }) {
         <div className="section-divider" />
         {/* FAQ Section */}
         <section id="faq" className="relative max-w-3xl mx-auto py-44 md:py-[15vw] px-2 sm:px-8 flex flex-col items-center">
-          {/* Animated blurred accent shapes, parallax divider, and floating accent dots */}
-          <motion.div
-            className="absolute -top-48 left-1/2 -translate-x-1/2 w-[36rem] h-[36rem] bg-gradient-to-br from-cyan-400 to-white/10 opacity-10 blur-3xl rounded-full z-0 animate-float-slow"
-            style={{ filter: 'blur(100px)' }}
-            initial={{ y: -40, scale: 0.95, opacity: 0.7 }}
-            whileInView={{ y: 0, scale: 1, opacity: 1 }}
-            transition={{ duration: 1.4, type: 'spring' }}
-            animate={{ rotate: [0, 8, -8, 0] }}
-          />
-          <motion.div
-            className="absolute -bottom-64 left-1/2 -translate-x-1/2 w-[44rem] h-[44rem] bg-gradient-to-br from-orange-300 to-cyan-400 opacity-10 blur-3xl rounded-full z-0 animate-float-slower"
-            style={{ filter: 'blur(120px)' }}
-            initial={{ y: 40, scale: 0.95, opacity: 0.7 }}
-            whileInView={{ y: 0, scale: 1, opacity: 1 }}
-            transition={{ duration: 1.4, type: 'spring' }}
-            animate={{ rotate: [0, -8, 8, 0] }}
-          />
-          {/* Animated vertical line accent */}
-          <motion.div
-            className="absolute left-1/2 top-0 -translate-x-1/2 w-1 h-full bg-gradient-to-b from-cyan-400/60 via-white/0 to-orange-400/60 opacity-60 rounded-full pointer-events-none"
-            initial={{ scaleY: 0.7, opacity: 0 }}
-            whileInView={{ scaleY: 1, opacity: 1 }}
-            animate={{ scaleX: [1, 1.08, 1], opacity: [0.7, 1, 0.7] }}
-            transition={{ duration: 2.2, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
-            style={{ zIndex: 1 }}
-          />
-          {/* Floating accent dots */}
-          <motion.span className="absolute left-12 top-1/3 w-4 h-4 bg-cyan-400 rounded-full blur-md opacity-60 animate-float-slow"
-            animate={{ y: [0, -10, 10, 0] }} transition={{ duration: 3, repeat: Infinity }} />
-          <motion.span className="absolute right-12 bottom-1/4 w-3 h-3 bg-orange-400 rounded-full blur-md opacity-60 animate-float-slower"
-            animate={{ y: [0, 10, -10, 0] }} transition={{ duration: 3, repeat: Infinity }} />
-          <motion.span className="absolute left-1/4 bottom-1/4 w-2 h-2 bg-cyan-300 rounded-full blur-sm opacity-60 animate-float"
-            animate={{ x: [0, 8, -8, 0] }} transition={{ duration: 3, repeat: Infinity }} />
+          {/* Animated blurred accent shapes, parallax divider, and floating accent dots - hide on mobile */}
+          {!isMobile && (
+            <motion.div
+              className="absolute -top-48 left-1/2 -translate-x-1/2 w-[36rem] h-[36rem] bg-gradient-to-br from-cyan-400 to-white/10 opacity-10 blur-3xl rounded-full z-0 animate-float-slow"
+              style={{ filter: 'blur(100px)' }}
+              initial={{ y: -40, scale: 0.95, opacity: 0.7 }}
+              whileInView={{ y: 0, scale: 1, opacity: 1 }}
+              transition={{ duration: 1.4, type: 'spring' }}
+              animate={{ rotate: [0, 8, -8, 0] }}
+            />
+          )}
+          {!isMobile && (
+            <motion.div
+              className="absolute -bottom-64 left-1/2 -translate-x-1/2 w-[44rem] h-[44rem] bg-gradient-to-br from-orange-300 to-cyan-400 opacity-10 blur-3xl rounded-full z-0 animate-float-slower"
+              style={{ filter: 'blur(120px)' }}
+              initial={{ y: 40, scale: 0.95, opacity: 0.7 }}
+              whileInView={{ y: 0, scale: 1, opacity: 1 }}
+              transition={{ duration: 1.4, type: 'spring' }}
+              animate={{ rotate: [0, -8, 8, 0] }}
+            />
+          )}
+          {/* Animated vertical line accent - hide on mobile */}
+          {!isMobile && (
+            <motion.div
+              className="absolute left-1/2 top-0 -translate-x-1/2 w-1 h-full bg-gradient-to-b from-cyan-400/60 via-white/0 to-orange-400/60 opacity-60 rounded-full pointer-events-none"
+              initial={{ scaleY: 0.7, opacity: 0 }}
+              whileInView={{ scaleY: 1, opacity: 1 }}
+              animate={{ scaleX: [1, 1.08, 1], opacity: [0.7, 1, 0.7] }}
+              transition={{ duration: 2.2, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
+              style={{ zIndex: 1 }}
+            />
+          )}
+          {/* Floating accent dots - hide on mobile */}
+          {!isMobile && (
+            <>
+              <motion.span className="absolute left-12 top-1/3 w-4 h-4 bg-cyan-400 rounded-full blur-md opacity-60 animate-float-slow"
+                animate={{ y: [0, -10, 10, 0] }} transition={{ duration: 3, repeat: Infinity }} />
+              <motion.span className="absolute right-12 bottom-1/4 w-3 h-3 bg-orange-400 rounded-full blur-md opacity-60 animate-float-slower"
+                animate={{ y: [0, 10, -10, 0] }} transition={{ duration: 3, repeat: Infinity }} />
+              <motion.span className="absolute left-1/4 bottom-1/4 w-2 h-2 bg-cyan-300 rounded-full blur-sm opacity-60 animate-float"
+                animate={{ x: [0, 8, -8, 0] }} transition={{ duration: 3, repeat: Infinity }} />
+            </>
+          )}
           <FAQAccordion />
         </section>
         <div className="section-divider" />
         {/* Contact Section */}
         <section id="contact" className="relative max-w-2xl mx-auto py-44 md:py-[15vw] px-2 sm:px-8 flex flex-col items-center">
-          {/* Animated blurred accent shapes, parallax divider, and floating accent dots */}
-          <motion.div
-            className="absolute -top-48 left-1/2 -translate-x-1/2 w-[36rem] h-[36rem] bg-gradient-to-br from-cyan-400 to-white/10 opacity-10 blur-3xl rounded-full z-0 animate-float-slow"
-            style={{ filter: 'blur(100px)' }}
-            initial={{ y: -40, scale: 0.95, opacity: 0.7 }}
-            whileInView={{ y: 0, scale: 1, opacity: 1 }}
-            transition={{ duration: 1.4, type: 'spring' }}
-            animate={{ rotate: [0, 8, -8, 0] }}
-          />
-          <motion.div
-            className="absolute -bottom-64 left-1/2 -translate-x-1/2 w-[44rem] h-[44rem] bg-gradient-to-br from-orange-300 to-cyan-400 opacity-10 blur-3xl rounded-full z-0 animate-float-slower"
-            style={{ filter: 'blur(120px)' }}
-            initial={{ y: 40, scale: 0.95, opacity: 0.7 }}
-            whileInView={{ y: 0, scale: 1, opacity: 1 }}
-            transition={{ duration: 1.4, type: 'spring' }}
-            animate={{ rotate: [0, -8, 8, 0] }}
-          />
-          {/* Animated vertical line accent */}
-          <motion.div
-            className="absolute left-1/2 top-0 -translate-x-1/2 w-1 h-full bg-gradient-to-b from-cyan-400/60 via-white/0 to-orange-400/60 opacity-60 rounded-full pointer-events-none"
-            initial={{ scaleY: 0.7, opacity: 0 }}
-            whileInView={{ scaleY: 1, opacity: 1 }}
-            animate={{ scaleX: [1, 1.08, 1], opacity: [0.7, 1, 0.7] }}
-            transition={{ duration: 2.2, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
-            style={{ zIndex: 1 }}
-          />
-          {/* Floating accent dots */}
-          <motion.span className="absolute left-12 top-1/3 w-4 h-4 bg-cyan-400 rounded-full blur-md opacity-60 animate-float-slow" />
-          <motion.span className="absolute right-12 bottom-1/4 w-3 h-3 bg-orange-400 rounded-full blur-md opacity-60 animate-float-slower" />
-          <motion.span className="absolute left-1/4 bottom-1/4 w-2 h-2 bg-cyan-300 rounded-full blur-sm opacity-60 animate-float" />
+          {/* Animated blurred accent shapes, parallax divider, and floating accent dots - hide on mobile */}
+          {!isMobile && (
+            <motion.div
+              className="absolute -top-48 left-1/2 -translate-x-1/2 w-[36rem] h-[36rem] bg-gradient-to-br from-cyan-400 to-white/10 opacity-10 blur-3xl rounded-full z-0 animate-float-slow"
+              style={{ filter: 'blur(100px)' }}
+              initial={{ y: -40, scale: 0.95, opacity: 0.7 }}
+              whileInView={{ y: 0, scale: 1, opacity: 1 }}
+              transition={{ duration: 1.4, type: 'spring' }}
+              animate={{ rotate: [0, 8, -8, 0] }}
+            />
+          )}
+          {!isMobile && (
+            <motion.div
+              className="absolute -bottom-64 left-1/2 -translate-x-1/2 w-[44rem] h-[44rem] bg-gradient-to-br from-orange-300 to-cyan-400 opacity-10 blur-3xl rounded-full z-0 animate-float-slower"
+              style={{ filter: 'blur(120px)' }}
+              initial={{ y: 40, scale: 0.95, opacity: 0.7 }}
+              whileInView={{ y: 0, scale: 1, opacity: 1 }}
+              transition={{ duration: 1.4, type: 'spring' }}
+              animate={{ rotate: [0, -8, 8, 0] }}
+            />
+          )}
+          {/* Animated vertical line accent - hide on mobile */}
+          {!isMobile && (
+            <motion.div
+              className="absolute left-1/2 top-0 -translate-x-1/2 w-1 h-full bg-gradient-to-b from-cyan-400/60 via-white/0 to-orange-400/60 opacity-60 rounded-full pointer-events-none"
+              initial={{ scaleY: 0.7, opacity: 0 }}
+              whileInView={{ scaleY: 1, opacity: 1 }}
+              animate={{ scaleX: [1, 1.08, 1], opacity: [0.7, 1, 0.7] }}
+              transition={{ duration: 2.2, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
+              style={{ zIndex: 1 }}
+            />
+          )}
+          {/* Floating accent dots - hide on mobile */}
+          {!isMobile && (
+            <>
+              <motion.span className="absolute left-12 top-1/3 w-4 h-4 bg-cyan-400 rounded-full blur-md opacity-60 animate-float-slow" />
+              <motion.span className="absolute right-12 bottom-1/4 w-3 h-3 bg-orange-400 rounded-full blur-md opacity-60 animate-float-slower" />
+              <motion.span className="absolute left-1/4 bottom-1/4 w-2 h-2 bg-cyan-300 rounded-full blur-sm opacity-60 animate-float" />
+            </>
+          )}
           <Contact />
         </section>
         <div className="section-divider" />

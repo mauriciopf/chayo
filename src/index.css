@@ -194,3 +194,45 @@ button:hover {
     background-color: #f9f9f9;
   }
 }
+
+/* Mobile optimization for better scroll performance */
+@media (max-width: 767px) {
+  /* Reduce animation intensity and duration on mobile */
+  * {
+    animation-duration: 0.3s !important;
+    animation-delay: 0s !important;
+    transition-duration: 0.2s !important;
+    transition-delay: 0s !important;
+  }
+  
+  /* Disable CPU-intensive animations on mobile */
+  .animate-float,
+  .animate-float-slow,
+  .animate-float-slower {
+    animation: none !important;
+  }
+  
+  /* Reduce blur effects that can impact scroll performance */
+  .blur-3xl {
+    filter: blur(8px) !important;
+  }
+  
+  .blur-2xl {
+    filter: blur(4px) !important;
+  }
+  
+  /* Ensure scroll isn't blocked by animations */
+  section, div, main {
+    touch-action: pan-y pinch-zoom !important;
+  }
+}
+
+/* Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
