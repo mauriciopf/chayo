@@ -46,6 +46,11 @@ html, body {
   min-height: 100vh;
   scroll-behavior: smooth;
   transition: background-color 0.3s ease, color 0.3s ease;
+  /* Ensure mobile scrolling works properly */
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y pinch-zoom;
+  /* Prevent scroll blocking during animations */
+  overscroll-behavior: contain;
 }
 
 body {
@@ -152,6 +157,11 @@ button:hover {
   .section-glass {
     border-radius: 1.2rem;
     padding: 1.2rem;
+  }
+  
+  /* Ensure scrolling works during animations on mobile */
+  section, div, main {
+    touch-action: pan-y pinch-zoom;
   }
 }
 

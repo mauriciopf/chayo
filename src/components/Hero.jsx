@@ -239,7 +239,7 @@ const Hero = ({ darkMode = false }) => {
   const [selectedMascot, setSelectedMascot] = useState(null);
 
   return (
-  <section className={`relative ${darkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'} py-16 xs:py-20 sm:py-32 md:py-56 text-center overflow-hidden min-h-screen flex flex-col items-center justify-center`}>
+  <section className={`relative ${darkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'} py-16 xs:py-20 sm:py-32 md:py-40 text-center overflow-hidden min-h-screen flex flex-col items-center`} style={{ touchAction: 'pan-y pinch-zoom' }}>
     {/* Multi-layered animated 3D gradients and glassy overlays - mobile optimized */}
     <motion.div
       className="absolute left-1/2 top-0 -translate-x-1/2 w-[120vw] sm:w-[100vw] h-[40vh] sm:h-[60vh] bg-gradient-to-tr from-orange-400 via-cyan-400 to-violet-500 opacity-40 blur-3xl rounded-full z-0 animate-float-slow"
@@ -253,7 +253,7 @@ const Hero = ({ darkMode = false }) => {
       aria-hidden="true"
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 0.3, scale: 1 }}
-      transition={{ duration: 1.6, delay: 0.2 }}
+      transition={{ duration: 1.6, delay: 0.1 }}
     />
     {/* Parallax floating sparkles and light streaks - hide some on mobile */}
     {[...Array(8)].map((_, i) => (
@@ -280,14 +280,14 @@ const Hero = ({ darkMode = false }) => {
       aria-hidden="true"
       initial={{ opacity: 0, scaleX: 0.8 }}
       animate={{ opacity: 0.3, scaleX: 1 }}
-      transition={{ duration: 2.2, delay: 0.6 }}
+      transition={{ duration: 2.2, delay: 0.2 }}
     />
     {/* Floating mascot/icon, behind text - responsive size */}
     <motion.div
       className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-0 pointer-events-none select-none"
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 0.13 }}
-      transition={{ delay: 1.1, duration: 1.2, type: "spring" }}
+      transition={{ delay: 0.3, duration: 1.2, type: "spring" }}
     >
       <span className="text-[2rem] xs:text-[3rem] sm:text-[5rem] md:text-[8rem] drop-shadow-lg animate-float-slow opacity-40">
         🤖
@@ -307,7 +307,7 @@ const Hero = ({ darkMode = false }) => {
         className={`text-sm sm:text-base md:text-lg lg:text-xl mb-8 sm:mb-10 md:mb-12 ${darkMode ? 'text-white/70' : 'text-gray-600'} max-w-sm sm:max-w-md md:max-w-lg mx-auto font-light leading-relaxed text-center px-2`}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5, duration: 1 }}
+        transition={{ delay: 0.2, duration: 1 }}
       >
         Transform your business with intelligent automation, chatbots, and <span className="text-orange-400 font-medium">24/7 AI agents</span>.
       </motion.p>
@@ -319,7 +319,7 @@ const Hero = ({ darkMode = false }) => {
         whileTap="tap"
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 1, duration: 0.7 }}
+        transition={{ delay: 0.4, duration: 0.7 }}
       >
         Get Started
       </motion.a>
@@ -330,7 +330,7 @@ const Hero = ({ darkMode = false }) => {
       className="relative z-20 w-full max-w-4xl mx-auto px-4 sm:px-6 mt-16 sm:mt-20 md:mt-24"
       initial={{ opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 1.5, duration: 0.8 }}
+      transition={{ delay: 0.6, duration: 0.8 }}
     >
       {/* Mascot Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 md:gap-10">
@@ -340,7 +340,7 @@ const Hero = ({ darkMode = false }) => {
             className="relative group"
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1.7 + index * 0.2 }}
+            transition={{ duration: 0.8, delay: 0.8 + index * 0.1 }}
             onHoverStart={() => setHoveredMascot(mascot.key)}
             onHoverEnd={() => setHoveredMascot(null)}
             onClick={() => setSelectedMascot(selectedMascot === mascot.key ? null : mascot.key)}

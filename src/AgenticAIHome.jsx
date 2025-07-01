@@ -22,7 +22,7 @@ export default function AgenticAIHome({ darkMode: parentDarkMode }) {
   }, [parentDarkMode]);
 
   return (
-    <div className="min-h-screen bg-black text-white transition-colors duration-700">
+    <div className="bg-black text-white transition-colors duration-700">
       <Helmet>
         <title>Agentic AI – AI Automation & Business Intelligence Solutions | Custom AI Development</title>
         <meta
