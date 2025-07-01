@@ -163,6 +163,24 @@ button:hover {
   section, div, main {
     touch-action: pan-y pinch-zoom;
   }
+  
+  /* Disable motion animations on mobile for better performance */
+  * {
+    animation-duration: 0.1s !important;
+    animation-delay: 0s !important;
+    transition-duration: 0.1s !important;
+  }
+  
+  /* Re-enable essential transitions */
+  button, a, .hover\:scale-105:hover {
+    transition-duration: 0.2s !important;
+  }
+}
+
+/* CSS-only float animations */
+@keyframes float-y {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
 }
 
 @media (prefers-color-scheme: light) {
