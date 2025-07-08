@@ -2,7 +2,13 @@ import { motion } from "framer-motion";
 import { Helmet } from "react-helmet";
 import { useState, useEffect } from "react";
 
-export default function StartACall({ darkMode = true, setDarkMode }) {
+interface StartACallProps {
+  darkMode?: boolean;
+  setDarkMode: (darkMode: boolean) => void;
+  onClose?: () => void;
+}
+
+export default function StartACall({ darkMode = true, setDarkMode, onClose }: StartACallProps) {
   const [widgetReady, setWidgetReady] = useState(false);
 
   useEffect(() => {
@@ -110,32 +116,33 @@ export default function StartACall({ darkMode = true, setDarkMode }) {
                     type: mutation.type,
                     addedNodes: mutation.addedNodes.length,
                     removedNodes: mutation.removedNodes.length,
-                    target: mutation.target.tagName
+                    target: (mutation.target as Element).tagName
                   });
                   
                   // Check if new interactive elements were added
                   if (mutation.addedNodes.length > 0) {
                     mutation.addedNodes.forEach(node => {
                       if (node.nodeType === Node.ELEMENT_NODE) {
-                        console.log('New element added:', node.tagName, node.textContent?.trim());
+                        const element = node as Element;
+                        console.log('New element added:', element.tagName, element.textContent?.trim());
                         
                         // Look for buttons in newly added content
-                        if (node.tagName === 'BUTTON') {
-                          console.log('*** NEW BUTTON DETECTED! ***', node.textContent?.trim());
+                        if (element.tagName === 'BUTTON') {
+                          console.log('*** NEW BUTTON DETECTED! ***', element.textContent?.trim());
                           setTimeout(() => {
-                            node.click();
-                            console.log('Auto-clicked new button:', node.textContent?.trim());
+                            (element as HTMLButtonElement).click();
+                            console.log('Auto-clicked new button:', element.textContent?.trim());
                           }, 500);
                         }
                         
                         // Also check for buttons within newly added nodes
-                        const newButtons = node.querySelectorAll ? node.querySelectorAll('button, [role="button"]') : [];
+                        const newButtons = element.querySelectorAll ? element.querySelectorAll('button, [role="button"]') : [];
                         if (newButtons.length > 0) {
                           console.log(`*** ${newButtons.length} NEW BUTTONS FOUND IN ADDED CONTENT! ***`);
-                          newButtons.forEach((btn, btnIndex) => {
+                          newButtons.forEach((btn: Element, btnIndex: number) => {
                             console.log(`New button ${btnIndex}:`, btn.textContent?.trim());
                             setTimeout(() => {
-                              btn.click();
+                              (btn as HTMLButtonElement).click();
                               console.log(`Auto-clicked new button ${btnIndex}`);
                             }, 500 + btnIndex * 200);
                           });
@@ -163,7 +170,8 @@ export default function StartACall({ darkMode = true, setDarkMode }) {
                 const btnText = btn.textContent?.trim() || '';
                 const btnClass = btn.className || '';
                 const btnStyle = btn.getAttribute('style') || '';
-                const isVisible = btn.offsetWidth > 0 && btn.offsetHeight > 0;
+                const htmlBtn = btn as HTMLElement;
+                const isVisible = htmlBtn.offsetWidth > 0 && htmlBtn.offsetHeight > 0;
                 
                 console.log(`Clickable element ${index}:`, {
                   tag: btn.tagName,
@@ -178,7 +186,7 @@ export default function StartACall({ darkMode = true, setDarkMode }) {
                   console.log(`Attempting click on element ${index}...`);
                   
                   // Focus first
-                  if (btn.focus) btn.focus();
+                  if ((htmlBtn as any).focus) (htmlBtn as any).focus();
                   
                   // Get position for realistic click
                   const btnRect = btn.getBoundingClientRect();
@@ -202,7 +210,7 @@ export default function StartACall({ darkMode = true, setDarkMode }) {
                   
                   // Also try direct click
                   setTimeout(() => {
-                    btn.click();
+                    (btn as HTMLElement).click();
                     console.log(`Direct clicked element ${index}`);
                   }, 200);
                   
@@ -215,7 +223,7 @@ export default function StartACall({ darkMode = true, setDarkMode }) {
           setTimeout(() => {
             console.log('Method 3: Trying keyboard interaction...');
             
-            widget.focus();
+            (widget as HTMLElement).focus();
             
             const keyEvents = [
               new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter', bubbles: true }),

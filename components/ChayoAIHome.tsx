@@ -104,7 +104,11 @@ export default function ChayoAIHome({ darkMode: parentDarkMode }: ChayoAIHomePro
             className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <StartACall onClose={() => setShowStartACall(false)} />
+            <StartACall 
+              darkMode={darkMode}
+              setDarkMode={setDarkMode}
+              onClose={() => setShowStartACall(false)} 
+            />
           </motion.div>
         </motion.div>
       )}
