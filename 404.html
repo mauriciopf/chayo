@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Chayo AI - Page Not Found</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        h1 { font-size: 3rem; margin: 0 0 1rem; }
+        p { font-size: 1.25rem; margin: 0 0 2rem; opacity: 0.9; }
+        a {
+            background: white;
+            color: #059669;
+            padding: 1rem 2rem;
+            text-decoration: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+        a:hover { transform: scale(1.05); }
+    </style>
+    <script>
+        // Redirect to main app for SPA routing
+        const path = window.location.pathname;
+        if (path !== '/') {
+            window.location.replace('/#' + path);
+        }
+    </script>
+</head>
+<body>
+    <div>
+        <h1>404</h1>
+        <p>Page not found - redirecting to Chayo AI</p>
+        <a href="/">Go Home</a>
+    </div>
+</body>
+</html>
