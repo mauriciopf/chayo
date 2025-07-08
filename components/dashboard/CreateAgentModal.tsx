@@ -165,18 +165,20 @@ Instructions:
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
-          className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+          className="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-white/20"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <div className="flex items-center justify-between p-6 border-b border-gray-200/50">
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">Create New Agent</h2>
+              <h2 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                Create New Agent
+              </h2>
               <p className="text-sm text-gray-500 mt-1">Step {step} of 4</p>
             </div>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600"
+              className="text-gray-400 hover:text-purple-600 transition-colors duration-200"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -185,19 +187,19 @@ Instructions:
           </div>
 
           {/* Progress Bar */}
-          <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
+          <div className="px-6 py-4 bg-gradient-to-r from-purple-50/50 to-pink-50/50 border-b border-gray-200/50">
             <div className="flex items-center">
               {[1, 2, 3, 4].map((stepNumber) => (
                 <div key={stepNumber} className="flex items-center">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-200 ${
                     stepNumber <= step 
-                      ? 'bg-orange-400 text-white' 
+                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg' 
                       : 'bg-gray-200 text-gray-600'
                   }`}>
                     {stepNumber}
                   </div>
                   {stepNumber < 4 && (
-                    <div className={`h-1 w-12 mx-2 ${
+                    <div className={`h-1 w-12 mx-2 rounded-full transition-all duration-200 ${
                       stepNumber < step ? 'bg-orange-400' : 'bg-gray-200'
                     }`} />
                   )}
@@ -378,28 +380,34 @@ Instructions:
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-between p-6 border-t border-gray-200">
-            <button
+          <div className="flex items-center justify-between p-6 border-t border-gray-200/50">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={step === 1 ? onClose : () => setStep(step - 1)}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 rounded-xl transition-all duration-200"
             >
               {step === 1 ? 'Cancel' : 'Back'}
-            </button>
+            </motion.button>
 
             <div className="flex space-x-3">
               {step === 4 && (
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={handleFinish}
-                  className="px-6 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+                  className="px-6 py-2 text-sm font-medium text-gray-700 bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 rounded-xl transition-all duration-200"
                 >
                   Skip Documents
-                </button>
+                </motion.button>
               )}
               
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={step === 3 ? handleSubmit : step === 4 ? handleFinish : nextStep}
                 disabled={(!canProceed() || loading) && step !== 4}
-                className="px-6 py-2 text-sm font-medium text-white bg-orange-400 hover:bg-orange-500 disabled:bg-gray-300 disabled:cursor-not-allowed rounded-md transition-colors"
+                className="px-6 py-2 text-sm font-semibold text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed rounded-xl transition-all duration-200 shadow-lg"
               >
                 {loading ? (
                   <span className="flex items-center space-x-2">
@@ -410,7 +418,7 @@ Instructions:
                     <span>Creating...</span>
                   </span>
                 ) : step === 3 ? 'Create Agent' : step === 4 ? 'Finish' : 'Next'}
-              </button>
+              </motion.button>
             </div>
           </div>
         </motion.div>

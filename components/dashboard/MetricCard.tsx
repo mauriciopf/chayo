@@ -56,25 +56,31 @@ export default function MetricCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay }}
-      className="bg-white rounded-lg p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
+      whileHover={{ y: -4, scale: 1.02 }}
+      className="bg-white/80 backdrop-blur-md rounded-2xl p-6 shadow-xl border border-white/20 hover:shadow-2xl transition-all duration-300 relative overflow-hidden"
     >
-      <div className="flex items-center justify-between mb-4">
-        <div className={`w-10 h-10 rounded-lg ${color} flex items-center justify-center text-white text-lg`}>
-          {icon}
-        </div>
-        {change !== undefined && (
-          <div className={`flex items-center space-x-1 text-xs px-2 py-1 rounded-full ${getChangeColor()}`}>
-            {getTrendIcon()}
-            <span>{change > 0 ? '+' : ''}{change}%</span>
+      {/* Gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-50/30 via-pink-50/30 to-orange-50/30 pointer-events-none" />
+      
+      <div className="relative z-10">
+        <div className="flex items-center justify-between mb-4">
+          <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center text-white text-lg shadow-lg`}>
+            {icon}
           </div>
-        )}
+          {change !== undefined && (
+            <div className={`flex items-center space-x-1 text-xs px-3 py-1 rounded-full font-medium ${getChangeColor()}`}>
+              {getTrendIcon()}
+              <span>{change > 0 ? '+' : ''}{change}%</span>
+            </div>
+          )}
+        </div>
+        
+        <div className="mb-2">
+          <div className="text-3xl font-bold text-gray-900">{value}</div>
+        </div>
+        
+        <div className="text-sm text-gray-600 font-medium">{title}</div>
       </div>
-      
-      <div className="mb-2">
-        <div className="text-2xl font-bold text-gray-900">{value}</div>
-      </div>
-      
-      <div className="text-sm text-gray-600">{title}</div>
     </motion.div>
   )
 }

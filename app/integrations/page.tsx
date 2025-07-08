@@ -272,20 +272,25 @@ export default function IntegrationsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white/80 backdrop-blur-md shadow-lg border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <Link href="/dashboard" className="text-orange-600 hover:text-orange-700 mr-4">
+              <Link href="/dashboard" className="text-purple-600 hover:text-purple-700 mr-4">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
               </Link>
-              <h1 className="text-2xl font-bold text-gray-900">
-                Channel Integrations
-              </h1>
+              <motion.h1 
+                className="text-2xl lg:text-3xl font-black tracking-tight"
+                whileHover={{ scale: 1.02 }}
+              >
+                <span className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 bg-clip-text text-transparent">
+                  Channel Integrations
+                </span>
+              </motion.h1>
             </div>
             
             <div className="flex items-center space-x-4">
@@ -294,7 +299,7 @@ export default function IntegrationsPage() {
               </span>
               <Link
                 href="/dashboard"
-                className="bg-orange-400 hover:bg-orange-500 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-4 py-2 rounded-xl font-medium transition-all duration-200 shadow-lg"
               >
                 Back to Dashboard
               </Link>
@@ -307,23 +312,25 @@ export default function IntegrationsPage() {
         {/* Agent Selection */}
         {agents.length > 0 && (
           <div className="mb-8">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <h2 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
               Select an Agent to Connect Channels
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {agents.map((agent) => (
-                <button
+                <motion.button
                   key={agent.id}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={() => setSelectedAgent(agent.id)}
-                  className={`p-4 rounded-lg border-2 transition-all ${
+                  className={`p-4 rounded-xl border-2 transition-all duration-200 ${
                     selectedAgent === agent.id
-                      ? 'border-orange-500 bg-orange-50'
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? 'border-purple-500 bg-gradient-to-r from-purple-50 to-pink-50 shadow-lg'
+                      : 'border-gray-200 hover:border-purple-300 bg-white/80 backdrop-blur-sm'
                   }`}
                 >
                   <div className="flex items-center">
-                    <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center mr-3">
-                      <span className="text-orange-600 font-medium">
+                    <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mr-3">
+                      <span className="text-white font-medium">
                         {agent.name.charAt(0).toUpperCase()}
                       </span>
                     </div>
@@ -332,7 +339,7 @@ export default function IntegrationsPage() {
                       <p className="text-sm text-gray-500 truncate">{agent.greeting}</p>
                     </div>
                   </div>
-                </button>
+                </motion.button>
               ))}
             </div>
           </div>
@@ -360,7 +367,7 @@ export default function IntegrationsPage() {
         {/* Available Channels */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
               Available Channels
             </h2>
             <div className="text-sm text-gray-500">
@@ -375,7 +382,8 @@ export default function IntegrationsPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
-                className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
+                whileHover={{ scale: 1.02 }}
+                className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 overflow-hidden hover:shadow-2xl transition-all duration-300"
               >
                 <div className="p-6">
                   <div className="flex items-center justify-between mb-4">
@@ -423,17 +431,19 @@ export default function IntegrationsPage() {
                     </ul>
                   </div>
 
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={() => handleChannelSetup(channel)}
                     disabled={!canAccessChannel(channel) || channel.status === 'coming_soon' || !selectedAgent}
-                    className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${
+                    className={`w-full py-3 px-4 rounded-xl font-medium transition-all duration-200 ${
                       !canAccessChannel(channel)
                         ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                         : channel.status === 'coming_soon'
                         ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                         : !selectedAgent
                         ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                        : 'bg-orange-400 hover:bg-orange-500 text-white'
+                        : 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-lg'
                     }`}
                   >
                     {!canAccessChannel(channel)
@@ -444,7 +454,7 @@ export default function IntegrationsPage() {
                       ? 'Select Agent First'
                       : 'Connect Channel'
                     }
-                  </button>
+                  </motion.button>
                 </div>
               </motion.div>
             ))}
@@ -452,14 +462,14 @@ export default function IntegrationsPage() {
         </div>
 
         {/* Setup Instructions */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-blue-900 mb-4">
+        <div className="bg-white/80 backdrop-blur-md border border-white/20 rounded-2xl shadow-xl p-6">
+          <h3 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
             🔧 How Channel Integration Works
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h4 className="font-medium text-blue-800 mb-2">n8n Workflow Integration</h4>
-              <ul className="text-sm text-blue-700 space-y-1">
+              <h4 className="font-medium text-purple-800 mb-2">n8n Workflow Integration</h4>
+              <ul className="text-sm text-gray-700 space-y-1">
                 <li>• Each channel connects via custom n8n workflows</li>
                 <li>• Workflows handle message routing and responses</li>
                 <li>• Real-time synchronization with your AI agents</li>
@@ -467,8 +477,8 @@ export default function IntegrationsPage() {
               </ul>
             </div>
             <div>
-              <h4 className="font-medium text-blue-800 mb-2">Setup Process</h4>
-              <ul className="text-sm text-blue-700 space-y-1">
+              <h4 className="font-medium text-purple-800 mb-2">Setup Process</h4>
+              <ul className="text-sm text-gray-700 space-y-1">
                 <li>1. Select your AI agent</li>
                 <li>2. Choose channel to connect</li>
                 <li>3. Follow platform-specific setup steps</li>

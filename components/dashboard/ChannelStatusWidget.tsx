@@ -83,9 +83,9 @@ export default function ChannelStatusWidget({ agentId }: ChannelStatusWidgetProp
   const totalChannels = channels.length
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-6 border border-white/20">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">
+        <h3 className="text-lg font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
           Channel Status
         </h3>
         <div className="flex items-center space-x-2">
@@ -100,7 +100,7 @@ export default function ChannelStatusWidget({ agentId }: ChannelStatusWidgetProp
 
       <div className="space-y-3">
         {channels.map((channel) => (
-          <div key={channel.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+          <div key={channel.id} className="flex items-center justify-between p-3 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200">
             <div className="flex items-center space-x-3">
               <span className="text-xl">{channel.icon}</span>
               <div>
@@ -128,10 +128,10 @@ export default function ChannelStatusWidget({ agentId }: ChannelStatusWidgetProp
         ))}
       </div>
 
-      <div className="mt-4 pt-4 border-t">
+      <div className="mt-4 pt-4 border-t border-gray-200">
         <button
           onClick={() => window.location.href = '/integrations'}
-          className="w-full bg-orange-400 hover:bg-orange-500 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+          className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 shadow-lg"
         >
           Manage Channels
         </button>
