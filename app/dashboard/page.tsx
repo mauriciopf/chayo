@@ -125,7 +125,38 @@ function DashboardContent() {
       setLoading(false)
     }
 
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === 'SIGNED_IN' && session?.user) {
+          setUser(session.user)
+          setLoading(true)
+          
+          // Ensure user has organization and fetch data
+          await ensureUserHasOrganization(session.user)
+          await Promise.all([
+            fetchAgents(),
+            fetchSubscription(session.user.id),
+            fetchChannels(session.user.id)
+          ])
+          setLoading(false)
+        } else if (event === 'SIGNED_OUT') {
+          setUser(null)
+          setAgents([])
+          setSubscription(null)
+          setChannels([])
+          setOrganizations([])
+          setCurrentOrganization(null)
+          router.push('/auth')
+        }
+      }
+    )
+
+    // Initial load
     getUser()
+
+    // Cleanup subscription on unmount
+    return () => subscription.unsubscribe()
   }, [router, supabase.auth])
 
   // Handle upgrade flow from integrations page
@@ -227,8 +258,25 @@ function DashboardContent() {
   }
 
   const handleLogout = async () => {
-    await supabase.auth.signOut()
-    router.push('/')
+    try {
+      // Clear local state immediately to prevent UI issues
+      setUser(null)
+      setAgents([])
+      setSubscription(null)
+      setChannels([])
+      setOrganizations([])
+      setCurrentOrganization(null)
+      
+      // Sign out from Supabase
+      await supabase.auth.signOut()
+      
+      // Navigate to home page
+      router.push('/')
+    } catch (error) {
+      console.error('Error during logout:', error)
+      // Even if there's an error, still navigate away
+      router.push('/')
+    }
   }
 
   const handleUserUpdate = (updatedUser: User) => {
@@ -261,6 +309,17 @@ function DashboardContent() {
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
           className="w-8 h-8 border-2 border-purple-400 border-t-transparent rounded-full"
         />
+      </div>
+    )
+  }
+
+  // If user is null (logged out), don't render the dashboard
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
+        <div className="text-center">
+          <p className="text-gray-600">Redirecting to login...</p>
+        </div>
       </div>
     )
   }
@@ -312,12 +371,14 @@ function DashboardContent() {
             
             <div className="flex items-center space-x-4">
               <PlanBadge plan={subscription?.plan_name || 'free'} />
-              <UserProfile 
-                user={user!} 
-                subscription={subscription}
-                onLogout={handleLogout}
-                onManageBilling={() => setShowPlansModal(true)}
-              />
+              {user && (
+                <UserProfile 
+                  user={user} 
+                  subscription={subscription}
+                  onLogout={handleLogout}
+                  onManageBilling={() => setShowPlansModal(true)}
+                />
+              )}
             </div>
           </div>
         </div>
@@ -715,10 +776,16 @@ function DashboardContent() {
             )}
 
             {activeTab === 'profile' && user && (
-              <ProfileSettings 
-                user={user} 
-                onUserUpdate={handleUserUpdate}
-              />
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <ProfileSettings 
+                  user={user} 
+                  onUserUpdate={handleUserUpdate}
+                />
+              </motion.div>
             )}
           </div>
         </div>
@@ -767,7 +834,9 @@ function DashboardContent() {
           onSubscriptionUpdate={() => {
             setShowPlansModal(false)
             setTargetPlan(null)
-            fetchSubscription(user!.id)
+            if (user) {
+              fetchSubscription(user.id)
+            }
           }}
         />
       )}

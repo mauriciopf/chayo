@@ -10,18 +10,26 @@ export default function AuthCallback() {
 
   useEffect(() => {
     const handleAuthCallback = async () => {
-      const { data, error } = await supabase.auth.getSession()
-      
-      if (error) {
-        console.error('Auth callback error:', error)
-        router.push('/auth?error=' + encodeURIComponent(error.message))
-        return
-      }
+      try {
+        // Handle the auth callback by exchanging the code for a session
+        const { data, error } = await supabase.auth.getSession()
+        
+        if (error) {
+          console.error('Auth callback error:', error)
+          router.push('/auth?error=' + encodeURIComponent(error.message))
+          return
+        }
 
-      if (data.session) {
-        router.push('/dashboard')
-      } else {
-        router.push('/auth')
+        if (data.session) {
+          // Successfully authenticated, redirect to dashboard
+          router.push('/dashboard')
+        } else {
+          // No session, redirect back to auth
+          router.push('/auth')
+        }
+      } catch (error) {
+        console.error('Unexpected error in auth callback:', error)
+        router.push('/auth?error=' + encodeURIComponent('Authentication failed'))
       }
     }
 

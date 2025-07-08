@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
@@ -11,9 +11,48 @@ export default function AuthPage() {
   const [isSignUp, setIsSignUp] = useState(false)
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
+  const [initialLoading, setInitialLoading] = useState(true)
   const router = useRouter()
   
   const supabase = createClient()
+
+  // Check if user is already logged in and handle URL error parameters
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session) {
+          router.push('/dashboard')
+          return
+        }
+        
+        // Check for error in URL parameters
+        const urlParams = new URLSearchParams(window.location.search)
+        const error = urlParams.get('error')
+        if (error) {
+          setMessage(decodeURIComponent(error))
+        }
+      } catch (error) {
+        console.error('Error checking session:', error)
+      } finally {
+        setInitialLoading(false)
+      }
+    }
+
+    checkSession()
+  }, [router, supabase.auth])
+
+  // If still checking session, show loading
+  if (initialLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Checking authentication...</p>
+        </div>
+      </div>
+    )
+  }
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -32,15 +71,22 @@ export default function AuthPage() {
         if (error) throw error
         setMessage('Check your email for the confirmation link!')
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password
         })
         if (error) throw error
-        router.push('/dashboard')
+        
+        // Check if session was created successfully
+        if (data.session) {
+          router.push('/dashboard')
+        } else {
+          throw new Error('Login failed - no session created')
+        }
       }
     } catch (error: any) {
-      setMessage(error.message)
+      console.error('Auth error:', error)
+      setMessage(error.message || 'Authentication failed. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -48,6 +94,8 @@ export default function AuthPage() {
 
   const handleGoogleAuth = async () => {
     setLoading(true)
+    setMessage('')
+    
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -57,7 +105,8 @@ export default function AuthPage() {
       })
       if (error) throw error
     } catch (error: any) {
-      setMessage(error.message)
+      console.error('Google auth error:', error)
+      setMessage(error.message || 'Google authentication failed. Please try again.')
       setLoading(false)
     }
   }
