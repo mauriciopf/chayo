@@ -4,7 +4,7 @@ import PrivacyPolicy from './components/PrivacyPolicy';
 import Blog from './components/Blog';
 import StartACall from './components/StartACall';
 import './App.css'
-import AgenticAIHome from "./AgenticAIHome";
+import ChayoAIHome from "./ChayoAIHome";
 
 function App() {
   // Dark mode state management
@@ -48,7 +48,7 @@ function App() {
         : 'light bg-white text-gray-900'
     }`}>
       <Routes>
-        <Route path="/" element={<AgenticAIHome darkMode={darkMode} />} />
+        <Route path="/" element={<ChayoAIHome darkMode={darkMode} />} />
         <Route path="/privacy" element={<PrivacyPolicy darkMode={darkMode} setDarkMode={setDarkMode} />} />
         <Route path="/blog" element={<Blog darkMode={darkMode} setDarkMode={setDarkMode} />} />
         <Route path="/startaicall" element={<StartACall darkMode={darkMode} setDarkMode={setDarkMode} />} />

@@ -1,11 +1,11 @@
-# ageantic
-ageantic automation agency
+# chayo
+chayo automation agency
 
 ---
 
-# Agentic AI Site
+# Chayo AI Site
 
-A modern React + Vite + TailwindCSS landing page for Agentic AI.
+A modern React + Vite + TailwindCSS landing page for Chayo AI.
 
 ## Setup
 

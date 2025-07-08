@@ -1,9 +1,9 @@
 export const additionalSchema = {
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
-  "name": "Agentic AI",
+  "name": "Chayo AI",
   "description": "Expert AI automation and consulting services for business transformation",
-  "url": "https://ageantic.ai",
+  "url": "https://chayo.ai",
   "telephone": "Contact via email",
   "email": "mauricio.perezflores@gmail.com",
   "areaServed": "Worldwide",

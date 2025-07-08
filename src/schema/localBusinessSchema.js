@@ -2,11 +2,11 @@
 export const localBusinessSchema = {
   "@context": "https://schema.org",
   "@type": "ProfessionalService",
-  "name": "Agentic AI",
+  "name": "Chayo AI",
   "description": "Expert AI automation and consulting services for business transformation",
-  "url": "https://ageantic.ai",
-  "logo": "https://ageantic.ai/agentic-logo.svg",
-  "image": "https://ageantic.ai/agentic-logo.svg",
+  "url": "https://chayo.ai",
+  "logo": "https://chayo.ai/chayo-logo.svg",
+  "image": "https://chayo.ai/chayo-logo.svg",
   "telephone": "Contact via email",
   "email": "mauricio.perezflores@gmail.com",
   "address": {
@@ -42,7 +42,7 @@ export const localBusinessSchema = {
           "description": "Custom 24/7 AI chatbots for customer service and lead generation",
           "provider": {
             "@type": "Organization",
-            "name": "Agentic AI"
+            "name": "Chayo AI"
           }
         },
         "price": "Custom",
@@ -56,7 +56,7 @@ export const localBusinessSchema = {
           "description": "End-to-end automation solutions for operational efficiency",
           "provider": {
             "@type": "Organization",
-            "name": "Agentic AI"
+            "name": "Chayo AI"
           }
         },
         "price": "Custom",
@@ -70,7 +70,7 @@ export const localBusinessSchema = {
           "description": "Expert consultation on AI strategy and implementation",
           "provider": {
             "@type": "Organization",
-            "name": "Agentic AI"
+            "name": "Chayo AI"
           }
         },
         "price": "Custom",
@@ -90,7 +90,7 @@ export const localBusinessSchema = {
         "@type": "Person",
         "name": "Sarah Johnson"
       },
-      "reviewBody": "Agentic AI transformed our customer service with their chatbot solution. 60% cost reduction and 24/7 availability."
+      "reviewBody": "Chayo AI transformed our customer service with their chatbot solution. 60% cost reduction and 24/7 availability."
     },
     {
       "@type": "Review", 

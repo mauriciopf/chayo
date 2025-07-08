@@ -144,7 +144,7 @@ const Services = ({ darkMode }) => (
 					Let's discuss how our AI solutions can streamline your operations and drive growth.
 				</p>
 				<motion.a
-					href="http://ageantic.ai/#/startaicall"
+					href="http://chayo.ai/#/startaicall"
 					className="inline-block px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-semibold rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 text-base sm:text-lg"
 					whileHover={{ scale: 1.05, y: -2 }}
 					whileTap={{ scale: 0.98 }}

@@ -46,7 +46,7 @@ const Contact = ({ darkMode }) => {
           _cc: "mauricio.perezflores@gmail.com",
           _format: "plain",
           _language: "en",
-          _next: "https://ageantic.ai/thank-you"
+          _next: "https://chayo.ai/thank-you"
         }),
       });
 

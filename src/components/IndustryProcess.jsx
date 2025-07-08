@@ -174,7 +174,7 @@ export default function IndustryProcess({ darkMode }) {
 						Let's discuss how our AI solutions can streamline your operations and drive growth.
 					</p>
 					<motion.a
-						href="http://ageantic.ai/#/startaicall"
+						href="http://chayo.ai/#/startaicall"
 						className="inline-flex items-center px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-cyan-500 to-orange-500 text-white font-medium rounded-full hover:from-cyan-600 hover:to-orange-600 transition-all duration-300 shadow-lg hover:shadow-xl text-sm sm:text-base"
 						whileHover={{ scale: 1.05, y: -2 }}
 						whileTap={{ scale: 0.98 }}

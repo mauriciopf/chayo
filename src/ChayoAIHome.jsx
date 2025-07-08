@@ -12,7 +12,7 @@ import FAQAccordion from "./components/FAQAccordion";
 import ScrollToTopButton from "./components/ScrollToTopButton";
 import IndustryProcess from "./components/IndustryProcess";
 
-export default function AgenticAIHome({ darkMode: parentDarkMode }) {
+export default function ChayoAIHome({ darkMode: parentDarkMode }) {
   const [darkMode, setDarkMode] = useState(parentDarkMode ?? true);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -35,32 +35,32 @@ export default function AgenticAIHome({ darkMode: parentDarkMode }) {
   return (
     <div className="bg-gray-50 text-gray-900 transition-colors duration-700">
       <Helmet>
-        <title>Agentic AI – AI Automation & Business Intelligence Solutions | Custom AI Development</title>
+        <title>Chayo AI – AI Automation & Business Intelligence Solutions | Custom AI Development</title>
         <meta
           name="description"
           content="Transform your business with custom AI automation solutions. Expert AI consulting, chatbot development, and process automation services. Scale instantly with 24/7 AI agents. Get 60% cost reduction."
         />
         <meta name="keywords" content="AI automation, AI consulting services, business automation solutions, AI implementation, custom AI development, AI chatbots for business, process automation, AI transformation consulting, business intelligence, machine learning solutions, AI agents, automated customer service" />
-        <meta name="author" content="Agentic AI" />
+        <meta name="author" content="Chayo AI" />
         <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
         <meta name="googlebot" content="index, follow" />
         
         {/* Open Graph Tags */}
-        <meta property="og:title" content="Agentic AI – AI Automation & Business Intelligence Solutions" />
+        <meta property="og:title" content="Chayo AI – AI Automation & Business Intelligence Solutions" />
         <meta property="og:description" content="Transform your business with custom AI automation. Expert consulting, chatbot development, and 24/7 AI agents. Scale instantly with 60% cost reduction." />
-        <meta property="og:image" content="https://ageantic.ai/agentic-logo.svg" />
+        <meta property="og:image" content="https://chayo.ai/chayo-logo.svg" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
-        <meta property="og:url" content="https://ageantic.ai" />
+        <meta property="og:url" content="https://chayo.ai" />
         <meta property="og:type" content="website" />
-        <meta property="og:site_name" content="Agentic AI" />
+        <meta property="og:site_name" content="Chayo AI" />
         <meta property="og:locale" content="en_US" />
         
         {/* Twitter Card Tags */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Agentic AI – AI Automation & Business Intelligence Solutions" />
+        <meta name="twitter:title" content="Chayo AI – AI Automation & Business Intelligence Solutions" />
         <meta name="twitter:description" content="Transform your business with custom AI automation. Expert consulting, chatbot development, and 24/7 AI agents." />
-        <meta name="twitter:image" content="https://ageantic.ai/agentic-logo.svg" />
+        <meta name="twitter:image" content="https://chayo.ai/chayo-logo.svg" />
         
         {/* Business & Local SEO */}
         <meta name="geo.region" content="US" />
@@ -70,19 +70,19 @@ export default function AgenticAIHome({ darkMode: parentDarkMode }) {
         {/* Additional SEO Meta Tags */}
         <meta name="theme-color" content="#E87811" />
         <meta name="msapplication-TileColor" content="#E87811" />
-        <link rel="canonical" href="https://ageantic.ai" />
+        <link rel="canonical" href="https://chayo.ai" />
         
         <html lang="en" />
         <script type="application/ld+json">{`
           {
             "@context": "https://schema.org",
             "@type": "Organization",
-            "name": "Agentic AI",
-            "alternateName": "Agentic Artificial Intelligence",
-            "url": "https://ageantic.ai",
-            "logo": "https://ageantic.ai/agentic-logo.svg",
+            "name": "Chayo AI",
+            "alternateName": "Chayo Artificial Intelligence",
+            "url": "https://chayo.ai",
+            "logo": "https://chayo.ai/chayo-logo.svg",
             "sameAs": [
-              "https://mauriciopf.github.io/ageantic/"
+              "https://mauriciopf.github.io/chayo/"
             ],
             "contactPoint": {
               "@type": "ContactPoint",
@@ -123,11 +123,11 @@ export default function AgenticAIHome({ darkMode: parentDarkMode }) {
           {
             "@context": "https://schema.org",
             "@type": "WebSite",
-            "name": "Agentic AI",
-            "url": "https://ageantic.ai",
+            "name": "Chayo AI",
+            "url": "https://chayo.ai",
             "potentialAction": {
               "@type": "SearchAction",
-              "target": "https://ageantic.ai/?s={search_term_string}",
+              "target": "https://chayo.ai/?s={search_term_string}",
               "query-input": "required name=search_term_string"
             }
           }
@@ -140,7 +140,7 @@ export default function AgenticAIHome({ darkMode: parentDarkMode }) {
             "mainEntity": [
               {
                 "@type": "Question",
-                "name": "How fast can Agentic AI deploy automation for my business?",
+                "name": "How fast can Chayo AI deploy automation for my business?",
                 "acceptedAnswer": {
                   "@type": "Answer",
                   "text": "We deploy AI automation solutions in as little as 2-4 weeks, depending on complexity. Our rapid deployment process includes consultation, custom development, testing, and full integration with your existing systems."
@@ -166,7 +166,7 @@ export default function AgenticAIHome({ darkMode: parentDarkMode }) {
           }
             },
             "sameAs": [
-              "https://www.instagram.com/agenticai"
+              "https://www.instagram.com/chayoai"
             ]
           }
         `}</script>
@@ -180,7 +180,7 @@ export default function AgenticAIHome({ darkMode: parentDarkMode }) {
         <Services darkMode={darkMode} />
         <PricingReplacement darkMode={darkMode} setDarkMode={setDarkMode} />
         
-        {/* Additional content sections from original AgenticAIHome */}
+        {/* Additional content sections from original ChayoAIHome */}
         {/* Apple-inspired ultra-clean, spacious layout */}
         {/* Animated CTA Section */}
         <motion.section
@@ -214,7 +214,7 @@ export default function AgenticAIHome({ darkMode: parentDarkMode }) {
             Experience the next level of automation, intelligence, and business growth—powered by elegant, human-centered AI.
           </motion.p>
           <motion.a
-            href="http://ageantic.ai/#/startaicall"
+            href="http://chayo.ai/#/startaicall"
             className="inline-block bg-cyan-400 text-black px-12 py-5 rounded-full font-bold text-xl shadow-xl hover:bg-cyan-300 focus:bg-cyan-500 transition-all duration-200 drop-shadow-lg tracking-wide uppercase"
             whileHover={{ scale: 1.12, backgroundColor: '#06b6d4', color: '#fff', boxShadow: '0 4px 32px 0 #06b6d4' }}
             whileTap={{ scale: 0.97 }}
@@ -277,7 +277,7 @@ export default function AgenticAIHome({ darkMode: parentDarkMode }) {
           <motion.div className="relative p-0 z-10 flex flex-col items-center text-center md:text-left"
             whileHover={isMobile ? {} : { scale: 1.06, rotate: 2 }}
           >
-            <h3 className="text-3xl md:text-4xl font-black mb-12 text-emerald-700 uppercase tracking-[.25em] letter-spacing-wide">With AGENTIC AI</h3>
+            <h3 className="text-3xl md:text-4xl font-black mb-12 text-emerald-700 uppercase tracking-[.25em] letter-spacing-wide">With CHAYO AI</h3>
             <ul className="space-y-8 text-2xl text-gray-700 font-light">
               <li className="flex items-center gap-4"><span className="text-3xl">✅</span> Reduced costs</li>
               <li className="flex items-center gap-4"><span className="text-3xl">✅</span> 24/7 instant responses</li>
@@ -290,7 +290,7 @@ export default function AgenticAIHome({ darkMode: parentDarkMode }) {
         {/* Unified AI Solutions & Process Section */}
         <IndustryProcess />
         <div className="section-divider" />
-        {/* Why Agentic AI Section */}
+        {/* Why Chayo AI Section */}
         <motion.section
           className="relative p-10 text-center overflow-visible"
           style={{ background: 'linear-gradient(120deg, rgba(255,255,255,0.01) 0%, rgba(255,255,255,0.04) 100%)' }}
@@ -308,7 +308,7 @@ export default function AgenticAIHome({ darkMode: parentDarkMode }) {
             transition={{ duration: 1 }}
             whileHover={{ letterSpacing: '0.15em', color: '#10b981', textShadow: '0 2px 32px #10b981' }}
           >
-            Why Choose <span className="text-gray-900">Agentic AI?</span>
+            Why Choose <span className="text-gray-900">Chayo AI?</span>
           </h2>
           <div className="grid md:grid-cols-2 gap-12 text-left mt-10 relative z-10">
             <div>

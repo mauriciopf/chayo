@@ -53,7 +53,7 @@ const PrivacyPolicy = () => {
                 <strong>Effective Date:</strong> June 18, 2025
               </p>
               <p className="mb-6">
-                At Agentic AI, we are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, and safeguard your data when you use our services.
+                At Chayo AI, we are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, and safeguard your data when you use our services.
               </p>
             </section>
 

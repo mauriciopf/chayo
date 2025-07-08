@@ -291,7 +291,7 @@ export default function StartACall({ darkMode = true, setDarkMode }) {
         : 'bg-gradient-to-br from-gray-50 via-white to-gray-100 text-gray-900'
     }`}>
       <Helmet>
-        <title>Start Your AI Call - Agentic AI</title>
+        <title>Start Your AI Call - Chayo AI</title>
         <meta name="description" content="Connect with our AI agent for instant business consultation" />
       </Helmet>
       

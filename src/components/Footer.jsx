@@ -28,7 +28,7 @@ export default function Footer({ darkMode }) {
       <div className="relative z-10 px-4 sm:px-6">
         <p className="font-medium tracking-wide mb-2 text-sm sm:text-base">
           <span className="text-gray-700">© 2024</span>{' '}
-          <span className="bg-gradient-to-r from-emerald-600 to-emerald-800 bg-clip-text text-transparent font-semibold">Agentic AI</span>
+          <span className="bg-gradient-to-r from-emerald-600 to-emerald-800 bg-clip-text text-transparent font-semibold">Chayo AI</span>
           <span className="text-gray-700">. All rights reserved.</span>
         </p>
         <p className="text-xs sm:text-sm mb-3 font-medium tracking-wide text-gray-600">

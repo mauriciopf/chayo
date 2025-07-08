@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const faqs = [
 	{
-		q: "How fast can Agentic AI deploy automation for my business?",
+		q: "How fast can Chayo AI deploy automation for my business?",
 		a: "Most clients are up and running in under 2 weeks, with custom AI agents tailored to your workflows.",
 	},
 	{
@@ -11,11 +11,11 @@ const faqs = [
 		a: "Absolutely. We use enterprise-grade encryption and comply with GDPR and other major standards.",
 	},
 	{
-		q: "Can Agentic AI integrate with my existing tools?",
+		q: "Can Chayo AI integrate with my existing tools?",
 		a: "Yes! We support integration with CRMs, e-commerce, messaging, and more.",
 	},
 	{
-		q: "Do I need technical expertise to use Agentic AI?",
+		q: "Do I need technical expertise to use Chayo AI?",
 		a: "No technical skills required. Our team handles setup, and you get a simple dashboard to manage everything.",
 	},
 	{
@@ -23,7 +23,7 @@ const faqs = [
 		a: "You can expect up to 60% cost reduction, 24/7 instant customer service, and the ability to scale your team instantly as your business grows.",
 	},
 	{
-		q: "Which industries benefit most from Agentic AI?",
+		q: "Which industries benefit most from Chayo AI?",
 		a: "E-commerce, healthcare, real estate, and professional services all benefit from our tailored AI automation solutions.",
 	},
 	{
@@ -31,7 +31,7 @@ const faqs = [
 		a: "We offer ongoing support, continuous improvement, and dedicated AI experts for your business.",
 	},
 	{
-		q: "Is Agentic AI compliant with privacy regulations?",
+		q: "Is Chayo AI compliant with privacy regulations?",
 		a: "Yes, we are GDPR-ready and privacy-focused, ensuring your data is always protected.",
 	},
 ];
@@ -203,7 +203,7 @@ export default function FAQAccordion({ darkMode }) {
 						Our AI experts are here to help. Let's discuss your specific needs and how we can transform your business.
 					</p>
 					<motion.a
-						href="http://ageantic.ai/#/startaicall"
+						href="http://chayo.ai/#/startaicall"
 						className="inline-flex items-center px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-orange-500 to-cyan-500 text-white font-semibold rounded-full hover:from-orange-600 hover:to-cyan-600 transition-all duration-300 shadow-lg hover:shadow-xl text-sm sm:text-base"
 						whileHover={{ scale: 1.05, y: -2 }}
 						whileTap={{ scale: 0.98 }}

@@ -313,7 +313,7 @@ const Hero = ({ darkMode = false }) => {
         Transform your business with intelligent automation, chatbots, and <span className="text-emerald-500 font-medium">24/7 AI agents</span>.
       </motion.p>
       <motion.a
-        href="http://ageantic.ai/#/startaicall"
+        href="http://chayo.ai/#/startaicall"
         className="inline-block w-full xs:w-auto bg-zinc-900 hover:bg-zinc-800 text-white px-8 py-4 xs:px-10 xs:py-4 sm:px-12 sm:py-5 rounded-lg font-medium text-base xs:text-lg sm:text-xl shadow-md hover:shadow-lg hover:scale-105 focus:scale-95 transition-all duration-200"
         variants={isMobile ? {} : buttonVariants}
         whileHover={isMobile ? {} : "hover"}

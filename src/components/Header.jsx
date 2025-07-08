@@ -8,7 +8,7 @@ const navLinks = [
   { href: "#services", label: "Services" },
   { href: "#industry-process", label: "How It Works" },
   { href: "#faq", label: "FAQ" },
-  { href: "http://ageantic.ai/#/startaicall", label: "Start AI Call", isButton: true },
+  { href: "http://chayo.ai/#/startaicall", label: "Start AI Call", isButton: true },
   { href: "#contact", label: "Let's Talk" }]
 
   return (
@@ -57,17 +57,17 @@ const navLinks = [
           >
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-xl opacity-90 shadow-lg" />
             <div className="absolute inset-1 bg-white rounded-lg flex items-center justify-center">
-              <span className="text-gray-900 font-black text-lg sm:text-xl">A</span>
+              <span className="text-gray-900 font-black text-lg sm:text-xl">C</span>
             </div>
           </motion.div>
           
-          {/* Enhanced Agentic AI text */}
+          {/* Enhanced Chayo AI text */}
           <div className="flex flex-col">
             <span
               className="font-black text-lg xs:text-xl md:text-2xl bg-gradient-to-r from-emerald-600 to-emerald-800 bg-clip-text text-transparent tracking-wide group-hover:scale-105 transition-transform select-none"
               style={{ letterSpacing: '0.1em' }}
             >
-              Agentic AI
+              Chayo AI
             </span>
             <span className="text-xs text-gray-600 font-light tracking-wider hidden sm:block">
               Neural Intelligence
