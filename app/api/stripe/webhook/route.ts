@@ -2,18 +2,42 @@ import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+// Initialize these inside the handler to avoid build-time errors
+let stripe: Stripe
+let supabase: ReturnType<typeof createClient>
+let webhookSecret: string
 
-// Initialize Supabase client with service role key for webhook
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
-
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!
+function initializeClients() {
+  if (!stripe) {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      throw new Error('STRIPE_SECRET_KEY is required')
+    }
+    stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
+  }
+  
+  if (!supabase) {
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      throw new Error('Supabase environment variables are required')
+    }
+    supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY
+    )
+  }
+  
+  if (!webhookSecret) {
+    if (!process.env.STRIPE_WEBHOOK_SECRET) {
+      throw new Error('STRIPE_WEBHOOK_SECRET is required')
+    }
+    webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
+  }
+}
 
 export async function POST(req: NextRequest) {
   try {
+    // Initialize clients only when the function is called
+    initializeClients()
+    
     const body = await req.text()
     const signature = req.headers.get('stripe-signature')!
 
