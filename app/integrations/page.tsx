@@ -1,0 +1,575 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
+import { createClient } from '@/lib/supabase/client'
+import { useRouter } from 'next/navigation'
+import type { User } from '@supabase/supabase-js'
+import Link from 'next/link'
+
+interface Agent {
+  id: string
+  name: string
+  greeting: string
+  tone: string
+  goals: string[]
+  system_prompt: string
+  paused: boolean
+  created_at: string
+}
+
+interface Channel {
+  id: string
+  name: string
+  type: 'whatsapp' | 'instagram' | 'facebook' | 'web' | 'voice' | 'email'
+  description: string
+  icon: string
+  status: 'available' | 'connected' | 'coming_soon'
+  isPopular?: boolean
+  planRequired?: 'free' | 'basic' | 'pro' | 'premium'
+  features: string[]
+  setupSteps: string[]
+}
+
+const channels: Channel[] = [
+  {
+    id: 'whatsapp',
+    name: 'WhatsApp Business',
+    type: 'whatsapp',
+    description: 'Connect your WhatsApp Business account to handle customer inquiries automatically',
+    icon: '📱',
+    status: 'available',
+    isPopular: true,
+    planRequired: 'basic',
+    features: [
+      'Automated customer responses',
+      'Rich media support (images, documents)',
+      'Business profile integration',
+      'Message templates',
+      'Analytics and insights'
+    ],
+    setupSteps: [
+      'Verify your WhatsApp Business account',
+      'Connect via n8n workflow',
+      'Configure message templates',
+      'Test the integration'
+    ]
+  },
+  {
+    id: 'instagram',
+    name: 'Instagram Direct',
+    type: 'instagram',
+    description: 'Respond to Instagram DMs and comments automatically',
+    icon: '📷',
+    status: 'available',
+    isPopular: true,
+    planRequired: 'pro',
+    features: [
+      'Direct message automation',
+      'Comment responses',
+      'Story mentions handling',
+      'Media sharing capabilities',
+      'Engagement analytics'
+    ],
+    setupSteps: [
+      'Connect Instagram Business account',
+      'Authorize API access',
+      'Set up n8n workflow',
+      'Configure response rules'
+    ]
+  },
+  {
+    id: 'facebook',
+    name: 'Facebook Messenger',
+    type: 'facebook',
+    description: 'Automate Facebook Messenger conversations',
+    icon: '💬',
+    status: 'available',
+    planRequired: 'pro',
+    features: [
+      'Messenger automation',
+      'Page inbox management',
+      'Rich responses with buttons',
+      'Persistent menu setup',
+      'User profile access'
+    ],
+    setupSteps: [
+      'Connect Facebook Page',
+      'Set up Messenger permissions',
+      'Configure n8n workflow',
+      'Test message flows'
+    ]
+  },
+  {
+    id: 'web',
+    name: 'Web Chat Widget',
+    type: 'web',
+    description: 'Embed a chat widget on your website',
+    icon: '🌐',
+    status: 'available',
+    planRequired: 'free',
+    features: [
+      'Customizable chat widget',
+      'Website integration',
+      'Real-time responses',
+      'Visitor tracking',
+      'Mobile responsive'
+    ],
+    setupSteps: [
+      'Generate widget code',
+      'Customize appearance',
+      'Install on website',
+      'Configure n8n webhook'
+    ]
+  },
+  {
+    id: 'voice',
+    name: 'Voice Calls',
+    type: 'voice',
+    description: 'Handle voice calls with AI-powered responses',
+    icon: '📞',
+    status: 'available',
+    planRequired: 'pro',
+    features: [
+      'AI voice responses',
+      'Call routing',
+      'Voicemail transcription',
+      'Call analytics',
+      'Multi-language support'
+    ],
+    setupSteps: [
+      'Set up phone number',
+      'Configure voice AI',
+      'Connect to n8n workflow',
+      'Test voice responses'
+    ]
+  },
+  {
+    id: 'email',
+    name: 'Email Support',
+    type: 'email',
+    description: 'Automate email responses and support tickets',
+    icon: '📧',
+    status: 'coming_soon',
+    planRequired: 'premium',
+    features: [
+      'Email automation',
+      'Ticket management',
+      'Smart categorization',
+      'Follow-up sequences',
+      'Integration with email providers'
+    ],
+    setupSteps: [
+      'Connect email account',
+      'Set up IMAP/SMTP',
+      'Configure automation rules',
+      'Test email workflows'
+    ]
+  }
+]
+
+export default function IntegrationsPage() {
+  const [user, setUser] = useState<User | null>(null)
+  const [agents, setAgents] = useState<Agent[]>([])
+  const [selectedAgent, setSelectedAgent] = useState<string>('')
+  const [loading, setLoading] = useState(true)
+  const [subscription, setSubscription] = useState<any>(null)
+  const [showSetupModal, setShowSetupModal] = useState(false)
+  const [selectedChannel, setSelectedChannel] = useState<Channel | null>(null)
+  const router = useRouter()
+  const supabase = createClient()
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        setUser(user)
+        await Promise.all([
+          fetchAgents(),
+          fetchSubscription(user.id)
+        ])
+      } else {
+        router.push('/auth')
+      }
+      setLoading(false)
+    }
+
+    getUser()
+  }, [router, supabase.auth])
+
+  const fetchAgents = async () => {
+    try {
+      const response = await fetch('/api/agents')
+      if (response.ok) {
+        const { agents } = await response.json()
+        setAgents(agents || [])
+        if (agents?.length > 0) {
+          setSelectedAgent(agents[0].id)
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching agents:', error)
+    }
+  }
+
+  const fetchSubscription = async (userId: string) => {
+    const { data, error } = await supabase
+      .from('user_subscriptions')
+      .select('*')
+      .eq('user_id', userId)
+      .single()
+
+    if (data && !error) {
+      setSubscription(data)
+    }
+  }
+
+  const canAccessChannel = (channel: Channel) => {
+    const userPlan = subscription?.plan_name || 'free'
+    const planHierarchy = ['free', 'basic', 'pro', 'premium']
+    const userPlanIndex = planHierarchy.indexOf(userPlan)
+    const requiredPlanIndex = planHierarchy.indexOf(channel.planRequired || 'free')
+    
+    return userPlanIndex >= requiredPlanIndex
+  }
+
+  const handleChannelSetup = (channel: Channel) => {
+    if (!canAccessChannel(channel)) {
+      // Redirect to upgrade page
+      router.push('/dashboard')
+      return
+    }
+
+    if (channel.status === 'coming_soon') {
+      return
+    }
+
+    setSelectedChannel(channel)
+    setShowSetupModal(true)
+  }
+
+  const getPlanBadgeColor = (plan: string) => {
+    const colors = {
+      free: 'bg-gray-100 text-gray-800',
+      basic: 'bg-blue-100 text-blue-800',
+      pro: 'bg-purple-100 text-purple-800',
+      premium: 'bg-orange-100 text-orange-800'
+    }
+    return colors[plan as keyof typeof colors] || colors.free
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          className="w-8 h-8 border-2 border-orange-400 border-t-transparent rounded-full"
+        />
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
+              <Link href="/dashboard" className="text-orange-600 hover:text-orange-700 mr-4">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+              </Link>
+              <h1 className="text-2xl font-bold text-gray-900">
+                Channel Integrations
+              </h1>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              <span className="text-sm text-gray-500">
+                Current plan: {subscription?.plan_name || 'free'}
+              </span>
+              <Link
+                href="/dashboard"
+                className="bg-orange-400 hover:bg-orange-500 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+              >
+                Back to Dashboard
+              </Link>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Agent Selection */}
+        {agents.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              Select an Agent to Connect Channels
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {agents.map((agent) => (
+                <button
+                  key={agent.id}
+                  onClick={() => setSelectedAgent(agent.id)}
+                  className={`p-4 rounded-lg border-2 transition-all ${
+                    selectedAgent === agent.id
+                      ? 'border-orange-500 bg-orange-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center">
+                    <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center mr-3">
+                      <span className="text-orange-600 font-medium">
+                        {agent.name.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                    <div className="text-left">
+                      <p className="font-medium text-gray-900">{agent.name}</p>
+                      <p className="text-sm text-gray-500 truncate">{agent.greeting}</p>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {agents.length === 0 && (
+          <div className="mb-8 bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+            <div className="flex items-center">
+              <svg className="w-6 h-6 text-yellow-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.728-.833-2.498 0L3.316 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+              <div>
+                <p className="font-medium text-yellow-800">No agents found</p>
+                <p className="text-sm text-yellow-600">
+                  You need to create an agent before connecting channels.{' '}
+                  <Link href="/dashboard" className="underline hover:text-yellow-700">
+                    Go to dashboard
+                  </Link>
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Available Channels */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">
+              Available Channels
+            </h2>
+            <div className="text-sm text-gray-500">
+              Powered by n8n workflows
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {channels.map((channel) => (
+              <motion.div
+                key={channel.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
+              >
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center">
+                      <span className="text-2xl mr-3">{channel.icon}</span>
+                      <div>
+                        <h3 className="font-semibold text-gray-900">{channel.name}</h3>
+                        {channel.isPopular && (
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            Popular
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex flex-col items-end">
+                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getPlanBadgeColor(channel.planRequired || 'free')}`}>
+                        {channel.planRequired || 'free'}
+                      </span>
+                      {channel.status === 'coming_soon' && (
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 mt-1">
+                          Coming Soon
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <p className="text-gray-600 text-sm mb-4">{channel.description}</p>
+
+                  <div className="mb-4">
+                    <h4 className="font-medium text-gray-900 mb-2">Features:</h4>
+                    <ul className="text-sm text-gray-600 space-y-1">
+                      {channel.features.slice(0, 3).map((feature, index) => (
+                        <li key={index} className="flex items-center">
+                          <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                          {feature}
+                        </li>
+                      ))}
+                      {channel.features.length > 3 && (
+                        <li className="text-gray-500 text-xs">
+                          +{channel.features.length - 3} more features
+                        </li>
+                      )}
+                    </ul>
+                  </div>
+
+                  <button
+                    onClick={() => handleChannelSetup(channel)}
+                    disabled={!canAccessChannel(channel) || channel.status === 'coming_soon' || !selectedAgent}
+                    className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${
+                      !canAccessChannel(channel)
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : channel.status === 'coming_soon'
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : !selectedAgent
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : 'bg-orange-400 hover:bg-orange-500 text-white'
+                    }`}
+                  >
+                    {!canAccessChannel(channel)
+                      ? `Upgrade to ${channel.planRequired}`
+                      : channel.status === 'coming_soon'
+                      ? 'Coming Soon'
+                      : !selectedAgent
+                      ? 'Select Agent First'
+                      : 'Connect Channel'
+                    }
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
+        {/* Setup Instructions */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-blue-900 mb-4">
+            🔧 How Channel Integration Works
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h4 className="font-medium text-blue-800 mb-2">n8n Workflow Integration</h4>
+              <ul className="text-sm text-blue-700 space-y-1">
+                <li>• Each channel connects via custom n8n workflows</li>
+                <li>• Workflows handle message routing and responses</li>
+                <li>• Real-time synchronization with your AI agents</li>
+                <li>• Scalable architecture for high-volume conversations</li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-medium text-blue-800 mb-2">Setup Process</h4>
+              <ul className="text-sm text-blue-700 space-y-1">
+                <li>1. Select your AI agent</li>
+                <li>2. Choose channel to connect</li>
+                <li>3. Follow platform-specific setup steps</li>
+                <li>4. Test the integration</li>
+                <li>5. Start receiving automated responses</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Setup Modal */}
+      {showSetupModal && selectedChannel && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+          >
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center">
+                  <span className="text-2xl mr-3">{selectedChannel.icon}</span>
+                  <h3 className="text-xl font-semibold text-gray-900">
+                    Connect {selectedChannel.name}
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setShowSetupModal(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="mb-6">
+                <h4 className="font-medium text-gray-900 mb-3">Setup Steps:</h4>
+                <ol className="space-y-3">
+                  {selectedChannel.setupSteps.map((step, index) => (
+                    <li key={index} className="flex items-start">
+                      <span className="flex-shrink-0 w-6 h-6 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center text-sm font-medium mr-3">
+                        {index + 1}
+                      </span>
+                      <span className="text-gray-700">{step}</span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+
+              <div className="mb-6">
+                <h4 className="font-medium text-gray-900 mb-3">All Features:</h4>
+                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {selectedChannel.features.map((feature, index) => (
+                    <li key={index} className="flex items-center text-sm text-gray-600">
+                      <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 text-yellow-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <div>
+                    <p className="font-medium text-yellow-800">Integration Status</p>
+                    <p className="text-sm text-yellow-700">
+                      This is a placeholder UI. The actual n8n workflow integration is coming soon.
+                      Click "Start Setup" to be notified when it's ready.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => setShowSetupModal(false)}
+                  className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    // TODO: Implement actual setup logic
+                    alert('Setup notification registered! We\'ll notify you when the integration is ready.')
+                    setShowSetupModal(false)
+                  }}
+                  className="px-4 py-2 bg-orange-400 text-white rounded-lg hover:bg-orange-500 transition-colors"
+                >
+                  Start Setup
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </div>
+  )
+}

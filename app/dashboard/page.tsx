@@ -16,6 +16,7 @@ import PerformanceOverview from '@/components/dashboard/PerformanceOverview'
 import TeamManagement from '@/components/dashboard/TeamManagement'
 import SetupInstructions from '@/components/dashboard/SetupInstructions'
 import ProfileSettings from '@/components/dashboard/ProfileSettings'
+import ChannelStatusWidget from '@/components/dashboard/ChannelStatusWidget'
 import { organizationService } from '@/lib/services/organizationService'
 
 interface Agent {
@@ -559,6 +560,18 @@ export default function Dashboard() {
                       </motion.div>
                     ))}
                   </div>
+                )}
+                
+                {/* Channel Status Widget */}
+                {agents.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="mt-8"
+                  >
+                    <ChannelStatusWidget agentId={agents[0]?.id} />
+                  </motion.div>
                 )}
               </motion.div>
             )}
