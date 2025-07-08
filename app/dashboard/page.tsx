@@ -112,29 +112,58 @@ function DashboardContent() {
         // Wait a moment to ensure any pending session changes are processed
         await new Promise(resolve => setTimeout(resolve, 100))
         
-        const { data: { user } } = await supabase.auth.getUser()
-        
-        if (!isMounted) return
-        
-        if (user) {
-          console.log('Dashboard: User found', user.email)
-          setUser(user)
+        // Poll for user session with retries
+        const pollForUser = async (attempts = 0) => {
+          const maxAttempts = 5
+          const delay = 500
           
-          // First ensure user has organization, then fetch other data
-          await ensureUserHasOrganization(user)
-          
-          // Fetch other data in parallel
-          await Promise.all([
-            fetchAgents(),
-            fetchSubscription(user.id),
-            fetchChannels(user.id)
-          ])
-        } else {
-          console.log('Dashboard: No user found, redirecting to auth')
-          router.push('/auth')
+          try {
+            const { data: { user } } = await supabase.auth.getUser()
+            
+            if (!isMounted) return
+            
+            if (user) {
+              console.log('Dashboard: User found', user.email)
+              setUser(user)
+              
+              // First ensure user has organization, then fetch other data
+              await ensureUserHasOrganization(user)
+              
+              // Fetch other data in parallel
+              await Promise.all([
+                fetchAgents(),
+                fetchSubscription(user.id),
+                fetchChannels(user.id)
+              ])
+              return
+            }
+            
+            // If no user and we haven't exhausted attempts, retry
+            if (attempts < maxAttempts) {
+              console.log(`Dashboard: No user found, retrying... (${attempts + 1}/${maxAttempts})`)
+              await new Promise(resolve => setTimeout(resolve, delay))
+              return pollForUser(attempts + 1)
+            }
+            
+            // No user found after all attempts
+            console.log('Dashboard: No user found after all attempts, redirecting to auth')
+            router.push('/auth')
+          } catch (error) {
+            console.error('Dashboard: Error getting user:', error)
+            if (attempts < maxAttempts) {
+              await new Promise(resolve => setTimeout(resolve, delay))
+              return pollForUser(attempts + 1)
+            }
+            
+            if (isMounted) {
+              router.push('/auth')
+            }
+          }
         }
+        
+        await pollForUser()
       } catch (error) {
-        console.error('Dashboard: Error getting user:', error)
+        console.error('Dashboard: Error in getUser:', error)
         if (isMounted) {
           router.push('/auth')
         }
@@ -153,6 +182,7 @@ function DashboardContent() {
         if (!isMounted) return
         
         if (event === 'SIGNED_IN' && session?.user) {
+          console.log('Dashboard: User signed in via auth state change')
           setUser(session.user)
           setLoading(true)
           
@@ -165,6 +195,7 @@ function DashboardContent() {
           ])
           setLoading(false)
         } else if (event === 'SIGNED_OUT') {
+          console.log('Dashboard: User signed out')
           setUser(null)
           setAgents([])
           setSubscription(null)
@@ -172,6 +203,9 @@ function DashboardContent() {
           setOrganizations([])
           setCurrentOrganization(null)
           router.push('/auth')
+        } else if (event === 'TOKEN_REFRESHED' && session?.user) {
+          console.log('Dashboard: Token refreshed')
+          setUser(session.user)
         }
       }
     )

@@ -40,28 +40,53 @@ export default function AuthCallback() {
           if (data.session) {
             console.log('Session created successfully:', data.session.user.email)
             
-            // Wait a moment to ensure session is fully persisted
-            await new Promise(resolve => setTimeout(resolve, 1000))
-            
-            // Verify the session is accessible
-            const { data: verifyData, error: verifyError } = await supabase.auth.getSession()
-            
-            if (verifyError) {
-              console.error('Session verification error:', verifyError)
-              router.push('/auth?error=' + encodeURIComponent('Session verification failed'))
-              return
+            // Implement polling to ensure session is fully persisted
+            const pollForSession = async (attempts = 0) => {
+              const maxAttempts = 10
+              const delay = 500
+              
+              try {
+                const { data: verifyData, error: verifyError } = await supabase.auth.getSession()
+                
+                if (verifyError) {
+                  console.error('Session verification error:', verifyError)
+                  if (attempts < maxAttempts) {
+                    console.log(`Retrying session verification... (${attempts + 1}/${maxAttempts})`)
+                    await new Promise(resolve => setTimeout(resolve, delay))
+                    return pollForSession(attempts + 1)
+                  }
+                  router.push('/auth?error=' + encodeURIComponent('Session verification failed'))
+                  return
+                }
+                
+                if (verifyData.session) {
+                  console.log('Session verified successfully, redirecting to dashboard')
+                  // Force a complete page reload to ensure session is picked up
+                  window.location.replace('/dashboard')
+                  return
+                }
+                
+                if (attempts < maxAttempts) {
+                  console.log(`Session not ready yet, retrying... (${attempts + 1}/${maxAttempts})`)
+                  await new Promise(resolve => setTimeout(resolve, delay))
+                  return pollForSession(attempts + 1)
+                }
+                
+                console.error('Session not found after maximum attempts')
+                router.push('/auth?error=' + encodeURIComponent('Session not found'))
+              } catch (pollError) {
+                console.error('Error during session polling:', pollError)
+                if (attempts < maxAttempts) {
+                  await new Promise(resolve => setTimeout(resolve, delay))
+                  return pollForSession(attempts + 1)
+                }
+                router.push('/auth?error=' + encodeURIComponent('Session polling failed'))
+              }
             }
             
-            if (verifyData.session) {
-              console.log('Session verified, redirecting to dashboard')
-              // Use window.location.href for a hard redirect to ensure proper session handling
-              window.location.href = '/dashboard'
-              return
-            } else {
-              console.error('Session not found after verification')
-              router.push('/auth?error=' + encodeURIComponent('Session not found'))
-              return
-            }
+            // Start polling for session
+            await pollForSession()
+            return
           } else {
             console.error('No session returned from code exchange')
             router.push('/auth?error=' + encodeURIComponent('No session created'))
@@ -81,7 +106,7 @@ export default function AuthCallback() {
         if (sessionData.session) {
           // Session exists, redirect to dashboard
           console.log('Existing session found, redirecting to dashboard')
-          window.location.href = '/dashboard'
+          window.location.replace('/dashboard')
         } else {
           // No session, redirect back to auth
           console.log('No session found, redirecting to auth')

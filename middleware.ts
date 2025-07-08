@@ -4,6 +4,11 @@ import { createClient } from '@/lib/supabase/server'
 
 export async function middleware(request: NextRequest) {
   try {
+    // Skip middleware for auth callback to prevent interference
+    if (request.nextUrl.pathname === '/auth/callback') {
+      return NextResponse.next()
+    }
+
     // Create a Supabase client configured to use cookies
     const { supabase, response } = createClient(request)
 
@@ -17,7 +22,7 @@ export async function middleware(request: NextRequest) {
       }
     }
 
-    // Redirect authenticated users away from auth pages
+    // Redirect authenticated users away from auth pages (but not callback)
     if (request.nextUrl.pathname.startsWith('/auth') && 
         !request.nextUrl.pathname.includes('/callback')) {
       if (user) {
@@ -29,6 +34,7 @@ export async function middleware(request: NextRequest) {
   } catch (e) {
     // If you are here, a Supabase client could not be created!
     // This is likely because you have not set up environment variables.
+    console.error('Middleware error:', e)
     return NextResponse.next({
       request: {
         headers: request.headers,
