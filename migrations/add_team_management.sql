@@ -51,11 +51,8 @@ ALTER TABLE team_invitations ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Users can view organizations they belong to" ON organizations;
 CREATE POLICY "Users can view organizations they belong to" ON organizations
   FOR SELECT USING (
-    owner_id = auth.uid() OR 
-    id IN (
-      SELECT organization_id FROM team_members 
-      WHERE user_id = auth.uid() AND status = 'active'
-    )
+    -- Users can only see organizations they own
+    owner_id = auth.uid()
   );
 
 DROP POLICY IF EXISTS "Users can create organizations" ON organizations;
@@ -74,24 +71,20 @@ CREATE POLICY "Organization owners can delete their organizations" ON organizati
 DROP POLICY IF EXISTS "Team members can view members of their organizations" ON team_members;
 CREATE POLICY "Team members can view members of their organizations" ON team_members
   FOR SELECT USING (
-    organization_id IN (
-      SELECT organization_id FROM team_members 
-      WHERE user_id = auth.uid() AND status = 'active'
-    ) OR
+    -- Users can see members of organizations they own
     organization_id IN (
       SELECT id FROM organizations WHERE owner_id = auth.uid()
-    )
+    ) OR
+    -- Users can see their own membership record
+    user_id = auth.uid()
   );
 
 DROP POLICY IF EXISTS "Organization owners and admins can manage team members" ON team_members;
 CREATE POLICY "Organization owners and admins can manage team members" ON team_members
   FOR ALL USING (
+    -- Only organization owners can manage team members
     organization_id IN (
       SELECT id FROM organizations WHERE owner_id = auth.uid()
-    ) OR
-    organization_id IN (
-      SELECT organization_id FROM team_members 
-      WHERE user_id = auth.uid() AND role IN ('owner', 'admin') AND status = 'active'
     )
   );
 
@@ -99,12 +92,9 @@ CREATE POLICY "Organization owners and admins can manage team members" ON team_m
 DROP POLICY IF EXISTS "Organization owners and admins can manage invitations" ON team_invitations;
 CREATE POLICY "Organization owners and admins can manage invitations" ON team_invitations
   FOR ALL USING (
+    -- Only organization owners can manage invitations
     organization_id IN (
       SELECT id FROM organizations WHERE owner_id = auth.uid()
-    ) OR
-    organization_id IN (
-      SELECT organization_id FROM team_members 
-      WHERE user_id = auth.uid() AND role IN ('owner', 'admin') AND status = 'active'
     )
   );
 
@@ -128,10 +118,12 @@ CREATE INDEX IF NOT EXISTS agents_organization_id_idx ON agents(organization_id)
 CREATE INDEX IF NOT EXISTS user_subscriptions_organization_id_idx ON user_subscriptions(organization_id);
 
 -- 8. Create triggers for updated_at timestamps
+DROP TRIGGER IF EXISTS update_organizations_updated_at ON organizations;
 CREATE TRIGGER update_organizations_updated_at 
   BEFORE UPDATE ON organizations 
   FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_team_members_updated_at ON team_members;
 CREATE TRIGGER update_team_members_updated_at 
   BEFORE UPDATE ON team_members 
   FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
@@ -221,8 +213,7 @@ CREATE POLICY "Users can view their own agents" ON agents
   FOR SELECT USING (
     auth.uid() = user_id OR
     organization_id IN (
-      SELECT organization_id FROM team_members 
-      WHERE user_id = auth.uid() AND status = 'active'
+      SELECT id FROM organizations WHERE owner_id = auth.uid()
     )
   );
 
@@ -231,8 +222,7 @@ CREATE POLICY "Users can insert their own agents" ON agents
   FOR INSERT WITH CHECK (
     auth.uid() = user_id AND
     (organization_id IS NULL OR organization_id IN (
-      SELECT organization_id FROM team_members 
-      WHERE user_id = auth.uid() AND status = 'active'
+      SELECT id FROM organizations WHERE owner_id = auth.uid()
     ))
   );
 
@@ -241,8 +231,7 @@ CREATE POLICY "Users can update their own agents" ON agents
   FOR UPDATE USING (
     auth.uid() = user_id OR
     organization_id IN (
-      SELECT organization_id FROM team_members 
-      WHERE user_id = auth.uid() AND role IN ('owner', 'admin') AND status = 'active'
+      SELECT id FROM organizations WHERE owner_id = auth.uid()
     )
   );
 
@@ -251,8 +240,7 @@ CREATE POLICY "Users can delete their own agents" ON agents
   FOR DELETE USING (
     auth.uid() = user_id OR
     organization_id IN (
-      SELECT organization_id FROM team_members 
-      WHERE user_id = auth.uid() AND role IN ('owner', 'admin') AND status = 'active'
+      SELECT id FROM organizations WHERE owner_id = auth.uid()
     )
   );
 

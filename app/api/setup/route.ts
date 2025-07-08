@@ -43,7 +43,24 @@ The migration script will:
     // Check if user already has an organization
     const { data: existingMembership, error: membershipError } = await supabase
       .from('team_members')
-      .select('organization_id, organizations(*)')
+      .select(`
+        organization_id, 
+        organizations!inner (
+          id,
+          name,
+          slug,
+          owner_id,
+          plan_name,
+          created_at,
+          team_members (
+            id,
+            user_id,
+            role,
+            status,
+            joined_at
+          )
+        )
+      `)
       .eq('user_id', user.id)
       .eq('role', 'owner')
       .eq('status', 'active')
@@ -53,7 +70,8 @@ The migration script will:
       return NextResponse.json({ 
         success: true,
         organization: existingMembership.organizations,
-        message: 'Organization already exists'
+        message: 'Organization already exists',
+        wasCreated: false
       })
     }
 
@@ -107,10 +125,43 @@ The migration script will:
       console.error('Error updating agents:', updateAgentsError)
     }
 
+    // Fetch the complete organization with team members
+    const { data: completeOrg, error: fetchError } = await supabase
+      .from('organizations')
+      .select(`
+        id,
+        name,
+        slug,
+        owner_id,
+        plan_name,
+        created_at,
+        team_members (
+          id,
+          user_id,
+          role,
+          status,
+          joined_at
+        )
+      `)
+      .eq('id', organization.id)
+      .single()
+
+    if (fetchError) {
+      console.error('Error fetching complete organization:', fetchError)
+      // Return the basic organization if fetching complete data fails
+      return NextResponse.json({ 
+        success: true,
+        organization,
+        message: 'Organization created successfully',
+        wasCreated: true
+      })
+    }
+
     return NextResponse.json({ 
       success: true,
-      organization,
-      message: 'Organization created successfully'
+      organization: completeOrg,
+      message: 'Organization created successfully',
+      wasCreated: true
     })
   } catch (error) {
     console.error('Error in setup API:', error)

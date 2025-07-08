@@ -25,17 +25,19 @@ export class OrganizationService {
   /**
    * Ensures a user has an organization, creating one if necessary
    */
-  async ensureUserHasOrganization(user: User): Promise<Organization | null> {
+  async ensureUserHasOrganization(user: User): Promise<{ organization: Organization; wasCreated: boolean } | null> {
     try {
       // Check if user already has an organization
       const existingOrg = await this.getUserOrganization(user.id)
+      
       if (existingOrg) {
-        return existingOrg
+        return { organization: existingOrg, wasCreated: false }
       }
 
       // Create organization via API
-      const newOrg = await this.createDefaultOrganization()
-      return newOrg
+      const result = await this.createDefaultOrganization()
+      
+      return result
     } catch (error) {
       console.error('Error ensuring user has organization:', error)
       return null
@@ -58,7 +60,14 @@ export class OrganizationService {
             slug,
             owner_id,
             plan_name,
-            created_at
+            created_at,
+            team_members (
+              id,
+              user_id,
+              role,
+              status,
+              joined_at
+            )
           )
         `)
         .eq('user_id', userId)
@@ -81,23 +90,26 @@ export class OrganizationService {
   /**
    * Creates a default organization for the current user
    */
-  async createDefaultOrganization(): Promise<Organization | null> {
+  async createDefaultOrganization(): Promise<{ organization: Organization; wasCreated: boolean } | null> {
     try {
       const response = await fetch('/api/setup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
       })
-
+      
       if (response.ok) {
-        const { organization } = await response.json()
-        return organization
+        const result = await response.json()
+        return { 
+          organization: result.organization, 
+          wasCreated: result.wasCreated || false 
+        }
       } else {
-        const { error } = await response.json()
-        console.error('Failed to create default organization:', error)
+        const error = await response.json()
+        console.error('Failed to create organization:', error)
         return null
       }
     } catch (error) {
-      console.error('Error creating default organization:', error)
+      console.error('Error creating organization:', error)
       return null
     }
   }

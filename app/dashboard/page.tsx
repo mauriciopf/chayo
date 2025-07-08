@@ -78,6 +78,9 @@ export default function Dashboard() {
   const [managingAgentName, setManagingAgentName] = useState<string>('')
   const [activeTab, setActiveTab] = useState<'agents' | 'performance' | 'users'>('agents')
   const [showSetupInstructions, setShowSetupInstructions] = useState(false)
+  const [organizationSetupLoading, setOrganizationSetupLoading] = useState(false)
+  const [organizationSetupMessage, setOrganizationSetupMessage] = useState<string | null>(null)
+  const [organizationSetupError, setOrganizationSetupError] = useState<string | null>(null)
   const router = useRouter()
   const supabase = createClient()
 
@@ -207,26 +210,43 @@ export default function Dashboard() {
 
   const ensureUserHasOrganization = async (user: User) => {
     try {
-      console.log('Ensuring user has organization...')
+      setOrganizationSetupLoading(true)
+      setOrganizationSetupError(null)
+      setOrganizationSetupMessage(null)
       
       // Use the organization service to handle this automatically
-      const organization = await organizationService.ensureUserHasOrganization(user)
+      const result = await organizationService.ensureUserHasOrganization(user)
       
-      if (organization) {
+      if (result) {
+        const { organization, wasCreated } = result
         setOrganizations([organization])
         setCurrentOrganization(organization)
-        console.log('Organization ready:', organization)
+        
+        // Show appropriate message based on whether it was created or existed
+        if (wasCreated) {
+          setOrganizationSetupMessage(`Welcome! We've created "${organization.name}" for you.`)
+        } else {
+          setOrganizationSetupMessage(`Welcome back to ${organization.name}!`)
+        }
+        
+        setTimeout(() => setOrganizationSetupMessage(null), 5000)
       } else {
         // Check if it's a database issue
         const isDatabaseReady = await organizationService.isDatabaseReady()
         if (!isDatabaseReady) {
           setShowSetupInstructions(true)
+        } else {
+          setOrganizationSetupError('Failed to create organization. Please try refreshing the page.')
         }
       }
     } catch (error) {
       console.error('Error ensuring user has organization:', error)
+      setOrganizationSetupError('Failed to set up organization. Please try refreshing the page.')
+      
       // Fallback to manual organization fetch
       await fetchOrganizations()
+    } finally {
+      setOrganizationSetupLoading(false)
     }
   }
 
@@ -275,6 +295,11 @@ export default function Dashboard() {
               <h1 className="text-2xl font-bold text-gray-900">
                 Chayo Dashboard
               </h1>
+              {currentOrganization && (
+                <span className="ml-3 text-sm text-gray-500">
+                  • {currentOrganization.name}
+                </span>
+              )}
             </div>
             
             <div className="flex items-center space-x-4">
@@ -289,6 +314,55 @@ export default function Dashboard() {
           </div>
         </div>
       </header>
+
+      {/* Organization Setup Feedback */}
+      {(organizationSetupLoading || organizationSetupMessage || organizationSetupError) && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+          {organizationSetupLoading && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+              <div className="flex items-center">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  className="w-5 h-5 border-2 border-blue-400 border-t-transparent rounded-full mr-3"
+                />
+                <p className="text-blue-800">Setting up your organization...</p>
+              </div>
+            </div>
+          )}
+          
+          {organizationSetupMessage && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4"
+            >
+              <div className="flex items-center">
+                <svg className="w-5 h-5 text-green-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <p className="text-green-800">{organizationSetupMessage}</p>
+              </div>
+            </motion.div>
+          )}
+          
+          {organizationSetupError && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4"
+            >
+              <div className="flex items-center">
+                <svg className="w-5 h-5 text-red-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+                <p className="text-red-800">{organizationSetupError}</p>
+              </div>
+            </motion.div>
+          )}
+        </div>
+      )}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -347,7 +421,7 @@ export default function Dashboard() {
                       <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                       </svg>
-                      Team ({currentOrganization?.team_members?.length || 0})
+                      Team ({currentOrganization?.team_members?.length || (currentOrganization ? 1 : 0)})
                     </div>
                   </button>
                 </div>
