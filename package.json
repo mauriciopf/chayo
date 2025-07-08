@@ -2,7 +2,7 @@
   "name": "chayo-ai-site",
   "version": "1.0.0",
   "private": true,
-  "homepage": "https://chayo.ai",
+  "homepage": "https://mauriciopf.github.io/chayo",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
