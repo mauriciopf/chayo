@@ -20,11 +20,11 @@ export default function SetupInstructions({ onRetry }: SetupInstructionsProps) {
       </div>
       
       <h3 className="text-xl font-semibold text-gray-900 mb-3">
-        Database Setup Required
+        One-Time Database Setup Required
       </h3>
       
       <p className="text-gray-600 mb-6">
-        The team management feature requires additional database tables. Please run the migration script to enable team collaboration.
+        To enable automatic organization creation and team management, please run the one-time database migration script.
       </p>
 
       <div className="flex justify-center space-x-4 mb-6">
@@ -61,7 +61,8 @@ export default function SetupInstructions({ onRetry }: SetupInstructionsProps) {
           
           <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded">
             <p className="text-sm text-blue-800">
-              <strong>Note:</strong> This migration will automatically create a default organization for your account and preserve all existing data.
+              <strong>What this does:</strong> Creates the database tables needed for automatic organization setup. 
+              After this one-time setup, every user will automatically get their own organization when they log in.
             </p>
           </div>
         </motion.div>

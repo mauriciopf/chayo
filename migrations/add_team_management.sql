@@ -177,19 +177,22 @@ DECLARE
 BEGIN
     FOR user_record IN 
         SELECT id, email FROM auth.users 
-        WHERE id NOT IN (SELECT user_id FROM team_members WHERE role = 'owner')
+        WHERE id NOT IN (SELECT DISTINCT user_id FROM team_members WHERE role = 'owner')
     LOOP
-        SELECT create_default_organization_for_user(user_record.id, user_record.email) INTO org_id;
-        
-        -- Update existing agents to belong to this organization
-        UPDATE agents 
-        SET organization_id = org_id 
-        WHERE user_id = user_record.id AND organization_id IS NULL;
-        
-        -- Update existing subscriptions to belong to this organization
-        UPDATE user_subscriptions 
-        SET organization_id = org_id 
-        WHERE user_id = user_record.id AND organization_id IS NULL;
+        -- Only create if user doesn't have any organization membership
+        IF NOT EXISTS (SELECT 1 FROM team_members WHERE user_id = user_record.id) THEN
+            SELECT create_default_organization_for_user(user_record.id, user_record.email) INTO org_id;
+            
+            -- Update existing agents to belong to this organization
+            UPDATE agents 
+            SET organization_id = org_id 
+            WHERE user_id = user_record.id AND organization_id IS NULL;
+            
+            -- Update existing subscriptions to belong to this organization
+            UPDATE user_subscriptions 
+            SET organization_id = org_id 
+            WHERE user_id = user_record.id AND organization_id IS NULL;
+        END IF;
     END LOOP;
 END $$;
 

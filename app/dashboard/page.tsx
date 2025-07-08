@@ -15,6 +15,7 @@ import ManageDocumentsModal from '@/components/dashboard/ManageDocumentsModal'
 import PerformanceOverview from '@/components/dashboard/PerformanceOverview'
 import TeamManagement from '@/components/dashboard/TeamManagement'
 import SetupInstructions from '@/components/dashboard/SetupInstructions'
+import { organizationService } from '@/lib/services/organizationService'
 
 interface Agent {
   id: string
@@ -89,7 +90,7 @@ export default function Dashboard() {
           fetchAgents(),
           fetchSubscription(user.id),
           fetchChannels(user.id),
-          fetchOrganizations()
+          ensureUserHasOrganization(user)
         ])
       } else {
         router.push('/auth')
@@ -187,7 +188,8 @@ export default function Dashboard() {
         const { organization, message } = await response.json()
         setOrganizations([organization])
         setCurrentOrganization(organization)
-        console.log('Setup completed:', message, organization)
+        console.log('Organization setup completed:', message, organization)
+        return organization
       } else {
         const { error, migrationInstructions } = await response.json()
         console.error('Setup failed:', error)
@@ -195,9 +197,36 @@ export default function Dashboard() {
           console.log('Migration instructions:', migrationInstructions)
           setShowSetupInstructions(true)
         }
+        return null
       }
     } catch (error) {
       console.error('Error during setup:', error)
+      return null
+    }
+  }
+
+  const ensureUserHasOrganization = async (user: User) => {
+    try {
+      console.log('Ensuring user has organization...')
+      
+      // Use the organization service to handle this automatically
+      const organization = await organizationService.ensureUserHasOrganization(user)
+      
+      if (organization) {
+        setOrganizations([organization])
+        setCurrentOrganization(organization)
+        console.log('Organization ready:', organization)
+      } else {
+        // Check if it's a database issue
+        const isDatabaseReady = await organizationService.isDatabaseReady()
+        if (!isDatabaseReady) {
+          setShowSetupInstructions(true)
+        }
+      }
+    } catch (error) {
+      console.error('Error ensuring user has organization:', error)
+      // Fallback to manual organization fetch
+      await fetchOrganizations()
     }
   }
 
@@ -518,7 +547,9 @@ export default function Dashboard() {
                 {showSetupInstructions ? (
                   <SetupInstructions onRetry={() => {
                     setShowSetupInstructions(false)
-                    fetchOrganizations()
+                    if (user) {
+                      ensureUserHasOrganization(user)
+                    }
                   }} />
                 ) : currentOrganization ? (
                   <TeamManagement 
@@ -533,10 +564,10 @@ export default function Dashboard() {
                       </svg>
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                      Setting up your organization...
+                      Setting up your workspace...
                     </h3>
                     <p className="text-gray-600 mb-6">
-                      We're creating your team workspace. This should only take a moment.
+                      We're automatically creating your team organization. This will only take a moment.
                     </p>
                     <div className="flex items-center justify-center">
                       <motion.div
@@ -544,7 +575,10 @@ export default function Dashboard() {
                         transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                         className="w-6 h-6 border-2 border-orange-400 border-t-transparent rounded-full"
                       />
-                      <span className="ml-2 text-sm text-gray-600">Creating organization...</span>
+                      <span className="ml-2 text-sm text-gray-600">Initializing team workspace...</span>
+                    </div>
+                    <div className="mt-4 text-xs text-gray-500">
+                      Every user automatically gets their own organization for team collaboration
                     </div>
                   </div>
                 )}

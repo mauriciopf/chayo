@@ -17,15 +17,25 @@ export async function POST(req: NextRequest) {
       .limit(1)
 
     if (tableCheckError) {
+      console.log('Organizations table not found, migration needed:', tableCheckError.message)
       return NextResponse.json({ 
-        error: 'Database tables not found',
-        message: 'Please run the database migration script first',
+        error: 'Database migration required',
+        message: 'Please run the database migration script to enable team management',
+        migrationRequired: true,
         migrationInstructions: `
+To enable team management, please run the migration script:
+
 1. Go to your Supabase Dashboard (https://supabase.com/dashboard)
 2. Navigate to SQL Editor
 3. Copy and paste the migration script from: migrations/add_team_management.sql
 4. Run the script
 5. Refresh this page
+
+The migration script will:
+- Create the necessary database tables
+- Set up proper security policies
+- Automatically create an organization for your account
+- Preserve all existing data
         `
       }, { status: 400 })
     }
