@@ -11,20 +11,54 @@ export default function AuthCallback() {
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
-        // Handle the auth callback by exchanging the code for a session
-        const { data, error } = await supabase.auth.getSession()
+        // Get the current URL to check for auth codes
+        const url = new URL(window.location.href)
+        const code = url.searchParams.get('code')
+        const error = url.searchParams.get('error')
+        const errorDescription = url.searchParams.get('error_description')
         
+        // Handle OAuth errors
         if (error) {
-          console.error('Auth callback error:', error)
-          router.push('/auth?error=' + encodeURIComponent(error.message))
+          console.error('OAuth error:', error, errorDescription)
+          const errorMessage = errorDescription || error
+          router.push('/auth?error=' + encodeURIComponent(errorMessage))
+          return
+        }
+        
+        if (code) {
+          // Exchange the code for a session
+          const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+          
+          if (error) {
+            console.error('Code exchange error:', error)
+            router.push('/auth?error=' + encodeURIComponent(error.message))
+            return
+          }
+
+          if (data.session) {
+            // Successfully authenticated, redirect to dashboard
+            console.log('Successfully authenticated, redirecting to dashboard')
+            router.push('/dashboard')
+            return
+          }
+        }
+        
+        // If no code, check for existing session
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
+        
+        if (sessionError) {
+          console.error('Session error:', sessionError)
+          router.push('/auth?error=' + encodeURIComponent(sessionError.message))
           return
         }
 
-        if (data.session) {
-          // Successfully authenticated, redirect to dashboard
+        if (sessionData.session) {
+          // Session exists, redirect to dashboard
+          console.log('Session exists, redirecting to dashboard')
           router.push('/dashboard')
         } else {
           // No session, redirect back to auth
+          console.log('No session found, redirecting to auth')
           router.push('/auth')
         }
       } catch (error) {

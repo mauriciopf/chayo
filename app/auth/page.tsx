@@ -97,13 +97,25 @@ export default function AuthPage() {
     setMessage('')
     
     try {
+      // Get the current origin for redirect
+      const origin = window.location.origin
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`
+          redirectTo: `${origin}/auth/callback`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
         }
       })
-      if (error) throw error
+      
+      if (error) {
+        throw error
+      }
+      
+      // The redirect will happen automatically, so we don't need to do anything else
     } catch (error: any) {
       console.error('Google auth error:', error)
       setMessage(error.message || 'Google authentication failed. Please try again.')
