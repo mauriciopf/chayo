@@ -235,8 +235,9 @@ export default function IntegrationsPage() {
 
   const handleChannelSetup = (channel: Channel) => {
     if (!canAccessChannel(channel)) {
-      // Redirect to upgrade page
-      router.push('/dashboard')
+      // Redirect to upgrade page with the required plan
+      const requiredPlan = channel.planRequired || 'basic'
+      router.push(`/dashboard?showPlans=true&targetPlan=${requiredPlan}`)
       return
     }
 

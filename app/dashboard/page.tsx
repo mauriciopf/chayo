@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import type { User } from '@supabase/supabase-js'
 import UserProfile from '@/components/dashboard/UserProfile'
 import AgentCard from '@/components/dashboard/AgentCard'
@@ -83,7 +83,9 @@ export default function Dashboard() {
   const [organizationSetupLoading, setOrganizationSetupLoading] = useState(false)
   const [organizationSetupMessage, setOrganizationSetupMessage] = useState<string | null>(null)
   const [organizationSetupError, setOrganizationSetupError] = useState<string | null>(null)
+  const [targetPlan, setTargetPlan] = useState<string | null>(null)
   const router = useRouter()
+  const searchParams = useSearchParams()
   const supabase = createClient()
 
   useEffect(() => {
@@ -109,6 +111,23 @@ export default function Dashboard() {
 
     getUser()
   }, [router, supabase.auth])
+
+  // Handle upgrade flow from integrations page
+  useEffect(() => {
+    const showPlans = searchParams.get('showPlans')
+    const targetPlanParam = searchParams.get('targetPlan')
+    
+    if (showPlans === 'true' && !loading && user) {
+      setShowPlansModal(true)
+      setTargetPlan(targetPlanParam)
+      
+      // Clean up the URL parameters
+      const newUrl = new URL(window.location.href)
+      newUrl.searchParams.delete('showPlans')
+      newUrl.searchParams.delete('targetPlan')
+      window.history.replaceState({}, '', newUrl.toString())
+    }
+  }, [searchParams, loading, user])
 
   const fetchAgents = async () => {
     try {
@@ -686,9 +705,14 @@ export default function Dashboard() {
       {showPlansModal && (
         <SubscriptionPlans
           currentSubscription={subscription}
-          onClose={() => setShowPlansModal(false)}
+          targetPlan={targetPlan || undefined}
+          onClose={() => {
+            setShowPlansModal(false)
+            setTargetPlan(null)
+          }}
           onSubscriptionUpdate={() => {
             setShowPlansModal(false)
+            setTargetPlan(null)
             fetchSubscription(user!.id)
           }}
         />

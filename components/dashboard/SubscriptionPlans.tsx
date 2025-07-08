@@ -76,9 +76,10 @@ interface SubscriptionPlansProps {
   currentSubscription?: any
   onClose: () => void
   onSubscriptionUpdate: () => void
+  targetPlan?: string // Optional target plan to highlight
 }
 
-export default function SubscriptionPlans({ currentSubscription, onClose, onSubscriptionUpdate }: SubscriptionPlansProps) {
+export default function SubscriptionPlans({ currentSubscription, onClose, onSubscriptionUpdate, targetPlan }: SubscriptionPlansProps) {
   const [loading, setLoading] = useState<string | null>(null)
   const currentPlan = currentSubscription?.plan_name || 'free'
 
@@ -173,6 +174,27 @@ export default function SubscriptionPlans({ currentSubscription, onClose, onSubs
           </button>
         </div>
 
+        {/* Recommendation Message */}
+        {targetPlan && (
+          <div className="px-6 pb-4">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="flex items-center">
+                <svg className="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div>
+                  <p className="font-medium text-blue-900">
+                    {targetPlan.charAt(0).toUpperCase() + targetPlan.slice(1)} Plan Recommended
+                  </p>
+                  <p className="text-sm text-blue-700">
+                    This plan includes access to the channel integration you selected. Upgrade now to unlock this feature!
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Plans Grid */}
         <div className="p-6">
           <div className="grid md:grid-cols-3 gap-6">{plans.map((plan, index) => (
@@ -183,12 +205,22 @@ export default function SubscriptionPlans({ currentSubscription, onClose, onSubs
             transition={{ delay: index * 0.1 }}
             className={`relative bg-white rounded-3xl shadow-xl overflow-hidden ${
               plan.popular ? 'ring-4 ring-orange-200 scale-105' : ''
+            } ${
+              targetPlan === plan.id ? 'ring-4 ring-blue-400 bg-blue-50' : ''
             }`}
           >
             {plan.popular && (
               <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                 <div className="bg-gradient-to-r from-orange-500 to-yellow-500 text-white text-sm font-bold px-4 py-1 rounded-full">
                   Most Popular!
+                </div>
+              </div>
+            )}
+            
+            {targetPlan === plan.id && !plan.popular && (
+              <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-sm font-bold px-4 py-1 rounded-full">
+                  Recommended for You!
                 </div>
               </div>
             )}
