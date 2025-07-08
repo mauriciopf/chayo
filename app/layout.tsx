@@ -5,6 +5,7 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://chayo.ai'),
   title: 'Chayo AI – Tu Comadre Digital que Nunca Duerme | AI Business Automation',
   description: 'Chayo runs your business like a comadre who never sleeps. AI automation that learns your brand, handles customers 24/7, and grows your revenue. Set up in 5 minutes.',
   keywords: 'AI comadre, business automation, AI chatbot, customer service automation, Hispanic AI, Latina entrepreneur, automated booking, AI assistant, business growth',
@@ -34,12 +35,17 @@ export const metadata: Metadata = {
     site: '@ChayoAI',
     creator: '@ChayoAI',
   },
-  themeColor: '#9333ea',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
     title: 'Chayo AI',
   },
+}
+
+export function generateViewport() {
+  return {
+    themeColor: '#9333ea',
+  }
 }
 
 export default function RootLayout({
