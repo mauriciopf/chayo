@@ -30,6 +30,19 @@ export async function POST(request: NextRequest) {
     // Filter out empty goals
     const filteredGoals = goals?.filter((goal: string) => goal.trim() !== '') || []
 
+    // Get user's organization
+    const { data: membership, error: membershipError } = await supabase
+      .from('team_members')
+      .select('organization_id')
+      .eq('user_id', user.id)
+      .eq('status', 'active')
+      .single()
+
+    let organizationId = null
+    if (membership && !membershipError) {
+      organizationId = membership.organization_id
+    }
+
     // Insert the agent into the database
     const { data: agent, error: insertError } = await supabase
       .from('agents')
@@ -40,7 +53,8 @@ export async function POST(request: NextRequest) {
         tone: tone || 'professional',
         goals: filteredGoals,
         system_prompt: system_prompt?.trim() || '',
-        paused: false
+        paused: false,
+        organization_id: organizationId
       })
       .select()
       .single()

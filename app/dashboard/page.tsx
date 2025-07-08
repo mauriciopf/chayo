@@ -14,6 +14,7 @@ import SubscriptionPlans from '@/components/dashboard/SubscriptionPlans'
 import ManageDocumentsModal from '@/components/dashboard/ManageDocumentsModal'
 import PerformanceOverview from '@/components/dashboard/PerformanceOverview'
 import TeamManagement from '@/components/dashboard/TeamManagement'
+import SetupInstructions from '@/components/dashboard/SetupInstructions'
 
 interface Agent {
   id: string
@@ -75,6 +76,7 @@ export default function Dashboard() {
   const [managingAgentId, setManagingAgentId] = useState<string | null>(null)
   const [managingAgentName, setManagingAgentName] = useState<string>('')
   const [activeTab, setActiveTab] = useState<'agents' | 'performance' | 'users'>('agents')
+  const [showSetupInstructions, setShowSetupInstructions] = useState(false)
   const router = useRouter()
   const supabase = createClient()
 
@@ -145,17 +147,57 @@ export default function Dashboard() {
       const response = await fetch('/api/organizations')
       if (response.ok) {
         const { organizations } = await response.json()
+        console.log('Fetched organizations:', organizations)
         setOrganizations(organizations || [])
         if (organizations && organizations.length > 0) {
           setCurrentOrganization(organizations[0])
+        } else {
+          // If no organizations exist, create a default one
+          console.log('No organizations found, creating default organization')
+          await createDefaultOrganization()
         }
       } else {
-        console.error('Failed to fetch organizations')
+        console.error('Failed to fetch organizations:', response.status, response.statusText)
+        const errorData = await response.json().catch(() => ({}))
+        console.error('Error details:', errorData)
         setOrganizations([])
+        // Try to create a default organization
+        await createDefaultOrganization()
       }
     } catch (error) {
       console.error('Error fetching organizations:', error)
       setOrganizations([])
+      // Try to create a default organization
+      await createDefaultOrganization()
+    }
+  }
+
+  const createDefaultOrganization = async () => {
+    if (!user) return
+
+    try {
+      console.log('Creating default organization via setup API')
+
+      const response = await fetch('/api/setup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      })
+
+      if (response.ok) {
+        const { organization, message } = await response.json()
+        setOrganizations([organization])
+        setCurrentOrganization(organization)
+        console.log('Setup completed:', message, organization)
+      } else {
+        const { error, migrationInstructions } = await response.json()
+        console.error('Setup failed:', error)
+        if (migrationInstructions) {
+          console.log('Migration instructions:', migrationInstructions)
+          setShowSetupInstructions(true)
+        }
+      }
+    } catch (error) {
+      console.error('Error during setup:', error)
     }
   }
 
@@ -464,6 +506,48 @@ export default function Dashboard() {
                   </p>
                 </div>
                 <PerformanceOverview />
+              </motion.div>
+            )}
+
+            {activeTab === 'users' && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                {showSetupInstructions ? (
+                  <SetupInstructions onRetry={() => {
+                    setShowSetupInstructions(false)
+                    fetchOrganizations()
+                  }} />
+                ) : currentOrganization ? (
+                  <TeamManagement 
+                    organizationId={currentOrganization.id}
+                    organizationName={currentOrganization.name}
+                  />
+                ) : (
+                  <div className="bg-white rounded-lg shadow p-8 text-center">
+                    <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <svg className="w-8 h-8 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      Setting up your organization...
+                    </h3>
+                    <p className="text-gray-600 mb-6">
+                      We're creating your team workspace. This should only take a moment.
+                    </p>
+                    <div className="flex items-center justify-center">
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        className="w-6 h-6 border-2 border-orange-400 border-t-transparent rounded-full"
+                      />
+                      <span className="ml-2 text-sm text-gray-600">Creating organization...</span>
+                    </div>
+                  </div>
+                )}
               </motion.div>
             )}
           </div>
