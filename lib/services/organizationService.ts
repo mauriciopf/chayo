@@ -21,27 +21,50 @@ export interface TeamMember {
 
 export class OrganizationService {
   private supabase = createClient()
+  private creationPromises = new Map<string, Promise<{ organization: Organization; wasCreated: boolean } | null>>()
 
   /**
    * Ensures a user has an organization, creating one if necessary
+   * Uses a promise cache to prevent duplicate creation requests
    */
   async ensureUserHasOrganization(user: User): Promise<{ organization: Organization; wasCreated: boolean } | null> {
     try {
-      // Check if user already has an organization
-      const existingOrg = await this.getUserOrganization(user.id)
-      
-      if (existingOrg) {
-        return { organization: existingOrg, wasCreated: false }
+      // Check if there's already a creation in progress for this user
+      const existingPromise = this.creationPromises.get(user.id)
+      if (existingPromise) {
+        return existingPromise
       }
 
-      // Create organization via API
-      const result = await this.createDefaultOrganization()
+      // Create and cache the promise
+      const promise = this._ensureUserHasOrganizationInternal(user)
+      this.creationPromises.set(user.id, promise)
       
-      return result
+      try {
+        const result = await promise
+        return result
+      } finally {
+        // Clean up the promise cache after completion
+        this.creationPromises.delete(user.id)
+      }
     } catch (error) {
       console.error('Error ensuring user has organization:', error)
+      this.creationPromises.delete(user.id)
       return null
     }
+  }
+
+  private async _ensureUserHasOrganizationInternal(user: User): Promise<{ organization: Organization; wasCreated: boolean } | null> {
+    // Check if user already has an organization
+    const existingOrg = await this.getUserOrganization(user.id)
+    
+    if (existingOrg) {
+      return { organization: existingOrg, wasCreated: false }
+    }
+
+    // Create organization via API (only if none exists)
+    const result = await this.createDefaultOrganization()
+    
+    return result
   }
 
   /**

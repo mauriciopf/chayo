@@ -89,11 +89,15 @@ export default function Dashboard() {
       const { data: { user } } = await supabase.auth.getUser()
       if (user) {
         setUser(user)
+        
+        // First ensure user has organization, then fetch other data
+        await ensureUserHasOrganization(user)
+        
+        // Fetch other data in parallel
         await Promise.all([
           fetchAgents(),
           fetchSubscription(user.id),
-          fetchChannels(user.id),
-          ensureUserHasOrganization(user)
+          fetchChannels(user.id)
         ])
       } else {
         router.push('/auth')
@@ -146,68 +150,6 @@ export default function Dashboard() {
     }
   }
 
-  const fetchOrganizations = async () => {
-    try {
-      const response = await fetch('/api/organizations')
-      if (response.ok) {
-        const { organizations } = await response.json()
-        console.log('Fetched organizations:', organizations)
-        setOrganizations(organizations || [])
-        if (organizations && organizations.length > 0) {
-          setCurrentOrganization(organizations[0])
-        } else {
-          // If no organizations exist, create a default one
-          console.log('No organizations found, creating default organization')
-          await createDefaultOrganization()
-        }
-      } else {
-        console.error('Failed to fetch organizations:', response.status, response.statusText)
-        const errorData = await response.json().catch(() => ({}))
-        console.error('Error details:', errorData)
-        setOrganizations([])
-        // Try to create a default organization
-        await createDefaultOrganization()
-      }
-    } catch (error) {
-      console.error('Error fetching organizations:', error)
-      setOrganizations([])
-      // Try to create a default organization
-      await createDefaultOrganization()
-    }
-  }
-
-  const createDefaultOrganization = async () => {
-    if (!user) return
-
-    try {
-      console.log('Creating default organization via setup API')
-
-      const response = await fetch('/api/setup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      })
-
-      if (response.ok) {
-        const { organization, message } = await response.json()
-        setOrganizations([organization])
-        setCurrentOrganization(organization)
-        console.log('Organization setup completed:', message, organization)
-        return organization
-      } else {
-        const { error, migrationInstructions } = await response.json()
-        console.error('Setup failed:', error)
-        if (migrationInstructions) {
-          console.log('Migration instructions:', migrationInstructions)
-          setShowSetupInstructions(true)
-        }
-        return null
-      }
-    } catch (error) {
-      console.error('Error during setup:', error)
-      return null
-    }
-  }
-
   const ensureUserHasOrganization = async (user: User) => {
     try {
       setOrganizationSetupLoading(true)
@@ -242,9 +184,6 @@ export default function Dashboard() {
     } catch (error) {
       console.error('Error ensuring user has organization:', error)
       setOrganizationSetupError('Failed to set up organization. Please try refreshing the page.')
-      
-      // Fallback to manual organization fetch
-      await fetchOrganizations()
     } finally {
       setOrganizationSetupLoading(false)
     }

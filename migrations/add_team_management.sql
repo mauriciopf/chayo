@@ -12,6 +12,9 @@ CREATE TABLE IF NOT EXISTS organizations (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
+-- Add unique constraint to prevent multiple organizations per owner
+CREATE UNIQUE INDEX IF NOT EXISTS idx_organizations_owner_id ON organizations(owner_id);
+
 CREATE TABLE IF NOT EXISTS team_members (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   organization_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,

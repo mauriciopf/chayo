@@ -43,6 +43,9 @@ export async function POST(request: NextRequest) {
       organizationId = membership.organization_id
     }
 
+    // Note: If no organization exists, it will be created by the dashboard on login
+    // The agent will be updated later via the setup API when organization is created
+
     // Insert the agent into the database
     const { data: agent, error: insertError } = await supabase
       .from('agents')

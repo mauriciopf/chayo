@@ -40,7 +40,7 @@ The migration script will:
       }, { status: 400 })
     }
 
-    // Check if user already has an organization
+    // Check if user already has an organization (check both owner and member roles)
     const { data: existingMembership, error: membershipError } = await supabase
       .from('team_members')
       .select(`
@@ -62,8 +62,9 @@ The migration script will:
         )
       `)
       .eq('user_id', user.id)
-      .eq('role', 'owner')
       .eq('status', 'active')
+      .order('joined_at', { ascending: true })
+      .limit(1)
       .single()
 
     if (existingMembership && !membershipError) {
@@ -75,29 +76,79 @@ The migration script will:
       })
     }
 
-    // Create organization for user
+    // Create organization for user with retry logic for race conditions
     const emailPrefix = user.email?.split('@')[0] || 'user'
     const randomSuffix = Math.random().toString(36).substring(2, 8)
     const slug = `${emailPrefix.replace(/[^a-zA-Z0-9]/g, '')}-${randomSuffix}`
     const name = `${emailPrefix}'s Organization`
 
-    // Create organization
-    const { data: organization, error: orgError } = await supabase
-      .from('organizations')
-      .insert({
-        name,
-        slug,
-        owner_id: user.id
-      })
-      .select()
-      .single()
+    // Try to create organization, but handle race conditions
+    let organization = null
+    let orgError = null
+    
+    try {
+      const { data: org, error: createError } = await supabase
+        .from('organizations')
+        .insert({
+          name,
+          slug,
+          owner_id: user.id
+        })
+        .select()
+        .single()
+      
+      organization = org
+      orgError = createError
+    } catch (error) {
+      orgError = error
+    }
 
+    // If organization creation failed, check if another request already created one
     if (orgError) {
+      console.log('Organization creation failed, checking for existing organization:', orgError)
+      
+      // Check again if organization was created by another concurrent request
+      const { data: existingMembership2, error: membershipError2 } = await supabase
+        .from('team_members')
+        .select(`
+          organization_id, 
+          organizations!inner (
+            id,
+            name,
+            slug,
+            owner_id,
+            plan_name,
+            created_at,
+            team_members (
+              id,
+              user_id,
+              role,
+              status,
+              joined_at
+            )
+          )
+        `)
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .order('joined_at', { ascending: true })
+        .limit(1)
+        .single()
+
+      if (existingMembership2 && !membershipError2) {
+        return NextResponse.json({ 
+          success: true,
+          organization: existingMembership2.organizations,
+          message: 'Organization already exists',
+          wasCreated: false
+        })
+      }
+      
+      // If still no organization found, return error
       console.error('Error creating organization:', orgError)
       return NextResponse.json({ error: 'Failed to create organization' }, { status: 500 })
     }
 
-    // Add user as owner in team_members
+    // Add user as owner in team_members with race condition handling
     const { error: memberError } = await supabase
       .from('team_members')
       .insert({
@@ -109,9 +160,22 @@ The migration script will:
 
     if (memberError) {
       console.error('Error adding team member:', memberError)
-      // Clean up organization if team member creation fails
-      await supabase.from('organizations').delete().eq('id', organization.id)
-      return NextResponse.json({ error: 'Failed to create organization' }, { status: 500 })
+      
+      // Check if member already exists (race condition)
+      const { data: existingMember, error: checkError } = await supabase
+        .from('team_members')
+        .select('id')
+        .eq('organization_id', organization.id)
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .single()
+      
+      if (!existingMember || checkError) {
+        // Clean up organization if team member creation fails and no existing member
+        await supabase.from('organizations').delete().eq('id', organization.id)
+        return NextResponse.json({ error: 'Failed to create organization' }, { status: 500 })
+      }
+      // If member exists, continue (race condition resolved)
     }
 
     // Update any existing agents to belong to this organization
