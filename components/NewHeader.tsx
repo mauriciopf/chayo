@@ -59,7 +59,7 @@ export default function NewHeader() {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+      className={`fixed top-0 left-0 right-0 z-[60] transition-all duration-500 ${
         isScrolled 
           ? 'bg-white/95 backdrop-blur-xl shadow-lg border-b border-gray-100' 
           : 'bg-white/80 backdrop-blur-md'
@@ -248,10 +248,21 @@ export default function NewHeader() {
             height: isMenuOpen ? "auto" : 0 
           }}
           transition={{ duration: 0.4, ease: "easeInOut" }}
-          className="lg:hidden overflow-hidden"
+          className="lg:hidden overflow-hidden relative z-[70]"
         >
+          {/* Background overlay for mobile menu */}
+          {isMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[65]"
+              onClick={() => setIsMenuOpen(false)}
+            />
+          )}
+          
           <motion.div 
-            className="py-6 space-y-4 border-t border-gray-100 bg-white/90 backdrop-blur-xl rounded-b-2xl shadow-lg"
+            className="py-6 space-y-4 border-t border-gray-100 bg-white/98 backdrop-blur-xl rounded-b-2xl shadow-2xl relative z-[70] border-l border-r border-b border-gray-200/50"
             initial={{ y: -20 }}
             animate={{ y: isMenuOpen ? 0 : -20 }}
             transition={{ duration: 0.3 }}
