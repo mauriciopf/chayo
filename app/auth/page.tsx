@@ -65,7 +65,7 @@ export default function AuthPage() {
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/auth/callback`
+            emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || window.location.origin}/auth/callback`
           }
         })
         if (error) throw error
@@ -97,13 +97,15 @@ export default function AuthPage() {
     setMessage('')
     
     try {
-      // Get the current origin for redirect
-      const origin = window.location.origin
+      // Get the site URL from environment or fallback to current origin
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin
+      
+      console.log('Starting Google OAuth with redirect to:', `${siteUrl}/auth/callback`)
       
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${origin}/auth/callback`,
+          redirectTo: `${siteUrl}/auth/callback`,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
