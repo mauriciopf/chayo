@@ -1,0 +1,253 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Root variables for modern, sophisticated theme */
+:root {
+  --bg-primary: #fafafa;
+  --bg-secondary: #f4f4f5;
+  --text-primary: #18181b;
+  --text-secondary: #52525b;
+  --text-muted: #a1a1aa;
+  --border-color: rgba(24, 24, 27, 0.08);
+  --accent-primary: #10b981;
+  --accent-secondary: #059669;
+  --font-sans: 'Inter', 'Segoe UI', 'Helvetica Neue', system-ui, sans-serif;
+}
+
+/* Light mode variables (default modern theme) */
+.light {
+  --bg-primary: #fafafa;
+  --bg-secondary: #f4f4f5;
+  --text-primary: #18181b;
+  --text-secondary: #52525b;
+  --text-muted: #a1a1aa;
+  --border-color: rgba(24, 24, 27, 0.08);
+  --accent-primary: #10b981;
+  --accent-secondary: #059669;
+}
+
+/* Dark mode variables (refined dark, not black) */
+.dark {
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #18181b;
+  --text-primary: #fafafa;
+  --text-secondary: #d4d4d8;
+  --text-muted: #a1a1aa;
+  --border-color: rgba(255, 255, 255, 0.08);
+  --accent-primary: #34d399;
+  --accent-secondary: #10b981;
+}
+
+/* Base typography improvements */
+body {
+  font-family: var(--font-sans);
+  font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
+}
+
+html, body {
+  overflow-x: hidden;
+  min-height: 100vh;
+  scroll-behavior: smooth;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  /* Ensure mobile scrolling works properly */
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y pinch-zoom;
+  /* Prevent scroll blocking during animations */
+  overscroll-behavior: contain;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  font-family: 'Inter', 'Montserrat', 'Segoe UI', Arial, sans-serif;
+}
+
+.section-glass {
+  background: var(--bg-secondary);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(8px) saturate(1.1);
+  border-radius: 1rem;
+  border: 1px solid var(--border-color);
+  position: relative;
+  overflow: hidden;
+  animation: glass-fade-in 0.8s cubic-bezier(0.4,0,0.2,1);
+}
+
+@keyframes glass-fade-in {
+  from { opacity: 0; transform: translateY(20px) scale(0.99); }
+  to { opacity: 1; transform: none; }
+}
+
+.section-divider {
+  width: 100vw;
+  height: 1px;
+  background: var(--border-color);
+  opacity: 0.6;
+  margin: 2rem 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+@keyframes divider-fade-in {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 0.6; transform: none; }
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+h1 {
+  font-size: 2.2em;
+  line-height: 1.1;
+}
+
+h2 {
+  font-size: 1.5em;
+  line-height: 1.2;
+}
+
+a {
+  font-weight: 500;
+  color: var(--accent-primary);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+a:hover {
+  color: var(--accent-secondary);
+}
+
+button {
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+  padding: 0.75rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: inherit;
+  background: var(--accent-primary);
+  color: white;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+button:hover {
+  background: var(--accent-secondary);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--text-muted);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+@media (max-width: 600px) {
+  h1 {
+    font-size: 1.4em;
+  }
+  h2 {
+    font-size: 1.1em;
+  }
+  .section-glass {
+    border-radius: 1.2rem;
+    padding: 1.2rem;
+  }
+  
+  /* Ensure scrolling works during animations on mobile */
+  section, div, main {
+    touch-action: pan-y pinch-zoom;
+  }
+  
+  /* Disable motion animations on mobile for better performance */
+  * {
+    animation-duration: 0.1s !important;
+    animation-delay: 0s !important;
+    transition-duration: 0.1s !important;
+  }
+  
+  /* Re-enable essential transitions */
+  button, a, .hover\:scale-105:hover {
+    transition-duration: 0.2s !important;
+  }
+}
+
+/* CSS-only float animations */
+@keyframes float-y {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}
+
+/* Mobile optimization for better scroll performance */
+@media (max-width: 767px) {
+  /* Reduce animation intensity and duration on mobile */
+  * {
+    animation-duration: 0.3s !important;
+    animation-delay: 0s !important;
+    transition-duration: 0.2s !important;
+    transition-delay: 0s !important;
+  }
+  
+  /* Disable CPU-intensive animations on mobile */
+  .animate-float,
+  .animate-float-slow,
+  .animate-float-slower {
+    animation: none !important;
+  }
+  
+  /* Reduce blur effects that can impact scroll performance */
+  .blur-3xl {
+    filter: blur(8px) !important;
+  }
+  
+  .blur-2xl {
+    filter: blur(4px) !important;
+  }
+  
+  /* Ensure scroll isn't blocked by animations */
+  section, div, main {
+    touch-action: pan-y pinch-zoom !important;
+  }
+}
+
+/* Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
