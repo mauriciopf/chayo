@@ -26,6 +26,8 @@ export default function AuthCallback() {
         }
         
         if (code) {
+          console.log('Processing OAuth code...')
+          
           // Exchange the code for a session
           const { data, error } = await supabase.auth.exchangeCodeForSession(code)
           
@@ -36,9 +38,33 @@ export default function AuthCallback() {
           }
 
           if (data.session) {
-            // Successfully authenticated, redirect to dashboard
-            console.log('Successfully authenticated, redirecting to dashboard')
-            router.push('/dashboard')
+            console.log('Session created successfully:', data.session.user.email)
+            
+            // Wait a moment to ensure session is fully persisted
+            await new Promise(resolve => setTimeout(resolve, 1000))
+            
+            // Verify the session is accessible
+            const { data: verifyData, error: verifyError } = await supabase.auth.getSession()
+            
+            if (verifyError) {
+              console.error('Session verification error:', verifyError)
+              router.push('/auth?error=' + encodeURIComponent('Session verification failed'))
+              return
+            }
+            
+            if (verifyData.session) {
+              console.log('Session verified, redirecting to dashboard')
+              // Use window.location.href for a hard redirect to ensure proper session handling
+              window.location.href = '/dashboard'
+              return
+            } else {
+              console.error('Session not found after verification')
+              router.push('/auth?error=' + encodeURIComponent('Session not found'))
+              return
+            }
+          } else {
+            console.error('No session returned from code exchange')
+            router.push('/auth?error=' + encodeURIComponent('No session created'))
             return
           }
         }
@@ -54,8 +80,8 @@ export default function AuthCallback() {
 
         if (sessionData.session) {
           // Session exists, redirect to dashboard
-          console.log('Session exists, redirecting to dashboard')
-          router.push('/dashboard')
+          console.log('Existing session found, redirecting to dashboard')
+          window.location.href = '/dashboard'
         } else {
           // No session, redirect back to auth
           console.log('No session found, redirecting to auth')
@@ -74,7 +100,8 @@ export default function AuthCallback() {
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 flex items-center justify-center">
       <div className="text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-        <p className="text-gray-600">Completing sign in...</p>
+        <p className="text-gray-600">Completing authentication...</p>
+        <p className="text-sm text-gray-500 mt-2">Please wait while we redirect you to the dashboard</p>
       </div>
     </div>
   )

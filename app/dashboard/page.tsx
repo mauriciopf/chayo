@@ -105,29 +105,53 @@ function DashboardContent() {
   const supabase = createClient()
 
   useEffect(() => {
+    let isMounted = true
+    
     const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        setUser(user)
+      try {
+        // Wait a moment to ensure any pending session changes are processed
+        await new Promise(resolve => setTimeout(resolve, 100))
         
-        // First ensure user has organization, then fetch other data
-        await ensureUserHasOrganization(user)
+        const { data: { user } } = await supabase.auth.getUser()
         
-        // Fetch other data in parallel
-        await Promise.all([
-          fetchAgents(),
-          fetchSubscription(user.id),
-          fetchChannels(user.id)
-        ])
-      } else {
-        router.push('/auth')
+        if (!isMounted) return
+        
+        if (user) {
+          console.log('Dashboard: User found', user.email)
+          setUser(user)
+          
+          // First ensure user has organization, then fetch other data
+          await ensureUserHasOrganization(user)
+          
+          // Fetch other data in parallel
+          await Promise.all([
+            fetchAgents(),
+            fetchSubscription(user.id),
+            fetchChannels(user.id)
+          ])
+        } else {
+          console.log('Dashboard: No user found, redirecting to auth')
+          router.push('/auth')
+        }
+      } catch (error) {
+        console.error('Dashboard: Error getting user:', error)
+        if (isMounted) {
+          router.push('/auth')
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false)
+        }
       }
-      setLoading(false)
     }
 
     // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Dashboard: Auth state change:', event, session?.user?.email)
+        
+        if (!isMounted) return
+        
         if (event === 'SIGNED_IN' && session?.user) {
           setUser(session.user)
           setLoading(true)
@@ -155,8 +179,11 @@ function DashboardContent() {
     // Initial load
     getUser()
 
-    // Cleanup subscription on unmount
-    return () => subscription.unsubscribe()
+    // Cleanup function
+    return () => {
+      isMounted = false
+      subscription.unsubscribe()
+    }
   }, [router, supabase.auth])
 
   // Handle upgrade flow from integrations page
