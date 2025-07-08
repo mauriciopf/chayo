@@ -11,6 +11,9 @@ import PlanBadge from '@/components/dashboard/PlanBadge'
 import CreateAgentModal from '@/components/dashboard/CreateAgentModal'
 import EditAgentModal from '@/components/dashboard/EditAgentModal'
 import SubscriptionPlans from '@/components/dashboard/SubscriptionPlans'
+import ManageDocumentsModal from '@/components/dashboard/ManageDocumentsModal'
+import PerformanceOverview from '@/components/dashboard/PerformanceOverview'
+import TeamManagement from '@/components/dashboard/TeamManagement'
 
 interface Agent {
   id: string
@@ -32,6 +35,22 @@ interface UserSubscription {
   current_period_end: string
 }
 
+interface Organization {
+  id: string
+  name: string
+  slug: string
+  owner_id: string
+  plan_name: string
+  created_at: string
+  team_members?: Array<{
+    id: string
+    user_id: string
+    role: string
+    status: string
+    joined_at: string
+  }>
+}
+
 interface AgentChannel {
   id: string
   agent_id: string
@@ -45,11 +64,17 @@ export default function Dashboard() {
   const [agents, setAgents] = useState<Agent[]>([])
   const [subscription, setSubscription] = useState<UserSubscription | null>(null)
   const [channels, setChannels] = useState<AgentChannel[]>([])
+  const [organizations, setOrganizations] = useState<Organization[]>([])
+  const [currentOrganization, setCurrentOrganization] = useState<Organization | null>(null)
   const [loading, setLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [editingAgent, setEditingAgent] = useState<Agent | null>(null)
   const [showPlansModal, setShowPlansModal] = useState(false)
+  const [showManageDocsModal, setShowManageDocsModal] = useState(false)
+  const [managingAgentId, setManagingAgentId] = useState<string | null>(null)
+  const [managingAgentName, setManagingAgentName] = useState<string>('')
+  const [activeTab, setActiveTab] = useState<'agents' | 'performance' | 'users'>('agents')
   const router = useRouter()
   const supabase = createClient()
 
@@ -61,7 +86,8 @@ export default function Dashboard() {
         await Promise.all([
           fetchAgents(),
           fetchSubscription(user.id),
-          fetchChannels(user.id)
+          fetchChannels(user.id),
+          fetchOrganizations()
         ])
       } else {
         router.push('/auth')
@@ -111,6 +137,25 @@ export default function Dashboard() {
 
     if (data && !error) {
       setChannels(data)
+    }
+  }
+
+  const fetchOrganizations = async () => {
+    try {
+      const response = await fetch('/api/organizations')
+      if (response.ok) {
+        const { organizations } = await response.json()
+        setOrganizations(organizations || [])
+        if (organizations && organizations.length > 0) {
+          setCurrentOrganization(organizations[0])
+        }
+      } else {
+        console.error('Failed to fetch organizations')
+        setOrganizations([])
+      }
+    } catch (error) {
+      console.error('Error fetching organizations:', error)
+      setOrganizations([])
     }
   }
 
@@ -183,6 +228,60 @@ export default function Dashboard() {
                 Quick Actions
               </h2>
               
+              {/* Quick Navigation */}
+              <div className="mb-6">
+                <h3 className="text-sm font-semibold text-gray-700 mb-3">
+                  Quick Navigation
+                </h3>
+                <div className="space-y-2">
+                  <button
+                    onClick={() => setActiveTab('agents')}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                      activeTab === 'agents'
+                        ? 'bg-orange-100 text-orange-800 font-medium'
+                        : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                  >
+                    <div className="flex items-center">
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      AI Agents ({agents.length})
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('performance')}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                      activeTab === 'performance'
+                        ? 'bg-orange-100 text-orange-800 font-medium'
+                        : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                  >
+                    <div className="flex items-center">
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                      Performance
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('users')}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                      activeTab === 'users'
+                        ? 'bg-orange-100 text-orange-800 font-medium'
+                        : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                  >
+                    <div className="flex items-center">
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                      </svg>
+                      Team ({currentOrganization?.team_members?.length || 0})
+                    </div>
+                  </button>
+                </div>
+              </div>
+              
               <div className="space-y-3">
                 <button
                   onClick={() => setShowCreateModal(true)}
@@ -228,74 +327,144 @@ export default function Dashboard() {
 
           {/* Main Content */}
           <div className="lg:col-span-3">
+            {/* Tab Navigation */}
             <div className="mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                Your AI Agents
-              </h2>
-              <p className="text-gray-600">
-                Manage your AI agents and their channel connections
-              </p>
+              <div className="border-b border-gray-200">
+                <nav className="-mb-px flex space-x-8">
+                  <button
+                    onClick={() => setActiveTab('agents')}
+                    className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                      activeTab === 'agents'
+                        ? 'border-orange-500 text-orange-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    AI Agents
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('performance')}
+                    className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                      activeTab === 'performance'
+                        ? 'border-orange-500 text-orange-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    Performance Overview
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('users')}
+                    className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                      activeTab === 'users'
+                        ? 'border-orange-500 text-orange-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    Team Management
+                  </button>
+                </nav>
+              </div>
             </div>
 
-            {agents.length === 0 ? (
+            {/* Tab Content */}
+            {activeTab === 'agents' && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-lg shadow p-8 text-center"
+                transition={{ duration: 0.3 }}
               >
-                <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
+                <div className="mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                    Your AI Agents
+                  </h2>
+                  <p className="text-gray-600">
+                    Manage your AI agents and their channel connections
+                  </p>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  No agents yet
-                </h3>
-                <p className="text-gray-600 mb-6">
-                  Create your first AI agent to start automating customer interactions
-                </p>
-                <button
-                  onClick={() => setShowCreateModal(true)}
-                  disabled={!canCreateAgent()}
-                  className="bg-orange-400 hover:bg-orange-500 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium py-2 px-6 rounded-lg transition-colors"
-                >
-                  Create Your First Agent
-                </button>
-              </motion.div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {agents.map((agent, index) => (
+
+                {agents.length === 0 ? (
                   <motion.div
-                    key={agent.id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
+                    className="bg-white rounded-lg shadow p-8 text-center"
                   >
-                    <AgentCard 
-                      agent={agent}
-                      channels={channels.filter(c => c.agent_id === agent.id)}
-                      onEdit={() => {
-                        setEditingAgent(agent)
-                        setShowEditModal(true)
-                      }}
-                      onTogglePause={() => {
-                        // Update agent pause status
-                        fetch(`/api/agents/${agent.id}`, {
-                          method: 'PUT',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ paused: !agent.paused })
-                        }).then(() => fetchAgents())
-                      }}
-                      onDelete={() => {
-                        // Delete agent
-                        fetch(`/api/agents/${agent.id}`, {
-                          method: 'DELETE'
-                        }).then(() => fetchAgents())
-                      }}
-                    />
+                    <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <svg className="w-8 h-8 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      No agents yet
+                    </h3>
+                    <p className="text-gray-600 mb-6">
+                      Create your first AI agent to start automating customer interactions
+                    </p>
+                    <button
+                      onClick={() => setShowCreateModal(true)}
+                      disabled={!canCreateAgent()}
+                      className="bg-orange-400 hover:bg-orange-500 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium py-2 px-6 rounded-lg transition-colors"
+                    >
+                      Create Your First Agent
+                    </button>
                   </motion.div>
-                ))}
-              </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {agents.map((agent, index) => (
+                      <motion.div
+                        key={agent.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                      >
+                        <AgentCard 
+                          agent={agent}
+                          channels={channels.filter(c => c.agent_id === agent.id)}
+                          onEdit={() => {
+                            setEditingAgent(agent)
+                            setShowEditModal(true)
+                          }}
+                          onTogglePause={() => {
+                            // Update agent pause status
+                            fetch(`/api/agents/${agent.id}`, {
+                              method: 'PUT',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ paused: !agent.paused })
+                            }).then(() => fetchAgents())
+                          }}
+                          onDelete={() => {
+                            // Delete agent
+                            fetch(`/api/agents/${agent.id}`, {
+                              method: 'DELETE'
+                            }).then(() => fetchAgents())
+                          }}
+                          onManageDocuments={() => {
+                            setManagingAgentId(agent.id)
+                            setManagingAgentName(agent.name)
+                            setShowManageDocsModal(true)
+                          }}
+                        />
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+              </motion.div>
+            )}
+
+            {activeTab === 'performance' && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                    Performance Analytics
+                  </h2>
+                  <p className="text-gray-600">
+                    Comprehensive insights into your AI platform's performance and engagement
+                  </p>
+                </div>
+                <PerformanceOverview />
+              </motion.div>
             )}
           </div>
         </div>
@@ -336,6 +505,19 @@ export default function Dashboard() {
           onSubscriptionUpdate={() => {
             setShowPlansModal(false)
             fetchSubscription(user!.id)
+          }}
+        />
+      )}
+
+      {/* Manage Documents Modal */}
+      {showManageDocsModal && managingAgentId && (
+        <ManageDocumentsModal
+          agentId={managingAgentId}
+          agentName={managingAgentName}
+          onClose={() => {
+            setShowManageDocsModal(false)
+            setManagingAgentId(null)
+            setManagingAgentName('')
           }}
         />
       )}

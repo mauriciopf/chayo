@@ -28,6 +28,7 @@ interface AgentCardProps {
   onEdit: () => void
   onTogglePause: () => void
   onDelete: () => void
+  onManageDocuments: () => void
 }
 
 export default function AgentCard({ 
@@ -35,7 +36,8 @@ export default function AgentCard({
   channels, 
   onEdit, 
   onTogglePause, 
-  onDelete 
+  onDelete,
+  onManageDocuments
 }: AgentCardProps) {
   const [showMenu, setShowMenu] = useState(false)
 
@@ -89,19 +91,37 @@ export default function AgentCard({
             {showMenu && (
               <div className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg border border-gray-200 py-1 z-10">
                 <button
-                  onClick={onEdit}
+                  onClick={() => {
+                    onEdit()
+                    setShowMenu(false)
+                  }}
                   className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                 >
                   Edit Agent
                 </button>
                 <button
-                  onClick={onTogglePause}
+                  onClick={() => {
+                    onManageDocuments()
+                    setShowMenu(false)
+                  }}
+                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                >
+                  Manage Documents
+                </button>
+                <button
+                  onClick={() => {
+                    onTogglePause()
+                    setShowMenu(false)
+                  }}
                   className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                 >
                   {agent.paused ? 'Resume' : 'Pause'} Agent
                 </button>
                 <button
-                  onClick={onDelete}
+                  onClick={() => {
+                    onDelete()
+                    setShowMenu(false)
+                  }}
                   className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
                 >
                   Delete Agent
@@ -115,11 +135,22 @@ export default function AgentCard({
           {agent.greeting}
         </p>
         
-        <div className="flex items-center space-x-2 mb-3">
-          <span className="text-xs font-medium text-gray-500">TONE:</span>
-          <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full capitalize">
-            {agent.tone}
-          </span>
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center space-x-2">
+            <span className="text-xs font-medium text-gray-500">TONE:</span>
+            <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full capitalize">
+              {agent.tone}
+            </span>
+          </div>
+          <button 
+            onClick={onManageDocuments}
+            className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded-full hover:bg-orange-200 transition-colors flex items-center space-x-1"
+          >
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span>Docs</span>
+          </button>
         </div>
 
         {/* Goals */}

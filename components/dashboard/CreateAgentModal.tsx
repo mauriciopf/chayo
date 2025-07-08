@@ -375,8 +375,7 @@ Instructions:
                 </div>
               </div>
             )}
-
-            {/* ...existing step content... */}
+          </div>
 
           {/* Footer */}
           <div className="flex items-center justify-between p-6 border-t border-gray-200">
