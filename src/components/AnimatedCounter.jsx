@@ -6,10 +6,15 @@ export default function AnimatedCounter({ value, duration = 1.5, className = "" 
 
   useEffect(() => {
     let start = 0;
-    const end = parseInt(value);
-    if (start === end) return;
+    const end = parseInt(value) || 0; // Default to 0 if value is invalid
+    if (start === end) {
+      setCount(end);
+      return;
+    }
+    
     let increment = end / (duration * 60);
     let current = start;
+    
     function updateCounter() {
       current += increment;
       if (current >= end) {
@@ -19,6 +24,7 @@ export default function AnimatedCounter({ value, duration = 1.5, className = "" 
         ref.current = requestAnimationFrame(updateCounter);
       }
     }
+    
     ref.current = requestAnimationFrame(updateCounter);
     return () => cancelAnimationFrame(ref.current);
   }, [value, duration]);

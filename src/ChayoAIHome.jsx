@@ -1,20 +1,22 @@
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
-import Header from "./components/Header";
-import Hero from "./components/Hero";
-import Services from "./components/Services";
-import PricingReplacement from "./components/PricingReplacement";
-import Contact from "./components/Contact";
-import Footer from "./components/Footer";
+import NewHeader from "./components/NewHeader";
+import NewHero from "./components/NewHero";
+import VibeSection from "./components/VibeSection";
+import TrainingSection from "./components/TrainingSection";
+import MarketingSection from "./components/MarketingSection";
+import LaunchSection from "./components/LaunchSection";
+import HowItWorksSection from "./components/HowItWorksSection";
+import ExamplesSection from "./components/ExamplesSection";
+import PricingSection from "./components/PricingSection";
+import NewFooter from "./components/NewFooter";
+import StartACall from "./components/StartACall";
 import { motion } from "framer-motion";
-import AnimatedCounter from "./components/AnimatedCounter";
-import FAQAccordion from "./components/FAQAccordion";
-import ScrollToTopButton from "./components/ScrollToTopButton";
-import IndustryProcess from "./components/IndustryProcess";
 
 export default function ChayoAIHome({ darkMode: parentDarkMode }) {
-  const [darkMode, setDarkMode] = useState(parentDarkMode ?? true);
+  const [darkMode, setDarkMode] = useState(parentDarkMode ?? false);
   const [isMobile, setIsMobile] = useState(false);
+  const [showStartACall, setShowStartACall] = useState(false);
 
   useEffect(() => {
     if (parentDarkMode !== undefined) {
@@ -33,414 +35,108 @@ export default function ChayoAIHome({ darkMode: parentDarkMode }) {
   }, []);
 
   return (
-    <div className="bg-gray-50 text-gray-900 transition-colors duration-700">
+    <div className="bg-white text-gray-900 transition-colors duration-700">
       <Helmet>
-        <title>Chayo AI – AI Automation & Business Intelligence Solutions | Custom AI Development</title>
+        <title>Chayo AI – Tu Comadre Digital que Nunca Duerme | AI Business Automation</title>
         <meta
           name="description"
-          content="Transform your business with custom AI automation solutions. Expert AI consulting, chatbot development, and process automation services. Scale instantly with 24/7 AI agents. Get 60% cost reduction."
+          content="Chayo runs your business like a comadre who never sleeps. AI automation that learns your brand, handles customers 24/7, and grows your revenue. Set up in 5 minutes."
         />
-        <meta name="keywords" content="AI automation, AI consulting services, business automation solutions, AI implementation, custom AI development, AI chatbots for business, process automation, AI transformation consulting, business intelligence, machine learning solutions, AI agents, automated customer service" />
+        <meta name="keywords" content="AI comadre, business automation, AI chatbot, customer service automation, Hispanic AI, Latina entrepreneur, automated booking, AI assistant, business growth" />
         <meta name="author" content="Chayo AI" />
         <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
         <meta name="googlebot" content="index, follow" />
         
-        {/* Open Graph Tags */}
-        <meta property="og:title" content="Chayo AI – AI Automation & Business Intelligence Solutions" />
-        <meta property="og:description" content="Transform your business with custom AI automation. Expert consulting, chatbot development, and 24/7 AI agents. Scale instantly with 60% cost reduction." />
-        <meta property="og:image" content="https://chayo.ai/chayo-logo.svg" />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-        <meta property="og:url" content="https://chayo.ai" />
+        <meta property="og:title" content="Chayo AI – Tu Comadre Digital que Nunca Duerme" />
+        <meta property="og:description" content="AI automation that learns your brand, handles customers 24/7, and grows your revenue. Your digital comadre who never sleeps." />
         <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://chayo.ai" />
+        <meta property="og:image" content="https://chayo.ai/chayo-logo.svg" />
         <meta property="og:site_name" content="Chayo AI" />
         <meta property="og:locale" content="en_US" />
+        <meta property="og:locale:alternate" content="es_MX" />
         
-        {/* Twitter Card Tags */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Chayo AI – AI Automation & Business Intelligence Solutions" />
-        <meta name="twitter:description" content="Transform your business with custom AI automation. Expert consulting, chatbot development, and 24/7 AI agents." />
+        <meta name="twitter:title" content="Chayo AI – Tu Comadre Digital que Nunca Duerme" />
+        <meta name="twitter:description" content="AI automation that learns your brand and handles customers 24/7. Your digital comadre who never sleeps." />
         <meta name="twitter:image" content="https://chayo.ai/chayo-logo.svg" />
+        <meta name="twitter:site" content="@ChayoAI" />
+        <meta name="twitter:creator" content="@ChayoAI" />
         
-        {/* Business & Local SEO */}
-        <meta name="geo.region" content="US" />
-        <meta name="geo.placename" content="United States" />
-        <meta name="ICBM" content="39.8283, -98.5795" />
-        
-        {/* Additional SEO Meta Tags */}
-        <meta name="theme-color" content="#E87811" />
-        <meta name="msapplication-TileColor" content="#E87811" />
+        <meta name="theme-color" content="#9333ea" />
         <link rel="canonical" href="https://chayo.ai" />
-        
-        <html lang="en" />
-        <script type="application/ld+json">{`
-          {
-            "@context": "https://schema.org",
-            "@type": "Organization",
-            "name": "Chayo AI",
-            "alternateName": "Chayo Artificial Intelligence",
-            "url": "https://chayo.ai",
-            "logo": "https://chayo.ai/chayo-logo.svg",
-            "sameAs": [
-              "https://mauriciopf.github.io/chayo/"
-            ],
-            "contactPoint": {
-              "@type": "ContactPoint",
-              "email": "mauricio.perezflores@gmail.com",
-              "contactType": "Customer Support",
-              "areaServed": "Worldwide",
-              "availableLanguage": ["English", "Spanish"]
-            },
-            "foundingDate": "2024",
-            "description": "Expert AI automation and business intelligence solutions. Custom AI development, chatbot services, and process automation for modern businesses.",
-            "keywords": "AI automation, AI consulting, business automation, AI chatbots, process automation, AI implementation",
-            "services": [
-              {
-                "@type": "Service",
-                "name": "AI Automation Agents",
-                "description": "24/7 intelligent agents that automate customer service, lead generation, and business processes"
-              },
-              {
-                "@type": "Service", 
-                "name": "Custom AI Solutions",
-                "description": "Tailored AI implementations designed specifically for your business needs and industry"
-              },
-              {
-                "@type": "Service",
-                "name": "AI Consulting & Strategy",
-                "description": "Expert guidance on AI transformation, implementation roadmaps, and business optimization"
-              }
-            ],
-            "offers": {
-              "@type": "Offer",
-              "description": "Custom AI automation solutions with 60% cost reduction and 24/7 service capabilities",
-              "availability": "InStock"
-            }
-          }
-        `}</script>
-        
-        <script type="application/ld+json">{`
-          {
-            "@context": "https://schema.org",
-            "@type": "WebSite",
-            "name": "Chayo AI",
-            "url": "https://chayo.ai",
-            "potentialAction": {
-              "@type": "SearchAction",
-              "target": "https://chayo.ai/?s={search_term_string}",
-              "query-input": "required name=search_term_string"
-            }
-          }
-        `}</script>
-        
-        <script type="application/ld+json">{`
-          {
-            "@context": "https://schema.org",
-            "@type": "FAQPage",
-            "mainEntity": [
-              {
-                "@type": "Question",
-                "name": "How fast can Chayo AI deploy automation for my business?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "We deploy AI automation solutions in as little as 2-4 weeks, depending on complexity. Our rapid deployment process includes consultation, custom development, testing, and full integration with your existing systems."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "What business outcomes can I expect from AI automation?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Our clients typically see up to 60% cost reduction, 24/7 instant customer service capabilities, and the ability to scale their team instantly as their business grows."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "What industries benefit from AI automation?",
-                "acceptedAnswer": {
-                  "@type": "Answer", 
-                  "text": "E-commerce, healthcare, real estate, and professional services all benefit from our tailored AI automation solutions. We customize our approach for each industry's specific needs."
-                }
-              }
-            ]
-          }
-            },
-            "sameAs": [
-              "https://www.instagram.com/chayoai"
-            ]
-          }
-        `}</script>
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Chayo AI" />
       </Helmet>
 
-      <Header darkMode={darkMode} setDarkMode={setDarkMode} />
-      <ScrollToTopButton darkMode={darkMode} />
-
-      <main className="transition-colors duration-300">
-        <Hero darkMode={false} />
-        <Services darkMode={darkMode} />
-        <PricingReplacement darkMode={darkMode} setDarkMode={setDarkMode} />
-        
-        {/* Additional content sections from original ChayoAIHome */}
-        {/* Apple-inspired ultra-clean, spacious layout */}
-        {/* Animated CTA Section */}
-        <motion.section
-          className="relative py-20 md:py-32 text-center overflow-visible"
-          style={{ background: 'none' }}
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 1 }}
-          whileHover={{ scale: 1.01, boxShadow: '0 8px 64px 0 rgba(6,182,212,0.10)' }}
-          animate={{ backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'] }}
-        >
-          {/* Floating blurred accent shape (subtle, Apple-style) - hidden on mobile */}
-          {!isMobile && (
-            <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[90vw] h-40 bg-gradient-to-r from-cyan-400 via-white/10 to-orange-400 opacity-10 blur-3xl rounded-full z-0 animate-float-slow" />
-          )}
-          <motion.h2 className="text-4xl md:text-6xl font-light mb-8 tracking-tight leading-tight text-gray-900"
-            initial={{ scale: 0.95, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 1, delay: 0.2 }}
-          >
-            <span className="block text-2xl md:text-3xl font-light tracking-wide mb-2">Lead the Era of</span>
-            <span className="block bg-gradient-to-r from-emerald-600 to-emerald-800 bg-clip-text text-transparent font-medium">Intelligent AI</span>
-          </motion.h2>
-          <motion.p className="text-lg md:text-2xl mb-12 font-light tracking-wide leading-relaxed max-w-3xl mx-auto text-center text-gray-600"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            whileHover={{ scale: 1.04, color: '#06b6d4' }}
-          >
-            Experience the next level of automation, intelligence, and business growth—powered by elegant, human-centered AI.
-          </motion.p>
-          <motion.a
-            href="http://chayo.ai/#/startaicall"
-            className="inline-block bg-cyan-400 text-black px-12 py-5 rounded-full font-bold text-xl shadow-xl hover:bg-cyan-300 focus:bg-cyan-500 transition-all duration-200 drop-shadow-lg tracking-wide uppercase"
-            whileHover={{ scale: 1.12, backgroundColor: '#06b6d4', color: '#fff', boxShadow: '0 4px 32px 0 #06b6d4' }}
-            whileTap={{ scale: 0.97 }}
-          >
-            Get Started
-          </motion.a>
-        </motion.section>
-
-        <div className="section-divider" />
-        {/* Value Proposition Section */}
-        <motion.section
-          className="relative grid md:grid-cols-2 gap-32 items-center overflow-visible py-36 md:py-52"
-          style={{ background: 'none' }}
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 1 }}
-          whileHover={{ scale: 1.01, boxShadow: '0 8px 64px 0 rgba(6,182,212,0.10)' }}
-        >
-          {/* Animated blurred accent shapes and parallax divider - hide heavy animations on mobile */}
-          {!isMobile && (
-            <motion.div
-              className="absolute -top-40 left-1/3 w-[28rem] h-[28rem] bg-gradient-to-br from-cyan-400 to-white/10 opacity-10 blur-3xl rounded-full z-0 animate-float-slow"
-              style={{ filter: 'blur(80px)' }}
-              initial={{ y: -30 }}
-              whileInView={{ y: 0 }}
-              transition={{ duration: 1.2, type: 'spring' }}
-            />
-          )}
-          {!isMobile && (
-            <motion.div
-              className="absolute -bottom-56 right-1/3 w-[36rem] h-[36rem] bg-gradient-to-br from-orange-300 to-cyan-400 opacity-10 blur-3xl rounded-full z-0 animate-float-slower"
-              style={{ filter: 'blur(100px)' }}
-              initial={{ y: 30 }}
-              whileInView={{ y: 0 }}
-              transition={{ duration: 1.2, type: 'spring' }}
-            />
-          )}
-          {/* Animated vertical line accent - simplified on mobile */}
-          {!isMobile && (
-            <motion.div
-              className="absolute left-1/2 top-0 -translate-x-1/2 w-1 h-full bg-gradient-to-b from-cyan-400/60 via-white/0 to-orange-400/60 opacity-60 rounded-full pointer-events-none"
-              initial={{ scaleY: 0.7, opacity: 0 }}
-              whileInView={{ scaleY: 1, opacity: 1 }}
-              animate={{ scaleX: [1, 1.08, 1], opacity: [0.7, 1, 0.7] }}
-              transition={{ duration: 2.2, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
-              style={{ zIndex: 1 }}
-            />
-          )}
-          <motion.div className="relative p-0 z-10 flex flex-col items-center text-center md:text-left"
-            whileHover={isMobile ? {} : { scale: 1.06, rotate: -2 }}
-          >
-            <h3 className="text-3xl md:text-4xl font-black mb-12 text-emerald-600 uppercase tracking-[.25em] letter-spacing-wide">In-House</h3>
-            <ul className="space-y-8 text-2xl text-gray-600 font-light">
-              <li className="flex items-center gap-4"><span className="text-3xl">✖️</span> Higher costs</li>
-              <li className="flex items-center gap-4"><span className="text-3xl">✖️</span> Slower response times</li>
-              <li className="flex items-center gap-4"><span className="text-3xl">✖️</span> Limited scalability</li>
-            </ul>
-          </motion.div>
-          <motion.div className="relative p-0 z-10 flex flex-col items-center text-center md:text-left"
-            whileHover={isMobile ? {} : { scale: 1.06, rotate: 2 }}
-          >
-            <h3 className="text-3xl md:text-4xl font-black mb-12 text-emerald-700 uppercase tracking-[.25em] letter-spacing-wide">With CHAYO AI</h3>
-            <ul className="space-y-8 text-2xl text-gray-700 font-light">
-              <li className="flex items-center gap-4"><span className="text-3xl">✅</span> Reduced costs</li>
-              <li className="flex items-center gap-4"><span className="text-3xl">✅</span> 24/7 instant responses</li>
-              <li className="flex items-center gap-4"><span className="text-3xl">✅</span> Scales with your business</li>
-            </ul>
-          </motion.div>
-        </motion.section>
-
-        <div className="section-divider" />
-        {/* Unified AI Solutions & Process Section */}
-        <IndustryProcess />
-        <div className="section-divider" />
-        {/* Why Chayo AI Section */}
-        <motion.section
-          className="relative p-10 text-center overflow-visible"
-          style={{ background: 'linear-gradient(120deg, rgba(255,255,255,0.01) 0%, rgba(255,255,255,0.04) 100%)' }}
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 1 }}
-          whileHover={{ scale: 1.01, boxShadow: '0 8px 64px 0 rgba(6,182,212,0.10)' }}
-        >
-          {/* Floating blurred accent shape */}
-          <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-80 h-32 bg-gradient-to-r from-orange-400 via-cyan-400 to-violet-500 opacity-20 blur-2xl rounded-full z-0 animate-float-slow" />
-          <h2 className="text-3xl md:text-4xl font-light mb-10 bg-gradient-to-r from-emerald-600 to-emerald-800 bg-clip-text text-transparent tracking-tight"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1 }}
-            whileHover={{ letterSpacing: '0.15em', color: '#10b981', textShadow: '0 2px 32px #10b981' }}
-          >
-            Why Choose <span className="text-gray-900">Chayo AI?</span>
-          </h2>
-          <div className="grid md:grid-cols-2 gap-12 text-left mt-10 relative z-10">
-            <div>
-              <h3 className="text-xl font-bold mb-4 text-emerald-700">Business Outcomes</h3>
-              <ul className="space-y-3 text-lg text-gray-700">
-                <li>• Reduce operational costs by up to <AnimatedCounter value={60} duration={1.5} className="text-emerald-600 font-bold text-2xl inline" />%</li>
-                <li>• <AnimatedCounter value={24} duration={1.2} className="text-emerald-600 font-bold text-2xl inline" />/<AnimatedCounter value={7} duration={1.2} className="text-emerald-600 font-bold text-2xl inline" /> instant customer service—no downtime</li>
-                <li>• Eliminate manual errors and repetitive tasks</li>
-                <li>• Scale your team instantly as your business grows</li>
-              </ul>
-              <h3 className="text-xl font-bold mt-8 mb-4 text-emerald-700">Industries & Use Cases</h3>
-              <ul className="space-y-3 text-lg text-gray-700">
-                <li>• E-commerce: Automated order updates, product Q&A</li>
-                <li>• Healthcare: Appointment scheduling, patient support</li>
-                <li>• Real Estate: Lead qualification, property info</li>
-                <li>• Professional Services: Client onboarding, FAQ</li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-xl font-bold mb-4 text-emerald-700">Security & Integration</h3>
-              <ul className="space-y-3 text-lg text-gray-700">
-                <li>• Enterprise-grade security & compliance</li>
-                <li>• Seamless integration with your existing tools</li>
-                <li>• GDPR-ready and privacy-focused</li>
-                <li>• Ongoing support and continuous improvement</li>
-              </ul>
-              <h3 className="text-xl font-bold mt-8 mb-4 text-emerald-700">Our Promise</h3>
-              <ul className="space-y-3 text-lg text-gray-700">
-                <li>• Dedicated AI experts for your business</li>
-                <li>• Transparent pricing, no hidden fees</li>
-                <li>• Fast onboarding and personalized setup</li>
-              </ul>
-            </div>
-          </div>
-        </motion.section>
-
-        <div className="section-divider" />
-        {/* FAQ Section */}
-        <section id="faq" className="relative max-w-3xl mx-auto py-44 md:py-[15vw] px-2 sm:px-8 flex flex-col items-center">
-          {/* Animated blurred accent shapes, parallax divider, and floating accent dots - hide on mobile */}
-          {!isMobile && (
-            <motion.div
-              className="absolute -top-48 left-1/2 -translate-x-1/2 w-[36rem] h-[36rem] bg-gradient-to-br from-cyan-400 to-white/10 opacity-10 blur-3xl rounded-full z-0 animate-float-slow"
-              style={{ filter: 'blur(100px)' }}
-              initial={{ y: -40, scale: 0.95, opacity: 0.7 }}
-              whileInView={{ y: 0, scale: 1, opacity: 1 }}
-              transition={{ duration: 1.4, type: 'spring' }}
-              animate={{ rotate: [0, 8, -8, 0] }}
-            />
-          )}
-          {!isMobile && (
-            <motion.div
-              className="absolute -bottom-64 left-1/2 -translate-x-1/2 w-[44rem] h-[44rem] bg-gradient-to-br from-orange-300 to-cyan-400 opacity-10 blur-3xl rounded-full z-0 animate-float-slower"
-              style={{ filter: 'blur(120px)' }}
-              initial={{ y: 40, scale: 0.95, opacity: 0.7 }}
-              whileInView={{ y: 0, scale: 1, opacity: 1 }}
-              transition={{ duration: 1.4, type: 'spring' }}
-              animate={{ rotate: [0, -8, 8, 0] }}
-            />
-          )}
-          {/* Animated vertical line accent - hide on mobile */}
-          {!isMobile && (
-            <motion.div
-              className="absolute left-1/2 top-0 -translate-x-1/2 w-1 h-full bg-gradient-to-b from-cyan-400/60 via-white/0 to-orange-400/60 opacity-60 rounded-full pointer-events-none"
-              initial={{ scaleY: 0.7, opacity: 0 }}
-              whileInView={{ scaleY: 1, opacity: 1 }}
-              animate={{ scaleX: [1, 1.08, 1], opacity: [0.7, 1, 0.7] }}
-              transition={{ duration: 2.2, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
-              style={{ zIndex: 1 }}
-            />
-          )}
-          {/* Floating accent dots - hide on mobile */}
-          {!isMobile && (
-            <>
-              <motion.span className="absolute left-12 top-1/3 w-4 h-4 bg-cyan-400 rounded-full blur-md opacity-60 animate-float-slow"
-                animate={{ y: [0, -10, 10, 0] }} transition={{ duration: 3, repeat: Infinity }} />
-              <motion.span className="absolute right-12 bottom-1/4 w-3 h-3 bg-orange-400 rounded-full blur-md opacity-60 animate-float-slower"
-                animate={{ y: [0, 10, -10, 0] }} transition={{ duration: 3, repeat: Infinity }} />
-              <motion.span className="absolute left-1/4 bottom-1/4 w-2 h-2 bg-cyan-300 rounded-full blur-sm opacity-60 animate-float"
-                animate={{ x: [0, 8, -8, 0] }} transition={{ duration: 3, repeat: Infinity }} />
-            </>
-          )}
-          <FAQAccordion />
+      {/* New Landing Page Layout */}
+      <NewHeader />
+      
+      <main className="pt-16 lg:pt-20">
+        {/* Hero Section - Fullscreen Phone Simulation */}
+        <section id="hero">
+          <NewHero />
         </section>
-        <div className="section-divider" />
-        {/* Contact Section */}
-        <section id="contact" className="relative max-w-2xl mx-auto py-44 md:py-[15vw] px-2 sm:px-8 flex flex-col items-center">
-          {/* Animated blurred accent shapes, parallax divider, and floating accent dots - hide on mobile */}
-          {!isMobile && (
-            <motion.div
-              className="absolute -top-48 left-1/2 -translate-x-1/2 w-[36rem] h-[36rem] bg-gradient-to-br from-cyan-400 to-white/10 opacity-10 blur-3xl rounded-full z-0 animate-float-slow"
-              style={{ filter: 'blur(100px)' }}
-              initial={{ y: -40, scale: 0.95, opacity: 0.7 }}
-              whileInView={{ y: 0, scale: 1, opacity: 1 }}
-              transition={{ duration: 1.4, type: 'spring' }}
-              animate={{ rotate: [0, 8, -8, 0] }}
-            />
-          )}
-          {!isMobile && (
-            <motion.div
-              className="absolute -bottom-64 left-1/2 -translate-x-1/2 w-[44rem] h-[44rem] bg-gradient-to-br from-orange-300 to-cyan-400 opacity-10 blur-3xl rounded-full z-0 animate-float-slower"
-              style={{ filter: 'blur(120px)' }}
-              initial={{ y: 40, scale: 0.95, opacity: 0.7 }}
-              whileInView={{ y: 0, scale: 1, opacity: 1 }}
-              transition={{ duration: 1.4, type: 'spring' }}
-              animate={{ rotate: [0, -8, 8, 0] }}
-            />
-          )}
-          {/* Animated vertical line accent - hide on mobile */}
-          {!isMobile && (
-            <motion.div
-              className="absolute left-1/2 top-0 -translate-x-1/2 w-1 h-full bg-gradient-to-b from-cyan-400/60 via-white/0 to-orange-400/60 opacity-60 rounded-full pointer-events-none"
-              initial={{ scaleY: 0.7, opacity: 0 }}
-              whileInView={{ scaleY: 1, opacity: 1 }}
-              animate={{ scaleX: [1, 1.08, 1], opacity: [0.7, 1, 0.7] }}
-              transition={{ duration: 2.2, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
-              style={{ zIndex: 1 }}
-            />
-          )}
-          {/* Floating accent dots - hide on mobile */}
-          {!isMobile && (
-            <>
-              <motion.span className="absolute left-12 top-1/3 w-4 h-4 bg-cyan-400 rounded-full blur-md opacity-60 animate-float-slow" />
-              <motion.span className="absolute right-12 bottom-1/4 w-3 h-3 bg-orange-400 rounded-full blur-md opacity-60 animate-float-slower" />
-              <motion.span className="absolute left-1/4 bottom-1/4 w-2 h-2 bg-cyan-300 rounded-full blur-sm opacity-60 animate-float" />
-            </>
-          )}
-          <Contact />
+
+        {/* Section 1 - Give Chayo Her Vibe */}
+        <section id="vibe">
+          <VibeSection />
         </section>
-        <div className="section-divider" />
-        <Footer />
+
+        {/* Section 2 - Train Her with Your Knowledge */}
+        <section id="training">
+          <TrainingSection />
+        </section>
+
+        {/* Section 3 - Chayo Marketing on Autopilot */}
+        <section id="marketing">
+          <MarketingSection />
+        </section>
+
+        {/* Section 4 - Launch and Let Chayo Handle the Grind */}
+        <section id="launch">
+          <LaunchSection />
+        </section>
+
+        {/* Section 5 - How it Works */}
+        <section id="how">
+          <HowItWorksSection />
+        </section>
+
+        {/* Section 6 - Examples */}
+        <section id="examples">
+          <ExamplesSection />
+        </section>
+
+        {/* Section 7 - Pricing */}
+        <section id="pricing">
+          <PricingSection />
+        </section>
       </main>
+
+      <NewFooter />
+      
+      {/* StartACall Modal */}
+      {showStartACall && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          onClick={() => setShowStartACall(false)}
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <StartACall onClose={() => setShowStartACall(false)} />
+          </motion.div>
+        </motion.div>
+      )}
     </div>
   );
 }
