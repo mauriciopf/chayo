@@ -278,7 +278,7 @@ export default function NewHeader() {
             
             {/* Mobile CTA */}
             <motion.button
-              onClick={() => scrollToSection('pricing')}
+              onClick={() => router.push('/auth')}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               className="w-full mt-4 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl shadow-lg flex items-center justify-center space-x-2"

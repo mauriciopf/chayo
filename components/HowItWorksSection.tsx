@@ -1,10 +1,16 @@
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
+import { useRouter } from "next/navigation";
 
 export default function HowItWorksSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true });
+  const router = useRouter();
+
+  const handleCTAClick = () => {
+    router.push('/auth');
+  };
 
   const steps = [
     {
@@ -145,6 +151,7 @@ export default function HowItWorksSection() {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
+                  onClick={handleCTAClick}
                   className={`bg-gradient-to-r ${step.gradient} text-white px-8 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300`}
                 >
                   {index === 0 && "🎭 Personalizar Chayo"}

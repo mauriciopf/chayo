@@ -1,8 +1,14 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function NewFooter() {
   const [language, setLanguage] = useState('EN');
+  const router = useRouter();
+
+  const handleBookDemo = () => {
+    router.push('/auth');
+  };
 
   return (
     <footer className="bg-gradient-to-br from-gray-900 to-black text-white py-16">
@@ -137,6 +143,7 @@ export default function NewFooter() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              onClick={handleBookDemo}
               className="mt-6 w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300"
             >
               Book Free Demo

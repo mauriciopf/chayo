@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import AnimatedCounter from "./AnimatedCounter";
 
 interface LaunchSectionProps {
@@ -11,6 +12,15 @@ export default function LaunchSection({ onStartCall }: LaunchSectionProps) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true });
   const [currentStat, setCurrentStat] = useState(0);
+  const router = useRouter();
+
+  const handleLaunchAgent = () => {
+    router.push('/auth');
+  };
+
+  const handleBookDemo = () => {
+    router.push('/auth');
+  };
 
   const stats = [
     { label: "Bookings made", value: 6, icon: "📅" },
@@ -220,6 +230,7 @@ export default function LaunchSection({ onStartCall }: LaunchSectionProps) {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+                onClick={handleLaunchAgent}
                 className="bg-gradient-to-r from-red-600 to-pink-600 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
               >
                 🔵 Launch My Agent
@@ -228,6 +239,7 @@ export default function LaunchSection({ onStartCall }: LaunchSectionProps) {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+                onClick={handleBookDemo}
                 className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-full text-lg font-semibold hover:border-red-600 hover:text-red-600 transition-all duration-300"
               >
                 ⚪️ Book a Free Demo

@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
+import { useRouter } from "next/navigation";
 
 interface PricingSectionProps {
   onStartCall?: () => void;
@@ -9,6 +10,11 @@ interface PricingSectionProps {
 export default function PricingSection({ onStartCall }: PricingSectionProps) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true });
+  const router = useRouter();
+
+  const handleSolicitaDemo = () => {
+    router.push('/auth');
+  };
 
   const pricingTiers = [
     {
@@ -195,6 +201,7 @@ export default function PricingSection({ onStartCall }: PricingSectionProps) {
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
+                    onClick={handleSolicitaDemo}
                     className={`w-full py-4 rounded-xl font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-300 ${
                       tier.popular 
                         ? `bg-gradient-to-r ${tier.gradient}` 

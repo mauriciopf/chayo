@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 interface NewHeroProps {
   onStartCall?: () => void;
@@ -7,6 +8,7 @@ interface NewHeroProps {
 
 export default function NewHero({ onStartCall }: NewHeroProps) {
   const [currentStep, setCurrentStep] = useState(0);
+  const router = useRouter();
   
   const chatSteps = [
     {
@@ -21,6 +23,10 @@ export default function NewHero({ onStartCall }: NewHeroProps) {
     "✅ Answer FAQs",
     "✅ Handle support"
   ];
+
+  const handleStartWithChayo = () => {
+    router.push('/auth');
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -171,6 +177,7 @@ export default function NewHero({ onStartCall }: NewHeroProps) {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              onClick={handleStartWithChayo}
               className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
             >
               🔵 Start with Chayo
@@ -179,6 +186,7 @@ export default function NewHero({ onStartCall }: NewHeroProps) {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              onClick={handleStartWithChayo}
               className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-full text-lg font-semibold hover:border-purple-600 hover:text-purple-600 transition-all duration-300"
             >
               ⚪️ Watch Demo
