@@ -29,9 +29,25 @@ CREATE TABLE IF NOT EXISTS user_subscriptions (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
+-- Create agent_documents table for PDF uploads
+CREATE TABLE IF NOT EXISTS agent_documents (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  agent_id UUID NOT NULL REFERENCES agents(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  filename TEXT NOT NULL,
+  file_size INTEGER NOT NULL,
+  file_type TEXT NOT NULL DEFAULT 'application/pdf',
+  storage_path TEXT NOT NULL,
+  processed BOOLEAN DEFAULT false,
+  embedding_status TEXT DEFAULT 'pending',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
 -- Enable Row Level Security
 ALTER TABLE agents ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_subscriptions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE agent_documents ENABLE ROW LEVEL SECURITY;
 
 -- Create policies for agents table
 CREATE POLICY "Users can view their own agents" ON agents
@@ -56,11 +72,28 @@ CREATE POLICY "Users can insert their own subscriptions" ON user_subscriptions
 CREATE POLICY "Users can update their own subscriptions" ON user_subscriptions
   FOR UPDATE USING (auth.uid() = user_id);
 
+-- Create policies for agent_documents table
+CREATE POLICY "Users can view their own agent documents" ON agent_documents
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert their own agent documents" ON agent_documents
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own agent documents" ON agent_documents
+  FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete their own agent documents" ON agent_documents
+  FOR DELETE USING (auth.uid() = user_id);
+
 -- Create indexes for performance
 CREATE INDEX IF NOT EXISTS agents_user_id_idx ON agents(user_id);
 CREATE INDEX IF NOT EXISTS agents_created_at_idx ON agents(created_at);
 CREATE INDEX IF NOT EXISTS user_subscriptions_user_id_idx ON user_subscriptions(user_id);
 CREATE INDEX IF NOT EXISTS user_subscriptions_stripe_customer_id_idx ON user_subscriptions(stripe_customer_id);
+CREATE INDEX IF NOT EXISTS agent_documents_agent_id_idx ON agent_documents(agent_id);
+CREATE INDEX IF NOT EXISTS agent_documents_user_id_idx ON agent_documents(user_id);
+CREATE INDEX IF NOT EXISTS agent_documents_created_at_idx ON agent_documents(created_at);
+CREATE INDEX IF NOT EXISTS agent_documents_embedding_status_idx ON agent_documents(embedding_status);
 
 -- Create function to update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -78,4 +111,8 @@ CREATE TRIGGER update_agents_updated_at
 
 CREATE TRIGGER update_user_subscriptions_updated_at 
   BEFORE UPDATE ON user_subscriptions 
+  FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
+
+CREATE TRIGGER update_agent_documents_updated_at 
+  BEFORE UPDATE ON agent_documents 
   FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { DocumentManager } from './DocumentManager'
 
 interface CreateAgentModalProps {
   onClose: () => void
@@ -18,6 +19,8 @@ export default function CreateAgentModal({ onClose, onSuccess }: CreateAgentModa
   })
   const [loading, setLoading] = useState(false)
   const [step, setStep] = useState(1)
+  const [createdAgentId, setCreatedAgentId] = useState<string | null>(null)
+  const [documents, setDocuments] = useState<any[]>([])
 
   const toneOptions = [
     { value: 'professional', label: 'Professional', description: 'Formal and business-like' },
@@ -93,13 +96,37 @@ Instructions:
 
       const { agent } = await response.json()
       console.log('Agent created successfully:', agent)
-      onSuccess()
+      setCreatedAgentId(agent.id)
+      setStep(4) // Move to document upload step
+      
+      // Fetch any existing documents for this agent
+      setTimeout(() => {
+        fetchDocuments()
+      }, 100)
     } catch (error) {
       console.error('Error creating agent:', error)
       // TODO: Show error toast to user
       alert('Failed to create agent. Please try again.')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleFinish = () => {
+    onSuccess()
+  }
+
+  const fetchDocuments = async () => {
+    if (!createdAgentId) return
+    
+    try {
+      const response = await fetch(`/api/documents?agentId=${createdAgentId}`)
+      if (response.ok) {
+        const { documents } = await response.json()
+        setDocuments(documents)
+      }
+    } catch (error) {
+      console.error('Error fetching documents:', error)
     }
   }
 
@@ -118,6 +145,8 @@ Instructions:
         return formData.goals.some(goal => goal.trim() !== '')
       case 3:
         return formData.system_prompt.trim() !== ''
+      case 4:
+        return true // Document upload is optional
       default:
         return false
     }
@@ -143,7 +172,7 @@ Instructions:
           <div className="flex items-center justify-between p-6 border-b border-gray-200">
             <div>
               <h2 className="text-xl font-semibold text-gray-900">Create New Agent</h2>
-              <p className="text-sm text-gray-500 mt-1">Step {step} of 3</p>
+              <p className="text-sm text-gray-500 mt-1">Step {step} of 4</p>
             </div>
             <button
               onClick={onClose}
@@ -158,7 +187,7 @@ Instructions:
           {/* Progress Bar */}
           <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
             <div className="flex items-center">
-              {[1, 2, 3].map((stepNumber) => (
+              {[1, 2, 3, 4].map((stepNumber) => (
                 <div key={stepNumber} className="flex items-center">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
                     stepNumber <= step 
@@ -167,8 +196,8 @@ Instructions:
                   }`}>
                     {stepNumber}
                   </div>
-                  {stepNumber < 3 && (
-                    <div className={`h-1 w-16 mx-2 ${
+                  {stepNumber < 4 && (
+                    <div className={`h-1 w-12 mx-2 ${
                       stepNumber < step ? 'bg-orange-400' : 'bg-gray-200'
                     }`} />
                   )}
@@ -177,10 +206,12 @@ Instructions:
             </div>
             <div className="flex mt-2 text-xs text-gray-600">
               <span className="w-8 text-center">Basic</span>
-              <span className="w-16"></span>
+              <span className="w-12"></span>
               <span className="w-8 text-center">Goals</span>
-              <span className="w-16"></span>
+              <span className="w-12"></span>
               <span className="w-8 text-center">Review</span>
+              <span className="w-12"></span>
+              <span className="w-8 text-center">Docs</span>
             </div>
           </div>
 
@@ -307,7 +338,45 @@ Instructions:
                 </div>
               </div>
             )}
-          </div>
+
+            {step === 4 && createdAgentId && (
+              <div className="space-y-6">
+                <div className="text-center pb-4">
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Agent Created Successfully!</h3>
+                  <p className="text-sm text-gray-600 mb-6">
+                    Your agent is ready to use. You can optionally add business documents to enhance its knowledge base.
+                  </p>
+                </div>
+
+                <DocumentManager
+                  agentId={createdAgentId}
+                  documents={documents}
+                  onDocumentUploaded={fetchDocuments}
+                  onDocumentDeleted={fetchDocuments}
+                />
+
+                <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+                  <div className="flex">
+                    <svg className="h-5 w-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div className="ml-3">
+                      <p className="text-sm text-blue-800">
+                        <strong>Optional:</strong> Upload PDF documents like business policies, FAQs, or product information 
+                        to help your agent provide more accurate and specific responses.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ...existing step content... */}
 
           {/* Footer */}
           <div className="flex items-center justify-between p-6 border-t border-gray-200">
@@ -318,21 +387,32 @@ Instructions:
               {step === 1 ? 'Cancel' : 'Back'}
             </button>
 
-            <button
-              onClick={step === 3 ? handleSubmit : nextStep}
-              disabled={!canProceed() || loading}
-              className="px-6 py-2 text-sm font-medium text-white bg-orange-400 hover:bg-orange-500 disabled:bg-gray-300 disabled:cursor-not-allowed rounded-md transition-colors"
-            >
-              {loading ? (
-                <span className="flex items-center space-x-2">
-                  <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                  </svg>
-                  <span>Creating...</span>
-                </span>
-              ) : step === 3 ? 'Create Agent' : 'Next'}
-            </button>
+            <div className="flex space-x-3">
+              {step === 4 && (
+                <button
+                  onClick={handleFinish}
+                  className="px-6 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+                >
+                  Skip Documents
+                </button>
+              )}
+              
+              <button
+                onClick={step === 3 ? handleSubmit : step === 4 ? handleFinish : nextStep}
+                disabled={(!canProceed() || loading) && step !== 4}
+                className="px-6 py-2 text-sm font-medium text-white bg-orange-400 hover:bg-orange-500 disabled:bg-gray-300 disabled:cursor-not-allowed rounded-md transition-colors"
+              >
+                {loading ? (
+                  <span className="flex items-center space-x-2">
+                    <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    <span>Creating...</span>
+                  </span>
+                ) : step === 3 ? 'Create Agent' : step === 4 ? 'Finish' : 'Next'}
+              </button>
+            </div>
           </div>
         </motion.div>
       </motion.div>
