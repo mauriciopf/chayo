@@ -168,10 +168,10 @@ export default function NewFooter() {
 
             {/* Legal Links */}
             <div className="flex space-x-6 text-sm text-gray-400">
-              <a href="#privacy" className="hover:text-white transition-colors duration-300">
+              <a href="/privacy" className="hover:text-white transition-colors duration-300">
                 Privacy Policy
               </a>
-              <a href="#terms" className="hover:text-white transition-colors duration-300">
+              <a href="/terms" className="hover:text-white transition-colors duration-300">
                 Terms of Service
               </a>
               <a href="#cookies" className="hover:text-white transition-colors duration-300">
