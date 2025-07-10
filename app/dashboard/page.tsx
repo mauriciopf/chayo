@@ -354,10 +354,10 @@ function DashboardContent() {
 
   const getPlanFeatures = (planName: string) => {
     const features = {
-      free: ['1 Agent', 'Basic Chat Only', 'Limited Messages'],
-      basic: ['1 Agent', 'Basic Workflows', 'WhatsApp Integration'],
-      pro: ['1 Agent + Voice', 'CRM Integration', 'Instagram & Facebook', 'Forms & Automation'],
-      premium: ['5 Agents', 'All Channels', 'Priority Support', 'Advanced Analytics']
+      free: ['Trial Access', 'Basic Chat Only', 'Limited Messages'],
+      basic: ['1 WhatsApp AI Agent', 'Chat Centralizado', 'CRM & Contactos', 'Workflows Básicos'],
+      pro: ['Plan Básico +', 'Web AI Widget', 'Voice AI Agent', 'Pipeline de Ventas'],
+      premium: ['Plan Pro +', '2 WhatsApp AI Agents', 'Instagram & Facebook', 'Email Marketing', 'Soporte Premium']
     }
     return features[planName as keyof typeof features] || features.free
   }

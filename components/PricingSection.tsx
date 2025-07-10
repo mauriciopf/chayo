@@ -18,76 +18,55 @@ export default function PricingSection({ onStartCall }: PricingSectionProps) {
 
   const pricingTiers = [
     {
-      name: "Chayo Básico",
+      name: "Plan Básico",
       icon: "💬",
-      price: "$97",
+      price: "$49",
       period: "USD / mes",
-      description: "Perfecto para pequeños negocios que quieren delegar su atención al cliente 24/7 con IA en WhatsApp, Instagram, Facebook y su sitio web.",
+      description: "Ideal para pequeños negocios que quieren responder sin estar pegados al celular.",
       features: [
-        "1 Agente de texto Chayo",
-        "$9 USD de saldo en respuestas IA",
-        "Acceso a todos los modelos de ChatGPT",
-        "Chat centralizado (multicanal)",
-        "CRM y contactos ilimitados",
-        "Reconocimiento de imágenes y notas de voz en WhatsApp Business",
-        "Automatizaciones / Workflows básicos",
-        "Soporte vía ticket",
-        "Costos adicionales en ciertas acciones"
+        "WhatsApp AI Agent",
+        "Chat inteligente con respuestas personalizadas",
+        "Confirmación automática de citas",
+        "Soporte por email",
+        "Acceso al panel de control Chayo"
       ],
       gradient: "from-purple-500 to-pink-500",
       bgGradient: "from-purple-50 to-pink-50",
       borderColor: "border-purple-200",
-      popular: false
+      popular: true
     },
     {
-      name: "Chayo Pro",
+      name: "Plan Profesional",
       icon: "🧠",
-      price: "$197",
+      price: "$129",
       period: "USD / mes",
-      description: "Para negocios que buscan combinar marketing inteligente con servicio al cliente IA, todo desde un solo lugar.",
+      description: "Para clínicas, restaurantes o negocios que necesitan automatizar todo.",
       features: [
-        "1 Agente de texto Chayo",
-        "$20 USD en saldo de respuestas IA o voz",
-        "Acceso a todos los modelos de ChatGPT",
-        "CRM y contactos ilimitados",
-        "Reconocimiento de imágenes y notas de voz en WhatsApp Business",
-        "Automatizaciones / Workflows básicos",
-        "Agentes ilimitados para llamadas entrantes y salientes",
-        "Calendario inteligente integrado",
-        "Formularios y encuestas personalizables",
-        "Embudo de ventas (Pipeline)",
-        "5 cuentas de equipo",
-        "Soporte estándar vía chatbot",
-        "Costos adicionales en ciertas acciones"
+        "WhatsApp AI Agent",
+        "Web Widget AI incluido",
+        "Reagendamiento inteligente",
+        "Recordatorios automatizados",
+        "Formularios personalizados",
+        "Soporte prioritario"
       ],
       gradient: "from-orange-500 to-yellow-500",
       bgGradient: "from-orange-50 to-yellow-50",
       borderColor: "border-orange-200",
-      popular: true
+      popular: false
     },
     {
-      name: "Chayo Premium",
+      name: "Plan Premium",
       icon: "🚀",
-      price: "$297",
+      price: "$249",
       period: "USD / mes",
-      description: "Ideal para empresas que necesitan escalar, optimizar equipos y contar con soporte dedicado.",
+      description: "Para marcas que quieren diferenciarse y dar una experiencia wow.",
       features: [
-        "2 Agentes de texto Chayo",
-        "Agentes ilimitados para llamadas Inbound y Outbound",
-        "$30 USD en respuestas IA o saldo de voz",
-        "Acceso a todos los modelos de ChatGPT",
-        "Cuentas ilimitadas para tu equipo",
-        "CRM y contactos ilimitados",
-        "Reconocimiento de imágenes y notas de voz en WhatsApp Business",
-        "Automatizaciones / Workflows avanzados",
-        "Embudo de ventas (Pipeline)",
-        "Calendario inteligente",
-        "Formularios y encuestas",
-        "Email Marketing",
-        "Social Planner (publicaciones en redes)",
-        "Módulo de Reseñas",
-        "Soporte premium con atención personalizada",
-        "Costos adicionales en ciertas acciones"
+        "Todo lo del Plan Profesional",
+        "Video AI Agent personalizado (1 idioma)",
+        "Integración con CRM o agenda externa",
+        "Análisis de conversaciones + mejoras de flujo",
+        "Video mensajes proactivos (seguimiento a leads)",
+        "Instagram DM Automation"
       ],
       gradient: "from-emerald-500 to-teal-500",
       bgGradient: "from-emerald-50 to-teal-50",
@@ -119,11 +98,11 @@ export default function PricingSection({ onStartCall }: PricingSectionProps) {
           <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
             Elige tu{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600">
-              Chayo perfecta
+              Plan Perfecto
             </span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Desde pequeños negocios hasta empresas grandes, Chayo se adapta a tus necesidades
+            Desde pequeños negocios hasta empresas grandes, Chayo se adapta a tus necesidades con planes flexibles.
           </p>
         </motion.div>
 
@@ -146,7 +125,7 @@ export default function PricingSection({ onStartCall }: PricingSectionProps) {
                   transition={{ delay: 0.5 + index * 0.1 }}
                   className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10"
                 >
-                  <div className="bg-gradient-to-r from-orange-500 to-yellow-500 text-white text-sm font-bold px-4 py-1 rounded-full shadow-lg">
+                  <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-bold px-4 py-1 rounded-full shadow-lg">
                     ¡Más Popular!
                   </div>
                 </motion.div>
@@ -202,11 +181,7 @@ export default function PricingSection({ onStartCall }: PricingSectionProps) {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={handleSolicitaDemo}
-                    className={`w-full py-4 rounded-xl font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-300 ${
-                      tier.popular 
-                        ? `bg-gradient-to-r ${tier.gradient}` 
-                        : `bg-gradient-to-r ${tier.gradient}`
-                    }`}
+                    className={`w-full py-4 rounded-xl font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-r ${tier.gradient}`}
                   >
                     🔵 Solicita una demo
                   </motion.button>

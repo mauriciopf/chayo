@@ -14,61 +14,71 @@ interface Plan {
   features: string[]
   popular?: boolean
   color: string
+  available?: boolean
+  comingSoon?: boolean
 }
 
 const plans: Plan[] = [
   {
     id: 'basic',
-    name: 'Chayo Básico',
+    name: 'Plan Básico',
     price: 97,
     priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_BASIC || '',
     color: 'from-purple-500 to-pink-500',
+    popular: true,
     features: [
-      '1 Agente de texto Chayo',
+      '1 Agente de WhatsApp AI (Disponible ahora)',
       '$9 USD de saldo en respuestas IA',
       'Acceso a todos los modelos de ChatGPT',
-      'Chat centralizado (multicanal)',
+      'Chat centralizado de WhatsApp',
       'CRM y contactos ilimitados',
-      'Reconocimiento de imágenes y notas de voz en WhatsApp Business',
+      'Reconocimiento de imágenes y notas de voz',
       'Automatizaciones / Workflows básicos',
       'Soporte vía ticket'
-    ]
+    ],
+    available: true
   },
   {
     id: 'pro',
-    name: 'Chayo Pro',
+    name: 'Plan Profesional',
     price: 197,
     priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PRO || '',
     color: 'from-orange-500 to-yellow-500',
-    popular: true,
     features: [
-      'Todo de Chayo Básico',
-      '$20 USD en saldo de respuestas IA o voz',
-      'Agentes ilimitados para llamadas entrantes y salientes',
+      'Todo de Plan Básico',
+      '$20 USD en saldo de respuestas IA',
+      'Web AI Widget (Próximamente)',
+      'Voice AI Agent (Próximamente)',
       'Calendario inteligente integrado',
       'Formularios y encuestas personalizables',
       'Embudo de ventas (Pipeline)',
       '5 cuentas de equipo',
       'Soporte estándar vía chatbot'
-    ]
+    ],
+    available: false,
+    comingSoon: true
   },
   {
     id: 'premium',
-    name: 'Chayo Premium',
+    name: 'Plan Premium',
     price: 297,
     priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PREMIUM || '',
     color: 'from-emerald-500 to-teal-500',
     features: [
-      'Todo de Chayo Pro',
-      '2 Agentes de texto Chayo',
-      '$30 USD en respuestas IA o saldo de voz',
+      'Todo de Plan Profesional',
+      '2 Agentes de WhatsApp AI (Próximamente)',
+      'Instagram DM Automation (Próximamente)',
+      'Facebook Messenger AI (Próximamente)',
+      '$30 USD en respuestas IA',
       'Cuentas ilimitadas para tu equipo',
       'Automatizaciones / Workflows avanzados',
-      'Email Marketing',
-      'Social Planner (publicaciones en redes)',
-      'Módulo de Reseñas',
+      'Email Marketing (Próximamente)',
+      'Social Planner (Próximamente)',
+      'Módulo de Reseñas (Próximamente)',
       'Soporte premium con atención personalizada'
-    ]
+    ],
+    available: false,
+    comingSoon: true
   }
 ]
 
@@ -161,7 +171,7 @@ export default function SubscriptionPlans({ currentSubscription, onClose, onSubs
               Choose Your Chayo Plan
             </h2>
             <p className="text-gray-600 mt-1">
-              Select the perfect plan for your business needs
+              WhatsApp AI is available now • Other channels coming soon
             </p>
           </div>
           <button
@@ -172,6 +182,25 @@ export default function SubscriptionPlans({ currentSubscription, onClose, onSubs
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
+        </div>
+
+        {/* Launch Notice */}
+        <div className="px-6 pb-4">
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+            <div className="flex items-center">
+              <svg className="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <p className="font-medium text-green-900">
+                  🚀 Phase 1 Launch: WhatsApp AI is Live!
+                </p>
+                <p className="text-sm text-green-700">
+                  Start with our WhatsApp AI agent today. Additional channels and features are being added soon.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Recommendation Message */}
@@ -204,20 +233,30 @@ export default function SubscriptionPlans({ currentSubscription, onClose, onSubs
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
             className={`relative bg-white rounded-3xl shadow-xl overflow-hidden ${
-              plan.popular ? 'ring-4 ring-orange-200 scale-105' : ''
+              plan.popular && plan.available ? 'ring-4 ring-purple-200 scale-105' : ''
             } ${
               targetPlan === plan.id ? 'ring-4 ring-blue-400 bg-blue-50' : ''
+            } ${
+              !plan.available ? 'opacity-75' : ''
             }`}
           >
-            {plan.popular && (
+            {plan.popular && plan.available && (
               <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                <div className="bg-gradient-to-r from-orange-500 to-yellow-500 text-white text-sm font-bold px-4 py-1 rounded-full">
-                  Most Popular!
+                <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-bold px-4 py-1 rounded-full">
+                  ¡Disponible Ahora!
                 </div>
               </div>
             )}
             
-            {targetPlan === plan.id && !plan.popular && (
+            {plan.comingSoon && (
+              <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                <div className="bg-gradient-to-r from-gray-500 to-gray-600 text-white text-sm font-bold px-4 py-1 rounded-full">
+                  Próximamente
+                </div>
+              </div>
+            )}
+            
+            {targetPlan === plan.id && !plan.popular && plan.available && (
               <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                 <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-sm font-bold px-4 py-1 rounded-full">
                   Recommended for You!
@@ -225,7 +264,9 @@ export default function SubscriptionPlans({ currentSubscription, onClose, onSubs
               </div>
             )}
 
-            <div className={`p-8 bg-gradient-to-br ${plan.color} text-white`}>
+            <div className={`p-8 bg-gradient-to-br ${plan.color} text-white ${
+              !plan.available ? 'grayscale' : ''
+            }`}>
               <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
               <div className="flex items-baseline">
                 <span className="text-4xl font-bold">${plan.price}</span>
@@ -237,7 +278,9 @@ export default function SubscriptionPlans({ currentSubscription, onClose, onSubs
               <ul className="space-y-3 mb-8">
                 {plan.features.map((feature, featureIndex) => (
                   <li key={featureIndex} className="flex items-start space-x-3">
-                    <div className={`w-5 h-5 rounded-full bg-gradient-to-r ${plan.color} flex items-center justify-center mt-0.5 flex-shrink-0`}>
+                    <div className={`w-5 h-5 rounded-full bg-gradient-to-r ${plan.color} flex items-center justify-center mt-0.5 flex-shrink-0 ${
+                      !plan.available ? 'grayscale' : ''
+                    }`}>
                       <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
@@ -259,7 +302,7 @@ export default function SubscriptionPlans({ currentSubscription, onClose, onSubs
                     Manage Subscription
                   </button>
                 </div>
-              ) : (
+              ) : plan.available ? (
                 <button
                   onClick={() => handleSubscribe(plan)}
                   disabled={loading === plan.id}
@@ -282,6 +325,13 @@ export default function SubscriptionPlans({ currentSubscription, onClose, onSubs
                   ) : (
                     'Upgrade Now'
                   )}
+                </button>
+              ) : (
+                <button
+                  disabled
+                  className="w-full py-3 rounded-lg font-semibold bg-gray-200 text-gray-500 cursor-not-allowed"
+                >
+                  🔒 Próximamente
                 </button>
               )}
             </div>

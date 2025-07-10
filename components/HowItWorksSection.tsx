@@ -44,13 +44,14 @@ export default function HowItWorksSection() {
     {
       number: "03",
       title: "Conecta tus Canales",
-      description: "WhatsApp, Instagram, Facebook, tu sitio web... Chayo maneja todo desde un solo lugar, 24/7.",
+      description: "Conecta WhatsApp, Web Widget, Video Agent e Instagram. Chayo maneja todo desde un solo lugar.",
       icon: "🔗",
       details: [
         "WhatsApp Business integrado",
-        "Redes sociales conectadas",
-        "Chat en tu sitio web",
-        "Un inbox unificado para todo"
+        "Web AI Widget para tu sitio",
+        "Video AI Agent personalizado",
+        "Instagram DM Automation",
+        "Configuración en minutos"
       ],
       gradient: "from-green-500 to-emerald-500",
       color: "green"

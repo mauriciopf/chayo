@@ -8,11 +8,11 @@ export default function MarketingSection() {
   const [activeChannel, setActiveChannel] = useState(0);
 
   const channels = [
-    { name: "Instagram", icon: "💬", color: "from-pink-500 to-purple-500", message: "Hi, do you have availability this weekend?" },
-    { name: "WhatsApp", icon: "💚", color: "from-green-500 to-emerald-500", message: "¿Puedes ayudarme con precios?" },
-    { name: "SMS", icon: "✉️", color: "from-blue-500 to-cyan-500", message: "What services do you offer?" },
-    { name: "Messenger", icon: "🔵", color: "from-blue-600 to-indigo-600", message: "I'd like to book an appointment" },
-    { name: "Email", icon: "📧", color: "from-orange-500 to-red-500", message: "Can you send me more information?" }
+    { name: "WhatsApp", icon: "�", color: "from-green-500 to-emerald-500", message: "¿Puedes ayudarme con precios?", available: true },
+    { name: "Web Widget", icon: "🌐", color: "from-blue-500 to-cyan-500", message: "What services do you offer?", available: false, comingSoon: true },
+    { name: "Video AI", icon: "🎥", color: "from-purple-500 to-pink-500", message: "I'd like to learn more about your business", available: false, comingSoon: true },
+    { name: "Instagram", icon: "�", color: "from-pink-500 to-purple-500", message: "Hi, do you have availability this weekend?", available: false, comingSoon: true },
+    { name: "Email", icon: "📧", color: "from-orange-500 to-red-500", message: "Can you send me more information?", available: false, comingSoon: true }
   ];
 
   useEffect(() => {
@@ -36,13 +36,13 @@ export default function MarketingSection() {
           className="text-center mb-16"
         >
           <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-            Chayo Marketing on{" "}
+            Chayo AI en{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 to-orange-600">
-              Autopilot
+              Múltiples Canales
             </span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            One smart inbox. All your channels. Chayo handles everything, even when you're sleeping 😴
+            Un solo inbox inteligente. Todos tus canales. Chayo maneja todo, incluso cuando duermes 😴
           </p>
         </motion.div>
 
@@ -75,15 +75,23 @@ export default function MarketingSection() {
                     animate={isInView ? { scale: 1 } : {}}
                     transition={{ delay: 0.5 + index * 0.1 }}
                     className={`relative flex flex-col items-center p-4 rounded-xl transition-all duration-500 ${
-                      activeChannel === index
+                      activeChannel === index && channel.available
                         ? 'bg-gradient-to-br ' + channel.color + ' text-white transform scale-110'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        : channel.available
+                        ? 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        : 'bg-gray-50 text-gray-400 opacity-60'
                     }`}
                   >
                     <span className="text-2xl mb-1">{channel.icon}</span>
                     <span className="text-xs font-medium">{channel.name}</span>
                     
-                    {activeChannel === index && (
+                    {channel.comingSoon && (
+                      <span className="text-xs text-blue-600 font-medium mt-1">
+                        Soon
+                      </span>
+                    )}
+                    
+                    {activeChannel === index && channel.available && (
                       <motion.div
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import { getAuthCallbackUrl } from '@/lib/utils/auth'
 
 export default function AuthPage() {
   const [email, setEmail] = useState('')
@@ -65,7 +66,7 @@ export default function AuthPage() {
           email,
           password,
           options: {
-            emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || window.location.origin}/auth/callback`
+            emailRedirectTo: getAuthCallbackUrl()
           }
         })
         if (error) throw error
@@ -97,15 +98,12 @@ export default function AuthPage() {
     setMessage('')
     
     try {
-      // Get the site URL from environment or fallback to current origin
-      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin
-      
-      console.log('Starting Google OAuth with redirect to:', `${siteUrl}/auth/callback`)
+      console.log('Starting Google OAuth with redirect to:', getAuthCallbackUrl())
       
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${siteUrl}/auth/callback`,
+          redirectTo: getAuthCallbackUrl(),
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',

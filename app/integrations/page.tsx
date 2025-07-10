@@ -21,7 +21,7 @@ interface Agent {
 interface Channel {
   id: string
   name: string
-  type: 'whatsapp' | 'instagram' | 'facebook' | 'web' | 'voice' | 'email'
+  type: 'whatsapp' | 'instagram' | 'facebook' | 'web' | 'voice' | 'email' | 'video'
   description: string
   icon: string
   status: 'available' | 'connected' | 'coming_soon'
@@ -36,7 +36,7 @@ const channels: Channel[] = [
     id: 'whatsapp',
     name: 'WhatsApp Business',
     type: 'whatsapp',
-    description: 'Connect your WhatsApp Business account to handle customer inquiries automatically',
+    description: 'Connect your WhatsApp Business account to handle customer inquiries automatically. Available now!',
     icon: '📱',
     status: 'available',
     isPopular: true,
@@ -46,123 +46,138 @@ const channels: Channel[] = [
       'Rich media support (images, documents)',
       'Business profile integration',
       'Message templates',
-      'Analytics and insights'
+      'Analytics and insights',
+      'Multi-language support',
+      'Custom business hours',
+      'Quick replies and workflows'
     ],
     setupSteps: [
       'Verify your WhatsApp Business account',
-      'Connect via n8n workflow',
+      'Connect via API integration',
       'Configure message templates',
-      'Test the integration'
+      'Set up automated responses',
+      'Test the integration',
+      'Go live with your AI agent'
+    ]
+  },
+  {
+    id: 'web',
+    name: 'Web AI Widget',
+    type: 'web',
+    description: 'Embed an intelligent chat widget on your website for instant customer support',
+    icon: '🌐',
+    status: 'coming_soon',
+    planRequired: 'basic',
+    features: [
+      'Customizable AI chat widget',
+      'Website integration',
+      'Real-time intelligent responses',
+      'Visitor tracking',
+      'Mobile responsive design',
+      'Custom branding options'
+    ],
+    setupSteps: [
+      'Generate widget code',
+      'Customize appearance and branding',
+      'Install on website',
+      'Configure AI responses',
+      'Test widget functionality'
+    ]
+  },
+  {
+    id: 'video',
+    name: 'Voice AI Agent',
+    type: 'voice',
+    description: 'Deploy voice-enabled AI agents for phone calls and voice interactions',
+    icon: '�️',
+    status: 'coming_soon',
+    planRequired: 'pro',
+    features: [
+      'Voice call automation',
+      'Natural language processing',
+      'Multi-language voice support',
+      'Call recording and transcription',
+      'Voice personality customization',
+      'Phone number integration'
+    ],
+    setupSteps: [
+      'Set up voice number',
+      'Configure voice AI personality',
+      'Train voice responses',
+      'Test call flows',
+      'Deploy voice agent'
     ]
   },
   {
     id: 'instagram',
-    name: 'Instagram Direct',
+    name: 'Instagram DM Automation',
     type: 'instagram',
-    description: 'Respond to Instagram DMs and comments automatically',
+    description: 'Automate Instagram direct message responses and engage with your audience 24/7',
     icon: '📷',
-    status: 'available',
+    status: 'coming_soon',
     isPopular: true,
-    planRequired: 'pro',
+    planRequired: 'basic',
     features: [
       'Direct message automation',
       'Comment responses',
       'Story mentions handling',
       'Media sharing capabilities',
-      'Engagement analytics'
+      'Engagement analytics',
+      'Follower interaction tracking'
     ],
     setupSteps: [
       'Connect Instagram Business account',
       'Authorize API access',
-      'Set up n8n workflow',
-      'Configure response rules'
+      'Set up automation rules',
+      'Configure response templates',
+      'Test engagement flows'
     ]
   },
   {
     id: 'facebook',
     name: 'Facebook Messenger',
     type: 'facebook',
-    description: 'Automate Facebook Messenger conversations',
-    icon: '💬',
-    status: 'available',
-    planRequired: 'pro',
+    description: 'Automate Facebook Messenger conversations and manage your page inbox',
+    icon: '�',
+    status: 'coming_soon',
+    planRequired: 'premium',
     features: [
       'Messenger automation',
       'Page inbox management',
       'Rich responses with buttons',
       'Persistent menu setup',
-      'User profile access'
+      'User profile access',
+      'Broadcast messaging'
     ],
     setupSteps: [
       'Connect Facebook Page',
       'Set up Messenger permissions',
-      'Configure n8n workflow',
-      'Test message flows'
-    ]
-  },
-  {
-    id: 'web',
-    name: 'Web Chat Widget',
-    type: 'web',
-    description: 'Embed a chat widget on your website',
-    icon: '🌐',
-    status: 'available',
-    planRequired: 'free',
-    features: [
-      'Customizable chat widget',
-      'Website integration',
-      'Real-time responses',
-      'Visitor tracking',
-      'Mobile responsive'
-    ],
-    setupSteps: [
-      'Generate widget code',
-      'Customize appearance',
-      'Install on website',
-      'Configure n8n webhook'
-    ]
-  },
-  {
-    id: 'voice',
-    name: 'Voice Calls',
-    type: 'voice',
-    description: 'Handle voice calls with AI-powered responses',
-    icon: '📞',
-    status: 'available',
-    planRequired: 'pro',
-    features: [
-      'AI voice responses',
-      'Call routing',
-      'Voicemail transcription',
-      'Call analytics',
-      'Multi-language support'
-    ],
-    setupSteps: [
-      'Set up phone number',
-      'Configure voice AI',
-      'Connect to n8n workflow',
-      'Test voice responses'
+      'Configure automation workflows',
+      'Design conversation flows',
+      'Test message sequences'
     ]
   },
   {
     id: 'email',
     name: 'Email Support',
     type: 'email',
-    description: 'Automate email responses and support tickets',
+    description: 'Automate email responses and support tickets with intelligent AI assistance',
     icon: '📧',
     status: 'coming_soon',
-    planRequired: 'premium',
+    planRequired: 'basic',
     features: [
       'Email automation',
       'Ticket management',
       'Smart categorization',
       'Follow-up sequences',
-      'Integration with email providers'
+      'Integration with email providers',
+      'Priority handling'
     ],
     setupSteps: [
       'Connect email account',
       'Set up IMAP/SMTP',
       'Configure automation rules',
+      'Design email templates',
       'Test email workflows'
     ]
   }
@@ -309,6 +324,32 @@ export default function IntegrationsPage() {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Launch Status Notice */}
+        <div className="mb-8 bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-2xl p-6 shadow-lg">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center mr-4">
+                <span className="text-white text-xl">🚀</span>
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-gray-900">Launch Status</h3>
+                <p className="text-sm text-gray-600">
+                  <span className="font-medium text-green-600">WhatsApp Business</span> is now available! 
+                  Other channels are coming soon.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                📱 WhatsApp Live
+              </span>
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                🔧 Others Coming Soon
+              </span>
+            </div>
+          </div>
+        </div>
+
         {/* Agent Selection */}
         {agents.length > 0 && (
           <div className="mb-8">
@@ -367,9 +408,14 @@ export default function IntegrationsPage() {
         {/* Available Channels */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-              Available Channels
-            </h2>
+            <div>
+              <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                Available Channels
+              </h2>
+              <p className="text-gray-600 mt-1">
+                WhatsApp is live now • Other channels launching soon
+              </p>
+            </div>
             <div className="text-sm text-gray-500">
               Powered by n8n workflows
             </div>
@@ -544,16 +590,18 @@ export default function IntegrationsPage() {
                 </ul>
               </div>
 
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
                 <div className="flex items-center">
-                  <svg className="w-5 h-5 text-yellow-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <div>
-                    <p className="font-medium text-yellow-800">Integration Status</p>
-                    <p className="text-sm text-yellow-700">
-                      This is a placeholder UI. The actual n8n workflow integration is coming soon.
-                      Click "Start Setup" to be notified when it's ready.
+                    <p className="font-medium text-blue-800">Integration Status</p>
+                    <p className="text-sm text-blue-700">
+                      {selectedChannel.id === 'whatsapp' 
+                        ? 'WhatsApp Business integration is ready! Contact our support team to get started.'
+                        : 'This channel is coming soon. Click "Get Notified" to be informed when it\'s ready.'
+                      }
                     </p>
                   </div>
                 </div>
@@ -568,13 +616,16 @@ export default function IntegrationsPage() {
                 </button>
                 <button
                   onClick={() => {
-                    // TODO: Implement actual setup logic
-                    alert('Setup notification registered! We\'ll notify you when the integration is ready.')
+                    if (selectedChannel?.id === 'whatsapp') {
+                      alert('WhatsApp Business integration is ready! Our support team will contact you shortly to complete the setup.')
+                    } else {
+                      alert('Thanks for your interest! We\'ll notify you when ' + selectedChannel?.name + ' integration is ready.')
+                    }
                     setShowSetupModal(false)
                   }}
                   className="px-4 py-2 bg-orange-400 text-white rounded-lg hover:bg-orange-500 transition-colors"
                 >
-                  Start Setup
+                  {selectedChannel?.id === 'whatsapp' ? 'Start Setup' : 'Get Notified'}
                 </button>
               </div>
             </div>

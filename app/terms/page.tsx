@@ -31,9 +31,9 @@ export default function TermsOfService() {
             <section className="mb-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">Description of Service</h2>
               <p className="text-gray-700 leading-relaxed mb-4">
-                Chayo AI is an AI-powered business automation platform that provides intelligent chatbots, customer service 
-                automation, and business process management tools. Our service helps businesses automate customer interactions 
-                across multiple channels including WhatsApp, Instagram, Facebook, and websites.
+                Chayo AI is an AI-powered business automation platform that provides intelligent chatbots and customer service 
+                automation tools. Our core service includes WhatsApp AI Agent functionality, with additional channels and 
+                features being developed and released over time.
               </p>
             </section>
 

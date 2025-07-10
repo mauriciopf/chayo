@@ -7,6 +7,7 @@ interface ChannelStatus {
   icon: string
   connected: boolean
   lastActivity?: string
+  comingSoon?: boolean
 }
 
 interface ChannelStatusWidgetProps {
@@ -21,33 +22,36 @@ export default function ChannelStatusWidget({ agentId }: ChannelStatusWidgetProp
   useEffect(() => {
     const mockChannels: ChannelStatus[] = [
       {
-        id: 'web',
-        name: 'Web Chat',
-        type: 'web',
-        icon: '🌐',
+        id: 'whatsapp',
+        name: 'WhatsApp AI Agent',
+        type: 'whatsapp',
+        icon: '📱',
         connected: true,
         lastActivity: '2 hours ago'
       },
       {
-        id: 'whatsapp',
-        name: 'WhatsApp',
-        type: 'whatsapp',
-        icon: '📱',
-        connected: false
+        id: 'web',
+        name: 'Web AI Widget',
+        type: 'web',
+        icon: '🌐',
+        connected: false,
+        comingSoon: true
+      },
+      {
+        id: 'video',
+        name: 'Video AI Agent',
+        type: 'video',
+        icon: '🎥',
+        connected: false,
+        comingSoon: true
       },
       {
         id: 'instagram',
-        name: 'Instagram',
+        name: 'Instagram DM Automation',
         type: 'instagram',
-        icon: '📷',
-        connected: false
-      },
-      {
-        id: 'facebook',
-        name: 'Facebook',
-        type: 'facebook',
-        icon: '💬',
-        connected: false
+        icon: '�',
+        connected: false,
+        comingSoon: true
       }
     ]
 
@@ -100,7 +104,9 @@ export default function ChannelStatusWidget({ agentId }: ChannelStatusWidgetProp
 
       <div className="space-y-3">
         {channels.map((channel) => (
-          <div key={channel.id} className="flex items-center justify-between p-3 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200">
+          <div key={channel.id} className={`flex items-center justify-between p-3 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200 ${
+            channel.comingSoon ? 'opacity-75' : ''
+          }`}>
             <div className="flex items-center space-x-3">
               <span className="text-xl">{channel.icon}</span>
               <div>
@@ -110,17 +116,24 @@ export default function ChannelStatusWidget({ agentId }: ChannelStatusWidgetProp
                     Last activity: {channel.lastActivity}
                   </p>
                 )}
+                {channel.comingSoon && (
+                  <p className="text-xs text-blue-600 font-medium">
+                    Coming Soon
+                  </p>
+                )}
               </div>
             </div>
             <div className="flex items-center space-x-2">
               <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                channel.connected
+                channel.comingSoon
+                  ? 'bg-blue-100 text-blue-800'
+                  : channel.connected
                   ? 'bg-green-100 text-green-800'
                   : 'bg-gray-100 text-gray-600'
               }`}>
-                {channel.connected ? 'Connected' : 'Disconnected'}
+                {channel.comingSoon ? 'Próximamente' : channel.connected ? 'Connected' : 'Disconnected'}
               </span>
-              {channel.connected && (
+              {channel.connected && !channel.comingSoon && (
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
               )}
             </div>
