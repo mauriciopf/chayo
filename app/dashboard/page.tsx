@@ -44,7 +44,6 @@ interface Organization {
   name: string
   slug: string
   owner_id: string
-  plan_name: string
   created_at: string
   team_members?: Array<{
     id: string
@@ -53,6 +52,10 @@ interface Organization {
     status: string
     joined_at: string
   }>
+  user_subscription?: {
+    plan_name: string
+    status: string
+  }
 }
 
 interface AgentChannel {
@@ -95,6 +98,12 @@ function DashboardContent() {
   const [managingAgentId, setManagingAgentId] = useState<string | null>(null)
   const [managingAgentName, setManagingAgentName] = useState<string>('')
   const [activeTab, setActiveTab] = useState<'agents' | 'performance' | 'users' | 'profile'>('agents')
+  const [trialInfo, setTrialInfo] = useState<{
+    hasActiveTrial: boolean
+    daysRemaining: number
+    trialNumber?: string
+    expiresAt?: string
+  } | null>(null)
   const [showSetupInstructions, setShowSetupInstructions] = useState(false)
   const [organizationSetupLoading, setOrganizationSetupLoading] = useState(false)
   const [organizationSetupMessage, setOrganizationSetupMessage] = useState<string | null>(null)
@@ -133,7 +142,8 @@ function DashboardContent() {
               await Promise.all([
                 fetchAgents(),
                 fetchSubscription(user.id),
-                fetchChannels(user.id)
+                fetchChannels(user.id),
+                fetchTrialInfo()
               ])
               return
             }
@@ -239,12 +249,25 @@ function DashboardContent() {
 
   const fetchAgents = async () => {
     try {
-      const response = await fetch('/api/agents')
+      console.log('Fetching agents from /api/agents...')
+      const response = await fetch('/api/agents', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include'
+      })
+      
+      console.log('Agents API response status:', response.status)
+      
       if (response.ok) {
         const { agents } = await response.json()
+        console.log('Agents fetched successfully:', agents?.length || 0)
         setAgents(agents || [])
       } else {
-        console.error('Failed to fetch agents')
+        console.error('Failed to fetch agents, status:', response.status)
+        const errorText = await response.text()
+        console.error('Error response:', errorText)
         setAgents([])
       }
     } catch (error) {
@@ -262,20 +285,74 @@ function DashboardContent() {
 
     if (data && !error) {
       setSubscription(data)
+    } else if (error && error.code === 'PGRST116') {
+      // No subscription found, create a default free subscription
+      console.log('No subscription found, using default free plan')
+      setSubscription({ 
+        plan_name: 'free', 
+        status: 'active',
+        user_id: userId,
+        stripe_customer_id: '',
+        stripe_subscription_id: '',
+        current_period_end: ''
+      })
+    } else {
+      console.warn('Subscription fetch error:', error)
+      // Fallback to free plan if table doesn't exist
+      setSubscription({ 
+        plan_name: 'free', 
+        status: 'active',
+        user_id: userId,
+        stripe_customer_id: '',
+        stripe_subscription_id: '',
+        current_period_end: ''
+      })
     }
   }
 
   const fetchChannels = async (userId: string) => {
     const { data, error } = await supabase
       .from('agent_channels')
-      .select(`
-        *,
-        agents!inner(user_id)
-      `)
-      .eq('agents.user_id', userId)
+      .select('*')
+      .eq('user_id', userId)
 
     if (data && !error) {
       setChannels(data)
+    } else if (error) {
+      console.warn('Channels fetch error:', error)
+      // Set empty array if table doesn't exist or other error
+      setChannels([])
+    }
+  }
+
+  const fetchTrialInfo = async () => {
+    try {
+      const response = await fetch('/api/whatsapp/status')
+      if (response.ok) {
+        const data = await response.json()
+        
+        if (data.trial && data.trial.isActive) {
+          const expiresAt = new Date(data.trial.expiresAt)
+          const now = new Date()
+          const diffTime = expiresAt.getTime() - now.getTime()
+          const daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+          
+          setTrialInfo({
+            hasActiveTrial: true,
+            daysRemaining: Math.max(0, daysRemaining),
+            trialNumber: data.trial.phoneNumber,
+            expiresAt: data.trial.expiresAt
+          })
+        } else {
+          setTrialInfo({ hasActiveTrial: false, daysRemaining: 0 })
+        }
+      } else {
+        // API error or no trial
+        setTrialInfo({ hasActiveTrial: false, daysRemaining: 0 })
+      }
+    } catch (error) {
+      console.error('Error fetching trial info:', error)
+      setTrialInfo({ hasActiveTrial: false, daysRemaining: 0 })
     }
   }
 
@@ -345,7 +422,7 @@ function DashboardContent() {
   }
 
   const canCreateAgent = () => {
-    const plan = subscription?.plan_name || 'free'
+    const plan = organizations[0]?.user_subscription?.plan_name || subscription?.plan_name || 'free'
     if (plan === 'free') return agents.length < 1
     if (plan === 'basic' || plan === 'pro') return agents.length < 1
     if (plan === 'premium') return agents.length < 5
@@ -431,7 +508,7 @@ function DashboardContent() {
             </div>
             
             <div className="flex items-center space-x-4">
-              <PlanBadge plan={subscription?.plan_name || 'free'} />
+              <PlanBadge plan={organizations[0]?.user_subscription?.plan_name || subscription?.plan_name || 'free'} />
               {user && (
                 <UserProfile 
                   user={user} 
@@ -493,6 +570,150 @@ function DashboardContent() {
           )}
         </div>
       )}
+
+      {/* WhatsApp Trial Banner */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-4">
+        {trialInfo?.hasActiveTrial ? (
+          /* Active Trial Banner */
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl p-6 text-white shadow-xl border border-white/20"
+          >
+            <div className="flex items-start justify-between">
+              <div className="flex items-start space-x-4">
+                <div className="flex-shrink-0 w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold mb-2">
+                    🎉 WhatsApp Trial Active
+                  </h3>
+                  <p className="text-white/90 mb-3">
+                    Your 3-day WhatsApp trial is active! You have <strong>{trialInfo.daysRemaining} days remaining</strong> to test your AI agent on WhatsApp.
+                  </p>
+                  {trialInfo.trialNumber && (
+                    <p className="text-white/80 text-sm mb-3">
+                      Trial number: <code className="bg-white/20 px-2 py-1 rounded">{trialInfo.trialNumber}</code>
+                    </p>
+                  )}
+                  <div className="flex items-center space-x-3">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => router.push('/integrations')}
+                      className="bg-white text-blue-600 font-medium py-2 px-4 rounded-lg transition-all duration-200 shadow-md text-sm hover:shadow-lg"
+                    >
+                      Manage WhatsApp →
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setShowPlansModal(true)}
+                      className="bg-white/20 border border-white/30 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 text-sm hover:bg-white/30"
+                    >
+                      Upgrade Plan
+                    </motion.button>
+                  </div>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-2xl font-bold">
+                  {trialInfo.daysRemaining}
+                </div>
+                <div className="text-white/80 text-sm">
+                  days left
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        ) : (
+          /* Trial Promotion Banner */
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-gradient-to-r from-green-500 to-teal-600 rounded-2xl p-6 text-white shadow-xl border border-white/20"
+          >
+            <div className="flex items-start justify-between">
+              <div className="flex items-start space-x-4">
+                <div className="flex-shrink-0 w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold mb-2">
+                    🚀 Start Your 3-Day WhatsApp AI Trial
+                  </h3>
+                  <p className="text-white/90 mb-4">
+                    Get instant access to intelligent WhatsApp automation with your AI agent. Your customers can chat naturally while your AI handles:
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                    <div className="flex items-center space-x-2 text-white/90">
+                      <svg className="w-4 h-4 text-green-200" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      <span className="text-sm">Customer inquiries & support</span>
+                    </div>
+                    <div className="flex items-center space-x-2 text-white/90">
+                      <svg className="w-4 h-4 text-green-200" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      <span className="text-sm">Appointment scheduling</span>
+                    </div>
+                    <div className="flex items-center space-x-2 text-white/90">
+                      <svg className="w-4 h-4 text-green-200" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      <span className="text-sm">Inventory management</span>
+                    </div>
+                    <div className="flex items-center space-x-2 text-white/90">
+                      <svg className="w-4 h-4 text-green-200" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      <span className="text-sm">Product recommendations</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => {
+                        if (agents.length === 0) {
+                          setShowCreateModal(true)
+                        } else {
+                          router.push('/integrations')
+                        }
+                      }}
+                      className="bg-white text-green-600 font-medium py-2 px-4 rounded-lg transition-all duration-200 shadow-md text-sm hover:shadow-lg"
+                    >
+                      Start Free Trial →
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setShowPlansModal(true)}
+                      className="bg-white/20 border border-white/30 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 text-sm hover:bg-white/30"
+                    >
+                      View Plans
+                    </motion.button>
+                  </div>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-2xl font-bold">
+                  3
+                </div>
+                <div className="text-white/80 text-sm">
+                  days free
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -591,7 +812,7 @@ function DashboardContent() {
                   onClick={() => setShowPlansModal(true)}
                   className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 shadow-lg"
                 >
-                  {subscription?.plan_name === 'free' ? 'Upgrade Plan' : 'Change Plan'}
+                  {(organizations[0]?.user_subscription?.plan_name || subscription?.plan_name || 'free') === 'free' ? 'Upgrade Plan' : 'Change Plan'}
                 </motion.button>
                 
                 <motion.button
@@ -610,7 +831,7 @@ function DashboardContent() {
                   Your Plan Features
                 </h3>
                 <ul className="space-y-2">
-                  {getPlanFeatures(subscription?.plan_name || 'free').map((feature, index) => (
+                  {getPlanFeatures(organizations[0]?.user_subscription?.plan_name || subscription?.plan_name || 'free').map((feature, index) => (
                     <li key={index} className="flex items-center text-sm text-gray-600">
                       <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -717,44 +938,79 @@ function DashboardContent() {
                     </motion.button>
                   </motion.div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {agents.map((agent, index) => (
+                  <>
+                    {/* Tutorial section for agents without channels */}
+                    {agents.length > 0 && channels.length === 0 && (
                       <motion.div
-                        key={agent.id}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.1 }}
+                        className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6 mb-6 border border-blue-200/50"
                       >
-                        <AgentCard 
-                          agent={agent}
-                          channels={channels.filter(c => c.agent_id === agent.id)}
-                          onEdit={() => {
-                            setEditingAgent(agent)
-                            setShowEditModal(true)
-                          }}
-                          onTogglePause={() => {
-                            // Update agent pause status
-                            fetch(`/api/agents/${agent.id}`, {
-                              method: 'PUT',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ paused: !agent.paused })
-                            }).then(() => fetchAgents())
-                          }}
-                          onDelete={() => {
-                            // Delete agent
-                            fetch(`/api/agents/${agent.id}`, {
-                              method: 'DELETE'
-                            }).then(() => fetchAgents())
-                          }}
-                          onManageDocuments={() => {
-                            setManagingAgentId(agent.id)
-                            setManagingAgentName(agent.name)
-                            setShowManageDocsModal(true)
-                          }}
-                        />
+                        <div className="flex items-start space-x-4">
+                          <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                              🎉 Great! Your agents are ready
+                            </h3>
+                            <p className="text-gray-600 mb-4">
+                              Now connect your agents to communication channels like WhatsApp, SMS, or website chat to start serving customers.
+                            </p>
+                            <motion.button
+                              whileHover={{ scale: 1.02 }}
+                              whileTap={{ scale: 0.98 }}
+                              onClick={() => router.push('/integrations')}
+                              className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 shadow-md text-sm"
+                            >
+                              Connect Channels →
+                            </motion.button>
+                          </div>
+                        </div>
                       </motion.div>
-                    ))}
-                  </div>
+                    )}
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {agents.map((agent, index) => (
+                        <motion.div
+                          key={agent.id}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                        >
+                          <AgentCard 
+                            agent={agent}
+                            channels={channels.filter(c => c.agent_id === agent.id)}
+                            onEdit={() => {
+                              setEditingAgent(agent)
+                              setShowEditModal(true)
+                            }}
+                            onTogglePause={() => {
+                              // Update agent pause status
+                              fetch(`/api/agents/${agent.id}`, {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ paused: !agent.paused })
+                              }).then(() => fetchAgents())
+                            }}
+                            onDelete={() => {
+                              // Delete agent
+                              fetch(`/api/agents/${agent.id}`, {
+                                method: 'DELETE'
+                              }).then(() => fetchAgents())
+                            }}
+                            onManageDocuments={() => {
+                              setManagingAgentId(agent.id)
+                              setManagingAgentName(agent.name)
+                              setShowManageDocsModal(true)
+                            }}
+                          />
+                        </motion.div>
+                      ))}
+                    </div>
+                  </>
                 )}
                 
                 {/* Channel Status Widget */}

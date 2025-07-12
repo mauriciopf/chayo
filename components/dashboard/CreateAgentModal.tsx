@@ -95,7 +95,6 @@ Instructions:
       }
 
       const { agent } = await response.json()
-      console.log('Agent created successfully:', agent)
       setCreatedAgentId(agent.id)
       setStep(4) // Move to document upload step
       

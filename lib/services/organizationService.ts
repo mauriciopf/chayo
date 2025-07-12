@@ -6,9 +6,12 @@ export interface Organization {
   name: string
   slug: string
   owner_id: string
-  plan_name: string
   created_at: string
   team_members?: TeamMember[]
+  user_subscription?: {
+    plan_name: string
+    status: string
+  }
 }
 
 export interface TeamMember {
@@ -82,7 +85,6 @@ export class OrganizationService {
             name,
             slug,
             owner_id,
-            plan_name,
             created_at,
             team_members (
               id,
@@ -103,7 +105,23 @@ export class OrganizationService {
         return null
       }
 
-      return membership.organizations as unknown as Organization
+      const organization = membership.organizations as unknown as Organization
+
+      // Fetch user subscription separately
+      const { data: subscription } = await this.supabase
+        .from('user_subscriptions')
+        .select('plan_name, status')
+        .eq('user_id', userId)
+        .single()
+
+      if (subscription) {
+        organization.user_subscription = {
+          plan_name: subscription.plan_name,
+          status: subscription.status
+        }
+      }
+
+      return organization
     } catch (error) {
       console.error('Error fetching user organization:', error)
       return null

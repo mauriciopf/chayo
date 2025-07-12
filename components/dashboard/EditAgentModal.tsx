@@ -104,7 +104,6 @@ Instructions:
       }
 
       const { agent: updatedAgent } = await response.json()
-      console.log('Agent updated successfully:', updatedAgent)
       onSuccess()
     } catch (error) {
       console.error('Error updating agent:', error)

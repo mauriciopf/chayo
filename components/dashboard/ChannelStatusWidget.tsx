@@ -8,6 +8,11 @@ interface ChannelStatus {
   connected: boolean
   lastActivity?: string
   comingSoon?: boolean
+  trialInfo?: {
+    daysRemaining: number
+    isExpired: boolean
+    endDate: string
+  }
 }
 
 interface ChannelStatusWidgetProps {
@@ -18,48 +23,99 @@ export default function ChannelStatusWidget({ agentId }: ChannelStatusWidgetProp
   const [channels, setChannels] = useState<ChannelStatus[]>([])
   const [loading, setLoading] = useState(true)
 
-  // Mock data for now - this will be replaced with actual API calls
+  // Fetch real channel data
   useEffect(() => {
-    const mockChannels: ChannelStatus[] = [
-      {
-        id: 'whatsapp',
-        name: 'WhatsApp AI Agent',
-        type: 'whatsapp',
-        icon: '📱',
-        connected: true,
-        lastActivity: '2 hours ago'
-      },
-      {
-        id: 'web',
-        name: 'Web AI Widget',
-        type: 'web',
-        icon: '🌐',
-        connected: false,
-        comingSoon: true
-      },
-      {
-        id: 'video',
-        name: 'Video AI Agent',
-        type: 'video',
-        icon: '🎥',
-        connected: false,
-        comingSoon: true
-      },
-      {
-        id: 'instagram',
-        name: 'Instagram DM Automation',
-        type: 'instagram',
-        icon: '�',
-        connected: false,
-        comingSoon: true
-      }
-    ]
+    const fetchChannelStatus = async () => {
+      try {
+        setLoading(true)
+        
+        // Fetch actual channel data for the agent
+        const response = await fetch('/api/agent-channels')
+        const data = await response.json()
+        
+        const agentChannels = data.channels?.filter((ch: any) => 
+          !agentId || ch.agent_id === agentId
+        ) || []
 
-    // Simulate API call
-    setTimeout(() => {
-      setChannels(mockChannels)
-      setLoading(false)
-    }, 500)
+        // Build channel status based on real data
+        const channelStatuses: ChannelStatus[] = [
+          {
+            id: 'whatsapp',
+            name: 'WhatsApp AI Agent',
+            type: 'whatsapp',
+            icon: '📱',
+            connected: agentChannels.some((ch: any) => ch.channel_type === 'whatsapp'),
+            lastActivity: agentChannels.find((ch: any) => ch.channel_type === 'whatsapp')?.last_activity || undefined
+          },
+          {
+            id: 'web',
+            name: 'Web AI Widget',
+            type: 'web',
+            icon: '🌐',
+            connected: false,
+            comingSoon: true
+          },
+          {
+            id: 'video',
+            name: 'Video AI Agent',
+            type: 'video',
+            icon: '🎥',
+            connected: false,
+            comingSoon: true
+          },
+          {
+            id: 'instagram',
+            name: 'Instagram DM Automation',
+            type: 'instagram',
+            icon: '📸',
+            connected: false,
+            comingSoon: true
+          }
+        ]
+
+        setChannels(channelStatuses)
+      } catch (error) {
+        console.error('Error fetching channel status:', error)
+        // Fallback to show no connections on error
+        setChannels([
+          {
+            id: 'whatsapp',
+            name: 'WhatsApp AI Agent',
+            type: 'whatsapp',
+            icon: '📱',
+            connected: false
+          },
+          {
+            id: 'web',
+            name: 'Web AI Widget',
+            type: 'web',
+            icon: '🌐',
+            connected: false,
+            comingSoon: true
+          },
+          {
+            id: 'video',
+            name: 'Video AI Agent',
+            type: 'video',
+            icon: '🎥',
+            connected: false,
+            comingSoon: true
+          },
+          {
+            id: 'instagram',
+            name: 'Instagram DM Automation',
+            type: 'instagram',
+            icon: '📸',
+            connected: false,
+            comingSoon: true
+          }
+        ])
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchChannelStatus()
   }, [agentId])
 
   if (loading) {

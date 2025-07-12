@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import type { User } from '@supabase/supabase-js'
 import Link from 'next/link'
+import WhatsAppOnboarding from '@/components/dashboard/WhatsAppOnboarding'
 
 interface Agent {
   id: string
@@ -40,7 +41,7 @@ const channels: Channel[] = [
     icon: '📱',
     status: 'available',
     isPopular: true,
-    planRequired: 'basic',
+    planRequired: 'free', // Temporarily changed from 'basic' to 'free' for testing
     features: [
       'Automated customer responses',
       'Rich media support (images, documents)',
@@ -191,6 +192,7 @@ export default function IntegrationsPage() {
   const [subscription, setSubscription] = useState<any>(null)
   const [showSetupModal, setShowSetupModal] = useState(false)
   const [selectedChannel, setSelectedChannel] = useState<Channel | null>(null)
+  const [showWhatsAppOnboarding, setShowWhatsAppOnboarding] = useState(false)
   const router = useRouter()
   const supabase = createClient()
 
@@ -236,6 +238,13 @@ export default function IntegrationsPage() {
 
     if (data && !error) {
       setSubscription(data)
+    } else {
+      console.warn('Subscription fetch error:', error)
+      // Fallback to free plan if table doesn't exist or no subscription found
+      setSubscription({ 
+        plan_name: 'free', 
+        status: 'active' 
+      })
     }
   }
 
@@ -257,6 +266,12 @@ export default function IntegrationsPage() {
     }
 
     if (channel.status === 'coming_soon') {
+      return
+    }
+
+    // Handle WhatsApp specifically with the onboarding flow
+    if (channel.type === 'whatsapp') {
+      setShowWhatsAppOnboarding(true)
       return
     }
 
@@ -631,6 +646,58 @@ export default function IntegrationsPage() {
             </div>
           </motion.div>
         </div>
+      )}
+
+      {/* WhatsApp Onboarding Modal */}
+      {showWhatsAppOnboarding && selectedAgent && (
+        <WhatsAppOnboarding
+          agentId={selectedAgent}
+          agentName={agents.find(a => a.id === selectedAgent)?.name || 'Your Agent'}
+          onSuccess={(data) => {
+            setShowWhatsAppOnboarding(false)
+            // Show success notification with better UI
+            const trialInfo = data.isTrial ? `\n\n🕒 3-Day Trial Active until ${new Date(data.trialEndsAt).toLocaleDateString()}` : ''
+            const successMessage = `🎉 WhatsApp setup successful!\n\nYour agent "${agents.find(a => a.id === selectedAgent)?.name}" is now connected to ${data.phoneNumber}.\n\nStatus: ${data.status}${trialInfo}\n\nYou can now start receiving and responding to WhatsApp messages automatically!`
+            
+            // Create a better success notification
+            const notification = document.createElement('div')
+            notification.className = 'fixed top-4 right-4 bg-green-500 text-white p-6 rounded-2xl shadow-2xl z-[9999] max-w-md'
+            notification.innerHTML = `
+              <div class="flex items-start">
+                <div class="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                  <span class="text-lg">✅</span>
+                </div>
+                <div class="flex-1">
+                  <h3 class="font-bold text-lg mb-1">WhatsApp Connected!</h3>
+                  <p class="text-sm text-green-100 mb-2">Agent: ${agents.find(a => a.id === selectedAgent)?.name}</p>
+                  <p class="text-sm text-green-100 mb-2">Phone: ${data.phoneNumber}</p>
+                  <p class="text-sm text-green-100 mb-2">Status: ${data.status}</p>
+                  ${data.isTrial ? `<p class="text-sm text-green-100 mb-2">🕒 Trial ends: ${new Date(data.trialEndsAt).toLocaleDateString()}</p>` : ''}
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" class="text-white hover:text-green-100 ml-2">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+              </div>
+            `
+            
+            document.body.appendChild(notification)
+            
+            // Auto-remove after 8 seconds
+            setTimeout(() => {
+              if (notification.parentElement) {
+                notification.remove()
+              }
+            }, 8000)
+            
+            // Refresh the page after a short delay to show updated status
+            setTimeout(() => {
+              window.location.reload()
+            }, 2000)
+          }}
+          onCancel={() => setShowWhatsAppOnboarding(false)}
+        />
       )}
     </div>
   )
