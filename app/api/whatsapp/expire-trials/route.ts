@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
   try {
     // Verify the request is from our CRON job (add authentication)
     const authHeader = request.headers.get('authorization')
-    const expectedToken = process.env.CRON_SECRET_TOKEN || 'your-secret-token'
+    const expectedToken = process.env.CRON_SECRET || 'your-secret-token'
     
     if (authHeader !== `Bearer ${expectedToken}`) {
       return NextResponse.json(
