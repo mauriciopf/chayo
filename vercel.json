@@ -2,8 +2,7 @@
   "crons": [
     {
       "path": "/api/whatsapp/expire-trials",
-      "schedule": "0 0 * * *",
-      "method": "POST"
+      "schedule": "0 0 * * *"
     }
   ]
 }
