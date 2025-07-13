@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { twilioClient } from '@/lib/twilio/client'
 
 // This endpoint will be called by a CRON job to check and expire trials
-export async function POST(request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     // Verify the request is from our CRON job (add authentication)
     const authHeader = request.headers.get('authorization')
@@ -132,13 +132,4 @@ async function releaseTwilioNumber(numberSid: string): Promise<boolean> {
     
     return false
   }
-}
-
-// Health check endpoint
-export async function GET() {
-  return NextResponse.json({
-    success: true,
-    message: 'WhatsApp trial expiration service is running',
-    timestamp: new Date().toISOString()
-  })
 }
