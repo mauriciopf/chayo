@@ -298,7 +298,7 @@ export default function WhatsAppOnboarding({ agentId, agentName, onSuccess, onCa
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center mb-2">
-                        <h3 className="font-semibold text-gray-900">Get New Twilio Number</h3>
+                        <h3 className="font-semibold text-gray-900">Get New Number</h3>
                         <span className="ml-2 px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
                           Recommended
                         </span>
@@ -387,8 +387,8 @@ export default function WhatsAppOnboarding({ agentId, agentName, onSuccess, onCa
                               <p className="font-medium text-gray-900">{number.phoneNumber}</p>
                               <p className="text-sm text-gray-600">{number.locality}, {number.region}</p>
                             </div>
+                            {/* Remove cost and Twilio branding */}
                             <div className="text-right">
-                              <p className="text-sm font-medium text-gray-900">{number.monthlyPrice}/month</p>
                               <p className="text-xs text-gray-500">SMS + Voice enabled</p>
                             </div>
                           </div>
@@ -487,38 +487,44 @@ export default function WhatsAppOnboarding({ agentId, agentName, onSuccess, onCa
               animate={{ opacity: 1, x: 0 }}
               className="space-y-4"
             >
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Business Name (Optional)
-                </label>
-                <input
-                  type="text"
-                  value={formData.businessName}
-                  onChange={(e) => setFormData(prev => ({ ...prev, businessName: e.target.value }))}
-                  placeholder="Enter your business name"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                />
-              </div>
+              {/* Only show business fields for existing number flow */}
+              {numberFlow === 'existing' && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Business Name (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.businessName}
+                      onChange={(e) => setFormData(prev => ({ ...prev, businessName: e.target.value }))}
+                      placeholder="Enter your business name"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    />
+                  </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Business Description (Optional)
-                </label>
-                <textarea
-                  value={formData.businessDescription}
-                  onChange={(e) => setFormData(prev => ({ ...prev, businessDescription: e.target.value }))}
-                  placeholder="Briefly describe what your business does..."
-                  rows={3}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
-                />
-              </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Business Description (Optional)
+                    </label>
+                    <textarea
+                      value={formData.businessDescription}
+                      onChange={(e) => setFormData(prev => ({ ...prev, businessDescription: e.target.value }))}
+                      placeholder="Briefly describe what your business does..."
+                      rows={3}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
+                    />
+                  </div>
+                </>
+              )}
 
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                 <h4 className="font-medium text-gray-900 mb-2">Setup Summary</h4>
                 <div className="space-y-1 text-sm text-gray-600">
                   <p><strong>Agent:</strong> {agentName}</p>
-                  <p><strong>Phone:</strong> +{formData.countryCode}{formData.phoneNumber}</p>
-                  {formData.businessName && (
+                  <p><strong>Phone:</strong> +{formData.countryCode}{formData.phoneNumber || formData.selectedTwilioNumber}</p>
+                  {/* Only show business name if present and in existing flow */}
+                  {numberFlow === 'existing' && formData.businessName && (
                     <p><strong>Business:</strong> {formData.businessName}</p>
                   )}
                 </div>

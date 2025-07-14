@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { User } from '@supabase/supabase-js'
+import { organizationService } from '@/lib/services/organizationService'
 
 interface UserSubscription {
   user_id: string
@@ -22,6 +23,45 @@ interface UserProfileProps {
 
 export default function UserProfile({ user, subscription, onLogout, onManageBilling }: UserProfileProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const [orgName, setOrgName] = useState<string>('')
+  const [orgId, setOrgId] = useState<string>('')
+  const [orgLoading, setOrgLoading] = useState(false)
+  const [orgError, setOrgError] = useState('')
+  const [orgSuccess, setOrgSuccess] = useState('')
+
+  useEffect(() => {
+    async function fetchOrg() {
+      setOrgLoading(true)
+      setOrgError('')
+      const org = await organizationService.getUserOrganization(user.id)
+      if (org) {
+        setOrgName(org.name)
+        setOrgId(org.id)
+      }
+      setOrgLoading(false)
+    }
+    fetchOrg()
+  }, [user.id])
+
+  const handleOrgNameUpdate = async () => {
+    setOrgLoading(true)
+    setOrgError('')
+    setOrgSuccess('')
+    try {
+      const res = await fetch(`/api/organizations/update`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ organizationId: orgId, name: orgName })
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Failed to update organization')
+      setOrgSuccess('Organization name updated!')
+    } catch (e: any) {
+      setOrgError(e.message)
+    } finally {
+      setOrgLoading(false)
+    }
+  }
 
   const handleManageSubscription = async () => {
     setIsOpen(false)
@@ -117,6 +157,28 @@ export default function UserProfile({ user, subscription, onLogout, onManageBill
             </div>
 
             <div className="px-4 py-3">
+              <div className="mb-3">
+                <p className="text-sm font-medium text-gray-700">Organization Name</p>
+                <div className="flex items-center space-x-2 mt-1">
+                  <input
+                    type="text"
+                    value={orgName}
+                    onChange={e => setOrgName(e.target.value)}
+                    className="border px-2 py-1 rounded text-sm flex-1"
+                    disabled={orgLoading}
+                  />
+                  <button
+                    onClick={handleOrgNameUpdate}
+                    className="px-3 py-1 bg-green-500 text-white rounded text-xs font-medium disabled:opacity-50"
+                    disabled={orgLoading || !orgName}
+                  >
+                    Save
+                  </button>
+                </div>
+                {orgError && <p className="text-xs text-red-600 mt-1">{orgError}</p>}
+                {orgSuccess && <p className="text-xs text-green-600 mt-1">{orgSuccess}</p>}
+              </div>
+
               <div className="mb-3">
                 <p className="text-sm font-medium text-gray-700">Current Plan</p>
                 <div className="flex items-center justify-between mt-1">

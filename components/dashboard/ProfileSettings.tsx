@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { motion } from 'framer-motion'
 import type { User } from '@supabase/supabase-js'
+import { organizationService } from '@/lib/services/organizationService'
 
 interface ProfileSettingsProps {
   user: User
@@ -22,6 +23,12 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
   const [profileMessage, setProfileMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
   const [passwordMessage, setPasswordMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
   
+  const [orgName, setOrgName] = useState('')
+  const [orgId, setOrgId] = useState('')
+  const [orgLoading, setOrgLoading] = useState(false)
+  const [orgError, setOrgError] = useState('')
+  const [orgSuccess, setOrgSuccess] = useState('')
+
   const supabase = createClient()
 
   useEffect(() => {
@@ -30,6 +37,20 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
       setEmail(user.email || '')
     }
   }, [user])
+
+  useEffect(() => {
+    async function fetchOrg() {
+      setOrgLoading(true)
+      setOrgError('')
+      const org = await organizationService.getUserOrganization(user.id)
+      if (org) {
+        setOrgName(org.name)
+        setOrgId(org.id)
+      }
+      setOrgLoading(false)
+    }
+    fetchOrg()
+  }, [user.id])
 
   const updateProfile = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -117,6 +138,26 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
     } finally {
       setIsUpdatingPassword(false)
       setTimeout(() => setPasswordMessage(null), 5000)
+    }
+  }
+
+  const handleOrgNameUpdate = async () => {
+    setOrgLoading(true)
+    setOrgError('')
+    setOrgSuccess('')
+    try {
+      const res = await fetch(`/api/organizations/update`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ organizationId: orgId, name: orgName })
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Failed to update organization')
+      setOrgSuccess('Organization name updated!')
+    } catch (e: any) {
+      setOrgError(e.message)
+    } finally {
+      setOrgLoading(false)
     }
   }
 
@@ -208,6 +249,32 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
               )}
             </button>
           </form>
+
+          {/* Organization Name Edit */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Organization Name
+            </label>
+            <div className="flex items-center space-x-2">
+              <input
+                type="text"
+                value={orgName}
+                onChange={e => setOrgName(e.target.value)}
+                className="border px-2 py-1 rounded text-sm flex-1"
+                disabled={orgLoading}
+              />
+              <button
+                type="button"
+                onClick={handleOrgNameUpdate}
+                className="px-3 py-1 bg-green-500 text-white rounded text-xs font-medium disabled:opacity-50"
+                disabled={orgLoading || !orgName}
+              >
+                Save
+              </button>
+            </div>
+            {orgError && <p className="text-xs text-red-600 mt-1">{orgError}</p>}
+            {orgSuccess && <p className="text-xs text-green-600 mt-1">{orgSuccess}</p>}
+          </div>
         </div>
 
         {/* Password Settings */}
