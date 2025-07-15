@@ -8,5 +8,5 @@ export const routing = defineRouting({
   defaultLocale: 'en',
   
   // The prefix for the locale in the URL
-  localePrefix: 'as-needed'
+  localePrefix: 'always'
 });
