@@ -63,8 +63,7 @@ export default async function LocaleLayout({
     notFound();
   }
 
-  // Providing all messages to the client
-  // side is the easiest way to get started
+  // Get messages using next-intl's getMessages (which will use our i18n.ts config)
   const messages = await getMessages();
 
   return (
