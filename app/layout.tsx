@@ -6,6 +6,10 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  // Redirect to default locale
-  redirect('/en');
+  // Don't redirect here - let middleware handle locale routing
+  return (
+    <html>
+      <body>{children}</body>
+    </html>
+  );
 }

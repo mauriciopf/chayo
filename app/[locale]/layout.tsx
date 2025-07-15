@@ -1,12 +1,11 @@
 import {NextIntlClientProvider} from 'next-intl';
 import {getMessages} from 'next-intl/server';
 import {notFound} from 'next/navigation';
-import {routing} from '../../src/i18n/routing';
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
 import '../globals.css'
 
-const inter = Inter({ subsets: ['latin'] })
+// Define supported locales directly
+const locales = ['en', 'es'];
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://chayo.ai'),
@@ -60,7 +59,7 @@ export default async function LocaleLayout({
   params: {locale: string};
 }) {
   // Ensure that the incoming `locale` is valid
-  if (!routing.locales.includes(locale as any)) {
+  if (!locales.includes(locale as any)) {
     notFound();
   }
 
@@ -74,8 +73,8 @@ export default async function LocaleLayout({
         {/* ElevenLabs ConvAI Widget Script */}
         <script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
       </head>
-      <body className={inter.className}>
-        <NextIntlClientProvider messages={messages}>
+      <body className="font-sans">
+        <NextIntlClientProvider messages={messages} locale={locale}>
           {children}
         </NextIntlClientProvider>
         {/* ElevenLabs Widget */}
@@ -86,5 +85,5 @@ export default async function LocaleLayout({
 }
 
 export function generateStaticParams() {
-  return routing.locales.map((locale) => ({locale}));
+  return locales.map((locale: string) => ({locale}));
 }
