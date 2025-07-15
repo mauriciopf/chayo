@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslations } from 'next-intl'
 import { DocumentManager } from './DocumentManager'
 
 interface CreateAgentModalProps {
@@ -10,6 +11,7 @@ interface CreateAgentModalProps {
 }
 
 export default function CreateAgentModal({ onClose, onSuccess }: CreateAgentModalProps) {
+  const t = useTranslations('createAgentModal')
   const [formData, setFormData] = useState({
     name: '',
     greeting: '',
@@ -23,11 +25,11 @@ export default function CreateAgentModal({ onClose, onSuccess }: CreateAgentModa
   const [documents, setDocuments] = useState<any[]>([])
 
   const toneOptions = [
-    { value: 'professional', label: 'Professional', description: 'Formal and business-like' },
-    { value: 'friendly', label: 'Friendly', description: 'Warm and approachable' },
-    { value: 'casual', label: 'Casual', description: 'Relaxed and conversational' },
-    { value: 'helpful', label: 'Helpful', description: 'Supportive and solution-focused' },
-    { value: 'enthusiastic', label: 'Enthusiastic', description: 'Energetic and positive' }
+    { value: 'professional', label: t('tone.professional.label'), description: t('tone.professional.description') },
+    { value: 'friendly', label: t('tone.friendly.label'), description: t('tone.friendly.description') },
+    { value: 'casual', label: t('tone.casual.label'), description: t('tone.casual.description') },
+    { value: 'helpful', label: t('tone.helpful.label'), description: t('tone.helpful.description') },
+    { value: 'enthusiastic', label: t('tone.enthusiastic.label'), description: t('tone.enthusiastic.description') }
   ]
 
   const handleGoalChange = (index: number, value: string) => {
@@ -222,25 +224,25 @@ Instructions:
               <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Agent Name *
+                    {t('agentName')} *
                   </label>
                   <input
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="e.g., Customer Support Assistant"
+                    placeholder={t('agentNamePlaceholder')}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Greeting Message *
+                    {t('greetingMessage')} *
                   </label>
                   <textarea
                     value={formData.greeting}
                     onChange={(e) => setFormData({ ...formData, greeting: e.target.value })}
-                    placeholder="Hello! I'm here to help you with any questions you might have..."
+                    placeholder={t('greetingPlaceholder')}
                     rows={3}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
                   />
@@ -248,7 +250,7 @@ Instructions:
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Tone & Personality
+                    {t('tonePersonality')}
                   </label>
                   <div className="grid grid-cols-1 gap-3">
                     {toneOptions.map((option) => (
@@ -276,10 +278,10 @@ Instructions:
               <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Agent Goals *
+                    {t('agentGoals')} *
                   </label>
                   <p className="text-sm text-gray-500 mb-4">
-                    Define what your agent should help users accomplish
+                    {t('agentGoalsDescription')}
                   </p>
                   
                   <div className="space-y-3">
@@ -289,7 +291,7 @@ Instructions:
                           type="text"
                           value={goal}
                           onChange={(e) => handleGoalChange(index, e.target.value)}
-                          placeholder={`Goal ${index + 1}: e.g., Answer product questions`}
+                          placeholder={`${t('goalPlaceholder')}`}
                           className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
                         />
                         {formData.goals.length > 1 && (
@@ -314,7 +316,7 @@ Instructions:
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                       </svg>
-                      <span>Add another goal</span>
+                      <span>{t('addAnotherGoal')}</span>
                     </button>
                   )}
                 </div>
@@ -386,7 +388,7 @@ Instructions:
               onClick={step === 1 ? onClose : () => setStep(step - 1)}
               className="px-4 py-2 text-sm font-medium text-gray-700 bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 rounded-xl transition-all duration-200"
             >
-              {step === 1 ? 'Cancel' : 'Back'}
+              {step === 1 ? t('cancel') : t('back')}
             </motion.button>
 
             <div className="flex space-x-3">
@@ -414,9 +416,9 @@ Instructions:
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                     </svg>
-                    <span>Creating...</span>
+                    <span>{t('creating')}</span>
                   </span>
-                ) : step === 3 ? 'Create Agent' : step === 4 ? 'Finish' : 'Next'}
+                ) : step === 3 ? t('createAgent') : step === 4 ? t('finish') : t('next')}
               </motion.button>
             </div>
           </div>

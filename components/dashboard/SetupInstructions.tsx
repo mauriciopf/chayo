@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
+import { useTranslations } from 'next-intl'
 
 interface SetupInstructionsProps {
   onRetry: () => void
@@ -10,6 +11,7 @@ interface SetupInstructionsProps {
 
 export default function SetupInstructions({ onRetry }: SetupInstructionsProps) {
   const [showInstructions, setShowInstructions] = useState(false)
+  const t = useTranslations('setupInstructions')
 
   return (
     <div className="bg-white rounded-lg shadow p-8 text-center max-w-2xl mx-auto">
@@ -20,11 +22,11 @@ export default function SetupInstructions({ onRetry }: SetupInstructionsProps) {
       </div>
       
       <h3 className="text-xl font-semibold text-gray-900 mb-3">
-        One-Time Database Setup Required
+        {t('title')}
       </h3>
       
       <p className="text-gray-600 mb-6">
-        To enable automatic organization creation and team management, please run the one-time database migration script.
+        {t('description')}
       </p>
 
       <div className="flex justify-center space-x-4 mb-6">
@@ -32,13 +34,13 @@ export default function SetupInstructions({ onRetry }: SetupInstructionsProps) {
           onClick={() => setShowInstructions(!showInstructions)}
           variant="outline"
         >
-          {showInstructions ? 'Hide' : 'Show'} Setup Instructions
+          {showInstructions ? t('hideInstructions') : t('showInstructions')}
         </Button>
         <Button
           onClick={onRetry}
           className="bg-orange-400 hover:bg-orange-500"
         >
-          Check Again
+          {t('retry')}
         </Button>
       </div>
 
@@ -49,14 +51,12 @@ export default function SetupInstructions({ onRetry }: SetupInstructionsProps) {
           exit={{ opacity: 0, height: 0 }}
           className="text-left bg-gray-50 rounded-lg p-6 border"
         >
-          <h4 className="font-semibold text-gray-900 mb-3">Setup Instructions:</h4>
+          <h4 className="font-semibold text-gray-900 mb-3">{t('showInstructions')}:</h4>
           <ol className="list-decimal list-inside space-y-2 text-sm text-gray-700">
-            <li>Go to your <a href="https://supabase.com/dashboard" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Supabase Dashboard</a></li>
-            <li>Navigate to the <strong>SQL Editor</strong> tab</li>
-            <li>Create a new query</li>
-            <li>Copy the migration script from: <code className="bg-gray-200 px-2 py-1 rounded text-xs">migrations/add_team_management.sql</code></li>
-            <li>Paste and run the script</li>
-            <li>Come back here and click "Check Again"</li>
+            <li>{t('step1')}</li>
+            <li>{t('step2')}</li>
+            <li>{t('step3')}</li>
+            <li>{t('step4')}</li>
           </ol>
           
           <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded">

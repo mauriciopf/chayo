@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { getAuthCallbackUrl } from '@/lib/utils/auth'
+import { useTranslations, useLocale } from 'next-intl'
 
 export default function AuthPage() {
   const [email, setEmail] = useState('')
@@ -14,6 +15,8 @@ export default function AuthPage() {
   const [message, setMessage] = useState('')
   const [initialLoading, setInitialLoading] = useState(true)
   const router = useRouter()
+  const t = useTranslations('auth')
+  const locale = useLocale()
   
   const supabase = createClient()
 
@@ -23,7 +26,7 @@ export default function AuthPage() {
       try {
         const { data: { session } } = await supabase.auth.getSession()
         if (session) {
-          router.push('/dashboard')
+          router.push(`/${locale}/dashboard`)
           return
         }
         
@@ -41,7 +44,7 @@ export default function AuthPage() {
     }
 
     checkSession()
-  }, [router, supabase.auth])
+  }, [router, supabase.auth, locale])
 
   // If still checking session, show loading
   if (initialLoading) {
@@ -49,7 +52,7 @@ export default function AuthPage() {
       <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Checking authentication...</p>
+          <p className="text-gray-600">{t('loading')}</p>
         </div>
       </div>
     )
@@ -80,7 +83,7 @@ export default function AuthPage() {
         
         // Check if session was created successfully
         if (data.session) {
-          router.push('/dashboard')
+          router.push(`/${locale}/dashboard`)
         } else {
           throw new Error('Login failed - no session created')
         }
@@ -133,20 +136,17 @@ export default function AuthPage() {
         <div className="bg-white rounded-3xl shadow-xl p-8">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              {isSignUp ? 'Join Chayo' : 'Welcome Back'}
+              {isSignUp ? t('signUpTitle') : t('signInTitle')}
             </h1>
             <p className="text-gray-600">
-              {isSignUp 
-                ? 'Start automating your business today' 
-                : 'Sign in to your Chayo dashboard'
-              }
+              {isSignUp ? t('signUpSubtitle') : t('signInSubtitle')}
             </p>
           </div>
 
           <form onSubmit={handleAuth} className="space-y-6">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                Email
+                {t('email')}
               </label>
               <input
                 id="email"
@@ -161,7 +161,7 @@ export default function AuthPage() {
 
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                Password
+                {t('password')}
               </label>
               <input
                 id="password"
@@ -191,7 +191,7 @@ export default function AuthPage() {
               whileTap={{ scale: 0.98 }}
               className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Processing...' : (isSignUp ? 'Create Account' : 'Sign In')}
+              {loading ? t('processing') : (isSignUp ? t('createAccount') : t('signIn'))}
             </motion.button>
           </form>
 
@@ -201,7 +201,7 @@ export default function AuthPage() {
                 <div className="w-full border-t border-gray-300" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Or continue with</span>
+                <span className="px-2 bg-white text-gray-500">{t('orContinueWith')}</span>
               </div>
             </div>
 
@@ -218,7 +218,7 @@ export default function AuthPage() {
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
               </svg>
-              Continue with Google
+              {t('continueWithGoogle')}
             </motion.button>
           </div>
 
@@ -229,8 +229,8 @@ export default function AuthPage() {
               className="text-purple-600 hover:text-purple-700 font-medium"
             >
               {isSignUp 
-                ? 'Already have an account? Sign in' 
-                : "Don't have an account? Sign up"
+                ? t('alreadyHaveAccount')
+                : t('dontHaveAccount')
               }
             </button>
           </div>

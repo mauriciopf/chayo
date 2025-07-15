@@ -1,7 +1,10 @@
+"use client"
+
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations, useLocale } from 'next-intl';
 
 interface PricingSectionProps {
   onStartCall?: () => void;
@@ -11,63 +14,45 @@ export default function PricingSection({ onStartCall }: PricingSectionProps) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true });
   const router = useRouter();
+  const t = useTranslations('pricing');
+  const locale = useLocale();
 
   const handleSolicitaDemo = () => {
-    router.push('/auth');
+    router.push(`/${locale}/auth`);
   };
 
   const pricingTiers = [
     {
-      name: "Plan Básico",
+      name: t('plans.basic.name'),
       icon: "💬",
-      price: "$49",
-      period: "USD / mes",
-      description: "Ideal para pequeños negocios que quieren responder sin estar pegados al celular.",
-      features: [
-        "WhatsApp AI Agent",
-        "Chat inteligente con respuestas personalizadas",
-        "Confirmación automática de citas",
-        "Soporte por email",
-        "Acceso al panel de control Chayo"
-      ],
+      price: t('plans.basic.price'),
+      period: t('plans.basic.period'),
+      description: t('plans.basic.description'),
+      features: t.raw('plans.basic.features'),
       gradient: "from-purple-500 to-pink-500",
       bgGradient: "from-purple-50 to-pink-50",
       borderColor: "border-purple-200",
       popular: true
     },
     {
-      name: "Plan Profesional",
+      name: t('plans.professional.name'),
       icon: "🧠",
-      price: "$129",
-      period: "USD / mes",
-      description: "Para clínicas, restaurantes o negocios que necesitan automatizar todo.",
-      features: [
-        "WhatsApp AI Agent",
-        "Web Widget AI incluido",
-        "Reagendamiento inteligente",
-        "Recordatorios automatizados",
-        "Formularios personalizados",
-        "Soporte prioritario"
-      ],
+      price: t('plans.professional.price'),
+      period: t('plans.professional.period'),
+      description: t('plans.professional.description'),
+      features: t.raw('plans.professional.features'),
       gradient: "from-orange-500 to-yellow-500",
       bgGradient: "from-orange-50 to-yellow-50",
       borderColor: "border-orange-200",
       popular: false
     },
     {
-      name: "Plan Premium",
+      name: t('plans.premium.name'),
       icon: "🚀",
-      price: "$249",
+      price: t('plans.premium.price'),
       period: "USD / mes",
-      description: "Para marcas que quieren diferenciarse y dar una experiencia wow.",
-      features: [
-        "Todo lo del Plan Profesional",
-        "Video AI Agent personalizado (1 idioma)",
-        "Integración con CRM o agenda externa",
-        "Análisis de conversaciones + mejoras de flujo",
-        "Video mensajes proactivos (seguimiento a leads)",
-        "Instagram DM Automation"
-      ],
+      description: t('plans.premium.description'),
+      features: t.raw('plans.premium.features'),
       gradient: "from-emerald-500 to-teal-500",
       bgGradient: "from-emerald-50 to-teal-50",
       borderColor: "border-emerald-200",
@@ -92,17 +77,14 @@ export default function PricingSection({ onStartCall }: PricingSectionProps) {
             className="inline-flex items-center gap-2 bg-purple-100 border border-purple-200 rounded-full px-6 py-2 mb-6"
           >
             <span className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></span>
-            <span className="text-sm font-medium text-purple-700">Planes y Precios</span>
+            <span className="text-sm font-medium text-purple-700">{t('sectionTitle')}</span>
           </motion.div>
 
           <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-            Elige tu{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600">
-              Plan Perfecto
-            </span>
+            {t('subheader')}
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Desde pequeños negocios hasta empresas grandes, Chayo se adapta a tus necesidades con planes flexibles.
+            {t('subheader')}
           </p>
         </motion.div>
 
@@ -126,7 +108,7 @@ export default function PricingSection({ onStartCall }: PricingSectionProps) {
                   className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10"
                 >
                   <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-bold px-4 py-1 rounded-full shadow-lg">
-                    ¡Más Popular!
+                    {t('plans.professional.popular')}
                   </div>
                 </motion.div>
               )}
@@ -158,7 +140,7 @@ export default function PricingSection({ onStartCall }: PricingSectionProps) {
 
                   {/* Features */}
                   <ul className="space-y-3 mb-8">
-                    {tier.features.map((feature, idx) => (
+                    {tier.features.map((feature: string, idx: number) => (
                       <motion.li
                         key={idx}
                         initial={{ opacity: 0, x: -20 }}
@@ -183,7 +165,7 @@ export default function PricingSection({ onStartCall }: PricingSectionProps) {
                     onClick={handleSolicitaDemo}
                     className={`w-full py-4 rounded-xl font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-r ${tier.gradient}`}
                   >
-                    🔵 Solicita una demo
+                    🔵 {tier.name === t('plans.basic.name') ? t('plans.basic.cta') : tier.name === t('plans.professional.name') ? t('plans.professional.cta') : t('plans.premium.cta')}
                   </motion.button>
 
                 </div>

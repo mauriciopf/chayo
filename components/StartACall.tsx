@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Helmet } from "react-helmet";
 import { useState, useEffect } from "react";
+import { useTranslations } from 'next-intl';
 
 interface StartACallProps {
   darkMode?: boolean;
@@ -9,6 +10,7 @@ interface StartACallProps {
 }
 
 export default function StartACall({ darkMode = true, setDarkMode, onClose }: StartACallProps) {
+  const t = useTranslations('common')
   const [widgetReady, setWidgetReady] = useState(false);
 
   useEffect(() => {

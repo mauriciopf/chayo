@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 
@@ -29,6 +30,7 @@ interface TeamManagementProps {
 }
 
 export default function TeamManagement({ organizationId, organizationName }: TeamManagementProps) {
+  const t = useTranslations('teamManagement')
   const [members, setMembers] = useState<TeamMember[]>([])
   const [invitations, setInvitations] = useState<TeamInvitation[]>([])
   const [loading, setLoading] = useState(true)
@@ -208,10 +210,10 @@ export default function TeamManagement({ organizationId, organizationName }: Tea
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">
-            Team Members
+            {t('title')}
           </h2>
           <p className="text-gray-600">
-            Manage your {organizationName} team members and permissions
+            {t('description', { organizationName })}
           </p>
         </div>
         {canManageTeam && (
@@ -219,7 +221,7 @@ export default function TeamManagement({ organizationId, organizationName }: Tea
             onClick={() => setShowInviteModal(true)}
             className="bg-orange-400 hover:bg-orange-500"
           >
-            Invite Member
+            {t('inviteMember')}
           </Button>
         )}
       </div>
@@ -227,12 +229,12 @@ export default function TeamManagement({ organizationId, organizationName }: Tea
       {/* Team Members */}
       <div className="bg-white rounded-lg shadow">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Active Members</h3>
+          <h3 className="text-lg font-semibold text-gray-900">{t('activeMembers')}</h3>
         </div>
         <div className="divide-y divide-gray-200">
           {members.length === 0 ? (
             <div className="px-6 py-8 text-center text-gray-500">
-              No team members yet
+              {t('noTeamMembers')}
             </div>
           ) : (
             members.map((member) => (
@@ -248,7 +250,7 @@ export default function TeamManagement({ organizationId, organizationName }: Tea
                       {member.email || `User ${member.user_id.slice(0, 8)}`}
                     </p>
                     <p className="text-sm text-gray-500">
-                      Joined {new Date(member.joined_at).toLocaleDateString()}
+                      {t('joined')} {new Date(member.joined_at).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
@@ -269,14 +271,14 @@ export default function TeamManagement({ organizationId, organizationName }: Tea
                         onChange={(e) => handleUpdateMember(member.id, { role: e.target.value })}
                         className="text-sm border border-gray-300 rounded px-2 py-1"
                       >
-                        <option value="member">Member</option>
-                        <option value="admin">Admin</option>
+                        <option value="member">{t('member')}</option>
+                        <option value="admin">{t('admin')}</option>
                       </select>
                       <button
                         onClick={() => handleRemoveMember(member.id)}
                         className="text-red-600 hover:text-red-800 text-sm"
                       >
-                        Remove
+                        {t('remove')}
                       </button>
                     </div>
                   )}
@@ -291,7 +293,7 @@ export default function TeamManagement({ organizationId, organizationName }: Tea
       {invitations.length > 0 && (
         <div className="bg-white rounded-lg shadow">
           <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Pending Invitations</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t('pendingInvitations')}</h3>
           </div>
           <div className="divide-y divide-gray-200">
             {invitations.map((invitation) => (
@@ -307,8 +309,8 @@ export default function TeamManagement({ organizationId, organizationName }: Tea
                       {invitation.email}
                     </p>
                     <p className="text-sm text-gray-500">
-                      Invited {new Date(invitation.created_at).toLocaleDateString()} • 
-                      Expires {new Date(invitation.expires_at).toLocaleDateString()}
+                      {t('invited')} {new Date(invitation.created_at).toLocaleDateString()} • 
+                      {t('expires')} {new Date(invitation.expires_at).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
@@ -321,7 +323,7 @@ export default function TeamManagement({ organizationId, organizationName }: Tea
                       onClick={() => handleCancelInvitation(invitation.id)}
                       className="text-red-600 hover:text-red-800 text-sm"
                     >
-                      Cancel
+                      {t('cancel')}
                     </button>
                   )}
                 </div>
@@ -342,32 +344,32 @@ export default function TeamManagement({ organizationId, organizationName }: Tea
               className="bg-white rounded-lg p-6 w-full max-w-md mx-4"
             >
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Invite Team Member
+                {t('inviteTeamMember')}
               </h3>
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Email Address
+                    {t('emailAddress')}
                   </label>
                   <input
                     type="email"
                     value={inviteEmail}
                     onChange={(e) => setInviteEmail(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    placeholder="Enter email address"
+                    placeholder={t('enterEmailAddress')}
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Role
+                    {t('role')}
                   </label>
                   <select
                     value={inviteRole}
                     onChange={(e) => setInviteRole(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   >
-                    <option value="member">Member</option>
-                    <option value="admin">Admin</option>
+                    <option value="member">{t('member')}</option>
+                    <option value="admin">{t('admin')}</option>
                   </select>
                 </div>
               </div>
@@ -377,14 +379,14 @@ export default function TeamManagement({ organizationId, organizationName }: Tea
                   onClick={() => setShowInviteModal(false)}
                   disabled={inviting}
                 >
-                  Cancel
+                  {t('cancel')}
                 </Button>
                 <Button
                   onClick={handleInviteMember}
                   disabled={!inviteEmail || inviting}
                   className="bg-orange-400 hover:bg-orange-500"
                 >
-                  {inviting ? 'Sending...' : 'Send Invitation'}
+                  {inviting ? t('sending') : t('sendInvitation')}
                 </Button>
               </div>
             </motion.div>

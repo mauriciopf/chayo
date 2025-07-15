@@ -1,0 +1,559 @@
+{
+  "footer": {
+    "brand": "Chayo",
+    "tagline": "Tu comadre digital, 24/7",
+    "description": "Your AI comadre who never sleeps. Smart, reliable, and always ready to help your business grow.",
+    "language": "Language:",
+    "quickLinks": "Quick Links",
+    "howItWorks": "How It Works",
+    "examples": "Examples", 
+    "pricing": "Pricing",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "getInTouch": "Get in Touch",
+    "bookDemo": "Book a Demo",
+    "support": "Support",
+    "contactUs": "Contact Us",
+    "trustSafety": "Trust & Safety",
+    "allRightsReserved": "All rights reserved."
+  },
+  "hero": {
+    "headline": "Your Digital Comadre Who Never Sleeps",
+    "subheadline": "AI automation for your business, available 24/7 in Spanish and English",
+    "ctaPrimary": "Start with Chayo",
+    "ctaSecondary": "Watch Demo",
+    "trustBadge1": "Speaks Spanish & English",
+    "trustBadge2": "Powered by ChatGPT", 
+    "trustBadge3": "5-minute setup",
+    "conversationExample": {
+      "userMessage": "Hi Chayo, I need help managing my business",
+      "chayoResponse": "Of course! Let's get you set up. 💁‍♀️ What do you want me to handle first?",
+      "features": {
+        "sell": "✅ Sell",
+        "book": "✅ Book appointments", 
+        "faq": "✅ Answer FAQs",
+        "support": "✅ Handle support"
+      }
+    }
+  },
+  "howItWorks": {
+    "sectionTitle": "How It Works",
+    "heroTitle": "Meet Chayo, your digital comadre who",
+    "heroHighlight": "Never Sleeps",
+    "subHeader": "Transform your business with AI that understands your customers",
+    "steps": {
+      "step1": {
+        "title": "Give Her Personality",
+        "description": "Define Chayo's vibe: professional, friendly, fun... You decide how she talks to your customers.",
+        "details": [
+          "Custom voice tone",
+          "Unique personality for your brand", 
+          "Natural responses in Spanish",
+          "Adapts to your communication style"
+        ]
+      },
+      "step2": {
+        "title": "Train Her Knowledge",
+        "description": "Upload your content and watch Chayo become an expert on your business.",
+        "details": [
+          "Services & pricing information",
+          "Brand voice & communication style",
+          "Common customer questions", 
+          "Business processes & workflows"
+        ]
+      },
+      "step3": {
+        "title": "Connect Your Channels",
+        "description": "Deploy Chayo across WhatsApp, your website, and other platforms.",
+        "details": [
+          "WhatsApp Business integration",
+          "Website chat widget",
+          "Social media platforms",
+          "Email automation",
+          "Multi-channel support"
+        ]
+      },
+      "step4": {
+        "title": "Watch Her Work",
+        "description": "Chayo handles customer interactions 24/7 while you focus on growing your business.",
+        "details": [
+          "24/7 customer support",
+          "Automatic appointment booking", 
+          "Lead qualification & follow-up",
+          "Performance analytics & insights"
+        ]
+      }
+    },
+    "cta": "Start with Chayo"
+  },
+  "pricing": {
+    "sectionTitle": "Simple Pricing",
+    "subheader": "Choose the perfect plan for your business",
+    "plans": {
+      "basic": {
+        "name": "Basic",
+        "price": "$29",
+        "period": "month",
+        "description": "Perfect for getting started with AI automation",
+        "features": [
+          "Unlimited messages",
+          "Basic chat automation",
+          "Email support",
+          "Dashboard access"
+        ],
+        "cta": "Get Started"
+      },
+      "professional": {
+        "name": "Professional",
+        "price": "$79", 
+        "period": "month",
+        "description": "For clinics, restaurants, or businesses that need to automate everything",
+        "popular": "Most Popular",
+        "features": [
+          "Everything in Basic",
+          "WhatsApp integration",
+          "Web widget included",
+          "Smart scheduling",
+          "Auto reminders",
+          "Priority support"
+        ],
+        "cta": "Get Started"
+      },
+      "premium": {
+        "name": "Premium",
+        "price": "Custom",
+        "description": "For enterprises that need advanced features and priority support",
+        "features": [
+          "Everything in Professional", 
+          "Unlimited agents",
+          "Custom integrations",
+          "Advanced analytics",
+          "Dedicated support",
+          "Custom training"
+        ],
+        "cta": "Contact Us"
+      }
+    }
+  },
+  "examples": {
+    "sectionTitle": "See Chayo in Action",
+    "subheader": "Real conversations, real results",
+    "businesses": {
+      "constructora": {
+        "name": "Construction Business",
+        "before": "Before Chayo",
+        "after": "After Chayo",
+        "conversations": [
+          {
+            "user": "Hi! I need a quote for home renovation",
+            "chayo": "I can help you with that! What type of renovation are you planning?"
+          }
+        ]
+      }
+    }
+  },
+  "vibe": {
+    "title": "Give Chayo Her Vibe",
+    "subtitle": "Configure her personality, goals, and tone to match your brand perfectly",
+    "professional": {
+      "title": "Professional",
+      "description": "Formal, polite, and business-focused"
+    },
+    "friendly": {
+      "title": "Friendly",
+      "description": "Warm, approachable, and conversational"
+    },
+    "fun": {
+      "title": "Fun",
+      "description": "Playful, energetic, and engaging"
+    }
+  },
+  "training": {
+    "title": "Train Her Knowledge",
+    "subtitle": "Upload your business information so Chayo becomes an expert on your services",
+    "uploadArea": "Drag & drop your files here",
+    "supportedFiles": "Supported: PDF, DOC, TXT files"
+  },
+  "marketing": {
+    "title": "Marketing that Actually Works",
+    "subtitle": "Stop losing customers to delayed responses",
+    "beforeAfter": {
+      "before": "Before Chayo",
+      "after": "After Chayo"
+    }
+  },
+  "launch": {
+    "title": "Launch & Scale",
+    "subtitle": "Deploy Chayo across all your channels and watch your business grow",
+    "cta": "Start Your Free Trial"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "finish": "Finish",
+    "getStarted": "Get Started"
+  },
+  "navigation": {
+    "howItWorks": "How it Works",
+    "examples": "Examples",
+    "pricing": "Pricing",
+    "signIn": "Sign In",
+    "signOut": "Sign Out",
+    "dashboard": "Dashboard",
+    "tagline": "Your digital comadre ✨"
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "email": "Email",
+    "password": "Password",
+    "signInTitle": "Welcome back!",
+    "signInSubtitle": "Sign in to access your Chayo dashboard",
+    "signUpTitle": "Create your account",
+    "signUpSubtitle": "Join thousands of business owners using Chayo",
+    "forgotPassword": "Forgot your password?",
+    "dontHaveAccount": "Don't have an account? Sign up",
+    "alreadyHaveAccount": "Already have an account? Sign in",
+    "signInWithGoogle": "Continue with Google",
+    "orContinueWith": "Or continue with",
+    "loading": "Loading...",
+    "signUpCTA": "Start Free Trial",
+    "signInCTA": "Sign In",
+    "createAccount": "Create Account",
+    "processing": "Processing...",
+    "continueWithGoogle": "Continue with Google",
+    "completingAuth": "Completing authentication...",
+    "redirectingToDashboard": "Please wait while we redirect you to the dashboard"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome back",
+    "noAgents": "No agents yet",
+    "createFirstAgent": "Create your first AI agent",
+    "agentPaused": "Paused",
+    "agentActive": "Active",
+    "editAgent": "Edit Agent",
+    "deleteAgent": "Delete Agent",
+    "createAgent": "Create Agent",
+    "manageDocuments": "Manage Documents",
+    "performance": "Performance",
+    "teamManagement": "Team Management",
+    "settings": "Settings",
+    "subscription": "Subscription",
+    "channels": "Channels",
+    "overview": "Overview",
+    "analytics": "Analytics",
+    "signOut": "Sign Out",
+    "quickActions": "Quick Actions",
+    "navigation": "Navigation",
+    "agentCount": "AI Agents",
+    "teamCount": "Team",
+    "yourAIAgents": "Your AI Agents",
+    "manageAgentsDescription": "Manage your AI agents and their channel connections",
+    "createFirstAgentDescription": "Start by creating your first AI agent to automate customer conversations",
+    "performanceAnalytics": "Performance Analytics",
+    "performanceDescription": "Comprehensive insights into your AI platform's performance and engagement",
+    "settingUpWorkspace": "Setting up your workspace...",
+    "settingUpDescription": "We're automatically creating your team organization. This will only take a moment.",
+    "initializingTeam": "Initializing team workspace...",
+    "autoOrganization": "Every user automatically gets their own organization for team collaboration",
+    "orgNameUpdated": "Organization name updated!",
+    "failedToUpdateOrg": "Failed to update organization",
+    "billingPortalError": "Unable to open billing portal. Please try again."
+  },
+  "createAgentModal": {
+    "agentName": "Agent Name",
+    "agentNamePlaceholder": "e.g., Customer Support Assistant",
+    "greetingMessage": "Greeting Message",
+    "greetingPlaceholder": "Hello! I'm here to help you with any questions you might have...",
+    "tonePersonality": "Tone & Personality",
+    "agentGoals": "Agent Goals",
+    "agentGoalsDescription": "What should your agent help with?",
+    "goalPlaceholder": "e.g., Answer customer questions",
+    "addAnotherGoal": "Add another goal",
+    "createAgent": "Create Agent",
+    "creating": "Creating agent...",
+    "cancel": "Cancel",
+    "back": "Back",
+    "next": "Next",
+    "finish": "Finish",
+    "agentCreated": "Agent Created Successfully!",
+    "agentReady": "Your agent is ready!",
+    "tone": {
+      "professional": {
+        "label": "Professional",
+        "description": "Formal and business-like"
+      },
+      "friendly": {
+        "label": "Friendly", 
+        "description": "Warm and approachable"
+      },
+      "casual": {
+        "label": "Casual",
+        "description": "Relaxed and conversational"
+      },
+      "helpful": {
+        "label": "Helpful",
+        "description": "Supportive and solution-focused"
+      },
+      "enthusiastic": {
+        "label": "Enthusiastic",
+        "description": "Energetic and positive"
+      }
+    },
+    "agentCard": {
+      "tone": "TONE:",
+      "goals": "GOALS:",
+      "docs": "Docs",
+      "more": "more",
+      "created": "Created",
+      "editAgent": "Edit Agent",
+      "manageDocuments": "Manage Documents",
+      "pauseAgent": "Pause Agent",
+      "resumeAgent": "Resume Agent",
+      "deleteAgent": "Delete Agent",
+      "status": {
+        "active": "Active",
+        "paused": "Paused"
+      }
+    },
+    "editAgentModal": {
+      "title": "Edit Agent",
+      "step": "Step",
+      "of": "of", 
+      "editing": "Editing",
+      "agentName": "Agent Name",
+      "namePlaceholder": "e.g., Customer Support Assistant",
+      "greetingMessage": "Greeting Message",
+      "greetingPlaceholder": "e.g., Hi! I'm here to help you with any questions about our services.",
+      "agentGoals": "Agent Goals",
+      "goalsDescription": "What should this agent help users accomplish? Add up to 5 specific goals.",
+      "goalPlaceholder": "Goal {number}: e.g., Help customers find the right product",
+      "addAnotherGoal": "Add another goal",
+      "systemPromptPreview": "System Prompt Preview",
+      "systemPromptDescription": "This is how your agent will be configured. You can edit this directly if needed.",
+      "cancel": "Cancel",
+      "next": "Next",
+      "updating": "Updating...",
+      "updateAgent": "Update Agent"
+    },
+    "manageDocumentsModal": {
+      "title": "Manage Documents",
+      "agent": "Agent",
+      "done": "Done"
+    },
+    "channelStatusWidget": {
+      "title": "Channel Status",
+      "connected": "connected",
+      "comingSoon": "Coming Soon",
+      "disconnected": "Disconnected",
+      "manageChannels": "Manage Channels"
+    },
+    "performanceOverview": {
+      "title": "Performance Overview",
+      "periods": {
+        "current_month": "Current Month",
+        "last_month": "Last Month", 
+        "last_3_months": "Last 3 Months",
+        "last_6_months": "Last 6 Months",
+        "current_year": "Current Year"
+      },
+      "comparison": {
+        "no_comparison": "No Comparison",
+        "previous_period": "Previous Period",
+        "previous_year": "Previous Year"
+      },
+      "metrics": {
+        "totalConversations": "Total Conversations",
+        "totalMessages": "Total Messages",
+        "avgMessagesPerConversation": "Avg Messages per Conversation", 
+        "leadsCaptured": "Leads Captured",
+        "appointmentsScheduled": "Appointments Scheduled",
+        "responseTime": "Avg Response Time",
+        "satisfactionRate": "Satisfaction Rate",
+        "conversionRate": "Conversion Rate"
+      },
+      "description": "Insights into your AI platform's interaction and engagement metrics"
+    },
+    "teamManagement": {
+      "title": "Team Members",
+      "description": "Manage your {organizationName} team members and permissions",
+      "inviteMember": "Invite Member",
+      "activeMembers": "Active Members",
+      "noTeamMembers": "No team members yet",
+      "joined": "Joined",
+      "pendingInvitations": "Pending Invitations",
+      "invited": "Invited",
+      "expires": "Expires",
+      "remove": "Remove",
+      "cancel": "Cancel",
+      "inviteTeamMember": "Invite Team Member",
+      "emailAddress": "Email Address",
+      "enterEmailAddress": "Enter email address",
+      "role": "Role",
+      "member": "Member",
+      "admin": "Admin",
+      "owner": "Owner",
+      "sending": "Sending...",
+      "sendInvitation": "Send Invitation"
+    },
+    "setupInstructions": {
+      "title": "One-Time Database Setup Required",
+      "description": "To enable automatic organization creation and team management, please run the one-time database migration script.",
+      "showInstructions": "Show Instructions",
+      "hideInstructions": "Hide Instructions",
+      "retry": "Retry Setup",
+      "step1": "Open your terminal and navigate to your project directory",
+      "step2": "Run the migration script",
+      "step3": "Wait for the script to complete successfully",
+      "step4": "Click 'Retry Setup' below to continue"
+    },
+    "documentManager": {
+      "title": "Document Manager",
+      "uploadDocument": "Upload Document",
+      "uploadDescription": "Upload PDF documents to train your agent",
+      "dragDropText": "Drag and drop a PDF file here, or click to select",
+      "uploadButton": "Upload PDF",
+      "noDocuments": "No documents uploaded yet",
+      "processing": "Processing...",
+      "processed": "Processed",
+      "failed": "Failed",
+      "deleteDocument": "Delete Document",
+      "confirmDelete": "Are you sure you want to delete this document?",
+      "errors": {
+        "onlyPdf": "Only PDF files are allowed",
+        "fileSize": "File size must be less than 10MB",
+        "uploadFailed": "Failed to upload document",
+        "deleteFailed": "Failed to delete document"
+      }
+    },
+    "whatsAppOnboarding": {
+      "title": "WhatsApp Setup for",
+      "subtitle": "Connect your agent to WhatsApp in just a few steps",
+      "step1Title": "Choose Phone Number Option",
+      "step2Title": "Select Your Phone Number",
+      "step3Title": "Business Information",
+      "newNumberOption": "Get a new number through Chayo",
+      "newNumberDescription": "We'll provide a WhatsApp Business number for you",
+      "existingNumberOption": "Use your existing WhatsApp number",
+      "existingNumberDescription": "Connect your current WhatsApp Business number",
+      "selectCountry": "Select Country",
+      "phoneNumber": "Phone Number",
+      "phoneNumberPlaceholder": "Enter your phone number",
+      "businessName": "Business Name",
+      "businessNamePlaceholder": "Enter your business name",
+      "businessDescription": "Business Description",
+      "businessDescriptionPlaceholder": "Describe what your business does...",
+      "selectNumber": "Select Number",
+      "loadingNumbers": "Loading available numbers...",
+      "noNumbersAvailable": "No numbers available for this country",
+      "refreshNumbers": "Refresh Numbers",
+      "backButton": "Back",
+      "nextButton": "Next",
+      "setupWhatsApp": "Setup WhatsApp",
+      "processing": "Setting up...",
+      "cancel": "Cancel",
+      "recommended": "Recommended",
+      "instantSetup": "✅ Instant setup • ✅ No downtime • ✅ Ready to use immediately",
+      "freeTrialTitle": "3-Day Free Trial",
+      "freeTrialDescription": "Your number includes a 3-day free trial. After that, you'll need to upgrade to continue using WhatsApp.",
+      "migrationWarning": "⚠️ Requires WhatsApp account deletion • ⚠️ 24-48h downtime possible",
+      "setupSummary": "Setup Summary",
+      "agent": "Agent",
+      "phone": "Phone",
+      "business": "Business",
+      "errors": {
+        "phoneRequired": "Phone number is required",
+        "phoneMinLength": "Phone number must be at least 10 digits",
+        "selectNumber": "Please select a phone number",
+        "businessNameRequired": "Business name is required",
+        "businessDescriptionRequired": "Business description is required",
+        "fetchNumbers": "Failed to fetch available numbers",
+        "purchaseNumber": "Failed to purchase phone number",
+        "setupFailed": "Failed to setup WhatsApp"
+      }
+    },
+    "subscriptionPlans": {
+      "title": "Choose Your Chayo Plan",
+      "subtitle": "WhatsApp AI is available now • Other channels coming soon",
+      "basicPlan": "Basic Plan",
+      "proPlan": "Pro Plan",
+      "enterprisePlan": "Enterprise Plan",
+      "popularBadge": "Most Popular",
+      "currentPlan": "Current Plan",
+      "comingSoon": "Coming Soon",
+      "upgradeNow": "Upgrade Now",
+      "manageSubscription": "Manage Subscription",
+      "perMonth": "USD/month",
+      "processing": "Processing...",
+      "startFreeTrial": "Start Free Trial",
+      "needChanges": "Need to make changes to your subscription?",
+      "features": {
+        "whatsAppAgent": "WhatsApp AI Agent (Available now)",
+        "multipleAgents": "Multiple AI Agents",
+        "prioritySupport": "Priority Support",
+        "advancedAnalytics": "Advanced Analytics",
+        "customIntegrations": "Custom Integrations",
+        "dedicatedManager": "Dedicated Account Manager"
+      }
+    },
+    "profileSettings": {
+      "title": "Profile Settings",
+      "description": "Manage your account information, password, and preferences.",
+      "profileInformation": "Profile Information",
+      "displayName": "Display Name",
+      "displayNamePlaceholder": "Enter your display name",
+      "emailAddress": "Email Address",
+      "emailPlaceholder": "Enter your email",
+      "emailVerificationNote": "Changing your email will require verification",
+      "updateProfile": "Update Profile",
+      "updating": "Updating...",
+      "organizationName": "Organization Name",
+      "organizationNamePlaceholder": "Enter organization name",
+      "save": "Save",
+      "changePassword": "Change Password",
+      "newPassword": "New Password",
+      "newPasswordPlaceholder": "Enter new password",
+      "confirmNewPassword": "Confirm New Password",
+      "confirmPasswordPlaceholder": "Confirm new password",
+      "accountInformation": "Account Information",
+      "userId": "User ID",
+      "accountCreated": "Account Created",
+      "lastSignIn": "Last Sign In",
+      "emailConfirmed": "Email Confirmed",
+      "yes": "Yes",
+      "pending": "Pending",
+      "never": "Never"
+    },
+    "whatsAppStatusCard": {
+      "title": "WhatsApp Business",
+      "connected": "Connected",
+      "notConnected": "Not connected",
+      "active": "Active",
+      "inactive": "Inactive",
+      "phoneNumber": "Phone Number:",
+      "businessName": "Business Name:",
+      "status": "Status:",
+      "messagesHandled": "Messages Handled:",
+      "lastMessage": "Last Message:",
+      "refreshStatus": "Refresh Status",
+      "setupDescription": "Connect your WhatsApp Business account to start receiving and responding to messages automatically.",
+      "setupWhatsApp": "Setup WhatsApp"
+    },
+    "planBadge": {
+      "free": "Free",
+      "basic": "Basic",
+      "pro": "Pro",
+      "premium": "Premium"
+    },
+    "metricCard": {
+      "noData": "No data available"
+    }
+  }
+}

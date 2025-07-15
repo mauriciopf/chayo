@@ -1,8 +1,11 @@
+"use client"
+
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import AnimatedCounter from "./AnimatedCounter";
+import { useTranslations, useLocale } from 'next-intl';
 
 interface LaunchSectionProps {
   onStartCall?: () => void;
@@ -13,13 +16,15 @@ export default function LaunchSection({ onStartCall }: LaunchSectionProps) {
   const isInView = useInView(ref, { once: true });
   const [currentStat, setCurrentStat] = useState(0);
   const router = useRouter();
+  const t = useTranslations('launch');
+  const locale = useLocale();
 
   const handleLaunchAgent = () => {
-    router.push('/auth');
+    router.push(`/${locale}/auth`);
   };
 
   const handleBookDemo = () => {
-    router.push('/auth');
+    router.push(`/${locale}/auth`);
   };
 
   const stats = [
@@ -50,13 +55,10 @@ export default function LaunchSection({ onStartCall }: LaunchSectionProps) {
           className="text-center mb-16"
         >
           <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-            Launch and Let Chayo{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-pink-600">
-              Handle the Grind
-            </span>
+            {t('title')}
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Watch your business run itself while you focus on what matters most
+            {t('subtitle')}
           </p>
         </motion.div>
 
@@ -233,7 +235,7 @@ export default function LaunchSection({ onStartCall }: LaunchSectionProps) {
                 onClick={handleLaunchAgent}
                 className="bg-gradient-to-r from-red-600 to-pink-600 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
               >
-                🔵 Launch My Agent
+                🔵 {t('cta')}
               </motion.button>
               
               <motion.button

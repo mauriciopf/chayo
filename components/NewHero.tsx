@@ -1,6 +1,9 @@
+"use client"
+
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations, useLocale } from 'next-intl';
 
 interface NewHeroProps {
   onStartCall?: () => void;
@@ -9,23 +12,25 @@ interface NewHeroProps {
 export default function NewHero({ onStartCall }: NewHeroProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const router = useRouter();
+  const t = useTranslations('hero');
+  const locale = useLocale();
   
   const chatSteps = [
     {
-      user: "Hi Chayo, I need help managing my business",
-      chayo: "¡Claro que sí! Let's get you set up. 💁‍♀️ What do you want me to handle first?"
+      user: t('conversationExample.userMessage'),
+      chayo: t('conversationExample.chayoResponse')
     }
   ];
 
   const features = [
-    "✅ Sell",
-    "✅ Book appointments", 
-    "✅ Answer FAQs",
-    "✅ Handle support"
+    t('conversationExample.features.sell'),
+    t('conversationExample.features.book'), 
+    t('conversationExample.features.faq'),
+    t('conversationExample.features.support')
   ];
 
   const handleStartWithChayo = () => {
-    router.push('/auth');
+    router.push(`/${locale}/auth`);
   };
 
   useEffect(() => {
@@ -76,7 +81,7 @@ export default function NewHero({ onStartCall }: NewHeroProps) {
                     className="flex justify-end"
                   >
                     <div className="bg-blue-500 text-white rounded-lg px-4 py-2 max-w-xs">
-                      Hi Chayo, I need help managing my business
+                      {t('conversationExample.userMessage')}
                     </div>
                   </motion.div>
 
@@ -88,7 +93,7 @@ export default function NewHero({ onStartCall }: NewHeroProps) {
                     className="flex justify-start"
                   >
                     <div className="bg-white border rounded-lg px-4 py-2 max-w-xs shadow-sm">
-                      ¡Claro que sí! Let's get you set up. 💁‍♀️ What do you want me to handle first?
+                      {t('conversationExample.chayoResponse')}
                     </div>
                   </motion.div>
 
@@ -150,11 +155,7 @@ export default function NewHero({ onStartCall }: NewHeroProps) {
               transition={{ delay: 0.5 }}
               className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight"
             >
-              Chayo runs your business like a{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600">
-                comadre
-              </span>{" "}
-              who never sleeps.
+              {t('headline')}
             </motion.h1>
             
             <motion.p 
@@ -163,7 +164,7 @@ export default function NewHero({ onStartCall }: NewHeroProps) {
               transition={{ delay: 0.7 }}
               className="text-xl text-gray-600 leading-relaxed"
             >
-              Set her up in minutes. She learns fast, speaks your brand, and handles everything — 24/7.
+              {t('subheadline')}
             </motion.p>
           </div>
 
@@ -180,7 +181,7 @@ export default function NewHero({ onStartCall }: NewHeroProps) {
               onClick={handleStartWithChayo}
               className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
             >
-              🔵 Start with Chayo
+              🔵 {t('ctaPrimary')}
             </motion.button>
             
             <motion.button
@@ -189,7 +190,7 @@ export default function NewHero({ onStartCall }: NewHeroProps) {
               onClick={handleStartWithChayo}
               className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-full text-lg font-semibold hover:border-purple-600 hover:text-purple-600 transition-all duration-300"
             >
-              ⚪️ Watch Demo
+              ⚪️ {t('ctaSecondary')}
             </motion.button>
           </motion.div>
 
@@ -202,15 +203,15 @@ export default function NewHero({ onStartCall }: NewHeroProps) {
           >
             <div className="flex items-center space-x-2">
               <span>⚡</span>
-              <span>5-min setup</span>
+              <span>{t('trustBadge3')}</span>
             </div>
             <div className="flex items-center space-x-2">
               <span>🤖</span>
-              <span>Powered by ChatGPT</span>
+              <span>{t('trustBadge2')}</span>
             </div>
             <div className="flex items-center space-x-2">
               <span>🌎</span>
-              <span>Español + English</span>
+              <span>{t('trustBadge1')}</span>
             </div>
           </motion.div>
 

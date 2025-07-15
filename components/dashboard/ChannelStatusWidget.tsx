@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 
 interface ChannelStatus {
   id: string
@@ -20,6 +21,7 @@ interface ChannelStatusWidgetProps {
 }
 
 export default function ChannelStatusWidget({ agentId }: ChannelStatusWidgetProps) {
+  const t = useTranslations('channelStatusWidget')
   const [channels, setChannels] = useState<ChannelStatus[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -146,11 +148,11 @@ export default function ChannelStatusWidget({ agentId }: ChannelStatusWidgetProp
     <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-6 border border-white/20">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-          Channel Status
+          {t('title')}
         </h3>
         <div className="flex items-center space-x-2">
           <span className="text-sm text-gray-500">
-            {connectedChannels.length}/{totalChannels} connected
+            {connectedChannels.length}/{totalChannels} {t('connected')}
           </span>
           <div className={`w-3 h-3 rounded-full ${
             connectedChannels.length > 0 ? 'bg-green-400' : 'bg-gray-300'
@@ -174,7 +176,7 @@ export default function ChannelStatusWidget({ agentId }: ChannelStatusWidgetProp
                 )}
                 {channel.comingSoon && (
                   <p className="text-xs text-blue-600 font-medium">
-                    Coming Soon
+                    {t('comingSoon')}
                   </p>
                 )}
               </div>
@@ -187,7 +189,7 @@ export default function ChannelStatusWidget({ agentId }: ChannelStatusWidgetProp
                   ? 'bg-green-100 text-green-800'
                   : 'bg-gray-100 text-gray-600'
               }`}>
-                {channel.comingSoon ? 'Próximamente' : channel.connected ? 'Connected' : 'Disconnected'}
+                {channel.comingSoon ? t('comingSoon') : channel.connected ? t('connected') : t('disconnected')}
               </span>
               {channel.connected && !channel.comingSoon && (
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
@@ -202,7 +204,7 @@ export default function ChannelStatusWidget({ agentId }: ChannelStatusWidgetProp
           onClick={() => window.location.href = '/integrations'}
           className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 shadow-lg"
         >
-          Manage Channels
+          {t('manageChannels')}
         </button>
       </div>
     </div>

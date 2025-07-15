@@ -1,11 +1,15 @@
+"use client"
+
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
+import { useTranslations } from 'next-intl';
 
 export default function TrainingSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true });
   const [currentStep, setCurrentStep] = useState(0);
+  const t = useTranslations('training');
 
   const trainingSteps = [
     { icon: "📂", text: "Dragging PDF documents" },
@@ -34,13 +38,10 @@ export default function TrainingSection() {
           className="text-center mb-16"
         >
           <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-            Train Her with Your{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
-              Knowledge
-            </span>
+            {t('title')}
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Upload your content and watch Chayo become an expert on your business
+            {t('subtitle')}
           </p>
         </motion.div>
 

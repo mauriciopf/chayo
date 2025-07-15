@@ -1,11 +1,15 @@
+"use client"
+
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef, useState } from "react";
+import { useTranslations } from 'next-intl';
 
 export default function ExamplesSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true });
   const [selectedExample, setSelectedExample] = useState(0);
+  const t = useTranslations('examples');
 
   const examples = [
     {
@@ -93,17 +97,14 @@ export default function ExamplesSection() {
             className="inline-flex items-center gap-2 bg-purple-100 border border-purple-200 rounded-full px-6 py-2 mb-6"
           >
             <span className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></span>
-            <span className="text-sm font-medium text-purple-700">Casos de Éxito</span>
+            <span className="text-sm font-medium text-purple-700">{t('sectionTitle')}</span>
           </motion.div>
 
           <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-            Chayo en{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600">
-              Acción Real
-            </span>
+            {t('subheader')}
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Así es como Chayo transformó estos negocios (y puede transformar el tuyo)
+            {t('subheader')}
           </p>
         </motion.div>
 

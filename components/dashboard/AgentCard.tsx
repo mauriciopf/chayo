@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { useTranslations } from 'next-intl'
 
 interface Agent {
   id: string
@@ -39,6 +40,7 @@ export default function AgentCard({
   onDelete,
   onManageDocuments
 }: AgentCardProps) {
+  const t = useTranslations('agentCard')
   const [showMenu, setShowMenu] = useState(false)
 
   const getChannelIcon = (channelType: string) => {
@@ -100,7 +102,7 @@ export default function AgentCard({
                   }}
                   className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:text-purple-700 transition-all duration-200 rounded-lg mx-1"
                 >
-                  Edit Agent
+                  {t('editAgent')}
                 </button>
                 <button
                   onClick={() => {
@@ -109,7 +111,7 @@ export default function AgentCard({
                   }}
                   className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:text-purple-700 transition-all duration-200 rounded-lg mx-1"
                 >
-                  Manage Documents
+                  {t('manageDocuments')}
                 </button>
                 <button
                   onClick={() => {
@@ -118,7 +120,7 @@ export default function AgentCard({
                   }}
                   className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:text-purple-700 transition-all duration-200 rounded-lg mx-1"
                 >
-                  {agent.paused ? 'Resume' : 'Pause'} Agent
+                  {agent.paused ? t('resumeAgent') : t('pauseAgent')}
                 </button>
                 <button
                   onClick={() => {
@@ -127,7 +129,7 @@ export default function AgentCard({
                   }}
                   className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-all duration-200 rounded-lg mx-1"
                 >
-                  Delete Agent
+                  {t('deleteAgent')}
                 </button>
               </div>
             )}
@@ -140,7 +142,7 @@ export default function AgentCard({
         
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center space-x-2">
-            <span className="text-xs font-medium text-gray-500">TONE:</span>
+            <span className="text-xs font-medium text-gray-500">{t('tone')}:</span>
             <span className="text-xs bg-gradient-to-r from-blue-100 to-purple-100 text-blue-800 px-3 py-1 rounded-full capitalize font-medium">
               {agent.tone}
             </span>
@@ -154,14 +156,14 @@ export default function AgentCard({
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            <span>Docs</span>
+            <span>{t('docs')}</span>
           </motion.button>
         </div>
 
         {/* Goals */}
         {agent.goals && agent.goals.length > 0 && (
           <div className="mb-3">
-            <span className="text-xs font-medium text-gray-500">GOALS:</span>
+            <span className="text-xs font-medium text-gray-500">{t('goals')}:</span>
             <div className="flex flex-wrap gap-1 mt-1">
               {agent.goals.slice(0, 2).map((goal: string, index: number) => (
                 <span key={index} className="text-xs bg-gradient-to-r from-gray-100 to-purple-50 text-gray-700 px-2 py-1 rounded-full">
@@ -170,7 +172,7 @@ export default function AgentCard({
               ))}
               {agent.goals.length > 2 && (
                 <span className="text-xs text-gray-500">
-                  +{agent.goals.length - 2} more
+                  +{agent.goals.length - 2} {t('more')}
                 </span>
               )}
             </div>
@@ -231,11 +233,11 @@ export default function AgentCard({
               <span className={`ml-1 font-semibold ${
                 agent.paused ? 'text-yellow-600' : 'text-green-600'
               }`}>
-                {agent.paused ? 'Paused' : 'Active'}
+                {agent.paused ? t('status.paused') : t('status.active')}
               </span>
             </div>
             <div>
-              <span className="text-gray-500">Created:</span>
+              <span className="text-gray-500">{t('created')}:</span>
               <span className="ml-1 text-gray-900 font-medium">{formatDate(agent.created_at)}</span>
             </div>
           </div>

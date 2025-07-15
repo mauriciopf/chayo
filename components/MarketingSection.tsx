@@ -1,17 +1,21 @@
+"use client"
+
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
+import { useTranslations } from 'next-intl';
 
 export default function MarketingSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true });
   const [activeChannel, setActiveChannel] = useState(0);
+  const t = useTranslations('marketing');
 
   const channels = [
-    { name: "WhatsApp", icon: "�", color: "from-green-500 to-emerald-500", message: "¿Puedes ayudarme con precios?", available: true },
+    { name: "WhatsApp", icon: "💬", color: "from-green-500 to-emerald-500", message: "¿Puedes ayudarme con precios?", available: true },
     { name: "Web Widget", icon: "🌐", color: "from-blue-500 to-cyan-500", message: "What services do you offer?", available: false, comingSoon: true },
     { name: "Video AI", icon: "🎥", color: "from-purple-500 to-pink-500", message: "I'd like to learn more about your business", available: false, comingSoon: true },
-    { name: "Instagram", icon: "�", color: "from-pink-500 to-purple-500", message: "Hi, do you have availability this weekend?", available: false, comingSoon: true },
+    { name: "Instagram", icon: "📷", color: "from-pink-500 to-purple-500", message: "Hi, do you have availability this weekend?", available: false, comingSoon: true },
     { name: "Email", icon: "📧", color: "from-orange-500 to-red-500", message: "Can you send me more information?", available: false, comingSoon: true }
   ];
 
@@ -36,13 +40,10 @@ export default function MarketingSection() {
           className="text-center mb-16"
         >
           <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-            Chayo AI en{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 to-orange-600">
-              Múltiples Canales
-            </span>
+            {t('title')}
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Un solo inbox inteligente. Todos tus canales. Chayo maneja todo, incluso cuando duermes 😴
+            {t('subtitle')}
           </p>
         </motion.div>
 

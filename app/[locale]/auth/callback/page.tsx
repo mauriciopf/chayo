@@ -3,9 +3,12 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { useLocale, useTranslations } from 'next-intl'
 
 export default function AuthCallback() {
   const router = useRouter()
+  const locale = useLocale()
+  const t = useTranslations('auth')
   const supabase = createClient()
 
   useEffect(() => {
@@ -21,7 +24,7 @@ export default function AuthCallback() {
         if (error) {
           console.error('OAuth error:', error, errorDescription)
           const errorMessage = errorDescription || error
-          router.push('/auth?error=' + encodeURIComponent(errorMessage))
+          router.push(`/${locale}/auth?error=` + encodeURIComponent(errorMessage))
           return
         }
         
@@ -33,7 +36,7 @@ export default function AuthCallback() {
           
           if (error) {
             console.error('Code exchange error:', error)
-            router.push('/auth?error=' + encodeURIComponent(error.message))
+            router.push(`/${locale}/auth?error=` + encodeURIComponent(error.message))
             return
           }
 
@@ -55,14 +58,14 @@ export default function AuthCallback() {
                     await new Promise(resolve => setTimeout(resolve, delay))
                     return pollForSession(attempts + 1)
                   }
-                  router.push('/auth?error=' + encodeURIComponent('Session verification failed'))
+                  router.push(`/${locale}/auth?error=` + encodeURIComponent('Session verification failed'))
                   return
                 }
                 
                 if (verifyData.session) {
                   console.log('Session verified successfully, redirecting to dashboard')
                   // Force a complete page reload to ensure session is picked up
-                  window.location.replace('/dashboard')
+                  window.location.replace(`/${locale}/dashboard`)
                   return
                 }
                 
@@ -73,14 +76,14 @@ export default function AuthCallback() {
                 }
                 
                 console.error('Session not found after maximum attempts')
-                router.push('/auth?error=' + encodeURIComponent('Session not found'))
+                router.push(`/${locale}/auth?error=` + encodeURIComponent('Session not found'))
               } catch (pollError) {
                 console.error('Error during session polling:', pollError)
                 if (attempts < maxAttempts) {
                   await new Promise(resolve => setTimeout(resolve, delay))
                   return pollForSession(attempts + 1)
                 }
-                router.push('/auth?error=' + encodeURIComponent('Session polling failed'))
+                router.push(`/${locale}/auth?error=` + encodeURIComponent('Session polling failed'))
               }
             }
             
@@ -89,7 +92,7 @@ export default function AuthCallback() {
             return
           } else {
             console.error('No session returned from code exchange')
-            router.push('/auth?error=' + encodeURIComponent('No session created'))
+            router.push(`/${locale}/auth?error=` + encodeURIComponent('No session created'))
             return
           }
         }
@@ -99,22 +102,22 @@ export default function AuthCallback() {
         
         if (sessionError) {
           console.error('Session error:', sessionError)
-          router.push('/auth?error=' + encodeURIComponent(sessionError.message))
+          router.push(`/${locale}/auth?error=` + encodeURIComponent(sessionError.message))
           return
         }
 
         if (sessionData.session) {
           // Session exists, redirect to dashboard
           console.log('Existing session found, redirecting to dashboard')
-          window.location.replace('/dashboard')
+          window.location.replace(`/${locale}/dashboard`)
         } else {
           // No session, redirect back to auth
           console.log('No session found, redirecting to auth')
-          router.push('/auth')
+          router.push(`/${locale}/auth`)
         }
       } catch (error) {
         console.error('Unexpected error in auth callback:', error)
-        router.push('/auth?error=' + encodeURIComponent('Authentication failed'))
+        router.push(`/${locale}/auth?error=` + encodeURIComponent('Authentication failed'))
       }
     }
 
@@ -125,8 +128,8 @@ export default function AuthCallback() {
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 flex items-center justify-center">
       <div className="text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-        <p className="text-gray-600">Completing authentication...</p>
-        <p className="text-sm text-gray-500 mt-2">Please wait while we redirect you to the dashboard</p>
+        <p className="text-gray-600">{t('completingAuth')}</p>
+        <p className="text-sm text-gray-500 mt-2">{t('redirectingToDashboard')}</p>
       </div>
     </div>
   )

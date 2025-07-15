@@ -1,72 +1,56 @@
+"use client"
+
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations, useLocale } from 'next-intl';
 
 export default function HowItWorksSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true });
   const router = useRouter();
+  const t = useTranslations('howItWorks');
+  const locale = useLocale();
 
   const handleCTAClick = () => {
-    router.push('/auth');
+    router.push(`/${locale}/auth`);
   };
 
   const steps = [
     {
       number: "01",
-      title: "Dale su Personalidad",
-      description: "Define la vibe de Chayo: profesional, amigable, divertida... Tú decides cómo quieres que hable con tus clientes.",
+      title: t('steps.step1.title'),
+      description: t('steps.step1.description'),
       icon: "🎭",
-      details: [
-        "Tono de voz personalizado",
-        "Personalidad única para tu marca",
-        "Respuestas naturales en español",
-        "Se adapta a tu estilo de comunicación"
-      ],
+      details: t.raw('steps.step1.details'),
       gradient: "from-purple-500 to-pink-500",
       color: "purple"
     },
     {
       number: "02", 
-      title: "Entrénala con tu Conocimiento",
-      description: "Sube tu info: servicios, precios, políticas, FAQs. Chayo aprende todo sobre tu negocio en minutos.",
+      title: t('steps.step2.title'),
+      description: t('steps.step2.description'),
       icon: "🧠",
-      details: [
-        "Catálogo de productos y servicios",
-        "Precios y promociones actuales", 
-        "Políticas y procedimientos",
-        "Conocimiento específico del negocio"
-      ],
+      details: t.raw('steps.step2.details'),
       gradient: "from-blue-500 to-cyan-500",
       color: "blue"
     },
     {
       number: "03",
-      title: "Conecta tus Canales",
-      description: "Conecta WhatsApp, Web Widget, Video Agent e Instagram. Chayo maneja todo desde un solo lugar.",
+      title: t('steps.step3.title'),
+      description: t('steps.step3.description'),
       icon: "🔗",
-      details: [
-        "WhatsApp Business integrado",
-        "Web AI Widget para tu sitio",
-        "Video AI Agent personalizado",
-        "Instagram DM Automation",
-        "Configuración en minutos"
-      ],
+      details: t.raw('steps.step3.details'),
       gradient: "from-green-500 to-emerald-500",
       color: "green"
     },
     {
       number: "04",
-      title: "¡Lánzala y Relájate!",
-      description: "Chayo trabaja para ti las 24 horas. Tú te enfocas en hacer crecer tu negocio mientras ella maneja el resto.",
+      title: t('steps.step4.title'),
+      description: t('steps.step4.description'),
       icon: "🚀",
-      details: [
-        "Atención al cliente 24/7",
-        "Generación automática de leads",
-        "Seguimiento inteligente de clientes",
-        "Reportes y métricas en tiempo real"
-      ],
+      details: t.raw('steps.step4.details'),
       gradient: "from-orange-500 to-red-500", 
       color: "orange"
     }
@@ -89,17 +73,17 @@ export default function HowItWorksSection() {
             className="inline-flex items-center gap-2 bg-purple-100 border border-purple-200 rounded-full px-6 py-2 mb-6"
           >
             <span className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></span>
-            <span className="text-sm font-medium text-purple-700">Cómo Funciona</span>
+            <span className="text-sm font-medium text-purple-700">{t('sectionTitle')}</span>
           </motion.div>
 
           <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-            De Zero a{" "}
+            {t('heroTitle')}{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600">
-              Hero en 4 Pasos
+              {t('heroHighlight')}
             </span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Configurar tu Chayo es súper fácil. En menos de 5 minutos ya estará trabajando para ti.
+            {t('subHeader')}
           </p>
         </motion.div>
 
@@ -130,7 +114,7 @@ export default function HowItWorksSection() {
 
                 {/* Details */}
                 <div className="space-y-3">
-                  {step.details.map((detail, idx) => (
+                  {step.details.map((detail: string, idx: number) => (
                     <motion.div
                       key={idx}
                       initial={{ opacity: 0, x: -20 }}
@@ -155,10 +139,7 @@ export default function HowItWorksSection() {
                   onClick={handleCTAClick}
                   className={`bg-gradient-to-r ${step.gradient} text-white px-8 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300`}
                 >
-                  {index === 0 && "🎭 Personalizar Chayo"}
-                  {index === 1 && "🧠 Entrenar Ahora"}
-                  {index === 2 && "🔗 Conectar Canales"}
-                  {index === 3 && "🚀 Lanzar Mi Chayo"}
+                  {t('cta')}
                 </motion.button>
 
               </div>

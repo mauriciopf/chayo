@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { useTranslations } from 'next-intl'
 import MetricCard from './MetricCard'
 
 interface PerformanceOverviewProps {
@@ -9,27 +10,28 @@ interface PerformanceOverviewProps {
 }
 
 export default function PerformanceOverview({ className = '' }: PerformanceOverviewProps) {
+  const t = useTranslations('performanceOverview')
   const [selectedPeriod, setSelectedPeriod] = useState('current_month')
   const [comparison, setComparison] = useState('no_comparison')
 
   const periods = [
-    { value: 'current_month', label: 'Current Month' },
-    { value: 'last_month', label: 'Last Month' },
-    { value: 'last_3_months', label: 'Last 3 Months' },
-    { value: 'last_6_months', label: 'Last 6 Months' },
-    { value: 'current_year', label: 'Current Year' }
+    { value: 'current_month', label: t('periods.current_month') },
+    { value: 'last_month', label: t('periods.last_month') },
+    { value: 'last_3_months', label: t('periods.last_3_months') },
+    { value: 'last_6_months', label: t('periods.last_6_months') },
+    { value: 'current_year', label: t('periods.current_year') }
   ]
 
   const comparisonOptions = [
-    { value: 'no_comparison', label: 'No Comparison' },
-    { value: 'previous_period', label: 'Previous Period' },
-    { value: 'previous_year', label: 'Previous Year' }
+    { value: 'no_comparison', label: t('comparison.no_comparison') },
+    { value: 'previous_period', label: t('comparison.previous_period') },
+    { value: 'previous_year', label: t('comparison.previous_year') }
   ]
 
   // Mock data - in production, this would come from your analytics API
   const metrics = [
     {
-      title: 'Total Conversations',
+      title: t('metrics.totalConversations'),
       value: '0',
       icon: '💬',
       color: 'bg-blue-500',
@@ -37,7 +39,7 @@ export default function PerformanceOverview({ className = '' }: PerformanceOverv
       trend: undefined
     },
     {
-      title: 'Total Messages',
+      title: t('metrics.totalMessages'),
       value: '0',
       icon: '📨',
       color: 'bg-green-500',
@@ -45,7 +47,7 @@ export default function PerformanceOverview({ className = '' }: PerformanceOverv
       trend: undefined
     },
     {
-      title: 'Avg Messages per Conversation',
+      title: t('metrics.avgMessagesPerConversation'),
       value: '0',
       icon: '📊',
       color: 'bg-purple-500',
@@ -53,7 +55,7 @@ export default function PerformanceOverview({ className = '' }: PerformanceOverv
       trend: undefined
     },
     {
-      title: 'Leads Captured',
+      title: t('metrics.leadsCaptured'),
       value: '0',
       icon: '🎯',
       color: 'bg-orange-500',
@@ -61,7 +63,7 @@ export default function PerformanceOverview({ className = '' }: PerformanceOverv
       trend: undefined
     },
     {
-      title: 'Appointments Scheduled',
+      title: t('metrics.appointmentsScheduled'),
       value: '0',
       icon: '📅',
       color: 'bg-pink-500',
@@ -76,9 +78,9 @@ export default function PerformanceOverview({ className = '' }: PerformanceOverv
       <div className="px-6 py-4 border-b border-gray-200">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">Performance Overview</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t('title')}</h3>
             <p className="text-sm text-gray-500 mt-1">
-              Insights into your AI platform's interaction and engagement metrics
+              {t('description')}
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-2">

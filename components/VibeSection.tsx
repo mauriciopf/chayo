@@ -1,10 +1,14 @@
+"use client"
+
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
+import { useTranslations } from 'next-intl';
 
 export default function VibeSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true });
+  const t = useTranslations('vibe');
 
   return (
     <div ref={ref} className="py-20 bg-gradient-to-br from-green-50 to-emerald-50">
@@ -18,13 +22,10 @@ export default function VibeSection() {
           className="text-center mb-16"
         >
           <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-            Give Chayo Her{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-600">
-              Vibe
-            </span>
+            {t('title')}
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Configure her personality, goals, and tone to match your brand perfectly
+            {t('subtitle')}
           </p>
         </motion.div>
 

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { useTranslations } from 'next-intl'
 
 interface WhatsAppStatusCardProps {
   agentId: string
@@ -18,6 +19,7 @@ interface WhatsAppStatus {
 }
 
 export default function WhatsAppStatusCard({ agentId, onSetup }: WhatsAppStatusCardProps) {
+  const t = useTranslations('whatsAppStatusCard')
   const [status, setStatus] = useState<WhatsAppStatus | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -73,9 +75,9 @@ export default function WhatsAppStatusCard({ agentId, onSetup }: WhatsAppStatusC
             <span className="text-white text-xl">📱</span>
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">WhatsApp Business</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t('title')}</h3>
             <p className="text-sm text-gray-600">
-              {status?.isConnected ? 'Connected' : 'Not connected'}
+              {status?.isConnected ? t('connected') : t('notConnected')}
             </p>
           </div>
         </div>
@@ -85,39 +87,39 @@ export default function WhatsAppStatusCard({ agentId, onSetup }: WhatsAppStatusC
             ? 'bg-green-100 text-green-800'
             : 'bg-gray-100 text-gray-600'
         }`}>
-          {status?.isConnected ? 'Active' : 'Inactive'}
+          {status?.isConnected ? t('active') : t('inactive')}
         </div>
       </div>
 
       {status?.isConnected ? (
         <div className="space-y-3">
           <div className="flex justify-between text-sm">
-            <span className="text-gray-600">Phone Number:</span>
+            <span className="text-gray-600">{t('phoneNumber')}</span>
             <span className="font-medium text-gray-900">{status.phoneNumber}</span>
           </div>
           
           {status.businessName && (
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Business Name:</span>
+              <span className="text-gray-600">{t('businessName')}</span>
               <span className="font-medium text-gray-900">{status.businessName}</span>
             </div>
           )}
           
           <div className="flex justify-between text-sm">
-            <span className="text-gray-600">Status:</span>
-            <span className="font-medium text-green-600">{status.status || 'Active'}</span>
+            <span className="text-gray-600">{t('status')}</span>
+            <span className="font-medium text-green-600">{status.status || t('active')}</span>
           </div>
           
           {status.messageCount !== undefined && (
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Messages Handled:</span>
+              <span className="text-gray-600">{t('messagesHandled')}</span>
               <span className="font-medium text-gray-900">{status.messageCount}</span>
             </div>
           )}
           
           {status.lastMessageAt && (
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Last Message:</span>
+              <span className="text-gray-600">{t('lastMessage')}</span>
               <span className="font-medium text-gray-900">
                 {new Date(status.lastMessageAt).toLocaleDateString()}
               </span>
@@ -129,20 +131,20 @@ export default function WhatsAppStatusCard({ agentId, onSetup }: WhatsAppStatusC
               onClick={() => checkWhatsAppStatus()}
               className="text-sm text-purple-600 hover:text-purple-700 font-medium"
             >
-              Refresh Status
+              {t('refreshStatus')}
             </button>
           </div>
         </div>
       ) : (
         <div className="text-center py-4">
           <p className="text-gray-600 text-sm mb-4">
-            Connect your WhatsApp Business account to start receiving and responding to messages automatically.
+            {t('setupDescription')}
           </p>
           <button
             onClick={onSetup}
             className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-2 rounded-xl font-medium transition-all duration-200 shadow-lg"
           >
-            Setup WhatsApp
+            {t('setupWhatsApp')}
           </button>
         </div>
       )}

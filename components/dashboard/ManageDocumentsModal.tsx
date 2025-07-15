@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslations } from 'next-intl'
 import { DocumentManager } from './DocumentManager'
 
 interface Document {
@@ -25,6 +26,7 @@ export default function ManageDocumentsModal({
   agentName, 
   onClose 
 }: ManageDocumentsModalProps) {
+  const t = useTranslations('manageDocumentsModal')
   const [documents, setDocuments] = useState<Document[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -66,9 +68,9 @@ export default function ManageDocumentsModal({
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-gray-200">
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">Manage Documents</h2>
+              <h2 className="text-xl font-semibold text-gray-900">{t('title')}</h2>
               <p className="text-sm text-gray-500 mt-1">
-                Agent: <span className="font-medium">{agentName}</span>
+                {t('agent')}: <span className="font-medium">{agentName}</span>
               </p>
             </div>
             <button
@@ -139,7 +141,7 @@ export default function ManageDocumentsModal({
               onClick={onClose}
               className="px-6 py-2 text-sm font-medium text-white bg-orange-400 hover:bg-orange-500 rounded-md transition-colors"
             >
-              Done
+              {t('done')}
             </button>
           </div>
         </motion.div>

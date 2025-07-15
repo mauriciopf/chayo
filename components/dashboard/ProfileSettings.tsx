@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { motion } from 'framer-motion'
+import { useTranslations } from 'next-intl'
 import type { User } from '@supabase/supabase-js'
 import { organizationService } from '@/lib/services/organizationService'
 
@@ -12,6 +13,7 @@ interface ProfileSettingsProps {
 }
 
 export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsProps) {
+  const t = useTranslations('profileSettings')
   const [displayName, setDisplayName] = useState('')
   const [email, setEmail] = useState('')
   const [currentPassword, setCurrentPassword] = useState('')
@@ -170,10 +172,10 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
     >
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          Profile Settings
+          {t('title')}
         </h2>
         <p className="text-gray-600">
-          Manage your account information and security settings
+          {t('description')}
         </p>
       </div>
 
@@ -181,13 +183,13 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
         {/* Profile Information */}
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Profile Information
+            {t('profileInformation')}
           </h3>
           
           <form onSubmit={updateProfile} className="space-y-4">
             <div>
               <label htmlFor="displayName" className="block text-sm font-medium text-gray-700 mb-1">
-                Display Name
+                {t('displayName')}
               </label>
               <input
                 type="text"
@@ -195,13 +197,13 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                placeholder="Enter your display name"
+                placeholder={t('displayNamePlaceholder')}
               />
             </div>
             
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                Email Address
+                {t('emailAddress')}
               </label>
               <input
                 type="email"
@@ -209,10 +211,10 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                placeholder="Enter your email"
+                placeholder={t('emailPlaceholder')}
               />
               <p className="text-xs text-gray-500 mt-1">
-                Changing your email will require verification
+                {t('emailVerificationNote')}
               </p>
             </div>
 
@@ -242,10 +244,10 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
                     transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                     className="w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"
                   />
-                  Updating...
+                  {t('updating')}
                 </>
               ) : (
-                'Update Profile'
+                t('updateProfile')
               )}
             </button>
           </form>
@@ -253,7 +255,7 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
           {/* Organization Name Edit */}
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Organization Name
+              {t('organizationName')}
             </label>
             <div className="flex items-center space-x-2">
               <input
@@ -262,6 +264,7 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
                 onChange={e => setOrgName(e.target.value)}
                 className="border px-2 py-1 rounded text-sm flex-1"
                 disabled={orgLoading}
+                placeholder={t('organizationNamePlaceholder')}
               />
               <button
                 type="button"
@@ -269,7 +272,7 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
                 className="px-3 py-1 bg-green-500 text-white rounded text-xs font-medium disabled:opacity-50"
                 disabled={orgLoading || !orgName}
               >
-                Save
+                {t('save')}
               </button>
             </div>
             {orgError && <p className="text-xs text-red-600 mt-1">{orgError}</p>}
@@ -280,13 +283,13 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
         {/* Password Settings */}
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Change Password
+            {t('changePassword')}
           </h3>
           
           <form onSubmit={updatePassword} className="space-y-4">
             <div>
               <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-1">
-                New Password
+                {t('newPassword')}
               </label>
               <input
                 type="password"
@@ -294,14 +297,14 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                placeholder="Enter new password"
+                placeholder={t('newPasswordPlaceholder')}
                 minLength={6}
               />
             </div>
             
             <div>
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
-                Confirm New Password
+                {t('confirmNewPassword')}
               </label>
               <input
                 type="password"
@@ -309,7 +312,7 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                placeholder="Confirm new password"
+                placeholder={t('confirmPasswordPlaceholder')}
                 minLength={6}
               />
             </div>
@@ -340,10 +343,10 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
                     transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                     className="w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"
                   />
-                  Updating...
+                  {t('updating')}
                 </>
               ) : (
-                'Change Password'
+                t('changePassword')
               )}
             </button>
           </form>
@@ -353,17 +356,17 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
       {/* Account Information */}
       <div className="bg-white rounded-lg shadow p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          Account Information
+          {t('accountInformation')}
         </h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
           <div>
-            <label className="block text-gray-500 mb-1">User ID</label>
+            <label className="block text-gray-500 mb-1">{t('userId')}</label>
             <p className="text-gray-900 font-mono text-xs break-all">{user.id}</p>
           </div>
           
           <div>
-            <label className="block text-gray-500 mb-1">Account Created</label>
+            <label className="block text-gray-500 mb-1">{t('accountCreated')}</label>
             <p className="text-gray-900">
               {new Date(user.created_at).toLocaleDateString('en-US', {
                 year: 'numeric',
@@ -374,7 +377,7 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
           </div>
           
           <div>
-            <label className="block text-gray-500 mb-1">Last Sign In</label>
+            <label className="block text-gray-500 mb-1">{t('lastSignIn')}</label>
             <p className="text-gray-900">
               {user.last_sign_in_at 
                 ? new Date(user.last_sign_in_at).toLocaleDateString('en-US', {
@@ -382,15 +385,15 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
                     month: 'long',
                     day: 'numeric'
                   })
-                : 'Never'
+                : t('never')
               }
             </p>
           </div>
           
           <div>
-            <label className="block text-gray-500 mb-1">Email Confirmed</label>
+            <label className="block text-gray-500 mb-1">{t('emailConfirmed')}</label>
             <p className={`font-medium ${user.email_confirmed_at ? 'text-green-600' : 'text-yellow-600'}`}>
-              {user.email_confirmed_at ? 'Yes' : 'Pending'}
+              {user.email_confirmed_at ? t('yes') : t('pending')}
             </p>
           </div>
         </div>

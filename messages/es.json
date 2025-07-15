@@ -1,0 +1,559 @@
+{
+  "footer": {
+    "brand": "Chayo",
+    "tagline": "Tu comadre digital, 24/7",
+    "description": "Tu comadre de IA que nunca duerme. Inteligente, confiable y siempre lista para ayudar a tu negocio a crecer.",
+    "language": "Idioma:",
+    "quickLinks": "Enlaces Rápidos",
+    "howItWorks": "Cómo Funciona",
+    "examples": "Ejemplos",
+    "pricing": "Precios",
+    "privacy": "Política de Privacidad",
+    "terms": "Términos de Servicio",
+    "getInTouch": "Contacto",
+    "bookDemo": "Reservar Demo",
+    "support": "Soporte",
+    "contactUs": "Contáctanos",
+    "trustSafety": "Confianza y Seguridad",
+    "allRightsReserved": "Todos los derechos reservados."
+  },
+  "hero": {
+    "headline": "Tu Comadre Digital Que Nunca Duerme",
+    "subheadline": "Automatización con IA para tu negocio, disponible 24/7 en español e inglés",
+    "ctaPrimary": "Empezar con Chayo",
+    "ctaSecondary": "Ver Demo",
+    "trustBadge1": "Habla Español e Inglés",
+    "trustBadge2": "Impulsada por ChatGPT",
+    "trustBadge3": "Configuración en 5 minutos",
+    "conversationExample": {
+      "userMessage": "Hola Chayo, necesito ayuda manejando mi negocio",
+      "chayoResponse": "¡Por supuesto! Vamos a configurarte. 💁‍♀️ ¿Qué quieres que maneje primero?",
+      "features": {
+        "sell": "✅ Vender",
+        "book": "✅ Agendar citas",
+        "faq": "✅ Responder preguntas",
+        "support": "✅ Dar soporte"
+      }
+    }
+  },
+  "howItWorks": {
+    "sectionTitle": "Cómo Funciona",
+    "heroTitle": "Conoce a Chayo, tu comadre digital que",
+    "heroHighlight": "Nunca Duerme",
+    "subHeader": "Transforma tu negocio con IA que entiende a tus clientes",
+    "steps": {
+      "step1": {
+        "title": "Dale Personalidad",
+        "description": "Define el estilo de Chayo: profesional, amigable, divertida... Tú decides cómo habla con tus clientes.",
+        "details": [
+          "Tono de voz personalizado",
+          "Personalidad única para tu marca",
+          "Respuestas naturales en español",
+          "Se adapta a tu estilo de comunicación"
+        ]
+      },
+      "step2": {
+        "title": "Entrénala",
+        "description": "Sube tu contenido y observa cómo Chayo se convierte en experta de tu negocio.",
+        "details": [
+          "Información de servicios y precios",
+          "Voz de marca y estilo de comunicación",
+          "Preguntas comunes de clientes",
+          "Procesos y flujos de trabajo del negocio"
+        ]
+      },
+      "step3": {
+        "title": "Conecta Tus Canales",
+        "description": "Despliega a Chayo en WhatsApp, tu sitio web y otras plataformas.",
+        "details": [
+          "Integración con WhatsApp Business",
+          "Widget de chat para sitio web",
+          "Plataformas de redes sociales",
+          "Automatización de email",
+          "Soporte multicanal"
+        ]
+      },
+      "step4": {
+        "title": "Mírala Trabajar",
+        "description": "Chayo maneja las interacciones con clientes 24/7 mientras tú te enfocas en hacer crecer tu negocio.",
+        "details": [
+          "Soporte al cliente 24/7",
+          "Agendamiento automático de citas",
+          "Calificación y seguimiento de leads",
+          "Análisis e insights de rendimiento"
+        ]
+      }
+    },
+    "cta": "Empezar con Chayo"
+  },
+  "pricing": {
+    "sectionTitle": "Precios Simples",
+    "subheader": "Elige el plan perfecto para tu negocio",
+    "plans": {
+      "basic": {
+        "name": "Básico",
+        "price": "$29",
+        "period": "mes",
+        "description": "Perfecto para empezar con automatización de IA",
+        "features": [
+          "Mensajes ilimitados",
+          "Automatización básica de chat",
+          "Soporte por email",
+          "Acceso al dashboard"
+        ],
+        "cta": "Empezar"
+      },
+      "professional": {
+        "name": "Profesional",
+        "price": "$79",
+        "period": "mes",
+        "description": "Para clínicas, restaurantes o negocios que necesitan automatizar todo",
+        "popular": "Más Popular",
+        "features": [
+          "Todo lo del plan Básico",
+          "Integración con WhatsApp",
+          "Widget web incluido",
+          "Agendamiento inteligente",
+          "Recordatorios automáticos",
+          "Soporte prioritario"
+        ],
+        "cta": "Empezar"
+      },
+      "premium": {
+        "name": "Premium",
+        "price": "Personalizado",
+        "description": "Para empresas que necesitan funciones avanzadas y soporte prioritario",
+        "features": [
+          "Todo lo del plan Profesional",
+          "Agentes ilimitados",
+          "Integraciones personalizadas",
+          "Análisis avanzados",
+          "Soporte dedicado",
+          "Entrenamiento personalizado"
+        ],
+        "cta": "Contáctanos"
+      }
+    }
+  },
+  "examples": {
+    "sectionTitle": "Ve a Chayo en Acción",
+    "subheader": "Conversaciones reales, resultados reales",
+    "businesses": {
+      "constructora": {
+        "name": "Negocio de Construcción",
+        "before": "Antes de Chayo",
+        "after": "Después de Chayo",
+        "conversations": [
+          {
+            "user": "¡Hola! Necesito una cotización para renovación de casa",
+            "chayo": "¡Te puedo ayudar con eso! ¿Qué tipo de renovación estás planeando?"
+          }
+        ]
+      }
+    }
+  },
+  "vibe": {
+    "title": "Dale su Personalidad a Chayo",
+    "subtitle": "Configura su personalidad, objetivos y tono para que coincida perfectamente con tu marca",
+    "professional": {
+      "title": "Profesional",
+      "description": "Formal, educada y enfocada en el negocio"
+    },
+    "friendly": {
+      "title": "Amigable",
+      "description": "Cálida, accesible y conversacional"
+    },
+    "fun": {
+      "title": "Divertida",
+      "description": "Juguetona, enérgica y atractiva"
+    }
+  },
+  "training": {
+    "title": "Entrénala con tu Conocimiento",
+    "subtitle": "Sube la información de tu negocio para que Chayo se convierta en experta en tus servicios",
+    "uploadArea": "Arrastra y suelta tus archivos aquí",
+    "supportedFiles": "Formatos: PDF, DOC, TXT"
+  },
+  "marketing": {
+    "title": "Marketing que Realmente Funciona",
+    "subtitle": "Deja de perder clientes por respuestas tardías",
+    "beforeAfter": {
+      "before": "Antes de Chayo",
+      "after": "Después de Chayo"
+    }
+  },
+  "launch": {
+    "title": "Lanza y Escala",
+    "subtitle": "Despliega a Chayo en todos tus canales y observa cómo crece tu negocio",
+    "cta": "Comienza tu Prueba Gratuita"
+  },
+  "common": {
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "close": "Cerrar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "finish": "Finalizar",
+    "getStarted": "Empezar"
+  },
+  "navigation": {
+    "howItWorks": "Cómo Funciona",
+    "examples": "Ejemplos",
+    "pricing": "Precios",
+    "signIn": "Iniciar Sesión",
+    "signOut": "Cerrar Sesión",
+    "dashboard": "Panel",
+    "tagline": "Tu comadre digital ✨"
+  },
+  "auth": {
+    "signIn": "Iniciar Sesión",
+    "signUp": "Registrarse",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "signInTitle": "¡Bienvenido de vuelta!",
+    "signInSubtitle": "Inicia sesión para acceder a tu panel de Chayo",
+    "signUpTitle": "Crea tu cuenta",
+    "signUpSubtitle": "Únete a miles de dueños de negocios que usan Chayo",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "dontHaveAccount": "¿No tienes una cuenta? Regístrate",
+    "alreadyHaveAccount": "¿Ya tienes una cuenta? Inicia sesión",
+    "signInWithGoogle": "Continuar con Google",
+    "orContinueWith": "O continúa con",
+    "loading": "Cargando...",
+    "signUpCTA": "Comenzar Prueba Gratuita",
+    "signInCTA": "Iniciar Sesión",
+    "createAccount": "Crear Cuenta",
+    "processing": "Procesando...",
+    "continueWithGoogle": "Continuar con Google",
+    "completingAuth": "Completando autenticación...",
+    "redirectingToDashboard": "Por favor espera mientras te redirigimos al panel de control"
+  },
+  "dashboard": {
+    "title": "Panel de Control",
+    "welcome": "Bienvenido de vuelta",
+    "noAgents": "Aún no hay agentes",
+    "createFirstAgent": "Crea tu primer agente de IA",
+    "agentPaused": "Pausado",
+    "agentActive": "Activo",
+    "editAgent": "Editar Agente",
+    "deleteAgent": "Eliminar Agente",
+    "createAgent": "Crear Agente",
+    "manageDocuments": "Gestionar Documentos",
+    "performance": "Rendimiento",
+    "teamManagement": "Gestión de Equipo",
+    "settings": "Configuración",
+    "subscription": "Suscripción",
+    "channels": "Canales",
+    "overview": "Resumen",
+    "analytics": "Analíticas",
+    "signOut": "Cerrar Sesión",
+    "quickActions": "Acciones Rápidas",
+    "navigation": "Navegación",
+    "agentCount": "Agentes de IA",
+    "teamCount": "Equipo",
+    "yourAIAgents": "Tus Agentes de IA",
+    "manageAgentsDescription": "Gestiona tus agentes de IA y sus conexiones de canales",
+    "createFirstAgentDescription": "Comienza creando tu primer agente de IA para automatizar conversaciones con clientes",
+    "performanceAnalytics": "Analíticas de Rendimiento",
+    "performanceDescription": "Información completa sobre el rendimiento y la participación de tu plataforma de IA",
+    "settingUpWorkspace": "Configurando tu espacio de trabajo...",
+    "settingUpDescription": "Estamos creando automáticamente tu organización de equipo. Esto solo tomará un momento.",
+    "initializingTeam": "Inicializando espacio de trabajo del equipo...",
+    "autoOrganization": "Cada usuario obtiene automáticamente su propia organización para la colaboración en equipo",
+    "orgNameUpdated": "¡Nombre de organización actualizado!",
+    "failedToUpdateOrg": "Error al actualizar organización",
+    "billingPortalError": "No se puede abrir el portal de facturación. Por favor intenta de nuevo."
+  },
+  "createAgentModal": {
+    "agentName": "Nombre del Agente",
+    "agentNamePlaceholder": "ej., Asistente de Atención al Cliente",
+    "greetingMessage": "Mensaje de Saludo",
+    "greetingPlaceholder": "¡Hola! Estoy aquí para ayudarte con cualquier pregunta que tengas...",
+    "tonePersonality": "Tono y Personalidad",
+    "agentGoals": "Objetivos del Agente",
+    "agentGoalsDescription": "¿Con qué debería ayudar tu agente?",
+    "goalPlaceholder": "ej., Responder preguntas de clientes",
+    "addAnotherGoal": "Agregar otro objetivo",
+    "createAgent": "Crear Agente",
+    "creating": "Creando agente...",
+    "cancel": "Cancelar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "finish": "Finalizar",
+    "agentCreated": "¡Agente Creado Exitosamente!",
+    "agentReady": "¡Tu agente está listo!",
+    "tone": {
+      "professional": {
+        "label": "Profesional",
+        "description": "Formal y apropiado para negocios"
+      },
+      "friendly": {
+        "label": "Amigable",
+        "description": "Cálido y accesible"
+      },
+      "casual": {
+        "label": "Casual",
+        "description": "Relajado y conversacional"
+      },
+      "helpful": {
+        "label": "Útil",
+        "description": "Servicial y enfocado en soluciones"
+      },
+      "enthusiastic": {
+        "label": "Entusiasta",
+        "description": "Enérgico y positivo"
+      }
+    },
+    "agentCard": {
+      "tone": "TONO:",
+      "goals": "OBJETIVOS:",
+      "docs": "Docs",
+      "more": "más",
+      "created": "Creado",
+      "editAgent": "Editar Agente",
+      "manageDocuments": "Gestionar Documentos",
+      "pauseAgent": "Pausar Agente",
+      "resumeAgent": "Reanudar Agente",
+      "deleteAgent": "Eliminar Agente",
+      "status": {
+        "active": "Activo",
+        "paused": "Pausado"
+      }
+    },
+    "editAgentModal": {
+      "title": "Editar Agente",
+      "step": "Paso",
+      "of": "de", 
+      "editing": "Editando",
+      "agentName": "Nombre del Agente",
+      "namePlaceholder": "ej., Asistente de Atención al Cliente",
+      "greetingMessage": "Mensaje de Saludo",
+      "greetingPlaceholder": "ej., ¡Hola! Estoy aquí para ayudarte con cualquier pregunta sobre nuestros servicios.",
+      "agentGoals": "Objetivos del Agente",
+      "goalsDescription": "¿Con qué debería ayudar este agente a los usuarios? Añade hasta 5 objetivos específicos.",
+      "goalPlaceholder": "Objetivo {number}: ej., Ayudar a los clientes a encontrar el producto correcto",
+      "addAnotherGoal": "Añadir otro objetivo",
+      "systemPromptPreview": "Vista Previa del Prompt del Sistema",
+      "systemPromptDescription": "Así es como se configurará tu agente. Puedes editarlo directamente si es necesario.",
+      "cancel": "Cancelar",
+      "next": "Siguiente",
+      "updating": "Actualizando...",
+      "updateAgent": "Actualizar Agente"
+    },
+    "manageDocumentsModal": {
+      "title": "Gestionar Documentos",
+      "agent": "Agente",
+      "done": "Hecho"
+    },
+    "channelStatusWidget": {
+      "title": "Estado de Canales",
+      "connected": "conectados",
+      "comingSoon": "Próximamente",
+      "disconnected": "Desconectado",
+      "manageChannels": "Gestionar Canales"
+    },
+    "performanceOverview": {
+      "title": "Resumen de Rendimiento",
+      "periods": {
+        "current_month": "Mes Actual",
+        "last_month": "Mes Pasado", 
+        "last_3_months": "Últimos 3 Meses",
+        "last_6_months": "Últimos 6 Meses",
+        "current_year": "Año Actual"
+      },
+      "comparison": {
+        "no_comparison": "Sin Comparación",
+        "previous_period": "Período Anterior",
+        "previous_year": "Año Anterior"
+      },
+      "metrics": {
+        "totalConversations": "Conversaciones Totales",
+        "totalMessages": "Mensajes Totales",
+        "avgMessagesPerConversation": "Promedio de Mensajes por Conversación",
+        "leadsCaptured": "Leads Capturados", 
+        "appointmentsScheduled": "Citas Programadas",
+        "responseTime": "Tiempo de Respuesta Promedio",
+        "satisfactionRate": "Tasa de Satisfacción",
+        "conversionRate": "Tasa de Conversión"
+      },
+      "description": "Información sobre las métricas de interacción y participación de tu plataforma de IA"
+    },
+    "teamManagement": {
+      "title": "Miembros del Equipo",
+      "description": "Gestiona los miembros del equipo y permisos de {organizationName}",
+      "inviteMember": "Invitar Miembro",
+      "activeMembers": "Miembros Activos",
+      "noTeamMembers": "Aún no hay miembros del equipo",
+      "joined": "Se unió",
+      "pendingInvitations": "Invitaciones Pendientes",
+      "invited": "Invitado",
+      "expires": "Expira",
+      "remove": "Eliminar",
+      "cancel": "Cancelar",
+      "inviteTeamMember": "Invitar Miembro del Equipo",
+      "emailAddress": "Dirección de Email",
+      "enterEmailAddress": "Ingrese dirección de email",
+      "role": "Rol",
+      "member": "Miembro",
+      "admin": "Administrador",
+      "owner": "Propietario",
+      "sending": "Enviando...",
+      "sendInvitation": "Enviar Invitación"
+    },
+    "setupInstructions": {
+      "title": "Configuración de Base de Datos Única Requerida",
+      "description": "Para habilitar la creación automática de organizaciones y gestión de equipos, por favor ejecuta el script de migración de base de datos única.",
+      "showInstructions": "Mostrar Instrucciones",
+      "hideInstructions": "Ocultar Instrucciones",
+      "retry": "Reintentar Configuración",
+      "step1": "Abre tu terminal y navega al directorio de tu proyecto",
+      "step2": "Ejecuta el script de migración",
+      "step3": "Espera a que el script se complete exitosamente",
+      "step4": "Haz clic en 'Reintentar Configuración' abajo para continuar"
+    },
+    "documentManager": {
+      "title": "Gestor de Documentos",
+      "uploadDocument": "Subir Documento",
+      "uploadDescription": "Sube documentos PDF para entrenar tu agente",
+      "dragDropText": "Arrastra y suelta un archivo PDF aquí, o haz clic para seleccionar",
+      "uploadButton": "Subir PDF",
+      "noDocuments": "Aún no se han subido documentos",
+      "processing": "Procesando...",
+      "processed": "Procesado",
+      "failed": "Falló",
+      "deleteDocument": "Eliminar Documento",
+      "confirmDelete": "¿Estás seguro de que quieres eliminar este documento?",
+      "errors": {
+        "onlyPdf": "Solo se permiten archivos PDF",
+        "fileSize": "El tamaño del archivo debe ser menor a 10MB",
+        "uploadFailed": "Error al subir documento",
+        "deleteFailed": "Error al eliminar documento"
+      }
+    },
+    "whatsAppOnboarding": {
+      "title": "Configuración de WhatsApp para",
+      "subtitle": "Conecta tu agente a WhatsApp en solo unos pasos",
+      "step1Title": "Elige Opción de Número Telefónico",
+      "step2Title": "Selecciona Tu Número Telefónico",
+      "step3Title": "Información del Negocio",
+      "newNumberOption": "Obtener un nuevo número a través de Chayo",
+      "newNumberDescription": "Te proporcionaremos un número de WhatsApp Business",
+      "existingNumberOption": "Usar tu número de WhatsApp existente",
+      "existingNumberDescription": "Conecta tu número actual de WhatsApp Business",
+      "selectCountry": "Seleccionar País",
+      "phoneNumber": "Número Telefónico",
+      "phoneNumberPlaceholder": "Ingresa tu número telefónico",
+      "businessName": "Nombre del Negocio",
+      "businessNamePlaceholder": "Ingresa el nombre de tu negocio",
+      "businessDescription": "Descripción del Negocio",
+      "businessDescriptionPlaceholder": "Describe qué hace tu negocio...",
+      "selectNumber": "Seleccionar Número",
+      "loadingNumbers": "Cargando números disponibles...",
+      "noNumbersAvailable": "No hay números disponibles para este país",
+      "refreshNumbers": "Actualizar Números",
+      "backButton": "Atrás",
+      "nextButton": "Siguiente",
+      "setupWhatsApp": "Configurar WhatsApp",
+      "processing": "Configurando...",
+      "cancel": "Cancelar",
+      "recommended": "Recomendado",
+      "instantSetup": "✅ Configuración instantánea • ✅ Sin tiempo de inactividad • ✅ Listo para usar inmediatamente",
+      "freeTrialTitle": "Prueba Gratis de 3 Días",
+      "freeTrialDescription": "Tu número incluye una prueba gratis de 3 días. Después de eso, necesitarás actualizar para continuar usando WhatsApp.",
+      "migrationWarning": "⚠️ Requiere eliminación de cuenta de WhatsApp • ⚠️ Posible tiempo de inactividad de 24-48h",
+      "setupSummary": "Resumen de Configuración",
+      "agent": "Agente",
+      "phone": "Teléfono",
+      "business": "Negocio",
+      "errors": {
+        "phoneRequired": "El número telefónico es requerido",
+        "phoneMinLength": "El número telefónico debe tener al menos 10 dígitos",
+        "selectNumber": "Por favor selecciona un número telefónico",
+        "businessNameRequired": "El nombre del negocio es requerido",
+        "businessDescriptionRequired": "La descripción del negocio es requerida",
+        "fetchNumbers": "Error al obtener números disponibles",
+        "purchaseNumber": "Error al comprar número telefónico",
+        "setupFailed": "Error al configurar WhatsApp"
+      }
+    },
+    "subscriptionPlans": {
+      "title": "Elige Tu Plan de Chayo",
+      "subtitle": "IA de WhatsApp disponible ahora • Otros canales próximamente",
+      "basicPlan": "Plan Básico",
+      "proPlan": "Plan Pro",
+      "enterprisePlan": "Plan Enterprise",
+      "popularBadge": "Más Popular",
+      "currentPlan": "Plan Actual",
+      "comingSoon": "Próximamente",
+      "upgradeNow": "Actualizar Ahora",
+      "manageSubscription": "Gestionar Suscripción",
+      "perMonth": "USD/mes",
+      "processing": "Procesando...",
+      "startFreeTrial": "Iniciar Prueba Gratis",
+      "needChanges": "¿Necesitas hacer cambios a tu suscripción?",
+      "features": {
+        "whatsAppAgent": "Agente IA de WhatsApp (Disponible ahora)",
+        "multipleAgents": "Múltiples Agentes IA",
+        "prioritySupport": "Soporte Prioritario",
+        "advancedAnalytics": "Análisis Avanzados",
+        "customIntegrations": "Integraciones Personalizadas",
+        "dedicatedManager": "Gerente de Cuenta Dedicado"
+      }
+    },
+    "profileSettings": {
+      "title": "Configuración del Perfil",
+      "description": "Gestiona la información de tu cuenta, contraseña y preferencias.",
+      "profileInformation": "Información del Perfil",
+      "displayName": "Nombre a Mostrar",
+      "displayNamePlaceholder": "Ingresa tu nombre a mostrar",
+      "emailAddress": "Dirección de Email",
+      "emailPlaceholder": "Ingresa tu email",
+      "emailVerificationNote": "Cambiar tu email requerirá verificación",
+      "updateProfile": "Actualizar Perfil",
+      "updating": "Actualizando...",
+      "organizationName": "Nombre de la Organización",
+      "organizationNamePlaceholder": "Ingresa el nombre de la organización",
+      "save": "Guardar",
+      "changePassword": "Cambiar Contraseña",
+      "newPassword": "Nueva Contraseña",
+      "newPasswordPlaceholder": "Ingresa nueva contraseña",
+      "confirmNewPassword": "Confirmar Nueva Contraseña",
+      "confirmPasswordPlaceholder": "Confirma nueva contraseña",
+      "accountInformation": "Información de la Cuenta",
+      "userId": "ID de Usuario",
+      "accountCreated": "Cuenta Creada",
+      "lastSignIn": "Último Inicio de Sesión",
+      "emailConfirmed": "Email Confirmado",
+      "never": "Nunca",
+      "yes": "Sí",
+      "pending": "Pendiente"
+    },
+    "whatsAppStatusCard": {
+      "title": "WhatsApp Business",
+      "connected": "Conectado",
+      "notConnected": "No conectado",
+      "active": "Activo",
+      "inactive": "Inactivo",
+      "phoneNumber": "Número Telefónico:",
+      "businessName": "Nombre del Negocio:",
+      "status": "Estado:",
+      "messagesHandled": "Mensajes Gestionados:",
+      "lastMessage": "Último Mensaje:",
+      "refreshStatus": "Actualizar Estado",
+      "setupDescription": "Conecta tu cuenta de WhatsApp Business para comenzar a recibir y responder mensajes automáticamente.",
+      "setupWhatsApp": "Configurar WhatsApp"
+    },
+    "planBadge": {
+      "free": "Gratis",
+      "basic": "Básico",
+      "pro": "Pro",
+      "premium": "Premium"
+    },
+    "metricCard": {
+      "noData": "No hay datos disponibles"
+    }
+  }
+}

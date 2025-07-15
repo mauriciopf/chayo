@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { loadStripe } from '@stripe/stripe-js'
+import { useTranslations } from 'next-intl'
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
@@ -92,6 +93,7 @@ interface SubscriptionPlansProps {
 export default function SubscriptionPlans({ currentSubscription, onClose, onSubscriptionUpdate, targetPlan }: SubscriptionPlansProps) {
   const [loading, setLoading] = useState<string | null>(null)
   const currentPlan = currentSubscription?.plan_name || 'free'
+  const t = useTranslations('subscriptionPlans')
 
   const handleSubscribe = async (plan: Plan) => {
     if (!plan.priceId) {
@@ -168,10 +170,10 @@ export default function SubscriptionPlans({ currentSubscription, onClose, onSubs
         <div className="flex justify-between items-center p-6 border-b">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">
-              Choose Your Chayo Plan
+              {t('title')}
             </h2>
             <p className="text-gray-600 mt-1">
-              WhatsApp AI is available now • Other channels coming soon
+              {t('subtitle')}
             </p>
           </div>
           <button
@@ -243,7 +245,7 @@ export default function SubscriptionPlans({ currentSubscription, onClose, onSubs
             {plan.popular && plan.available && (
               <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                 <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-bold px-4 py-1 rounded-full">
-                  ¡Disponible Ahora!
+                  {t('popularBadge')}
                 </div>
               </div>
             )}
@@ -251,7 +253,7 @@ export default function SubscriptionPlans({ currentSubscription, onClose, onSubs
             {plan.comingSoon && (
               <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                 <div className="bg-gradient-to-r from-gray-500 to-gray-600 text-white text-sm font-bold px-4 py-1 rounded-full">
-                  Próximamente
+                  {t('comingSoon')}
                 </div>
               </div>
             )}
@@ -270,7 +272,7 @@ export default function SubscriptionPlans({ currentSubscription, onClose, onSubs
               <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
               <div className="flex items-baseline">
                 <span className="text-4xl font-bold">${plan.price}</span>
-                <span className="text-lg ml-2 opacity-90">USD / month</span>
+                <span className="text-lg ml-2 opacity-90">{t('perMonth')}</span>
               </div>
             </div>
 
@@ -293,13 +295,13 @@ export default function SubscriptionPlans({ currentSubscription, onClose, onSubs
               {currentPlan === plan.id ? (
                 <div className="space-y-3">
                   <div className="text-center py-3 bg-green-100 text-green-800 rounded-lg font-medium">
-                    Current Plan
+                    {t('currentPlan')}
                   </div>
                   <button
                     onClick={handleManageSubscription}
                     className="w-full py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-semibold transition-colors"
                   >
-                    Manage Subscription
+                    {t('manageSubscription')}
                   </button>
                 </div>
               ) : plan.available ? (
@@ -318,12 +320,12 @@ export default function SubscriptionPlans({ currentSubscription, onClose, onSubs
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                         <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                       </svg>
-                      <span>Processing...</span>
+                      <span>{t('processing')}</span>
                     </span>
                   ) : currentPlan === 'free' ? (
-                    'Start Free Trial'
+                    t('startFreeTrial')
                   ) : (
-                    'Upgrade Now'
+                    t('upgradeNow')
                   )}
                 </button>
               ) : (
@@ -331,7 +333,7 @@ export default function SubscriptionPlans({ currentSubscription, onClose, onSubs
                   disabled
                   className="w-full py-3 rounded-lg font-semibold bg-gray-200 text-gray-500 cursor-not-allowed"
                 >
-                  🔒 Próximamente
+                  🔒 {t('comingSoon')}
                 </button>
               )}
             </div>
@@ -342,7 +344,7 @@ export default function SubscriptionPlans({ currentSubscription, onClose, onSubs
       {currentPlan !== 'free' && (
         <div className="mt-8 text-center border-t pt-6">
           <p className="text-gray-600 mb-4">
-            Need to make changes to your subscription?
+            {t('needChanges')}
           </p>
           <button
             onClick={handleManageSubscription}
@@ -352,7 +354,7 @@ export default function SubscriptionPlans({ currentSubscription, onClose, onSubs
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
-            <span>Manage Billing & Subscription</span>
+            <span>{t('manageSubscription')}</span>
           </button>
         </div>
       )}

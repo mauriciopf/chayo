@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from 'react'
 import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { useTranslations, useLocale } from 'next-intl'
 import type { User } from '@supabase/supabase-js'
 import UserProfile from '@/components/dashboard/UserProfile'
 import AgentCard from '@/components/dashboard/AgentCard'
@@ -83,6 +84,8 @@ export default function Dashboard() {
 }
 
 function DashboardContent() {
+  const t = useTranslations('dashboard')
+  const locale = useLocale()
   const [user, setUser] = useState<User | null>(null)
   const [agents, setAgents] = useState<Agent[]>([])
   const [subscription, setSubscription] = useState<UserSubscription | null>(null)
@@ -456,7 +459,7 @@ function DashboardContent() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
         <div className="text-center">
-          <p className="text-gray-600">Redirecting to login...</p>
+          <p className="text-gray-600">{t('common.loading')}</p>
         </div>
       </div>
     )
@@ -498,7 +501,7 @@ function DashboardContent() {
               </motion.div>
               
               <div className="hidden md:block">
-                <h2 className="text-lg font-semibold text-gray-900">Dashboard</h2>
+                <h2 className="text-lg font-semibold text-gray-900">{t('title')}</h2>
                 {currentOrganization && (
                   <span className="text-sm text-gray-500">
                     {currentOrganization.name}
@@ -722,13 +725,13 @@ function DashboardContent() {
             <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-6 border border-white/20">
               <div className="mb-6">
                 <h2 className="text-lg font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
-                  Quick Actions
+                  {t('quickActions')}
                 </h2>
                 
                 {/* Quick Navigation */}
                 <div className="mb-6">
                   <h3 className="text-sm font-semibold text-gray-700 mb-3">
-                    Navigation
+                    {t('navigation')}
                   </h3>
                   <div className="space-y-2">
                     <button
@@ -743,7 +746,7 @@ function DashboardContent() {
                         <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        AI Agents ({agents.length})
+                        {t('agentCount')} ({agents.length})
                       </div>
                     </button>
                     <button
@@ -758,7 +761,7 @@ function DashboardContent() {
                         <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                         </svg>
-                        Performance
+                        {t('performance')}
                       </div>
                     </button>
                     <button
@@ -773,7 +776,7 @@ function DashboardContent() {
                         <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                         </svg>
-                        Team ({currentOrganization?.team_members?.length || (currentOrganization ? 1 : 0)})
+                        {t('teamCount')} ({currentOrganization?.team_members?.length || (currentOrganization ? 1 : 0)})
                       </div>
                     </button>
                     <button
@@ -788,7 +791,7 @@ function DashboardContent() {
                         <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
-                        Profile Settings
+                        {t('settings')}
                       </div>
                     </button>
                   </div>
@@ -858,7 +861,7 @@ function DashboardContent() {
                         : 'text-gray-600 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:text-purple-700'
                     }`}
                   >
-                    AI Agents
+                    {t('agentCount')}
                   </button>
                   <button
                     onClick={() => setActiveTab('performance')}
@@ -878,7 +881,7 @@ function DashboardContent() {
                         : 'text-gray-600 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:text-purple-700'
                     }`}
                   >
-                    Team
+                    {t('teamCount')}
                   </button>
                   <button
                     onClick={() => setActiveTab('profile')}
@@ -888,7 +891,7 @@ function DashboardContent() {
                         : 'text-gray-600 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:text-purple-700'
                     }`}
                   >
-                    Profile
+                    {t('settings')}
                   </button>
                 </nav>
               </div>
@@ -903,10 +906,10 @@ function DashboardContent() {
               >
                 <div className="mb-6">
                   <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
-                    Your AI Agents
+                    {t('yourAIAgents')}
                   </h2>
                   <p className="text-gray-600">
-                    Manage your AI agents and their channel connections
+                    {t('manageAgentsDescription')}
                   </p>
                 </div>
 
@@ -1035,10 +1038,10 @@ function DashboardContent() {
               >
                 <div className="mb-6">
                   <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
-                    Performance Analytics
+                    {t('performanceAnalytics')}
                   </h2>
                   <p className="text-gray-600">
-                    Comprehensive insights into your AI platform's performance and engagement
+                    {t('performanceDescription')}
                   </p>
                 </div>
                 <PerformanceOverview />
@@ -1071,10 +1074,10 @@ function DashboardContent() {
                       </svg>
                     </div>
                     <h3 className="text-xl font-bold text-gray-900 mb-2">
-                      Setting up your workspace...
+                      {t('settingUpWorkspace')}
                     </h3>
                     <p className="text-gray-600 mb-6">
-                      We're automatically creating your team organization. This will only take a moment.
+                      {t('settingUpDescription')}
                     </p>
                     <div className="flex items-center justify-center">
                       <motion.div
@@ -1082,10 +1085,10 @@ function DashboardContent() {
                         transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                         className="w-6 h-6 border-2 border-purple-400 border-t-transparent rounded-full"
                       />
-                      <span className="ml-2 text-sm text-gray-600">Initializing team workspace...</span>
+                      <span className="ml-2 text-sm text-gray-600">{t('initializingTeam')}</span>
                     </div>
                     <div className="mt-4 text-xs text-gray-500">
-                      Every user automatically gets their own organization for team collaboration
+                      {t('autoOrganization')}
                     </div>
                   </div>
                 )}

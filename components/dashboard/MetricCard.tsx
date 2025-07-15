@@ -1,6 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import { useTranslations } from 'next-intl'
 
 interface MetricCardProps {
   title: string
@@ -21,6 +22,7 @@ export default function MetricCard({
   trend, 
   delay = 0 
 }: MetricCardProps) {
+  const t = useTranslations('metricCard')
   const getTrendIcon = () => {
     switch (trend) {
       case 'up':

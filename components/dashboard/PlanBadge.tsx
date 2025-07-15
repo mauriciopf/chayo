@@ -1,31 +1,34 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import { useTranslations } from 'next-intl'
 
 interface PlanBadgeProps {
   plan: string
 }
 
 export default function PlanBadge({ plan }: PlanBadgeProps) {
+  const t = useTranslations('planBadge')
+  
   const getPlanConfig = (planName: string) => {
     const configs = {
       free: {
-        label: 'Free',
+        label: t('free'),
         color: 'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800',
         icon: '🆓'
       },
       basic: {
-        label: 'Basic',
+        label: t('basic'),
         color: 'bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800',
         icon: '⭐'
       },
       pro: {
-        label: 'Pro',
+        label: t('pro'),
         color: 'bg-gradient-to-r from-purple-100 to-purple-200 text-purple-800',
         icon: '🚀'
       },
       premium: {
-        label: 'Premium',
+        label: t('premium'),
         color: 'bg-gradient-to-r from-orange-100 to-orange-200 text-orange-800',
         icon: '👑'
       }

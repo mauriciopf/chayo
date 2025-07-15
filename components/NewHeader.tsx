@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
+import { useTranslations, useLocale } from 'next-intl';
 
 export default function NewHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -12,6 +13,8 @@ export default function NewHeader() {
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
   const supabase = createClient();
+  const t = useTranslations();
+  const locale = useLocale();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -106,7 +109,7 @@ export default function NewHeader() {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3 }}
               >
-                Tu comadre digital ✨
+                {t('navigation.tagline')}
               </motion.p>
               
               {/* Subtle background glow effect */}
@@ -121,9 +124,9 @@ export default function NewHeader() {
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-1">
             {[
-              { text: "How it Works", id: "how", icon: "⚡" },
-              { text: "Examples", id: "examples", icon: "🎯" },
-              { text: "Pricing", id: "pricing", icon: "💎" }
+              { text: t('navigation.howItWorks'), id: "how", icon: "⚡" },
+              { text: t('navigation.examples'), id: "examples", icon: "🎯" },
+              { text: t('navigation.pricing'), id: "pricing", icon: "💎" }
             ].map((item, index) => (
               <motion.button
                 key={index}
@@ -156,12 +159,12 @@ export default function NewHeader() {
               // Authenticated user buttons
               <>
                 <motion.button
-                  onClick={() => router.push('/dashboard')}
+                  onClick={() => router.push(`/${locale}/dashboard`)}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   className="px-4 py-2 text-gray-700 hover:text-purple-600 font-medium transition-all duration-300 rounded-xl hover:bg-gray-50"
                 >
-                  Dashboard
+                  {t('navigation.dashboard')}
                 </motion.button>
                 
                 <motion.button
@@ -170,23 +173,23 @@ export default function NewHeader() {
                   whileTap={{ scale: 0.98 }}
                   className="px-4 py-2 text-gray-700 hover:text-red-600 font-medium transition-all duration-300 rounded-xl hover:bg-gray-50"
                 >
-                  Sign Out
+                  {t('navigation.signOut')}
                 </motion.button>
               </>
             ) : (
               // Guest user buttons
               <>
                 <motion.button
-                  onClick={() => router.push('/auth')}
+                  onClick={() => router.push(`/${locale}/auth`)}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   className="px-4 py-2 text-gray-700 hover:text-purple-600 font-medium transition-all duration-300 rounded-xl hover:bg-gray-50"
                 >
-                  Sign In
+                  {t('navigation.signIn')}
                 </motion.button>
                 
                 <motion.button
-                  onClick={() => router.push('/auth')}
+                  onClick={() => router.push(`/${locale}/auth`)}
                   whileHover={{ 
                     scale: 1.02,
                     boxShadow: "0 10px 25px -5px rgba(147, 51, 234, 0.3)"

@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Upload, File, Trash2, AlertCircle, CheckCircle } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 interface Document {
   id: string
@@ -25,6 +26,7 @@ export function DocumentManager({ agentId, documents, onDocumentUploaded, onDocu
   const [isUploading, setIsUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const t = useTranslations('documentManager')
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -32,13 +34,13 @@ export function DocumentManager({ agentId, documents, onDocumentUploaded, onDocu
 
     // Validate file type
     if (file.type !== 'application/pdf') {
-      setError('Only PDF files are allowed')
+      setError(t('errors.onlyPdf'))
       return
     }
 
     // Validate file size (10MB)
     if (file.size > 10 * 1024 * 1024) {
-      setError('File size must be less than 10MB')
+      setError(t('errors.fileSize'))
       return
     }
 
@@ -64,18 +66,18 @@ export function DocumentManager({ agentId, documents, onDocumentUploaded, onDocu
           fileInputRef.current.value = ''
         }
       } else {
-        setError(result.error || 'Failed to upload file')
+        setError(result.error || t('errors.uploadFailed'))
       }
     } catch (error) {
       console.error('Upload error:', error)
-      setError('Failed to upload file')
+      setError(t('errors.uploadFailed'))
     } finally {
       setIsUploading(false)
     }
   }
 
   const handleDeleteDocument = async (documentId: string) => {
-    if (!confirm('Are you sure you want to delete this document?')) return
+    if (!confirm(t('confirmDelete'))) return
 
     try {
       const response = await fetch(`/api/documents/${documentId}`, {
@@ -86,11 +88,11 @@ export function DocumentManager({ agentId, documents, onDocumentUploaded, onDocu
         onDocumentDeleted()
       } else {
         const result = await response.json()
-        setError(result.error || 'Failed to delete document')
+        setError(result.error || t('errors.deleteFailed'))
       }
     } catch (error) {
       console.error('Delete error:', error)
-      setError('Failed to delete document')
+      setError(t('errors.deleteFailed'))
     }
   }
 
@@ -118,9 +120,9 @@ export function DocumentManager({ agentId, documents, onDocumentUploaded, onDocu
   return (
     <div className="space-y-4">
       <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-2">Knowledge Documents</h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-2">{t('title')}</h3>
         <p className="text-sm text-gray-600 mb-4">
-          Upload PDF documents to enhance your agent's knowledge base. These will be processed and added to the agent's context.
+          {t('uploadDescription')}
         </p>
       </div>
 
@@ -131,10 +133,10 @@ export function DocumentManager({ agentId, documents, onDocumentUploaded, onDocu
           <div className="mt-4">
             <label htmlFor="file-upload" className="cursor-pointer">
               <span className="mt-2 block text-sm font-medium text-gray-900">
-                Upload PDF documents
+                {t('uploadDocument')}
               </span>
               <span className="mt-1 block text-sm text-gray-600">
-                PDF files up to 10MB
+                {t('dragDropText')}
               </span>
             </label>
             <input
@@ -158,12 +160,12 @@ export function DocumentManager({ agentId, documents, onDocumentUploaded, onDocu
               {isUploading ? (
                 <>
                   <div className="animate-spin -ml-1 mr-2 h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
-                  Uploading...
+                  {t('processing')}
                 </>
               ) : (
                 <>
                   <Upload className="-ml-1 mr-2 h-4 w-4" />
-                  Choose File
+                  {t('uploadButton')}
                 </>
               )}
             </Button>
@@ -184,9 +186,9 @@ export function DocumentManager({ agentId, documents, onDocumentUploaded, onDocu
       )}
 
       {/* Documents List */}
-      {documents.length > 0 && (
+      {documents.length > 0 ? (
         <div className="space-y-2">
-          <h4 className="text-sm font-medium text-gray-900">Uploaded Documents</h4>
+          <h4 className="text-sm font-medium text-gray-900">{t('title')}</h4>
           <div className="space-y-2">
             {documents.map((doc) => (
               <div
@@ -205,13 +207,16 @@ export function DocumentManager({ agentId, documents, onDocumentUploaded, onDocu
                 <div className="flex items-center space-x-2">
                   {getStatusIcon(doc.embedding_status)}
                   <span className="text-xs text-gray-500 capitalize">
-                    {doc.embedding_status}
+                    {doc.embedding_status === 'completed' ? t('processed') : 
+                     doc.embedding_status === 'processing' ? t('processing') : 
+                     doc.embedding_status === 'error' ? t('failed') : doc.embedding_status}
                   </span>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => handleDeleteDocument(doc.id)}
                     className="text-red-600 hover:text-red-700"
+                    title={t('deleteDocument')}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -219,6 +224,11 @@ export function DocumentManager({ agentId, documents, onDocumentUploaded, onDocu
               </div>
             ))}
           </div>
+        </div>
+      ) : (
+        <div className="text-center py-8 text-gray-500">
+          <File className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+          <p className="text-sm">{t('noDocuments')}</p>
         </div>
       )}
     </div>

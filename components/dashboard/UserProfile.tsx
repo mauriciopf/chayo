@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslations } from 'next-intl'
 import type { User } from '@supabase/supabase-js'
 import { organizationService } from '@/lib/services/organizationService'
 
@@ -22,6 +23,7 @@ interface UserProfileProps {
 }
 
 export default function UserProfile({ user, subscription, onLogout, onManageBilling }: UserProfileProps) {
+  const t = useTranslations('dashboard')
   const [isOpen, setIsOpen] = useState(false)
   const [orgName, setOrgName] = useState<string>('')
   const [orgId, setOrgId] = useState<string>('')
@@ -54,8 +56,8 @@ export default function UserProfile({ user, subscription, onLogout, onManageBill
         body: JSON.stringify({ organizationId: orgId, name: orgName })
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Failed to update organization')
-      setOrgSuccess('Organization name updated!')
+      if (!res.ok) throw new Error(data.error || t('failedToUpdateOrg'))
+      setOrgSuccess(t('orgNameUpdated'))
     } catch (e: any) {
       setOrgError(e.message)
     } finally {
@@ -87,7 +89,7 @@ export default function UserProfile({ user, subscription, onLogout, onManageBill
       window.location.href = url
     } catch (error) {
       console.error('Error:', error)
-      alert('Unable to open billing portal. Please try again.')
+      alert(t('billingPortalError'))
     }
   }
 
