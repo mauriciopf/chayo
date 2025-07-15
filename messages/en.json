@@ -277,7 +277,31 @@
     "accountSettings": "Account Settings",
     "connectedChannels": "Connected Channels",
     "noChannelsConnected": "No channels connected",
-    "availableChannels": "Available Channels"
+    "availableChannels": "Available Channels",
+    "organizationCreated": "Welcome! We've created \"{org}\" for you.",
+    "organizationWelcomeBack": "Welcome back to {org}!",
+    "organizationCreateFailed": "Failed to create organization. Please try refreshing the page.",
+    "organizationSetupFailed": "Failed to set up organization. Please try refreshing the page.",
+    "organizationSettingUp": "Setting up your organization...",
+    "planFeatures": {
+      "free": ["Trial Access", "Basic Chat Only", "Limited Messages"],
+      "basic": ["1 WhatsApp AI Agent", "Centralized Chat", "CRM & Contacts", "Basic Workflows"],
+      "pro": ["Basic Plan +", "Web AI Widget", "Voice AI Agent", "Sales Pipeline"],
+      "premium": ["Pro Plan +", "2 WhatsApp AI Agents", "Instagram & Facebook", "Email Marketing", "Premium Support"]
+    },
+    "trialPromotion": {
+      "headline": "🚀 Start Your 3-Day WhatsApp AI Trial",
+      "description": "Get instant access to intelligent WhatsApp automation with your AI agent. Your customers can chat naturally while your AI handles:",
+      "customerInquiries": "Customer inquiries & support",
+      "appointmentScheduling": "Appointment scheduling",
+      "inventoryManagement": "Inventory management",
+      "productRecommendations": "Product recommendations",
+      "startFreeTrial": "Start Free Trial →",
+      "viewPlans": "View Plans",
+      "daysFree": "days free"
+    },
+    "greatYourAgentsReady": "Great! Your agents are ready",
+    "nowConnectAgentsDescription": "Now connect your agents to communication channels like WhatsApp, SMS, or website chat to start serving customers."
   },
   "createAgentModal": {
     "agentName": "Agent Name",
@@ -296,35 +320,8 @@
     "next": "Next",
     "finish": "Finish",
     "agentCreated": "Agent Created Successfully!",
-    "agentReady": "Your agent is ready!",
-    "tone": {
-      "professional": {
-        "label": "Professional",
-        "description": "Formal and business-like"
-      },
-      "friendly": {
-        "label": "Friendly", 
-        "description": "Warm and approachable"
-      },
-      "casual": {
-        "label": "Casual",
-        "description": "Relaxed and conversational"
-      },
-      "helpful": {
-        "label": "Helpful",
-        "description": "Supportive and solution-focused"
-      },
-      "enthusiastic": {
-        "label": "Enthusiastic",
-        "description": "Energetic and positive"
-      }
-    },
-    "steps": {
-      "basic": "Basic",
-      "goals": "Goals", 
-      "review": "Review",
-      "docs": "Docs"
-    }
+    "optional": "Optional",
+    "optionalUploadDocs": "Upload PDF documents like business policies, FAQs, or product information to help your agent provide more accurate and specific responses."
   },
     "agentCard": {
       "tone": "TONE:",
@@ -379,7 +376,10 @@
     "manageDocumentsModal": {
       "title": "Manage Documents",
       "agent": "Agent",
-      "done": "Done"
+      "done": "Done",
+      "loadingDocuments": "Loading documents...",
+      "totalDocuments": "Total Documents:",
+      "processedCount": "Processed:"
     },
     "channelStatusWidget": {
       "title": "Channel Status",
@@ -570,16 +570,11 @@
       "processing": "Processing...",
       "startFreeTrial": "Start Free Trial",
       "needChanges": "Need to make changes to your subscription?",
+      "subscript": "All prices in USD. Taxes may apply. Cancel anytime.",
       "plans": {
-        "basic": {
-          "name": "Basic Plan"
-        },
-        "professional": {
-          "name": "Professional Plan"
-        },
-        "premium": {
-          "name": "Premium Plan"
-        }
+        "basic": { "name": "Basic Plan" },
+        "professional": { "name": "Professional Plan" },
+        "premium": { "name": "Premium Plan" }
       },
       "features": {
         "whatsAppAgent": "WhatsApp AI Agent (Available now)",

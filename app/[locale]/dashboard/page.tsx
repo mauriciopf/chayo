@@ -375,9 +375,9 @@ function DashboardContent() {
         
         // Show appropriate message based on whether it was created or existed
         if (wasCreated) {
-          setOrganizationSetupMessage(`Welcome! We've created "${organization.name}" for you.`)
+          setOrganizationSetupMessage(t('organizationCreated', { org: organization.name }))
         } else {
-          setOrganizationSetupMessage(`Welcome back to ${organization.name}!`)
+          setOrganizationSetupMessage(t('organizationWelcomeBack', { org: organization.name }))
         }
         
         setTimeout(() => setOrganizationSetupMessage(null), 5000)
@@ -387,12 +387,12 @@ function DashboardContent() {
         if (!isDatabaseReady) {
           setShowSetupInstructions(true)
         } else {
-          setOrganizationSetupError('Failed to create organization. Please try refreshing the page.')
+          setOrganizationSetupError(t('organizationCreateFailed'))
         }
       }
     } catch (error) {
       console.error('Error ensuring user has organization:', error)
-      setOrganizationSetupError('Failed to set up organization. Please try refreshing the page.')
+      setOrganizationSetupError(t('organizationSetupFailed'))
     } finally {
       setOrganizationSetupLoading(false)
     }
@@ -434,10 +434,10 @@ function DashboardContent() {
 
   const getPlanFeatures = (planName: string) => {
     const features = {
-      free: ['Trial Access', 'Basic Chat Only', 'Limited Messages'],
-      basic: ['1 WhatsApp AI Agent', 'Chat Centralizado', 'CRM & Contactos', 'Workflows Básicos'],
-      pro: ['Plan Básico +', 'Web AI Widget', 'Voice AI Agent', 'Pipeline de Ventas'],
-      premium: ['Plan Pro +', '2 WhatsApp AI Agents', 'Instagram & Facebook', 'Email Marketing', 'Soporte Premium']
+      free: t.raw('planFeatures.free'),
+      basic: t.raw('planFeatures.basic'),
+      pro: t.raw('planFeatures.pro'),
+      premium: t.raw('planFeatures.premium')
     }
     return features[planName as keyof typeof features] || features.free
   }
@@ -536,7 +536,7 @@ function DashboardContent() {
                   transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                   className="w-5 h-5 border-2 border-blue-400 border-t-transparent rounded-full mr-3"
                 />
-                <p className="text-blue-800">Setting up your organization...</p>
+                <p className="text-blue-800">{t('organizationSettingUp')}</p>
               </div>
             </div>
           )}
@@ -648,35 +648,35 @@ function DashboardContent() {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-lg font-bold mb-2">
-                    🚀 Start Your 3-Day WhatsApp AI Trial
+                    {t('trialPromotion.headline')}
                   </h3>
                   <p className="text-white/90 mb-4">
-                    Get instant access to intelligent WhatsApp automation with your AI agent. Your customers can chat naturally while your AI handles:
+                    {t('trialPromotion.description')}
                   </p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
                     <div className="flex items-center space-x-2 text-white/90">
                       <svg className="w-4 h-4 text-green-200" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
-                      <span className="text-sm">Customer inquiries & support</span>
+                      <span className="text-sm">{t('trialPromotion.customerInquiries')}</span>
                     </div>
                     <div className="flex items-center space-x-2 text-white/90">
                       <svg className="w-4 h-4 text-green-200" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
-                      <span className="text-sm">Appointment scheduling</span>
+                      <span className="text-sm">{t('trialPromotion.appointmentScheduling')}</span>
                     </div>
                     <div className="flex items-center space-x-2 text-white/90">
                       <svg className="w-4 h-4 text-green-200" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
-                      <span className="text-sm">Inventory management</span>
+                      <span className="text-sm">{t('trialPromotion.inventoryManagement')}</span>
                     </div>
                     <div className="flex items-center space-x-2 text-white/90">
                       <svg className="w-4 h-4 text-green-200" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
-                      <span className="text-sm">Product recommendations</span>
+                      <span className="text-sm">{t('trialPromotion.productRecommendations')}</span>
                     </div>
                   </div>
                   <div className="flex items-center space-x-3">
@@ -692,7 +692,7 @@ function DashboardContent() {
                       }}
                       className="bg-white text-green-600 font-medium py-2 px-4 rounded-lg transition-all duration-200 shadow-md text-sm hover:shadow-lg"
                     >
-                      Start Free Trial →
+                      {t('trialPromotion.startFreeTrial')}
                     </motion.button>
                     <motion.button
                       whileHover={{ scale: 1.02 }}
@@ -700,7 +700,7 @@ function DashboardContent() {
                       onClick={() => setShowPlansModal(true)}
                       className="bg-white/20 border border-white/30 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 text-sm hover:bg-white/30"
                     >
-                      View Plans
+                      {t('trialPromotion.viewPlans')}
                     </motion.button>
                   </div>
                 </div>
@@ -710,7 +710,7 @@ function DashboardContent() {
                   3
                 </div>
                 <div className="text-white/80 text-sm">
-                  days free
+                  {t('trialPromotion.daysFree')}
                 </div>
               </div>
             </div>
@@ -746,7 +746,7 @@ function DashboardContent() {
                         <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        {t('agentCount')} ({agents.length})
+                        {t('agentCount', { count: agents.length })}
                       </div>
                     </button>
                     <button
@@ -776,7 +776,7 @@ function DashboardContent() {
                         <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                         </svg>
-                        {t('teamCount')} ({currentOrganization?.team_members?.length || (currentOrganization ? 1 : 0)})
+                        {t('teamCount', { count: currentOrganization?.team_members?.length || (currentOrganization ? 1 : 0) })}
                       </div>
                     </button>
                     <button
@@ -806,7 +806,7 @@ function DashboardContent() {
                   disabled={!canCreateAgent()}
                   className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 shadow-lg"
                 >
-                  Create Agent
+                  {t('createAgent')}
                 </motion.button>
                 
                 <motion.button
@@ -815,7 +815,7 @@ function DashboardContent() {
                   onClick={() => setShowPlansModal(true)}
                   className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 shadow-lg"
                 >
-                  {(organizations[0]?.user_subscription?.plan_name || subscription?.plan_name || 'free') === 'free' ? 'Upgrade Plan' : 'Change Plan'}
+                  {(organizations[0]?.user_subscription?.plan_name || subscription?.plan_name || 'free') === 'free' ? t('upgradePlan') : t('changePlan')}
                 </motion.button>
                 
                 <motion.button
@@ -824,17 +824,17 @@ function DashboardContent() {
                   onClick={() => router.push('/integrations')}
                   className="w-full bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 shadow-lg"
                 >
-                  Connect Channels
+                  {t('connectChannels')}
                 </motion.button>
               </div>
 
               {/* Plan Features */}
               <div className="mt-6 pt-6 border-t border-gray-200">
                 <h3 className="text-sm font-semibold text-gray-700 mb-3">
-                  Your Plan Features
+                  {t('yourPlanFeatures')}
                 </h3>
                 <ul className="space-y-2">
-                  {getPlanFeatures(organizations[0]?.user_subscription?.plan_name || subscription?.plan_name || 'free').map((feature, index) => (
+                  {getPlanFeatures(organizations[0]?.user_subscription?.plan_name || subscription?.plan_name || 'free').map((feature: string, index: number) => (
                     <li key={index} className="flex items-center text-sm text-gray-600">
                       <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -861,7 +861,7 @@ function DashboardContent() {
                         : 'text-gray-600 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:text-purple-700'
                     }`}
                   >
-                    {t('agentCount')}
+                    {t('agentCount', { count: agents.length })}
                   </button>
                   <button
                     onClick={() => setActiveTab('performance')}
@@ -871,7 +871,7 @@ function DashboardContent() {
                         : 'text-gray-600 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:text-purple-700'
                     }`}
                   >
-                    Performance
+                    {t('performance')}
                   </button>
                   <button
                     onClick={() => setActiveTab('users')}
@@ -881,7 +881,7 @@ function DashboardContent() {
                         : 'text-gray-600 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:text-purple-700'
                     }`}
                   >
-                    {t('teamCount')}
+                    {t('teamCount', { count: currentOrganization?.team_members?.length || (currentOrganization ? 1 : 0) })}
                   </button>
                   <button
                     onClick={() => setActiveTab('profile')}
@@ -925,10 +925,10 @@ function DashboardContent() {
                       </svg>
                     </div>
                     <h3 className="text-xl font-bold text-gray-900 mb-2">
-                      No agents yet
+                      {t('noAgentsYet')}
                     </h3>
                     <p className="text-gray-600 mb-6">
-                      Create your first AI agent to start automating customer interactions
+                      {t('createFirstAgentDescription')}
                     </p>
                     <motion.button
                       whileHover={{ scale: 1.02 }}
@@ -937,7 +937,7 @@ function DashboardContent() {
                       disabled={!canCreateAgent()}
                       className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed text-white font-medium py-3 px-6 rounded-xl transition-all duration-200 shadow-lg"
                     >
-                      Create Your First Agent
+                      {t('createYourFirstAgent')}
                     </motion.button>
                   </motion.div>
                 ) : (
@@ -957,10 +957,10 @@ function DashboardContent() {
                           </div>
                           <div className="flex-1">
                             <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                              🎉 Great! Your agents are ready
+                              🎉 {t('greatYourAgentsReady')}
                             </h3>
                             <p className="text-gray-600 mb-4">
-                              Now connect your agents to communication channels like WhatsApp, SMS, or website chat to start serving customers.
+                              {t('nowConnectAgentsDescription')}
                             </p>
                             <motion.button
                               whileHover={{ scale: 1.02 }}
@@ -968,7 +968,7 @@ function DashboardContent() {
                               onClick={() => router.push('/integrations')}
                               className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 shadow-md text-sm"
                             >
-                              Connect Channels →
+                              {t('connectChannels')} →
                             </motion.button>
                           </div>
                         </div>

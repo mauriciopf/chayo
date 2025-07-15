@@ -277,7 +277,31 @@
     "accountSettings": "Configuración de Cuenta",
     "connectedChannels": "Canales Conectados",
     "noChannelsConnected": "No hay canales conectados",
-    "availableChannels": "Canales Disponibles"
+    "availableChannels": "Canales Disponibles",
+    "organizationCreated": "¡Bienvenido! Hemos creado \"{org}\" para ti.",
+    "organizationWelcomeBack": "¡Bienvenido de nuevo a {org}!",
+    "organizationCreateFailed": "No se pudo crear la organización. Por favor, intenta refrescar la página.",
+    "organizationSetupFailed": "No se pudo configurar la organización. Por favor, intenta refrescar la página.",
+    "organizationSettingUp": "Configurando tu organización...",
+    "planFeatures": {
+      "free": ["Acceso de Prueba", "Chat Básico Solamente", "Mensajes Limitados"],
+      "basic": ["1 Agente IA de WhatsApp", "Chat Centralizado", "CRM y Contactos", "Workflows Básicos"],
+      "pro": ["Plan Básico +", "Widget de IA Web", "Agente de Voz IA", "Pipeline de Ventas"],
+      "premium": ["Plan Pro +", "2 Agentes IA de WhatsApp", "Instagram y Facebook", "Email Marketing", "Soporte Premium"]
+    },
+    "trialPromotion": {
+      "headline": "🚀 Inicia tu Prueba de 3 Días de WhatsApp AI",
+      "description": "Obtén acceso instantáneo a la automatización inteligente de WhatsApp con tu agente de IA. Tus clientes pueden chatear naturalmente mientras tu IA se encarga de todo:",
+      "customerInquiries": "Consultas y soporte al cliente",
+      "appointmentScheduling": "Agendamiento de citas",
+      "inventoryManagement": "Gestión de inventario",
+      "productRecommendations": "Recomendaciones de productos",
+      "startFreeTrial": "Iniciar Prueba Gratis →",
+      "viewPlans": "Ver Planes",
+      "daysFree": "días gratis"
+    },
+    "greatYourAgentsReady": "¡Genial! Tus agentes están listos",
+    "nowConnectAgentsDescription": "Ahora conecta tus agentes a canales de comunicación como WhatsApp, SMS o chat web para empezar a atender clientes."
   },
   "createAgentModal": {
     "agentName": "Nombre del Agente",
@@ -297,6 +321,8 @@
     "finish": "Finalizar",
     "agentCreated": "¡Agente Creado Exitosamente!",
     "agentReady": "¡Tu agente está listo!",
+    "optional": "Opcional",
+    "optionalUploadDocs": "Sube documentos PDF como políticas de negocio, preguntas frecuentes o información de productos para que tu agente brinde respuestas más precisas y específicas.",
     "tone": {
       "professional": {
         "label": "Profesional",
@@ -379,7 +405,10 @@
     "manageDocumentsModal": {
       "title": "Gestionar Documentos",
       "agent": "Agente",
-      "done": "Hecho"
+      "done": "Hecho",
+      "loadingDocuments": "Cargando documentos...",
+      "totalDocuments": "Documentos Totales:",
+      "processedCount": "Procesados:"
     },
     "channelStatusWidget": {
       "title": "Estado de Canales",
@@ -570,16 +599,11 @@
       "processing": "Procesando...",
       "startFreeTrial": "Iniciar Prueba Gratis",
       "needChanges": "¿Necesitas hacer cambios a tu suscripción?",
+      "subscript": "Todos los precios en USD. Pueden aplicar impuestos. Cancela en cualquier momento.",
       "plans": {
-        "basic": {
-          "name": "Plan Básico"
-        },
-        "professional": {
-          "name": "Plan Profesional"
-        },
-        "premium": {
-          "name": "Plan Premium"
-        }
+        "basic": { "name": "Plan Básico" },
+        "professional": { "name": "Plan Profesional" },
+        "premium": { "name": "Plan Premium" }
       },
       "features": {
         "whatsAppAgent": "Agente IA de WhatsApp (Disponible ahora)",

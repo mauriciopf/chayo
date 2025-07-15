@@ -350,7 +350,7 @@ Instructions:
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">Agent Created Successfully!</h3>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">{t('agentCreated')}</h3>
                   <p className="text-sm text-gray-600 mb-6">
                     Your agent is ready to use. You can optionally add business documents to enhance its knowledge base.
                   </p>
@@ -370,8 +370,7 @@ Instructions:
                     </svg>
                     <div className="ml-3">
                       <p className="text-sm text-blue-800">
-                        <strong>Optional:</strong> Upload PDF documents like business policies, FAQs, or product information 
-                        to help your agent provide more accurate and specific responses.
+                        <strong>{t('optional')}:</strong> {t('optionalUploadDocs')}
                       </p>
                     </div>
                   </div>

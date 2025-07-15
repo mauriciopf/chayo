@@ -108,7 +108,7 @@ export default function ManageDocumentsModal({
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
-                  <span className="ml-2 text-gray-600">Loading documents...</span>
+                  <span className="ml-2 text-gray-600">{t('loadingDocuments')}</span>
                 </div>
               ) : (
                 <DocumentManager
@@ -122,11 +122,11 @@ export default function ManageDocumentsModal({
               {/* Stats */}
               <div className="bg-gray-50 rounded-lg p-4">
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-gray-600">Total Documents:</span>
+                  <span className="text-gray-600">{t('totalDocuments')}</span>
                   <span className="font-medium text-gray-900">{documents.length}</span>
                 </div>
                 <div className="flex justify-between items-center text-sm mt-2">
-                  <span className="text-gray-600">Processed:</span>
+                  <span className="text-gray-600">{t('processedCount')}</span>
                   <span className="font-medium text-gray-900">
                     {documents.filter(doc => doc.processed).length}
                   </span>

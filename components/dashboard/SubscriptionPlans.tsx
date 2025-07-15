@@ -34,7 +34,7 @@ export default function SubscriptionPlans({ currentSubscription, onClose, onSubs
   const plans: Plan[] = [
     {
       id: 'basic',
-      name: t('subscriptionPlans.plans.basic.name'),
+      name: t('plans.basic.name'),
       price: 97,
       priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_BASIC || '',
       color: 'from-purple-500 to-pink-500',
@@ -53,7 +53,7 @@ export default function SubscriptionPlans({ currentSubscription, onClose, onSubs
     },
     {
       id: 'pro',
-      name: t('subscriptionPlans.plans.professional.name'),
+      name: t('plans.professional.name'),
       price: 197,
       priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PRO || '',
       color: 'from-orange-500 to-yellow-500',
@@ -73,7 +73,7 @@ export default function SubscriptionPlans({ currentSubscription, onClose, onSubs
     },
     {
       id: 'premium',
-      name: t('subscriptionPlans.plans.premium.name'),
+      name: t('plans.premium.name'),
       price: 297,
       priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PREMIUM || '',
       color: 'from-emerald-500 to-teal-500',
