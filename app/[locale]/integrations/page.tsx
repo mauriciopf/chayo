@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import type { User } from '@supabase/supabase-js'
 import Link from 'next/link'
 import WhatsAppOnboarding from '@/components/dashboard/WhatsAppOnboarding'
+import { useTranslations } from 'next-intl'
 
 interface Agent {
   id: string
@@ -32,159 +33,8 @@ interface Channel {
   setupSteps: string[]
 }
 
-const channels: Channel[] = [
-  {
-    id: 'whatsapp',
-    name: 'WhatsApp Business',
-    type: 'whatsapp',
-    description: 'Connect your WhatsApp Business account to handle customer inquiries automatically. Available now!',
-    icon: '📱',
-    status: 'available',
-    isPopular: true,
-    planRequired: 'free', // Temporarily changed from 'basic' to 'free' for testing
-    features: [
-      'Automated customer responses',
-      'Rich media support (images, documents)',
-      'Business profile integration',
-      'Message templates',
-      'Analytics and insights',
-      'Multi-language support',
-      'Custom business hours',
-      'Quick replies and workflows'
-    ],
-    setupSteps: [
-      'Verify your WhatsApp Business account',
-      'Connect via API integration',
-      'Configure message templates',
-      'Set up automated responses',
-      'Test the integration',
-      'Go live with your AI agent'
-    ]
-  },
-  {
-    id: 'web',
-    name: 'Web AI Widget',
-    type: 'web',
-    description: 'Embed an intelligent chat widget on your website for instant customer support',
-    icon: '🌐',
-    status: 'coming_soon',
-    planRequired: 'basic',
-    features: [
-      'Customizable AI chat widget',
-      'Website integration',
-      'Real-time intelligent responses',
-      'Visitor tracking',
-      'Mobile responsive design',
-      'Custom branding options'
-    ],
-    setupSteps: [
-      'Generate widget code',
-      'Customize appearance and branding',
-      'Install on website',
-      'Configure AI responses',
-      'Test widget functionality'
-    ]
-  },
-  {
-    id: 'video',
-    name: 'Voice AI Agent',
-    type: 'voice',
-    description: 'Deploy voice-enabled AI agents for phone calls and voice interactions',
-    icon: '�️',
-    status: 'coming_soon',
-    planRequired: 'pro',
-    features: [
-      'Voice call automation',
-      'Natural language processing',
-      'Multi-language voice support',
-      'Call recording and transcription',
-      'Voice personality customization',
-      'Phone number integration'
-    ],
-    setupSteps: [
-      'Set up voice number',
-      'Configure voice AI personality',
-      'Train voice responses',
-      'Test call flows',
-      'Deploy voice agent'
-    ]
-  },
-  {
-    id: 'instagram',
-    name: 'Instagram DM Automation',
-    type: 'instagram',
-    description: 'Automate Instagram direct message responses and engage with your audience 24/7',
-    icon: '📷',
-    status: 'coming_soon',
-    isPopular: true,
-    planRequired: 'basic',
-    features: [
-      'Direct message automation',
-      'Comment responses',
-      'Story mentions handling',
-      'Media sharing capabilities',
-      'Engagement analytics',
-      'Follower interaction tracking'
-    ],
-    setupSteps: [
-      'Connect Instagram Business account',
-      'Authorize API access',
-      'Set up automation rules',
-      'Configure response templates',
-      'Test engagement flows'
-    ]
-  },
-  {
-    id: 'facebook',
-    name: 'Facebook Messenger',
-    type: 'facebook',
-    description: 'Automate Facebook Messenger conversations and manage your page inbox',
-    icon: '�',
-    status: 'coming_soon',
-    planRequired: 'premium',
-    features: [
-      'Messenger automation',
-      'Page inbox management',
-      'Rich responses with buttons',
-      'Persistent menu setup',
-      'User profile access',
-      'Broadcast messaging'
-    ],
-    setupSteps: [
-      'Connect Facebook Page',
-      'Set up Messenger permissions',
-      'Configure automation workflows',
-      'Design conversation flows',
-      'Test message sequences'
-    ]
-  },
-  {
-    id: 'email',
-    name: 'Email Support',
-    type: 'email',
-    description: 'Automate email responses and support tickets with intelligent AI assistance',
-    icon: '📧',
-    status: 'coming_soon',
-    planRequired: 'basic',
-    features: [
-      'Email automation',
-      'Ticket management',
-      'Smart categorization',
-      'Follow-up sequences',
-      'Integration with email providers',
-      'Priority handling'
-    ],
-    setupSteps: [
-      'Connect email account',
-      'Set up IMAP/SMTP',
-      'Configure automation rules',
-      'Design email templates',
-      'Test email workflows'
-    ]
-  }
-]
-
 export default function IntegrationsPage() {
+  const t = useTranslations('integrations')
   const [user, setUser] = useState<User | null>(null)
   const [agents, setAgents] = useState<Agent[]>([])
   const [selectedAgent, setSelectedAgent] = useState<string>('')
@@ -195,6 +45,159 @@ export default function IntegrationsPage() {
   const [showWhatsAppOnboarding, setShowWhatsAppOnboarding] = useState(false)
   const router = useRouter()
   const supabase = createClient()
+
+  // Dynamic channels data using translations
+  const channels: Channel[] = [
+    {
+      id: 'whatsapp',
+      name: t('channels.whatsapp.name'),
+      type: 'whatsapp',
+      description: t('channels.whatsapp.description'),
+      icon: '📱',
+      status: 'available',
+      isPopular: true,
+      planRequired: 'free',
+      features: [
+        t('channels.whatsapp.features.0'),
+        t('channels.whatsapp.features.1'),
+        t('channels.whatsapp.features.2'),
+        t('channels.whatsapp.features.3'),
+        t('channels.whatsapp.features.4'),
+        t('channels.whatsapp.features.5'),
+        t('channels.whatsapp.features.6'),
+        t('channels.whatsapp.features.7')
+      ],
+      setupSteps: [
+        t('channels.whatsapp.setupSteps.0'),
+        t('channels.whatsapp.setupSteps.1'),
+        t('channels.whatsapp.setupSteps.2'),
+        t('channels.whatsapp.setupSteps.3'),
+        t('channels.whatsapp.setupSteps.4'),
+        t('channels.whatsapp.setupSteps.5')
+      ]
+    },
+    {
+      id: 'web',
+      name: t('channels.web.name'),
+      type: 'web',
+      description: t('channels.web.description'),
+      icon: '🌐',
+      status: 'coming_soon',
+      planRequired: 'basic',
+      features: [
+        t('channels.web.features.0'),
+        t('channels.web.features.1'),
+        t('channels.web.features.2'),
+        t('channels.web.features.3'),
+        t('channels.web.features.4'),
+        t('channels.web.features.5')
+      ],
+      setupSteps: [
+        t('channels.web.setupSteps.0'),
+        t('channels.web.setupSteps.1'),
+        t('channels.web.setupSteps.2'),
+        t('channels.web.setupSteps.3'),
+        t('channels.web.setupSteps.4')
+      ]
+    },
+    {
+      id: 'voice',
+      name: t('channels.voice.name'),
+      type: 'voice',
+      description: t('channels.voice.description'),
+      icon: '🎙️',
+      status: 'coming_soon',
+      planRequired: 'pro',
+      features: [
+        t('channels.voice.features.0'),
+        t('channels.voice.features.1'),
+        t('channels.voice.features.2'),
+        t('channels.voice.features.3'),
+        t('channels.voice.features.4'),
+        t('channels.voice.features.5')
+      ],
+      setupSteps: [
+        t('channels.voice.setupSteps.0'),
+        t('channels.voice.setupSteps.1'),
+        t('channels.voice.setupSteps.2'),
+        t('channels.voice.setupSteps.3'),
+        t('channels.voice.setupSteps.4')
+      ]
+    },
+    {
+      id: 'instagram',
+      name: t('channels.instagram.name'),
+      type: 'instagram',
+      description: t('channels.instagram.description'),
+      icon: '📷',
+      status: 'coming_soon',
+      isPopular: true,
+      planRequired: 'basic',
+      features: [
+        t('channels.instagram.features.0'),
+        t('channels.instagram.features.1'),
+        t('channels.instagram.features.2'),
+        t('channels.instagram.features.3'),
+        t('channels.instagram.features.4'),
+        t('channels.instagram.features.5')
+      ],
+      setupSteps: [
+        t('channels.instagram.setupSteps.0'),
+        t('channels.instagram.setupSteps.1'),
+        t('channels.instagram.setupSteps.2'),
+        t('channels.instagram.setupSteps.3'),
+        t('channels.instagram.setupSteps.4')
+      ]
+    },
+    {
+      id: 'facebook',
+      name: t('channels.facebook.name'),
+      type: 'facebook',
+      description: t('channels.facebook.description'),
+      icon: '📘',
+      status: 'coming_soon',
+      planRequired: 'premium',
+      features: [
+        t('channels.facebook.features.0'),
+        t('channels.facebook.features.1'),
+        t('channels.facebook.features.2'),
+        t('channels.facebook.features.3'),
+        t('channels.facebook.features.4'),
+        t('channels.facebook.features.5')
+      ],
+      setupSteps: [
+        t('channels.facebook.setupSteps.0'),
+        t('channels.facebook.setupSteps.1'),
+        t('channels.facebook.setupSteps.2'),
+        t('channels.facebook.setupSteps.3'),
+        t('channels.facebook.setupSteps.4')
+      ]
+    },
+    {
+      id: 'email',
+      name: t('channels.email.name'),
+      type: 'email',
+      description: t('channels.email.description'),
+      icon: '📧',
+      status: 'coming_soon',
+      planRequired: 'basic',
+      features: [
+        t('channels.email.features.0'),
+        t('channels.email.features.1'),
+        t('channels.email.features.2'),
+        t('channels.email.features.3'),
+        t('channels.email.features.4'),
+        t('channels.email.features.5')
+      ],
+      setupSteps: [
+        t('channels.email.setupSteps.0'),
+        t('channels.email.setupSteps.1'),
+        t('channels.email.setupSteps.2'),
+        t('channels.email.setupSteps.3'),
+        t('channels.email.setupSteps.4')
+      ]
+    }
+  ]
 
   useEffect(() => {
     const getUser = async () => {
@@ -318,20 +321,20 @@ export default function IntegrationsPage() {
                 whileHover={{ scale: 1.02 }}
               >
                 <span className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 bg-clip-text text-transparent">
-                  Channel Integrations
+                  {t('title')}
                 </span>
               </motion.h1>
             </div>
             
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-500">
-                Current plan: {subscription?.plan_name || 'free'}
+                {t('currentPlan')}: {subscription?.plan_name || 'free'}
               </span>
               <Link
                 href="/dashboard"
                 className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-4 py-2 rounded-xl font-medium transition-all duration-200 shadow-lg"
               >
-                Back to Dashboard
+                {t('backToDashboard')}
               </Link>
             </div>
           </div>
@@ -347,19 +350,18 @@ export default function IntegrationsPage() {
                 <span className="text-white text-xl">🚀</span>
               </div>
               <div>
-                <h3 className="text-lg font-bold text-gray-900">Launch Status</h3>
+                <h3 className="text-lg font-bold text-gray-900">{t('launchStatus.title')}</h3>
                 <p className="text-sm text-gray-600">
-                  <span className="font-medium text-green-600">WhatsApp Business</span> is now available! 
-                  Other channels are coming soon.
+                  <span className="font-medium text-green-600">{t('channels.whatsapp.name')}</span> {t('launchStatus.description')}
                 </p>
               </div>
             </div>
             <div className="flex items-center space-x-2">
               <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                📱 WhatsApp Live
+                {t('launchStatus.whatsappLive')}
               </span>
               <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                🔧 Others Coming Soon
+                {t('launchStatus.othersComingSoon')}
               </span>
             </div>
           </div>
@@ -369,7 +371,7 @@ export default function IntegrationsPage() {
         {agents.length > 0 && (
           <div className="mb-8">
             <h2 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
-              Select an Agent to Connect Channels
+              {t('agentSelection.title')}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {agents.map((agent) => (
@@ -408,11 +410,11 @@ export default function IntegrationsPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.728-.833-2.498 0L3.316 16.5c-.77.833.192 2.5 1.732 2.5z" />
               </svg>
               <div>
-                <p className="font-medium text-yellow-800">No agents found</p>
+                <p className="font-medium text-yellow-800">{t('noAgents.title')}</p>
                 <p className="text-sm text-yellow-600">
-                  You need to create an agent before connecting channels.{' '}
+                  {t('noAgents.description')}{' '}
                   <Link href="/dashboard" className="underline hover:text-yellow-700">
-                    Go to dashboard
+                    {t('noAgents.goToDashboard')}
                   </Link>
                 </p>
               </div>
@@ -425,14 +427,14 @@ export default function IntegrationsPage() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                Available Channels
+                {t('availableChannels.title')}
               </h2>
               <p className="text-gray-600 mt-1">
-                WhatsApp is live now • Other channels launching soon
+                {t('availableChannels.subtitle')}
               </p>
             </div>
             <div className="text-sm text-gray-500">
-              Powered by n8n workflows
+              {t('availableChannels.poweredBy')}
             </div>
           </div>
 
@@ -454,7 +456,7 @@ export default function IntegrationsPage() {
                         <h3 className="font-semibold text-gray-900">{channel.name}</h3>
                         {channel.isPopular && (
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            Popular
+                            {t('availableChannels.popular')}
                           </span>
                         )}
                       </div>
@@ -465,7 +467,7 @@ export default function IntegrationsPage() {
                       </span>
                       {channel.status === 'coming_soon' && (
                         <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 mt-1">
-                          Coming Soon
+                          {t('availableChannels.comingSoon')}
                         </span>
                       )}
                     </div>
@@ -474,7 +476,7 @@ export default function IntegrationsPage() {
                   <p className="text-gray-600 text-sm mb-4">{channel.description}</p>
 
                   <div className="mb-4">
-                    <h4 className="font-medium text-gray-900 mb-2">Features:</h4>
+                    <h4 className="font-medium text-gray-900 mb-2">{t('availableChannels.features')}:</h4>
                     <ul className="text-sm text-gray-600 space-y-1">
                       {channel.features.slice(0, 3).map((feature, index) => (
                         <li key={index} className="flex items-center">
@@ -486,7 +488,7 @@ export default function IntegrationsPage() {
                       ))}
                       {channel.features.length > 3 && (
                         <li className="text-gray-500 text-xs">
-                          +{channel.features.length - 3} more features
+                          +{channel.features.length - 3} {t('availableChannels.moreFeatures')}
                         </li>
                       )}
                     </ul>
@@ -508,12 +510,12 @@ export default function IntegrationsPage() {
                     }`}
                   >
                     {!canAccessChannel(channel)
-                      ? `Upgrade to ${channel.planRequired}`
+                      ? `${t('availableChannels.upgradeTo')} ${channel.planRequired}`
                       : channel.status === 'coming_soon'
-                      ? 'Coming Soon'
+                      ? t('availableChannels.comingSoon')
                       : !selectedAgent
-                      ? 'Select Agent First'
-                      : 'Connect Channel'
+                      ? t('availableChannels.selectAgentFirst')
+                      : t('availableChannels.connectChannel')
                     }
                   </motion.button>
                 </div>
@@ -525,26 +527,23 @@ export default function IntegrationsPage() {
         {/* Setup Instructions */}
         <div className="bg-white/80 backdrop-blur-md border border-white/20 rounded-2xl shadow-xl p-6">
           <h3 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
-            🔧 How Channel Integration Works
+            {t('setupInstructions.title')}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h4 className="font-medium text-purple-800 mb-2">n8n Workflow Integration</h4>
+              <h4 className="font-medium text-purple-800 mb-2">{t('setupInstructions.workflowIntegration.title')}</h4>
               <ul className="text-sm text-gray-700 space-y-1">
-                <li>• Each channel connects via custom n8n workflows</li>
-                <li>• Workflows handle message routing and responses</li>
-                <li>• Real-time synchronization with your AI agents</li>
-                <li>• Scalable architecture for high-volume conversations</li>
+                {t.raw('setupInstructions.workflowIntegration.points').map((point: string, index: number) => (
+                  <li key={index}>• {point}</li>
+                ))}
               </ul>
             </div>
             <div>
-              <h4 className="font-medium text-purple-800 mb-2">Setup Process</h4>
+              <h4 className="font-medium text-purple-800 mb-2">{t('setupInstructions.setupProcess.title')}</h4>
               <ul className="text-sm text-gray-700 space-y-1">
-                <li>1. Select your AI agent</li>
-                <li>2. Choose channel to connect</li>
-                <li>3. Follow platform-specific setup steps</li>
-                <li>4. Test the integration</li>
-                <li>5. Start receiving automated responses</li>
+                {t.raw('setupInstructions.setupProcess.steps').map((step: string, index: number) => (
+                  <li key={index}>{index + 1}. {step}</li>
+                ))}
               </ul>
             </div>
           </div>
@@ -564,7 +563,7 @@ export default function IntegrationsPage() {
                 <div className="flex items-center">
                   <span className="text-2xl mr-3">{selectedChannel.icon}</span>
                   <h3 className="text-xl font-semibold text-gray-900">
-                    Connect {selectedChannel.name}
+                    {t('setupModal.connectTitle')} {selectedChannel.name}
                   </h3>
                 </div>
                 <button
@@ -578,7 +577,7 @@ export default function IntegrationsPage() {
               </div>
 
               <div className="mb-6">
-                <h4 className="font-medium text-gray-900 mb-3">Setup Steps:</h4>
+                <h4 className="font-medium text-gray-900 mb-3">{t('setupModal.setupSteps')}</h4>
                 <ol className="space-y-3">
                   {selectedChannel.setupSteps.map((step, index) => (
                     <li key={index} className="flex items-start">
@@ -592,7 +591,7 @@ export default function IntegrationsPage() {
               </div>
 
               <div className="mb-6">
-                <h4 className="font-medium text-gray-900 mb-3">All Features:</h4>
+                <h4 className="font-medium text-gray-900 mb-3">{t('setupModal.allFeatures')}</h4>
                 <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {selectedChannel.features.map((feature, index) => (
                     <li key={index} className="flex items-center text-sm text-gray-600">
@@ -611,11 +610,11 @@ export default function IntegrationsPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <div>
-                    <p className="font-medium text-blue-800">Integration Status</p>
+                    <p className="font-medium text-blue-800">{t('setupModal.integrationStatus')}</p>
                     <p className="text-sm text-blue-700">
                       {selectedChannel.id === 'whatsapp' 
-                        ? 'WhatsApp Business integration is ready! Contact our support team to get started.'
-                        : 'This channel is coming soon. Click "Get Notified" to be informed when it\'s ready.'
+                        ? t('setupModal.whatsappReady')
+                        : t('setupModal.comingSoonNotice')
                       }
                     </p>
                   </div>
@@ -627,7 +626,7 @@ export default function IntegrationsPage() {
                   onClick={() => setShowSetupModal(false)}
                   className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
                 >
-                  Cancel
+                  {t('setupModal.cancel')}
                 </button>
                 <button
                   onClick={() => {
@@ -640,7 +639,7 @@ export default function IntegrationsPage() {
                   }}
                   className="px-4 py-2 bg-orange-400 text-white rounded-lg hover:bg-orange-500 transition-colors"
                 >
-                  {selectedChannel?.id === 'whatsapp' ? 'Start Setup' : 'Get Notified'}
+                  {selectedChannel?.id === 'whatsapp' ? t('setupModal.startSetup') : t('setupModal.getNotified')}
                 </button>
               </div>
             </div>
