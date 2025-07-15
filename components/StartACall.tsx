@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Helmet } from "react-helmet";
+import Head from "next/head";
 import { useState, useEffect } from "react";
 import { useTranslations } from 'next-intl';
 
@@ -300,10 +300,10 @@ export default function StartACall({ darkMode = true, setDarkMode, onClose }: St
         ? 'bg-gradient-to-br from-gray-950 via-slate-900 to-gray-950 text-white' 
         : 'bg-gradient-to-br from-gray-50 via-white to-gray-100 text-gray-900'
     }`}>
-      <Helmet>
+      <Head>
         <title>Start Your AI Call - Chayo AI</title>
         <meta name="description" content="Connect with our AI agent for instant business consultation" />
-      </Helmet>
+      </Head>
       
       <div className="text-center">
         <motion.h1 

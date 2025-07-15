@@ -4,7 +4,7 @@ import type { NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import {routing} from './src/i18n/routing';
 
-// First handle internationalization
+// Create the internationalization middleware
 const intlMiddleware = createMiddleware(routing);
 
 export async function middleware(request: NextRequest) {
@@ -14,10 +14,22 @@ export async function middleware(request: NextRequest) {
       return NextResponse.next()
     }
 
-    // Handle internationalization first
+    // Handle internationalization first - this is crucial for locale routing
     const intlResponse = intlMiddleware(request);
+    
+    // If intl middleware returns a response (redirect for missing locale), use it immediately
     if (intlResponse) {
       return intlResponse;
+    }
+
+    // Only proceed with auth checks if we have a valid locale in the path
+    const pathname = request.nextUrl.pathname;
+    const hasLocale = /^\/(en|es)/.test(pathname);
+    
+    if (!hasLocale) {
+      // This shouldn't happen if intl middleware is working correctly,
+      // but as a fallback, redirect to default locale
+      return NextResponse.redirect(new URL(`/en${pathname}`, request.url));
     }
 
     // Create a Supabase client configured to use cookies
@@ -26,47 +38,39 @@ export async function middleware(request: NextRequest) {
     // Refresh session if expired - required for Server Components
     const { data: { user } } = await supabase.auth.getUser()
 
+    // Extract path without locale for route checking
+    const pathWithoutLocale = pathname.replace(/^\/(en|es)/, '') || '/'
+
     // Protect dashboard routes (locale-aware)
-    const pathWithoutLocale = request.nextUrl.pathname.replace(/^\/(en|es)/, '') || '/'
     if (pathWithoutLocale.startsWith('/dashboard')) {
       if (!user) {
-        const locale = request.nextUrl.pathname.split('/')[1] || 'en'
-        const redirectUrl = new URL(`/${locale}/auth`, request.url)
-        return NextResponse.redirect(redirectUrl)
+        const locale = pathname.match(/^\/(en|es)/)?.[1] || 'en';
+        return NextResponse.redirect(new URL(`/${locale}/auth`, request.url))
       }
     }
 
-    // Redirect authenticated users away from auth pages (but not callback)
-    if (pathWithoutLocale.startsWith('/auth') && 
-        !request.nextUrl.pathname.includes('/callback')) {
+    // Redirect authenticated users away from auth pages
+    if (pathWithoutLocale.startsWith('/auth') &&
+        !pathWithoutLocale.startsWith('/auth/callback')) {
       if (user) {
-        const locale = request.nextUrl.pathname.split('/')[1] || 'en'
+        const locale = pathname.match(/^\/(en|es)/)?.[1] || 'en';
         return NextResponse.redirect(new URL(`/${locale}/dashboard`, request.url))
       }
     }
 
     return response
-  } catch (e) {
-    // If you are here, a Supabase client could not be created!
-    // This is likely because you have not set up environment variables.
-    console.error('Middleware error:', e)
-    return NextResponse.next({
-      request: {
-        headers: request.headers,
-      },
-    })
+  } catch (error) {
+    console.error('Middleware error:', error)
+    return NextResponse.next()
   }
 }
 
 export const config = {
+  // Match all pathnames except for
+  // - api routes
+  // - _next (internal Next.js files)
+  // - static files (images, etc.)
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * Feel free to modify this pattern to include more paths.
-     */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!api|_next|_vercel|.*\\..*).*)',
   ],
 }
