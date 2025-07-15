@@ -183,8 +183,8 @@ export default function AgentCard({
       {/* Connected Channels */}
       <div className="mb-4 relative z-10">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-semibold text-gray-700">Connected Channels</span>
-          <span className="text-xs text-gray-500">{connectedChannels.length} active</span>
+          <span className="text-sm font-semibold text-gray-700">{t('connectedChannels')}</span>
+          <span className="text-xs text-gray-500">{connectedChannels.length} {t('activeChannels')}</span>
         </div>
         
         {connectedChannels.length > 0 ? (
@@ -201,14 +201,14 @@ export default function AgentCard({
             ))}
           </div>
         ) : (
-          <p className="text-sm text-gray-500 italic">No channels connected</p>
+          <p className="text-sm text-gray-500 italic">{t('noChannelsConnected')}</p>
         )}
       </div>
 
       {/* Available Channels */}
       {availableChannels.length > 0 && (
         <div className="mb-4 relative z-10">
-          <span className="text-sm font-semibold text-gray-700">Available Channels</span>
+          <span className="text-sm font-semibold text-gray-700">{t('availableChannels')}</span>
           <div className="flex flex-wrap gap-2 mt-2">
             {availableChannels.map((channel) => (
               <div
@@ -229,7 +229,7 @@ export default function AgentCard({
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center space-x-4">
             <div>
-              <span className="text-gray-500">Status:</span>
+              <span className="text-gray-500">{t('status.label')}:</span>
               <span className={`ml-1 font-semibold ${
                 agent.paused ? 'text-yellow-600' : 'text-green-600'
               }`}>
@@ -252,7 +252,7 @@ export default function AgentCard({
           onClick={onEdit}
           className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white text-sm font-semibold py-3 px-3 rounded-xl transition-all duration-200 shadow-lg"
         >
-          Configure
+          {t('configure')}
         </motion.button>
         <motion.button
           whileHover={{ scale: 1.05 }}
@@ -264,7 +264,7 @@ export default function AgentCard({
               : 'bg-gradient-to-r from-yellow-100 to-orange-100 hover:from-yellow-200 hover:to-orange-200 text-yellow-800'
           }`}
         >
-          {agent.paused ? 'Resume' : 'Pause'}
+          {agent.paused ? t('resume') : t('pause')}
         </motion.button>
       </div>
     </motion.div>

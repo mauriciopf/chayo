@@ -3,6 +3,7 @@ import {getMessages} from 'next-intl/server';
 import {notFound} from 'next/navigation';
 import type { Metadata } from 'next'
 import '../globals.css'
+import LanguageSelector from '@/components/LanguageSelector'
 
 // Define supported locales directly
 const locales = ['en', 'es'];
@@ -63,8 +64,8 @@ export default async function LocaleLayout({
     notFound();
   }
 
-  // Get messages using next-intl's getMessages (which will use our i18n.ts config)
-  const messages = await getMessages();
+  // Get messages using next-intl's getMessages with explicit locale
+  const messages = await getMessages({ locale });
 
   return (
     <html lang={locale}>
@@ -74,10 +75,14 @@ export default async function LocaleLayout({
       </head>
       <body className="font-sans">
         <NextIntlClientProvider messages={messages} locale={locale}>
+          <LanguageSelector />
           {children}
         </NextIntlClientProvider>
-        {/* ElevenLabs Widget */}
-        <div dangerouslySetInnerHTML={{ __html: '<elevenlabs-convai agent-id="agent_01jyc95f0be1v9xww6h31366mw"></elevenlabs-convai>' }} />
+        {/* ElevenLabs Widget - Desktop only, hidden on mobile */}
+        <div 
+          className="hidden md:block elevenlabs-widget-container" 
+          dangerouslySetInnerHTML={{ __html: '<elevenlabs-convai agent-id="agent_01jyc95f0be1v9xww6h31366mw"></elevenlabs-convai>' }} 
+        />
       </body>
     </html>
   )

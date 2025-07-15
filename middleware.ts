@@ -17,6 +17,6 @@ export default createMiddleware({
 export const config = {
   matcher: [
     // Match all routes except static files and API routes
-    '/((?!_next|favicon.ico|api|images|robots.txt|sitemap.xml).*)',
-  ],
+    '/((?!api|_next|_vercel|.*\\..*).*)'
+  ]
 };

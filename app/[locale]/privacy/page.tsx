@@ -1,50 +1,50 @@
-import type { Metadata } from 'next'
+'use client'
 
-export const metadata: Metadata = {
-  title: 'Privacy Policy | Chayo AI',
-  description: 'Privacy Policy for Chayo AI - Learn how we collect, use, and protect your personal information.',
-}
+import type { Metadata } from 'next'
+import { useTranslations } from 'next-intl'
+
+// Note: Since this is now a client component, metadata should be handled differently
+// Consider moving metadata to a layout or using generateMetadata if needed
 
 export default function PrivacyPolicy() {
+  const t = useTranslations('privacy')
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
       <div className="max-w-4xl mx-auto px-4 py-16">
         <div className="bg-white rounded-3xl shadow-xl p-8 lg:p-12">
           <div className="mb-8">
             <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
-              Privacy Policy
+              {t('title')}
             </h1>
             <p className="text-gray-600">
-              Last updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+              {t('lastUpdated')}: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
             </p>
           </div>
 
           <div className="prose prose-lg max-w-none">
             <section className="mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Introduction</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('introduction.title')}</h2>
               <p className="text-gray-700 leading-relaxed mb-4">
-                Welcome to Chayo AI ("we," "our," or "us"). We respect your privacy and are committed to protecting your personal data. 
-                This privacy policy explains how we collect, use, and safeguard your information when you use our AI business automation platform.
+                {t('introduction.content')}
               </p>
             </section>
 
             <section className="mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Information We Collect</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('informationWeCollect.title')}</h2>
               
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Personal Information</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">{t('informationWeCollect.personalInfo.title')}</h3>
               <ul className="text-gray-700 space-y-2 mb-4">
-                <li>• Name and email address when you create an account</li>
-                <li>• Profile information and business details</li>
-                <li>• Payment information (processed securely through Stripe)</li>
-                <li>• Communication preferences and settings</li>
+                {t.raw('informationWeCollect.personalInfo.items').map((item: string, index: number) => (
+                  <li key={index}>• {item}</li>
+                ))}
               </ul>
 
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Usage Data</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">{t('informationWeCollect.usageData.title')}</h3>
               <ul className="text-gray-700 space-y-2 mb-4">
-                <li>• How you interact with our platform and AI agents</li>
-                <li>• Conversation logs and chat history for service improvement</li>
-                <li>• Technical data like IP address, browser type, and device information</li>
-                <li>• Analytics data to improve our services</li>
+                {t.raw('informationWeCollect.usageData.items').map((item: string, index: number) => (
+                  <li key={index}>• {item}</li>
+                ))}
               </ul>
             </section>
 

@@ -208,13 +208,13 @@ Instructions:
               ))}
             </div>
             <div className="flex mt-2 text-xs text-gray-600">
-              <span className="w-8 text-center">Basic</span>
+              <span className="w-8 text-center">{t('steps.basic')}</span>
               <span className="w-12"></span>
-              <span className="w-8 text-center">Goals</span>
+              <span className="w-8 text-center">{t('steps.goals')}</span>
               <span className="w-12"></span>
-              <span className="w-8 text-center">Review</span>
+              <span className="w-8 text-center">{t('steps.review')}</span>
               <span className="w-12"></span>
-              <span className="w-8 text-center">Docs</span>
+              <span className="w-8 text-center">{t('steps.docs')}</span>
             </div>
           </div>
 

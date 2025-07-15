@@ -145,10 +145,10 @@ export default function PerformanceOverview({ className = '' }: PerformanceOverv
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
               </div>
-              <h4 className="font-medium text-gray-900 mb-1">Conversation Trends</h4>
-              <p className="text-sm text-gray-500 mb-3">Interactive charts coming soon</p>
+              <h4 className="font-medium text-gray-900 mb-1">{t('conversationTrends')}</h4>
+              <p className="text-sm text-gray-500 mb-3">{t('interactiveChartsComingSoon')}</p>
               <button className="text-xs bg-orange-100 text-orange-800 px-3 py-1 rounded-full hover:bg-orange-200 transition-colors">
-                View Sample Chart
+                {t('viewSampleChart')}
               </button>
             </div>
           </motion.div>
@@ -167,10 +167,10 @@ export default function PerformanceOverview({ className = '' }: PerformanceOverv
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
                 </svg>
               </div>
-              <h4 className="font-medium text-gray-900 mb-1">Engagement Metrics</h4>
-              <p className="text-sm text-gray-500 mb-3">Pie charts and breakdowns coming soon</p>
+              <h4 className="font-medium text-gray-900 mb-1">{t('engagementMetrics')}</h4>
+              <p className="text-sm text-gray-500 mb-3">{t('pieChartsComingSoon')}</p>
               <button className="text-xs bg-blue-100 text-blue-800 px-3 py-1 rounded-full hover:bg-blue-200 transition-colors">
-                View Sample Chart
+                {t('viewSampleChart')}
               </button>
             </div>
           </motion.div>
@@ -187,7 +187,7 @@ export default function PerformanceOverview({ className = '' }: PerformanceOverv
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            <span>Export Data</span>
+            <span>{t('exportData')}</span>
           </button>
           
           <button className="px-4 py-2 text-sm bg-blue-100 text-blue-800 rounded-lg hover:bg-blue-200 transition-colors flex items-center space-x-2">
@@ -195,21 +195,21 @@ export default function PerformanceOverview({ className = '' }: PerformanceOverv
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
             </svg>
-            <span>View Details</span>
+            <span>{t('viewDetails')}</span>
           </button>
           
           <button className="px-4 py-2 text-sm bg-purple-100 text-purple-800 rounded-lg hover:bg-purple-200 transition-colors flex items-center space-x-2">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a4 4 0 01-4-4V5a2 2 0 012-2h6l3 3h6a2 2 0 012 2v11a4 4 0 01-4 4z" />
             </svg>
-            <span>Generate Report</span>
+            <span>{t('generateReport')}</span>
           </button>
           
           <button className="px-4 py-2 text-sm bg-green-100 text-green-800 rounded-lg hover:bg-green-200 transition-colors flex items-center space-x-2">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
-            <span>Refresh Data</span>
+            <span>{t('refreshData')}</span>
           </button>
         </motion.div>
       </div>

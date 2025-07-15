@@ -188,11 +188,11 @@ Instructions:
               ))}
             </div>
             <div className="flex mt-2 text-xs text-gray-600">
-              <span className="w-8 text-center">Basic</span>
+              <span className="w-8 text-center">{t('steps.basic')}</span>
               <span className="w-16"></span>
-              <span className="w-8 text-center">Goals</span>
+              <span className="w-8 text-center">{t('steps.goals')}</span>
               <span className="w-16"></span>
-              <span className="w-8 text-center">Review</span>
+              <span className="w-8 text-center">{t('steps.review')}</span>
             </div>
           </div>
 
@@ -322,7 +322,7 @@ Instructions:
                 </div>
 
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <h4 className="font-medium text-blue-900 mb-2">Agent Summary</h4>
+                  <h4 className="font-medium text-blue-900 mb-2">{t('agentSummary')}</h4>
                   <div className="space-y-2 text-sm text-blue-800">
                     <div><strong>Name:</strong> {formData.name}</div>
                     <div><strong>Tone:</strong> {formData.tone}</div>

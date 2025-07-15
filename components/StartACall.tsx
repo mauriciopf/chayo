@@ -305,6 +305,12 @@ export default function StartACall({ darkMode = true, setDarkMode, onClose }: St
         <meta name="description" content="Connect with our AI agent for instant business consultation" />
       </Head>
       
+      {/* Mobile ElevenLabs Widget - Only visible on mobile */}
+      <div 
+        className="md:hidden elevenlabs-widget-mobile" 
+        dangerouslySetInnerHTML={{ __html: '<elevenlabs-convai agent-id="agent_01jyc95f0be1v9xww6h31366mw"></elevenlabs-convai>' }} 
+      />
+      
       <div className="text-center">
         <motion.h1 
           className="text-4xl md:text-6xl font-bold mb-8 bg-gradient-to-r from-orange-400 to-cyan-400 bg-clip-text text-transparent"
