@@ -17,24 +17,6 @@ interface CountryCode {
   flag: string
 }
 
-const COUNTRY_CODES: CountryCode[] = [
-  { code: '1', country: 'United States', flag: '🇺🇸' },
-  { code: '1', country: 'Canada', flag: '🇨🇦' },
-  { code: '52', country: 'Mexico', flag: '🇲🇽' },
-  { code: '34', country: 'Spain', flag: '🇪🇸' },
-  { code: '54', country: 'Argentina', flag: '🇦🇷' },
-  { code: '55', country: 'Brazil', flag: '🇧🇷' },
-  { code: '56', country: 'Chile', flag: '🇨🇱' },
-  { code: '57', country: 'Colombia', flag: '🇨🇴' },
-  { code: '58', country: 'Venezuela', flag: '🇻🇪' },
-  { code: '51', country: 'Peru', flag: '🇵🇪' },
-  { code: '593', country: 'Ecuador', flag: '🇪🇨' },
-  { code: '44', country: 'United Kingdom', flag: '🇬🇧' },
-  { code: '33', country: 'France', flag: '🇫🇷' },
-  { code: '49', country: 'Germany', flag: '🇩🇪' },
-  { code: '39', country: 'Italy', flag: '🇮🇹' },
-]
-
 export default function WhatsAppOnboarding({ agentId, agentName, onSuccess, onCancel }: WhatsAppOnboardingProps) {
   const [step, setStep] = useState(1)
   const [numberFlow, setNumberFlow] = useState<'new' | 'existing'>('new') // Default to new number
@@ -50,6 +32,24 @@ export default function WhatsAppOnboarding({ agentId, agentName, onSuccess, onCa
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const t = useTranslations('whatsAppOnboarding')
+
+  const COUNTRY_CODES: CountryCode[] = [
+    { code: '1', country: t('countries.unitedStates'), flag: '🇺🇸' },
+    { code: '1', country: t('countries.canada'), flag: '🇨🇦' },
+    { code: '52', country: t('countries.mexico'), flag: '🇲🇽' },
+    { code: '34', country: t('countries.spain'), flag: '🇪🇸' },
+    { code: '54', country: t('countries.argentina'), flag: '🇦🇷' },
+    { code: '55', country: t('countries.brazil'), flag: '🇧🇷' },
+    { code: '56', country: t('countries.chile'), flag: '🇨🇱' },
+    { code: '57', country: t('countries.colombia'), flag: '🇨🇴' },
+    { code: '58', country: t('countries.venezuela'), flag: '🇻🇪' },
+    { code: '51', country: t('countries.peru'), flag: '🇵🇪' },
+    { code: '593', country: t('countries.ecuador'), flag: '🇪🇨' },
+    { code: '44', country: t('countries.unitedKingdom'), flag: '🇬🇧' },
+    { code: '33', country: t('countries.france'), flag: '🇫🇷' },
+    { code: '49', country: t('countries.germany'), flag: '🇩🇪' },
+    { code: '39', country: t('countries.italy'), flag: '🇮🇹' },
+  ]
 
   const fetchAvailableNumbers = useCallback(async () => {
     setLoadingNumbers(true)
@@ -423,10 +423,10 @@ export default function WhatsAppOnboarding({ agentId, agentName, onSuccess, onCa
                       <div className="text-sm text-red-800">
                         <p className="font-medium mb-2">⚠️ Required Steps to Migrate:</p>
                         <ul className="space-y-1 text-xs">
-                          <li>✅ <strong>Own the number</strong> - Must be SMS/voice capable, not shared with another Meta Business account</li>
-                          <li>❌ <strong>Delete WhatsApp Account</strong> - Open WhatsApp Business → Settings → Account → Delete My Account</li>
-                          <li>🕓 <strong>Wait for Meta systems</strong> - Can take 24-48 hours for number to be released</li>
-                          <li>⚠️ <strong>During migration</strong> - Number cannot receive messages</li>
+                          <li>✅ <strong>{t('migration.ownNumber')}</strong> - {t('migration.ownNumberDesc')}</li>
+                          <li>❌ <strong>{t('migration.deleteAccount')}</strong> - {t('migration.deleteAccountDesc')}</li>
+                          <li>🕓 <strong>{t('migration.waitSystems')}</strong> - {t('migration.waitSystemsDesc')}</li>
+                          <li>⚠️ <strong>{t('migration.duringMigration')}</strong> - {t('migration.duringMigrationDesc')}</li>
                         </ul>
                         <p className="mt-2 font-medium text-red-900">This will completely wipe your current WhatsApp presence!</p>
                       </div>

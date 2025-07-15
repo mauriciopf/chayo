@@ -265,7 +265,19 @@
     "autoOrganization": "Cada usuario obtiene automáticamente su propia organización para la colaboración en equipo",
     "orgNameUpdated": "¡Nombre de organización actualizado!",
     "failedToUpdateOrg": "Error al actualizar organización",
-    "billingPortalError": "No se puede abrir el portal de facturación. Por favor intenta de nuevo."
+    "billingPortalError": "No se puede abrir el portal de facturación. Por favor intenta de nuevo.",
+    "createAgentButton": "Crear Agente",
+    "upgradePlan": "Mejorar Plan",
+    "changePlan": "Cambiar Plan",
+    "connectChannels": "Conectar Canales",
+    "yourPlanFeatures": "Características de tu Plan",
+    "organizationName": "Nombre de Organización", 
+    "currentPlan": "Plan Actual",
+    "nextBilling": "Próxima Facturación",
+    "accountSettings": "Configuración de Cuenta",
+    "connectedChannels": "Canales Conectados",
+    "noChannelsConnected": "No hay canales conectados",
+    "availableChannels": "Canales Disponibles"
   },
   "createAgentModal": {
     "agentName": "Nombre del Agente",
@@ -307,6 +319,13 @@
         "description": "Enérgico y positivo"
       }
     },
+    "steps": {
+      "basic": "Básico",
+      "goals": "Objetivos", 
+      "review": "Revisar",
+      "docs": "Docs"
+    }
+  },
     "agentCard": {
       "tone": "TONO:",
       "goals": "OBJETIVOS:",
@@ -318,7 +337,15 @@
       "pauseAgent": "Pausar Agente",
       "resumeAgent": "Reanudar Agente",
       "deleteAgent": "Eliminar Agente",
+      "connectedChannels": "Canales Conectados",
+      "noChannelsConnected": "No hay canales conectados",
+      "availableChannels": "Canales Disponibles",
+      "configure": "Configurar",
+      "resume": "Reanudar",
+      "pause": "Pausar",
+      "activeChannels": "activos", 
       "status": {
+        "label": "Estado",
         "active": "Activo",
         "paused": "Pausado"
       }
@@ -341,7 +368,13 @@
       "cancel": "Cancelar",
       "next": "Siguiente",
       "updating": "Actualizando...",
-      "updateAgent": "Actualizar Agente"
+      "updateAgent": "Actualizar Agente",
+      "agentSummary": "Resumen del Agente",
+      "steps": {
+        "basic": "Básico",
+        "goals": "Objetivos",
+        "review": "Revisar"
+      }
     },
     "manageDocumentsModal": {
       "title": "Gestionar Documentos",
@@ -350,7 +383,7 @@
     },
     "channelStatusWidget": {
       "title": "Estado de Canales",
-      "connected": "conectados",
+      "connected": "Conectados",
       "comingSoon": "Próximamente",
       "disconnected": "Desconectado",
       "manageChannels": "Gestionar Canales"
@@ -379,7 +412,16 @@
         "satisfactionRate": "Tasa de Satisfacción",
         "conversionRate": "Tasa de Conversión"
       },
-      "description": "Información sobre las métricas de interacción y participación de tu plataforma de IA"
+      "description": "Información sobre las métricas de interacción y participación de tu plataforma de IA",
+      "conversationTrends": "Tendencias de Conversación",
+      "interactiveChartsComingSoon": "Gráficos interactivos próximamente",
+      "viewSampleChart": "Ver Gráfico de Muestra",
+      "engagementMetrics": "Métricas de Participación", 
+      "pieChartsComingSoon": "Gráficos circulares y desglose próximamente",
+      "exportData": "Exportar Datos",
+      "viewDetails": "Ver Detalles",
+      "generateReport": "Generar Reporte",
+      "refreshData": "Actualizar Datos"
     },
     "teamManagement": {
       "title": "Miembros del Equipo",
@@ -426,6 +468,13 @@
       "failed": "Falló",
       "deleteDocument": "Eliminar Documento",
       "confirmDelete": "¿Estás seguro de que quieres eliminar este documento?",
+      "fileSizes": {
+        "zeroBytes": "0 Bytes",
+        "bytes": "Bytes",
+        "kb": "KB",
+        "mb": "MB",
+        "gb": "GB"
+      },
       "errors": {
         "onlyPdf": "Solo se permiten archivos PDF",
         "fileSize": "El tamaño del archivo debe ser menor a 10MB",
@@ -468,6 +517,23 @@
       "agent": "Agente",
       "phone": "Teléfono",
       "business": "Negocio",
+      "countries": {
+        "unitedStates": "Estados Unidos",
+        "canada": "Canadá",
+        "mexico": "México",
+        "spain": "España",
+        "argentina": "Argentina",
+        "brazil": "Brasil",
+        "chile": "Chile",
+        "colombia": "Colombia",
+        "venezuela": "Venezuela",
+        "peru": "Perú",
+        "ecuador": "Ecuador",
+        "unitedKingdom": "Reino Unido",
+        "france": "Francia",
+        "germany": "Alemania",
+        "italy": "Italia"
+      },
       "errors": {
         "phoneRequired": "El número telefónico es requerido",
         "phoneMinLength": "El número telefónico debe tener al menos 10 dígitos",
@@ -477,6 +543,16 @@
         "fetchNumbers": "Error al obtener números disponibles",
         "purchaseNumber": "Error al comprar número telefónico",
         "setupFailed": "Error al configurar WhatsApp"
+      },
+      "migration": {
+        "ownNumber": "Poseer el número",
+        "ownNumberDesc": "Debe ser capaz de SMS/voz, no compartido con otra cuenta Meta Business",
+        "deleteAccount": "Eliminar Cuenta de WhatsApp",
+        "deleteAccountDesc": "Abrir WhatsApp Business → Configuración → Cuenta → Eliminar Mi Cuenta",
+        "waitSystems": "Esperar sistemas de Meta",
+        "waitSystemsDesc": "Puede tomar 24-48 horas para que el número sea liberado",
+        "duringMigration": "Durante la migración",
+        "duringMigrationDesc": "El número no puede recibir mensajes"
       }
     },
     "subscriptionPlans": {
@@ -494,6 +570,17 @@
       "processing": "Procesando...",
       "startFreeTrial": "Iniciar Prueba Gratis",
       "needChanges": "¿Necesitas hacer cambios a tu suscripción?",
+      "plans": {
+        "basic": {
+          "name": "Plan Básico"
+        },
+        "professional": {
+          "name": "Plan Profesional"
+        },
+        "premium": {
+          "name": "Plan Premium"
+        }
+      },
       "features": {
         "whatsAppAgent": "Agente IA de WhatsApp (Disponible ahora)",
         "multipleAgents": "Múltiples Agentes IA",
@@ -554,6 +641,335 @@
     },
     "metricCard": {
       "noData": "No hay datos disponibles"
+    },
+  "integrations": {
+    "title": "Integraciones de Canales",
+    "backToDashboard": "Volver al Panel",
+    "currentPlan": "Plan actual",
+    "launchStatus": {
+      "title": "Estado de Lanzamiento",
+      "description": "ya está disponible! Otros canales estarán disponibles pronto.",
+      "whatsappLive": "📱 WhatsApp en Vivo",
+      "othersComingSoon": "🔧 Otros Próximamente"
+    },
+    "agentSelection": {
+      "title": "Selecciona un Agente para Conectar Canales"
+    },
+    "noAgents": {
+      "title": "No se encontraron agentes",
+      "description": "Necesitas crear un agente antes de conectar canales.",
+      "goToDashboard": "Ir al panel"
+    },
+    "availableChannels": {
+      "title": "Canales Disponibles",
+      "subtitle": "WhatsApp está en vivo ahora • Otros canales se lanzan pronto",
+      "poweredBy": "Impulsado por flujos de trabajo n8n",
+      "popular": "Popular",
+      "comingSoon": "Próximamente",
+      "features": "Características",
+      "moreFeatures": "más características",
+      "upgradeTo": "Actualizar a",
+      "selectAgentFirst": "Selecciona Agente Primero",
+      "connectChannel": "Conectar Canal"
+    },
+    "setupInstructions": {
+      "title": "🔧 Cómo Funciona la Integración de Canales",
+      "workflowIntegration": {
+        "title": "Integración de Flujo de Trabajo n8n",
+        "points": [
+          "Cada canal se conecta a través de flujos de trabajo n8n personalizados",
+          "Los flujos de trabajo manejan el enrutamiento y respuestas de mensajes",
+          "Sincronización en tiempo real con tus agentes de IA",
+          "Arquitectura escalable para conversaciones de alto volumen"
+        ]
+      },
+      "setupProcess": {
+        "title": "Proceso de Configuración",
+        "steps": [
+          "Selecciona tu agente de IA",
+          "Elige el canal a conectar",
+          "Sigue los pasos de configuración específicos de la plataforma",
+          "Prueba la integración",
+          "Comienza a recibir respuestas automatizadas"
+        ]
+      }
+    },
+    "setupModal": {
+      "connectTitle": "Conectar",
+      "setupSteps": "Pasos de Configuración:",
+      "allFeatures": "Todas las Características:",
+      "integrationStatus": "Estado de Integración",
+      "whatsappReady": "¡La integración de WhatsApp Business está lista! Contacta a nuestro equipo de soporte para comenzar.",
+      "comingSoonNotice": "Este canal estará disponible pronto. Haz clic en \"Ser Notificado\" para ser informado cuando esté listo.",
+      "cancel": "Cancelar",
+      "startSetup": "Iniciar Configuración",
+      "getNotified": "Ser Notificado"
+    },
+    "channels": {
+      "whatsapp": {
+        "name": "WhatsApp Business",
+        "description": "Conecta tu cuenta de WhatsApp Business para manejar consultas de clientes automáticamente. ¡Disponible ahora!",
+        "features": [
+          "Respuestas automatizadas a clientes",
+          "Soporte de medios enriquecidos (imágenes, documentos)",
+          "Integración de perfil comercial",
+          "Plantillas de mensajes",
+          "Análisis e insights",
+          "Soporte multiidioma",
+          "Horarios comerciales personalizados",
+          "Respuestas rápidas y flujos de trabajo"
+        ],
+        "setupSteps": [
+          "Verifica tu cuenta de WhatsApp Business",
+          "Conecta vía integración API",
+          "Configura plantillas de mensajes",
+          "Configura respuestas automatizadas",
+          "Prueba la integración",
+          "Haz público tu agente de IA"
+        ]
+      },
+      "web": {
+        "name": "Widget de IA Web",
+        "description": "Integra un widget de chat inteligente en tu sitio web para soporte instantáneo al cliente",
+        "features": [
+          "Widget de chat de IA personalizable",
+          "Integración con sitio web",
+          "Respuestas inteligentes en tiempo real",
+          "Seguimiento de visitantes",
+          "Diseño responsivo móvil",
+          "Opciones de marca personalizadas"
+        ],
+        "setupSteps": [
+          "Genera código del widget",
+          "Personaliza apariencia y marca",
+          "Instala en sitio web",
+          "Configura respuestas de IA",
+          "Prueba funcionalidad del widget"
+        ]
+      },
+      "voice": {
+        "name": "Agente de IA de Voz",
+        "description": "Despliega agentes de IA habilitados por voz para llamadas telefónicas e interacciones de voz",
+        "features": [
+          "Automatización de llamadas de voz",
+          "Procesamiento de lenguaje natural",
+          "Soporte de voz multiidioma",
+          "Grabación y transcripción de llamadas",
+          "Personalización de personalidad de voz",
+          "Integración de número telefónico"
+        ],
+        "setupSteps": [
+          "Configura número de voz",
+          "Configura personalidad de IA de voz",
+          "Entrena respuestas de voz",
+          "Prueba flujos de llamadas",
+          "Despliega agente de voz"
+        ]
+      },
+      "instagram": {
+        "name": "Automatización de DM de Instagram",
+        "description": "Automatiza respuestas de mensajes directos de Instagram e interactúa con tu audiencia 24/7",
+        "features": [
+          "Automatización de mensajes directos",
+          "Respuestas a comentarios",
+          "Manejo de menciones en historias",
+          "Capacidades de compartir medios",
+          "Análisis de participación",
+          "Seguimiento de interacción con seguidores"
+        ],
+        "setupSteps": [
+          "Conecta cuenta comercial de Instagram",
+          "Autoriza acceso API",
+          "Configura reglas de automatización",
+          "Configura plantillas de respuesta",
+          "Prueba flujos de participación"
+        ]
+      },
+      "facebook": {
+        "name": "Facebook Messenger",
+        "description": "Automatiza conversaciones de Facebook Messenger y gestiona la bandeja de entrada de tu página",
+        "features": [
+          "Automatización de Messenger",
+          "Gestión de bandeja de entrada de página",
+          "Respuestas enriquecidas con botones",
+          "Configuración de menú persistente",
+          "Acceso a perfil de usuario",
+          "Mensajería de difusión"
+        ],
+        "setupSteps": [
+          "Conecta Página de Facebook",
+          "Configura permisos de Messenger",
+          "Configura flujos de trabajo de automatización",
+          "Diseña flujos de conversación",
+          "Prueba secuencias de mensajes"
+        ]
+      },
+      "email": {
+        "name": "Soporte por Email",
+        "description": "Automatiza respuestas de email y tickets de soporte con asistencia inteligente de IA",
+        "features": [
+          "Automatización de email",
+          "Gestión de tickets",
+          "Categorización inteligente",
+          "Secuencias de seguimiento",
+          "Integración con proveedores de email",
+          "Manejo prioritario"
+        ],
+        "setupSteps": [
+          "Conecta cuenta de email",
+          "Configura IMAP/SMTP",
+          "Configura reglas de automatización",
+          "Diseña plantillas de email",
+          "Prueba flujos de trabajo de email"
+        ]
+      }
+    }
+  },
+  "privacy": {
+    "title": "Política de Privacidad",
+    "lastUpdated": "Última actualización",
+    "introduction": {
+      "title": "Introducción",
+      "content": "Bienvenido a Chayo AI (\"nosotros,\" \"nuestro,\" o \"nos\"). Respetamos tu privacidad y estamos comprometidos a proteger tus datos personales. Esta política de privacidad explica cómo recopilamos, usamos y protegemos tu información cuando usas nuestra plataforma de automatización empresarial con IA."
+    },
+    "informationWeCollect": {
+      "title": "Información que Recopilamos",
+      "personalInfo": {
+        "title": "Información Personal",
+        "items": [
+          "Nombre y dirección de correo electrónico cuando creas una cuenta",
+          "Información de perfil y detalles comerciales",
+          "Información de pago (procesada de forma segura a través de Stripe)",
+          "Preferencias de comunicación y configuraciones"
+        ]
+      },
+      "usageData": {
+        "title": "Datos de Uso",
+        "items": [
+          "Cómo interactúas con nuestra plataforma y agentes de IA",
+          "Registros de conversaciones e historial de chat para mejorar el servicio",
+          "Datos técnicos como dirección IP, tipo de navegador e información del dispositivo",
+          "Datos de análisis para mejorar nuestros servicios"
+        ]
+      }
+    }
+  },
+  "terms": {
+    "title": "Términos de Servicio",
+    "lastUpdated": "Última actualización",
+    "agreementToTerms": {
+      "title": "Acuerdo a los Términos",
+      "content": "Al acceder y usar Chayo AI (\"el Servicio\"), aceptas y acuerdas estar sujeto a los términos y disposiciones de este acuerdo. Si no aceptas cumplir con lo anterior, por favor no uses este servicio."
+    },
+    "descriptionOfService": {
+      "title": "Descripción del Servicio",
+      "content": "Chayo AI es una plataforma de automatización empresarial impulsada por IA que proporciona chatbots inteligentes y herramientas de automatización de servicio al cliente. Nuestro servicio principal incluye funcionalidad de Agente de IA de WhatsApp, con canales y características adicionales siendo desarrollados y lanzados con el tiempo."
+    },
+    "userAccounts": {
+      "title": "Cuentas de Usuario",
+      "items": [
+        "Debes tener al menos 18 años para usar este servicio",
+        "Eres responsable de mantener la seguridad de tu cuenta",
+        "Debes proporcionar información precisa y completa al crear una cuenta",
+        "Eres responsable de todas las actividades que ocurran bajo tu cuenta",
+        "Debes notificarnos inmediatamente de cualquier uso no autorizado de tu cuenta"
+      ]
+    },
+    "acceptableUse": {
+      "title": "Uso Aceptable",
+      "description": "Aceptas no usar el Servicio para:",
+      "items": [
+        "Violar leyes o regulaciones",
+        "Acosar, abusar o dañar a otros",
+        "Enviar spam o comunicaciones no solicitadas",
+        "Distribuir malware o código dañino",
+        "Infringir derechos de propiedad intelectual",
+        "Intentar obtener acceso no autorizado a nuestros sistemas",
+        "Usar el servicio para actividades ilegales o fraudulentas"
+      ]
+    },
+    "subscriptionAndBilling": {
+      "title": "Suscripción y Facturación",
+      "items": [
+        "Las tarifas de suscripción se facturan por adelantado mensual o anualmente",
+        "Todas las tarifas no son reembolsables excepto según lo requiera la ley",
+        "Podemos cambiar nuestros precios con 30 días de aviso",
+        "Tu suscripción se renovará automáticamente a menos que se cancele",
+        "Puedes cancelar tu suscripción en cualquier momento desde la configuración de tu cuenta",
+        "El procesamiento de pagos se maneja de forma segura a través de Stripe"
+      ]
+    },
+    "intellectualProperty": {
+      "title": "Propiedad Intelectual",
+      "description": "El Servicio y su contenido original, características y funcionalidad son propiedad de Chayo AI y están protegidos por derechos de autor internacionales, marcas registradas, patentes, secretos comerciales y otras leyes de propiedad intelectual.",
+      "items": [
+        "Mantienes la propiedad del contenido que creas usando nuestra plataforma",
+        "Nos otorgas una licencia para usar tu contenido para proporcionar el servicio",
+        "No puedes copiar, modificar o distribuir nuestra tecnología propietaria"
+      ]
+    },
+    "privacyAndData": {
+      "title": "Privacidad y Datos",
+      "description": "Tu privacidad es importante para nosotros. Por favor revisa nuestra Política de Privacidad, que también rige tu uso del Servicio, para entender nuestras prácticas con respecto a tus datos personales.",
+      "items": [
+        "Recopilamos y procesamos datos como se describe en nuestra Política de Privacidad",
+        "Eres responsable de asegurar el cumplimiento de las leyes de protección de datos",
+        "Implementamos medidas de seguridad para proteger tus datos"
+      ]
+    },
+    "serviceAvailability": {
+      "title": "Disponibilidad del Servicio",
+      "description": "Nos esforzamos por mantener alta disponibilidad del servicio pero no podemos garantizar 100% de tiempo activo. Podemos:",
+      "items": [
+        "Realizar mantenimiento programado con aviso previo",
+        "Experimentar interrupciones temporales debido a problemas técnicos",
+        "Actualizar o modificar características para mejorar el servicio",
+        "Suspender el acceso por razones de mantenimiento o seguridad"
+      ]
+    },
+    "limitationOfLiability": {
+      "title": "Limitación de Responsabilidad",
+      "description": "En la máxima medida permitida por la ley, Chayo AI no será responsable por ningún daño indirecto, incidental, especial o consecuencial que surja de tu uso del Servicio."
+    },
+    "termination": {
+      "title": "Terminación",
+      "description": "Podemos terminar o suspender tu cuenta y acceso al Servicio a nuestra sola discreción, sin previo aviso, por conducta que creamos que viola estos Términos o es dañina para otros usuarios, nosotros o terceros.",
+      "items": [
+        "Puedes terminar tu cuenta en cualquier momento",
+        "Al terminar, tu acceso al Servicio cesará",
+        "Podemos retener ciertos datos según lo requiera la ley"
+      ]
+    },
+    "governingLaw": {
+      "title": "Ley Aplicable",
+      "description": "Estos Términos se regirán e interpretarán de acuerdo con las leyes de la jurisdicción donde Chayo AI está incorporada, sin considerar sus principios de conflicto de leyes."
+    },
+    "changesToTerms": {
+      "title": "Cambios a los Términos",
+      "description": "Nos reservamos el derecho de modificar estos términos en cualquier momento. Proporcionaremos aviso de cambios materiales publicando los términos actualizados en nuestro sitio web y actualizando la fecha de \"Última actualización\"."
+    },
+    "contactInformation": {
+      "title": "Información de Contacto",
+      "description": "Si tienes alguna pregunta sobre estos Términos de Servicio, por favor contáctanos:",
+      "email": "Correo electrónico",
+      "address": "Dirección",
+      "website": "Sitio web"
+    },
+    "backToHome": "← Volver al Inicio",
+    "effectiveAsOf": "Efectivo a partir de"
+  },
+  "languageSelector": {
+    "selectLanguage": "Seleccionar Idioma",
+    "currentLanguage": "Idioma Actual",
+    "languages": {
+      "en": {
+        "name": "Inglés",
+        "nativeName": "English"
+      },
+      "es": {
+        "name": "Español", 
+        "nativeName": "Español"
+      }
     }
   }
 }

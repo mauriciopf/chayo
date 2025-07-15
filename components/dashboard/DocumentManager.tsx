@@ -97,9 +97,14 @@ export function DocumentManager({ agentId, documents, onDocumentUploaded, onDocu
   }
 
   const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes'
+    if (bytes === 0) return t('documentManager.fileSizes.zeroBytes')
     const k = 1024
-    const sizes = ['Bytes', 'KB', 'MB', 'GB']
+    const sizes = [
+      t('documentManager.fileSizes.bytes'),
+      t('documentManager.fileSizes.kb'),
+      t('documentManager.fileSizes.mb'),
+      t('documentManager.fileSizes.gb')
+    ]
     const i = Math.floor(Math.log(bytes) / Math.log(k))
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
   }

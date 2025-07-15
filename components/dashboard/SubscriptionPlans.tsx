@@ -19,70 +19,6 @@ interface Plan {
   comingSoon?: boolean
 }
 
-const plans: Plan[] = [
-  {
-    id: 'basic',
-    name: 'Plan Básico',
-    price: 97,
-    priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_BASIC || '',
-    color: 'from-purple-500 to-pink-500',
-    popular: true,
-    features: [
-      '1 Agente de WhatsApp AI (Disponible ahora)',
-      '$9 USD de saldo en respuestas IA',
-      'Acceso a todos los modelos de ChatGPT',
-      'Chat centralizado de WhatsApp',
-      'CRM y contactos ilimitados',
-      'Reconocimiento de imágenes y notas de voz',
-      'Automatizaciones / Workflows básicos',
-      'Soporte vía ticket'
-    ],
-    available: true
-  },
-  {
-    id: 'pro',
-    name: 'Plan Profesional',
-    price: 197,
-    priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PRO || '',
-    color: 'from-orange-500 to-yellow-500',
-    features: [
-      'Todo de Plan Básico',
-      '$20 USD en saldo de respuestas IA',
-      'Web AI Widget (Próximamente)',
-      'Voice AI Agent (Próximamente)',
-      'Calendario inteligente integrado',
-      'Formularios y encuestas personalizables',
-      'Embudo de ventas (Pipeline)',
-      '5 cuentas de equipo',
-      'Soporte estándar vía chatbot'
-    ],
-    available: false,
-    comingSoon: true
-  },
-  {
-    id: 'premium',
-    name: 'Plan Premium',
-    price: 297,
-    priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PREMIUM || '',
-    color: 'from-emerald-500 to-teal-500',
-    features: [
-      'Todo de Plan Profesional',
-      '2 Agentes de WhatsApp AI (Próximamente)',
-      'Instagram DM Automation (Próximamente)',
-      'Facebook Messenger AI (Próximamente)',
-      '$30 USD en respuestas IA',
-      'Cuentas ilimitadas para tu equipo',
-      'Automatizaciones / Workflows avanzados',
-      'Email Marketing (Próximamente)',
-      'Social Planner (Próximamente)',
-      'Módulo de Reseñas (Próximamente)',
-      'Soporte premium con atención personalizada'
-    ],
-    available: false,
-    comingSoon: true
-  }
-]
-
 interface SubscriptionPlansProps {
   currentSubscription?: any
   onClose: () => void
@@ -94,6 +30,70 @@ export default function SubscriptionPlans({ currentSubscription, onClose, onSubs
   const [loading, setLoading] = useState<string | null>(null)
   const currentPlan = currentSubscription?.plan_name || 'free'
   const t = useTranslations('subscriptionPlans')
+
+  const plans: Plan[] = [
+    {
+      id: 'basic',
+      name: t('subscriptionPlans.plans.basic.name'),
+      price: 97,
+      priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_BASIC || '',
+      color: 'from-purple-500 to-pink-500',
+      popular: true,
+      features: [
+        '1 Agente de WhatsApp AI (Disponible ahora)',
+        '$9 USD de saldo en respuestas IA',
+        'Acceso a todos los modelos de ChatGPT',
+        'Chat centralizado de WhatsApp',
+        'CRM y contactos ilimitados',
+        'Reconocimiento de imágenes y notas de voz',
+        'Automatizaciones / Workflows básicos',
+        'Soporte vía ticket'
+      ],
+      available: true
+    },
+    {
+      id: 'pro',
+      name: t('subscriptionPlans.plans.professional.name'),
+      price: 197,
+      priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PRO || '',
+      color: 'from-orange-500 to-yellow-500',
+      features: [
+        'Todo de Plan Básico',
+        '$20 USD en saldo de respuestas IA',
+        'Web AI Widget (Próximamente)',
+        'Voice AI Agent (Próximamente)',
+        'Calendario inteligente integrado',
+        'Formularios y encuestas personalizables',
+        'Embudo de ventas (Pipeline)',
+        '5 cuentas de equipo',
+        'Soporte estándar vía chatbot'
+      ],
+      available: false,
+      comingSoon: true
+    },
+    {
+      id: 'premium',
+      name: t('subscriptionPlans.plans.premium.name'),
+      price: 297,
+      priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PREMIUM || '',
+      color: 'from-emerald-500 to-teal-500',
+      features: [
+        'Todo de Plan Profesional',
+        '2 Agentes de WhatsApp AI (Próximamente)',
+        'Instagram DM Automation (Próximamente)',
+        'Facebook Messenger AI (Próximamente)',
+        '$30 USD en respuestas IA',
+        'Cuentas ilimitadas para tu equipo',
+        'Automatizaciones / Workflows avanzados',
+        'Email Marketing (Próximamente)',
+        'Social Planner (Próximamente)',
+        'Módulo de Reseñas (Próximamente)',
+        'Soporte premium con atención personalizada'
+      ],
+      available: false,
+      comingSoon: true
+    }
+  ]
 
   const handleSubscribe = async (plan: Plan) => {
     if (!plan.priceId) {
