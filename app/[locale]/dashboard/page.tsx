@@ -130,6 +130,17 @@ function DashboardContent() {
   useEffect(() => {
     let isMounted = true
     
+    // Debug: log code from URL
+    const code = searchParams.get('code')
+    if (code) {
+      console.log('Dashboard: code in URL', code)
+    }
+
+    // Debug: log Supabase session
+    supabase.auth.getSession().then(({ data, error }) => {
+      console.log('Dashboard: Supabase session', data?.session, error)
+    })
+    
     const getUser = async () => {
       try {
         await new Promise(resolve => setTimeout(resolve, 100))
@@ -162,8 +173,8 @@ function DashboardContent() {
               return pollForUser(attempts + 1)
             }
             
-            console.log('Dashboard: No user found after all attempts, redirecting to auth')
-            router.push('/auth')
+            console.log('Dashboard: No user found after all attempts, showing chat for unauthenticated user')
+            setUser(null)
           } catch (error) {
             console.error('Dashboard: Error getting user:', error)
             if (attempts < maxAttempts) {
@@ -172,7 +183,7 @@ function DashboardContent() {
             }
             
             if (isMounted) {
-              router.push('/auth')
+              setUser(null)
             }
           }
         }
@@ -181,7 +192,7 @@ function DashboardContent() {
       } catch (error) {
         console.error('Dashboard: Error in getUser:', error)
         if (isMounted) {
-          router.push('/auth')
+          setUser(null)
         }
       } finally {
         if (isMounted) {
@@ -214,7 +225,6 @@ function DashboardContent() {
           setSubscription(null)
           setOrganizations([])
           setCurrentOrganization(null)
-          router.push('/auth')
         } else if (event === 'TOKEN_REFRESHED' && session?.user) {
           console.log('Dashboard: Token refreshed')
           setUser(session.user)
@@ -583,263 +593,18 @@ function DashboardContent() {
     )
   }
 
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
-        <div className="text-center">
-          <p className="text-gray-600">Loading...</p>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
-      {/* Header */}
-      <header className="bg-white/80 backdrop-blur-md shadow-lg border-b border-gray-100 relative z-[90]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <motion.div 
-                whileHover={{ scale: 1.02 }}
-                className="flex items-center cursor-pointer mr-6"
-              >
-                <motion.h1 
-                  className="text-2xl lg:text-3xl font-black tracking-tight"
-                  whileHover={{ scale: 1.02 }}
-                >
-                  <span className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 bg-clip-text text-transparent">
-                    Chayo
-                  </span>
-                  
-                  <motion.span
-                    className="inline-block w-2 h-2 lg:w-2.5 lg:h-2.5 bg-gradient-to-r from-pink-500 to-orange-400 rounded-full ml-1"
-                    animate={{ 
-                      scale: [1, 1.3, 1],
-                      opacity: [0.7, 1, 0.7]
-                    }}
-                    transition={{ 
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                  />
-                </motion.h1>
-              </motion.div>
-              
-              <div className="hidden md:block">
-                <h2 className="text-lg font-semibold text-gray-900">AI Business Assistant</h2>
-                {currentOrganization && (
-                  <span className="text-sm text-gray-500">
-                    {currentOrganization.name}
-                  </span>
-                )}
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <PlanBadge plan={organizations[0]?.user_subscription?.plan_name || subscription?.plan_name || 'free'} />
-              
-              {/* Hamburger Menu */}
-              <div className="relative">
-                <button
-                  onClick={() => setShowHamburgerMenu(!showHamburgerMenu)}
-                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                >
-                  <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                  </svg>
-                </button>
-                
-                <AnimatePresence>
-                  {showHamburgerMenu && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                      className="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-200 z-50"
-                    >
-                      <div className="p-2">
-                        <div className="px-3 py-2 border-b border-gray-100">
-                          <p className="text-sm font-medium text-gray-900">{user?.email}</p>
-                          <p className="text-xs text-gray-500">{currentOrganization?.name}</p>
-                        </div>
-                        
-                        <div className="py-2">
-                          <button
-                            onClick={() => {
-                              setActiveView('agents')
-                              setShowHamburgerMenu(false)
-                            }}
-                            className="w-full text-left px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                          >
-                            <div className="flex items-center">
-                              <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                              </svg>
-                              Manage Agents
-                            </div>
-                          </button>
-                          
-                          <button
-                            onClick={() => {
-                              setActiveView('performance')
-                              setShowHamburgerMenu(false)
-                            }}
-                            className="w-full text-left px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                          >
-                            <div className="flex items-center">
-                              <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                              </svg>
-                              Performance
-                            </div>
-                          </button>
-                          
-                          <button
-                            onClick={() => {
-                              setActiveView('users')
-                              setShowHamburgerMenu(false)
-                            }}
-                            className="w-full text-left px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                          >
-                            <div className="flex items-center">
-                              <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                              </svg>
-                              Team Management
-                            </div>
-                          </button>
-                          
-                          <button
-                            onClick={() => {
-                              setActiveView('profile')
-                              setShowHamburgerMenu(false)
-                            }}
-                            className="w-full text-left px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                          >
-                            <div className="flex items-center">
-                              <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                              </svg>
-                              Profile Settings
-                            </div>
-                          </button>
-                          
-                          <div className="border-t border-gray-100 my-2"></div>
-                          
-                          <button
-                            onClick={() => {
-                              setShowPlansModal(true)
-                              setShowHamburgerMenu(false)
-                            }}
-                            className="w-full text-left px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                          >
-                            <div className="flex items-center">
-                              <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                              </svg>
-                              Subscription
-                            </div>
-                          </button>
-                          
-                          <button
-                            onClick={() => {
-                              router.push('/integrations')
-                              setShowHamburgerMenu(false)
-                            }}
-                            className="w-full text-left px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                          >
-                            <div className="flex items-center">
-                              <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                              </svg>
-                              WhatsApp Integration
-                            </div>
-                          </button>
-                          
-                          <div className="border-t border-gray-100 my-2"></div>
-                          
-                          <button
-                            onClick={() => {
-                              handleLogout()
-                              setShowHamburgerMenu(false)
-                            }}
-                            className="w-full text-left px-3 py-2 rounded-lg text-sm text-red-600 hover:bg-red-50 transition-colors"
-                          >
-                            <div className="flex items-center">
-                              <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                              </svg>
-                              Sign Out
-                            </div>
-                          </button>
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            </div>
+      {/* Unauthenticated banner */}
+      {!user && (
+        <div className="w-full max-w-2xl mx-auto text-center pt-8 mb-4">
+          <div className="inline-block px-4 py-2 bg-yellow-100 text-yellow-800 rounded-full font-semibold mb-2">
+            You are not signed in. Start chatting below to authenticate.
           </div>
         </div>
-      </header>
-
-      {/* Organization Setup Feedback */}
-      {(organizationSetupLoading || organizationSetupMessage || organizationSetupError) && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
-          {organizationSetupLoading && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-              <div className="flex items-center">
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                  className="w-5 h-5 border-2 border-blue-400 border-t-transparent rounded-full mr-3"
-                />
-                <p className="text-blue-800">Setting up your organization...</p>
-              </div>
-            </div>
-          )}
-          
-          {organizationSetupMessage && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4"
-            >
-              <div className="flex items-center">
-                <svg className="w-5 h-5 text-green-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                <p className="text-green-800">{organizationSetupMessage}</p>
-              </div>
-            </motion.div>
-          )}
-          
-          {organizationSetupError && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4"
-            >
-              <div className="flex items-center">
-                <svg className="w-5 h-5 text-red-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                </svg>
-                <p className="text-red-800">{organizationSetupError}</p>
-              </div>
-            </motion.div>
-          )}
-        </div>
       )}
-
-
-
-      {/* Main Content */}
       <div className="w-full md:max-w-4xl mx-auto px-0 sm:px-6 lg:px-8 py-4 flex flex-col">
-        <div className="w-full flex-1 flex flex-col items-center">
-          {activeView === 'chat' && (
+          <div className="w-full flex-1 flex flex-col items-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -983,124 +748,9 @@ function DashboardContent() {
                 </div>
               </div>
             </motion.div>
-          )}
-
-          {activeView === 'agents' && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <div className="mb-6">
-                <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
-                  Your AI Agents
-                </h2>
-                <p className="text-gray-600">
-                  Manage your AI agents and their settings.
-                </p>
-              </div>
-              
-              <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-8 text-center border border-white/20">
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">
-                  Agent Management
-                </h3>
-                <p className="text-gray-600 mb-6">
-                  Your AI agent is automatically created and managed. Use the chat to interact with it!
-                </p>
-                <button
-                  onClick={() => setActiveView('chat')}
-                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium py-3 px-6 rounded-xl transition-all duration-200 shadow-lg"
-                >
-                  Back to Chat
-                </button>
-              </div>
-            </motion.div>
-          )}
-
-          {activeView === 'performance' && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <div className="mb-6">
-                <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
-                  Performance Analytics
-                </h2>
-                <p className="text-gray-600">
-                  Track your AI assistant's performance and insights.
-                </p>
-              </div>
-              <PerformanceOverview />
-            </motion.div>
-          )}
-
-          {activeView === 'users' && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              {showSetupInstructions ? (
-                <SetupInstructions onRetry={() => {
-                  setShowSetupInstructions(false)
-                  if (user) {
-                    ensureUserHasOrganization(user)
-                  }
-                }} />
-              ) : currentOrganization ? (
-                <TeamManagement 
-                  organizationId={currentOrganization.id}
-                  organizationName={currentOrganization.name}
-                />
-              ) : (
-                <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-8 text-center border border-white/20">
-                  <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                    </svg>
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">
-                    Setting up workspace...
-                  </h3>
-                  <p className="text-gray-600 mb-6">
-                    We're setting up your team workspace.
-                  </p>
-                  <div className="flex items-center justify-center">
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                      className="w-6 h-6 border-2 border-purple-400 border-t-transparent rounded-full"
-                    />
-                    <span className="ml-2 text-sm text-gray-600">Initializing team...</span>
-                  </div>
-                </div>
-              )}
-            </motion.div>
-          )}
-
-          {activeView === 'profile' && user && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <ProfileSettings 
-                user={user} 
-                onUserUpdate={handleUserUpdate}
-              />
-            </motion.div>
-          )}
+          </div>
         </div>
-      </div>
-
       {/* Modals */}
-
       {showPlansModal && (
         <SubscriptionPlans
           currentSubscription={subscription}
@@ -1118,7 +768,6 @@ function DashboardContent() {
           }}
         />
       )}
-
       {showManageDocsModal && managingAgentId && (
         <ManageDocumentsModal
           agentId={managingAgentId}

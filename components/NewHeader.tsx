@@ -180,7 +180,7 @@ export default function NewHeader() {
               // Guest user buttons
               <>
                 <motion.button
-                  onClick={() => router.push(`/${locale}/auth`)}
+                  onClick={() => router.push(`/${locale}/dashboard`)}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   className="px-4 py-2 text-gray-700 hover:text-purple-600 font-medium transition-all duration-300 rounded-xl hover:bg-gray-50"
@@ -189,7 +189,7 @@ export default function NewHeader() {
                 </motion.button>
                 
                 <motion.button
-                  onClick={() => router.push(`/${locale}/auth`)}
+                  onClick={() => router.push(`/${locale}/dashboard`)}
                   whileHover={{ 
                     scale: 1.02,
                     boxShadow: "0 10px 25px -5px rgba(147, 51, 234, 0.3)"
@@ -292,7 +292,7 @@ export default function NewHeader() {
             
             {/* Mobile CTA */}
             <motion.button
-              onClick={() => router.push('/auth')}
+              onClick={() => router.push(`/${locale}/dashboard`)}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               className="w-full mt-4 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl shadow-lg flex items-center justify-center space-x-2"

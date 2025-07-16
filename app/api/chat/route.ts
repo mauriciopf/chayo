@@ -16,8 +16,67 @@ export async function POST(req: NextRequest) {
     // Supabase: get user and org
     const { supabase } = createClient(req)
     const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+    // Conversational magic link auth flow
     if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      // Parse chat messages for name and email
+      let name = null
+      let email = null
+      for (const msg of messages) {
+        if (msg.role === 'user') {
+          // Improved name extraction: look for common patterns or single word
+          if (!name && /name is|i am|i'm|soy|me llamo/i.test(msg.content)) {
+            const match = msg.content.match(/(?:name is|i am|i'm|soy|me llamo)\s+([\w\s]+)/i)
+            if (match) name = match[1].trim()
+          } else if (!name && msg.content.split(' ').length === 1 && /^[A-Za-zÀ-ÿ'\-]+$/.test(msg.content.trim())) {
+            const candidate = msg.content.trim().toLowerCase()
+            const greetings = ['hi', 'hello', 'hey', 'hola', 'buenas', 'salut', 'howdy', 'yo', 'sup', 'greetings']
+            if (!greetings.includes(candidate)) {
+              name = msg.content.trim()
+            }
+          }
+          // Improved email extraction
+          if (!email && /@/.test(msg.content)) {
+            const match = msg.content.match(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/)
+            if (match) email = match[0]
+          }
+        }
+      }
+      // Validate name (at least 2 characters, only letters/spaces)
+      const isValidName = name && /^[A-Za-zÀ-ÿ'\- ]{2,}$/.test(name)
+      // Validate email (simple regex)
+      const isValidEmail = email && /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(email)
+      let aiMessage = ''
+      let error = null
+      if (!isValidName) {
+        aiMessage = "Hi there! What's your name? (First name only is fine)"
+      } else if (!isValidEmail) {
+        aiMessage = `Nice to meet you, ${name}! Could you share your email address so I can send you a magic login link?`
+      } else {
+        // Try to send magic link
+        try {
+          const { error: otpError } = await supabase.auth.signInWithOtp({
+            email,
+            options: {
+              emailRedirectTo: process.env.NEXT_PUBLIC_MAGIC_LINK_REDIRECT
+            }
+          })
+          if (otpError) {
+            aiMessage = `Sorry, I couldn't send a magic link to ${email}. Please check your email address and try again.`
+            error = otpError.message || 'Failed to send magic link.'
+          } else {
+            aiMessage = `Great! I've sent a magic link to ${email}. Please check your inbox and click the link to continue. If you don't see it, check your spam folder or try again.`
+          }
+        } catch (e) {
+          let errMsg = 'Unexpected error.'
+          if (e && typeof e === 'object' && 'message' in e && typeof (e as any).message === 'string') {
+            errMsg = (e as any).message
+          }
+          aiMessage = `Sorry, something went wrong while sending your magic link. Please try again in a moment.`
+          error = errMsg
+        }
+      }
+      return NextResponse.json({ aiMessage, usingRAG: false, agent: null, error })
     }
     const org = await getUserOrganization(supabase, user.id)
 
