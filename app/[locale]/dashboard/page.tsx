@@ -837,14 +837,14 @@ function DashboardContent() {
 
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="w-full">
+      <div className="w-full md:max-w-7xl mx-auto px-0 sm:px-6 lg:px-8 py-4 min-h-screen flex flex-col">
+        <div className="w-full flex-1 flex flex-col">
           {activeView === 'chat' && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className="h-[calc(100vh-200px)] flex flex-col"
+              className="flex-1 flex flex-col w-full md:max-w-4xl mx-auto min-h-0"
             >
               {/* Chat Header */}
               <div className="flex-shrink-0 border-b border-gray-200 bg-white px-6 py-4">
@@ -862,7 +862,7 @@ function DashboardContent() {
               </div>
 
               {/* Chat Messages */}
-              <div className="flex-1 overflow-y-auto bg-gray-50">
+              <div className="flex-1 overflow-y-auto bg-gray-50 min-h-0">
                 {messages.length === 0 && !chatLoading && (
                   <div className="flex items-center justify-center h-full">
                     <div className="text-center max-w-md">

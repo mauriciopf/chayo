@@ -119,11 +119,12 @@ export default function AuthPage() {
   const handleGoogleAuth = async () => {
     setLoading(true)
     setMessage('')
-    
     try {
-      console.log('Starting Google OAuth with redirect to:', getAuthCallbackUrl())
-      
-      const { error } = await supabase.auth.signInWithOAuth({
+      // Always use a full-page redirect for OAuth (PKCE verifier lives in cookie)
+      // This is critical for mobile and in-app browsers
+      // See: https://supabase.com/docs/guides/auth/auth-code-pkce-flow#handling-the-code-verifier
+      // Do not await or handle the result, let the redirect happen immediately
+      supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: getAuthCallbackUrl(),
@@ -133,12 +134,6 @@ export default function AuthPage() {
           },
         }
       })
-      
-      if (error) {
-        throw error
-      }
-      
-      // The redirect will happen automatically, so we don't need to do anything else
     } catch (error: any) {
       console.error('Google auth error:', error)
       setMessage(error.message || 'Google authentication failed. Please try again.')
