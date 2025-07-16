@@ -932,5 +932,21 @@
         "nativeName": "Español"
       }
     }
+  },
+  "chat": {
+    "aiAssistant": "Asistente de IA",
+    "readyToHelp": "Listo para ayudarte con tu negocio",
+    "emptyTitle": "¡Hola! Soy Chayo",
+    "emptySubtitle": "Tu asistente de IA listo para ayudarte a crecer y optimizar tu negocio.",
+    "emptyGettingStarted": "Comencemos:",
+    "emptyStepBusiness": "Cuéntame sobre tu negocio y sector",
+    "emptyStepChallenges": "Comparte tus mayores desafíos",
+    "emptyStepUpload": "Sube documentos para ayudarme a entender mejor tu negocio",
+    "emptyStepAsk": "Pregúntame sobre estrategias de crecimiento, operaciones o servicio al cliente",
+    "inputPlaceholder": "Escribe un mensaje al Asistente de IA...",
+    "uploading": "Subiendo documento...",
+    "uploadTitle": "Subir un archivo",
+    "loading": "La IA está pensando...",
+    "usingRAG": "Usando conocimiento de documentos"
   }
 }

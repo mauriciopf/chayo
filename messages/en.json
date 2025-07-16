@@ -907,5 +907,21 @@
         "nativeName": "Español"
       }
     }
+  },
+  "chat": {
+    "aiAssistant": "AI Assistant",
+    "readyToHelp": "Ready to help with your business",
+    "emptyTitle": "¡Hola! I'm Chayo",
+    "emptySubtitle": "Your AI business assistant ready to help you grow and optimize your business.",
+    "emptyGettingStarted": "Let's get started:",
+    "emptyStepBusiness": "Tell me about your business and industry",
+    "emptyStepChallenges": "Share your biggest challenges",
+    "emptyStepUpload": "Upload documents to help me understand your business better",
+    "emptyStepAsk": "Ask me about growth strategies, operations, or customer service",
+    "inputPlaceholder": "Message AI Assistant...",
+    "uploading": "Uploading document...",
+    "uploadTitle": "Upload a file",
+    "loading": "AI is thinking...",
+    "usingRAG": "Using document knowledge"
   }
 }

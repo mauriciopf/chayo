@@ -90,7 +90,7 @@ export default function Dashboard() {
 }
 
 function DashboardContent() {
-  const t = useTranslations('dashboard')
+  const t = useTranslations('chat')
   const locale = useLocale()
   const [user, setUser] = useState<User | null>(null)
   const [agents, setAgents] = useState<Agent[]>([])
@@ -837,32 +837,17 @@ function DashboardContent() {
 
 
       {/* Main Content */}
-      <div className="w-full md:max-w-7xl mx-auto px-0 sm:px-6 lg:px-8 py-4 min-h-screen flex flex-col">
-        <div className="w-full flex-1 flex flex-col">
+      <div className="w-full md:max-w-4xl mx-auto px-0 sm:px-6 lg:px-8 py-4 flex flex-col">
+        <div className="w-full flex-1 flex flex-col items-center">
           {activeView === 'chat' && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className="flex-1 flex flex-col w-full md:max-w-4xl mx-auto min-h-0"
+              className="flex flex-col w-full md:rounded-2xl md:border md:border-gray-200 md:shadow-lg bg-white/80 md:max-h-[70vh] md:overflow-hidden"
+              style={{ minHeight: '320px' }}
             >
-              {/* Chat Header */}
-              <div className="flex-shrink-0 border-b border-gray-200 bg-white px-6 py-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center">
-                    <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-semibold text-gray-900">AI Assistant</h2>
-                    <p className="text-sm text-gray-500">Ready to help with your business</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Chat Messages */}
-              <div className="flex-1 overflow-y-auto bg-gray-50 min-h-0">
+              <div className="flex-1 overflow-y-auto px-1 pb-2 md:px-6 md:py-4 md:max-h-[60vh]">
                 {messages.length === 0 && !chatLoading && (
                   <div className="flex items-center justify-center h-full">
                     <div className="text-center max-w-md">
@@ -871,15 +856,15 @@ function DashboardContent() {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                         </svg>
                       </div>
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">¡Hola! I'm Chayo</h3>
-                      <p className="text-gray-600 mb-4">Your AI business assistant ready to help you grow and optimize your business.</p>
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">{t('emptyTitle')}</h3>
+                      <p className="text-gray-600 mb-4">{t('emptySubtitle')}</p>
                       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-left">
-                        <p className="text-sm text-blue-800 mb-2"><strong>Let's get started:</strong></p>
+                        <p className="text-sm text-blue-800 mb-2"><strong>{t('emptyGettingStarted')}</strong></p>
                         <ul className="text-sm text-blue-700 space-y-1">
-                          <li>• Tell me about your business and industry</li>
-                          <li>• Share your biggest challenges</li>
-                          <li>• Upload documents to help me understand your business better</li>
-                          <li>• Ask me about growth strategies, operations, or customer service</li>
+                          <li>• {t('emptyStepBusiness')}</li>
+                          <li>• {t('emptyStepChallenges')}</li>
+                          <li>• {t('emptyStepUpload')}</li>
+                          <li>• {t('emptyStepAsk')}</li>
                         </ul>
                       </div>
                     </div>
@@ -913,7 +898,7 @@ function DashboardContent() {
                                     <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
                                     <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                                   </div>
-                                  <span className="text-sm text-gray-500 ml-2">AI is thinking...</span>
+                                  <span className="text-sm text-gray-500 ml-2">{t('loading')}</span>
                                 </div>
                               </div>
                             </div>
@@ -948,15 +933,15 @@ function DashboardContent() {
                       onClick={() => fileInputRef.current?.click()}
                       disabled={uploading}
                       className="flex-shrink-0 p-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-50 transition-colors"
-                      title="Upload a file"
+                      title={t('uploadTitle')}
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                       </svg>
                     </button>
-                    <div className="flex-1 relative">
+                    <div className="flex-1 relative md:max-w-2xl">
                       <textarea
-                        placeholder="Message AI Assistant..."
+                        placeholder={t('inputPlaceholder')}
                         value={input}
                                                  onChange={(e) => {
                            setInput(e.target.value)
@@ -971,7 +956,7 @@ function DashboardContent() {
                            }
                          }}
                         ref={inputRef as any}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none bg-white"
                         rows={1}
                         style={{ minHeight: '44px', maxHeight: '120px' }}
                         disabled={uploading}
@@ -992,7 +977,7 @@ function DashboardContent() {
                       <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                       </svg>
-                      <span>Uploading document...</span>
+                      <span>{t('uploading')}</span>
                     </div>
                   )}
                 </div>

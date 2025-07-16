@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslations } from 'next-intl'
 
 interface ChatMessageProps {
   role: "user" | "ai" | "system"
@@ -8,6 +9,7 @@ interface ChatMessageProps {
 }
 
 export default function ChatMessage({ role, content, timestamp, usingRAG }: ChatMessageProps) {
+  const t = useTranslations('chat')
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   }
@@ -53,7 +55,7 @@ export default function ChatMessage({ role, content, timestamp, usingRAG }: Chat
                     <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    Using document knowledge
+                    {t('usingRAG')}
                   </div>
                 )}
               </div>
