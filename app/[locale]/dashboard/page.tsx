@@ -126,6 +126,8 @@ function DashboardContent() {
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const [hasUserInteracted, setHasUserInteracted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const chatScrollContainerRef = useRef<HTMLDivElement>(null);
+  const [chatBottomPadding, setChatBottomPadding] = useState(72); // default input bar height
 
   useEffect(() => {
     setIsMobile(isMobileDevice());
@@ -134,21 +136,39 @@ function DashboardContent() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Always scroll to bottom on input focus and window resize (mobile)
+  // Listen for visualViewport resize to adjust chat padding and scroll
   useEffect(() => {
     if (!isMobile) return;
+    let lastViewportHeight = window.innerHeight;
     let resizeTimeout: any;
-    const handleResize = () => {
-      if (document.activeElement === inputRef.current) {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(() => {
-          messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
-        }, 400);
+    const updatePaddingAndScroll = () => {
+      let keyboardHeight = 0;
+      if (window.visualViewport) {
+        keyboardHeight = window.innerHeight - window.visualViewport.height - window.visualViewport.offsetTop;
       }
+      const padding = Math.max(72, keyboardHeight);
+      setChatBottomPadding(padding);
+      // Scroll to bottom after keyboard animation
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        if (chatScrollContainerRef.current) {
+          chatScrollContainerRef.current.scrollTop = chatScrollContainerRef.current.scrollHeight;
+        } else {
+          messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }
+      }, 400);
     };
-    window.addEventListener('resize', handleResize);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', updatePaddingAndScroll);
+    } else {
+      window.addEventListener('resize', updatePaddingAndScroll);
+    }
     return () => {
-      window.removeEventListener('resize', handleResize);
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', updatePaddingAndScroll);
+      } else {
+        window.removeEventListener('resize', updatePaddingAndScroll);
+      }
       clearTimeout(resizeTimeout);
     };
   }, [isMobile]);
@@ -157,7 +177,11 @@ function DashboardContent() {
   const handleInputFocus = () => {
     if (isMobile) {
       setTimeout(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        if (chatScrollContainerRef.current) {
+          chatScrollContainerRef.current.scrollTop = chatScrollContainerRef.current.scrollHeight;
+        } else {
+          messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }
         inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
       }, 400);
     }
@@ -664,8 +688,9 @@ function DashboardContent() {
           >
             <div
               className="flex-1 overflow-y-auto px-1 pb-2 md:px-6 md:py-4 md:max-h-[60vh]"
+              ref={chatScrollContainerRef}
               onClick={() => { if (isMobile && !hasUserInteracted) setHasUserInteracted(true); }}
-              style={isMobile ? { paddingBottom: 72, boxSizing: 'border-box' } : {}}
+              style={isMobile ? { paddingBottom: chatBottomPadding, boxSizing: 'border-box' } : {}}
             >
                 {messages.length === 0 && !chatLoading && (
                   <div className="flex items-center justify-center h-full">
