@@ -654,16 +654,26 @@ function DashboardContent() {
           </div>
         </div>
       )}
-      <div className="w-full md:max-w-4xl mx-auto px-0 sm:px-6 lg:px-8 py-4 flex flex-col" style={isMobile ? { paddingBottom: 80 } : {}}>
-        <div className="w-full flex-1 flex flex-col items-center" style={isMobile ? { minHeight: '100dvh', height: '100dvh' } : {}}>
+      <div
+        className="w-full md:max-w-4xl mx-auto px-0 sm:px-6 lg:px-8 py-4 flex flex-col"
+        style={isMobile ? { paddingBottom: 0 } : {}}
+      >
+        <div
+          className="w-full flex-1 flex flex-col items-center relative"
+          style={isMobile ? { minHeight: '100dvh', height: '100dvh', position: 'relative' } : {}}
+        >
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
             className="flex flex-col w-full md:rounded-2xl md:border md:border-gray-200 md:shadow-lg bg-white/80 md:max-h-[70vh] md:overflow-hidden"
-            style={{ minHeight: '320px' }}
+            style={{ minHeight: '320px', height: isMobile ? '100dvh' : undefined, position: isMobile ? 'relative' : undefined }}
           >
-            <div className="flex-1 overflow-y-auto px-1 pb-2 md:px-6 md:py-4 md:max-h-[60vh]" onClick={() => { if (isMobile && !hasUserInteracted) setHasUserInteracted(true); }}>
+            <div
+              className="flex-1 overflow-y-auto px-1 pb-2 md:px-6 md:py-4 md:max-h-[60vh]"
+              onClick={() => { if (isMobile && !hasUserInteracted) setHasUserInteracted(true); }}
+              style={isMobile ? { paddingBottom: 72, boxSizing: 'border-box' } : {}}
+            >
                 {messages.length === 0 && !chatLoading && (
                   <div className="flex items-center justify-center h-full">
                     <div className="text-center max-w-md">
@@ -798,8 +808,19 @@ function DashboardContent() {
                 )}
               </div>
             </div>
-            {/* Mobile: fixed input bar at bottom */}
-            <div className="md:hidden fixed bottom-0 left-0 w-full z-50 border-t border-gray-200 bg-white px-4 py-3" style={{ boxShadow: '0 -2px 8px rgba(0,0,0,0.04)' }}>
+            {/* Mobile: absolutely positioned input bar at bottom of chat container */}
+            <div
+              className="md:hidden border-t border-gray-200 bg-white px-4 py-3"
+              style={{
+                position: isMobile ? 'absolute' : undefined,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                width: '100%',
+                zIndex: 50,
+                boxShadow: '0 -2px 8px rgba(0,0,0,0.04)',
+              }}
+            >
               <div className="flex items-end space-x-2 max-w-2xl mx-auto">
                 <input
                   type="file"
