@@ -303,55 +303,7 @@
     "greatYourAgentsReady": "¡Genial! Tus agentes están listos",
     "nowConnectAgentsDescription": "Ahora conecta tus agentes a canales de comunicación como WhatsApp, SMS o chat web para empezar a atender clientes."
   },
-  "createAgentModal": {
-    "agentName": "Nombre del Agente",
-    "agentNamePlaceholder": "ej., Asistente de Atención al Cliente",
-    "greetingMessage": "Mensaje de Saludo",
-    "greetingPlaceholder": "¡Hola! Estoy aquí para ayudarte con cualquier pregunta que tengas...",
-    "tonePersonality": "Tono y Personalidad",
-    "agentGoals": "Objetivos del Agente",
-    "agentGoalsDescription": "¿Con qué debería ayudar tu agente?",
-    "goalPlaceholder": "ej., Responder preguntas de clientes",
-    "addAnotherGoal": "Agregar otro objetivo",
-    "createAgent": "Crear Agente",
-    "creating": "Creando agente...",
-    "cancel": "Cancelar",
-    "back": "Atrás",
-    "next": "Siguiente",
-    "finish": "Finalizar",
-    "agentCreated": "¡Agente Creado Exitosamente!",
-    "agentReady": "¡Tu agente está listo!",
-    "optional": "Opcional",
-    "optionalUploadDocs": "Sube documentos PDF como políticas de negocio, preguntas frecuentes o información de productos para que tu agente brinde respuestas más precisas y específicas.",
-    "tone": {
-      "professional": {
-        "label": "Profesional",
-        "description": "Formal y apropiado para negocios"
-      },
-      "friendly": {
-        "label": "Amigable",
-        "description": "Cálido y accesible"
-      },
-      "casual": {
-        "label": "Casual",
-        "description": "Relajado y conversacional"
-      },
-      "helpful": {
-        "label": "Útil",
-        "description": "Servicial y enfocado en soluciones"
-      },
-      "enthusiastic": {
-        "label": "Entusiasta",
-        "description": "Enérgico y positivo"
-      }
-    },
-    "steps": {
-      "basic": "Básico",
-      "goals": "Objetivos", 
-      "review": "Revisar",
-      "docs": "Docs"
-    }
-  },
+
     "agentCard": {
       "tone": "TONO:",
       "goals": "OBJETIVOS:",
@@ -376,32 +328,7 @@
         "paused": "Pausado"
       }
     },
-    "editAgentModal": {
-      "title": "Editar Agente",
-      "step": "Paso",
-      "of": "de", 
-      "editing": "Editando",
-      "agentName": "Nombre del Agente",
-      "namePlaceholder": "ej., Asistente de Atención al Cliente",
-      "greetingMessage": "Mensaje de Saludo",
-      "greetingPlaceholder": "ej., ¡Hola! Estoy aquí para ayudarte con cualquier pregunta sobre nuestros servicios.",
-      "agentGoals": "Objetivos del Agente",
-      "goalsDescription": "¿Con qué debería ayudar este agente a los usuarios? Añade hasta 5 objetivos específicos.",
-      "goalPlaceholder": "Objetivo {number}: ej., Ayudar a los clientes a encontrar el producto correcto",
-      "addAnotherGoal": "Añadir otro objetivo",
-      "systemPromptPreview": "Vista Previa del Prompt del Sistema",
-      "systemPromptDescription": "Así es como se configurará tu agente. Puedes editarlo directamente si es necesario.",
-      "cancel": "Cancelar",
-      "next": "Siguiente",
-      "updating": "Actualizando...",
-      "updateAgent": "Actualizar Agente",
-      "agentSummary": "Resumen del Agente",
-      "steps": {
-        "basic": "Básico",
-        "goals": "Objetivos",
-        "review": "Revisar"
-      }
-    },
+
     "manageDocumentsModal": {
       "title": "Gestionar Documentos",
       "agent": "Agente",
@@ -451,6 +378,16 @@
       "viewDetails": "Ver Detalles",
       "generateReport": "Generar Reporte",
       "refreshData": "Actualizar Datos"
+    },
+    "chatDashboard": {
+      "title": "Chat de Chayo",
+      "selectAgent": "Seleccionar Agente",
+      "noAgentsAvailable": "No Hay Agentes Disponibles",
+      "createFirstAgentMessage": "Necesitas crear un agente de IA primero para comenzar a chatear.",
+      "createFirstAgentButton": "Crear Tu Primer Agente",
+      "chayoTyping": "Chayo está escribiendo...",
+      "error": "Ocurrió un error. Por favor intenta de nuevo.",
+      "systemPrompt": "Eres Chayo, un asistente de IA diseñado para ayudar con consultas comerciales y soporte al cliente."
     },
     "teamManagement": {
       "title": "Miembros del Equipo",

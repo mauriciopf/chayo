@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslations } from 'next-intl'
-import { DocumentManager } from './DocumentManager'
 
 interface Document {
   id: string
@@ -101,7 +100,7 @@ export default function ManageDocumentsModal({
                 </div>
               </div>
 
-              {/* Document Manager */}
+              {/* Document List */}
               {loading ? (
                 <div className="flex justify-center items-center py-8">
                   <svg className="animate-spin w-8 h-8 text-orange-400" fill="none" viewBox="0 0 24 24">
@@ -110,13 +109,45 @@ export default function ManageDocumentsModal({
                   </svg>
                   <span className="ml-2 text-gray-600">{t('loadingDocuments')}</span>
                 </div>
+              ) : documents.length === 0 ? (
+                <div className="text-center py-8">
+                  <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <h3 className="mt-2 text-sm font-medium text-gray-900">No documents uploaded</h3>
+                  <p className="mt-1 text-sm text-gray-500">
+                    Upload documents through the chat interface to train your AI assistant.
+                  </p>
+                </div>
               ) : (
-                <DocumentManager
-                  agentId={agentId}
-                  documents={documents}
-                  onDocumentUploaded={fetchDocuments}
-                  onDocumentDeleted={fetchDocuments}
-                />
+                <div className="space-y-3">
+                  {documents.map((doc) => (
+                    <div key={doc.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">{doc.filename}</p>
+                          <p className="text-xs text-gray-500">
+                            {doc.file_type} • {(doc.file_size / 1024).toFixed(1)} KB
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        {doc.processed ? (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            Processed
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                            Processing
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               )}
 
               {/* Stats */}

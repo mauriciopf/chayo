@@ -24,21 +24,39 @@ export default function AuthPage() {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession()
+        console.log('Auth page: Checking session...')
+        console.log('Auth page: Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
+        console.log('Auth page: Supabase key exists:', !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+        
+        const { data: { session }, error } = await supabase.auth.getSession()
+        
+        if (error) {
+          console.error('Auth page: Session error:', error)
+          setMessage(`Error: ${error.message}`)
+          setInitialLoading(false)
+          return
+        }
+        
+        console.log('Auth page: Session result:', session ? 'Found session' : 'No session')
+        
         if (session) {
+          console.log('Auth page: Redirecting to dashboard...')
           router.push(`/${locale}/dashboard`)
           return
         }
         
         // Check for error in URL parameters
         const urlParams = new URLSearchParams(window.location.search)
-        const error = urlParams.get('error')
-        if (error) {
-          setMessage(decodeURIComponent(error))
+        const urlError = urlParams.get('error')
+        if (urlError) {
+          console.log('Auth page: URL error found:', urlError)
+          setMessage(decodeURIComponent(urlError))
         }
       } catch (error) {
-        console.error('Error checking session:', error)
+        console.error('Auth page: Error checking session:', error)
+        setMessage(`Unexpected error: ${error}`)
       } finally {
+        console.log('Auth page: Setting initial loading to false')
         setInitialLoading(false)
       }
     }
@@ -65,15 +83,17 @@ export default function AuthPage() {
 
     try {
       if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
-          password,
-          options: {
-            emailRedirectTo: getAuthCallbackUrl()
-          }
+          password
         })
         if (error) throw error
-        setMessage('Check your email for the confirmation link!')
+        // Immediately check for session (should exist if email confirmation is off)
+        if (data.session) {
+          router.push(`/${locale}/dashboard`)
+        } else {
+          setMessage('Sign up successful, but no session found. Please try logging in.')
+        }
       } else {
         const { data, error } = await supabase.auth.signInWithPassword({
           email,

@@ -303,26 +303,7 @@
     "greatYourAgentsReady": "Great! Your agents are ready",
     "nowConnectAgentsDescription": "Now connect your agents to communication channels like WhatsApp, SMS, or website chat to start serving customers."
   },
-  "createAgentModal": {
-    "agentName": "Agent Name",
-    "agentNamePlaceholder": "e.g., Customer Support Assistant",
-    "greetingMessage": "Greeting Message",
-    "greetingPlaceholder": "Hello! I'm here to help you with any questions you might have...",
-    "tonePersonality": "Tone & Personality",
-    "agentGoals": "Agent Goals",
-    "agentGoalsDescription": "What should your agent help with?",
-    "goalPlaceholder": "e.g., Answer customer questions",
-    "addAnotherGoal": "Add another goal",
-    "createAgent": "Create Agent",
-    "creating": "Creating agent...",
-    "cancel": "Cancel",
-    "back": "Back",
-    "next": "Next",
-    "finish": "Finish",
-    "agentCreated": "Agent Created Successfully!",
-    "optional": "Optional",
-    "optionalUploadDocs": "Upload PDF documents like business policies, FAQs, or product information to help your agent provide more accurate and specific responses."
-  },
+
     "agentCard": {
       "tone": "TONE:",
       "goals": "GOALS:",
@@ -347,32 +328,7 @@
         "paused": "Paused"
       }
     },
-    "editAgentModal": {
-      "title": "Edit Agent",
-      "step": "Step",
-      "of": "of", 
-      "editing": "Editing",
-      "agentName": "Agent Name",
-      "namePlaceholder": "e.g., Customer Support Assistant",
-      "greetingMessage": "Greeting Message",
-      "greetingPlaceholder": "e.g., Hi! I'm here to help you with any questions about our services.",
-      "agentGoals": "Agent Goals",
-      "goalsDescription": "What should this agent help users accomplish? Add up to 5 specific goals.",
-      "goalPlaceholder": "Goal {number}: e.g., Help customers find the right product",
-      "addAnotherGoal": "Add another goal",
-      "systemPromptPreview": "System Prompt Preview",
-      "systemPromptDescription": "This is how your agent will be configured. You can edit this directly if needed.",
-      "cancel": "Cancel",
-      "next": "Next",
-      "updating": "Updating...",
-      "updateAgent": "Update Agent",
-      "agentSummary": "Agent Summary",
-      "steps": {
-        "basic": "Basic",
-        "goals": "Goals",
-        "review": "Review"
-      }
-    },
+
     "manageDocumentsModal": {
       "title": "Manage Documents",
       "agent": "Agent",
@@ -396,32 +352,17 @@
         "last_3_months": "Last 3 Months",
         "last_6_months": "Last 6 Months",
         "current_year": "Current Year"
-      },
-      "comparison": {
-        "no_comparison": "No Comparison",
-        "previous_period": "Previous Period",
-        "previous_year": "Previous Year"
-      },
-      "metrics": {
-        "totalConversations": "Total Conversations",
-        "totalMessages": "Total Messages",
-        "avgMessagesPerConversation": "Avg Messages per Conversation", 
-        "leadsCaptured": "Leads Captured",
-        "appointmentsScheduled": "Appointments Scheduled",
-        "responseTime": "Avg Response Time",
-        "satisfactionRate": "Satisfaction Rate",
-        "conversionRate": "Conversion Rate"
-      },
-      "description": "Insights into your AI platform's interaction and engagement metrics",
-      "conversationTrends": "Conversation Trends",
-      "interactiveChartsComingSoon": "Interactive charts coming soon",
-      "viewSampleChart": "View Sample Chart",
-      "engagementMetrics": "Engagement Metrics", 
-      "pieChartsComingSoon": "Pie charts and breakdowns coming soon",
-      "exportData": "Export Data",
-      "viewDetails": "View Details",
-      "generateReport": "Generate Report",
-      "refreshData": "Refresh Data"
+      }
+    },
+    "chatDashboard": {
+      "title": "Chayo Chat",
+      "selectAgent": "Select Agent",
+      "noAgentsAvailable": "No Agents Available",
+      "createFirstAgentMessage": "You need to create an AI agent first to start chatting.",
+      "createFirstAgentButton": "Create Your First Agent",
+      "chayoTyping": "Chayo is typing...",
+      "error": "An error occurred. Please try again.",
+      "systemPrompt": "You are Chayo, an AI assistant designed to help with business inquiries and customer support."
     },
     "teamManagement": {
       "title": "Team Members",

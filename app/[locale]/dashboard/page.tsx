@@ -1,24 +1,28 @@
 'use client'
 
-import { useEffect, useState, Suspense } from 'react'
-import { motion } from 'framer-motion'
+import { useEffect, useState, Suspense, useRef } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useTranslations, useLocale } from 'next-intl'
 import type { User } from '@supabase/supabase-js'
-import UserProfile from '@/components/dashboard/UserProfile'
-import AgentCard from '@/components/dashboard/AgentCard'
 import PlanBadge from '@/components/dashboard/PlanBadge'
-import CreateAgentModal from '@/components/dashboard/CreateAgentModal'
-import EditAgentModal from '@/components/dashboard/EditAgentModal'
 import SubscriptionPlans from '@/components/dashboard/SubscriptionPlans'
 import ManageDocumentsModal from '@/components/dashboard/ManageDocumentsModal'
 import PerformanceOverview from '@/components/dashboard/PerformanceOverview'
 import TeamManagement from '@/components/dashboard/TeamManagement'
 import SetupInstructions from '@/components/dashboard/SetupInstructions'
 import ProfileSettings from '@/components/dashboard/ProfileSettings'
-import ChannelStatusWidget from '@/components/dashboard/ChannelStatusWidget'
+import ChatMessage from '@/components/dashboard/ChatMessage'
 import { organizationService } from '@/lib/services/organizationService'
+
+interface Message {
+  id: string
+  role: "user" | "ai" | "system"
+  content: string
+  timestamp: Date
+  usingRAG?: boolean
+}
 
 interface Agent {
   id: string
@@ -29,6 +33,16 @@ interface Agent {
   system_prompt: string
   paused: boolean
   created_at: string
+  business_constraints?: {
+    greeting?: string
+    goals?: string[]
+    name?: string
+    industry?: string
+    values?: string[]
+    policies?: string[]
+    contact_info?: string
+    custom_rules?: string[]
+  }
 }
 
 interface UserSubscription {
@@ -59,14 +73,6 @@ interface Organization {
   }
 }
 
-interface AgentChannel {
-  id: string
-  agent_id: string
-  channel_type: string
-  connected: boolean
-  credentials: any
-}
-
 export default function Dashboard() {
   return (
     <Suspense fallback={
@@ -89,29 +95,34 @@ function DashboardContent() {
   const [user, setUser] = useState<User | null>(null)
   const [agents, setAgents] = useState<Agent[]>([])
   const [subscription, setSubscription] = useState<UserSubscription | null>(null)
-  const [channels, setChannels] = useState<AgentChannel[]>([])
   const [organizations, setOrganizations] = useState<Organization[]>([])
   const [currentOrganization, setCurrentOrganization] = useState<Organization | null>(null)
   const [loading, setLoading] = useState(true)
-  const [showCreateModal, setShowCreateModal] = useState(false)
-  const [showEditModal, setShowEditModal] = useState(false)
-  const [editingAgent, setEditingAgent] = useState<Agent | null>(null)
+
   const [showPlansModal, setShowPlansModal] = useState(false)
   const [showManageDocsModal, setShowManageDocsModal] = useState(false)
   const [managingAgentId, setManagingAgentId] = useState<string | null>(null)
   const [managingAgentName, setManagingAgentName] = useState<string>('')
-  const [activeTab, setActiveTab] = useState<'agents' | 'performance' | 'users' | 'profile'>('agents')
-  const [trialInfo, setTrialInfo] = useState<{
-    hasActiveTrial: boolean
-    daysRemaining: number
-    trialNumber?: string
-    expiresAt?: string
-  } | null>(null)
+  const [activeView, setActiveView] = useState<'chat' | 'agents' | 'performance' | 'users' | 'profile'>('chat')
   const [showSetupInstructions, setShowSetupInstructions] = useState(false)
   const [organizationSetupLoading, setOrganizationSetupLoading] = useState(false)
   const [organizationSetupMessage, setOrganizationSetupMessage] = useState<string | null>(null)
   const [organizationSetupError, setOrganizationSetupError] = useState<string | null>(null)
   const [targetPlan, setTargetPlan] = useState<string | null>(null)
+  const [showHamburgerMenu, setShowHamburgerMenu] = useState(false)
+  
+  // Chat state
+  const [messages, setMessages] = useState<Message[]>([])
+  const [input, setInput] = useState("")
+  const [chatLoading, setChatLoading] = useState(false)
+  const [chatError, setChatError] = useState<string | null>(null)
+  const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLTextAreaElement>(null)
+  const [uploading, setUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  
   const router = useRouter()
   const searchParams = useSearchParams()
   const supabase = createClient()
@@ -121,10 +132,8 @@ function DashboardContent() {
     
     const getUser = async () => {
       try {
-        // Wait a moment to ensure any pending session changes are processed
         await new Promise(resolve => setTimeout(resolve, 100))
         
-        // Poll for user session with retries
         const pollForUser = async (attempts = 0) => {
           const maxAttempts = 5
           const delay = 500
@@ -138,27 +147,21 @@ function DashboardContent() {
               console.log('Dashboard: User found', user.email)
               setUser(user)
               
-              // First ensure user has organization, then fetch other data
               await ensureUserHasOrganization(user)
               
-              // Fetch other data in parallel
               await Promise.all([
                 fetchAgents(),
-                fetchSubscription(user.id),
-                fetchChannels(user.id),
-                fetchTrialInfo()
+                fetchSubscription(user.id)
               ])
               return
             }
             
-            // If no user and we haven't exhausted attempts, retry
             if (attempts < maxAttempts) {
               console.log(`Dashboard: No user found, retrying... (${attempts + 1}/${maxAttempts})`)
               await new Promise(resolve => setTimeout(resolve, delay))
               return pollForUser(attempts + 1)
             }
             
-            // No user found after all attempts
             console.log('Dashboard: No user found after all attempts, redirecting to auth')
             router.push('/auth')
           } catch (error) {
@@ -187,7 +190,6 @@ function DashboardContent() {
       }
     }
 
-    // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('Dashboard: Auth state change:', event, session?.user?.email)
@@ -199,12 +201,10 @@ function DashboardContent() {
           setUser(session.user)
           setLoading(true)
           
-          // Ensure user has organization and fetch data
           await ensureUserHasOrganization(session.user)
           await Promise.all([
             fetchAgents(),
-            fetchSubscription(session.user.id),
-            fetchChannels(session.user.id)
+            fetchSubscription(session.user.id)
           ])
           setLoading(false)
         } else if (event === 'SIGNED_OUT') {
@@ -212,7 +212,6 @@ function DashboardContent() {
           setUser(null)
           setAgents([])
           setSubscription(null)
-          setChannels([])
           setOrganizations([])
           setCurrentOrganization(null)
           router.push('/auth')
@@ -223,17 +222,14 @@ function DashboardContent() {
       }
     )
 
-    // Initial load
     getUser()
 
-    // Cleanup function
     return () => {
       isMounted = false
       subscription.unsubscribe()
     }
   }, [router, supabase.auth])
 
-  // Handle upgrade flow from integrations page
   useEffect(() => {
     const showPlans = searchParams.get('showPlans')
     const targetPlanParam = searchParams.get('targetPlan')
@@ -242,7 +238,6 @@ function DashboardContent() {
       setShowPlansModal(true)
       setTargetPlan(targetPlanParam)
       
-      // Clean up the URL parameters
       const newUrl = new URL(window.location.href)
       newUrl.searchParams.delete('showPlans')
       newUrl.searchParams.delete('targetPlan')
@@ -250,114 +245,220 @@ function DashboardContent() {
     }
   }, [searchParams, loading, user])
 
-  const fetchAgents = async () => {
+  // Chat functionality
+  useEffect(() => {
+    loadAgents()
+  }, [])
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [messages, chatLoading])
+
+  const loadAgents = async () => {
     try {
-      console.log('Fetching agents from /api/agents...')
-      const response = await fetch('/api/agents', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include'
-      })
-      
-      console.log('Agents API response status:', response.status)
-      
-      if (response.ok) {
-        const { agents } = await response.json()
-        console.log('Agents fetched successfully:', agents?.length || 0)
-        setAgents(agents || [])
-      } else {
-        console.error('Failed to fetch agents, status:', response.status)
-        const errorText = await response.text()
-        console.error('Error response:', errorText)
-        setAgents([])
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data: org } = await supabase
+        .from('organizations')
+        .select('id')
+        .eq('user_id', user.id)
+        .single()
+
+      if (!org) return
+
+      const { data: agents, error } = await supabase
+        .from('agents')
+        .select('*')
+        .eq('organization_id', org.id)
+        .order('created_at', { ascending: false })
+
+      if (error) {
+        console.error('Error loading agents:', error)
+        return
+      }
+
+      setAgents(agents || [])
+      if (agents && agents.length > 0 && !selectedAgent) {
+        setSelectedAgent(agents[0])
+        // Build business info summary if available
+        const constraints = agents[0].business_constraints || {}
+        const { industry, name, products_services, target_customers } = constraints
+        let summary = ''
+        if (industry || name || (products_services && products_services.length) || target_customers) {
+          summary = 'Welcome back! I remember your business'
+          if (industry) summary += ` is a ${industry}`
+          if (name) summary += ` called ${name}`
+          if (products_services && products_services.length)
+            summary += `, offering ${products_services.join(", ")}`
+          if (target_customers) summary += ` to ${target_customers}`
+          summary += '. Let me know if anything has changed!'
+        }
+        setMessages([
+          ...(summary ? [{
+            id: 'business-summary',
+            role: 'ai' as const,
+            content: summary,
+            timestamp: new Date()
+          }] : []),
+          {
+            id: 'greeting',
+            role: 'ai' as const,
+            content: constraints.greeting || `Hi! I'm ${agents[0].name}. How can I help you today?`,
+            timestamp: new Date()
+          }
+        ])
+      } else if (!agents || agents.length === 0) {
+        setMessages([{
+          id: 'welcome',
+          role: 'ai',
+          content: 'Hi! I\'m your business AI assistant. I\'m here to help you with your business needs. Tell me about your business and I\'ll learn to assist you better!',
+          timestamp: new Date()
+        }])
       }
     } catch (error) {
+      console.error('Error loading agents:', error)
+      setMessages([{
+        id: 'welcome',
+        role: 'ai',
+        content: 'Hi! I\'m your business AI assistant. I\'m here to help you with your business needs. Tell me about your business and I\'ll learn to assist you better!',
+        timestamp: new Date()
+      }])
+    }
+  }
+
+  const handleSend = async () => {
+    if (!input.trim() || chatLoading) return
+    
+    setChatError(null)
+    const newUserMsg: Message = {
+      id: Date.now().toString(),
+      role: "user",
+      content: input,
+      timestamp: new Date()
+    }
+    
+    setMessages((msgs) => [...msgs, newUserMsg])
+    setInput("")
+    setChatLoading(true)
+    
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [...messages, newUserMsg].map(({ role, content }) => ({ 
+            role: role === "ai" ? "assistant" : role, 
+            content 
+          })),
+          ...(selectedAgent && { agentId: selectedAgent.id })
+        })
+      })
+      
+      if (!res.ok) {
+        const data = await res.json()
+        setChatError(data.error || "Error sending message")
+        setChatLoading(false)
+        return
+      }
+      
+      const data = await res.json()
+      
+      if (data.agent && !selectedAgent) {
+        setSelectedAgent(data.agent)
+      }
+      
+      setMessages((msgs) => [
+        ...msgs,
+        { 
+          id: Date.now().toString() + "-ai", 
+          role: "ai", 
+          content: data.aiMessage,
+          timestamp: new Date(),
+          usingRAG: data.usingRAG
+        }
+      ])
+    } catch (err) {
+      setChatError("Error sending message")
+    } finally {
+      setChatLoading(false)
+    }
+  }
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleSend()
+    }
+  }
+
+  const fetchAgents = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data: org } = await supabase
+        .from('organizations')
+        .select('id')
+        .eq('user_id', user.id)
+        .single()
+
+      if (!org) return
+
+      const { data: agents, error } = await supabase
+        .from('agents')
+        .select('*')
+        .eq('organization_id', org.id)
+        .order('created_at', { ascending: false })
+
+      if (error) {
+        console.error('Error fetching agents:', error)
+        return
+      }
+
+      setAgents(agents || [])
+    } catch (error) {
       console.error('Error fetching agents:', error)
-      setAgents([])
     }
   }
 
   const fetchSubscription = async (userId: string) => {
-    const { data, error } = await supabase
-      .from('user_subscriptions')
-      .select('*')
-      .eq('user_id', userId)
-      .single()
-
-    if (data && !error) {
-      setSubscription(data)
-    } else if (error && error.code === 'PGRST116') {
-      // No subscription found, create a default free subscription
-      console.log('No subscription found, using default free plan')
-      setSubscription({ 
-        plan_name: 'free', 
-        status: 'active',
-        user_id: userId,
-        stripe_customer_id: '',
-        stripe_subscription_id: '',
-        current_period_end: ''
-      })
-    } else {
-      console.warn('Subscription fetch error:', error)
-      // Fallback to free plan if table doesn't exist
-      setSubscription({ 
-        plan_name: 'free', 
-        status: 'active',
-        user_id: userId,
-        stripe_customer_id: '',
-        stripe_subscription_id: '',
-        current_period_end: ''
-      })
-    }
-  }
-
-  const fetchChannels = async (userId: string) => {
-    const { data, error } = await supabase
-      .from('agent_channels')
-      .select('*')
-      .eq('user_id', userId)
-
-    if (data && !error) {
-      setChannels(data)
-    } else if (error) {
-      console.warn('Channels fetch error:', error)
-      // Set empty array if table doesn't exist or other error
-      setChannels([])
-    }
-  }
-
-  const fetchTrialInfo = async () => {
     try {
-      const response = await fetch('/api/whatsapp/status')
-      if (response.ok) {
-        const data = await response.json()
-        
-        if (data.trial && data.trial.isActive) {
-          const expiresAt = new Date(data.trial.expiresAt)
-          const now = new Date()
-          const diffTime = expiresAt.getTime() - now.getTime()
-          const daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-          
-          setTrialInfo({
-            hasActiveTrial: true,
-            daysRemaining: Math.max(0, daysRemaining),
-            trialNumber: data.trial.phoneNumber,
-            expiresAt: data.trial.expiresAt
-          })
-        } else {
-          setTrialInfo({ hasActiveTrial: false, daysRemaining: 0 })
-        }
+      const { data, error } = await supabase
+        .from('user_subscriptions')
+        .select('*')
+        .eq('user_id', userId)
+        .single()
+
+      if (data && !error) {
+        setSubscription(data)
+      } else if (error && error.code === 'PGRST116') {
+        console.log('No subscription found, using default free plan')
+        setSubscription({ 
+          plan_name: 'free', 
+          status: 'active',
+          user_id: userId,
+          stripe_customer_id: '',
+          stripe_subscription_id: '',
+          current_period_end: ''
+        })
       } else {
-        // API error or no trial
-        setTrialInfo({ hasActiveTrial: false, daysRemaining: 0 })
+        console.warn('Subscription fetch error:', error)
+        setSubscription({ 
+          plan_name: 'free', 
+          status: 'active',
+          user_id: userId,
+          stripe_customer_id: '',
+          stripe_subscription_id: '',
+          current_period_end: ''
+        })
       }
     } catch (error) {
-      console.error('Error fetching trial info:', error)
-      setTrialInfo({ hasActiveTrial: false, daysRemaining: 0 })
+      console.error('Error fetching subscription:', error)
     }
   }
+
+
 
   const ensureUserHasOrganization = async (user: User) => {
     try {
@@ -365,7 +466,6 @@ function DashboardContent() {
       setOrganizationSetupError(null)
       setOrganizationSetupMessage(null)
       
-      // Use the organization service to handle this automatically
       const result = await organizationService.ensureUserHasOrganization(user)
       
       if (result) {
@@ -373,26 +473,24 @@ function DashboardContent() {
         setOrganizations([organization])
         setCurrentOrganization(organization)
         
-        // Show appropriate message based on whether it was created or existed
         if (wasCreated) {
-          setOrganizationSetupMessage(t('organizationCreated', { org: organization.name }))
+          setOrganizationSetupMessage(`Organization "${organization.name}" created successfully!`)
         } else {
-          setOrganizationSetupMessage(t('organizationWelcomeBack', { org: organization.name }))
+          setOrganizationSetupMessage(`Welcome back to "${organization.name}"!`)
         }
         
         setTimeout(() => setOrganizationSetupMessage(null), 5000)
       } else {
-        // Check if it's a database issue
         const isDatabaseReady = await organizationService.isDatabaseReady()
         if (!isDatabaseReady) {
           setShowSetupInstructions(true)
         } else {
-          setOrganizationSetupError(t('organizationCreateFailed'))
+          setOrganizationSetupError('Failed to create organization')
         }
       }
     } catch (error) {
       console.error('Error ensuring user has organization:', error)
-      setOrganizationSetupError(t('organizationSetupFailed'))
+      setOrganizationSetupError('Organization setup failed')
     } finally {
       setOrganizationSetupLoading(false)
     }
@@ -400,22 +498,17 @@ function DashboardContent() {
 
   const handleLogout = async () => {
     try {
-      // Clear local state immediately to prevent UI issues
       setUser(null)
       setAgents([])
       setSubscription(null)
-      setChannels([])
       setOrganizations([])
       setCurrentOrganization(null)
       
-      // Sign out from Supabase
       await supabase.auth.signOut()
       
-      // Navigate to home page
       router.push('/')
     } catch (error) {
       console.error('Error during logout:', error)
-      // Even if there's an error, still navigate away
       router.push('/')
     }
   }
@@ -424,22 +517,58 @@ function DashboardContent() {
     setUser(updatedUser)
   }
 
-  const canCreateAgent = () => {
-    const plan = organizations[0]?.user_subscription?.plan_name || subscription?.plan_name || 'free'
-    if (plan === 'free') return agents.length < 1
-    if (plan === 'basic' || plan === 'pro') return agents.length < 1
-    if (plan === 'premium') return agents.length < 5
-    return false
-  }
+  // Add to DashboardContent function, after chat state declarations:
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    setUploadProgress(0)
+    setChatError(null)
 
-  const getPlanFeatures = (planName: string) => {
-    const features = {
-      free: t.raw('planFeatures.free'),
-      basic: t.raw('planFeatures.basic'),
-      pro: t.raw('planFeatures.pro'),
-      premium: t.raw('planFeatures.premium')
+    // Show a message in the chat that the file is being uploaded
+    setMessages((msgs) => [
+      ...msgs,
+      {
+        id: Date.now().toString() + '-file',
+        role: 'user',
+        content: `Uploading file: ${file.name}`,
+        timestamp: new Date()
+      }
+    ])
+
+    // Upload the file to the backend
+    const formData = new FormData()
+    formData.append('file', file)
+
+    try {
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      })
+      if (!res.ok) {
+        setChatError('File upload failed')
+        setUploading(false)
+        setUploadProgress(null)
+        return
+      }
+      const data = await res.json()
+      setMessages((msgs) => [
+        ...msgs,
+        {
+          id: Date.now().toString() + '-file-success',
+          role: 'user',
+          content: `Uploaded file: ${file.name}`,
+          timestamp: new Date()
+        }
+      ])
+      // Optionally, you can trigger a message to the AI about the uploaded file here
+    } catch (err) {
+      setChatError('File upload failed')
+    } finally {
+      setUploading(false)
+      setUploadProgress(null)
+      if (fileInputRef.current) fileInputRef.current.value = ''
     }
-    return features[planName as keyof typeof features] || features.free
   }
 
   if (loading) {
@@ -454,12 +583,11 @@ function DashboardContent() {
     )
   }
 
-  // If user is null (logged out), don't render the dashboard
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
         <div className="text-center">
-          <p className="text-gray-600">{t('common.loading')}</p>
+          <p className="text-gray-600">Loading...</p>
         </div>
       </div>
     )
@@ -484,7 +612,6 @@ function DashboardContent() {
                     Chayo
                   </span>
                   
-                  {/* Animated dot */}
                   <motion.span
                     className="inline-block w-2 h-2 lg:w-2.5 lg:h-2.5 bg-gradient-to-r from-pink-500 to-orange-400 rounded-full ml-1"
                     animate={{ 
@@ -501,7 +628,7 @@ function DashboardContent() {
               </motion.div>
               
               <div className="hidden md:block">
-                <h2 className="text-lg font-semibold text-gray-900">{t('title')}</h2>
+                <h2 className="text-lg font-semibold text-gray-900">AI Business Assistant</h2>
                 {currentOrganization && (
                   <span className="text-sm text-gray-500">
                     {currentOrganization.name}
@@ -512,14 +639,147 @@ function DashboardContent() {
             
             <div className="flex items-center space-x-4">
               <PlanBadge plan={organizations[0]?.user_subscription?.plan_name || subscription?.plan_name || 'free'} />
-              {user && (
-                <UserProfile 
-                  user={user} 
-                  subscription={subscription}
-                  onLogout={handleLogout}
-                  onManageBilling={() => setShowPlansModal(true)}
-                />
-              )}
+              
+              {/* Hamburger Menu */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowHamburgerMenu(!showHamburgerMenu)}
+                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                </button>
+                
+                <AnimatePresence>
+                  {showHamburgerMenu && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                      className="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-200 z-50"
+                    >
+                      <div className="p-2">
+                        <div className="px-3 py-2 border-b border-gray-100">
+                          <p className="text-sm font-medium text-gray-900">{user?.email}</p>
+                          <p className="text-xs text-gray-500">{currentOrganization?.name}</p>
+                        </div>
+                        
+                        <div className="py-2">
+                          <button
+                            onClick={() => {
+                              setActiveView('agents')
+                              setShowHamburgerMenu(false)
+                            }}
+                            className="w-full text-left px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                          >
+                            <div className="flex items-center">
+                              <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              Manage Agents
+                            </div>
+                          </button>
+                          
+                          <button
+                            onClick={() => {
+                              setActiveView('performance')
+                              setShowHamburgerMenu(false)
+                            }}
+                            className="w-full text-left px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                          >
+                            <div className="flex items-center">
+                              <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                              </svg>
+                              Performance
+                            </div>
+                          </button>
+                          
+                          <button
+                            onClick={() => {
+                              setActiveView('users')
+                              setShowHamburgerMenu(false)
+                            }}
+                            className="w-full text-left px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                          >
+                            <div className="flex items-center">
+                              <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                              </svg>
+                              Team Management
+                            </div>
+                          </button>
+                          
+                          <button
+                            onClick={() => {
+                              setActiveView('profile')
+                              setShowHamburgerMenu(false)
+                            }}
+                            className="w-full text-left px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                          >
+                            <div className="flex items-center">
+                              <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                              </svg>
+                              Profile Settings
+                            </div>
+                          </button>
+                          
+                          <div className="border-t border-gray-100 my-2"></div>
+                          
+                          <button
+                            onClick={() => {
+                              setShowPlansModal(true)
+                              setShowHamburgerMenu(false)
+                            }}
+                            className="w-full text-left px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                          >
+                            <div className="flex items-center">
+                              <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                              </svg>
+                              Subscription
+                            </div>
+                          </button>
+                          
+                          <button
+                            onClick={() => {
+                              router.push('/integrations')
+                              setShowHamburgerMenu(false)
+                            }}
+                            className="w-full text-left px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                          >
+                            <div className="flex items-center">
+                              <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                              </svg>
+                              WhatsApp Integration
+                            </div>
+                          </button>
+                          
+                          <div className="border-t border-gray-100 my-2"></div>
+                          
+                          <button
+                            onClick={() => {
+                              handleLogout()
+                              setShowHamburgerMenu(false)
+                            }}
+                            className="w-full text-left px-3 py-2 rounded-lg text-sm text-red-600 hover:bg-red-50 transition-colors"
+                          >
+                            <div className="flex items-center">
+                              <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                              </svg>
+                              Sign Out
+                            </div>
+                          </button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
           </div>
         </div>
@@ -536,7 +796,7 @@ function DashboardContent() {
                   transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                   className="w-5 h-5 border-2 border-blue-400 border-t-transparent rounded-full mr-3"
                 />
-                <p className="text-blue-800">{t('organizationSettingUp')}</p>
+                <p className="text-blue-800">Setting up your organization...</p>
               </div>
             </div>
           )}
@@ -574,575 +834,288 @@ function DashboardContent() {
         </div>
       )}
 
-      {/* WhatsApp Trial Banner */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-4">
-        {trialInfo?.hasActiveTrial ? (
-          /* Active Trial Banner */
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl p-6 text-white shadow-xl border border-white/20"
-          >
-            <div className="flex items-start justify-between">
-              <div className="flex items-start space-x-4">
-                <div className="flex-shrink-0 w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-bold mb-2">
-                    🎉 WhatsApp Trial Active
-                  </h3>
-                  <p className="text-white/90 mb-3">
-                    Your 3-day WhatsApp trial is active! You have <strong>{trialInfo.daysRemaining} days remaining</strong> to test your AI agent on WhatsApp.
-                  </p>
-                  {trialInfo.trialNumber && (
-                    <p className="text-white/80 text-sm mb-3">
-                      Trial number: <code className="bg-white/20 px-2 py-1 rounded">{trialInfo.trialNumber}</code>
-                    </p>
-                  )}
-                  <div className="flex items-center space-x-3">
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => router.push('/integrations')}
-                      className="bg-white text-blue-600 font-medium py-2 px-4 rounded-lg transition-all duration-200 shadow-md text-sm hover:shadow-lg"
-                    >
-                      Manage WhatsApp →
-                    </motion.button>
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => setShowPlansModal(true)}
-                      className="bg-white/20 border border-white/30 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 text-sm hover:bg-white/30"
-                    >
-                      Upgrade Plan
-                    </motion.button>
-                  </div>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-2xl font-bold">
-                  {trialInfo.daysRemaining}
-                </div>
-                <div className="text-white/80 text-sm">
-                  days left
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        ) : (
-          /* Trial Promotion Banner */
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-gradient-to-r from-green-500 to-teal-600 rounded-2xl p-6 text-white shadow-xl border border-white/20"
-          >
-            <div className="flex items-start justify-between">
-              <div className="flex items-start space-x-4">
-                <div className="flex-shrink-0 w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-bold mb-2">
-                    {t('trialPromotion.headline')}
-                  </h3>
-                  <p className="text-white/90 mb-4">
-                    {t('trialPromotion.description')}
-                  </p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-                    <div className="flex items-center space-x-2 text-white/90">
-                      <svg className="w-4 h-4 text-green-200" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                      <span className="text-sm">{t('trialPromotion.customerInquiries')}</span>
-                    </div>
-                    <div className="flex items-center space-x-2 text-white/90">
-                      <svg className="w-4 h-4 text-green-200" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                      <span className="text-sm">{t('trialPromotion.appointmentScheduling')}</span>
-                    </div>
-                    <div className="flex items-center space-x-2 text-white/90">
-                      <svg className="w-4 h-4 text-green-200" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                      <span className="text-sm">{t('trialPromotion.inventoryManagement')}</span>
-                    </div>
-                    <div className="flex items-center space-x-2 text-white/90">
-                      <svg className="w-4 h-4 text-green-200" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                      <span className="text-sm">{t('trialPromotion.productRecommendations')}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => {
-                        if (agents.length === 0) {
-                          setShowCreateModal(true)
-                        } else {
-                          router.push('/integrations')
-                        }
-                      }}
-                      className="bg-white text-green-600 font-medium py-2 px-4 rounded-lg transition-all duration-200 shadow-md text-sm hover:shadow-lg"
-                    >
-                      {t('trialPromotion.startFreeTrial')}
-                    </motion.button>
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => setShowPlansModal(true)}
-                      className="bg-white/20 border border-white/30 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 text-sm hover:bg-white/30"
-                    >
-                      {t('trialPromotion.viewPlans')}
-                    </motion.button>
-                  </div>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-2xl font-bold">
-                  3
-                </div>
-                <div className="text-white/80 text-sm">
-                  {t('trialPromotion.daysFree')}
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </div>
 
+
+      {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-6 border border-white/20">
-              <div className="mb-6">
-                <h2 className="text-lg font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
-                  {t('quickActions')}
-                </h2>
-                
-                {/* Quick Navigation */}
-                <div className="mb-6">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-3">
-                    {t('navigation')}
-                  </h3>
-                  <div className="space-y-2">
-                    <button
-                      onClick={() => setActiveTab('agents')}
-                      className={`w-full text-left px-4 py-3 rounded-xl text-sm transition-all duration-200 ${
-                        activeTab === 'agents'
-                          ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium shadow-lg'
-                          : 'text-gray-600 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:text-purple-700'
-                      }`}
-                    >
-                      <div className="flex items-center">
-                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        {t('agentCount', { count: agents.length })}
-                      </div>
-                    </button>
-                    <button
-                      onClick={() => setActiveTab('performance')}
-                      className={`w-full text-left px-4 py-3 rounded-xl text-sm transition-all duration-200 ${
-                        activeTab === 'performance'
-                          ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium shadow-lg'
-                          : 'text-gray-600 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:text-purple-700'
-                      }`}
-                    >
-                      <div className="flex items-center">
-                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                        </svg>
-                        {t('performance')}
-                      </div>
-                    </button>
-                    <button
-                      onClick={() => setActiveTab('users')}
-                      className={`w-full text-left px-4 py-3 rounded-xl text-sm transition-all duration-200 ${
-                        activeTab === 'users'
-                          ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium shadow-lg'
-                          : 'text-gray-600 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:text-purple-700'
-                      }`}
-                    >
-                      <div className="flex items-center">
-                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                        </svg>
-                        {t('teamCount', { count: currentOrganization?.team_members?.length || (currentOrganization ? 1 : 0) })}
-                      </div>
-                    </button>
-                    <button
-                      onClick={() => setActiveTab('profile')}
-                      className={`w-full text-left px-4 py-3 rounded-xl text-sm transition-all duration-200 ${
-                        activeTab === 'profile'
-                          ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium shadow-lg'
-                          : 'text-gray-600 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:text-purple-700'
-                      }`}
-                    >
-                      <div className="flex items-center">
-                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                        {t('settings')}
-                      </div>
-                    </button>
+        <div className="w-full">
+          {activeView === 'chat' && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="h-[calc(100vh-200px)] flex flex-col"
+            >
+              {/* Chat Header */}
+              <div className="flex-shrink-0 border-b border-gray-200 bg-white px-6 py-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center">
+                    <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900">AI Assistant</h2>
+                    <p className="text-sm text-gray-500">Ready to help with your business</p>
                   </div>
                 </div>
               </div>
-              
-              <div className="space-y-3">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setShowCreateModal(true)}
-                  disabled={!canCreateAgent()}
-                  className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 shadow-lg"
-                >
-                  {t('createAgent')}
-                </motion.button>
-                
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setShowPlansModal(true)}
-                  className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 shadow-lg"
-                >
-                  {(organizations[0]?.user_subscription?.plan_name || subscription?.plan_name || 'free') === 'free' ? t('upgradePlan') : t('changePlan')}
-                </motion.button>
-                
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => router.push('/integrations')}
-                  className="w-full bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 shadow-lg"
-                >
-                  {t('connectChannels')}
-                </motion.button>
-              </div>
 
-              {/* Plan Features */}
-              <div className="mt-6 pt-6 border-t border-gray-200">
-                <h3 className="text-sm font-semibold text-gray-700 mb-3">
-                  {t('yourPlanFeatures')}
-                </h3>
-                <ul className="space-y-2">
-                  {getPlanFeatures(organizations[0]?.user_subscription?.plan_name || subscription?.plan_name || 'free').map((feature: string, index: number) => (
-                    <li key={index} className="flex items-center text-sm text-gray-600">
-                      <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          {/* Main Content */}
-          <div className="lg:col-span-3">
-            {/* Tab Navigation */}
-            <div className="mb-6">
-              <div className="bg-white/80 backdrop-blur-md rounded-2xl p-2 shadow-lg border border-white/20">
-                <nav className="flex space-x-2">
-                  <button
-                    onClick={() => setActiveTab('agents')}
-                    className={`flex-1 py-3 px-4 rounded-xl font-medium text-sm transition-all duration-200 ${
-                      activeTab === 'agents'
-                        ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                        : 'text-gray-600 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:text-purple-700'
-                    }`}
-                  >
-                    {t('agentCount', { count: agents.length })}
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('performance')}
-                    className={`flex-1 py-3 px-4 rounded-xl font-medium text-sm transition-all duration-200 ${
-                      activeTab === 'performance'
-                        ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                        : 'text-gray-600 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:text-purple-700'
-                    }`}
-                  >
-                    {t('performance')}
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('users')}
-                    className={`flex-1 py-3 px-4 rounded-xl font-medium text-sm transition-all duration-200 ${
-                      activeTab === 'users'
-                        ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                        : 'text-gray-600 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:text-purple-700'
-                    }`}
-                  >
-                    {t('teamCount', { count: currentOrganization?.team_members?.length || (currentOrganization ? 1 : 0) })}
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('profile')}
-                    className={`flex-1 py-3 px-4 rounded-xl font-medium text-sm transition-all duration-200 ${
-                      activeTab === 'profile'
-                        ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                        : 'text-gray-600 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:text-purple-700'
-                    }`}
-                  >
-                    {t('settings')}
-                  </button>
-                </nav>
-              </div>
-            </div>
-
-            {/* Tab Content */}
-            {activeTab === 'agents' && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <div className="mb-6">
-                  <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
-                    {t('yourAIAgents')}
-                  </h2>
-                  <p className="text-gray-600">
-                    {t('manageAgentsDescription')}
-                  </p>
-                </div>
-
-                {agents.length === 0 ? (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-8 text-center border border-white/20"
-                  >
-                    <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                      </svg>
+              {/* Chat Messages */}
+              <div className="flex-1 overflow-y-auto bg-gray-50">
+                {messages.length === 0 && !chatLoading && (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="text-center max-w-md">
+                      <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
+                      </div>
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">¡Hola! I'm Chayo</h3>
+                      <p className="text-gray-600 mb-4">Your AI business assistant ready to help you grow and optimize your business.</p>
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-left">
+                        <p className="text-sm text-blue-800 mb-2"><strong>Let's get started:</strong></p>
+                        <ul className="text-sm text-blue-700 space-y-1">
+                          <li>• Tell me about your business and industry</li>
+                          <li>• Share your biggest challenges</li>
+                          <li>• Upload documents to help me understand your business better</li>
+                          <li>• Ask me about growth strategies, operations, or customer service</li>
+                        </ul>
+                      </div>
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">
-                      {t('noAgentsYet')}
-                    </h3>
-                    <p className="text-gray-600 mb-6">
-                      {t('createFirstAgentDescription')}
-                    </p>
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => setShowCreateModal(true)}
-                      disabled={!canCreateAgent()}
-                      className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed text-white font-medium py-3 px-6 rounded-xl transition-all duration-200 shadow-lg"
-                    >
-                      {t('createYourFirstAgent')}
-                    </motion.button>
-                  </motion.div>
-                ) : (
-                  <>
-                    {/* Tutorial section for agents without channels */}
-                    {agents.length > 0 && channels.length === 0 && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6 mb-6 border border-blue-200/50"
-                      >
-                        <div className="flex items-start space-x-4">
-                          <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                          </div>
-                          <div className="flex-1">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                              🎉 {t('greatYourAgentsReady')}
-                            </h3>
-                            <p className="text-gray-600 mb-4">
-                              {t('nowConnectAgentsDescription')}
-                            </p>
-                            <motion.button
-                              whileHover={{ scale: 1.02 }}
-                              whileTap={{ scale: 0.98 }}
-                              onClick={() => router.push('/integrations')}
-                              className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 shadow-md text-sm"
-                            >
-                              {t('connectChannels')} →
-                            </motion.button>
+                  </div>
+                )}
+                <AnimatePresence>
+                  {messages.map((msg) => (
+                    <ChatMessage 
+                      key={msg.id} 
+                      role={msg.role} 
+                      content={msg.content} 
+                      timestamp={msg.timestamp} 
+                      usingRAG={msg.usingRAG}
+                    />
+                  ))}
+                  {chatLoading && (
+                    <div className="py-6 bg-gray-50">
+                      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex justify-start">
+                          <div className="flex items-start space-x-4 max-w-3xl">
+                            <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center">
+                              <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clipRule="evenodd" />
+                              </svg>
+                            </div>
+                            <div className="flex-1">
+                              <div className="inline-block bg-white text-gray-900 rounded-2xl px-4 py-3 shadow-sm">
+                                <div className="flex items-center space-x-1">
+                                  <div className="flex space-x-1">
+                                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                                  </div>
+                                  <span className="text-sm text-gray-500 ml-2">AI is thinking...</span>
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         </div>
-                      </motion.div>
-                    )}
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {agents.map((agent, index) => (
-                        <motion.div
-                          key={agent.id}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: index * 0.1 }}
-                        >
-                          <AgentCard 
-                            agent={agent}
-                            channels={channels.filter(c => c.agent_id === agent.id)}
-                            onEdit={() => {
-                              setEditingAgent(agent)
-                              setShowEditModal(true)
-                            }}
-                            onTogglePause={() => {
-                              // Update agent pause status
-                              fetch(`/api/agents/${agent.id}`, {
-                                method: 'PUT',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ paused: !agent.paused })
-                              }).then(() => fetchAgents())
-                            }}
-                            onDelete={() => {
-                              // Delete agent
-                              fetch(`/api/agents/${agent.id}`, {
-                                method: 'DELETE'
-                              }).then(() => fetchAgents())
-                            }}
-                            onManageDocuments={() => {
-                              setManagingAgentId(agent.id)
-                              setManagingAgentName(agent.name)
-                              setShowManageDocsModal(true)
-                            }}
-                          />
-                        </motion.div>
-                      ))}
+                      </div>
                     </div>
-                  </>
-                )}
-                
-                {/* Channel Status Widget */}
-                {agents.length > 0 && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                    className="mt-8"
-                  >
-                    <ChannelStatusWidget agentId={agents[0]?.id} />
-                  </motion.div>
-                )}
-              </motion.div>
-            )}
+                  )}
+                  {chatError && (
+                    <ChatMessage 
+                      role="ai" 
+                      content={chatError} 
+                      timestamp={new Date()} 
+                    />
+                  )}
+                </AnimatePresence>
+                <div ref={messagesEndRef} />
+              </div>
 
-            {activeTab === 'performance' && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <div className="mb-6">
-                  <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
-                    {t('performanceAnalytics')}
-                  </h2>
-                  <p className="text-gray-600">
-                    {t('performanceDescription')}
-                  </p>
-                </div>
-                <PerformanceOverview />
-              </motion.div>
-            )}
-
-            {activeTab === 'users' && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                {showSetupInstructions ? (
-                  <SetupInstructions onRetry={() => {
-                    setShowSetupInstructions(false)
-                    if (user) {
-                      ensureUserHasOrganization(user)
-                    }
-                  }} />
-                ) : currentOrganization ? (
-                  <TeamManagement 
-                    organizationId={currentOrganization.id}
-                    organizationName={currentOrganization.name}
-                  />
-                ) : (
-                  <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-8 text-center border border-white/20">
-                    <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+              {/* Chat Input */}
+              <div className="flex-shrink-0 border-t border-gray-200 bg-white px-6 py-4">
+                <div className="max-w-4xl mx-auto">
+                  <div className="flex items-end space-x-3">
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      style={{ display: 'none' }}
+                      onChange={handleFileChange}
+                      disabled={uploading}
+                    />
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploading}
+                      className="flex-shrink-0 p-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-50 transition-colors"
+                      title="Upload a file"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                       </svg>
-                    </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">
-                      {t('settingUpWorkspace')}
-                    </h3>
-                    <p className="text-gray-600 mb-6">
-                      {t('settingUpDescription')}
-                    </p>
-                    <div className="flex items-center justify-center">
-                      <motion.div
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                        className="w-6 h-6 border-2 border-purple-400 border-t-transparent rounded-full"
+                    </button>
+                    <div className="flex-1 relative">
+                      <textarea
+                        placeholder="Message AI Assistant..."
+                        value={input}
+                                                 onChange={(e) => {
+                           setInput(e.target.value)
+                           // Auto-resize textarea
+                           e.target.style.height = 'auto'
+                           e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px'
+                         }}
+                                                 onKeyDown={(e) => {
+                           if (e.key === 'Enter' && !e.shiftKey) {
+                             e.preventDefault()
+                             handleSend()
+                           }
+                         }}
+                        ref={inputRef as any}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                        rows={1}
+                        style={{ minHeight: '44px', maxHeight: '120px' }}
+                        disabled={uploading}
                       />
-                      <span className="ml-2 text-sm text-gray-600">{t('initializingTeam')}</span>
                     </div>
-                    <div className="mt-4 text-xs text-gray-500">
-                      {t('autoOrganization')}
-                    </div>
+                    <button
+                      onClick={handleSend}
+                      disabled={chatLoading || uploading || !input.trim()}
+                      className="flex-shrink-0 p-3 rounded-xl bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                      </svg>
+                    </button>
                   </div>
-                )}
-              </motion.div>
-            )}
+                  {uploading && (
+                    <div className="flex items-center space-x-2 mt-2 text-sm text-gray-500">
+                      <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                      <span>Uploading document...</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          )}
 
-            {activeTab === 'profile' && user && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <ProfileSettings 
-                  user={user} 
-                  onUserUpdate={handleUserUpdate}
+          {activeView === 'agents' && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="mb-6">
+                <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
+                  Your AI Agents
+                </h2>
+                <p className="text-gray-600">
+                  Manage your AI agents and their settings.
+                </p>
+              </div>
+              
+              <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-8 text-center border border-white/20">
+                <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  Agent Management
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  Your AI agent is automatically created and managed. Use the chat to interact with it!
+                </p>
+                <button
+                  onClick={() => setActiveView('chat')}
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium py-3 px-6 rounded-xl transition-all duration-200 shadow-lg"
+                >
+                  Back to Chat
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {activeView === 'performance' && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="mb-6">
+                <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
+                  Performance Analytics
+                </h2>
+                <p className="text-gray-600">
+                  Track your AI assistant's performance and insights.
+                </p>
+              </div>
+              <PerformanceOverview />
+            </motion.div>
+          )}
+
+          {activeView === 'users' && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              {showSetupInstructions ? (
+                <SetupInstructions onRetry={() => {
+                  setShowSetupInstructions(false)
+                  if (user) {
+                    ensureUserHasOrganization(user)
+                  }
+                }} />
+              ) : currentOrganization ? (
+                <TeamManagement 
+                  organizationId={currentOrganization.id}
+                  organizationName={currentOrganization.name}
                 />
-              </motion.div>
-            )}
-          </div>
+              ) : (
+                <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-8 text-center border border-white/20">
+                  <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                    Setting up workspace...
+                  </h3>
+                  <p className="text-gray-600 mb-6">
+                    We're setting up your team workspace.
+                  </p>
+                  <div className="flex items-center justify-center">
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      className="w-6 h-6 border-2 border-purple-400 border-t-transparent rounded-full"
+                    />
+                    <span className="ml-2 text-sm text-gray-600">Initializing team...</span>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          )}
+
+          {activeView === 'profile' && user && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <ProfileSettings 
+                user={user} 
+                onUserUpdate={handleUserUpdate}
+              />
+            </motion.div>
+          )}
         </div>
       </div>
 
-      {/* Create Agent Modal */}
-      {showCreateModal && (
-        <CreateAgentModal
-          onClose={() => {
-            setShowCreateModal(false)
-            // Refresh agents in case an agent was created but user closed modal before completing
-            fetchAgents()
-          }}
-          onSuccess={() => {
-            setShowCreateModal(false)
-            fetchAgents()
-          }}
-        />
-      )}
+      {/* Modals */}
 
-      {/* Edit Agent Modal */}
-      {showEditModal && editingAgent && (
-        <EditAgentModal
-          agent={editingAgent}
-          onClose={() => {
-            setShowEditModal(false)
-            setEditingAgent(null)
-          }}
-          onSuccess={() => {
-            setShowEditModal(false)
-            setEditingAgent(null)
-            fetchAgents()
-          }}
-        />
-      )}
-
-      {/* Subscription Plans Modal */}
       {showPlansModal && (
         <SubscriptionPlans
           currentSubscription={subscription}
@@ -1161,7 +1134,6 @@ function DashboardContent() {
         />
       )}
 
-      {/* Manage Documents Modal */}
       {showManageDocsModal && managingAgentId && (
         <ManageDocumentsModal
           agentId={managingAgentId}

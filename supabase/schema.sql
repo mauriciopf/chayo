@@ -5,12 +5,25 @@
 CREATE TABLE IF NOT EXISTS agents (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
-  greeting TEXT,
   tone TEXT DEFAULT 'professional',
-  goals TEXT[] DEFAULT '{}',
   system_prompt TEXT,
+  business_constraints JSONB DEFAULT '{}'::jsonb,
   paused BOOLEAN DEFAULT false,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Create conversation_embeddings table for AI knowledge
+CREATE TABLE IF NOT EXISTS conversation_embeddings (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  agent_id UUID NOT NULL REFERENCES agents(id) ON DELETE CASCADE,
+  organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE,
+  conversation_segment TEXT NOT NULL,
+  embedding VECTOR(1536), -- OpenAI ada-002 embedding dimension
+  segment_type TEXT NOT NULL DEFAULT 'conversation', -- 'conversation', 'faq', 'knowledge', 'example'
+  metadata JSONB DEFAULT '{}'::jsonb,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
@@ -19,6 +32,7 @@ CREATE TABLE IF NOT EXISTS agents (
 CREATE TABLE IF NOT EXISTS user_subscriptions (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE,
   stripe_customer_id TEXT UNIQUE,
   stripe_subscription_id TEXT UNIQUE,
   status TEXT NOT NULL DEFAULT 'inactive',
@@ -83,14 +97,9 @@ CREATE TABLE IF NOT EXISTS team_invitations (
   UNIQUE(organization_id, email)
 );
 
--- Update agents table to include organization_id
-ALTER TABLE agents ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE;
-
--- Update user_subscriptions table to include organization_id
-ALTER TABLE user_subscriptions ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE;
-
 -- Enable Row Level Security
 ALTER TABLE agents ENABLE ROW LEVEL SECURITY;
+ALTER TABLE conversation_embeddings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_subscriptions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE agent_documents ENABLE ROW LEVEL SECURITY;
 ALTER TABLE organizations ENABLE ROW LEVEL SECURITY;
@@ -109,6 +118,35 @@ CREATE POLICY "Users can update their own agents" ON agents
 
 CREATE POLICY "Users can delete their own agents" ON agents
   FOR DELETE USING (auth.uid() = user_id);
+
+-- Create policies for conversation_embeddings table
+CREATE POLICY "Users can view their own conversation embeddings" ON conversation_embeddings
+  FOR SELECT USING (
+    agent_id IN (
+      SELECT id FROM agents WHERE user_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Users can insert their own conversation embeddings" ON conversation_embeddings
+  FOR INSERT WITH CHECK (
+    agent_id IN (
+      SELECT id FROM agents WHERE user_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Users can update their own conversation embeddings" ON conversation_embeddings
+  FOR UPDATE USING (
+    agent_id IN (
+      SELECT id FROM agents WHERE user_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Users can delete their own conversation embeddings" ON conversation_embeddings
+  FOR DELETE USING (
+    agent_id IN (
+      SELECT id FROM agents WHERE user_id = auth.uid()
+    )
+  );
 
 -- Create policies for user_subscriptions table
 CREATE POLICY "Users can view their own subscriptions" ON user_subscriptions
@@ -196,9 +234,12 @@ CREATE POLICY "Users can view invitations sent to their email" ON team_invitatio
 CREATE INDEX IF NOT EXISTS agents_user_id_idx ON agents(user_id);
 CREATE INDEX IF NOT EXISTS agents_created_at_idx ON agents(created_at);
 CREATE INDEX IF NOT EXISTS agents_organization_id_idx ON agents(organization_id);
+CREATE INDEX IF NOT EXISTS conversation_embeddings_agent_id_idx ON conversation_embeddings(agent_id);
+CREATE INDEX IF NOT EXISTS conversation_embeddings_segment_type_idx ON conversation_embeddings(segment_type);
+CREATE INDEX IF NOT EXISTS conversation_embeddings_created_at_idx ON conversation_embeddings(created_at);
+CREATE INDEX IF NOT EXISTS conversation_embeddings_vector_idx ON conversation_embeddings USING ivfflat (embedding vector_cosine_ops) WITH (lists = 100);
 CREATE INDEX IF NOT EXISTS user_subscriptions_user_id_idx ON user_subscriptions(user_id);
 CREATE INDEX IF NOT EXISTS user_subscriptions_stripe_customer_id_idx ON user_subscriptions(stripe_customer_id);
-CREATE INDEX IF NOT EXISTS user_subscriptions_organization_id_idx ON user_subscriptions(organization_id);
 CREATE INDEX IF NOT EXISTS agent_documents_agent_id_idx ON agent_documents(agent_id);
 CREATE INDEX IF NOT EXISTS agent_documents_user_id_idx ON agent_documents(user_id);
 CREATE INDEX IF NOT EXISTS agent_documents_created_at_idx ON agent_documents(created_at);
@@ -217,14 +258,18 @@ CREATE INDEX IF NOT EXISTS team_invitations_expires_at_idx ON team_invitations(e
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
-    NEW.updated_at = timezone('utc'::text, now());
-    RETURN NEW;
+  NEW.updated_at = timezone('utc'::text, now());
+  RETURN NEW;
 END;
 $$ language 'plpgsql';
 
--- Create triggers to automatically update updated_at
+-- Create triggers for updated_at
 CREATE TRIGGER update_agents_updated_at 
   BEFORE UPDATE ON agents 
+  FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
+
+CREATE TRIGGER update_conversation_embeddings_updated_at 
+  BEFORE UPDATE ON conversation_embeddings 
   FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
 
 CREATE TRIGGER update_user_subscriptions_updated_at 
@@ -243,38 +288,123 @@ CREATE TRIGGER update_team_members_updated_at
   BEFORE UPDATE ON team_members 
   FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
 
--- Function to generate random invitation token
+-- Create function to generate invitation tokens
 CREATE OR REPLACE FUNCTION generate_invitation_token()
 RETURNS TEXT AS $$
 BEGIN
-    RETURN encode(gen_random_bytes(32), 'hex');
+  RETURN encode(gen_random_bytes(32), 'hex');
 END;
-$$ LANGUAGE 'plpgsql';
+$$ LANGUAGE plpgsql;
 
--- Function to create default organization for new users
+-- Create function to automatically create default organization for new users
 CREATE OR REPLACE FUNCTION create_default_organization()
 RETURNS TRIGGER AS $$
-DECLARE
-    org_id UUID;
-    org_slug TEXT;
 BEGIN
-    -- Generate a unique slug based on user email
-    org_slug := regexp_replace(split_part(NEW.email, '@', 1), '[^a-zA-Z0-9]', '', 'g') || '-' || substr(encode(gen_random_bytes(4), 'hex'), 1, 8);
-    
-    -- Create organization
-    INSERT INTO organizations (name, slug, owner_id)
-    VALUES (split_part(NEW.email, '@', 1) || '''s Organization', org_slug, NEW.id)
-    RETURNING id INTO org_id;
-    
-    -- Add user as owner in team_members
-    INSERT INTO team_members (organization_id, user_id, role, status)
-    VALUES (org_id, NEW.id, 'owner', 'active');
-    
-    RETURN NEW;
+  INSERT INTO organizations (name, slug, owner_id)
+  VALUES (
+    'My Organization',
+    'org-' || encode(gen_random_bytes(8), 'hex'),
+    NEW.id
+  );
+  RETURN NEW;
 END;
-$$ LANGUAGE 'plpgsql';
+$$ LANGUAGE plpgsql;
 
--- Create trigger to automatically create organization for new users
+-- Create trigger to create default organization for new users
 CREATE TRIGGER create_default_organization_trigger
     AFTER INSERT ON auth.users
     FOR EACH ROW EXECUTE PROCEDURE create_default_organization();
+
+-- Create vector similarity search function
+CREATE OR REPLACE FUNCTION search_similar_conversations(
+  query_embedding VECTOR(1536),
+  agent_id_param UUID,
+  match_threshold FLOAT DEFAULT 0.7,
+  match_count INT DEFAULT 5
+)
+RETURNS TABLE (
+  id UUID,
+  conversation_segment TEXT,
+  segment_type TEXT,
+  metadata JSONB,
+  similarity FLOAT
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    ce.id,
+    ce.conversation_segment,
+    ce.segment_type,
+    ce.metadata,
+    1 - (ce.embedding <=> query_embedding) AS similarity
+  FROM conversation_embeddings ce
+  WHERE ce.agent_id = agent_id_param
+    AND ce.embedding IS NOT NULL
+    AND 1 - (ce.embedding <=> query_embedding) > match_threshold
+  ORDER BY ce.embedding <=> query_embedding
+  LIMIT match_count;
+END;
+$$;
+
+-- Create function to get business knowledge summary
+CREATE OR REPLACE FUNCTION get_business_knowledge_summary(agent_id_param UUID)
+RETURNS TABLE (
+  conversation_count BIGINT,
+  faq_count BIGINT,
+  knowledge_count BIGINT,
+  example_count BIGINT,
+  total_segments BIGINT
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    COUNT(*) FILTER (WHERE segment_type = 'conversation') AS conversation_count,
+    COUNT(*) FILTER (WHERE segment_type = 'faq') AS faq_count,
+    COUNT(*) FILTER (WHERE segment_type = 'knowledge') AS knowledge_count,
+    COUNT(*) FILTER (WHERE segment_type = 'example') AS example_count,
+    COUNT(*) AS total_segments
+  FROM conversation_embeddings
+  WHERE agent_id = agent_id_param;
+END;
+$$;
+
+-- Create business_info_history table for logging all extracted business info
+CREATE TABLE IF NOT EXISTS business_info_history (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  agent_id UUID NOT NULL REFERENCES agents(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  field TEXT NOT NULL, -- e.g. 'business_name', 'products_services', etc.
+  value TEXT NOT NULL, -- always stored as string (arrays as comma-separated)
+  extraction_method TEXT, -- e.g. 'contextual', 'regex', 'correction', etc.
+  correction_flag BOOLEAN DEFAULT FALSE, -- true if this entry is a correction
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Grant permissions
+GRANT ALL ON agents TO authenticated;
+GRANT ALL ON conversation_embeddings TO authenticated;
+GRANT ALL ON user_subscriptions TO authenticated;
+GRANT ALL ON agent_documents TO authenticated;
+GRANT ALL ON organizations TO authenticated;
+GRANT ALL ON team_members TO authenticated;
+GRANT ALL ON team_invitations TO authenticated;
+
+-- Add comments
+COMMENT ON TABLE agents IS 'AI agents representing businesses with conversation-based knowledge';
+COMMENT ON TABLE conversation_embeddings IS 'Stores embeddings of business conversations for AI knowledge retrieval';
+COMMENT ON TABLE user_subscriptions IS 'User subscription and billing information';
+COMMENT ON TABLE agent_documents IS 'PDF documents uploaded for agent training';
+COMMENT ON TABLE organizations IS 'Organizations for team management';
+COMMENT ON TABLE team_members IS 'Organization membership and roles';
+COMMENT ON TABLE team_invitations IS 'Pending team invitations';
+
+COMMENT ON FUNCTION search_similar_conversations IS 'Search for similar conversation segments using vector similarity';
+COMMENT ON FUNCTION get_business_knowledge_summary IS 'Get summary statistics of business knowledge for an agent';
+
+CREATE INDEX IF NOT EXISTS business_info_history_agent_id_idx ON business_info_history(agent_id);
+CREATE INDEX IF NOT EXISTS business_info_history_user_id_idx ON business_info_history(user_id);
+CREATE INDEX IF NOT EXISTS business_info_history_field_idx ON business_info_history(field);
