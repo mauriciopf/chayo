@@ -74,6 +74,26 @@ interface Organization {
 }
 
 export default function Dashboard() {
+  const [showPwaPrompt, setShowPwaPrompt] = useState(false);
+
+  useEffect(() => {
+    if (isMobileDevice() && !isInStandaloneMode()) {
+      setShowPwaPrompt(true);
+    }
+  }, []);
+
+  if (showPwaPrompt) {
+    return (
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40">
+        <div className="bg-white rounded-xl shadow-xl p-6 max-w-sm w-full text-center">
+          <h2 className="text-xl font-bold mb-2">Install Chayo AI</h2>
+          <p className="mb-4">To use Chayo AI on mobile, please install the app as a PWA from your browser menu.<br/>Tap <b>Share</b> &rarr; <b>Add to Home Screen</b> on iOS, or <b>Install App</b> on Android.</p>
+          <button onClick={() => window.location.href = '/'} className="mt-2 px-4 py-2 bg-purple-600 text-white rounded-lg font-semibold">Back to Home</button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
@@ -90,8 +110,13 @@ export default function Dashboard() {
 }
 
 function isMobileDevice() {
+  if (typeof navigator === 'undefined') return false;
+  return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 768;
+}
+
+function isInStandaloneMode() {
   if (typeof window === 'undefined') return false;
-  return window.innerWidth < 768 || /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  return window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
 }
 
 function DashboardContent() {
@@ -195,6 +220,16 @@ function DashboardContent() {
     const handleResize = () => setIsMobile(isMobileDevice());
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    // Dynamic 100vh fix for mobile browsers
+    const setVh = () => {
+      document.body.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+    };
+    setVh();
+    window.addEventListener('resize', setVh);
+    return () => window.removeEventListener('resize', setVh);
   }, []);
 
   const [uploading, setUploading] = useState(false)
@@ -686,8 +721,8 @@ function DashboardContent() {
         style={isMobile ? { paddingBottom: 0 } : {}}
       >
         <div
-          className="w-full flex-1 flex flex-col items-center relative"
-          style={isMobile ? { minHeight: '100dvh', height: '100dvh', position: 'relative' } : {}}
+          className="w-full flex-1 flex flex-col items-center relative chat-wrapper"
+          style={isMobile ? { minHeight: 'calc(var(--vh, 1vh) * 100)', height: 'calc(var(--vh, 1vh) * 100)', position: 'relative' } : {}}
         >
           <motion.div
             initial={{ opacity: 0, y: 20 }}

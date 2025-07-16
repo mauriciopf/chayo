@@ -15,6 +15,10 @@ export default function NewHeader() {
   const supabase = createClient();
   const t = useTranslations();
   const locale = useLocale();
+  const [showPwaPrompt, setShowPwaPrompt] = useState(false);
+
+  // Simple mobile detection (if not imported)
+  const isMobile = typeof window !== 'undefined' && (/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 768);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -55,6 +59,15 @@ export default function NewHeader() {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
+  };
+
+  // PWA install prompt handler
+  const handleFreeTrialClick = () => {
+    if (isMobile) {
+      setShowPwaPrompt(true);
+    } else {
+      router.push(`/${locale}/dashboard`);
+    }
   };
 
   return (
@@ -189,11 +202,8 @@ export default function NewHeader() {
                 </motion.button>
                 
                 <motion.button
-                  onClick={() => router.push(`/${locale}/dashboard`)}
-                  whileHover={{ 
-                    scale: 1.02,
-                    boxShadow: "0 10px 25px -5px rgba(147, 51, 234, 0.3)"
-                  }}
+                  onClick={handleFreeTrialClick}
+                  whileHover={{ scale: 1.02, boxShadow: "0 10px 25px -5px rgba(147, 51, 234, 0.3)" }}
                   whileTap={{ scale: 0.98 }}
                   className="relative px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group"
                 >
@@ -203,14 +213,10 @@ export default function NewHeader() {
                     initial={false}
                   />
                   <span className="relative flex items-center space-x-2">
-                    <span>Start Free</span>
+                    <span>Free Trial</span>
                     <motion.span
                       animate={{ x: [0, 3, 0] }}
-                      transition={{ 
-                        duration: 1.5,
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                      }}
+                      transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
                     >
                       →
                     </motion.span>
@@ -292,7 +298,7 @@ export default function NewHeader() {
             
             {/* Mobile CTA */}
             <motion.button
-              onClick={() => router.push(`/${locale}/dashboard`)}
+              onClick={handleFreeTrialClick}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               className="w-full mt-4 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl shadow-lg flex items-center justify-center space-x-2"
@@ -300,12 +306,22 @@ export default function NewHeader() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
             >
-              <span>Start Free</span>
+              <span>Free Trial</span>
               <span>🚀</span>
             </motion.button>
           </motion.div>
         </motion.div>
       </div>
+      {/* PWA install prompt modal/alert */}
+      {showPwaPrompt && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-xl shadow-xl p-6 max-w-sm w-full text-center">
+            <h2 className="text-xl font-bold mb-2">Install Chayo AI</h2>
+            <p className="mb-4">For the best experience, install Chayo AI as a PWA from your browser menu.<br/>Tap <b>Share</b> &rarr; <b>Add to Home Screen</b> on iOS, or <b>Install App</b> on Android.</p>
+            <button onClick={() => setShowPwaPrompt(false)} className="mt-2 px-4 py-2 bg-purple-600 text-white rounded-lg font-semibold">Close</button>
+          </div>
+        </div>
+      )}
     </motion.header>
   );
 }
