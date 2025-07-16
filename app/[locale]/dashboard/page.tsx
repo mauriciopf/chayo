@@ -89,6 +89,11 @@ export default function Dashboard() {
   )
 }
 
+function isMobileDevice() {
+  if (typeof window === 'undefined') return false;
+  return window.innerWidth < 768 || /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
+
 function DashboardContent() {
   const t = useTranslations('chat')
   const locale = useLocale()
@@ -119,6 +124,52 @@ function DashboardContent() {
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+  const [hasUserInteracted, setHasUserInteracted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(isMobileDevice());
+    const handleResize = () => setIsMobile(isMobileDevice());
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Focus input after first user interaction (tap/click)
+  useEffect(() => {
+    if (!isMobile) return;
+    if (!hasUserInteracted) {
+      const handler = () => {
+        setHasUserInteracted(true);
+        setTimeout(() => {
+          inputRef.current?.focus();
+        }, 100);
+        window.removeEventListener('touchstart', handler);
+        window.removeEventListener('mousedown', handler);
+      };
+      window.addEventListener('touchstart', handler, { once: true });
+      window.addEventListener('mousedown', handler, { once: true });
+      return () => {
+        window.removeEventListener('touchstart', handler);
+        window.removeEventListener('mousedown', handler);
+      };
+    } else {
+      // Already interacted, focus input
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+    }
+  }, [isMobile, hasUserInteracted]);
+
+  // On input focus, scroll chat to bottom (mobile)
+  const handleInputFocus = () => {
+    if (isMobile) {
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      }, 100);
+    }
+  };
+  
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState<number | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -603,16 +654,16 @@ function DashboardContent() {
           </div>
         </div>
       )}
-      <div className="w-full md:max-w-4xl mx-auto px-0 sm:px-6 lg:px-8 py-4 flex flex-col">
-          <div className="w-full flex-1 flex flex-col items-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              className="flex flex-col w-full md:rounded-2xl md:border md:border-gray-200 md:shadow-lg bg-white/80 md:max-h-[70vh] md:overflow-hidden"
-              style={{ minHeight: '320px' }}
-            >
-              <div className="flex-1 overflow-y-auto px-1 pb-2 md:px-6 md:py-4 md:max-h-[60vh]">
+      <div className="w-full md:max-w-4xl mx-auto px-0 sm:px-6 lg:px-8 py-4 flex flex-col" style={isMobile ? { paddingBottom: 80 } : {}}>
+        <div className="w-full flex-1 flex flex-col items-center" style={isMobile ? { minHeight: '100dvh', height: '100dvh' } : {}}>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="flex flex-col w-full md:rounded-2xl md:border md:border-gray-200 md:shadow-lg bg-white/80 md:max-h-[70vh] md:overflow-hidden"
+            style={{ minHeight: '320px' }}
+          >
+            <div className="flex-1 overflow-y-auto px-1 pb-2 md:px-6 md:py-4 md:max-h-[60vh]" onClick={() => { if (isMobile && !hasUserInteracted) setHasUserInteracted(true); }}>
                 {messages.length === 0 && !chatLoading && (
                   <div className="flex items-center justify-center h-full">
                     <div className="text-center max-w-md">
@@ -682,74 +733,136 @@ function DashboardContent() {
                 </AnimatePresence>
                 <div ref={messagesEndRef} />
               </div>
-
-              {/* Chat Input */}
-              <div className="flex-shrink-0 border-t border-gray-200 bg-white px-6 py-4">
-                <div className="max-w-4xl mx-auto">
-                  <div className="flex items-end space-x-3">
-                    <input
-                      type="file"
-                      ref={fileInputRef}
-                      style={{ display: 'none' }}
-                      onChange={handleFileChange}
+            {/* Chat Input */}
+            {/* Desktop/Tablet: original input bar */}
+            <div className="hidden md:block flex-shrink-0 border-t border-gray-200 bg-white px-6 py-4">
+              <div className="max-w-4xl mx-auto">
+                <div className="flex items-end space-x-3">
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    style={{ display: 'none' }}
+                    onChange={handleFileChange}
+                    disabled={uploading}
+                  />
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploading}
+                    className="flex-shrink-0 p-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-50 transition-colors"
+                    title={t('uploadTitle')}
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                    </svg>
+                  </button>
+                  <div className="flex-1 relative md:max-w-2xl">
+                    <textarea
+                      placeholder={t('inputPlaceholder')}
+                      value={input}
+                      onChange={(e) => {
+                        setInput(e.target.value)
+                        e.target.style.height = 'auto'
+                        e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px'
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault()
+                          handleSend()
+                        }
+                      }}
+                      ref={inputRef as any}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none bg-white"
+                      rows={1}
+                      style={{ minHeight: '44px', maxHeight: '120px' }}
                       disabled={uploading}
+                      onFocus={handleInputFocus}
                     />
-                    <button
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={uploading}
-                      className="flex-shrink-0 p-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-50 transition-colors"
-                      title={t('uploadTitle')}
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                      </svg>
-                    </button>
-                    <div className="flex-1 relative md:max-w-2xl">
-                      <textarea
-                        placeholder={t('inputPlaceholder')}
-                        value={input}
-                                                 onChange={(e) => {
-                           setInput(e.target.value)
-                           // Auto-resize textarea
-                           e.target.style.height = 'auto'
-                           e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px'
-                         }}
-                                                 onKeyDown={(e) => {
-                           if (e.key === 'Enter' && !e.shiftKey) {
-                             e.preventDefault()
-                             handleSend()
-                           }
-                         }}
-                        ref={inputRef as any}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none bg-white"
-                        rows={1}
-                        style={{ minHeight: '44px', maxHeight: '120px' }}
-                        disabled={uploading}
-                      />
-                    </div>
-                    <button
-                      onClick={handleSend}
-                      disabled={chatLoading || uploading || !input.trim()}
-                      className="flex-shrink-0 p-3 rounded-xl bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                      </svg>
-                    </button>
                   </div>
-                  {uploading && (
-                    <div className="flex items-center space-x-2 mt-2 text-sm text-gray-500">
-                      <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                      </svg>
-                      <span>{t('uploading')}</span>
-                    </div>
-                  )}
+                  <button
+                    onClick={handleSend}
+                    disabled={chatLoading || uploading || !input.trim()}
+                    className="flex-shrink-0 p-3 rounded-xl bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                    </svg>
+                  </button>
                 </div>
+                {uploading && (
+                  <div className="flex items-center space-x-2 mt-2 text-sm text-gray-500">
+                    <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    <span>{t('uploading')}</span>
+                  </div>
+                )}
               </div>
-            </motion.div>
-          </div>
+            </div>
+            {/* Mobile: fixed input bar at bottom */}
+            <div className="md:hidden fixed bottom-0 left-0 w-full z-50 border-t border-gray-200 bg-white px-4 py-3" style={{ boxShadow: '0 -2px 8px rgba(0,0,0,0.04)' }}>
+              <div className="flex items-end space-x-2 max-w-2xl mx-auto">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  style={{ display: 'none' }}
+                  onChange={handleFileChange}
+                  disabled={uploading}
+                />
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  className="flex-shrink-0 p-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-50 transition-colors"
+                  title={t('uploadTitle')}
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                  </svg>
+                </button>
+                <div className="flex-1 relative">
+                  <textarea
+                    placeholder={t('inputPlaceholder')}
+                    value={input}
+                    onChange={(e) => {
+                      setInput(e.target.value)
+                      e.target.style.height = 'auto'
+                      e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px'
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault()
+                        handleSend()
+                      }
+                    }}
+                    ref={inputRef as any}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none bg-white"
+                    rows={1}
+                    style={{ minHeight: '44px', maxHeight: '120px' }}
+                    disabled={uploading}
+                    onFocus={handleInputFocus}
+                  />
+                </div>
+                <button
+                  onClick={handleSend}
+                  disabled={chatLoading || uploading || !input.trim()}
+                  className="flex-shrink-0 p-3 rounded-xl bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                  </svg>
+                </button>
+              </div>
+              {uploading && (
+                <div className="flex items-center space-x-2 mt-2 text-sm text-gray-500">
+                  <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  <span>{t('uploading')}</span>
+                </div>
+              )}
+            </div>
+          </motion.div>
         </div>
+      </div>
       {/* Modals */}
       {showPlansModal && (
         <SubscriptionPlans
