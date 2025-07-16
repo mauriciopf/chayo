@@ -129,12 +129,17 @@ function DashboardContent() {
   const chatScrollContainerRef = useRef<HTMLDivElement>(null);
   const [chatBottomPadding, setChatBottomPadding] = useState(72); // default input bar height
 
-  useEffect(() => {
-    setIsMobile(isMobileDevice());
-    const handleResize = () => setIsMobile(isMobileDevice());
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  // Best mobile chat scroll UX: always scroll to bottom on new message, input focus, or keyboard open
+  const scrollChatToBottom = (smooth = true) => {
+    if (chatScrollContainerRef.current) {
+      chatScrollContainerRef.current.scrollTo({
+        top: chatScrollContainerRef.current.scrollHeight,
+        behavior: smooth ? 'smooth' : 'auto',
+      });
+    } else {
+      messagesEndRef.current?.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'end' });
+    }
+  };
 
   // Listen for visualViewport resize to adjust chat padding and scroll
   useEffect(() => {
@@ -147,14 +152,10 @@ function DashboardContent() {
       }
       const padding = Math.max(72, keyboardHeight);
       setChatBottomPadding(padding);
-      // Scroll to bottom after keyboard animation, with y-offset
+      // Scroll to bottom after keyboard animation
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
-        if (chatScrollContainerRef.current) {
-          chatScrollContainerRef.current.scrollTop = chatScrollContainerRef.current.scrollHeight - 32;
-        } else {
-          messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
-        }
+        scrollChatToBottom();
       }, 400);
     };
     if (window.visualViewport) {
@@ -172,31 +173,30 @@ function DashboardContent() {
     };
   }, [isMobile]);
 
-  // On input focus, scroll chat to bottom (mobile, with y-offset)
+  // On input focus, scroll chat to bottom (mobile)
   const handleInputFocus = () => {
     if (isMobile) {
       setTimeout(() => {
-        if (chatScrollContainerRef.current) {
-          chatScrollContainerRef.current.scrollTop = chatScrollContainerRef.current.scrollHeight - 32;
-        } else {
-          messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
-        }
+        scrollChatToBottom();
         inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
       }, 400);
     }
   };
 
-  // When user starts a new chat, scroll to top
+  // Always scroll to bottom on new message (mobile)
   useEffect(() => {
-    if (isMobile && messages.length === 1 && messages[0].role === 'user') {
-      setTimeout(() => {
-        if (chatScrollContainerRef.current) {
-          chatScrollContainerRef.current.scrollTop = 0;
-        }
-      }, 200);
+    if (isMobile) {
+      scrollChatToBottom();
     }
   }, [messages, isMobile]);
-  
+
+  useEffect(() => {
+    setIsMobile(isMobileDevice());
+    const handleResize = () => setIsMobile(isMobileDevice());
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState<number | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -700,7 +700,7 @@ function DashboardContent() {
               className="flex-1 overflow-y-auto px-1 pb-2 md:px-6 md:py-4 md:max-h-[60vh]"
               ref={chatScrollContainerRef}
               onClick={() => { if (isMobile && !hasUserInteracted) setHasUserInteracted(true); }}
-              style={isMobile ? { paddingBottom: chatBottomPadding, boxSizing: 'border-box' } : {}}
+              style={isMobile ? { paddingBottom: chatBottomPadding, boxSizing: 'border-box', overscrollBehavior: 'contain', height: '100dvh', maxHeight: '100dvh' } : {}}
             >
                 {messages.length === 0 && !chatLoading && (
                   <div className="flex items-center justify-center h-full">
