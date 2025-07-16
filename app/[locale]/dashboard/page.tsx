@@ -139,7 +139,6 @@ function DashboardContent() {
   // Listen for visualViewport resize to adjust chat padding and scroll
   useEffect(() => {
     if (!isMobile) return;
-    let lastViewportHeight = window.innerHeight;
     let resizeTimeout: any;
     const updatePaddingAndScroll = () => {
       let keyboardHeight = 0;
@@ -148,11 +147,11 @@ function DashboardContent() {
       }
       const padding = Math.max(72, keyboardHeight);
       setChatBottomPadding(padding);
-      // Scroll to bottom after keyboard animation
+      // Scroll to bottom after keyboard animation, with y-offset
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
         if (chatScrollContainerRef.current) {
-          chatScrollContainerRef.current.scrollTop = chatScrollContainerRef.current.scrollHeight;
+          chatScrollContainerRef.current.scrollTop = chatScrollContainerRef.current.scrollHeight - 32;
         } else {
           messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
         }
@@ -173,12 +172,12 @@ function DashboardContent() {
     };
   }, [isMobile]);
 
-  // On input focus, scroll chat to bottom (mobile)
+  // On input focus, scroll chat to bottom (mobile, with y-offset)
   const handleInputFocus = () => {
     if (isMobile) {
       setTimeout(() => {
         if (chatScrollContainerRef.current) {
-          chatScrollContainerRef.current.scrollTop = chatScrollContainerRef.current.scrollHeight;
+          chatScrollContainerRef.current.scrollTop = chatScrollContainerRef.current.scrollHeight - 32;
         } else {
           messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
         }
@@ -186,6 +185,17 @@ function DashboardContent() {
       }, 400);
     }
   };
+
+  // When user starts a new chat, scroll to top
+  useEffect(() => {
+    if (isMobile && messages.length === 1 && messages[0].role === 'user') {
+      setTimeout(() => {
+        if (chatScrollContainerRef.current) {
+          chatScrollContainerRef.current.scrollTop = 0;
+        }
+      }, 200);
+    }
+  }, [messages, isMobile]);
   
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState<number | null>(null)
