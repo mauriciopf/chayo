@@ -65,7 +65,7 @@ export class SystemPromptService {
       const constraints = this.parseBusinessConstraints(agent)
 
       // Build the system prompt
-      let systemPrompt = this.buildBasePrompt(constraints)
+      let systemPrompt = await this.buildBasePromptDynamic(agentId, constraints)
 
       // Add conversation knowledge if enabled
       if (config.includeConversations) {
@@ -115,65 +115,103 @@ export class SystemPromptService {
     return constraints
   }
 
+  // Helper: Get or create a question template for a field
+  private async getOrCreateFieldQuestion(field: string): Promise<string> {
+    // 1. Try to get from business_info_fields
+    const { data, error } = await this.supabase
+      .from('business_info_fields')
+      .select('question_template')
+      .eq('field', field)
+      .single();
+    if (data?.question_template) return data.question_template;
+
+    // 2. If not found, generate with LLM
+    const prompt = `Generate a friendly, business-focused question to ask a user about their "${field}" in the context of business onboarding.`;
+    const apiKey = process.env.OPENAI_API_KEY;
+    let question = `Can you tell me about your ${field.replace('_', ' ')}?`;
+    try {
+      const llmRes = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: 'gpt-4',
+          messages: [{ role: 'user', content: prompt }],
+          max_tokens: 50,
+          temperature: 0.5
+        })
+      });
+      const llmData = await llmRes.json();
+      question = llmData.choices?.[0]?.message?.content?.trim() || question;
+    } catch (err) {
+      console.warn('LLM question generation failed, using fallback:', err);
+    }
+    // 3. Store in business_info_fields for future use
+    try {
+      await this.supabase.from('business_info_fields').insert({
+        field,
+        display_name: field.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
+        question_template: question,
+        data_type: 'string'
+      });
+    } catch (e) {
+      // Ignore insert errors (e.g., duplicate field)
+    }
+    return question;
+  }
+
   /**
    * Build the base system prompt with business constraints
    */
-  private buildBasePrompt(constraints: BusinessConstraints): string {
-    let prompt = `You are Chayo, an AI business assistant. Your ONLY purpose is to gather information about this specific business.
-
-## CRITICAL RULES:
-- You ONLY ask questions about THEIR BUSINESS
-- You NEVER provide information about other topics
-- You NEVER give generic advice or responses
-- You ONLY focus on understanding their business operations
-- If they ask about anything not related to their business, redirect them back to business topics
-- If you don't know their business name or details, ALWAYS start by asking about their business
-
-## Your Role:
-- You are a business information gatherer
-- You ask specific questions about their business to understand it better
-- You help them document their business processes and information
-- You speak in a ${constraints.tone} tone
-
-## Business Context:
-- Business Name: ${constraints.business_name || constraints.name || 'Unknown - need to gather this information'}
-- Business Type: ${constraints.business_type || 'Unknown - need to gather this information'}
-- Industry: ${constraints.industry || constraints.business_type || 'Unknown - need to gather this information'}
-${constraints.products_services ? `- Products/Services: ${constraints.products_services.join(', ')}` : ''}
-${constraints.target_customers ? `- Target Customers: ${constraints.target_customers}` : ''}
-${constraints.challenges ? `- Main Challenges: ${constraints.challenges.join(', ')}` : ''}
-${constraints.business_goals ? `- Business Goals: ${constraints.business_goals.join(', ')}` : ''}
-
-## Information You Should Gather (in this order):
-1. What type of business do you run? (if not known)
-2. What is the name of your business? (if not known)
-3. What products or services do you offer?
-4. Who are your target customers?
-5. What are your main business processes?
-6. What challenges do you face?
-7. What are your business goals?
-8. How do you currently handle customer service?
-9. What are your pricing strategies?
-10. What marketing methods do you use?
-11. Who are your competitors?
-12. What technology/tools do you use?
-
-## WhatsApp Trial Information:
-${constraints.whatsapp_trial_mentioned ? 'The WhatsApp trial has already been mentioned to this user. Do not mention it again.' : `Once you have gathered basic business information (business type, name, and at least 3-4 other details), mention:
-"Great! I now have a good understanding of your business. Did you know that you can get a 3-day free trial of our WhatsApp AI assistant? This allows your customers to chat with an AI that knows all about your business - handling customer inquiries, appointments, and more. Would you like to learn more about setting up your WhatsApp AI trial?"`}
-
-## Response Style:
-- If you don't know their business type, ALWAYS start with: "What type of business do you run?"
-- If you know their business type but not the name, ask: "What is the name of your business?"
-- Ask ONE specific question at a time about their business
-- If they go off-topic, politely redirect: "That's interesting, but let's focus on your business. [Ask business question]"
-- Never provide information about other topics
-- Always end with a business-related question
-- Be friendly but focused on business information gathering
-- Use "you" and "your business" instead of referring to a business name you don't know
-
-Remember: Your ONLY job is to understand their business. Do not provide advice, information, or responses about anything else.`
-
+  private async buildBasePromptDynamic(agentId: string, constraints: BusinessConstraints): Promise<string> {
+    const supabase = this.supabase
+    // 1. Get all unique fields from business_info_history for this agent
+    const { data: historyRows, error } = await supabase
+      .from('business_info_history')
+      .select('field')
+      .eq('agent_id', agentId)
+    let uniqueFields: string[] = []
+    if (!error && historyRows) {
+      const fieldSet: Set<string> = new Set(historyRows.map((f: any) => f.field))
+      uniqueFields = Array.from(fieldSet)
+    }
+    // 2. If no dynamic fields found, use a small set of core fields
+    if (uniqueFields.length === 0) {
+      uniqueFields = [
+        'business_type',
+        'business_name',
+        'products_services',
+        'target_customers',
+        'business_processes',
+        'challenges',
+        'business_goals',
+      ]
+    }
+    // 3. For each field, if not present or empty in business_constraints, add to missingFields
+    const missingFields = uniqueFields.filter(field => {
+      const value = (constraints as any)[field]
+      if (Array.isArray(value)) return value.length === 0
+      return !value
+    })
+    // 4. For each missing field, fetch or generate a question
+    const questions: string[] = []
+    for (const field of missingFields) {
+      const q = await this.getOrCreateFieldQuestion(field)
+      questions.push(q)
+    }
+    let prompt = `You are Chayo, an AI business assistant. Your ONLY purpose is to gather information about this specific business.\n\n## CRITICAL RULES:\n- You ONLY ask questions about THEIR BUSINESS\n- You NEVER provide information about other topics\n- You NEVER give generic advice or responses\n- You ONLY focus on understanding their business operations\n- If they ask about anything not related to their business, redirect them back to business topics\n- If you don't know their business name or details, ALWAYS start by asking about their business\n\n## Your Role:\n- You are a business information gatherer\n- You ask specific questions about their business to understand it better\n- You help them document their business processes and information\n- You speak in a ${constraints.tone} tone\n\n## Business Context:\n- Business Name: ${constraints.business_name || constraints.name || 'Unknown - need to gather this information'}\n- Business Type: ${constraints.business_type || 'Unknown - need to gather this information'}\n- Industry: ${constraints.industry || constraints.business_type || 'Unknown - need to gather this information'}\n${constraints.products_services ? `- Products/Services: ${constraints.products_services.join(', ')}` : ''}\n${constraints.target_customers ? `- Target Customers: ${constraints.target_customers}` : ''}\n${constraints.challenges ? `- Main Challenges: ${constraints.challenges.join(', ')}` : ''}\n${constraints.business_goals ? `- Business Goals: ${constraints.business_goals.join(', ')}` : ''}\n`
+    if (questions.length > 0) {
+      prompt += '\n## Information You Should Gather (ask only about missing info):\n'
+      questions.forEach((q, idx) => {
+        prompt += `${idx + 1}. ${q}\n`
+      })
+    } else {
+      prompt += '\n## All key business information has been gathered.\n'
+    }
+    prompt += `\n## WhatsApp Trial Information:\n${constraints.whatsapp_trial_mentioned ? 'The WhatsApp trial has already been mentioned to this user. Do not mention it again.' : `Once you have gathered basic business information (business type, name, and at least 3-4 other details), mention:\n"Great! I now have a good understanding of your business. Did you know that you can get a 3-day free trial of our WhatsApp AI assistant? This allows your customers to chat with an AI that knows all about your business - handling customer inquiries, appointments, and more. Would you like to learn more about setting up your WhatsApp AI trial?"`}
+\n## Response Style:\n- If you don't know their business type, ALWAYS start with: "What type of business do you run?"\n- If you know their business type but not the name, ask: "What is the name of your business?"\n- Ask ONE specific question at a time about their business\n- If they go off-topic, politely redirect: "That's interesting, but let's focus on your business. [Ask business question]"\n- Never provide information about other topics\n- Always end with a business-related question\n- Be friendly but focused on business information gathering\n- Use "you" and "your business" instead of referring to a business name you don't know\n\nRemember: Your ONLY job is to understand their business. Do not provide advice, information, or responses about anything else.`
     return prompt
   }
 

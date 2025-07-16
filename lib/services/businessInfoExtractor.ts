@@ -39,14 +39,42 @@ export class BusinessInfoExtractor {
   private supabase = createClient()
 
   /**
-   * Extract business information from conversation messages
-   * Uses previous AI message as context for the current user reply
-   * Also scans all user messages for business info, supports corrections, multi-field, and synonyms
+   * LLM-based validation: checks if the user's answer is a valid response to the AI's question
    */
-  extractFromMessages(messages: Array<{ role: string; content: string }>): { info: BusinessInfo, logs: ExtractionLog[] } {
+  async isValidBusinessAnswerLLM(question: string, answer: string): Promise<boolean> {
+    const apiKey = process.env.OPENAI_API_KEY
+    if (!apiKey) throw new Error('OpenAI API key not set')
+    const prompt = `You are validating user input for a business onboarding chatbot.\nQuestion: "${question}"\nUser reply: "${answer}"\nIs this a valid, specific answer to the question? Reply only "yes" or "no".`
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-4',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 3,
+        temperature: 0
+      })
+    })
+    if (!res.ok) {
+      console.error('OpenAI validation error:', await res.text())
+      return false
+    }
+    const data = await res.json()
+    const reply = data.choices?.[0]?.message?.content?.trim().toLowerCase() || ''
+    const valid = reply.startsWith('yes')
+    console.log(`[LLM Validation] Q: ${question} | A: ${answer} | Valid: ${valid}`)
+    return valid
+  }
+
+  /**
+   * Extract business information from conversation messages with LLM validation
+   */
+  async extractFromMessagesValidated(messages: Array<{ role: string; content: string }>): Promise<{ info: BusinessInfo, logs: ExtractionLog[] }> {
     const businessInfo: BusinessInfo = {}
     const logs: ExtractionLog[] = []
-    // Synonyms for each field
     const fieldPatterns: Record<string, RegExp[]> = {
       business_type: [/(type of business|what business|industry|business kind|sector)/i],
       business_name: [/(name of your business|business name|company name|what is your business called|called)/i],
@@ -61,7 +89,6 @@ export class BusinessInfoExtractor {
       competitors: [/(competitors|competition|rivals|other businesses|who else)/i],
       technology_tools: [/(technology|tools|software|platforms|apps|systems)/i],
     }
-    // Go through the conversation, look for (AI question, user answer) pairs and also scan all user messages
     for (let i = 1; i < messages.length; i++) {
       const prev = messages[i - 1]
       const curr = messages[i]
@@ -69,44 +96,54 @@ export class BusinessInfoExtractor {
       const answer = curr.content.trim()
       const question = prev && prev.role === 'assistant' ? prev.content.toLowerCase() : ''
       const correction = isCorrection(answer)
-      // Try to extract based on context (AI question)
       for (const [field, patterns] of Object.entries(fieldPatterns)) {
         if (patterns.some(p => question.match(p))) {
           // Multi-value fields
           if (["products_services","business_processes","challenges","business_goals","marketing_methods","competitors","technology_tools"].includes(field)) {
             const values = answer.split(/[,&\n]/).map(s => s.trim()).filter(Boolean)
             if (values.length > 0) {
-              (businessInfo as any)[field] = mergeArrays((businessInfo as any)[field] as string[] || [], values)
-              logs.push({ field, value: values.join(", "), extraction_method: 'contextual', correction_flag: correction })
+              // Validate each value (or the whole answer)
+              if (await this.isValidBusinessAnswerLLM(question, answer)) {
+                (businessInfo as any)[field] = mergeArrays((businessInfo as any)[field] as string[] || [], values)
+                logs.push({ field, value: values.join(", "), extraction_method: 'contextual', correction_flag: correction })
+              }
             }
           } else {
             if (answer.length > 1) {
-              (businessInfo as any)[field] = answer
-              logs.push({ field, value: answer, extraction_method: 'contextual', correction_flag: correction })
+              if (await this.isValidBusinessAnswerLLM(question, answer)) {
+                (businessInfo as any)[field] = answer
+                logs.push({ field, value: answer, extraction_method: 'contextual', correction_flag: correction })
+              }
             }
           }
+          // Add a short delay to avoid rate limits
+          await new Promise(res => setTimeout(res, 200))
         }
       }
       // Also scan the user answer for direct info (regex, fallback)
       for (const [field, patterns] of Object.entries(fieldPatterns)) {
         if (["products_services","business_processes","challenges","business_goals","marketing_methods","competitors","technology_tools"].includes(field)) {
-          // Look for comma/and-separated lists
           const match = answer.match(new RegExp(`(?:my|our|the)? ?${field.replace('_', ' ')}[\s:]*([\w\s,&-]+)`, 'i'))
           if (match) {
             const values = match[1].split(/[,&\n]/).map(s => s.trim()).filter(Boolean)
             if (values.length > 0) {
-              (businessInfo as any)[field] = mergeArrays((businessInfo as any)[field] as string[] || [], values)
-              logs.push({ field, value: values.join(", "), extraction_method: 'regex', correction_flag: correction })
+              if (await this.isValidBusinessAnswerLLM(field.replace('_', ' '), match[1])) {
+                (businessInfo as any)[field] = mergeArrays((businessInfo as any)[field] as string[] || [], values)
+                logs.push({ field, value: values.join(", "), extraction_method: 'regex', correction_flag: correction })
+              }
             }
           }
         } else {
           for (const pat of patterns) {
             if (pat.test(answer)) {
-              (businessInfo as any)[field] = answer
-              logs.push({ field, value: answer, extraction_method: 'regex', correction_flag: correction })
+              if (await this.isValidBusinessAnswerLLM(field.replace('_', ' '), answer)) {
+                (businessInfo as any)[field] = answer
+                logs.push({ field, value: answer, extraction_method: 'regex', correction_flag: correction })
+              }
             }
           }
         }
+        await new Promise(res => setTimeout(res, 200))
       }
     }
     return { info: businessInfo, logs }
@@ -166,7 +203,7 @@ export class BusinessInfoExtractor {
     messages: Array<{ role: string; content: string }>
   ): Promise<BusinessInfo> {
     try {
-      const { info: businessInfo, logs } = this.extractFromMessages(messages)
+      const { info: businessInfo, logs } = await this.extractFromMessagesValidated(messages)
       console.log('Extracted business info:', businessInfo)
       if (Object.keys(businessInfo).length > 0) {
         await this.updateAgentBusinessConstraints(agentId, userId, businessInfo, logs)
