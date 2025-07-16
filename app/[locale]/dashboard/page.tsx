@@ -134,31 +134,24 @@ function DashboardContent() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Focus input after first user interaction (tap/click)
+  // Always scroll to bottom on input focus and window resize (mobile)
   useEffect(() => {
     if (!isMobile) return;
-    if (!hasUserInteracted) {
-      const handler = () => {
-        setHasUserInteracted(true);
-        setTimeout(() => {
-          inputRef.current?.focus();
-        }, 100);
-        window.removeEventListener('touchstart', handler);
-        window.removeEventListener('mousedown', handler);
-      };
-      window.addEventListener('touchstart', handler, { once: true });
-      window.addEventListener('mousedown', handler, { once: true });
-      return () => {
-        window.removeEventListener('touchstart', handler);
-        window.removeEventListener('mousedown', handler);
-      };
-    } else {
-      // Already interacted, focus input
-      setTimeout(() => {
-        inputRef.current?.focus();
-      }, 100);
-    }
-  }, [isMobile, hasUserInteracted]);
+    let resizeTimeout: any;
+    const handleResize = () => {
+      if (document.activeElement === inputRef.current) {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+          messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }, 400);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(resizeTimeout);
+    };
+  }, [isMobile]);
 
   // On input focus, scroll chat to bottom (mobile)
   const handleInputFocus = () => {
@@ -166,7 +159,7 @@ function DashboardContent() {
       setTimeout(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
         inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
-      }, 100);
+      }, 400);
     }
   };
   
