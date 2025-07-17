@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, getUserOrganization } from '@/lib/supabase/server'
-import { embeddingService } from '@/lib/services/embeddingService'
+import { EmbeddingService } from '@/lib/services/embeddingService'
 
 export const runtime = 'nodejs' // must be nodejs for file processing
 
@@ -82,6 +82,9 @@ export async function POST(req: NextRequest) {
       }
     }))
 
+    // Create embedding service with server-side client
+    const embeddingService = new EmbeddingService(supabase)
+    
     // Generate and store embeddings
     const results = await embeddingService.storeConversationEmbeddings(agentId, segments)
 

@@ -1,12 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { chatService } from '@/lib/services/chatService'
+import { ChatService } from '@/lib/services/chatService'
 import { validationService } from '@/lib/services/validationService'
 import { errorHandlingService } from '@/lib/services/errorHandlingService'
+import { createClient } from '@/lib/supabase/server'
 
 export const runtime = 'edge'
 
 export async function POST(req: NextRequest) {
   try {
+    // Create server-side Supabase client
+    const { supabase } = createClient(req)
+    
+    // Create chat service with server-side client
+    const chatService = new ChatService(supabase)
+    
     // Parse request body
     const body = await req.json()
     

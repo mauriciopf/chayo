@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/client'
+import { SupabaseClient } from '@supabase/supabase-js'
 // OpenAI client will be initialized when needed
 // This avoids issues with server-side vs client-side execution
 
@@ -18,7 +19,11 @@ export interface EmbeddingResult {
 }
 
 export class EmbeddingService {
-  private supabase = createClient()
+  private supabase: SupabaseClient
+
+  constructor(supabaseClient?: SupabaseClient) {
+    this.supabase = supabaseClient || createClient()
+  }
 
   /**
    * Generate embeddings for conversation segments using OpenAI

@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/client'
 import { embeddingService } from './embeddingService'
+import { SupabaseClient } from '@supabase/supabase-js'
 
 export interface BusinessConstraints {
   name: string
@@ -34,7 +35,11 @@ export interface SystemPromptConfig {
 }
 
 export class SystemPromptService {
-  private supabase = createClient()
+  private supabase: SupabaseClient
+
+  constructor(supabaseClient?: SupabaseClient) {
+    this.supabase = supabaseClient || createClient()
+  }
 
   /**
    * Generate a comprehensive system prompt for an agent
@@ -231,7 +236,8 @@ ${languageInstructions}
    */
   private async getConversationKnowledge(agentId: string, maxLength: number): Promise<string | null> {
     try {
-      // Get a summary of conversation patterns
+      // Get a summary of conversation patterns using the same Supabase client
+      const embeddingService = new (await import('./embeddingService')).EmbeddingService(this.supabase)
       const summary = await embeddingService.getBusinessKnowledgeSummary(agentId)
       
       if (!summary || summary.conversation_count === 0) {
@@ -393,7 +399,8 @@ ${languageInstructions}
     maxChunks: number = 5
   ): Promise<string | null> {
     try {
-      // Search for relevant document chunks using embeddings
+      // Search for relevant document chunks using embeddings with server-side client
+      const embeddingService = new (await import('./embeddingService')).EmbeddingService(this.supabase)
       const relevantChunks = await embeddingService.searchSimilarConversations(
         agentId,
         userQuery,
@@ -460,7 +467,8 @@ ${languageInstructions}
 
       // Add relevant conversation context based on user query
       if (config.includeConversations) {
-        // Use a lower threshold for better conversation retrieval
+        // Use a lower threshold for better conversation retrieval with server-side client
+        const embeddingService = new (await import('./embeddingService')).EmbeddingService(this.supabase)
         const relevantConversations = await embeddingService.searchSimilarConversations(
           agentId,
           userQuery,

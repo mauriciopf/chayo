@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/client'
 import { systemPromptService } from './systemPromptService'
 import { embeddingService } from './embeddingService'
+import { SupabaseClient } from '@supabase/supabase-js'
 
 export interface ChatMessage {
   role: 'user' | 'assistant' | 'system'
@@ -26,7 +27,11 @@ export interface ChatContext {
 }
 
 export class ChatService {
-  private supabase = createClient()
+  private supabase: SupabaseClient
+
+  constructor(supabaseClient?: SupabaseClient) {
+    this.supabase = supabaseClient || createClient()
+  }
 
   /**
    * Process a chat request and generate AI response
@@ -54,7 +59,7 @@ export class ChatService {
       }
 
       // Generate AI response
-      const aiMessage = await this.generateAIResponse(messages, context)
+      const { aiMessage, usingRAG } = await this.generateAIResponse(messages, context)
       
       // Update WhatsApp trial status if mentioned
       await this.updateWhatsAppTrialStatus(aiMessage, context)
@@ -64,7 +69,7 @@ export class ChatService {
 
       return {
         aiMessage,
-        usingRAG: false, // Will be updated by generateAIResponse
+        usingRAG,
         agent: {
           id: agent.id,
           name: agent.name,
@@ -198,7 +203,7 @@ export class ChatService {
   /**
    * Generate AI response using OpenAI
    */
-  private async generateAIResponse(messages: ChatMessage[], context: ChatContext): Promise<string> {
+  private async generateAIResponse(messages: ChatMessage[], context: ChatContext): Promise<{ aiMessage: string; usingRAG: boolean }> {
     const apiKey = process.env.OPENAI_API_KEY
     if (!apiKey) {
       throw new Error('OpenAI API key not set')
@@ -212,6 +217,8 @@ export class ChatService {
     let usingRAG = false
 
     try {
+      // Use the same Supabase client for system prompt service
+      const systemPromptService = new (await import('./systemPromptService')).SystemPromptService(this.supabase)
       systemPrompt = await systemPromptService.getDynamicSystemPrompt(
         context.agent.id,
         lastUserMessage,
@@ -264,21 +271,36 @@ export class ChatService {
         // Handle specific OpenAI errors
         if (openaiRes.status === 429) {
           console.error('OpenAI quota exceeded:', errorData)
-          return "I apologize, but I'm currently experiencing high demand and cannot process your request right now. Please try again in a few minutes, or contact support if this issue persists."
+          return {
+            aiMessage: "I apologize, but I'm currently experiencing high demand and cannot process your request right now. Please try again in a few minutes, or contact support if this issue persists.",
+            usingRAG
+          }
         } else if (openaiRes.status === 401) {
           console.error('OpenAI API key invalid:', errorData)
-          return "I apologize, but there's a configuration issue with my AI service. Please contact support for assistance."
+          return {
+            aiMessage: "I apologize, but there's a configuration issue with my AI service. Please contact support for assistance.",
+            usingRAG
+          }
         } else {
           console.error('OpenAI API error:', errorData)
-          return "I apologize, but I'm experiencing technical difficulties right now. Please try again in a moment."
+          return {
+            aiMessage: "I apologize, but I'm experiencing technical difficulties right now. Please try again in a moment.",
+            usingRAG
+          }
         }
       } else {
         const data = await openaiRes.json()
-        return data.choices?.[0]?.message?.content || ''
+        return {
+          aiMessage: data.choices?.[0]?.message?.content || '',
+          usingRAG
+        }
       }
     } catch (error) {
       console.error('Error calling OpenAI API:', error)
-      return "I apologize, but I'm experiencing technical difficulties right now. Please try again in a moment."
+      return {
+        aiMessage: "I apologize, but I'm experiencing technical difficulties right now. Please try again in a moment.",
+        usingRAG
+      }
     }
   }
 
@@ -414,6 +436,8 @@ Remember: Your ONLY job is to understand their business. Do not provide advice, 
           metadata: segment.metadata
         }))
         
+        // Use the same Supabase client for embedding service
+        const embeddingService = new (await import('./embeddingService')).EmbeddingService(this.supabase)
         await embeddingService.storeConversationEmbeddings(context.agent.id, segmentsForEmbedding)
       } catch (error) {
         console.warn('Failed to store embeddings (this is optional):', error)
