@@ -178,7 +178,10 @@ function DashboardContent() {
   const [hasUserInteracted, setHasUserInteracted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const chatScrollContainerRef = useRef<HTMLDivElement>(null);
-  const [chatBottomPadding, setChatBottomPadding] = useState(72); // default input bar height
+  // Remove mobile-specific height calculations and use proper flex layout
+  // Remove the chatBottomPadding state and related calculations
+  // Remove the visualViewport resize listener
+  // Remove the setVh function and related useEffect
 
   // Best mobile chat scroll UX: always scroll to bottom on new message, input focus, or keyboard open
   const scrollChatToBottom = (smooth = true) => {
@@ -202,7 +205,6 @@ function DashboardContent() {
         keyboardHeight = window.innerHeight - window.visualViewport.height - window.visualViewport.offsetTop;
       }
       const padding = Math.max(72, keyboardHeight);
-      setChatBottomPadding(padding);
       // Scroll to bottom after keyboard animation
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
@@ -248,15 +250,7 @@ function DashboardContent() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  useEffect(() => {
-    // Dynamic 100vh fix for mobile browsers
-    const setVh = () => {
-      document.body.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
-    };
-    setVh();
-    window.addEventListener('resize', setVh);
-    return () => window.removeEventListener('resize', setVh);
-  }, []);
+  // Remove the setVh function and related useEffect
 
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState<number | null>(null)
@@ -1068,36 +1062,27 @@ function DashboardContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
-      {/* Unauthenticated banner */}
-      {!user && (
-        <div className="w-full max-w-2xl mx-auto text-center pt-8 mb-4">
-          <div className="inline-block px-4 py-2 bg-yellow-100 text-yellow-800 rounded-full font-semibold mb-2">
-            You are not signed in. Start chatting below to authenticate.
+    <div className="flex flex-col h-screen overflow-hidden bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
+      <div className="flex-1 flex flex-col items-center w-full md:max-w-4xl mx-auto px-0 sm:px-6 lg:px-8 py-4">
+        {/* Unauthenticated banner - moved inside flex container */}
+        {!user && (
+          <div className="w-full text-center mb-4">
+            <div className="inline-block px-4 py-2 bg-yellow-100 text-yellow-800 rounded-full font-semibold">
+              You are not signed in. Start chatting below to authenticate.
+            </div>
           </div>
-        </div>
-      )}
-      <div
-        className="w-full md:max-w-4xl mx-auto px-0 sm:px-6 lg:px-8 py-4 flex flex-col"
-        style={isMobile ? { paddingBottom: 0 } : {}}
-      >
-        <div
-          className="w-full flex-1 flex flex-col items-center relative chat-wrapper"
-          style={isMobile ? { minHeight: 'calc(var(--vh, 1vh) * 100)', height: 'calc(var(--vh, 1vh) * 100)', position: 'relative' } : {}}
+        )}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="flex flex-col w-full md:rounded-2xl md:border md:border-gray-200 md:shadow-lg bg-white/80 flex-1 overflow-hidden"
         >
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="flex flex-col w-full md:rounded-2xl md:border md:border-gray-200 md:shadow-lg bg-white/80 md:max-h-[70vh] md:overflow-hidden"
-            style={{ minHeight: '320px', height: isMobile ? '100dvh' : undefined, position: isMobile ? 'relative' : undefined }}
+          <div
+            className="flex-1 overflow-y-auto px-1 pb-2 md:px-6 md:py-4"
+            ref={chatScrollContainerRef}
+            onClick={() => { if (isMobile && !hasUserInteracted) setHasUserInteracted(true); }}
           >
-            <div
-              className="flex-1 overflow-y-auto px-1 pb-2 md:px-6 md:py-4 md:max-h-[60vh]"
-              ref={chatScrollContainerRef}
-              onClick={() => { if (isMobile && !hasUserInteracted) setHasUserInteracted(true); }}
-              style={isMobile ? { paddingBottom: chatBottomPadding, boxSizing: 'border-box', overscrollBehavior: 'contain', height: '100dvh', maxHeight: '100dvh' } : {}}
-            >
                 {messages.length === 0 && !chatLoading && (
                   <div className="flex items-center justify-center h-full">
                     <div className="text-center max-w-md">
@@ -1167,11 +1152,10 @@ function DashboardContent() {
                 </AnimatePresence>
                 <div ref={messagesEndRef} />
               </div>
-            {/* Chat Input */}
-            {/* Desktop/Tablet: original input bar */}
-            <div className="hidden md:block flex-shrink-0 border-t border-gray-200 bg-white px-6 py-4">
+            {/* Single input bar for all devices */}
+            <div className="border-t border-gray-200 bg-white px-4 py-3">
               <div className="max-w-4xl mx-auto">
-                <div className="flex items-end space-x-3">
+                <div className="flex items-end space-x-2">
                   <input
                     type="file"
                     ref={fileInputRef}
@@ -1232,82 +1216,8 @@ function DashboardContent() {
                 )}
               </div>
             </div>
-            {/* Mobile: absolutely positioned input bar at bottom of chat container */}
-            <div
-              className="md:hidden border-t border-gray-200 bg-white px-4 py-3"
-              style={{
-                position: isMobile ? 'absolute' : undefined,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                width: '100%',
-                zIndex: 50,
-                boxShadow: '0 -2px 8px rgba(0,0,0,0.04)',
-              }}
-            >
-              <div className="flex items-end space-x-2 max-w-2xl mx-auto">
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  style={{ display: 'none' }}
-                  onChange={handleFileChange}
-                  disabled={uploading}
-                />
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={uploading}
-                  className="flex-shrink-0 p-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-50 transition-colors"
-                  title={t('uploadTitle')}
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                  </svg>
-                </button>
-                <div className="flex-1 relative">
-                  <textarea
-                    placeholder={t('inputPlaceholder')}
-                    value={input}
-                    onChange={(e) => {
-                      setInput(e.target.value)
-                      e.target.style.height = 'auto'
-                      e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px'
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault()
-                        handleSend()
-                      }
-                    }}
-                    ref={inputRef as any}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none bg-white"
-                    rows={1}
-                    style={{ minHeight: '44px', maxHeight: '120px' }}
-                    disabled={uploading || otpLoading !== 'none'}
-                    onFocus={handleInputFocus}
-                  />
-                </div>
-                <button
-                  onClick={handleSend}
-                  disabled={chatLoading || uploading || !input.trim() || otpLoading !== 'none'}
-                  className="flex-shrink-0 p-3 rounded-xl bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                  </svg>
-                </button>
-              </div>
-              {uploading && (
-                <div className="flex items-center space-x-2 mt-2 text-sm text-gray-500">
-                  <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
-                  <span>{t('uploading')}</span>
-                </div>
-              )}
-            </div>
           </motion.div>
         </div>
-      </div>
       {/* Modals */}
       {showPlansModal && (
         <SubscriptionPlans
