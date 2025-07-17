@@ -108,7 +108,7 @@ export class SystemPromptService {
   private parseBusinessConstraints(agent: any): BusinessConstraints {
     const constraints: BusinessConstraints = {
       name: agent.name || 'Business',
-      tone: agent.tone || 'professional',
+      tone: agent.business_constraints?.tone || 'professional',
       ...agent.business_constraints
     }
 

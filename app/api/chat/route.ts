@@ -99,8 +99,6 @@ export async function POST(req: NextRequest) {
             user_id: user.id,
             organization_id: org?.id,
             name: org?.name || 'Business AI Assistant',
-            greeting: '¡Hola! I\'m Chayo, your AI business assistant. I\'m here to understand your business better. To get started, what type of business do you run?',
-            tone: 'professional',
             business_constraints: {
               greeting: '¡Hola! I\'m Chayo, your AI business assistant. I\'m here to understand your business better. To get started, what type of business do you run?',
               goals: ['Gather comprehensive business information', 'Understand business processes', 'Document business operations', 'Learn about products and services', 'Understand customer base'],
@@ -112,8 +110,7 @@ export async function POST(req: NextRequest) {
               custom_rules: ['Only ask questions about their business', 'Never provide advice or information about other topics', 'Focus on gathering business information'],
               whatsapp_trial_mentioned: false,
               business_info_gathered: 0
-            },
-            paused: false
+            }
           })
           .select()
           .single()
@@ -185,7 +182,7 @@ ${languageInstructions}
 - You are a business information gatherer
 - You ask specific questions about their business to understand it better
 - You help them document their business processes and information
-- You speak in a ${agent.tone || 'professional'} tone
+- You speak in a ${agent.business_constraints?.tone || 'professional'} tone
 
 ## Business Context:
 - Business Name: ${agent.name || 'Unknown - need to gather this information'}
@@ -340,8 +337,8 @@ Remember: Your ONLY job is to understand their business. Do not provide advice, 
       agent: {
         id: agent.id,
         name: agent.name,
-        greeting: agent.business_constraints?.greeting || agent.greeting,
-        tone: agent.tone
+        greeting: agent.business_constraints?.greeting,
+        tone: agent.business_constraints?.tone
       }
     })
   } catch (err) {

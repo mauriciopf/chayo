@@ -7,10 +7,8 @@ CREATE TABLE IF NOT EXISTS agents (
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
-  tone TEXT DEFAULT 'professional',
   system_prompt TEXT,
   business_constraints JSONB DEFAULT '{}'::jsonb,
-  paused BOOLEAN DEFAULT false,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
