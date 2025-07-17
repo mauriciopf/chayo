@@ -15,7 +15,6 @@ interface UseChatProps {
   setOtpSent: (sent: boolean) => void
   setResendCooldown: (cooldown: number) => void
   setAuthState: (state: AuthState) => void
-  handleOTPFlow: () => Promise<void>
   locale: string
 }
 
@@ -32,7 +31,6 @@ export function useChat({
   setOtpSent,
   setResendCooldown,
   setAuthState,
-  handleOTPFlow,
   locale
 }: UseChatProps) {
   const [messages, setMessages] = useState<Message[]>([])
@@ -53,21 +51,34 @@ export function useChat({
 
   // Scroll functionality - scroll user's message to top of chat container
   const scrollToShowUserMessage = (smooth = true) => {
+    console.log('📜 scrollToShowUserMessage called, smooth:', smooth)
+    
     // Use requestAnimationFrame to ensure DOM has updated with new message
     requestAnimationFrame(() => {
+      console.log('📜 Inside requestAnimationFrame')
+      
       if (chatScrollContainerRef.current) {
+        console.log('📜 Found chatScrollContainerRef')
+        
+        // Simple approach: just scroll to bottom
+        console.log('📜 Scrolling to bottom of container')
+        chatScrollContainerRef.current.scrollTop = chatScrollContainerRef.current.scrollHeight
+        
+        // Also try the message-specific approach
         const messages = chatScrollContainerRef.current.querySelectorAll('[data-message-id]')
+        console.log('📜 Found messages with data-message-id:', messages.length)
+        
         const lastMessage = messages[messages.length - 1]
         
         if (lastMessage) {
+          console.log('📜 Also scrolling to last message:', lastMessage)
           lastMessage.scrollIntoView({ 
             behavior: smooth ? 'smooth' : 'auto', 
             block: 'start' // Positions the message at the top of the chat container
           })
-        } else {
-          // Fallback: scroll container to bottom if no messages found
-          chatScrollContainerRef.current.scrollTop = chatScrollContainerRef.current.scrollHeight
         }
+      } else {
+        console.log('📜 No chatScrollContainerRef found')
       }
     })
   }
@@ -88,7 +99,9 @@ export function useChat({
 
   // Scroll when justSent is true
   useEffect(() => {
+    console.log('📜 Scroll useEffect triggered - justSent:', justSent, 'messages.length:', messages.length)
     if (justSent) {
+      console.log('📜 Triggering scroll because justSent is true')
       scrollToShowUserMessage()
       setJustSent(false)
     }
@@ -124,9 +137,7 @@ export function useChat({
   // Handle sending messages
   const handleSend = async () => {
     if (authState !== 'authenticated') {
-      if (handleOTPFlow) {
-        await handleOTPFlow()
-      }
+      // OTP flow is handled directly in ChatContainer
       return
     }
     if (!input.trim() || chatLoading) return

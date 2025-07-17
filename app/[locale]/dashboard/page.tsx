@@ -61,7 +61,7 @@ function DashboardContent() {
   // Initialize mobile hook with placeholder scroll function
   const mobile = useMobile(() => {})
   
-  // Initialize chat hook first
+  // Initialize chat hook without OTP flow (we'll pass it directly to ChatContainer)
   const chat = useChat({
     authState: auth.authState,
     selectedAgent,
@@ -75,7 +75,6 @@ function DashboardContent() {
     setOtpSent: auth.setOtpSent,
     setResendCooldown: auth.setResendCooldown,
     setAuthState: auth.setAuthState,
-    handleOTPFlow: () => Promise.resolve(), // temporary placeholder
     locale
   })
 

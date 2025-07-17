@@ -51,6 +51,8 @@ export function useAuthFlow({
   const supabase = createClient()
 
   const handleOTPFlow = async () => {
+    console.log('🚀 handleOTPFlow called! Auth state:', authState, 'Input:', input.substring(0, 10) + '...')
+    
     if (authState === 'awaitingName') {
       if (!input.trim()) return
       setPendingName(input.trim())
@@ -252,6 +254,13 @@ export function useAuthFlow({
       // Store the code before clearing input
       const otpCode = input.trim()
       
+      console.log('🚀 DEBUG: Starting OTP verification with:', {
+        email: pendingEmail,
+        code: otpCode,
+        codeLength: otpCode.length,
+        isValidFormat: /^\d{6}$/.test(otpCode)
+      })
+      
       setMessages((msgs) => [
         ...msgs,
         {
@@ -270,14 +279,25 @@ export function useAuthFlow({
       }
       
       setOtpError(null)
+      
+      console.log('🔄 DEBUG: Making API call to /api/auth/otp/verify')
+      
       // Call OTP verify endpoint
       try {
+        const requestBody = { email: pendingEmail, code: otpCode }
+        console.log('📤 DEBUG: Request payload:', requestBody)
+        
         const res = await fetch('/api/auth/otp/verify', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: pendingEmail, code: otpCode }),
+          body: JSON.stringify(requestBody),
         })
+        
+        console.log('📥 DEBUG: Response status:', res.status, res.statusText)
+        
         const data = await res.json()
+        console.log('📋 DEBUG: Response data:', data)
+        
         if (!res.ok) {
           setOtpError(data.error || 'Invalid or expired code.')
           setMessages((msgs) => [
@@ -293,7 +313,7 @@ export function useAuthFlow({
           return
         }
         // Success: the session has been created by the API and cookies are set
-        console.log('OTP verification successful, user data:', data)
+        console.log('✅ DEBUG: OTP verification successful, user data:', data)
         
         // The onAuthStateChange listener should automatically update the user state
         // Show the welcome message
@@ -308,6 +328,7 @@ export function useAuthFlow({
         ])
         setInput('')
       } catch (err) {
+        console.error('💥 DEBUG: Exception during fetch:', err)
         setOtpError('Invalid or expired code.')
         setMessages((msgs) => [
           ...msgs,
