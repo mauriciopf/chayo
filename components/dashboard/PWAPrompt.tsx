@@ -19,6 +19,29 @@ function isInStandaloneMode() {
 export default function PWAPrompt({ onDismiss }: PWAPromptProps) {
   const [showPrompt, setShowPrompt] = useState(false)
 
+  // Add CSS animation for the toast
+  useEffect(() => {
+    const style = document.createElement('style')
+    style.textContent = `
+      @keyframes slideUp {
+        from {
+          transform: translateX(-50%) translateY(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(-50%) translateY(0);
+          opacity: 1;
+        }
+      }
+    `
+    document.head.appendChild(style)
+    return () => {
+      if (document.head.contains(style)) {
+        document.head.removeChild(style)
+      }
+    }
+  }, [])
+
   useEffect(() => {
     if (isMobileDevice() && !isInStandaloneMode()) {
       setShowPrompt(true)
@@ -39,6 +62,60 @@ export default function PWAPrompt({ onDismiss }: PWAPromptProps) {
   }
 
   const handleDismiss = () => {
+    // Show helpful reminder when they dismiss the modal
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+    const isAndroid = /Android/.test(navigator.userAgent)
+    
+    if (isIOS) {
+      // Show a toast-like reminder for iOS users
+      const reminder = document.createElement('div')
+      reminder.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #374151;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        z-index: 9999;
+        animation: slideUp 0.3s ease-out;
+      `
+      reminder.innerHTML = '💡 Tap Share button (📤) → "Add to Home Screen" to install'
+      document.body.appendChild(reminder)
+      
+      // Remove after 4 seconds
+      setTimeout(() => {
+        if (reminder.parentNode) {
+          reminder.remove()
+        }
+      }, 4000)
+    } else if (isAndroid) {
+      const reminder = document.createElement('div')
+      reminder.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #374151;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        z-index: 9999;
+        animation: slideUp 0.3s ease-out;
+      `
+      reminder.innerHTML = '💡 Tap Menu (⋮) → "Install app" to add to home screen'
+      document.body.appendChild(reminder)
+      
+      setTimeout(() => {
+        if (reminder.parentNode) {
+          reminder.remove()
+        }
+      }, 4000)
+    }
+    
     setShowPrompt(false)
     onDismiss?.()
   }

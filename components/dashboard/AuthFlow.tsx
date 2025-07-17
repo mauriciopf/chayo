@@ -249,12 +249,15 @@ export function useAuthFlow({
         return
       }
       
+      // Store the code before clearing input
+      const otpCode = input.trim()
+      
       setMessages((msgs) => [
         ...msgs,
         {
           id: Date.now().toString(),
           role: 'user',
-          content: input.trim(),
+          content: otpCode,
           timestamp: new Date(),
         },
       ])
@@ -272,7 +275,7 @@ export function useAuthFlow({
         const res = await fetch('/api/auth/otp/verify', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: pendingEmail, code: input.trim() }),
+          body: JSON.stringify({ email: pendingEmail, code: otpCode }),
         })
         const data = await res.json()
         if (!res.ok) {

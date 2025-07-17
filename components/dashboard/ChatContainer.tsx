@@ -147,9 +147,9 @@ export default function ChatContainer({
       
       {/* Modern chat input design - 2 rows layout */}
       <div 
-        className="border-t border-gray-200 bg-white px-4 pb-3 flex-shrink-0"
+        className="bg-gray-50 px-4 py-4 flex-shrink-0"
         style={{
-          paddingBottom: isMobile ? 'max(env(safe-area-inset-bottom), 12px)' : undefined
+          paddingBottom: isMobile ? 'max(env(safe-area-inset-bottom), 16px)' : undefined
         }}
       >
         <div className={`mx-auto ${isMobile ? 'max-w-none' : 'max-w-4xl'}`}>
@@ -162,42 +162,44 @@ export default function ChatContainer({
             disabled={uploading}
           />
           
-          {/* Row 1: Full width input field */}
-          <div className="w-full">
-            <textarea
-              placeholder={t('inputPlaceholder')}
-              value={input}
-              onChange={(e) => {
-                setInput(e.target.value)
-                // Auto-resize using CSS custom properties
-                e.target.style.height = 'auto'
-                e.target.style.height = `min(${e.target.scrollHeight}px, var(--max-input-height, 6rem))`
-              }}
-              onKeyDown={async (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault()
-                  if (authState !== 'authenticated') {
-                    await handleOTPFlow()
-                  } else {
-                    handleSend()
+          {/* Modern input container with rounded design */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-3">
+            {/* Row 1: Full width input field */}
+            <div className="w-full">
+              <textarea
+                placeholder={t('inputPlaceholder')}
+                value={input}
+                onChange={(e) => {
+                  setInput(e.target.value)
+                  // Auto-resize using CSS custom properties
+                  e.target.style.height = 'auto'
+                  e.target.style.height = `min(${e.target.scrollHeight}px, var(--max-input-height, 6rem))`
+                }}
+                onKeyDown={async (e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault()
+                    if (authState !== 'authenticated') {
+                      await handleOTPFlow()
+                    } else {
+                      handleSend()
+                    }
                   }
-                }
-              }}
-              ref={inputRef as any}
-              className="w-full px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none bg-white rounded-t-xl min-h-[2.75rem] max-h-[6rem]"
-              rows={1}
-              disabled={uploading || otpLoading !== 'none'}
-              onFocus={handleInputFocus}
-            />
-          </div>
-          
-          {/* Row 2: Action buttons */}
-          <div className="flex justify-end space-x-2 pt-2">
+                }}
+                ref={inputRef as any}
+                className="w-full px-0 py-2 focus:outline-none resize-none bg-transparent placeholder-gray-500 text-gray-900 min-h-[2.75rem] max-h-[6rem]"
+                rows={1}
+                disabled={uploading || otpLoading !== 'none'}
+                onFocus={handleInputFocus}
+              />
+            </div>
+            
+            {/* Row 2: Action buttons */}
+            <div className="flex justify-between items-center pt-2">
             <button
               onClick={() => fileInputRef.current?.click()}
               disabled={uploading}
-              className={`flex-shrink-0 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-50 transition-colors ${
-                isMobile ? 'p-3 min-h-[2.75rem] min-w-[2.75rem]' : 'p-2'
+              className={`flex-shrink-0 rounded-xl bg-gray-100/80 text-gray-600 hover:bg-gray-200 disabled:opacity-50 transition-all duration-200 ${
+                isMobile ? 'p-3 min-h-[2.5rem] min-w-[2.5rem]' : 'p-2.5'
               }`}
               title={t('uploadTitle')}
             >
@@ -214,14 +216,15 @@ export default function ChatContainer({
                 }
               }}
               disabled={chatLoading || uploading || !input.trim() || otpLoading !== 'none'}
-              className={`flex-shrink-0 rounded-xl bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${
-                isMobile ? 'p-3 min-h-[2.75rem] min-w-[2.75rem]' : 'p-3'
+              className={`flex-shrink-0 rounded-xl bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm ${
+                isMobile ? 'p-3 min-h-[2.5rem] min-w-[2.5rem]' : 'p-2.5'
               }`}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
               </svg>
             </button>
+            </div>
           </div>
           
           {/* Upload progress indicator */}

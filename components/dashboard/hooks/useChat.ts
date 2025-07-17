@@ -42,6 +42,7 @@ export function useChat({
   const [justSent, setJustSent] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState<number | null>(null)
+  const [previousLocale, setPreviousLocale] = useState<string>(locale)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -50,15 +51,13 @@ export function useChat({
 
   const supabase = createClient()
 
-  // Scroll functionality
-  const scrollChatToBottom = (smooth = true) => {
-    if (chatScrollContainerRef.current) {
-      chatScrollContainerRef.current.scrollTo({
-        top: chatScrollContainerRef.current.scrollHeight,
-        behavior: smooth ? 'smooth' : 'auto',
+  // Scroll functionality - scroll user's message to top of chat container
+  const scrollToShowUserMessage = (smooth = true) => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ 
+        behavior: smooth ? 'smooth' : 'auto', 
+        block: 'start' // Positions the element at the top of the viewport
       })
-    } else {
-      messagesEndRef.current?.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'end' })
     }
   }
 
@@ -79,23 +78,36 @@ export function useChat({
   // Scroll when justSent is true
   useEffect(() => {
     if (justSent) {
-      scrollChatToBottom()
+      scrollToShowUserMessage()
       setJustSent(false)
     }
   }, [messages, justSent])
 
+  // Detect locale changes and notify AI
+  useEffect(() => {
+    if (previousLocale !== locale && messages.length > 0) {
+      const languageNames = {
+        'en': 'English',
+        'es': 'Spanish (Español)'
+      }
+      
+      const languageMessage: Message = {
+        id: Date.now().toString() + '-language-change',
+        role: 'system',
+        content: `Language switched to ${languageNames[locale as keyof typeof languageNames] || locale}. Please continue the conversation in ${languageNames[locale as keyof typeof languageNames] || locale}.`,
+        timestamp: new Date(),
+      }
+
+      setMessages((msgs) => [...msgs, languageMessage])
+      setPreviousLocale(locale)
+      setJustSent(true) // Trigger scroll to show the language change
+    }
+  }, [locale, previousLocale, messages.length])
+
   // Handle input focus on mobile
   const handleInputFocus = () => {
-    if (isMobile) {
-      // Use modern approach - let the browser handle the positioning
-      requestAnimationFrame(() => {
-        inputRef.current?.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'center',
-          inline: 'nearest'
-        })
-      })
-    }
+    // Let the browser handle keyboard positioning naturally
+    // Input is already correctly positioned with flexbox layout
   }
 
   // Handle sending messages
@@ -248,7 +260,7 @@ export function useChat({
     fileInputRef,
     
     // Methods
-    scrollChatToBottom,
+    scrollToShowUserMessage,
     handleInputFocus,
     handleSend,
     handleFileChange,
