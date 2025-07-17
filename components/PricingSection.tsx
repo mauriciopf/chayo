@@ -18,7 +18,7 @@ export default function PricingSection({ onStartCall }: PricingSectionProps) {
   const locale = useLocale();
 
   const handleSolicitaDemo = () => {
-    router.push(`/${locale}/auth`);
+    router.push(`/${locale}/dashboard`);
   };
 
   const pricingTiers = [

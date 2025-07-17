@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { useLocale } from "next-intl";
 import NewHeader from "./NewHeader";
 import NewHero from "./NewHero";
 import VibeSection from "./VibeSection";
@@ -19,9 +21,15 @@ interface ChayoAIHomeProps {
 }
 
 export default function ChayoAIHome({ darkMode: parentDarkMode }: ChayoAIHomeProps) {
+  const router = useRouter();
+  const locale = useLocale();
   const [darkMode, setDarkMode] = useState(parentDarkMode ?? false);
   const [isMobile, setIsMobile] = useState(false);
   const [showStartACall, setShowStartACall] = useState(false);
+
+  const handleStartCall = () => {
+    router.push(`/${locale}/dashboard`);
+  };
 
   useEffect(() => {
     if (parentDarkMode !== undefined) {
@@ -47,7 +55,7 @@ export default function ChayoAIHome({ darkMode: parentDarkMode }: ChayoAIHomePro
       <main className="pt-16 lg:pt-20">
         {/* Hero Section - Fullscreen Phone Simulation */}
         <section id="hero">
-          <NewHero onStartCall={() => setShowStartACall(true)} />
+          <NewHero onStartCall={handleStartCall} />
         </section>
 
         {/* Section 1 - Give Chayo Her Vibe */}
@@ -67,7 +75,7 @@ export default function ChayoAIHome({ darkMode: parentDarkMode }: ChayoAIHomePro
 
         {/* Section 4 - Launch and Let Chayo Handle the Grind */}
         <section id="launch">
-          <LaunchSection onStartCall={() => setShowStartACall(true)} />
+          <LaunchSection onStartCall={handleStartCall} />
         </section>
 
         {/* Section 5 - How it Works */}
@@ -82,7 +90,7 @@ export default function ChayoAIHome({ darkMode: parentDarkMode }: ChayoAIHomePro
 
         {/* Section 7 - Pricing */}
         <section id="pricing">
-          <PricingSection onStartCall={() => setShowStartACall(true)} />
+          <PricingSection onStartCall={handleStartCall} />
         </section>
       </main>
 

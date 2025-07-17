@@ -2,7 +2,7 @@
   "name": "Chayo AI",
   "short_name": "Chayo",
   "description": "Chayo AI – Your digital comadre for business automation and chat.",
-  "start_url": "/",
+  "start_url": "/dashboard",
   "display": "standalone",
   "background_color": "#fafafa",
   "theme_color": "#a21caf",

@@ -73,6 +73,12 @@ interface Organization {
   }
 }
 
+declare global {
+  interface Window {
+    deferredPrompt?: any;
+  }
+}
+
 export default function Dashboard() {
   const [showPwaPrompt, setShowPwaPrompt] = useState(false);
 
@@ -82,13 +88,33 @@ export default function Dashboard() {
     }
   }, []);
 
+  const handleInstallClick = () => {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isAndroid = /Android/.test(navigator.userAgent);
+    
+    if (isIOS) {
+      alert('To install Chayo AI:\n\n1. Tap the Share button (📤) in your browser\n2. Scroll down and tap "Add to Home Screen"\n3. Tap "Add" to confirm');
+    } else if (isAndroid) {
+      alert('To install Chayo AI:\n\n1. Tap the menu button (⋮) in your browser\n2. Tap "Install app" or "Add to Home screen"\n3. Tap "Install" to confirm');
+    } else {
+      alert('To install Chayo AI, use your browser\'s menu to add this page to your home screen.');
+    }
+  };
+
   if (showPwaPrompt) {
     return (
       <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40">
         <div className="bg-white rounded-xl shadow-xl p-6 max-w-sm w-full text-center">
           <h2 className="text-xl font-bold mb-2">Install Chayo AI</h2>
-          <p className="mb-4">To use Chayo AI on mobile, please install the app as a PWA from your browser menu.<br/>Tap <b>Share</b> &rarr; <b>Add to Home Screen</b> on iOS, or <b>Install App</b> on Android.</p>
-          <button onClick={() => window.location.href = '/'} className="mt-2 px-4 py-2 bg-purple-600 text-white rounded-lg font-semibold">Back to Home</button>
+          <p className="mb-4">
+            To use Chayo AI on your phone, simply tap the button below to install the app.
+          </p>
+          <button
+            onClick={handleInstallClick}
+            className="mt-2 px-4 py-2 bg-purple-600 text-white rounded-lg font-semibold"
+          >
+            Install App
+          </button>
         </div>
       </div>
     );

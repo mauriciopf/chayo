@@ -63,11 +63,7 @@ export default function NewHeader() {
 
   // PWA install prompt handler
   const handleFreeTrialClick = () => {
-    if (isMobile) {
-      setShowPwaPrompt(true);
-    } else {
-      router.push(`/${locale}/dashboard`);
-    }
+    router.push(`/${locale}/dashboard`);
   };
 
   return (

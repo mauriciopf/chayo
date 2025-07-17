@@ -20,11 +20,11 @@ export default function LaunchSection({ onStartCall }: LaunchSectionProps) {
   const locale = useLocale();
 
   const handleLaunchAgent = () => {
-    router.push(`/${locale}/auth`);
+    router.push(`/${locale}/dashboard`);
   };
 
   const handleBookDemo = () => {
-    router.push(`/${locale}/auth`);
+    router.push(`/${locale}/dashboard`);
   };
 
   const stats = [

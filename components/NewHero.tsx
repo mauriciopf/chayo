@@ -30,7 +30,7 @@ export default function NewHero({ onStartCall }: NewHeroProps) {
   ];
 
   const handleStartWithChayo = () => {
-    router.push(`/${locale}/auth`);
+    router.push(`/${locale}/dashboard`);
   };
 
   useEffect(() => {
