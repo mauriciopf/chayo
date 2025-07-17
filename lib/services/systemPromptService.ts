@@ -460,19 +460,31 @@ ${languageInstructions}
 
       // Add relevant conversation context based on user query
       if (config.includeConversations) {
+        // Use a lower threshold for better conversation retrieval
         const relevantConversations = await embeddingService.searchSimilarConversations(
           agentId,
           userQuery,
-          0.7,
-          3
+          0.5, // Lowered from 0.7 to 0.5 for better recall
+          5   // Increased from 3 to 5 for more context
         )
 
         if (relevantConversations.length > 0) {
           systemPrompt += '\n\n## Relevant Previous Conversations:\n'
           relevantConversations.forEach((conv, index) => {
             const role = conv.metadata?.role || 'user'
-            systemPrompt += `${index + 1}. ${role}: "${conv.conversation_segment}"\n`
+            const similarity = conv.similarity ? ` (${Math.round(conv.similarity * 100)}% match)` : ''
+            systemPrompt += `${index + 1}. ${role}: "${conv.conversation_segment}"${similarity}\n`
           })
+        } else {
+          // If no similar conversations found, get recent conversations for context
+          const recentConversations = await this.getRecentConversations(agentId, 3)
+          if (recentConversations.length > 0) {
+            systemPrompt += '\n\n## Recent Conversation Context:\n'
+            recentConversations.forEach((conv, index) => {
+              const role = conv.metadata?.role || 'user'
+              systemPrompt += `${index + 1}. ${role}: "${conv.conversation_segment}"\n`
+            })
+          }
         }
       }
 
@@ -489,6 +501,37 @@ ${languageInstructions}
     } catch (error) {
       console.error('Error getting dynamic system prompt:', error)
       throw new Error('Failed to get dynamic system prompt')
+    }
+  }
+
+  /**
+   * Get recent conversations for context when similarity search fails
+   */
+  private async getRecentConversations(agentId: string, limit: number = 3): Promise<any[]> {
+    try {
+      const { data: conversations, error } = await this.supabase
+        .from('conversation_embeddings')
+        .select('conversation_segment, metadata')
+        .eq('agent_id', agentId)
+        .eq('segment_type', 'conversation')
+        .order('created_at', { ascending: false })
+        .limit(limit * 2) // Get more to filter out system messages
+
+      if (error || !conversations || conversations.length === 0) {
+        return []
+      }
+
+      // Filter out very short messages and system-like messages
+      const filteredConversations = conversations.filter(conv => 
+        conv.conversation_segment.length > 10 && 
+        !conv.conversation_segment.toLowerCase().includes('system') &&
+        conv.metadata?.role !== 'system'
+      ).slice(0, limit)
+
+      return filteredConversations
+    } catch (error) {
+      console.error('Error getting recent conversations:', error)
+      return []
     }
   }
 }
