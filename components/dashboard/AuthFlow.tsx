@@ -51,7 +51,6 @@ export function useAuthFlow({
   const supabase = createClient()
 
   const handleOTPFlow = async () => {
-    console.log('🚀 handleOTPFlow called! Auth state:', authState, 'Input:', input.substring(0, 10) + '...')
     
     if (authState === 'awaitingName') {
       if (!input.trim()) return
@@ -254,13 +253,6 @@ export function useAuthFlow({
       // Store the code before clearing input
       const otpCode = input.trim()
       
-      console.log('🚀 DEBUG: Starting OTP verification with:', {
-        email: pendingEmail,
-        code: otpCode,
-        codeLength: otpCode.length,
-        isValidFormat: /^\d{6}$/.test(otpCode)
-      })
-      
       setMessages((msgs) => [
         ...msgs,
         {
@@ -280,42 +272,47 @@ export function useAuthFlow({
       
       setOtpError(null)
       
-      console.log('🔄 DEBUG: Making API call to /api/auth/otp/verify')
-      
-      // Call OTP verify endpoint
+      // Verify OTP directly on frontend (better for PWAs)
       try {
-        const requestBody = { email: pendingEmail, code: otpCode }
-        console.log('📤 DEBUG: Request payload:', requestBody)
         
-        const res = await fetch('/api/auth/otp/verify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(requestBody),
+        const { data, error } = await supabase.auth.verifyOtp({
+          email: pendingEmail,
+          token: otpCode,
+          type: 'email',
         })
         
-        console.log('📥 DEBUG: Response status:', res.status, res.statusText)
-        
-        const data = await res.json()
-        console.log('📋 DEBUG: Response data:', data)
-        
-        if (!res.ok) {
-          setOtpError(data.error || 'Invalid or expired code.')
+        if (error) {
+          setOtpError('Invalid or expired code.')
           setMessages((msgs) => [
             ...msgs,
             {
               id: Date.now().toString() + '-ai',
               role: 'ai',
-              content: data.error || 'Invalid or expired code. Please try again.',
+              content: 'Invalid or expired code. Please try again.',
               timestamp: new Date(),
             },
           ])
           setInput('')
           return
         }
-        // Success: the session has been created by the API and cookies are set
-        console.log('✅ DEBUG: OTP verification successful, user data:', data)
         
-        // The onAuthStateChange listener should automatically update the user state
+        if (!data?.user) {
+          setOtpError('Invalid or expired code.')
+          setMessages((msgs) => [
+            ...msgs,
+            {
+              id: Date.now().toString() + '-ai',
+              role: 'ai',
+              content: 'Invalid or expired code. Please try again.',
+              timestamp: new Date(),
+            },
+          ])
+          setInput('')
+          return
+        }
+        
+        // Success: session is automatically created and persisted by Supabase client
+        // The onAuthStateChange listener will automatically update the user state
         // Show the welcome message
         setMessages((msgs) => [
           ...msgs,
@@ -328,7 +325,6 @@ export function useAuthFlow({
         ])
         setInput('')
       } catch (err) {
-        console.error('💥 DEBUG: Exception during fetch:', err)
         setOtpError('Invalid or expired code.')
         setMessages((msgs) => [
           ...msgs,
