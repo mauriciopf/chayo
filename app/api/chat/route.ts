@@ -25,7 +25,44 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
     }
 
-    const org = await getUserOrganization(supabase, user.id)
+    let org = await getUserOrganization(supabase, user.id)
+
+    // If no organization exists, create one automatically
+    if (!org) {
+      try {
+        // Create organization for the user
+        const emailPrefix = user.email?.split('@')[0] || 'user'
+        const randomSuffix = Math.random().toString(36).substring(2, 8)
+        const slug = `${emailPrefix.replace(/[^a-zA-Z0-9]/g, '')}-${randomSuffix}`
+        const name = `${emailPrefix}'s Organization`
+
+        const { data: newOrg, error: orgError } = await supabase
+          .from('organizations')
+          .insert({
+            name,
+            slug,
+            owner_id: user.id
+          })
+          .select()
+          .single()
+
+        if (!orgError && newOrg) {
+          // Add user as owner in team_members
+          await supabase
+            .from('team_members')
+            .insert({
+              organization_id: newOrg.id,
+              user_id: user.id,
+              role: 'owner',
+              status: 'active'
+            })
+
+          org = newOrg
+        }
+      } catch (error) {
+        console.error('Error creating organization:', error)
+      }
+    }
 
     // Get or create agent (1 agent per business)
     let agent = null

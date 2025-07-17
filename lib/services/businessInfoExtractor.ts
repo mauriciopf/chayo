@@ -153,7 +153,7 @@ export class BusinessInfoExtractor {
     try {
       const { data: agent, error: agentError } = await this.supabase
         .from('agents')
-        .select('business_constraints')
+        .select('business_constraints, organization_id, name')
         .eq('id', agentId)
         .single()
       if (agentError || !agent) throw new Error('Agent not found')
@@ -173,12 +173,34 @@ export class BusinessInfoExtractor {
       // Also update name/industry for convenience
       if (businessInfo.business_name) updatedConstraints.name = businessInfo.business_name
       if (businessInfo.business_type) updatedConstraints.industry = businessInfo.business_type
-      // Update agent
+      
+      // Update agent with new business constraints and name
+      const agentUpdateData: any = { business_constraints: updatedConstraints }
+      if (businessInfo.business_name) {
+        agentUpdateData.name = businessInfo.business_name
+      }
+      
       const { error: updateError } = await this.supabase
         .from('agents')
-        .update({ business_constraints: updatedConstraints })
+        .update(agentUpdateData)
         .eq('id', agentId)
       if (updateError) throw new Error('Failed to update agent business constraints')
+
+      // If business name was extracted, update the organization name too
+      if (businessInfo.business_name && agent.organization_id) {
+        const { error: orgUpdateError } = await this.supabase
+          .from('organizations')
+          .update({ name: businessInfo.business_name })
+          .eq('id', agent.organization_id)
+          .eq('owner_id', userId) // Only update if user owns the organization
+        
+        if (orgUpdateError) {
+          console.warn('Failed to update organization name:', orgUpdateError)
+          // Don't throw error - this is not critical
+        } else {
+          console.log('Updated organization name to:', businessInfo.business_name)
+        }
+      }
       // Log all extracted info to business_info_history
       for (const log of logs) {
         await this.supabase.from('business_info_history').insert({

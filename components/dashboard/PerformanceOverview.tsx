@@ -73,7 +73,7 @@ export default function PerformanceOverview({ className = '' }: PerformanceOverv
   ]
 
   return (
-    <div className={`bg-white rounded-lg shadow-sm border border-gray-200 ${className}`}>
+    <div className={`w-full h-full bg-white rounded-lg md:shadow-sm md:border md:border-gray-200 ${className}`}>
       {/* Header */}
       <div className="px-6 py-4 border-b border-gray-200">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">

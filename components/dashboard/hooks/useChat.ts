@@ -71,7 +71,7 @@ export function useChat({
     })
   }
 
-  // Auto-start authentication flow
+  // Auto-start authentication flow and clear welcome message when authenticated
   useEffect(() => {
     if (authState !== 'authenticated' && messages.length === 0 && user === null) {
       setMessages([
@@ -82,6 +82,14 @@ export function useChat({
           timestamp: new Date(),
         },
       ])
+    } else if (authState === 'authenticated' && user) {
+      // Clear the welcome message when user becomes authenticated
+      // Only clear if the only message is the initial welcome message
+      if (messages.length === 1 && 
+          messages[0].role === 'ai' && 
+          messages[0].content.includes("Hi there! What's your name?")) {
+        setMessages([])
+      }
     }
   }, [authState, messages.length, user])
 

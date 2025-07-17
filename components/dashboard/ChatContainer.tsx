@@ -62,8 +62,8 @@ export default function ChatContainer({
       transition={{ duration: 0.3 }}
       className="flex flex-col w-full md:rounded-2xl md:border md:border-gray-200 md:shadow-lg bg-white/80 flex-1"
       style={{
-        height: isMobile ? '100dvh' : undefined,
-        maxHeight: isMobile ? '100dvh' : undefined,
+        height: isMobile ? 'calc(100dvh - 60px)' : undefined, // Account for mobile header
+        maxHeight: isMobile ? 'calc(100dvh - 60px)' : undefined,
         position: 'relative'
       }}
     >

@@ -19,128 +19,52 @@ function isInStandaloneMode() {
 export default function PWAPrompt({ onDismiss }: PWAPromptProps) {
   const [showPrompt, setShowPrompt] = useState(false)
 
-  // Add CSS animation for the toast
-  useEffect(() => {
-    const style = document.createElement('style')
-    style.textContent = `
-      @keyframes slideUp {
-        from {
-          transform: translateX(-50%) translateY(100%);
-          opacity: 0;
-        }
-        to {
-          transform: translateX(-50%) translateY(0);
-          opacity: 1;
-        }
-      }
-    `
-    document.head.appendChild(style)
-    return () => {
-      if (document.head.contains(style)) {
-        document.head.removeChild(style)
-      }
-    }
-  }, [])
-
   useEffect(() => {
     if (isMobileDevice() && !isInStandaloneMode()) {
       setShowPrompt(true)
     }
   }, [])
 
-  const handleInstallClick = () => {
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
-    const isAndroid = /Android/.test(navigator.userAgent)
-    
-    if (isIOS) {
-      alert('To install Chayo AI:\n\n1. Tap the Share button (📤) in your browser\n2. Scroll down and tap "Add to Home Screen"\n3. Tap "Add" to confirm')
-    } else if (isAndroid) {
-      alert('To install Chayo AI:\n\n1. Tap the menu button (⋮) in your browser\n2. Tap "Install app" or "Add to Home screen"\n3. Tap "Install" to confirm')
-    } else {
-      alert('To install Chayo AI, use your browser\'s menu to add this page to your home screen.')
-    }
-  }
-
   const handleDismiss = () => {
-    // Show helpful reminder when they dismiss the modal
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
-    const isAndroid = /Android/.test(navigator.userAgent)
-    
-    if (isIOS) {
-      // Show a toast-like reminder for iOS users
-      const reminder = document.createElement('div')
-      reminder.style.cssText = `
-        position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #374151;
-        color: white;
-        padding: 12px 20px;
-        border-radius: 8px;
-        font-size: 14px;
-        z-index: 9999;
-        animation: slideUp 0.3s ease-out;
-      `
-      reminder.innerHTML = '💡 Tap Share button (📤) → "Add to Home Screen" to install'
-      document.body.appendChild(reminder)
-      
-      // Remove after 4 seconds
-      setTimeout(() => {
-        if (reminder.parentNode) {
-          reminder.remove()
-        }
-      }, 4000)
-    } else if (isAndroid) {
-      const reminder = document.createElement('div')
-      reminder.style.cssText = `
-        position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #374151;
-        color: white;
-        padding: 12px 20px;
-        border-radius: 8px;
-        font-size: 14px;
-        z-index: 9999;
-        animation: slideUp 0.3s ease-out;
-      `
-      reminder.innerHTML = '💡 Tap Menu (⋮) → "Install app" to add to home screen'
-      document.body.appendChild(reminder)
-      
-      setTimeout(() => {
-        if (reminder.parentNode) {
-          reminder.remove()
-        }
-      }, 4000)
-    }
-    
     setShowPrompt(false)
     onDismiss?.()
   }
 
   if (!showPrompt) return null
 
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+  const isAndroid = /Android/.test(navigator.userAgent)
+
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40">
-      <div className="bg-white rounded-xl shadow-xl p-6 max-w-sm w-full text-center">
-        <h2 className="text-xl font-bold mb-2">Install Chayo AI</h2>
-        <p className="mb-4">
-          To use Chayo AI on your phone, simply tap the button below to install the app.
-        </p>
-        <div className="flex gap-2 justify-center">
-          <button
-            onClick={handleInstallClick}
-            className="px-4 py-2 bg-purple-600 text-white rounded-lg font-semibold"
-          >
-            Install App
-          </button>
+    <div className="fixed bottom-4 left-4 right-4 z-40 md:hidden">
+      <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-4">
+        <div className="flex items-start space-x-3">
+          <div className="flex-shrink-0 w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+            <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+          </div>
+          <div className="flex-1">
+            <h3 className="text-sm font-semibold text-gray-900 mb-1">
+              Install Chayo AI
+            </h3>
+            <p className="text-xs text-gray-600 mb-2">
+              {isIOS ? (
+                <>Tap <strong>Share</strong> → <strong>Add to Home Screen</strong></>
+              ) : isAndroid ? (
+                <>Tap <strong>Menu (⋮)</strong> → <strong>Install app</strong></>
+              ) : (
+                <>Add to your home screen for quick access</>
+              )}
+            </p>
+          </div>
           <button
             onClick={handleDismiss}
-            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-semibold"
+            className="flex-shrink-0 text-gray-400 hover:text-gray-600"
           >
-            Skip
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
           </button>
         </div>
       </div>

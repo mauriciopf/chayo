@@ -301,7 +301,15 @@
       "daysFree": "días gratis"
     },
     "greatYourAgentsReady": "¡Genial! Tus agentes están listos",
-    "nowConnectAgentsDescription": "Ahora conecta tus agentes a canales de comunicación como WhatsApp, SMS o chat web para empezar a atender clientes."
+    "nowConnectAgentsDescription": "Ahora conecta tus agentes a canales de comunicación como WhatsApp, SMS o chat del sitio web para comenzar a atender clientes.",
+    "navigation": {
+      "chat": "Chat",
+      "agents": "Agentes",
+      "performance": "Rendimiento",
+      "teamManagement": "Gestión de Equipo",
+      "accountSettings": "Configuración de Cuenta",
+      "billingPlans": "Facturación y Planes"
+    }
   },
 
     "agentCard": {
