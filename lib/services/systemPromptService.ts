@@ -47,7 +47,8 @@ export class SystemPromptService {
       includeExamples: true,
       maxContextLength: 4000,
       temperature: 0.7
-    }
+    },
+    locale: string = 'en'
   ): Promise<string> {
     try {
       // Get agent information
@@ -64,8 +65,8 @@ export class SystemPromptService {
       // Parse business constraints
       const constraints = this.parseBusinessConstraints(agent)
 
-      // Build the system prompt
-      let systemPrompt = await this.buildBasePromptDynamic(agentId, constraints)
+      // Build the system prompt with language context
+      let systemPrompt = await this.buildBasePromptDynamic(agentId, constraints, locale)
 
       // Add conversation knowledge if enabled
       if (config.includeConversations) {
@@ -165,7 +166,7 @@ export class SystemPromptService {
   /**
    * Build the base system prompt with business constraints
    */
-  private async buildBasePromptDynamic(agentId: string, constraints: BusinessConstraints): Promise<string> {
+  private async buildBasePromptDynamic(agentId: string, constraints: BusinessConstraints, locale: string = 'en'): Promise<string> {
     const supabase = this.supabase
     // 1. Get all unique fields from business_info_history for this agent
     const { data: historyRows, error } = await supabase
@@ -201,7 +202,17 @@ export class SystemPromptService {
       const q = await this.getOrCreateFieldQuestion(field)
       questions.push(q)
     }
-    let prompt = `You are Chayo, an AI business assistant. Your ONLY purpose is to gather information about this specific business.\n\n## CRITICAL RULES:\n- You ONLY ask questions about THEIR BUSINESS\n- You NEVER provide information about other topics\n- You NEVER give generic advice or responses\n- You ONLY focus on understanding their business operations\n- If they ask about anything not related to their business, redirect them back to business topics\n- If you don't know their business name or details, ALWAYS start by asking about their business\n\n## Your Role:\n- You are a business information gatherer\n- You ask specific questions about their business to understand it better\n- You help them document their business processes and information\n- You speak in a ${constraints.tone} tone\n\n## Business Context:\n- Business Name: ${constraints.business_name || constraints.name || 'Unknown - need to gather this information'}\n- Business Type: ${constraints.business_type || 'Unknown - need to gather this information'}\n- Industry: ${constraints.industry || constraints.business_type || 'Unknown - need to gather this information'}\n${constraints.products_services ? `- Products/Services: ${constraints.products_services.join(', ')}` : ''}\n${constraints.target_customers ? `- Target Customers: ${constraints.target_customers}` : ''}\n${constraints.challenges ? `- Main Challenges: ${constraints.challenges.join(', ')}` : ''}\n${constraints.business_goals ? `- Business Goals: ${constraints.business_goals.join(', ')}` : ''}\n`
+    // Add language instructions based on locale
+    const languageInstructions = locale === 'es' 
+      ? 'ALWAYS respond in Spanish (Español). Ask all questions in Spanish and maintain conversation in Spanish throughout.'
+      : 'ALWAYS respond in English. Ask all questions in English and maintain conversation in English throughout.'
+
+    let prompt = `You are Chayo, an AI business assistant. Your ONLY purpose is to gather information about this specific business.
+
+## LANGUAGE REQUIREMENT:
+${languageInstructions}
+
+## CRITICAL RULES:\n- You ONLY ask questions about THEIR BUSINESS\n- You NEVER provide information about other topics\n- You NEVER give generic advice or responses\n- You ONLY focus on understanding their business operations\n- If they ask about anything not related to their business, redirect them back to business topics\n- If you don't know their business name or details, ALWAYS start by asking about their business\n\n## Your Role:\n- You are a business information gatherer\n- You ask specific questions about their business to understand it better\n- You help them document their business processes and information\n- You speak in a ${constraints.tone} tone\n\n## Business Context:\n- Business Name: ${constraints.business_name || constraints.name || 'Unknown - need to gather this information'}\n- Business Type: ${constraints.business_type || 'Unknown - need to gather this information'}\n- Industry: ${constraints.industry || constraints.business_type || 'Unknown - need to gather this information'}\n${constraints.products_services ? `- Products/Services: ${constraints.products_services.join(', ')}` : ''}\n${constraints.target_customers ? `- Target Customers: ${constraints.target_customers}` : ''}\n${constraints.challenges ? `- Main Challenges: ${constraints.challenges.join(', ')}` : ''}\n${constraints.business_goals ? `- Business Goals: ${constraints.business_goals.join(', ')}` : ''}\n`
     if (questions.length > 0) {
       prompt += '\n## Information You Should Gather (ask only about missing info):\n'
       questions.forEach((q, idx) => {
@@ -428,6 +439,7 @@ export class SystemPromptService {
   async getDynamicSystemPrompt(
     agentId: string,
     userQuery: string,
+    locale: string = 'en',
     config: SystemPromptConfig = {
       includeConversations: true,
       includeFaqs: true,
@@ -437,8 +449,8 @@ export class SystemPromptService {
     }
   ): Promise<string> {
     try {
-      // Get base system prompt
-      let systemPrompt = await this.generateSystemPrompt(agentId, config)
+      // Get base system prompt with language context
+      let systemPrompt = await this.generateSystemPrompt(agentId, config, locale)
 
       // Add relevant document chunks for RAG
       const documentContext = await this.getRelevantDocumentChunks(agentId, userQuery, 3)

@@ -8,10 +8,13 @@ export const runtime = 'edge'
 
 export async function POST(req: NextRequest) {
   try {
-    const { messages, agentId } = await req.json()
+    const { messages, agentId, locale } = await req.json()
     if (!messages || !Array.isArray(messages)) {
       return NextResponse.json({ error: 'Invalid request - messages required' }, { status: 400 })
     }
+
+    // Default to English if no locale provided
+    const userLocale = locale || 'en'
 
     // Supabase: get user and org
     const { supabase } = createClient(req)
@@ -104,7 +107,8 @@ export async function POST(req: NextRequest) {
     try {
       systemPrompt = await systemPromptService.getDynamicSystemPrompt(
         agent.id,
-        lastUserMessage
+        lastUserMessage,
+        userLocale
       )
 
       // Check if RAG context was used
@@ -123,7 +127,14 @@ export async function POST(req: NextRequest) {
     } catch (error) {
       console.warn('Failed to get dynamic system prompt, using fallback:', error)
       // Fallback to basic system prompt if RAG fails
+      const languageInstructions = userLocale === 'es' 
+        ? 'ALWAYS respond in Spanish (Español). Ask all questions in Spanish and maintain conversation in Spanish throughout.'
+        : 'ALWAYS respond in English. Ask all questions in English and maintain conversation in English throughout.'
+
       systemPrompt = `You are Chayo, an AI business assistant. Your ONLY purpose is to gather information about this specific business.
+
+## LANGUAGE REQUIREMENT:
+${languageInstructions}
 
 ## CRITICAL RULES:
 - You ONLY ask questions about THEIR BUSINESS
