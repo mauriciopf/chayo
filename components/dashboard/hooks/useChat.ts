@@ -53,12 +53,23 @@ export function useChat({
 
   // Scroll functionality - scroll user's message to top of chat container
   const scrollToShowUserMessage = (smooth = true) => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ 
-        behavior: smooth ? 'smooth' : 'auto', 
-        block: 'start' // Positions the element at the top of the viewport
-      })
-    }
+    // Use requestAnimationFrame to ensure DOM has updated with new message
+    requestAnimationFrame(() => {
+      if (chatScrollContainerRef.current) {
+        const messages = chatScrollContainerRef.current.querySelectorAll('[data-message-id]')
+        const lastMessage = messages[messages.length - 1]
+        
+        if (lastMessage) {
+          lastMessage.scrollIntoView({ 
+            behavior: smooth ? 'smooth' : 'auto', 
+            block: 'start' // Positions the message at the top of the chat container
+          })
+        } else {
+          // Fallback: scroll container to bottom if no messages found
+          chatScrollContainerRef.current.scrollTop = chatScrollContainerRef.current.scrollHeight
+        }
+      }
+    })
   }
 
   // Auto-start authentication flow

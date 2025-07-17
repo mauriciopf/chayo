@@ -99,13 +99,14 @@ export default function ChatContainer({
         )}
         <AnimatePresence>
           {messages.map((msg) => (
-            <ChatMessage 
-              key={msg.id} 
-              role={msg.role} 
-              content={msg.content} 
-              timestamp={msg.timestamp} 
-              usingRAG={msg.usingRAG}
-            />
+            <div key={msg.id} data-message-id={msg.id}>
+              <ChatMessage 
+                role={msg.role} 
+                content={msg.content} 
+                timestamp={msg.timestamp} 
+                usingRAG={msg.usingRAG}
+              />
+            </div>
           ))}
           {chatLoading && (
             <div className="py-6 bg-gray-50">
