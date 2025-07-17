@@ -9,11 +9,12 @@ export async function POST(req: NextRequest) {
     }
 
     const { supabase } = createClient(req);
-    // Send OTP via Supabase Auth
+    // Send OTP via Supabase Auth (6-digit code, not magic link)
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
         emailRedirectTo: `${req.nextUrl.origin}/dashboard`,
+        shouldCreateUser: true,
       },
     });
     if (error) {
