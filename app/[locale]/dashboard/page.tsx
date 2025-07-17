@@ -476,8 +476,343 @@ function DashboardContent() {
     }
   }
 
+  // OTP Auth state
+  const [authState, setAuthState] = useState<'authenticated' | 'awaitingName' | 'awaitingEmail' | 'awaitingOTP'>('authenticated');
+  const [pendingName, setPendingName] = useState<string>('');
+  const [pendingEmail, setPendingEmail] = useState<string>('');
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpError, setOtpError] = useState<string | null>(null);
+  const [otpLoading, setOtpLoading] = useState<'none' | 'sending' | 'verifying' | 'resending'>('none');
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const resendCooldownRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Cooldown timer for resend
+  useEffect(() => {
+    if (resendCooldown > 0) {
+      resendCooldownRef.current = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000);
+    } else if (resendCooldownRef.current) {
+      clearTimeout(resendCooldownRef.current);
+      resendCooldownRef.current = null;
+    }
+    return () => {
+      if (resendCooldownRef.current) clearTimeout(resendCooldownRef.current);
+    };
+  }, [resendCooldown]);
+
+  const handleResendOTP = async () => {
+    if (!pendingEmail || resendCooldown > 0) return;
+    setOtpLoading('resending');
+    setOtpError(null);
+    try {
+      const res = await fetch('/api/auth/otp/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: pendingEmail }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setOtpError(data.error || 'Failed to resend OTP code.');
+        setMessages((msgs) => [
+          ...msgs,
+          {
+            id: Date.now().toString() + '-ai',
+            role: 'ai',
+            content: data.error || 'Failed to resend OTP code. Please try again.',
+            timestamp: new Date(),
+          },
+        ]);
+        setOtpLoading('none');
+        return;
+      }
+      setOtpSent(true);
+      setMessages((msgs) => [
+        ...msgs,
+        {
+          id: Date.now().toString() + '-ai',
+          role: 'ai',
+          content: 'A new 6-digit code was sent to your email.',
+          timestamp: new Date(),
+        },
+      ]);
+      setResendCooldown(30); // 30s cooldown
+    } catch (err) {
+      setOtpError('Failed to resend OTP code.');
+      setMessages((msgs) => [
+        ...msgs,
+        {
+          id: Date.now().toString() + '-ai',
+          role: 'ai',
+          content: 'Failed to resend OTP code. Please try again.',
+          timestamp: new Date(),
+        },
+      ]);
+    }
+    setOtpLoading('none');
+  };
+
+  // Sync auth state with user authentication status
+  useEffect(() => {
+    if (user) {
+      setAuthState('authenticated');
+    } else if (!loading) {
+      setAuthState('awaitingName');
+    }
+  }, [user, loading]);
+
+  // Auto-start authentication flow if not authenticated and no messages
+  useEffect(() => {
+    if (authState !== 'authenticated' && messages.length === 0 && !loading) {
+      setMessages([
+        {
+          id: Date.now().toString(),
+          role: 'ai',
+          content: "Hi there! What's your name? (First name only is fine)",
+          timestamp: new Date(),
+        },
+      ]);
+    }
+  }, [authState, messages.length, loading]);
+
+  // Update handleOTPFlow for loading and session consistency
+  const handleOTPFlow = async () => {
+    if (authState === 'awaitingName') {
+      if (!input.trim()) return;
+      setPendingName(input.trim());
+      setMessages((msgs) => [
+        ...msgs,
+        {
+          id: Date.now().toString(),
+          role: 'user',
+          content: input.trim(),
+          timestamp: new Date(),
+        },
+        {
+          id: Date.now().toString() + '-ai',
+          role: 'ai',
+          content: 'Great! What is your email address?',
+          timestamp: new Date(),
+        },
+      ]);
+      setInput('');
+      setAuthState('awaitingEmail');
+      return;
+    }
+    if (authState === 'awaitingEmail') {
+      if (!input.trim()) return;
+      setPendingEmail(input.trim());
+      setMessages((msgs) => [
+        ...msgs,
+        {
+          id: Date.now().toString(),
+          role: 'user',
+          content: input.trim(),
+          timestamp: new Date(),
+        },
+      ]);
+      setInput('');
+      setAuthState('awaitingOTP');
+      setOtpError(null);
+      setOtpLoading('sending');
+      // Call OTP send endpoint
+      try {
+        const res = await fetch('/api/auth/otp/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: input.trim() }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          setOtpError(data.error || 'Failed to send OTP code.');
+          setMessages((msgs) => [
+            ...msgs,
+            {
+              id: Date.now().toString() + '-ai',
+              role: 'ai',
+              content: data.error || 'Failed to send OTP code. Please try again.',
+              timestamp: new Date(),
+            },
+          ]);
+          setAuthState('awaitingEmail');
+          setOtpLoading('none');
+          return;
+        }
+        setOtpSent(true);
+        setMessages((msgs) => [
+          ...msgs,
+          {
+            id: Date.now().toString() + '-ai',
+            role: 'ai',
+            content: 'I just sent a 6-digit code to your email. Please enter it below to continue.',
+            timestamp: new Date(),
+          },
+        ]);
+        setResendCooldown(30); // 30s cooldown
+      } catch (err) {
+        setOtpError('Failed to send OTP code.');
+        setMessages((msgs) => [
+          ...msgs,
+          {
+            id: Date.now().toString() + '-ai',
+            role: 'ai',
+            content: 'Failed to send OTP code. Please try again.',
+            timestamp: new Date(),
+          },
+        ]);
+        setAuthState('awaitingEmail');
+      }
+      setOtpLoading('none');
+      return;
+    }
+    if (authState === 'awaitingOTP') {
+      if (!input.trim()) return;
+      // If user types 'resend', 'send again', or 'didn't get code', trigger resend logic
+      if (/resend|send again|didn'?t get/i.test(input.trim())) {
+        setOtpError(null);
+        setMessages((msgs) => [
+          ...msgs,
+          {
+            id: Date.now().toString(),
+            role: 'user',
+            content: input.trim(),
+            timestamp: new Date(),
+          },
+        ]);
+        // Resend OTP
+        try {
+          const res = await fetch('/api/auth/otp/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: pendingEmail }),
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            setOtpError(data.error || 'Failed to resend OTP code.');
+            setMessages((msgs) => [
+              ...msgs,
+              {
+                id: Date.now().toString() + '-ai',
+                role: 'ai',
+                content: data.error || 'Failed to resend OTP code. Please try again.',
+                timestamp: new Date(),
+              },
+            ]);
+            setInput('');
+            return;
+          }
+          setOtpSent(true);
+          setMessages((msgs) => [
+            ...msgs,
+            {
+              id: Date.now().toString() + '-ai',
+              role: 'ai',
+              content: 'A new 6-digit code was sent to your email.',
+              timestamp: new Date(),
+            },
+          ]);
+          setInput('');
+          return;
+        } catch (err) {
+          setOtpError('Failed to resend OTP code.');
+          setMessages((msgs) => [
+            ...msgs,
+            {
+              id: Date.now().toString() + '-ai',
+              role: 'ai',
+              content: 'Failed to resend OTP code. Please try again.',
+              timestamp: new Date(),
+            },
+          ]);
+          setInput('');
+          return;
+        }
+      }
+      // Regex check for 6-digit OTP
+      if (!/^\d{6}$/.test(input.trim())) {
+        setOtpError('Please enter a valid 6-digit code.');
+        setMessages((msgs) => [
+          ...msgs,
+          {
+            id: Date.now().toString() + '-ai',
+            role: 'ai',
+            content: 'Please enter a valid 6-digit code.',
+            timestamp: new Date(),
+          },
+        ]);
+        setInput('');
+        return;
+      }
+      setMessages((msgs) => [
+        ...msgs,
+        {
+          id: Date.now().toString(),
+          role: 'user',
+          content: input.trim(),
+          timestamp: new Date(),
+        },
+      ]);
+      setOtpError(null);
+      // Call OTP verify endpoint
+      try {
+        const res = await fetch('/api/auth/otp/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: pendingEmail, code: input.trim() }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          setOtpError(data.error || 'Invalid or expired code.');
+          setMessages((msgs) => [
+            ...msgs,
+            {
+              id: Date.now().toString() + '-ai',
+              role: 'ai',
+              content: data.error || 'Invalid or expired code. Please try again.',
+              timestamp: new Date(),
+            },
+          ]);
+          setInput('');
+          return;
+        }
+        // Success: set user and greet
+        setAuthState('authenticated');
+        // Re-fetch session and user for consistency
+        const { data: sessionData } = await supabase.auth.getSession();
+        const { data: userData } = await supabase.auth.getUser();
+        setUser(userData.user);
+        setMessages((msgs) => [
+          ...msgs,
+          {
+            id: Date.now().toString() + '-ai',
+            role: 'ai',
+            content: `Welcome, ${pendingName}! You're now signed in. Let's get started with your business interview.`,
+            timestamp: new Date(),
+          },
+        ]);
+        setInput('');
+      } catch (err) {
+        setOtpError('Invalid or expired code.');
+        setMessages((msgs) => [
+          ...msgs,
+          {
+            id: Date.now().toString() + '-ai',
+            role: 'ai',
+            content: 'Invalid or expired code. Please try again.',
+            timestamp: new Date(),
+          },
+        ]);
+        setInput('');
+      }
+      return;
+    }
+  };
+
+  // Modify handleSend to branch for OTP flow
   const handleSend = async () => {
-    if (!input.trim() || chatLoading) return
+    if (authState !== 'authenticated') {
+      await handleOTPFlow();
+      return;
+    }
+    if (!input.trim() || chatLoading) return;
     
     setChatError(null)
     const newUserMsg: Message = {
@@ -795,6 +1130,41 @@ function DashboardContent() {
                       usingRAG={msg.usingRAG}
                     />
                   ))}
+                  {authState === 'awaitingOTP' && (
+                    <ChatMessage
+                      key="otp-resend"
+                      role="ai"
+                      content={
+                        <div className="flex flex-col items-center">
+                          {otpLoading === 'sending' && (
+                            <div className="flex items-center space-x-2 text-sm text-gray-500">
+                              <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                              </svg>
+                              <span>Sending code…</span>
+                            </div>
+                          )}
+                          {otpLoading === 'verifying' && (
+                            <div className="flex items-center space-x-2 text-sm text-gray-500">
+                              <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                              </svg>
+                              <span>Verifying code…</span>
+                            </div>
+                          )}
+                          {otpLoading === 'resending' && (
+                            <div className="flex items-center space-x-2 text-sm text-gray-500">
+                              <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                              </svg>
+                              <span>Resending code…</span>
+                            </div>
+                          )}
+                        </div>
+                      }
+                      timestamp={new Date()}
+                    />
+                  )}
                   {chatLoading && (
                     <div className="py-6 bg-gray-50">
                       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -873,13 +1243,13 @@ function DashboardContent() {
                       className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none bg-white"
                       rows={1}
                       style={{ minHeight: '44px', maxHeight: '120px' }}
-                      disabled={uploading}
+                      disabled={uploading || otpLoading !== 'none'}
                       onFocus={handleInputFocus}
                     />
                   </div>
                   <button
                     onClick={handleSend}
-                    disabled={chatLoading || uploading || !input.trim()}
+                    disabled={chatLoading || uploading || !input.trim() || otpLoading !== 'none'}
                     className="flex-shrink-0 p-3 rounded-xl bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -947,13 +1317,13 @@ function DashboardContent() {
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none bg-white"
                     rows={1}
                     style={{ minHeight: '44px', maxHeight: '120px' }}
-                    disabled={uploading}
+                    disabled={uploading || otpLoading !== 'none'}
                     onFocus={handleInputFocus}
                   />
                 </div>
                 <button
                   onClick={handleSend}
-                  disabled={chatLoading || uploading || !input.trim()}
+                  disabled={chatLoading || uploading || !input.trim() || otpLoading !== 'none'}
                   className="flex-shrink-0 p-3 rounded-xl bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
