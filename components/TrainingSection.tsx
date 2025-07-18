@@ -12,9 +12,9 @@ export default function TrainingSection() {
   const t = useTranslations('training');
 
   const trainingSteps = [
-    { icon: "📂", text: "Dragging PDF documents" },
-    { icon: "🌐", text: "Pasting website links" },
-    { icon: "📝", text: "Adding business details" }
+    { icon: "📂", text: "Dragging health documents" },
+    { icon: "🌐", text: "Pasting health website links" },
+    { icon: "📝", text: "Adding health preferences" }
   ];
 
   useEffect(() => {
@@ -114,7 +114,7 @@ export default function TrainingSection() {
                 className="flex justify-end"
               >
                 <div className="bg-blue-500 text-white rounded-lg px-4 py-3 max-w-xs">
-                  Here's my website and service guide.
+                  Here's my health information and preferences.
                 </div>
               </motion.div>
 
@@ -126,7 +126,7 @@ export default function TrainingSection() {
                 className="flex justify-start"
               >
                 <div className="bg-gradient-to-r from-blue-100 to-indigo-100 rounded-lg px-4 py-3 max-w-xs border border-blue-200">
-                  Got it! I'm already learning. 🧠 I'll talk like I've been on your team for years.
+                  Got it! I'm already learning. 🧠 I'll support you like I've been your wellness partner for years.
                 </div>
               </motion.div>
 
@@ -142,10 +142,10 @@ export default function TrainingSection() {
               <h3 className="text-2xl font-bold text-gray-900">What Chayo learns:</h3>
               <div className="grid grid-cols-1 gap-3">
                 {[
-                  { icon: "📋", text: "Your services & pricing" },
-                  { icon: "🎯", text: "Your brand voice & style" },
-                  { icon: "❓", text: "Common customer questions" },
-                  { icon: "📞", text: "Your booking process" }
+                  { icon: "📋", text: "Your health history & preferences" },
+                  { icon: "🎯", text: "Your wellness goals & style" },
+                  { icon: "❓", text: "Common health questions" },
+                  { icon: "📞", text: "Your appointment preferences" }
                 ].map((item, index) => (
                   <motion.div
                     key={index}
@@ -172,7 +172,7 @@ export default function TrainingSection() {
                 <span>⚡</span>
                 <span>Powered by ChatGPT</span>
               </div>
-              <p className="text-sm text-gray-500 mt-2">Learns your brand instantly</p>
+              <p className="text-sm text-gray-500 mt-2">Learns your health needs instantly</p>
             </motion.div>
 
           </motion.div>

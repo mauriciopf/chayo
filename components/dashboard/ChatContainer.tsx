@@ -84,9 +84,10 @@ export default function ChatContainer({
       transition={{ duration: 0.3 }}
       className="flex flex-col w-full md:rounded-2xl md:border md:border-gray-200 md:shadow-lg bg-white/80 flex-1"
       style={{
-        height: isMobile ? 'calc(100dvh - 60px)' : undefined, // Account for mobile header
-        maxHeight: isMobile ? 'calc(100dvh - 60px)' : undefined,
-        position: 'relative'
+        height: isMobile ? 'calc(100dvh - 60px)' : 'calc(100vh - 2rem)', // Account for mobile header and desktop padding
+        maxHeight: isMobile ? 'calc(100dvh - 60px)' : 'calc(100vh - 2rem)',
+        position: 'relative',
+        overflow: 'hidden' // Prevent any overflow issues
       }}
     >
       <div
@@ -94,7 +95,8 @@ export default function ChatContainer({
         ref={chatScrollContainerRef}
         onClick={() => { if (isMobile && !hasUserInteracted) setHasUserInteracted(true); }}
         style={{ 
-          scrollPaddingBottom: '20vh'
+          scrollPaddingBottom: '20vh',
+          scrollSnapType: 'none'
         }}
       >
         {messages.length === 0 && !chatLoading && (

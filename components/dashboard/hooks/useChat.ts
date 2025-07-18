@@ -49,22 +49,20 @@ export function useChat({
 
   const supabase = createClient()
 
-  // Scroll functionality - scroll user's message to top of chat container
+  // Scroll functionality - only scroll to bottom for new user messages, not AI responses
   const scrollToShowUserMessage = (smooth = true) => {
-    // Use requestAnimationFrame to ensure DOM has updated with new message
+    // Only auto-scroll for user messages, let AI responses stay where they are
+    // This allows users to scroll up and read previous messages without interruption
     requestAnimationFrame(() => {
       if (chatScrollContainerRef.current) {
-        // Simple approach: just scroll to bottom
-        chatScrollContainerRef.current.scrollTop = chatScrollContainerRef.current.scrollHeight
+        // Check if user is near the bottom before auto-scrolling
+        const { scrollTop, scrollHeight, clientHeight } = chatScrollContainerRef.current
+        const isNearBottom = scrollTop + clientHeight >= scrollHeight - 100 // Within 100px of bottom
         
-        // Also try the message-specific approach
-        const messages = chatScrollContainerRef.current.querySelectorAll('[data-message-id]')
-        const lastMessage = messages[messages.length - 1]
-        
-        if (lastMessage) {
-          lastMessage.scrollIntoView({ 
-            behavior: smooth ? 'smooth' : 'auto', 
-            block: 'start' // Positions the message at the top of the chat container
+        if (isNearBottom) {
+          chatScrollContainerRef.current.scrollTo({
+            top: chatScrollContainerRef.current.scrollHeight,
+            behavior: smooth ? 'smooth' : 'auto'
           })
         }
       }
@@ -93,13 +91,13 @@ export function useChat({
     }
   }, [authState, messages.length, user])
 
-  // Scroll when justSent is true
+  // Only scroll when user sends a message (justSent is true)
   useEffect(() => {
     if (justSent) {
       scrollToShowUserMessage()
       setJustSent(false)
     }
-  }, [messages, justSent])
+  }, [justSent])
 
   // Detect locale changes and notify AI
   useEffect(() => {
@@ -156,9 +154,15 @@ export function useChat({
     setChatLoading(true)
     
     try {
+      // Get the current session for authentication
+      const { data: { session } } = await supabase.auth.getSession()
+      
       const res = await fetch("/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          ...(session?.access_token && { "Authorization": `Bearer ${session.access_token}` })
+        },
         body: JSON.stringify({
           messages: [...messages, newUserMsg].map(({ role, content }) => ({ 
             role: role === "ai" ? "assistant" : role, 

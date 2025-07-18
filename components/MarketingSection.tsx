@@ -12,11 +12,11 @@ export default function MarketingSection() {
   const t = useTranslations('marketing');
 
   const channels = [
-    { name: "WhatsApp", icon: "💬", color: "from-green-500 to-emerald-500", message: "¿Puedes ayudarme con precios?", available: true },
-    { name: "Web Widget", icon: "🌐", color: "from-blue-500 to-cyan-500", message: "What services do you offer?", available: false, comingSoon: true },
-    { name: "Video AI", icon: "🎥", color: "from-purple-500 to-pink-500", message: "I'd like to learn more about your business", available: false, comingSoon: true },
-    { name: "Instagram", icon: "📷", color: "from-pink-500 to-purple-500", message: "Hi, do you have availability this weekend?", available: false, comingSoon: true },
-    { name: "Email", icon: "📧", color: "from-orange-500 to-red-500", message: "Can you send me more information?", available: false, comingSoon: true }
+    { name: "WhatsApp", icon: "💬", color: "from-green-500 to-emerald-500", message: "¿Puedes ayudarme con mi salud?", available: true },
+    { name: "Mobile App", icon: "📱", color: "from-blue-500 to-cyan-500", message: "What health support do you offer?", available: false, comingSoon: true },
+    { name: "Voice AI", icon: "🎤", color: "from-purple-500 to-pink-500", message: "I'd like to learn more about wellness", available: false, comingSoon: true },
+    { name: "Text", icon: "📱", color: "from-pink-500 to-purple-500", message: "Hi, do you have availability this weekend?", available: false, comingSoon: true },
+    { name: "Email", icon: "📧", color: "from-orange-500 to-red-500", message: "Can you send me health information?", available: false, comingSoon: true }
   ];
 
   useEffect(() => {
@@ -60,7 +60,7 @@ export default function MarketingSection() {
             {/* Unified Inbox */}
             <div className="bg-white rounded-2xl shadow-xl p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-2xl font-bold text-gray-900">Unified Inbox</h3>
+                <h3 className="text-2xl font-bold text-gray-900">Health Support Hub</h3>
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
                   <span className="text-sm text-gray-600">Live</span>
@@ -131,7 +131,7 @@ export default function MarketingSection() {
                 
                 {/* Chayo Response */}
                 <div className="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-lg p-3 border border-yellow-200">
-                  <p className="text-sm text-gray-700">Hola 👋 Yes we do! Want to book Saturday at 2PM?</p>
+                  <p className="text-sm text-gray-700">Hola 👋 Yes I can help! Want to schedule a wellness check Saturday at 2PM?</p>
                 </div>
               </motion.div>
 
@@ -154,8 +154,8 @@ export default function MarketingSection() {
                   <span className="text-lg">💬</span>
                 </div>
                 <div>
-                  <h4 className="font-bold text-gray-900">Instagram DM</h4>
-                  <p className="text-sm text-gray-500">@customer_maria</p>
+                  <h4 className="font-bold text-gray-900">Text Message</h4>
+                  <p className="text-sm text-gray-500">@health_user</p>
                 </div>
               </div>
 
@@ -180,7 +180,7 @@ export default function MarketingSection() {
                   className="flex justify-end"
                 >
                   <div className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-lg px-4 py-3 max-w-xs">
-                    Hola 👋 Yes we do! Want to book Saturday at 2PM?
+                    Hola 👋 Yes I can help! Want to schedule a wellness check Saturday at 2PM?
                   </div>
                 </motion.div>
 

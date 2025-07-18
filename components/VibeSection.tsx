@@ -50,7 +50,7 @@ export default function VibeSection() {
                 className="flex justify-end"
               >
                 <div className="bg-blue-500 text-white rounded-lg px-4 py-3 max-w-xs">
-                  Chayo, can you sell my products and book appointments?
+                  Chayo, can you help me with my health and book appointments?
                 </div>
               </motion.div>
 
@@ -62,7 +62,7 @@ export default function VibeSection() {
                 className="flex justify-start"
               >
                 <div className="bg-gradient-to-r from-green-100 to-emerald-100 rounded-lg px-4 py-3 max-w-xs border border-green-200">
-                  Absolutely! Name me, pick my tone, and tell me what you want. 💅
+                  Absolutely! Name me, pick my tone, and tell me what you need. 🏥
                 </div>
               </motion.div>
 
@@ -74,7 +74,7 @@ export default function VibeSection() {
                 className="flex justify-start"
               >
                 <div className="bg-gradient-to-r from-green-100 to-emerald-100 rounded-lg px-4 py-3 max-w-xs border border-green-200">
-                  I'll become your digital right hand — charming, fast, and never tired.
+                  I'll become your digital health companion — caring, supportive, and never tired.
                 </div>
               </motion.div>
 
@@ -88,7 +88,7 @@ export default function VibeSection() {
               className="text-center"
             >
               <p className="text-lg text-gray-600 italic">
-                "She learns your brand instantly and talks like she's been on your team for years."
+                "She learns your health needs instantly and supports you like she's been your wellness partner for years."
               </p>
             </motion.div>
 
@@ -105,12 +105,12 @@ export default function VibeSection() {
             {/* Config Panel */}
             <div className="bg-white rounded-2xl shadow-xl p-8">
               
-              <h3 className="text-2xl font-bold text-gray-900 mb-6">Agent Setup</h3>
+              <h3 className="text-2xl font-bold text-gray-900 mb-6">Health Assistant Setup</h3>
               
               {/* Name Field */}
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Agent Name
+                  Health Assistant Name
                 </label>
                 <div className="relative">
                   <input 
@@ -147,14 +147,14 @@ export default function VibeSection() {
               {/* Goals Checklist */}
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  What should Chayo handle?
+                  What should Chayo help you with?
                 </label>
                 <div className="space-y-3">
                   {[
                     { text: "Book appointments & consultations", checked: true },
-                    { text: "Answer product questions", checked: true },
-                    { text: "Qualify leads & collect info", checked: true },
-                    { text: "Handle customer support", checked: false }
+                    { text: "Answer health questions", checked: true },
+                    { text: "Monitor wellness goals", checked: true },
+                    { text: "Provide health reminders", checked: false }
                   ].map((goal, index) => (
                     <div key={index} className="flex items-center space-x-3">
                       <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
@@ -176,7 +176,7 @@ export default function VibeSection() {
                 whileTap={{ scale: 0.98 }}
                 className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
               >
-                Deploy Chayo 🚀
+                Deploy Chayo 🏥
               </motion.button>
 
             </div>

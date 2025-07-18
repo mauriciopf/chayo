@@ -1,8 +1,8 @@
 {
   "footer": {
     "brand": "Chayo",
-    "tagline": "Tu comadre digital, 24/7",
-    "description": "Your AI comadre who never sleeps. Smart, reliable, and always ready to help your business grow.",
+    "tagline": "Tu asistente de salud digital, 24/7",
+    "description": "Your AI health assistant who never sleeps. Smart, reliable, and always ready to help you maintain your wellness.",
     "language": "Language:",
     "quickLinks": "Quick Links",
     "howItWorks": "How It Works",
@@ -18,69 +18,69 @@
     "allRightsReserved": "All rights reserved."
   },
   "hero": {
-    "headline": "Your Digital Comadre Who Never Sleeps",
-    "subheadline": "AI automation for your business, available 24/7 in Spanish and English",
+    "headline": "Your Digital Health Assistant Who Never Sleeps",
+    "subheadline": "AI health support for your wellness, available 24/7 in Spanish and English",
     "ctaPrimary": "Start with Chayo",
     "ctaSecondary": "Watch Demo",
     "trustBadge1": "Speaks Spanish & English",
     "trustBadge2": "Powered by ChatGPT", 
     "trustBadge3": "5-minute setup",
     "conversationExample": {
-      "userMessage": "Hi Chayo, I need help managing my business",
-      "chayoResponse": "Of course! Let's get you set up. 💁‍♀️ What do you want me to handle first?",
+      "userMessage": "Hi Chayo, I need help with my health",
+      "chayoResponse": "Of course! Let's get you set up. 🏥 What do you want me to help you with first?",
       "features": {
-        "sell": "✅ Sell",
+        "sell": "✅ Health monitoring",
         "book": "✅ Book appointments", 
-        "faq": "✅ Answer FAQs",
-        "support": "✅ Handle support"
+        "faq": "✅ Answer health questions",
+        "support": "✅ Wellness support"
       }
     }
   },
   "howItWorks": {
     "sectionTitle": "How It Works",
-    "heroTitle": "Meet Chayo, your digital comadre who",
+    "heroTitle": "Meet Chayo, your digital health assistant who",
     "heroHighlight": "Never Sleeps",
-    "subHeader": "Transform your business with AI that understands your customers",
+    "subHeader": "Transform your wellness journey with AI that understands your health needs",
     "steps": {
       "step1": {
         "title": "Give Her Personality",
-        "description": "Define Chayo's vibe: professional, friendly, fun... You decide how she talks to your customers.",
+        "description": "Define Chayo's vibe: professional, friendly, caring... You decide how she supports your health journey.",
         "details": [
           "Custom voice tone",
-          "Unique personality for your brand", 
+          "Unique personality for your wellness", 
           "Natural responses in Spanish",
           "Adapts to your communication style"
         ]
       },
       "step2": {
         "title": "Train Her Knowledge",
-        "description": "Upload your content and watch Chayo become an expert on your business.",
+        "description": "Upload your health information and watch Chayo become an expert on your wellness needs.",
         "details": [
-          "Services & pricing information",
-          "Brand voice & communication style",
-          "Common customer questions", 
-          "Business processes & workflows"
+          "Health history & preferences",
+          "Wellness goals & communication style",
+          "Common health questions", 
+          "Health routines & preferences"
         ]
       },
       "step3": {
         "title": "Connect Your Channels",
-        "description": "Deploy Chayo across WhatsApp, your website, and other platforms.",
+        "description": "Deploy Chayo across WhatsApp, your phone, and other platforms for 24/7 health support.",
         "details": [
-          "WhatsApp Business integration",
-          "Website chat widget",
-          "Social media platforms",
-          "Email automation",
-          "Multi-channel support"
+          "WhatsApp integration",
+          "Mobile app support",
+          "Voice calls",
+          "Text messaging",
+          "Multi-channel health support"
         ]
       },
       "step4": {
         "title": "Watch Her Work",
-        "description": "Chayo handles customer interactions 24/7 while you focus on growing your business.",
+        "description": "Chayo handles your health support 24/7 while you focus on your wellness journey.",
         "details": [
-          "24/7 customer support",
+          "24/7 health support",
           "Automatic appointment booking", 
-          "Lead qualification & follow-up",
-          "Performance analytics & insights"
+          "Health monitoring & reminders",
+          "Wellness insights & progress tracking"
         ]
       }
     },
@@ -88,16 +88,16 @@
   },
   "pricing": {
     "sectionTitle": "Simple Pricing",
-    "subheader": "Choose the perfect plan for your business",
+    "subheader": "Choose the perfect plan for your health journey",
     "plans": {
       "basic": {
         "name": "Basic",
         "price": "$29",
         "period": "month",
-        "description": "Perfect for getting started with AI automation",
+        "description": "Perfect for getting started with AI health support",
         "features": [
-          "Unlimited messages",
-          "Basic chat automation",
+          "Unlimited health messages",
+          "Basic health chat support",
           "Email support",
           "Dashboard access"
         ],
@@ -107,14 +107,14 @@
         "name": "Professional",
         "price": "$79", 
         "period": "month",
-        "description": "For clinics, restaurants, or businesses that need to automate everything",
+        "description": "For individuals who need comprehensive health support and monitoring",
         "popular": "Most Popular",
         "features": [
           "Everything in Basic",
           "WhatsApp integration",
-          "Web widget included",
-          "Smart scheduling",
-          "Auto reminders",
+          "Mobile app support",
+          "Smart appointment scheduling",
+          "Health reminders",
           "Priority support"
         ],
         "cta": "Get Started"
@@ -122,14 +122,14 @@
       "premium": {
         "name": "Premium",
         "price": "Custom",
-        "description": "For enterprises that need advanced features and priority support",
+        "description": "For families or individuals who need advanced health features and priority support",
         "features": [
           "Everything in Professional", 
-          "Unlimited agents",
-          "Custom integrations",
-          "Advanced analytics",
-          "Dedicated support",
-          "Custom training"
+          "Unlimited health consultations",
+          "Custom health integrations",
+          "Advanced health analytics",
+          "Dedicated health support",
+          "Custom health training"
         ],
         "cta": "Contact Us"
       }
@@ -137,16 +137,78 @@
   },
   "examples": {
     "sectionTitle": "See Chayo in Action",
-    "subheader": "Real conversations, real results",
+    "subheader": "Real health conversations, real wellness results",
+    "description": "See how Chayo transforms health and wellness support across different specialties",
     "businesses": {
-      "constructora": {
-        "name": "Construction Business",
+      "health_coach": {
+        "name": "Wellness Coach",
+        "title": "Wellness Coach 'María'",
+        "description": "Chayo handles health consultations, schedules sessions and monitors wellness progress 24/7",
         "before": "Before Chayo",
         "after": "After Chayo",
+        "beforeDetails": "📱 Lost 40% of consultations\n⏰ Only available 8 hours\n😰 María always stressed",
+        "afterDetails": "🎯 0% lost consultations\n🌙 Attends 24/7\n😎 María focused on coaching",
+        "metrics": {
+          "consultations": "+300%",
+          "satisfaction": "4.9/5",
+          "wellness": "85%"
+        },
         "conversations": [
           {
-            "user": "Hi! I need a quote for home renovation",
-            "chayo": "I can help you with that! What type of renovation are you planning?"
+            "user": "Hi! Can you help me with my diet?",
+            "chayo": "Of course! 🥗 I can help you with your nutrition plan. What type of diet are you looking for?"
+          },
+          {
+            "user": "I want to lose weight healthily",
+            "chayo": "Perfect! I'll help you create a personalized plan. Can we schedule a consultation for tomorrow? 💪"
+          }
+        ]
+      },
+      "medical_clinic": {
+        "name": "Medical Clinic",
+        "title": "Medical Clinic 'Health Total'",
+        "description": "Chayo schedules medical appointments, sends reminders and handles consultations without the doctor getting distracted",
+        "before": "Before Chayo",
+        "after": "After Chayo",
+        "beforeDetails": "📞 Answered during consultations\n📅 Double appointments by error\n💊 30% last-minute no-shows",
+        "afterDetails": "🏥 Focuses on patients\n📱 Perfectly organized appointments\n⭐ Only 5% no-shows",
+        "metrics": {
+          "appointments": "+150%",
+          "efficiency": "95%",
+          "patients": "+50/month"
+        },
+        "conversations": [
+          {
+            "user": "Hi! I need an appointment for a general checkup",
+            "chayo": "Of course! 🏥 I have available tomorrow at 2pm or 4pm. Which works for you?"
+          },
+          {
+            "user": "2pm is perfect",
+            "chayo": "Great! Appointment confirmed for tomorrow 2pm with Dr. García. I'll send you a reminder 2 hours before. Is your number 555-1234?"
+          }
+        ]
+      },
+      "physical_therapy": {
+        "name": "Physical Therapy",
+        "title": "Physical Therapist 'Carlos'",
+        "description": "Chayo qualifies consultations, schedules sessions and explains treatments while Carlos is with patients",
+        "before": "Before Chayo",
+        "after": "After Chayo",
+        "beforeDetails": "📞 Lost calls during sessions\n🤔 Consultations without follow-up\n📋 Late treatments",
+        "afterDetails": "📱 Attends 24/7 from office\n🔥 Hot automatic consultations\n⚡ Treatments in minutes",
+        "metrics": {
+          "sessions": "+400%",
+          "recovery": "85%",
+          "patients": "+25/month"
+        },
+        "conversations": [
+          {
+            "user": "Hi! I need help with back pain",
+            "chayo": "I can help you with that! 💪 How long have you had the pain?"
+          },
+          {
+            "user": "About 2 weeks",
+            "chayo": "Perfect. To give you a personalized treatment, when can we schedule a session? I have available this Friday 10am or Saturday 2pm 📅"
           }
         ]
       }
@@ -154,29 +216,29 @@
   },
   "vibe": {
     "title": "Give Chayo Her Vibe",
-    "subtitle": "Configure her personality, goals, and tone to match your brand perfectly",
+    "subtitle": "Configure her personality, goals, and tone to match your wellness journey perfectly",
     "professional": {
       "title": "Professional",
-      "description": "Formal, polite, and business-focused"
+      "description": "Formal, caring, and health-focused"
     },
     "friendly": {
       "title": "Friendly",
-      "description": "Warm, approachable, and conversational"
+      "description": "Warm, supportive, and conversational"
     },
     "fun": {
       "title": "Fun",
-      "description": "Playful, energetic, and engaging"
+      "description": "Playful, encouraging, and engaging"
     }
   },
   "training": {
     "title": "Train Her Knowledge",
-    "subtitle": "Upload your business information so Chayo becomes an expert on your services",
+    "subtitle": "Upload your health information so Chayo becomes an expert on your wellness needs",
     "uploadArea": "Drag & drop your files here",
     "supportedFiles": "Supported: PDF, DOC, TXT files"
   },
   "marketing": {
-    "title": "Marketing that Actually Works",
-    "subtitle": "Stop losing customers to delayed responses",
+    "title": "Health Support that Actually Works",
+    "subtitle": "Stop missing important health reminders and appointments",
     "beforeAfter": {
       "before": "Before Chayo",
       "after": "After Chayo"
@@ -184,7 +246,7 @@
   },
   "launch": {
     "title": "Launch & Scale",
-    "subtitle": "Deploy Chayo across all your channels and watch your business grow",
+    "subtitle": "Deploy Chayo across all your devices and watch your wellness journey flourish",
     "cta": "Start Your Free Trial"
   },
   "common": {
@@ -206,7 +268,7 @@
     "signIn": "Sign In",
     "signOut": "Sign Out",
     "dashboard": "Dashboard",
-    "tagline": "Your digital comadre ✨"
+    "tagline": "Your digital health assistant ✨"
   },
   "auth": {
     "signIn": "Sign In",
@@ -370,7 +432,7 @@
       "createFirstAgentButton": "Create Your First Agent",
       "chayoTyping": "Chayo is typing...",
       "error": "An error occurred. Please try again.",
-      "systemPrompt": "You are Chayo, an AI assistant designed to help with business inquiries and customer support."
+      "systemPrompt": "You are Chayo, an AI assistant designed to help with health and wellness business inquiries and customer support."
     },
     "teamManagement": {
       "title": "Team Members",
@@ -920,7 +982,7 @@
     "aiAssistant": "AI Assistant",
     "readyToHelp": "Ready to help with your business",
     "emptyTitle": "¡Hola! I'm Chayo",
-    "emptySubtitle": "Your AI business assistant ready to help you grow and optimize your business.",
+    "emptySubtitle": "Your AI health business assistant ready to help you grow and optimize your health and wellness business.",
     "emptyGettingStarted": "Let's get started:",
     "emptyStepBusiness": "Tell me about your business and industry",
     "emptyStepChallenges": "Share your biggest challenges",

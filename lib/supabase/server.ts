@@ -8,6 +8,10 @@ export const createClient = (request: NextRequest) => {
     },
   })
 
+  // Check for Authorization header
+  const authHeader = request.headers.get('authorization')
+  const accessToken = authHeader?.replace('Bearer ', '')
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -41,6 +45,11 @@ export const createClient = (request: NextRequest) => {
           })
         },
       },
+      global: {
+        headers: {
+          ...(accessToken && { Authorization: `Bearer ${accessToken}` })
+        }
+      }
     }
   )
 

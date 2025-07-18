@@ -10,14 +10,14 @@ const locales = ['en', 'es'];
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://chayo.ai'),
-  title: 'Chayo AI – Tu Comadre Digital que Nunca Duerme | AI Business Automation',
-  description: 'Chayo runs your business like a comadre who never sleeps. AI automation that learns your brand, handles customers 24/7, and grows your revenue. Set up in 5 minutes.',
-  keywords: 'AI comadre, business automation, AI chatbot, customer service automation, Hispanic AI, Latina entrepreneur, automated booking, AI assistant, business growth',
+  title: 'Chayo AI – Tu Asistente de Salud Digital que Nunca Duerme | AI Health Assistant',
+  description: 'Chayo es tu asistente de salud digital que nunca duerme. IA que aprende tus necesidades de salud, te acompaña 24/7, y te ayuda a mantener tu bienestar. Configuración en 5 minutos.',
+  keywords: 'AI health assistant, digital health, AI healthcare, health automation, Hispanic health, Latina health, health monitoring, AI wellness, health support, 24/7 health care',
   authors: [{ name: 'Chayo AI' }],
   robots: 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1',
   openGraph: {
-    title: 'Chayo AI – Tu Comadre Digital que Nunca Duerme',
-    description: 'AI automation that learns your brand, handles customers 24/7, and grows your revenue. Your digital comadre who never sleeps.',
+    title: 'Chayo AI – Tu Asistente de Salud Digital que Nunca Duerme',
+    description: 'IA que aprende tus necesidades de salud, te acompaña 24/7, y te ayuda a mantener tu bienestar. Tu asistente de salud digital que nunca duerme.',
     type: 'website',
     url: 'https://chayo.ai',
     images: [
@@ -33,8 +33,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Chayo AI – Tu Comadre Digital que Nunca Duerme',
-    description: 'AI automation that learns your brand and handles customers 24/7. Your digital comadre who never sleeps.',
+    title: 'Chayo AI – Tu Asistente de Salud Digital que Nunca Duerme',
+    description: 'IA que aprende tus necesidades de salud y te acompaña 24/7. Tu asistente de salud digital que nunca duerme.',
     images: ['https://chayo.ai/chayo-logo.svg'],
     site: '@ChayoAI',
     creator: '@ChayoAI',

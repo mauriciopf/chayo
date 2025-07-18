@@ -13,70 +13,70 @@ export default function ExamplesSection() {
 
   const examples = [
     {
-      title: "Taco Truck 'El Corazón'",
-      business: "Food Truck",
-      description: "Chayo maneja pedidos por WhatsApp, coordina ubicaciones y aumentó ventas 300% en 2 meses",
+      title: t('businesses.health_coach.title'),
+      business: t('businesses.health_coach.name'),
+      description: t('businesses.health_coach.description'),
       beforeAfter: {
-        before: "📱 Perdían 40% de llamadas\n⏰ Solo abierto 8 horas\n😰 Dueño siempre estresado",
-        after: "🎯 0% llamadas perdidas\n🌙 Toma pedidos 24/7\n😎 Dueño enfocado en cocinar"
+        before: t('businesses.health_coach.beforeDetails'),
+        after: t('businesses.health_coach.afterDetails')
       },
       metrics: {
-        orders: "+300%",
-        satisfaction: "4.9/5",
-        savings: "20hrs/semana"
+        consultations: t('businesses.health_coach.metrics.consultations'),
+        satisfaction: t('businesses.health_coach.metrics.satisfaction'),
+        wellness: t('businesses.health_coach.metrics.wellness')
       },
       conversation: [
-        { type: "customer", message: "Hola! Están abiertos?" },
-        { type: "chayo", message: "¡Órale! Claro que sí, compadre 🌮 Estamos en la 5ta y Broadway hasta las 9pm. ¿Qué se te antoja del menú?" },
-        { type: "customer", message: "Quiero 3 tacos de asada y 2 de pastor" },
-        { type: "chayo", message: "¡Perfecto! Son $25 total. Tu orden estará lista en 12 minutos. ¿Pagas efectivo o tarjeta? 💳" }
+        { type: "customer", message: t('businesses.health_coach.conversations.0.user') },
+        { type: "chayo", message: t('businesses.health_coach.conversations.0.chayo') },
+        { type: "customer", message: t('businesses.health_coach.conversations.1.user') },
+        { type: "chayo", message: t('businesses.health_coach.conversations.1.chayo') }
       ],
-      gradient: "from-orange-400 to-red-400",
-      emoji: "🌮"
+      gradient: "from-green-400 to-emerald-400",
+      emoji: "🥗"
     },
     {
-      title: "Salón 'Bella Vista'", 
-      business: "Beauty Salon",
-      description: "Chayo programa citas, envía recordatorios y maneja cancelaciones sin que la dueña levante un dedo",
+      title: t('businesses.medical_clinic.title'),
+      business: t('businesses.medical_clinic.name'),
+      description: t('businesses.medical_clinic.description'),
       beforeAfter: {
-        before: "📞 Contestaba durante servicios\n📅 Doble citas por error\n💸 30% cancelaciones last-minute",
-        after: "💅 Se enfoca en sus clientes\n📱 Citas perfectamente organizadas\n⭐ Solo 5% cancelaciones"
+        before: t('businesses.medical_clinic.beforeDetails'),
+        after: t('businesses.medical_clinic.afterDetails')
       },
       metrics: {
-        bookings: "+150%",
-        efficiency: "95%",
-        revenue: "+$3,200/mes"
+        appointments: t('businesses.medical_clinic.metrics.appointments'),
+        efficiency: t('businesses.medical_clinic.metrics.efficiency'),
+        patients: t('businesses.medical_clinic.metrics.patients')
       },
       conversation: [
-        { type: "customer", message: "Necesito cita para uñas gel mañana" },
-        { type: "chayo", message: "¡Claro, mi amor! 💅 Tengo disponible a las 2pm o 4pm mañana. ¿Cuál te conviene?" },
-        { type: "customer", message: "Las 2pm está perfecto" },
-        { type: "chayo", message: "¡Listo! Cita confirmada para mañana 2pm con María. Te mando recordatorio 2 horas antes. ¿Tu número es el 555-1234?" }
-      ],
-      gradient: "from-pink-400 to-purple-400",
-      emoji: "💅"
-    },
-    {
-      title: "Constructora 'Hernández'",
-      business: "Construction",
-      description: "Chayo califica leads, agenda visitas y explica servicios mientras el equipo está en obra",
-      beforeAfter: {
-        before: "📞 Perdían calls en horario laboral\n🤔 Leads fríos sin seguimiento\n📋 Cotizaciones tardías",
-        after: "📱 Atiende 24/7 desde obra\n🔥 Leads calientes automáticos\n⚡ Cotizaciones en minutos"
-      },
-      metrics: {
-        leads: "+400%",
-        conversion: "65%",
-        projects: "+12/mes"
-      },
-      conversation: [
-        { type: "customer", message: "Necesito cotización para remodelar cocina" },
-        { type: "chayo", message: "¡Qué padre! 🔨 Te ayudo con eso. ¿Cuántos metros tiene tu cocina aproximadamente?" },
-        { type: "customer", message: "Como 15 metros cuadrados" },
-        { type: "chayo", message: "Perfecto. Para darte una cotización exacta, ¿cuándo podemos visitarte? Tengo disponible este viernes 10am o sábado 2pm 📅" }
+        { type: "customer", message: t('businesses.medical_clinic.conversations.0.user') },
+        { type: "chayo", message: t('businesses.medical_clinic.conversations.0.chayo') },
+        { type: "customer", message: t('businesses.medical_clinic.conversations.1.user') },
+        { type: "chayo", message: t('businesses.medical_clinic.conversations.1.chayo') }
       ],
       gradient: "from-blue-400 to-cyan-400",
-      emoji: "🔨"
+      emoji: "🏥"
+    },
+    {
+      title: t('businesses.physical_therapy.title'),
+      business: t('businesses.physical_therapy.name'),
+      description: t('businesses.physical_therapy.description'),
+      beforeAfter: {
+        before: t('businesses.physical_therapy.beforeDetails'),
+        after: t('businesses.physical_therapy.afterDetails')
+      },
+      metrics: {
+        sessions: t('businesses.physical_therapy.metrics.sessions'),
+        recovery: t('businesses.physical_therapy.metrics.recovery'),
+        patients: t('businesses.physical_therapy.metrics.patients')
+      },
+      conversation: [
+        { type: "customer", message: t('businesses.physical_therapy.conversations.0.user') },
+        { type: "chayo", message: t('businesses.physical_therapy.conversations.0.chayo') },
+        { type: "customer", message: t('businesses.physical_therapy.conversations.1.user') },
+        { type: "chayo", message: t('businesses.physical_therapy.conversations.1.chayo') }
+      ],
+      gradient: "from-purple-400 to-pink-400",
+      emoji: "💪"
     }
   ];
 
@@ -104,7 +104,7 @@ export default function ExamplesSection() {
             {t('subheader')}
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            {t('subheader')}
+            See how Chayo transforms health and wellness support across different specialties
           </p>
         </motion.div>
 

@@ -28,10 +28,10 @@ export default function LaunchSection({ onStartCall }: LaunchSectionProps) {
   };
 
   const stats = [
-    { label: "Bookings made", value: 6, icon: "📅" },
-    { label: "Conversations handled", value: 31, icon: "💬" },
-    { label: "Sales closed", value: 3, icon: "💰" },
-    { label: "Follow-ups sent", value: 12, icon: "📧" }
+    { label: "Appointments booked", value: 6, icon: "📅" },
+    { label: "Health conversations", value: 31, icon: "💬" },
+    { label: "Wellness goals met", value: 3, icon: "🎯" },
+    { label: "Health reminders sent", value: 12, icon: "📧" }
   ];
 
   useEffect(() => {
@@ -77,7 +77,7 @@ export default function LaunchSection({ onStartCall }: LaunchSectionProps) {
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h3 className="text-2xl font-bold text-gray-900">Today's Results</h3>
-                  <p className="text-gray-600">Chayo's daily performance</p>
+                  <p className="text-gray-600">Chayo's daily health support</p>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
@@ -119,11 +119,11 @@ export default function LaunchSection({ onStartCall }: LaunchSectionProps) {
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-green-800">Revenue Generated</p>
-                    <p className="text-2xl font-bold text-green-900">$2,450</p>
+                    <p className="text-sm font-medium text-green-800">Wellness Progress</p>
+                    <p className="text-2xl font-bold text-green-900">85%</p>
                   </div>
                   <div className="text-green-600">
-                    <span className="text-3xl">📈</span>
+                    <span className="text-3xl">🏥</span>
                   </div>
                 </div>
               </motion.div>
@@ -143,7 +143,7 @@ export default function LaunchSection({ onStartCall }: LaunchSectionProps) {
             {/* Business Owner Chat */}
             <div className="bg-white rounded-2xl shadow-xl p-6 space-y-4">
               
-              {/* Business Owner Message */}
+              {/* Health User Message */}
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -151,7 +151,7 @@ export default function LaunchSection({ onStartCall }: LaunchSectionProps) {
                 className="flex justify-end"
               >
                 <div className="bg-blue-500 text-white rounded-lg px-4 py-3 max-w-xs">
-                  Chayo, how's business today?
+                  Chayo, how's my health today?
                 </div>
               </motion.div>
 
@@ -163,7 +163,7 @@ export default function LaunchSection({ onStartCall }: LaunchSectionProps) {
                 className="flex justify-start"
               >
                 <div className="bg-gradient-to-r from-red-100 to-pink-100 rounded-lg px-4 py-3 max-w-sm border border-red-200">
-                  Booked 6 clients, replied to 31 messages, and closed 3 deals. You chill, I hustle. 💼
+                  Booked 6 appointments, replied to 31 health questions, and met 3 wellness goals. You rest, I care. 🏥
                 </div>
               </motion.div>
 
@@ -175,7 +175,7 @@ export default function LaunchSection({ onStartCall }: LaunchSectionProps) {
                 className="flex justify-start"
               >
                 <div className="bg-gradient-to-r from-red-100 to-pink-100 rounded-lg px-4 py-3 max-w-sm border border-red-200">
-                  Also sent 12 follow-up emails and updated your calendar. Revenue today: $2,450 ✨
+                  Also sent 12 health reminders and updated your wellness plan. Progress today: 85% ✨
                 </div>
               </motion.div>
 
@@ -188,13 +188,13 @@ export default function LaunchSection({ onStartCall }: LaunchSectionProps) {
               transition={{ delay: 2.5 }}
               className="space-y-4"
             >
-              <h3 className="text-2xl font-bold text-gray-900">While you sleep, Chayo:</h3>
+              <h3 className="text-2xl font-bold text-gray-900">While you rest, Chayo:</h3>
               <div className="grid grid-cols-1 gap-3">
                 {[
                   { icon: "🌙", text: "Works 24/7 without breaks" },
                   { icon: "⚡", text: "Responds in under 30 seconds" },
-                  { icon: "🎯", text: "Never misses a lead" },
-                  { icon: "💎", text: "Maintains your brand voice" }
+                  { icon: "🎯", text: "Never misses a health reminder" },
+                  { icon: "💎", text: "Maintains your wellness focus" }
                 ].map((item, index) => (
                   <motion.div
                     key={index}

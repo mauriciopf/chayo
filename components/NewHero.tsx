@@ -65,7 +65,7 @@ export default function NewHero({ onStartCall }: NewHeroProps) {
                   </div>
                   <div>
                     <h3 className="font-bold">Chayo AI</h3>
-                    <p className="text-xs opacity-90">Tu comadre digital</p>
+                    <p className="text-xs opacity-90">Tu asistente de salud</p>
                   </div>
                   <div className="ml-auto w-3 h-3 bg-green-400 rounded-full"></div>
                 </div>
