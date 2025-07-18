@@ -319,7 +319,7 @@ export function useAuthFlow({
           {
             id: Date.now().toString() + '-ai',
             role: 'ai',
-            content: `Welcome, ${pendingName}! You're now signed in. Let's get started with your business interview.`,
+            content: `Welcome, ${pendingName}! You're now signed in. Let's get started with your business setup.`,
             timestamp: new Date(),
           },
         ])
