@@ -317,7 +317,7 @@ CREATE TRIGGER create_default_organization_trigger
 CREATE OR REPLACE FUNCTION search_similar_conversations(
   query_embedding VECTOR(1536),
   agent_id_param UUID,
-  match_threshold FLOAT DEFAULT 0.7,
+  match_threshold FLOAT DEFAULT 0.3,
   match_count INT DEFAULT 5
 )
 RETURNS TABLE (
@@ -325,7 +325,7 @@ RETURNS TABLE (
   conversation_segment TEXT,
   segment_type TEXT,
   metadata JSONB,
-  similarity FLOAT
+  distance FLOAT
 )
 LANGUAGE plpgsql
 AS $$
@@ -336,11 +336,11 @@ BEGIN
     ce.conversation_segment,
     ce.segment_type,
     ce.metadata,
-    1 - (ce.embedding <=> query_embedding) AS similarity
+    ce.embedding <=> query_embedding AS distance
   FROM conversation_embeddings ce
   WHERE ce.agent_id = agent_id_param
     AND ce.embedding IS NOT NULL
-    AND 1 - (ce.embedding <=> query_embedding) > match_threshold
+    AND ce.embedding <=> query_embedding < match_threshold
   ORDER BY ce.embedding <=> query_embedding
   LIMIT match_count;
 END;
@@ -370,17 +370,74 @@ BEGIN
 END;
 $$;
 
--- Create business_info_history table for logging all extracted business info
-CREATE TABLE IF NOT EXISTS business_info_history (
+-- Create business_info_fields table for dynamic business information gathering
+CREATE TABLE IF NOT EXISTS business_info_fields (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   agent_id UUID NOT NULL REFERENCES agents(id) ON DELETE CASCADE,
-  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  field TEXT NOT NULL, -- e.g. 'business_name', 'products_services', etc.
-  value TEXT NOT NULL, -- always stored as string (arrays as comma-separated)
-  extraction_method TEXT, -- e.g. 'contextual', 'regex', 'correction', etc.
-  correction_flag BOOLEAN DEFAULT FALSE, -- true if this entry is a correction
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+  field_name TEXT NOT NULL,
+  field_value TEXT,
+  field_type TEXT NOT NULL DEFAULT 'text' CHECK (field_type IN ('text', 'array', 'boolean', 'number')),
+  is_answered BOOLEAN NOT NULL DEFAULT false,
+  question_template TEXT NOT NULL,
+  confidence DECIMAL(3,2),
+  source TEXT CHECK (source IN ('conversation', 'document', 'manual')),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+  
+  -- Ensure unique field names per agent
+  UNIQUE(agent_id, field_name)
 );
+
+-- Enable RLS for business_info_fields
+ALTER TABLE business_info_fields ENABLE ROW LEVEL SECURITY;
+
+-- Policy: Users can only see business info fields for their agents
+CREATE POLICY "Users can view their own business info fields" ON business_info_fields
+  FOR SELECT USING (
+    agent_id IN (
+      SELECT id FROM agents 
+      WHERE organization_id IN (
+        SELECT organization_id FROM team_members 
+        WHERE user_id = auth.uid() AND status = 'active'
+      )
+    )
+  );
+
+-- Policy: Users can insert business info fields for their agents
+CREATE POLICY "Users can insert their own business info fields" ON business_info_fields
+  FOR INSERT WITH CHECK (
+    agent_id IN (
+      SELECT id FROM agents 
+      WHERE organization_id IN (
+        SELECT organization_id FROM team_members 
+        WHERE user_id = auth.uid() AND status = 'active'
+      )
+    )
+  );
+
+-- Policy: Users can update business info fields for their agents
+CREATE POLICY "Users can update their own business info fields" ON business_info_fields
+  FOR UPDATE USING (
+    agent_id IN (
+      SELECT id FROM agents 
+      WHERE organization_id IN (
+        SELECT organization_id FROM team_members 
+        WHERE user_id = auth.uid() AND status = 'active'
+      )
+    )
+  );
+
+-- Policy: Users can delete business info fields for their agents
+CREATE POLICY "Users can delete their own business info fields" ON business_info_fields
+  FOR DELETE USING (
+    agent_id IN (
+      SELECT id FROM agents 
+      WHERE organization_id IN (
+        SELECT organization_id FROM team_members 
+        WHERE user_id = auth.uid() AND status = 'active'
+      )
+    )
+  );
 
 -- Grant permissions
 GRANT ALL ON agents TO authenticated;
@@ -390,6 +447,7 @@ GRANT ALL ON agent_documents TO authenticated;
 GRANT ALL ON organizations TO authenticated;
 GRANT ALL ON team_members TO authenticated;
 GRANT ALL ON team_invitations TO authenticated;
+GRANT ALL ON business_info_fields TO authenticated;
 
 -- Add comments
 COMMENT ON TABLE agents IS 'AI agents representing businesses with conversation-based knowledge';
@@ -400,9 +458,15 @@ COMMENT ON TABLE organizations IS 'Organizations for team management';
 COMMENT ON TABLE team_members IS 'Organization membership and roles';
 COMMENT ON TABLE team_invitations IS 'Pending team invitations';
 
-COMMENT ON FUNCTION search_similar_conversations IS 'Search for similar conversation segments using vector similarity';
+COMMENT ON FUNCTION search_similar_conversations IS 'Search for similar conversation segments using vector distance';
 COMMENT ON FUNCTION get_business_knowledge_summary IS 'Get summary statistics of business knowledge for an agent';
 
-CREATE INDEX IF NOT EXISTS business_info_history_agent_id_idx ON business_info_history(agent_id);
-CREATE INDEX IF NOT EXISTS business_info_history_user_id_idx ON business_info_history(user_id);
-CREATE INDEX IF NOT EXISTS business_info_history_field_idx ON business_info_history(field);
+-- Create indexes for business_info_fields
+CREATE INDEX IF NOT EXISTS idx_business_info_fields_agent_id ON business_info_fields(agent_id);
+CREATE INDEX IF NOT EXISTS idx_business_info_fields_is_answered ON business_info_fields(is_answered);
+CREATE INDEX IF NOT EXISTS idx_business_info_fields_created_at ON business_info_fields(created_at);
+
+-- Create trigger for business_info_fields updated_at
+CREATE TRIGGER update_business_info_fields_updated_at 
+  BEFORE UPDATE ON business_info_fields 
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

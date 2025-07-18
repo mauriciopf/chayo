@@ -87,7 +87,7 @@ CREATE TRIGGER update_conversation_embeddings_updated_at
 CREATE OR REPLACE FUNCTION search_similar_conversations(
   query_embedding VECTOR(1536),
   agent_id_param UUID,
-  match_threshold FLOAT DEFAULT 0.7,
+  match_threshold FLOAT DEFAULT 0.3,
   match_count INT DEFAULT 5
 )
 RETURNS TABLE (
@@ -95,7 +95,7 @@ RETURNS TABLE (
   conversation_segment TEXT,
   segment_type TEXT,
   metadata JSONB,
-  similarity FLOAT
+  distance FLOAT
 )
 LANGUAGE plpgsql
 AS $$
@@ -106,11 +106,11 @@ BEGIN
     ce.conversation_segment,
     ce.segment_type,
     ce.metadata,
-    1 - (ce.embedding <=> query_embedding) AS similarity
+    ce.embedding <=> query_embedding AS distance
   FROM conversation_embeddings ce
   WHERE ce.agent_id = agent_id_param
     AND ce.embedding IS NOT NULL
-    AND 1 - (ce.embedding <=> query_embedding) > match_threshold
+    AND ce.embedding <=> query_embedding < match_threshold
   ORDER BY ce.embedding <=> query_embedding
   LIMIT match_count;
 END;
@@ -145,7 +145,7 @@ GRANT ALL ON conversation_embeddings TO authenticated;
 
 -- Step 13: Add comments
 COMMENT ON TABLE conversation_embeddings IS 'Stores embeddings of business conversations for AI knowledge retrieval';
-COMMENT ON FUNCTION search_similar_conversations IS 'Search for similar conversation segments using vector similarity';
+COMMENT ON FUNCTION search_similar_conversations IS 'Search for similar conversation segments using vector distance';
 COMMENT ON FUNCTION get_business_knowledge_summary IS 'Get summary statistics of business knowledge for an agent';
 
 -- Step 14: Verify migration

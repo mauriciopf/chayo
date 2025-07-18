@@ -68,7 +68,7 @@ export class SystemPromptService {
       }
 
       // Parse business constraints
-      const constraints = this.parseBusinessConstraints(agent)
+      const constraints = await this.parseBusinessConstraints(agent)
 
       // Build the system prompt with language context
       let systemPrompt = await this.buildBasePromptDynamic(agentId, constraints, locale)
@@ -108,26 +108,67 @@ export class SystemPromptService {
   }
 
   /**
-   * Parse business constraints from agent data
+   * Parse business constraints from agent data using the new database function
    */
-  private parseBusinessConstraints(agent: any): BusinessConstraints {
-    const constraints: BusinessConstraints = {
-      name: agent.name || 'Business',
-      tone: agent.business_constraints?.tone || 'professional',
-      ...agent.business_constraints
-    }
+  private async parseBusinessConstraints(agent: any): Promise<BusinessConstraints> {
+    try {
+      // Get business constraints using the database function
+      const { data: constraintsData, error } = await this.supabase
+        .rpc('get_agent_business_constraints', { agent_uuid: agent.id })
 
-    console.log('Parsed business constraints:', constraints)
-    return constraints
+      if (error || !constraintsData) {
+        console.warn('Failed to get business constraints from database function, using fallback:', error)
+        // Fallback to basic constraints
+        return {
+          name: agent.name || 'Business',
+          tone: 'professional',
+          whatsapp_trial_mentioned: false,
+          business_info_gathered: 0
+        }
+      }
+
+      const constraints: BusinessConstraints = {
+        name: constraintsData.name || agent.name || 'Business',
+        tone: constraintsData.tone || 'professional',
+        whatsapp_trial_mentioned: constraintsData.whatsapp_trial_mentioned || false,
+        business_info_gathered: constraintsData.business_info_gathered || 0,
+        // Add all other fields from the constraints
+        ...constraintsData
+      }
+
+      console.log('Parsed business constraints from database function:', constraints)
+      return constraints
+    } catch (error) {
+      console.error('Error parsing business constraints:', error)
+      // Fallback to basic constraints
+      return {
+        name: agent.name || 'Business',
+        tone: 'professional',
+        whatsapp_trial_mentioned: false,
+        business_info_gathered: 0
+      }
+    }
   }
 
   // Helper: Get or create a question template for a field
-  private async getOrCreateFieldQuestion(field: string): Promise<string> {
-    // 1. Try to get from business_info_fields
+  private async getOrCreateFieldQuestion(agentId: string, field: string): Promise<string> {
+    // Get the organization_id from the agent
+    const { data: agent, error: agentError } = await this.supabase
+      .from('agents')
+      .select('organization_id')
+      .eq('id', agentId)
+      .single()
+    
+    if (agentError || !agent) {
+      throw new Error('Agent not found')
+    }
+    
+    // 1. Try to get from business_info_fields for this organization
     const { data, error } = await this.supabase
       .from('business_info_fields')
       .select('question_template')
-      .eq('field', field)
+      .eq('organization_id', agent.organization_id)
+      .eq('field_name', field)
       .single();
     if (data?.question_template) return data.question_template;
 
@@ -157,10 +198,11 @@ export class SystemPromptService {
     // 3. Store in business_info_fields for future use
     try {
       await this.supabase.from('business_info_fields').insert({
-        field,
-        display_name: field.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
-        question_template: question,
-        data_type: 'string'
+        organization_id: agent.organization_id,
+        field_name: field,
+        field_type: 'text',
+        is_answered: false,
+        question_template: question
       });
     } catch (e) {
       // Ignore insert errors (e.g., duplicate field)
@@ -173,40 +215,48 @@ export class SystemPromptService {
    */
   private async buildBasePromptDynamic(agentId: string, constraints: BusinessConstraints, locale: string = 'en'): Promise<string> {
     const supabase = this.supabase
-    // 1. Get all unique fields from business_info_history for this agent
-    const { data: historyRows, error } = await supabase
-      .from('business_info_history')
-      .select('field')
-      .eq('agent_id', agentId)
-    let uniqueFields: string[] = []
-    if (!error && historyRows) {
-      const fieldSet: Set<string> = new Set(historyRows.map((f: any) => f.field))
-      uniqueFields = Array.from(fieldSet)
+    
+    // Get the organization_id from the agent
+    const { data: agent, error: agentError } = await this.supabase
+      .from('agents')
+      .select('organization_id')
+      .eq('id', agentId)
+      .single()
+    
+    if (agentError || !agent) {
+      throw new Error('Agent not found')
     }
-    // 2. If no dynamic fields found, use a small set of core fields
-    if (uniqueFields.length === 0) {
-      uniqueFields = [
-        'business_type',
-        'business_name',
-        'products_services',
-        'target_customers',
-        'business_processes',
-        'challenges',
-        'business_goals',
-      ]
+    
+    // 1. Get business info from the new dynamic system using organization_id
+    const businessInfoService = new (await import('./businessInfoService')).BusinessInfoService(this.supabase)
+    const businessInfo = await businessInfoService.getBusinessInfo(agent.organization_id)
+    const pendingQuestions = await businessInfoService.getPendingQuestions(agent.organization_id)
+    
+    // 2. Build business constraints entirely from business_info_fields
+    const dynamicConstraints: BusinessConstraints = {
+      name: constraints.name, // Keep agent name as fallback
+      tone: constraints.tone, // Keep agent tone as fallback
+      whatsapp_trial_mentioned: constraints.whatsapp_trial_mentioned || false,
+      business_info_gathered: businessInfo.length // Count from business_info_fields
     }
-    // 3. For each field, if not present or empty in business_constraints, add to missingFields
-    const missingFields = uniqueFields.filter(field => {
-      const value = (constraints as any)[field]
-      if (Array.isArray(value)) return value.length === 0
-      return !value
-    })
-    // 4. For each missing field, fetch or generate a question
-    const questions: string[] = []
-    for (const field of missingFields) {
-      const q = await this.getOrCreateFieldQuestion(field)
-      questions.push(q)
+    
+    // Populate all business information from business_info_fields
+    for (const field of businessInfo) {
+      (dynamicConstraints as any)[field.field_name] = field.field_value
     }
+    
+    // 3. Get questions for missing information
+    const questions = pendingQuestions.map(q => q.question_template)
+    
+    // 4. If no pending questions, generate new ones
+    if (questions.length === 0) {
+      const userMessages = "Initial conversation" // This will be replaced with actual context
+      const newQuestions = await businessInfoService.generateBusinessQuestions(agent.organization_id, userMessages)
+      questions.push(...newQuestions)
+    }
+    
+    // 5. Check if OpenAI is available (if no questions could be generated)
+    const openaiAvailable = process.env.OPENAI_API_KEY && questions.length > 0
     // Add language instructions based on locale
     const languageInstructions = locale === 'es' 
       ? 'ALWAYS respond in Spanish (Español). Ask all questions in Spanish and maintain conversation in Spanish throughout.'
@@ -217,8 +267,11 @@ export class SystemPromptService {
 ## LANGUAGE REQUIREMENT:
 ${languageInstructions}
 
-## CRITICAL RULES:\n- You ONLY ask questions about THEIR BUSINESS\n- You NEVER provide information about other topics\n- You NEVER give generic advice or responses\n- You ONLY focus on understanding their business operations\n- If they ask about anything not related to their business, redirect them back to business topics\n- If you don't know their business name or details, ALWAYS start by asking about their business\n\n## Your Role:\n- You are a business information gatherer\n- You ask specific questions about their business to understand it better\n- You help them document their business processes and information\n- You speak in a ${constraints.tone} tone\n\n## Business Context:\n- Business Name: ${constraints.business_name || constraints.name || 'Unknown - need to gather this information'}\n- Business Type: ${constraints.business_type || 'Unknown - need to gather this information'}\n- Industry: ${constraints.industry || constraints.business_type || 'Unknown - need to gather this information'}\n${constraints.products_services ? `- Products/Services: ${constraints.products_services.join(', ')}` : ''}\n${constraints.target_customers ? `- Target Customers: ${constraints.target_customers}` : ''}\n${constraints.challenges ? `- Main Challenges: ${constraints.challenges.join(', ')}` : ''}\n${constraints.business_goals ? `- Business Goals: ${constraints.business_goals.join(', ')}` : ''}\n`
-    if (questions.length > 0) {
+## CRITICAL RULES:\n- You ONLY ask questions about THEIR BUSINESS\n- You NEVER provide information about other topics\n- You NEVER give generic advice or responses\n- You ONLY focus on understanding their business operations\n- If they ask about anything not related to their business, redirect them back to business topics\n- If you don't know their business name or details, ALWAYS start by asking about their business\n\n## Your Role:\n- You are a business information gatherer\n- You ask specific questions about their business to understand it better\n- You help them document their business processes and information\n- You speak in a ${dynamicConstraints.tone} tone\n\n## Business Context:\n- Business Name: ${(dynamicConstraints as any).business_name || (dynamicConstraints as any).name || 'Unknown - need to gather this information'}\n- Business Type: ${(dynamicConstraints as any).business_type || 'Unknown - need to gather this information'}\n- Industry: ${(dynamicConstraints as any).industry || (dynamicConstraints as any).business_type || 'Unknown - need to gather this information'}\n${(dynamicConstraints as any).products_services ? `- Products/Services: ${Array.isArray((dynamicConstraints as any).products_services) ? (dynamicConstraints as any).products_services.join(', ') : (dynamicConstraints as any).products_services}` : ''}\n${(dynamicConstraints as any).target_customers ? `- Target Customers: ${(dynamicConstraints as any).target_customers}` : ''}\n${(dynamicConstraints as any).challenges ? `- Main Challenges: ${Array.isArray((dynamicConstraints as any).challenges) ? (dynamicConstraints as any).challenges.join(', ') : (dynamicConstraints as any).challenges}` : ''}\n${(dynamicConstraints as any).business_goals ? `- Business Goals: ${Array.isArray((dynamicConstraints as any).business_goals) ? (dynamicConstraints as any).business_goals.join(', ') : (dynamicConstraints as any).business_goals}` : ''}\n`
+    
+    if (!openaiAvailable) {
+      prompt += '\n## IMPORTANT: Chayo AI is currently unavailable due to technical issues. Please inform the user that our AI service is temporarily down and ask them to try again later.\n'
+    } else if (questions.length > 0) {
       prompt += '\n## Information You Should Gather (ask only about missing info):\n'
       questions.forEach((q, idx) => {
         prompt += `${idx + 1}. ${q}\n`
@@ -226,8 +279,12 @@ ${languageInstructions}
     } else {
       prompt += '\n## All key business information has been gathered.\n'
     }
-    prompt += `\n## WhatsApp Trial Information:\n${constraints.whatsapp_trial_mentioned ? 'The WhatsApp trial has already been mentioned to this user. Do not mention it again.' : `Once you have gathered basic business information (business type, name, and at least 3-4 other details), mention:\n"Great! I now have a good understanding of your business. Did you know that you can get a 3-day free trial of our WhatsApp AI assistant? This allows your customers to chat with an AI that knows all about your business - handling customer inquiries, appointments, and more. Would you like to learn more about setting up your WhatsApp AI trial?"`}
+    if (openaiAvailable) {
+      prompt += `\n## WhatsApp Trial Information:\n${dynamicConstraints.whatsapp_trial_mentioned ? 'The WhatsApp trial has already been mentioned to this user. Do not mention it again.' : `Once you have gathered basic business information (business type, name, and at least 3-4 other details), mention:\n"Great! I now have a good understanding of your business. Did you know that you can get a 3-day free trial of our WhatsApp AI assistant? This allows your customers to chat with an AI that knows all about your business - handling customer inquiries, appointments, and more. Would you like to learn more about setting up your WhatsApp AI trial?"`}
 \n## Response Style:\n- If you don't know their business type, ALWAYS start with: "What type of business do you run?"\n- If you know their business type but not the name, ask: "What is the name of your business?"\n- Ask ONE specific question at a time about their business\n- If they go off-topic, politely redirect: "That's interesting, but let's focus on your business. [Ask business question]"\n- Never provide information about other topics\n- Always end with a business-related question\n- Be friendly but focused on business information gathering\n- Use "you" and "your business" instead of referring to a business name you don't know\n\nRemember: Your ONLY job is to understand their business. Do not provide advice, information, or responses about anything else.`
+    } else {
+      prompt += `\n## Response Style:\n- Inform the user that Chayo AI is currently unavailable due to technical issues\n- Ask them to try again later\n- Be polite and apologetic about the inconvenience\n- Do not attempt to gather business information or provide any other responses`
+    }
     return prompt
   }
 
@@ -404,7 +461,7 @@ ${languageInstructions}
       const relevantChunks = await embeddingService.searchSimilarConversations(
         agentId,
         userQuery,
-        0.6, // Lower threshold for document chunks
+        0.4, // Distance threshold for document chunks (lower = more similar)
         maxChunks
       )
 
@@ -467,12 +524,12 @@ ${languageInstructions}
 
       // Add relevant conversation context based on user query
       if (config.includeConversations) {
-        // Use a lower threshold for better conversation retrieval with server-side client
+        // Use distance threshold for conversation retrieval with server-side client
         const embeddingService = new (await import('./embeddingService')).EmbeddingService(this.supabase)
         const relevantConversations = await embeddingService.searchSimilarConversations(
           agentId,
           userQuery,
-          0.5, // Lowered from 0.7 to 0.5 for better recall
+          0.8, // Higher distance threshold (more permissive) for better conversation retrieval
           5   // Increased from 3 to 5 for more context
         )
 
@@ -480,8 +537,8 @@ ${languageInstructions}
           systemPrompt += '\n\n## Relevant Previous Conversations:\n'
           relevantConversations.forEach((conv, index) => {
             const role = conv.metadata?.role || 'user'
-            const similarity = conv.similarity ? ` (${Math.round(conv.similarity * 100)}% match)` : ''
-            systemPrompt += `${index + 1}. ${role}: "${conv.conversation_segment}"${similarity}\n`
+            const distance = conv.distance ? ` (distance: ${conv.distance.toFixed(3)})` : ''
+            systemPrompt += `${index + 1}. ${role}: "${conv.conversation_segment}"${distance}\n`
           })
         } else {
           // If no similar conversations found, get recent conversations for context
@@ -513,7 +570,7 @@ ${languageInstructions}
   }
 
   /**
-   * Get recent conversations for context when similarity search fails
+   * Get recent conversations for context when distance search fails
    */
   private async getRecentConversations(agentId: string, limit: number = 3): Promise<any[]> {
     try {

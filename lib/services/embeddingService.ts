@@ -15,7 +15,7 @@ export interface EmbeddingResult {
   embedding: number[]
   segment_type: string
   metadata: Record<string, any>
-  similarity?: number
+  distance?: number
 }
 
 export class EmbeddingService {
@@ -102,7 +102,7 @@ export class EmbeddingService {
   async searchSimilarConversations(
     agentId: string,
     query: string,
-    matchThreshold: number = 0.7,
+    matchThreshold: number = 0.8,
     matchCount: number = 5
   ): Promise<EmbeddingResult[]> {
     try {
@@ -118,6 +118,8 @@ export class EmbeddingService {
           match_threshold: matchThreshold,
           match_count: matchCount
         })
+
+        console.log('embedding data', data)
 
       if (error) {
         console.error('Error searching conversations:', error)

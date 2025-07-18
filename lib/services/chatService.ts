@@ -442,6 +442,25 @@ Remember: Your ONLY job is to understand their business. Do not provide advice, 
       } catch (error) {
         console.warn('Failed to store embeddings (this is optional):', error)
       }
+
+              // Extract and update business information
+        try {
+          const businessInfoService = new (await import('./businessInfoService')).BusinessInfoService(this.supabase)
+          
+          // Combine all user messages for business info extraction
+          const userMessages = messages.filter(m => m.role === 'user').map(m => m.content).join(' ')
+          
+          if (userMessages.trim()) {
+            const extractedInfo = await businessInfoService.extractBusinessInfo(context.organization.id, userMessages)
+            
+            if (extractedInfo.length > 0) {
+              await businessInfoService.updateBusinessInfoFields(context.organization.id, extractedInfo)
+              console.log(`Extracted ${extractedInfo.length} business info fields from conversation`)
+            }
+          }
+        } catch (error) {
+          console.warn('Failed to extract business info:', error)
+        }
     } catch (error) {
       console.warn('Failed to store conversation:', error)
     }

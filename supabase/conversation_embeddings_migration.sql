@@ -88,19 +88,19 @@ CREATE POLICY "Users can delete their own conversation embeddings" ON conversati
 -- Grant permissions
 GRANT ALL ON conversation_embeddings TO authenticated;
 
--- Create function for similarity search
+-- Create vector similarity search function
 CREATE OR REPLACE FUNCTION search_similar_conversations(
   query_embedding VECTOR(1536),
   agent_id_param UUID,
-  match_threshold FLOAT DEFAULT 0.7,
+  match_threshold FLOAT DEFAULT 0.3,
   match_count INT DEFAULT 5
 )
 RETURNS TABLE (
   id UUID,
   conversation_segment TEXT,
   segment_type TEXT,
-  similarity FLOAT,
-  metadata JSONB
+  metadata JSONB,
+  distance FLOAT
 )
 LANGUAGE plpgsql
 AS $$
@@ -110,11 +110,12 @@ BEGIN
     ce.id,
     ce.conversation_segment,
     ce.segment_type,
-    1 - (ce.embedding <=> query_embedding) AS similarity,
-    ce.metadata
+    ce.metadata,
+    ce.embedding <=> query_embedding AS distance
   FROM conversation_embeddings ce
   WHERE ce.agent_id = agent_id_param
-    AND 1 - (ce.embedding <=> query_embedding) > match_threshold
+    AND ce.embedding IS NOT NULL
+    AND ce.embedding <=> query_embedding < match_threshold
   ORDER BY ce.embedding <=> query_embedding
   LIMIT match_count;
 END;
@@ -153,5 +154,5 @@ COMMENT ON COLUMN conversation_embeddings.embedding IS 'Vector embedding of the 
 COMMENT ON COLUMN conversation_embeddings.segment_type IS 'Type of segment: conversation, faq, knowledge, or example';
 COMMENT ON COLUMN conversation_embeddings.metadata IS 'Additional metadata about the segment (source, date, etc.)';
 
-COMMENT ON FUNCTION search_similar_conversations IS 'Search for similar conversation segments using vector similarity';
+COMMENT ON FUNCTION search_similar_conversations IS 'Search for similar conversation segments using vector distance';
 COMMENT ON FUNCTION get_business_knowledge_summary IS 'Get summary statistics of business knowledge for an agent'; 
