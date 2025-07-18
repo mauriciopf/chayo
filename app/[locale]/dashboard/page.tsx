@@ -181,6 +181,7 @@ function DashboardContent() {
       return (
         <ChatContainer
           messages={chat.messages}
+          setMessages={chat.setMessages}
           chatLoading={chat.chatLoading}
           chatError={chat.chatError}
           input={chat.input}
@@ -210,6 +211,7 @@ function DashboardContent() {
         return (
           <ChatContainer
             messages={chat.messages}
+            setMessages={chat.setMessages}
             chatLoading={chat.chatLoading}
             chatError={chat.chatError}
             input={chat.input}

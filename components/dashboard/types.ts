@@ -15,16 +15,6 @@ export interface Agent {
   system_prompt: string
   paused: boolean
   created_at: string
-  business_constraints?: {
-    greeting?: string
-    goals?: string[]
-    name?: string
-    industry?: string
-    values?: string[]
-    policies?: string[]
-    contact_info?: string
-    custom_rules?: string[]
-  }
 }
 
 export interface UserSubscription {

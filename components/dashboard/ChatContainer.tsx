@@ -1,37 +1,41 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslations } from 'next-intl'
 import ChatMessage from './ChatMessage'
 import { Message, Agent, AuthState } from './types'
+import QuickReplyChips from './QuickReplyChips';
+import { ChatContextType, getSystemMessageForContext } from './chatContextMessages';
 
 interface ChatContainerProps {
-  messages: Message[]
-  chatLoading: boolean
-  chatError: string | null
-  input: string
-  setInput: (input: string) => void
-  handleSend: () => void
-  handleInputFocus: () => void
-  handleOTPFlow: () => Promise<void>
-  messagesEndRef: React.RefObject<HTMLDivElement>
-  inputRef: React.RefObject<HTMLTextAreaElement>
-  chatScrollContainerRef: React.RefObject<HTMLDivElement>
-  fileInputRef: React.RefObject<HTMLInputElement>
-  handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-  uploading: boolean
-  uploadProgress: number | null
-  user: any
-  authState: AuthState
-  otpLoading: string
-  hasUserInteracted: boolean
-  setHasUserInteracted: (interacted: boolean) => void
-  isMobile: boolean
+  messages: Message[];
+  setMessages: (messages: Message[] | ((prev: Message[]) => Message[])) => void;
+  chatLoading: boolean;
+  chatError: string | null;
+  input: string;
+  setInput: (input: string) => void;
+  handleSend: () => void;
+  handleInputFocus: () => void;
+  handleOTPFlow: () => Promise<void>;
+  messagesEndRef: React.RefObject<HTMLDivElement>;
+  inputRef: React.RefObject<HTMLTextAreaElement>;
+  chatScrollContainerRef: React.RefObject<HTMLDivElement>;
+  fileInputRef: React.RefObject<HTMLInputElement>;
+  handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  uploading: boolean;
+  uploadProgress: number | null;
+  user: any;
+  authState: AuthState;
+  otpLoading: string;
+  hasUserInteracted: boolean;
+  setHasUserInteracted: (interacted: boolean) => void;
+  isMobile: boolean;
 }
 
 export default function ChatContainer({
   messages,
+  setMessages,
   chatLoading,
   chatError,
   input,
@@ -54,6 +58,24 @@ export default function ChatContainer({
   isMobile
 }: ChatContainerProps) {
   const t = useTranslations('chat')
+
+  // Add chat context state
+  const [chatContext, setChatContext] = useState<ChatContextType>('business_setup')
+
+  // Handler for quick reply chip click
+  const handleQuickReply = (context: ChatContextType) => {
+    setChatContext(context)
+    const systemMessage = getSystemMessageForContext(context)
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: Date.now().toString() + '-sys',
+        role: 'system',
+        content: systemMessage,
+        timestamp: new Date(),
+      },
+    ])
+  }
 
   return (
     <motion.div
@@ -145,7 +167,12 @@ export default function ChatContainer({
         </AnimatePresence>
         <div ref={messagesEndRef} />
       </div>
-      
+
+      {/* Quick Reply Chips Row */}
+      <div className="w-full px-4 py-2 bg-white border-t border-gray-100">
+        <QuickReplyChips context={chatContext} onSelect={handleQuickReply} />
+      </div>
+
       {/* Modern chat input design - 2 rows layout */}
       <div 
         className="bg-gray-50 px-4 py-4 flex-shrink-0"
