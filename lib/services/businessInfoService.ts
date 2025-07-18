@@ -32,7 +32,7 @@ export class BusinessInfoService {
   /**
    * Generate dynamic questions for business information gathering
    */
-  async generateBusinessQuestions(organizationId: string, currentConversation: string): Promise<string[]> {
+  async generateBusinessQuestions(organizationId: string, currentConversation: string): Promise<{question_template: string, field_name: string}[]> {
     let answeredFieldNames: string[] = []
     
     try {
@@ -54,7 +54,10 @@ export class BusinessInfoService {
 
       // If we have unanswered questions, return them
       if (existingQuestions && existingQuestions.length > 0) {
-        return existingQuestions.map(q => q.question_template)
+        return existingQuestions.map(q => ({
+          question_template: q.question_template,
+          field_name: q.field_name
+        }))
       }
 
       // Generate new questions dynamically using OpenAI
@@ -76,8 +79,17 @@ Generate questions that:
 3. Will help understand their business better
 4. Are natural and conversational
 
-Return only the questions as a JSON array of strings. Example:
-["What is the name of your business?", "Who are your main customers?"]`
+Return only the questions as a JSON array of objects with this structure:
+[
+  {
+    "question_template": "What is the name of your business?",
+    "field_name": "business_name"
+  },
+  {
+    "question_template": "What type of business do you run?",
+    "field_name": "business_type"
+  }
+]`
 
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
@@ -89,7 +101,7 @@ Return only the questions as a JSON array of strings. Example:
           model: 'gpt-4',
           messages: [{ role: 'user', content: prompt }],
           temperature: 0.7,
-          max_tokens: 300
+          max_tokens: 500
         })
       })
 
@@ -101,9 +113,16 @@ Return only the questions as a JSON array of strings. Example:
           try {
             const questions = JSON.parse(content)
             if (Array.isArray(questions)) {
+              // Validate the structure
+              const validQuestions = questions.filter(q => 
+                q.question_template && q.field_name && 
+                typeof q.question_template === 'string' && 
+                typeof q.field_name === 'string'
+              )
+              
               // Store these questions in the database
-              await this.storeBusinessQuestions(organizationId, questions)
-              return questions
+              await this.storeBusinessQuestions(organizationId, validQuestions)
+              return validQuestions
             }
           } catch (parseError) {
             console.warn('Failed to parse generated questions:', parseError)
@@ -120,14 +139,14 @@ Return only the questions as a JSON array of strings. Example:
   /**
    * Store generated questions in the database
    */
-  private async storeBusinessQuestions(organizationId: string, questions: string[]): Promise<void> {
+  private async storeBusinessQuestions(organizationId: string, questions: {question_template: string, field_name: string}[]): Promise<void> {
     try {
       const questionFields = questions.map(question => ({
         organization_id: organizationId,
-        field_name: this.extractFieldNameFromQuestion(question),
+        field_name: question.field_name,
         field_type: 'text',
         is_answered: false,
-        question_template: question
+        question_template: question.question_template
       }))
 
       await this.supabase
@@ -138,19 +157,7 @@ Return only the questions as a JSON array of strings. Example:
     }
   }
 
-  /**
-   * Extract field name from question for database storage
-   */
-  private extractFieldNameFromQuestion(question: string): string {
-    // Convert question to a field name
-    const fieldName = question
-      .toLowerCase()
-      .replace(/[^a-z0-9\s]/g, '')
-      .replace(/\s+/g, '_')
-      .substring(0, 50)
-    
-    return fieldName || 'custom_field'
-  }
+
 
 
 

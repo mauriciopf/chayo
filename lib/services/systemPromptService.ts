@@ -251,7 +251,8 @@ export class SystemPromptService {
     // 4. If no pending questions, generate new ones
     if (questions.length === 0) {
       const userMessages = "Initial conversation" // This will be replaced with actual context
-      const newQuestions = await businessInfoService.generateBusinessQuestions(agent.organization_id, userMessages)
+      const newQuestionObjects = await businessInfoService.generateBusinessQuestions(agent.organization_id, userMessages)
+      const newQuestions = newQuestionObjects.map(q => q.question_template)
       questions.push(...newQuestions)
     }
     
