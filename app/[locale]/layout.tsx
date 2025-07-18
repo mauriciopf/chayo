@@ -70,8 +70,6 @@ export default async function LocaleLayout({
   return (
     <html lang={locale}>
       <head>
-        {/* ElevenLabs ConvAI Widget Script */}
-        <script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#a21caf" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -83,11 +81,6 @@ export default async function LocaleLayout({
           <LanguageSelector />
           {children}
         </NextIntlClientProvider>
-        {/* ElevenLabs Widget - Desktop only, hidden on mobile */}
-        <div 
-          className="hidden md:block elevenlabs-widget-container" 
-          dangerouslySetInnerHTML={{ __html: '<elevenlabs-convai agent-id="agent_01jyc95f0be1v9xww6h31366mw"></elevenlabs-convai>' }} 
-        />
       </body>
     </html>
   )
