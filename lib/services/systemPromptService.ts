@@ -26,13 +26,7 @@ export interface BusinessConstraints {
   business_info_gathered?: number
 }
 
-export interface SystemPromptConfig {
-  includeConversations: boolean
-  includeFaqs: boolean
-  includeExamples: boolean
-  maxContextLength: number
-  temperature: number
-}
+
 
 export class SystemPromptService {
   private supabase: SupabaseClient
@@ -46,13 +40,6 @@ export class SystemPromptService {
    */
   async generateSystemPrompt(
     agentId: string,
-    config: SystemPromptConfig = {
-      includeConversations: true,
-      includeFaqs: true,
-      includeExamples: true,
-      maxContextLength: 4000,
-      temperature: 0.7
-    },
     locale: string = 'en'
   ): Promise<string> {
     try {
@@ -67,34 +54,16 @@ export class SystemPromptService {
         throw new Error('Agent not found')
       }
 
-      // Parse business constraints
-      const constraints = await this.parseBusinessConstraints(agent)
+      // Get business constraints from view
+      const constraints = await this.getBusinessConstraints(agent.organization_id)
 
       // Build the system prompt with language context
       let systemPrompt = await this.buildBasePromptDynamic(agentId, constraints, locale)
 
-      // Add conversation knowledge if enabled
-      if (config.includeConversations) {
-        const conversationKnowledge = await this.getConversationKnowledge(agentId, config.maxContextLength)
-        if (conversationKnowledge) {
-          systemPrompt += `\n\n## Business Conversation Knowledge:\n${conversationKnowledge}`
-        }
-      }
-
-      // Add FAQs if enabled
-      if (config.includeFaqs) {
-        const faqKnowledge = await this.getFaqKnowledge(agentId)
-        if (faqKnowledge) {
-          systemPrompt += `\n\n## Frequently Asked Questions:\n${faqKnowledge}`
-        }
-      }
-
-      // Add examples if enabled
-      if (config.includeExamples) {
-        const exampleKnowledge = await this.getExampleKnowledge(agentId)
-        if (exampleKnowledge) {
-          systemPrompt += `\n\n## Example Interactions:\n${exampleKnowledge}`
-        }
+      // Add conversation knowledge from previous sessions
+      const conversationKnowledge = await this.getConversationKnowledge(agentId, 4000)
+      if (conversationKnowledge) {
+        systemPrompt += `\n\n## Business Conversation Knowledge:\n${conversationKnowledge}`
       }
 
       // Add response guidelines
@@ -108,19 +77,19 @@ export class SystemPromptService {
   }
 
   /**
-   * Parse business constraints from agent data using the new database function
+   * Get business constraints from business_constraints_view
    */
-  private async parseBusinessConstraints(agent: any): Promise<BusinessConstraints> {
+  private async getBusinessConstraints(organizationId: string): Promise<BusinessConstraints> {
     try {
-      // Get business constraints using the database function
-      const { data: constraintsData, error } = await this.supabase
-        .rpc('get_agent_business_constraints', { agent_uuid: agent.id })
+      // Get business constraints directly from the view
+      const { data: viewData, error } = await this.supabase
+        .from('business_constraints_view').select('business_constraints').eq('organization_id', organizationId).single()
 
-      if (error || !constraintsData) {
-        console.warn('Failed to get business constraints from database function, using fallback:', error)
+      if (error || !viewData?.business_constraints) {
+        console.warn('Failed to get business constraints from view, using fallback:', error)
         // Fallback to basic constraints
         return {
-          name: agent.name || 'Business',
+          name: 'Business AI Assistant',
           tone: 'professional',
           whatsapp_trial_mentioned: false,
           business_info_gathered: 0
@@ -128,21 +97,21 @@ export class SystemPromptService {
       }
 
       const constraints: BusinessConstraints = {
-        name: constraintsData.name || agent.name || 'Business',
-        tone: constraintsData.tone || 'professional',
-        whatsapp_trial_mentioned: constraintsData.whatsapp_trial_mentioned || false,
-        business_info_gathered: constraintsData.business_info_gathered || 0,
+        name: viewData.business_constraints.name || 'Business AI Assistant',
+        tone: viewData.business_constraints.tone || 'professional',
+        whatsapp_trial_mentioned: viewData.business_constraints.whatsapp_trial_mentioned || false,
+        business_info_gathered: viewData.business_constraints.business_info_gathered || 0,
         // Add all other fields from the constraints
-        ...constraintsData
+        ...viewData.business_constraints
       }
 
-      console.log('Parsed business constraints from database function:', constraints)
+      console.log('Retrieved business constraints from view:', constraints)
       return constraints
     } catch (error) {
       console.error('Error parsing business constraints:', error)
       // Fallback to basic constraints
       return {
-        name: agent.name || 'Business',
+        name: 'Business AI Assistant',
         tone: 'professional',
         whatsapp_trial_mentioned: false,
         business_info_gathered: 0
@@ -150,72 +119,12 @@ export class SystemPromptService {
     }
   }
 
-  // Helper: Get or create a question template for a field
-  private async getOrCreateFieldQuestion(agentId: string, field: string): Promise<string> {
-    // Get the organization_id from the agent
-    const { data: agent, error: agentError } = await this.supabase
-      .from('agents')
-      .select('organization_id')
-      .eq('id', agentId)
-      .single()
-    
-    if (agentError || !agent) {
-      throw new Error('Agent not found')
-    }
-    
-    // 1. Try to get from business_info_fields for this organization
-    const { data, error } = await this.supabase
-      .from('business_info_fields')
-      .select('question_template')
-      .eq('organization_id', agent.organization_id)
-      .eq('field_name', field)
-      .single();
-    if (data?.question_template) return data.question_template;
 
-    // 2. If not found, generate with LLM
-    const prompt = `Generate a friendly, business-focused question to ask a user about their "${field}" in the context of business onboarding.`;
-    const apiKey = process.env.OPENAI_API_KEY;
-    let question = `Can you tell me about your ${field.replace('_', ' ')}?`;
-    try {
-      const llmRes = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model: 'gpt-4',
-          messages: [{ role: 'user', content: prompt }],
-          max_tokens: 50,
-          temperature: 0.5
-        })
-      });
-      const llmData = await llmRes.json();
-      question = llmData.choices?.[0]?.message?.content?.trim() || question;
-    } catch (err) {
-      console.warn('LLM question generation failed, using fallback:', err);
-    }
-    // 3. Store in business_info_fields for future use
-    try {
-      await this.supabase.from('business_info_fields').insert({
-        organization_id: agent.organization_id,
-        field_name: field,
-        field_type: 'text',
-        is_answered: false,
-        question_template: question
-      });
-    } catch (e) {
-      // Ignore insert errors (e.g., duplicate field)
-    }
-    return question;
-  }
 
   /**
    * Build the base system prompt with business constraints
    */
   private async buildBasePromptDynamic(agentId: string, constraints: BusinessConstraints, locale: string = 'en'): Promise<string> {
-    const supabase = this.supabase
-    
     // Get the organization_id from the agent
     const { data: agent, error: agentError } = await this.supabase
       .from('agents')
@@ -227,28 +136,14 @@ export class SystemPromptService {
       throw new Error('Agent not found')
     }
     
-    // 1. Get business info from the new dynamic system using organization_id
+    // Get pending questions from BusinessInfoService
     const businessInfoService = new (await import('./businessInfoService')).BusinessInfoService(this.supabase)
-    const businessInfo = await businessInfoService.getBusinessInfo(agent.organization_id)
     const pendingQuestions = await businessInfoService.getPendingQuestions(agent.organization_id)
     
-    // 2. Build business constraints entirely from business_info_fields
-    const dynamicConstraints: BusinessConstraints = {
-      name: constraints.name, // Keep agent name as fallback
-      tone: constraints.tone, // Keep agent tone as fallback
-      whatsapp_trial_mentioned: constraints.whatsapp_trial_mentioned || false,
-      business_info_gathered: businessInfo.length // Count from business_info_fields
-    }
-    
-    // Populate all business information from business_info_fields
-    for (const field of businessInfo) {
-      (dynamicConstraints as any)[field.field_name] = field.field_value
-    }
-    
-    // 3. Get questions for missing information
+    // Get questions for missing information
     const questions = pendingQuestions.map(q => q.question_template)
     
-    // 4. If no pending questions, generate new ones
+    // If no pending questions, generate new ones
     if (questions.length === 0) {
       const userMessages = "Initial conversation" // This will be replaced with actual context
       const newQuestionObjects = await businessInfoService.generateBusinessQuestions(agent.organization_id, userMessages)
@@ -256,8 +151,9 @@ export class SystemPromptService {
       questions.push(...newQuestions)
     }
     
-    // 5. Check if OpenAI is available (if no questions could be generated)
+    // Check if OpenAI is available (if no questions could be generated)
     const openaiAvailable = process.env.OPENAI_API_KEY && questions.length > 0
+    
     // Add language instructions based on locale
     const languageInstructions = locale === 'es' 
       ? 'ALWAYS respond in Spanish (Español). Ask all questions in Spanish and maintain conversation in Spanish throughout.'
@@ -268,7 +164,7 @@ export class SystemPromptService {
 ## LANGUAGE REQUIREMENT:
 ${languageInstructions}
 
-## CRITICAL RULES:\n- You ONLY ask questions about THEIR HEALTH AND WELLNESS BUSINESS\n- You NEVER provide information about other topics\n- You NEVER give generic advice or responses\n- You ONLY focus on understanding their health and wellness business operations\n- If they ask about anything not related to their health business, redirect them back to health business topics\n- If you don't know their business name or details, ALWAYS start by asking about their health and wellness business\n\n## Your Role:\n- You are a health and wellness business information gatherer\n- You ask specific questions about their health and wellness business to understand it better\n- You help them document their health business processes and information\n- You speak in a ${dynamicConstraints.tone} tone\n\n## Health Business Context:\n- Business Name: ${(dynamicConstraints as any).business_name || (dynamicConstraints as any).name || 'Unknown - need to gather this information'}\n- Business Type: ${(dynamicConstraints as any).business_type || 'Unknown - need to gather this information'}\n- Industry: ${(dynamicConstraints as any).industry || (dynamicConstraints as any).business_type || 'Unknown - need to gather this information'}\n${(dynamicConstraints as any).products_services ? `- Health Products/Services: ${Array.isArray((dynamicConstraints as any).products_services) ? (dynamicConstraints as any).products_services.join(', ') : (dynamicConstraints as any).products_services}` : ''}\n${(dynamicConstraints as any).target_customers ? `- Target Patients/Clients: ${(dynamicConstraints as any).target_customers}` : ''}\n${(dynamicConstraints as any).challenges ? `- Main Health Business Challenges: ${Array.isArray((dynamicConstraints as any).challenges) ? (dynamicConstraints as any).challenges.join(', ') : (dynamicConstraints as any).challenges}` : ''}\n${(dynamicConstraints as any).business_goals ? `- Health Business Goals: ${Array.isArray((dynamicConstraints as any).business_goals) ? (dynamicConstraints as any).business_goals.join(', ') : (dynamicConstraints as any).business_goals}` : ''}\n`
+## CRITICAL RULES:\n- You ONLY ask questions about THEIR HEALTH AND WELLNESS BUSINESS\n- You NEVER provide information about other topics\n- You NEVER give generic advice or responses\n- You ONLY focus on understanding their health and wellness business operations\n- If they ask about anything not related to their health business, redirect them back to health business topics\n- If you don't know their business name or details, ALWAYS start by asking about their health and wellness business\n\n## Your Role:\n- You are a health and wellness business information gatherer\n- You ask specific questions about their health and wellness business to understand it better\n- You help them document their health business processes and information\n- You speak in a ${constraints.tone} tone\n\n## Health Business Context:\n- Business Name: ${(constraints as any).business_name || constraints.name || 'Unknown - need to gather this information'}\n- Business Type: ${(constraints as any).business_type || 'Unknown - need to gather this information'}\n- Industry: ${(constraints as any).industry || (constraints as any).business_type || 'Unknown - need to gather this information'}\n${(constraints as any).products_services ? `- Health Products/Services: ${Array.isArray((constraints as any).products_services) ? (constraints as any).products_services.join(', ') : (constraints as any).products_services}` : ''}\n${(constraints as any).target_customers ? `- Target Patients/Clients: ${(constraints as any).target_customers}` : ''}\n${(constraints as any).challenges ? `- Main Health Business Challenges: ${Array.isArray((constraints as any).challenges) ? (constraints as any).challenges.join(', ') : (constraints as any).challenges}` : ''}\n${(constraints as any).business_goals ? `- Health Business Goals: ${Array.isArray((constraints as any).business_goals) ? (constraints as any).business_goals.join(', ') : (constraints as any).business_goals}` : ''}\n`
     
     if (!openaiAvailable) {
       prompt += '\n## IMPORTANT: Chayo AI is currently unavailable due to technical issues. Please inform the user that our AI service is temporarily down and ask them to try again later.\n'
@@ -281,7 +177,7 @@ ${languageInstructions}
       prompt += '\n## All key business information has been gathered.\n'
     }
     if (openaiAvailable) {
-      prompt += `\n## WhatsApp Trial Information:\n${dynamicConstraints.whatsapp_trial_mentioned ? 'The WhatsApp trial has already been mentioned to this user. Do not mention it again.' : `Once you have gathered basic health business information (business type, name, and at least 3-4 other details), mention:\n"Great! I now have a good understanding of your health and wellness business. Did you know that you can get a 3-day free trial of our WhatsApp AI assistant? This allows your patients to chat with an AI that knows all about your health business - handling patient inquiries, appointments, and more. Would you like to learn more about setting up your WhatsApp AI trial?"`}
+      prompt += `\n## WhatsApp Trial Information:\n${constraints.whatsapp_trial_mentioned ? 'The WhatsApp trial has already been mentioned to this user. Do not mention it again.' : `Once you have gathered basic health business information (business type, name, and at least 3-4 other details), mention:\n"Great! I now have a good understanding of your health and wellness business. Did you know that you can get a 3-day free trial of our WhatsApp AI assistant? This allows your patients to chat with an AI that knows all about your health business - handling patient inquiries, appointments, and more. Would you like to learn more about setting up your WhatsApp AI trial?"`}
 \n## Response Style:\n- If you don't know their business type, ALWAYS start with: "What type of health or wellness business do you run?"\n- If you know their business type but not the name, ask: "What is the name of your health business?"\n- Ask ONE specific question at a time about their health and wellness business\n- If they go off-topic, politely redirect: "That's interesting, but let's focus on your health business. [Ask health business question]"\n- Never provide information about other topics\n- Always end with a health business-related question\n- Be friendly but focused on health and wellness business information gathering\n- Use "you" and "your health business" instead of referring to a business name you don't know\n\nRemember: Your ONLY job is to understand their health and wellness business. Do not provide advice, information, or responses about anything else.`
     } else {
       prompt += `\n## Response Style:\n- Inform the user that Chayo AI is currently unavailable due to technical issues\n- Ask them to try again later\n- Be polite and apologetic about the inconvenience\n- Do not attempt to gather business information or provide any other responses`
@@ -335,65 +231,7 @@ ${languageInstructions}
     }
   }
 
-  /**
-   * Get FAQ knowledge for the agent
-   */
-  private async getFaqKnowledge(agentId: string): Promise<string | null> {
-    try {
-      const { data: faqs, error } = await this.supabase
-        .from('conversation_embeddings')
-        .select('conversation_segment, metadata')
-        .eq('agent_id', agentId)
-        .eq('segment_type', 'faq')
-        .order('created_at', { ascending: false })
-        .limit(20)
 
-      if (error || !faqs || faqs.length === 0) {
-        return null
-      }
-
-      let faqKnowledge = 'Common questions and answers:\n\n'
-      
-      faqs.forEach((faq, index) => {
-        faqKnowledge += `Q${index + 1}: ${faq.conversation_segment}\n`
-      })
-
-      return faqKnowledge
-    } catch (error) {
-      console.error('Error getting FAQ knowledge:', error)
-      return null
-    }
-  }
-
-  /**
-   * Get example interactions for the agent
-   */
-  private async getExampleKnowledge(agentId: string): Promise<string | null> {
-    try {
-      const { data: examples, error } = await this.supabase
-        .from('conversation_embeddings')
-        .select('conversation_segment, metadata')
-        .eq('agent_id', agentId)
-        .eq('segment_type', 'example')
-        .order('created_at', { ascending: false })
-        .limit(10)
-
-      if (error || !examples || examples.length === 0) {
-        return null
-      }
-
-      let exampleKnowledge = 'Example interactions to follow:\n\n'
-      
-      examples.forEach((example, index) => {
-        exampleKnowledge += `Example ${index + 1}: ${example.conversation_segment}\n`
-      })
-
-      return exampleKnowledge
-    } catch (error) {
-      console.error('Error getting example knowledge:', error)
-      return null
-    }
-  }
 
   /**
    * Build response guidelines based on business constraints
@@ -504,18 +342,11 @@ ${languageInstructions}
   async getDynamicSystemPrompt(
     agentId: string,
     userQuery: string,
-    locale: string = 'en',
-    config: SystemPromptConfig = {
-      includeConversations: true,
-      includeFaqs: true,
-      includeExamples: true,
-      maxContextLength: 4000,
-      temperature: 0.7
-    }
+    locale: string = 'en'
   ): Promise<string> {
     try {
       // Get base system prompt with language context
-      let systemPrompt = await this.generateSystemPrompt(agentId, config, locale)
+      let systemPrompt = await this.generateSystemPrompt(agentId, locale)
 
       // Add relevant document chunks for RAG
       const documentContext = await this.getRelevantDocumentChunks(agentId, userQuery, 3)
@@ -524,33 +355,31 @@ ${languageInstructions}
       }
 
       // Add relevant conversation context based on user query
-      if (config.includeConversations) {
-        // Use distance threshold for conversation retrieval with server-side client
-        const embeddingService = new (await import('./embeddingService')).EmbeddingService(this.supabase)
-        const relevantConversations = await embeddingService.searchSimilarConversations(
-          agentId,
-          userQuery,
-          0.8, // Higher distance threshold (more permissive) for better conversation retrieval
-          5   // Increased from 3 to 5 for more context
-        )
+      // Use distance threshold for conversation retrieval with server-side client
+      const embeddingService = new (await import('./embeddingService')).EmbeddingService(this.supabase)
+      const relevantConversations = await embeddingService.searchSimilarConversations(
+        agentId,
+        userQuery,
+        0.8, // Higher distance threshold (more permissive) for better conversation retrieval
+        5   // Increased from 3 to 5 for more context
+      )
 
-        if (relevantConversations.length > 0) {
-          systemPrompt += '\n\n## Relevant Previous Conversations:\n'
-          relevantConversations.forEach((conv, index) => {
+      if (relevantConversations.length > 0) {
+        systemPrompt += '\n\n## Relevant Previous Conversations:\n'
+        relevantConversations.forEach((conv, index) => {
+          const role = conv.metadata?.role || 'user'
+          const distance = conv.distance ? ` (distance: ${conv.distance.toFixed(3)})` : ''
+          systemPrompt += `${index + 1}. ${role}: "${conv.conversation_segment}"${distance}\n`
+        })
+      } else {
+        // If no similar conversations found, get recent conversations for context
+        const recentConversations = await this.getRecentConversations(agentId, 3)
+        if (recentConversations.length > 0) {
+          systemPrompt += '\n\n## Recent Conversation Context:\n'
+          recentConversations.forEach((conv, index) => {
             const role = conv.metadata?.role || 'user'
-            const distance = conv.distance ? ` (distance: ${conv.distance.toFixed(3)})` : ''
-            systemPrompt += `${index + 1}. ${role}: "${conv.conversation_segment}"${distance}\n`
+            systemPrompt += `${index + 1}. ${role}: "${conv.conversation_segment}"\n`
           })
-        } else {
-          // If no similar conversations found, get recent conversations for context
-          const recentConversations = await this.getRecentConversations(agentId, 3)
-          if (recentConversations.length > 0) {
-            systemPrompt += '\n\n## Recent Conversation Context:\n'
-            recentConversations.forEach((conv, index) => {
-              const role = conv.metadata?.role || 'user'
-              systemPrompt += `${index + 1}. ${role}: "${conv.conversation_segment}"\n`
-            })
-          }
         }
       }
 
