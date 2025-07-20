@@ -356,6 +356,7 @@ function DashboardContent() {
           hasUserInteracted={mobile.hasUserInteracted}
           setHasUserInteracted={mobile.setHasUserInteracted}
           isMobile={mobile.isMobile}
+          organizationId={auth.currentOrganization?.id}
         />
       )
     }
@@ -387,6 +388,7 @@ function DashboardContent() {
               hasUserInteracted={mobile.hasUserInteracted}
               setHasUserInteracted={mobile.setHasUserInteracted}
               isMobile={mobile.isMobile}
+              organizationId={auth.currentOrganization?.id}
             />
           </div>
         )

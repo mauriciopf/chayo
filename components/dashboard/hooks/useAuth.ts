@@ -85,6 +85,40 @@ export function useAuth() {
     }
   }
 
+  // Fetch current organization
+  const fetchCurrentOrganization = async (userId: string) => {
+    try {
+      const { data: membership, error } = await supabase
+        .from('team_members')
+        .select(`
+          organization_id,
+          organizations!inner (
+            id,
+            name,
+            slug,
+            owner_id,
+            created_at
+          )
+        `)
+        .eq('user_id', userId)
+        .eq('status', 'active')
+        .order('joined_at', { ascending: true })
+        .limit(1)
+        .single()
+
+      if (error || !membership?.organizations) {
+        console.error('Error fetching current organization:', error)
+        return
+      }
+
+      const organization = membership.organizations as unknown as Organization
+      console.log('🔍 useAuth: Setting current organization:', organization)
+      setCurrentOrganization(organization)
+    } catch (error) {
+      console.error('Error fetching current organization:', error)
+    }
+  }
+
   // Auth state sync
   useEffect(() => {
     if (user) {
@@ -127,7 +161,8 @@ export function useAuth() {
               
               await Promise.all([
                 fetchAgents(),
-                fetchSubscription(user.id)
+                fetchSubscription(user.id),
+                fetchCurrentOrganization(user.id)
               ])
               return
             }
@@ -180,7 +215,8 @@ export function useAuth() {
           await ensureUserHasOrganization(session.user)
           await Promise.all([
             fetchAgents(),
-            fetchSubscription(session.user.id)
+            fetchSubscription(session.user.id),
+            fetchCurrentOrganization(session.user.id)
           ])
           setLoading(false)
         } else if (event === 'SIGNED_OUT') {
@@ -237,6 +273,7 @@ export function useAuth() {
     // Methods
     fetchAgents,
     fetchSubscription,
+    fetchCurrentOrganization,
     ensureUserHasOrganization,
   }
 } 

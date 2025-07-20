@@ -32,6 +32,7 @@ interface ChatContainerProps {
   hasUserInteracted: boolean;
   setHasUserInteracted: (interacted: boolean) => void;
   isMobile: boolean;
+  organizationId?: string;
 }
 
 export default function ChatContainer({
@@ -56,7 +57,8 @@ export default function ChatContainer({
   otpLoading,
   hasUserInteracted,
   setHasUserInteracted,
-  isMobile
+  isMobile,
+  organizationId
 }: ChatContainerProps) {
   const t = useTranslations('chat')
 
@@ -65,6 +67,20 @@ export default function ChatContainer({
   
   // Add training hint state
   const [selectedTrainingHint, setSelectedTrainingHint] = useState<TrainingHint | null>(null)
+  const [refreshHintsTrigger, setRefreshHintsTrigger] = useState(0)
+
+  // Refresh training hints when messages change (new business info collected)
+  useEffect(() => {
+    // Check if the last message is from AI (indicating new business info was processed)
+    if (messages.length > 0 && messages[messages.length - 1].role === 'ai') {
+      // Trigger refresh of training hints after a short delay to allow API to update
+      const timer = setTimeout(() => {
+        setRefreshHintsTrigger(prev => prev + 1)
+      }, 1000) // 1 second delay to ensure business info is updated
+      
+      return () => clearTimeout(timer)
+    }
+  }, [messages])
 
   // Handler for quick reply chip click
   const handleQuickReply = (context: ChatContextType) => {
@@ -223,6 +239,8 @@ export default function ChatContainer({
           <TrainingHintChips 
             selectedHint={selectedTrainingHint}
             onHintSelect={handleTrainingHintSelect}
+            organizationId={organizationId}
+            refreshTrigger={refreshHintsTrigger}
             className="w-full"
           />
         </div>
