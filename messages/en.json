@@ -1,12 +1,12 @@
 {
   "footer": {
     "brand": "Chayo",
-    "tagline": "Tu asistente de salud digital, 24/7",
-    "description": "Your AI health assistant who never sleeps. Smart, reliable, and always ready to help you maintain your wellness.",
+    "tagline": "Tu comadre digital, 24/7",
+    "description": "Your AI business assistant who never sleeps. Smart, reliable, and always ready to help you grow your business.",
     "language": "Language:",
     "quickLinks": "Quick Links",
     "howItWorks": "How It Works",
-    "examples": "Examples", 
+    "examples": "Examples",
     "pricing": "Pricing",
     "privacy": "Privacy Policy",
     "terms": "Terms of Service",
@@ -18,68 +18,68 @@
     "allRightsReserved": "All rights reserved."
   },
   "hero": {
-    "headline": "Your Digital Health Assistant Who Never Sleeps",
-    "subheadline": "AI health support for your wellness, available 24/7 in Spanish and English",
+    "headline": "Your Digital Business Comadre Who Never Sleeps",
+    "subheadline": "AI business support for your company, available 24/7 in Spanish and English",
     "ctaPrimary": "Start with Chayo",
     "ctaSecondary": "Watch Demo",
     "trustBadge1": "Speaks Spanish & English",
-    "trustBadge2": "Powered by ChatGPT", 
+    "trustBadge2": "Powered by ChatGPT",
     "trustBadge3": "5-minute setup",
     "conversationExample": {
-      "userMessage": "Hi Chayo, I need help with my health",
+      "userMessage": "Hi Chayo, I need help with my business",
       "chayoResponse": "Of course! Let's get you set up. 🏥 What do you want me to help you with first?",
       "features": {
-        "sell": "✅ Health monitoring",
-        "book": "✅ Book appointments", 
-        "faq": "✅ Answer health questions",
+        "sell": "✅ Business analytics",
+        "book": "✅ Schedule meetings",
+        "faq": "✅ Answer business questions",
         "support": "✅ Wellness support"
       }
     }
   },
   "howItWorks": {
     "sectionTitle": "How It Works",
-    "heroTitle": "Meet Chayo, your digital health assistant who",
+    "heroTitle": "Meet Chayo, your digital business assistant who",
     "heroHighlight": "Never Sleeps",
-    "subHeader": "Transform your wellness journey with AI that understands your health needs",
+    "subHeader": "Transform your business journey with AI that understands your business needs",
     "steps": {
       "step1": {
         "title": "Give Her Personality",
-        "description": "Define Chayo's vibe: professional, friendly, caring... You decide how she supports your health journey.",
+        "description": "Define Chayo's vibe: professional, friendly, caring... You decide how she supports your business journey.",
         "details": [
           "Custom voice tone",
-          "Unique personality for your wellness", 
+          "Unique personality for your business growth",
           "Natural responses in Spanish",
           "Adapts to your communication style"
         ]
       },
       "step2": {
         "title": "Train Her Knowledge",
-        "description": "Upload your health information and watch Chayo become an expert on your wellness needs.",
+        "description": "Upload your business information and watch Chayo become an expert on your business growth needs.",
         "details": [
           "Health history & preferences",
           "Wellness goals & communication style",
-          "Common health questions", 
+          "Common business questions",
           "Health routines & preferences"
         ]
       },
       "step3": {
         "title": "Connect Your Channels",
-        "description": "Deploy Chayo across WhatsApp, your phone, and other platforms for 24/7 health support.",
+        "description": "Deploy Chayo across WhatsApp, your phone, and other platforms for 24/7 business support.",
         "details": [
           "WhatsApp integration",
           "Mobile app support",
           "Voice calls",
           "Text messaging",
-          "Multi-channel health support"
+          "Multi-channel business support"
         ]
       },
       "step4": {
         "title": "Watch Her Work",
-        "description": "Chayo handles your health support 24/7 while you focus on your wellness journey.",
+        "description": "Chayo handles your business support 24/7 while you focus on your business journey.",
         "details": [
-          "24/7 health support",
-          "Automatic appointment booking", 
-          "Health monitoring & reminders",
+          "24/7 business support",
+          "Automatic appointment booking",
+          "Business analytics & reminders",
           "Wellness insights & progress tracking"
         ]
       }
@@ -88,16 +88,16 @@
   },
   "pricing": {
     "sectionTitle": "Simple Pricing",
-    "subheader": "Choose the perfect plan for your health journey",
+    "subheader": "Choose the perfect plan for your business journey",
     "plans": {
       "basic": {
         "name": "Basic",
         "price": "$29",
         "period": "month",
-        "description": "Perfect for getting started with AI health support",
+        "description": "Perfect for getting started with AI business support",
         "features": [
-          "Unlimited health messages",
-          "Basic health chat support",
+          "Unlimited business messages",
+          "Basic business chat support",
           "Email support",
           "Dashboard access"
         ],
@@ -105,9 +105,9 @@
       },
       "professional": {
         "name": "Professional",
-        "price": "$79", 
+        "price": "$79",
         "period": "month",
-        "description": "For individuals who need comprehensive health support and monitoring",
+        "description": "For individuals who need comprehensive business support and monitoring",
         "popular": "Most Popular",
         "features": [
           "Everything in Basic",
@@ -122,14 +122,14 @@
       "premium": {
         "name": "Premium",
         "price": "Custom",
-        "description": "For families or individuals who need advanced health features and priority support",
+        "description": "For families or individuals who need advanced business features and priority support",
         "features": [
-          "Everything in Professional", 
-          "Unlimited health consultations",
-          "Custom health integrations",
-          "Advanced health analytics",
-          "Dedicated health support",
-          "Custom health training"
+          "Everything in Professional",
+          "Unlimited business consultations",
+          "Custom business integrations",
+          "Advanced business analytics",
+          "Dedicated business support",
+          "Custom business training"
         ],
         "cta": "Contact Us"
       }
@@ -137,78 +137,78 @@
   },
   "examples": {
     "sectionTitle": "See Chayo in Action",
-    "subheader": "Real health conversations, real wellness results",
-    "description": "See how Chayo transforms health and wellness support across different specialties",
+    "subheader": "Real business conversations, real business growth results",
+    "description": "See how Chayo transforms business support across different specialties",
     "businesses": {
-      "health_coach": {
-        "name": "Wellness Coach",
-        "title": "Wellness Coach 'María'",
-        "description": "Chayo handles health consultations, schedules sessions and monitors wellness progress 24/7",
+      "food_truck": {
+        "name": "Food Truck",
+        "title": "Food Truck 'El Sabor'",
+        "description": "Chayo takes orders, manages inventory and handles customer inquiries while the owner focuses on cooking",
         "before": "Before Chayo",
         "after": "After Chayo",
-        "beforeDetails": "📱 Lost 40% of consultations\n⏰ Only available 8 hours\n😰 María always stressed",
-        "afterDetails": "🎯 0% lost consultations\n🌙 Attends 24/7\n😎 María focused on coaching",
+        "beforeDetails": "📞 Lost orders during rush\n🤔 Inventory without tracking\n📋 Manual order taking",
+        "afterDetails": "🚚 Focuses on cooking\n📱 Perfectly organized orders\n⭐ Only 2% order errors",
         "metrics": {
-          "consultations": "+300%",
-          "satisfaction": "4.9/5",
-          "wellness": "85%"
+          "orders": "+200%",
+          "efficiency": "95%",
+          "customers": "+75/week"
         },
         "conversations": [
           {
-            "user": "Hi! Can you help me with my diet?",
-            "chayo": "Of course! 🥗 I can help you with your nutrition plan. What type of diet are you looking for?"
+            "user": "Hi! What's on the menu today?",
+            "chayo": "Welcome! 🌮 Today we have tacos, quesadillas and nachos. What sounds good to you?"
           },
           {
-            "user": "I want to lose weight healthily",
-            "chayo": "Perfect! I'll help you create a personalized plan. Can we schedule a consultation for tomorrow? 💪"
+            "user": "I'll take 3 tacos please",
+            "chayo": "Perfect! 3 tacos coming up. What type of meat would you like? We have chicken, beef, and carnitas. 🥩"
           }
         ]
       },
-      "medical_clinic": {
-        "name": "Medical Clinic",
-        "title": "Medical Clinic 'Health Total'",
-        "description": "Chayo schedules medical appointments, sends reminders and handles consultations without the doctor getting distracted",
+      "beauty_salon": {
+        "name": "Beauty Salon",
+        "title": "Beauty Salon 'Bella Vista'",
+        "description": "Chayo schedules appointments, sends reminders and handles consultations without the stylist getting distracted",
         "before": "Before Chayo",
         "after": "After Chayo",
-        "beforeDetails": "📞 Answered during consultations\n📅 Double appointments by error\n💊 30% last-minute no-shows",
-        "afterDetails": "🏥 Focuses on patients\n📱 Perfectly organized appointments\n⭐ Only 5% no-shows",
+        "beforeDetails": "📞 Answered during appointments\n📅 Double bookings by error\n💄 30% last-minute no-shows",
+        "afterDetails": "💇 Focuses on clients\n📱 Perfectly organized schedule\n⭐ Only 5% no-shows",
         "metrics": {
           "appointments": "+150%",
           "efficiency": "95%",
-          "patients": "+50/month"
+          "customers": "+50/month"
         },
         "conversations": [
           {
-            "user": "Hi! I need an appointment for a general checkup",
-            "chayo": "Of course! 🏥 I have available tomorrow at 2pm or 4pm. Which works for you?"
+            "user": "Hi! I need a haircut appointment",
+            "chayo": "Of course! 💇 I have available tomorrow at 2pm or 4pm. Which works for you?"
           },
           {
             "user": "2pm is perfect",
-            "chayo": "Great! Appointment confirmed for tomorrow 2pm with Dr. García. I'll send you a reminder 2 hours before. Is your number 555-1234?"
+            "chayo": "Great! Appointment confirmed for tomorrow 2pm with Maria. I'll send you a reminder 2 hours before. Is your number 555-1234?"
           }
         ]
       },
-      "physical_therapy": {
-        "name": "Physical Therapy",
-        "title": "Physical Therapist 'Carlos'",
-        "description": "Chayo qualifies consultations, schedules sessions and explains treatments while Carlos is with patients",
+      "construction": {
+        "name": "Construction",
+        "title": "Construction Company 'BuildPro'",
+        "description": "Chayo qualifies leads, schedules estimates and manages client communications while the team is on job sites",
         "before": "Before Chayo",
         "after": "After Chayo",
-        "beforeDetails": "📞 Lost calls during sessions\n🤔 Consultations without follow-up\n📋 Late treatments",
-        "afterDetails": "📱 Attends 24/7 from office\n🔥 Hot automatic consultations\n⚡ Treatments in minutes",
+        "beforeDetails": "📞 Lost calls during projects\n🤔 Estimates without follow-up\n📋 Late project updates",
+        "afterDetails": "🔨 Attends 24/7 from office\n🔥 Hot automatic leads\n⚡ Estimates in minutes",
         "metrics": {
-          "sessions": "+400%",
-          "recovery": "85%",
-          "patients": "+25/month"
+          "projects": "+300%",
+          "leads": "90%",
+          "customers": "+25/month"
         },
         "conversations": [
           {
-            "user": "Hi! I need help with back pain",
-            "chayo": "I can help you with that! 💪 How long have you had the pain?"
+            "user": "Hi! I need a quote for a kitchen renovation",
+            "chayo": "Excellent! 🔨 I can help you with that. What's the size of your kitchen and what type of renovation are you looking for?"
           },
           {
-            "user": "About 2 weeks",
-            "chayo": "Perfect. To give you a personalized treatment, when can we schedule a session? I have available this Friday 10am or Saturday 2pm 📅"
+            "user": "It's about 200 sq ft, full renovation",
+            "chayo": "Perfect! I'll schedule our contractor to visit and give you a free estimate. Are you available this weekend? 📋"
           }
         ]
       }
@@ -216,10 +216,10 @@
   },
   "vibe": {
     "title": "Give Chayo Her Vibe",
-    "subtitle": "Configure her personality, goals, and tone to match your wellness journey perfectly",
+    "subtitle": "Configure her personality, goals, and tone to match your business journey perfectly",
     "professional": {
       "title": "Professional",
-      "description": "Formal, caring, and health-focused"
+      "description": "Formal, caring, and business-focused"
     },
     "friendly": {
       "title": "Friendly",
@@ -232,13 +232,13 @@
   },
   "training": {
     "title": "Train Her Knowledge",
-    "subtitle": "Upload your health information so Chayo becomes an expert on your wellness needs",
+    "subtitle": "Upload your business information so Chayo becomes an expert on your business growth needs",
     "uploadArea": "Drag & drop your files here",
     "supportedFiles": "Supported: PDF, DOC, TXT files"
   },
   "marketing": {
     "title": "Health Support that Actually Works",
-    "subtitle": "Stop missing important health reminders and appointments",
+    "subtitle": "Stop missing important business reminders and appointments",
     "beforeAfter": {
       "before": "Before Chayo",
       "after": "After Chayo"
@@ -246,7 +246,7 @@
   },
   "launch": {
     "title": "Launch & Scale",
-    "subtitle": "Deploy Chayo across all your devices and watch your wellness journey flourish",
+    "subtitle": "Deploy Chayo across all your devices and watch your business journey flourish",
     "cta": "Start Your Free Trial"
   },
   "common": {
@@ -268,7 +268,7 @@
     "signIn": "Sign In",
     "signOut": "Sign Out",
     "dashboard": "Dashboard",
-    "tagline": "Your digital health assistant ✨"
+    "tagline": "Your digital comadre ✨"
   },
   "auth": {
     "signIn": "Sign In",
@@ -313,7 +313,14 @@
     "analytics": "Analytics",
     "signOut": "Sign Out",
     "quickActions": "Quick Actions",
-    "navigation": "Navigation",
+    "navigation": {
+      "chat": "Chat",
+      "agents": "Agents",
+      "performance": "Performance",
+      "teamManagement": "Team Management",
+      "accountSettings": "Account Settings",
+      "billingPlans": "Billing & Plans"
+    },
     "agentCount": "AI Agents",
     "teamCount": "Team",
     "yourAIAgents": "Your AI Agents",
@@ -329,7 +336,7 @@
     "failedToUpdateOrg": "Failed to update organization",
     "billingPortalError": "Unable to open billing portal. Please try again.",
     "createAgentButton": "Create Agent",
-    "upgradePlan": "Upgrade Plan", 
+    "upgradePlan": "Upgrade Plan",
     "changePlan": "Change Plan",
     "connectChannels": "Connect Channels",
     "yourPlanFeatures": "Your Plan Features",
@@ -346,10 +353,30 @@
     "organizationSetupFailed": "Failed to set up organization. Please try refreshing the page.",
     "organizationSettingUp": "Setting up your organization...",
     "planFeatures": {
-      "free": ["Trial Access", "Basic Chat Only", "Limited Messages"],
-      "basic": ["1 WhatsApp AI Agent", "Centralized Chat", "CRM & Contacts", "Basic Workflows"],
-      "pro": ["Basic Plan +", "Web AI Widget", "Voice AI Agent", "Sales Pipeline"],
-      "premium": ["Pro Plan +", "2 WhatsApp AI Agents", "Instagram & Facebook", "Email Marketing", "Premium Support"]
+      "free": [
+        "Trial Access",
+        "Basic Chat Only",
+        "Limited Messages"
+      ],
+      "basic": [
+        "1 WhatsApp AI Agent",
+        "Centralized Chat",
+        "CRM & Contacts",
+        "Basic Workflows"
+      ],
+      "pro": [
+        "Basic Plan +",
+        "Web AI Widget",
+        "Voice AI Agent",
+        "Sales Pipeline"
+      ],
+      "premium": [
+        "Pro Plan +",
+        "2 WhatsApp AI Agents",
+        "Instagram & Facebook",
+        "Email Marketing",
+        "Premium Support"
+      ]
     },
     "trialPromotion": {
       "headline": "🚀 Start Your 3-Day WhatsApp AI Trial",
@@ -363,291 +390,287 @@
       "daysFree": "days free"
     },
     "greatYourAgentsReady": "Great! Your agents are ready",
-    "nowConnectAgentsDescription": "Now connect your agents to communication channels like WhatsApp, SMS, or website chat to start serving customers.",
-    "navigation": {
-      "chat": "Chat",
-      "agents": "Agents",
-      "performance": "Performance",
-      "teamManagement": "Team Management",
-      "accountSettings": "Account Settings",
-      "billingPlans": "Billing & Plans"
+    "nowConnectAgentsDescription": "Now connect your agents to communication channels like WhatsApp, SMS, or website chat to start serving customers."
+  },
+  "agentCard": {
+    "tone": "TONE:",
+    "goals": "GOALS:",
+    "docs": "Docs",
+    "more": "more",
+    "created": "Created",
+    "editAgent": "Edit Agent",
+    "manageDocuments": "Manage Documents",
+    "pauseAgent": "Pause Agent",
+    "resumeAgent": "Resume Agent",
+    "deleteAgent": "Delete Agent",
+    "connectedChannels": "Connected Channels",
+    "noChannelsConnected": "No channels connected",
+    "availableChannels": "Available Channels",
+    "configure": "Configure",
+    "resume": "Resume",
+    "pause": "Pause",
+    "activeChannels": "active",
+    "status": {
+      "label": "Status",
+      "active": "Active",
+      "paused": "Paused"
     }
   },
-
-    "agentCard": {
-      "tone": "TONE:",
-      "goals": "GOALS:",
-      "docs": "Docs",
-      "more": "more",
-      "created": "Created",
-      "editAgent": "Edit Agent",
-      "manageDocuments": "Manage Documents",
-      "pauseAgent": "Pause Agent",
-      "resumeAgent": "Resume Agent",
-      "deleteAgent": "Delete Agent",
-      "connectedChannels": "Connected Channels",
-      "noChannelsConnected": "No channels connected", 
-      "availableChannels": "Available Channels",
-      "configure": "Configure",
-      "resume": "Resume", 
-      "pause": "Pause",
-      "activeChannels": "active",
-      "status": {
-        "label": "Status",
-        "active": "Active",
-        "paused": "Paused"
-      }
+  "manageDocumentsModal": {
+    "title": "Manage Documents",
+    "agent": "Agent",
+    "done": "Done",
+    "loadingDocuments": "Loading documents...",
+    "totalDocuments": "Total Documents:",
+    "processedCount": "Processed:"
+  },
+  "channelStatusWidget": {
+    "title": "Channel Status",
+    "connected": "Connected",
+    "comingSoon": "Coming Soon",
+    "disconnected": "Disconnected",
+    "manageChannels": "Manage Channels"
+  },
+  "performanceOverview": {
+    "title": "Performance Overview",
+    "periods": {
+      "current_month": "Current Month",
+      "last_month": "Last Month",
+      "last_3_months": "Last 3 Months",
+      "last_6_months": "Last 6 Months",
+      "current_year": "Current Year"
+    }
+  },
+  "chatDashboard": {
+    "title": "Chayo Chat",
+    "selectAgent": "Select Agent",
+    "noAgentsAvailable": "No Agents Available",
+    "createFirstAgentMessage": "You need to create an AI agent first to start chatting.",
+    "createFirstAgentButton": "Create Your First Agent",
+    "chayoTyping": "Chayo is typing...",
+    "error": "An error occurred. Please try again.",
+    "systemPrompt": "You are Chayo, an AI assistant designed to help with business inquiries and customer support."
+  },
+  "teamManagement": {
+    "title": "Team Members",
+    "description": "Manage your {organizationName} team members and permissions",
+    "inviteMember": "Invite Member",
+    "activeMembers": "Active Members",
+    "noTeamMembers": "No team members yet",
+    "joined": "Joined",
+    "pendingInvitations": "Pending Invitations",
+    "invited": "Invited",
+    "expires": "Expires",
+    "remove": "Remove",
+    "cancel": "Cancel",
+    "inviteTeamMember": "Invite Team Member",
+    "emailAddress": "Email Address",
+    "enterEmailAddress": "Enter email address",
+    "role": "Role",
+    "member": "Member",
+    "admin": "Admin",
+    "owner": "Owner",
+    "sending": "Sending...",
+    "sendInvitation": "Send Invitation"
+  },
+  "setupInstructions": {
+    "title": "One-Time Database Setup Required",
+    "description": "To enable automatic organization creation and team management, please run the one-time database migration script.",
+    "showInstructions": "Show Instructions",
+    "hideInstructions": "Hide Instructions",
+    "retry": "Retry Setup",
+    "step1": "Open your terminal and navigate to your project directory",
+    "step2": "Run the migration script",
+    "step3": "Wait for the script to complete successfully",
+    "step4": "Click 'Retry Setup' below to continue"
+  },
+  "documentManager": {
+    "title": "Document Manager",
+    "uploadDocument": "Upload Document",
+    "uploadDescription": "Upload PDF documents to train your agent",
+    "dragDropText": "Drag and drop a PDF file here, or click to select",
+    "uploadButton": "Upload PDF",
+    "noDocuments": "No documents uploaded yet",
+    "processing": "Processing...",
+    "processed": "Processed",
+    "failed": "Failed",
+    "deleteDocument": "Delete Document",
+    "confirmDelete": "Are you sure you want to delete this document?",
+    "fileSizes": {
+      "zeroBytes": "0 Bytes",
+      "bytes": "Bytes",
+      "kb": "KB",
+      "mb": "MB",
+      "gb": "GB"
     },
-
-    "manageDocumentsModal": {
-      "title": "Manage Documents",
-      "agent": "Agent",
-      "done": "Done",
-      "loadingDocuments": "Loading documents...",
-      "totalDocuments": "Total Documents:",
-      "processedCount": "Processed:"
+    "errors": {
+      "onlyPdf": "Only PDF files are allowed",
+      "fileSize": "File size must be less than 10MB",
+      "uploadFailed": "Failed to upload document",
+      "deleteFailed": "Failed to delete document"
+    }
+  },
+  "whatsAppOnboarding": {
+    "title": "WhatsApp Setup for",
+    "subtitle": "Connect your agent to WhatsApp in just a few steps",
+    "step1Title": "Choose Phone Number Option",
+    "step2Title": "Select Your Phone Number",
+    "step3Title": "Business Information",
+    "newNumberOption": "Get a new number through Chayo",
+    "newNumberDescription": "We'll provide a WhatsApp Business number for you",
+    "existingNumberOption": "Use your existing WhatsApp number",
+    "existingNumberDescription": "Connect your current WhatsApp Business number",
+    "selectCountry": "Select Country",
+    "phoneNumber": "Phone Number",
+    "phoneNumberPlaceholder": "Enter your phone number",
+    "businessName": "Business Name",
+    "businessNamePlaceholder": "Enter your business name",
+    "businessDescription": "Business Description",
+    "businessDescriptionPlaceholder": "Describe what your business does...",
+    "selectNumber": "Select Number",
+    "loadingNumbers": "Loading available numbers...",
+    "noNumbersAvailable": "No numbers available for this country",
+    "refreshNumbers": "Refresh Numbers",
+    "backButton": "Back",
+    "nextButton": "Next",
+    "setupWhatsApp": "Setup WhatsApp",
+    "processing": "Setting up...",
+    "cancel": "Cancel",
+    "recommended": "Recommended",
+    "instantSetup": "✅ Instant setup • ✅ No downtime • ✅ Ready to use immediately",
+    "freeTrialTitle": "3-Day Free Trial",
+    "freeTrialDescription": "Your number includes a 3-day free trial. After that, you'll need to upgrade to continue using WhatsApp.",
+    "migrationWarning": "⚠️ Requires WhatsApp account deletion • ⚠️ 24-48h downtime possible",
+    "setupSummary": "Setup Summary",
+    "agent": "Agent",
+    "phone": "Phone",
+    "business": "Business",
+    "countries": {
+      "unitedStates": "United States",
+      "canada": "Canada",
+      "mexico": "Mexico",
+      "spain": "Spain",
+      "argentina": "Argentina",
+      "brazil": "Brazil",
+      "chile": "Chile",
+      "colombia": "Colombia",
+      "venezuela": "Venezuela",
+      "peru": "Peru",
+      "ecuador": "Ecuador",
+      "unitedKingdom": "United Kingdom",
+      "france": "France",
+      "germany": "Germany",
+      "italy": "Italy"
     },
-    "channelStatusWidget": {
-      "title": "Channel Status",
-      "connected": "Connected",
-      "comingSoon": "Coming Soon",
-      "disconnected": "Disconnected",
-      "manageChannels": "Manage Channels"
+    "errors": {
+      "phoneRequired": "Phone number is required",
+      "phoneMinLength": "Phone number must be at least 10 digits",
+      "selectNumber": "Please select a phone number",
+      "businessNameRequired": "Business name is required",
+      "businessDescriptionRequired": "Business description is required",
+      "fetchNumbers": "Failed to fetch available numbers",
+      "purchaseNumber": "Failed to purchase phone number",
+      "setupFailed": "Failed to setup WhatsApp"
     },
-    "performanceOverview": {
-      "title": "Performance Overview",
-      "periods": {
-        "current_month": "Current Month",
-        "last_month": "Last Month", 
-        "last_3_months": "Last 3 Months",
-        "last_6_months": "Last 6 Months",
-        "current_year": "Current Year"
-      }
-    },
-    "chatDashboard": {
-      "title": "Chayo Chat",
-      "selectAgent": "Select Agent",
-      "noAgentsAvailable": "No Agents Available",
-      "createFirstAgentMessage": "You need to create an AI agent first to start chatting.",
-      "createFirstAgentButton": "Create Your First Agent",
-      "chayoTyping": "Chayo is typing...",
-      "error": "An error occurred. Please try again.",
-      "systemPrompt": "You are Chayo, an AI assistant designed to help with health and wellness business inquiries and customer support."
-    },
-    "teamManagement": {
-      "title": "Team Members",
-      "description": "Manage your {organizationName} team members and permissions",
-      "inviteMember": "Invite Member",
-      "activeMembers": "Active Members",
-      "noTeamMembers": "No team members yet",
-      "joined": "Joined",
-      "pendingInvitations": "Pending Invitations",
-      "invited": "Invited",
-      "expires": "Expires",
-      "remove": "Remove",
-      "cancel": "Cancel",
-      "inviteTeamMember": "Invite Team Member",
-      "emailAddress": "Email Address",
-      "enterEmailAddress": "Enter email address",
-      "role": "Role",
-      "member": "Member",
-      "admin": "Admin",
-      "owner": "Owner",
-      "sending": "Sending...",
-      "sendInvitation": "Send Invitation"
-    },
-    "setupInstructions": {
-      "title": "One-Time Database Setup Required",
-      "description": "To enable automatic organization creation and team management, please run the one-time database migration script.",
-      "showInstructions": "Show Instructions",
-      "hideInstructions": "Hide Instructions",
-      "retry": "Retry Setup",
-      "step1": "Open your terminal and navigate to your project directory",
-      "step2": "Run the migration script",
-      "step3": "Wait for the script to complete successfully",
-      "step4": "Click 'Retry Setup' below to continue"
-    },
-    "documentManager": {
-      "title": "Document Manager",
-      "uploadDocument": "Upload Document",
-      "uploadDescription": "Upload PDF documents to train your agent",
-      "dragDropText": "Drag and drop a PDF file here, or click to select",
-      "uploadButton": "Upload PDF",
-      "noDocuments": "No documents uploaded yet",
-      "processing": "Processing...",
-      "processed": "Processed",
-      "failed": "Failed",
-      "deleteDocument": "Delete Document",
-      "confirmDelete": "Are you sure you want to delete this document?",
-      "fileSizes": {
-        "zeroBytes": "0 Bytes",
-        "bytes": "Bytes",
-        "kb": "KB",
-        "mb": "MB",
-        "gb": "GB"
+    "migration": {
+      "ownNumber": "Own the number",
+      "ownNumberDesc": "Must be SMS/voice capable, not shared with another Meta Business account",
+      "deleteAccount": "Delete WhatsApp Account",
+      "deleteAccountDesc": "Open WhatsApp Business → Settings → Account → Delete My Account",
+      "waitSystems": "Wait for Meta systems",
+      "waitSystemsDesc": "Can take 24-48 hours for number to be released",
+      "duringMigration": "During migration",
+      "duringMigrationDesc": "Number cannot receive messages"
+    }
+  },
+  "subscriptionPlans": {
+    "title": "Choose Your Chayo Plan",
+    "subtitle": "WhatsApp AI is available now • Other channels coming soon",
+    "basicPlan": "Basic Plan",
+    "proPlan": "Pro Plan",
+    "enterprisePlan": "Enterprise Plan",
+    "popularBadge": "Most Popular",
+    "currentPlan": "Current Plan",
+    "comingSoon": "Coming Soon",
+    "upgradeNow": "Upgrade Now",
+    "manageSubscription": "Manage Subscription",
+    "perMonth": "USD/month",
+    "processing": "Processing...",
+    "startFreeTrial": "Start Free Trial",
+    "needChanges": "Need to make changes to your subscription?",
+    "subscript": "All prices in USD. Taxes may apply. Cancel anytime.",
+    "plans": {
+      "basic": {
+        "name": "Basic Plan"
       },
-      "errors": {
-        "onlyPdf": "Only PDF files are allowed",
-        "fileSize": "File size must be less than 10MB",
-        "uploadFailed": "Failed to upload document",
-        "deleteFailed": "Failed to delete document"
+      "professional": {
+        "name": "Professional Plan"
+      },
+      "premium": {
+        "name": "Premium Plan"
       }
     },
-    "whatsAppOnboarding": {
-      "title": "WhatsApp Setup for",
-      "subtitle": "Connect your agent to WhatsApp in just a few steps",
-      "step1Title": "Choose Phone Number Option",
-      "step2Title": "Select Your Phone Number",
-      "step3Title": "Business Information",
-      "newNumberOption": "Get a new number through Chayo",
-      "newNumberDescription": "We'll provide a WhatsApp Business number for you",
-      "existingNumberOption": "Use your existing WhatsApp number",
-      "existingNumberDescription": "Connect your current WhatsApp Business number",
-      "selectCountry": "Select Country",
-      "phoneNumber": "Phone Number",
-      "phoneNumberPlaceholder": "Enter your phone number",
-      "businessName": "Business Name",
-      "businessNamePlaceholder": "Enter your business name",
-      "businessDescription": "Business Description",
-      "businessDescriptionPlaceholder": "Describe what your business does...",
-      "selectNumber": "Select Number",
-      "loadingNumbers": "Loading available numbers...",
-      "noNumbersAvailable": "No numbers available for this country",
-      "refreshNumbers": "Refresh Numbers",
-      "backButton": "Back",
-      "nextButton": "Next",
-      "setupWhatsApp": "Setup WhatsApp",
-      "processing": "Setting up...",
-      "cancel": "Cancel",
-      "recommended": "Recommended",
-      "instantSetup": "✅ Instant setup • ✅ No downtime • ✅ Ready to use immediately",
-      "freeTrialTitle": "3-Day Free Trial",
-      "freeTrialDescription": "Your number includes a 3-day free trial. After that, you'll need to upgrade to continue using WhatsApp.",
-      "migrationWarning": "⚠️ Requires WhatsApp account deletion • ⚠️ 24-48h downtime possible",
-      "setupSummary": "Setup Summary",
-      "agent": "Agent",
-      "phone": "Phone",
-      "business": "Business",
-      "countries": {
-        "unitedStates": "United States",
-        "canada": "Canada",
-        "mexico": "Mexico",
-        "spain": "Spain",
-        "argentina": "Argentina",
-        "brazil": "Brazil",
-        "chile": "Chile",
-        "colombia": "Colombia",
-        "venezuela": "Venezuela",
-        "peru": "Peru",
-        "ecuador": "Ecuador",
-        "unitedKingdom": "United Kingdom",
-        "france": "France",
-        "germany": "Germany",
-        "italy": "Italy"
-      },
-      "errors": {
-        "phoneRequired": "Phone number is required",
-        "phoneMinLength": "Phone number must be at least 10 digits",
-        "selectNumber": "Please select a phone number",
-        "businessNameRequired": "Business name is required",
-        "businessDescriptionRequired": "Business description is required",
-        "fetchNumbers": "Failed to fetch available numbers",
-        "purchaseNumber": "Failed to purchase phone number",
-        "setupFailed": "Failed to setup WhatsApp"
-      },
-      "migration": {
-        "ownNumber": "Own the number",
-        "ownNumberDesc": "Must be SMS/voice capable, not shared with another Meta Business account",
-        "deleteAccount": "Delete WhatsApp Account",
-        "deleteAccountDesc": "Open WhatsApp Business → Settings → Account → Delete My Account",
-        "waitSystems": "Wait for Meta systems",
-        "waitSystemsDesc": "Can take 24-48 hours for number to be released",
-        "duringMigration": "During migration",
-        "duringMigrationDesc": "Number cannot receive messages"
-      }
-    },
-    "subscriptionPlans": {
-      "title": "Choose Your Chayo Plan",
-      "subtitle": "WhatsApp AI is available now • Other channels coming soon",
-      "basicPlan": "Basic Plan",
-      "proPlan": "Pro Plan",
-      "enterprisePlan": "Enterprise Plan",
-      "popularBadge": "Most Popular",
-      "currentPlan": "Current Plan",
-      "comingSoon": "Coming Soon",
-      "upgradeNow": "Upgrade Now",
-      "manageSubscription": "Manage Subscription",
-      "perMonth": "USD/month",
-      "processing": "Processing...",
-      "startFreeTrial": "Start Free Trial",
-      "needChanges": "Need to make changes to your subscription?",
-      "subscript": "All prices in USD. Taxes may apply. Cancel anytime.",
-      "plans": {
-        "basic": { "name": "Basic Plan" },
-        "professional": { "name": "Professional Plan" },
-        "premium": { "name": "Premium Plan" }
-      },
-      "features": {
-        "whatsAppAgent": "WhatsApp AI Agent (Available now)",
-        "multipleAgents": "Multiple AI Agents",
-        "prioritySupport": "Priority Support",
-        "advancedAnalytics": "Advanced Analytics",
-        "customIntegrations": "Custom Integrations",
-        "dedicatedManager": "Dedicated Account Manager"
-      }
-    },
-    "profileSettings": {
-      "title": "Profile Settings",
-      "description": "Manage your account information, password, and preferences.",
-      "profileInformation": "Profile Information",
-      "displayName": "Display Name",
-      "displayNamePlaceholder": "Enter your display name",
-      "emailAddress": "Email Address",
-      "emailPlaceholder": "Enter your email",
-      "emailVerificationNote": "Changing your email will require verification",
-      "updateProfile": "Update Profile",
-      "updating": "Updating...",
-      "organizationName": "Organization Name",
-      "organizationNamePlaceholder": "Enter organization name",
-      "save": "Save",
-      "changePassword": "Change Password",
-      "newPassword": "New Password",
-      "newPasswordPlaceholder": "Enter new password",
-      "confirmNewPassword": "Confirm New Password",
-      "confirmPasswordPlaceholder": "Confirm new password",
-      "accountInformation": "Account Information",
-      "userId": "User ID",
-      "accountCreated": "Account Created",
-      "lastSignIn": "Last Sign In",
-      "emailConfirmed": "Email Confirmed",
-      "yes": "Yes",
-      "pending": "Pending",
-      "never": "Never"
-    },
-    "whatsAppStatusCard": {
-      "title": "WhatsApp Business",
-      "connected": "Connected",
-      "notConnected": "Not connected",
-      "active": "Active",
-      "inactive": "Inactive",
-      "phoneNumber": "Phone Number:",
-      "businessName": "Business Name:",
-      "status": "Status:",
-      "messagesHandled": "Messages Handled:",
-      "lastMessage": "Last Message:",
-      "refreshStatus": "Refresh Status",
-      "setupDescription": "Connect your WhatsApp Business account to start receiving and responding to messages automatically.",
-      "setupWhatsApp": "Setup WhatsApp"
-    },
-    "planBadge": {
-      "free": "Free",
-      "basic": "Basic",
-      "pro": "Pro",
-      "premium": "Premium"
-    },
-    "metricCard": {
-      "noData": "No data available"
-    },
+    "features": {
+      "whatsAppAgent": "WhatsApp AI Agent (Available now)",
+      "multipleAgents": "Multiple AI Agents",
+      "prioritySupport": "Priority Support",
+      "advancedAnalytics": "Advanced Analytics",
+      "customIntegrations": "Custom Integrations",
+      "dedicatedManager": "Dedicated Account Manager"
+    }
+  },
+  "profileSettings": {
+    "title": "Profile Settings",
+    "description": "Manage your account information, password, and preferences.",
+    "profileInformation": "Profile Information",
+    "displayName": "Display Name",
+    "displayNamePlaceholder": "Enter your display name",
+    "emailAddress": "Email Address",
+    "emailPlaceholder": "Enter your email",
+    "emailVerificationNote": "Changing your email will require verification",
+    "updateProfile": "Update Profile",
+    "updating": "Updating...",
+    "organizationName": "Organization Name",
+    "organizationNamePlaceholder": "Enter organization name",
+    "save": "Save",
+    "changePassword": "Change Password",
+    "newPassword": "New Password",
+    "newPasswordPlaceholder": "Enter new password",
+    "confirmNewPassword": "Confirm New Password",
+    "confirmPasswordPlaceholder": "Confirm new password",
+    "accountInformation": "Account Information",
+    "userId": "User ID",
+    "accountCreated": "Account Created",
+    "lastSignIn": "Last Sign In",
+    "emailConfirmed": "Email Confirmed",
+    "yes": "Yes",
+    "pending": "Pending",
+    "never": "Never"
+  },
+  "whatsAppStatusCard": {
+    "title": "WhatsApp Business",
+    "connected": "Connected",
+    "notConnected": "Not connected",
+    "active": "Active",
+    "inactive": "Inactive",
+    "phoneNumber": "Phone Number:",
+    "businessName": "Business Name:",
+    "status": "Status:",
+    "messagesHandled": "Messages Handled:",
+    "lastMessage": "Last Message:",
+    "refreshStatus": "Refresh Status",
+    "setupDescription": "Connect your WhatsApp Business account to start receiving and responding to messages automatically.",
+    "setupWhatsApp": "Setup WhatsApp"
+  },
+  "planBadge": {
+    "free": "Free",
+    "basic": "Basic",
+    "pro": "Pro",
+    "premium": "Premium"
+  },
+  "metricCard": {
+    "noData": "No data available"
+  },
   "integrations": {
     "title": "Channel Integrations",
     "backToDashboard": "Back to Dashboard",
@@ -973,7 +996,7 @@
         "nativeName": "English"
       },
       "es": {
-        "name": "Spanish", 
+        "name": "Spanish",
         "nativeName": "Español"
       }
     }
@@ -982,7 +1005,7 @@
     "aiAssistant": "AI Assistant",
     "readyToHelp": "Ready to help with your business",
     "emptyTitle": "¡Hola! I'm Chayo",
-    "emptySubtitle": "Your AI health business assistant ready to help you grow and optimize your health and wellness business.",
+    "emptySubtitle": "Your AI business.",
     "emptyGettingStarted": "Let's get started:",
     "emptyStepBusiness": "Tell me about your business and industry",
     "emptyStepChallenges": "Share your biggest challenges",

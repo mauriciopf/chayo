@@ -10,8 +10,11 @@ import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/components/dashboard/hooks/useAuth'
 import { useChat } from '@/components/dashboard/hooks/useChat'
 import { useMobile } from '@/components/dashboard/hooks/useMobile'
+import { useDashboardInit } from '@/components/dashboard/hooks/useDashboardInit'
+import { useAutoStartChat } from '@/components/dashboard/hooks/useAutoStartChat'
 import { useAuthFlow } from '@/components/dashboard/AuthFlow'
 import ChatContainer from '@/components/dashboard/ChatContainer'
+import ClientQRCode from '@/components/dashboard/ClientQRCode'
 import MobileHeader from '@/components/dashboard/MobileHeader'
 import MobileNavigation from '@/components/dashboard/MobileNavigation'
 import DesktopNavigation from '@/components/dashboard/DesktopNavigation'
@@ -61,6 +64,31 @@ function DashboardContent() {
   // Initialize all hooks
   const auth = useAuth()
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null)
+  
+  // Initialize dashboard data
+  const dashboardInit = useDashboardInit(locale)
+  
+  // Check if all dependencies are ready for auto-start
+  const isAutoStartReady = !!(
+    dashboardInit.initData && 
+    !dashboardInit.isLoading && 
+    selectedAgent && 
+    auth.user && 
+    !auth.loading &&
+    dashboardInit.initData.shouldAutoStartChat &&
+    dashboardInit.initData.initialChatMessage
+  )
+  
+
+  
+  // Auto-start chat when dashboard data is ready
+  const autoStartChat = useAutoStartChat(
+    selectedAgent?.id || null,
+    dashboardInit.initData?.shouldAutoStartChat || false,
+    dashboardInit.initData?.initialChatMessage,
+    locale,
+    isAutoStartReady
+  )
   
   // Initialize mobile hook with placeholder scroll function
   const mobile = useMobile(() => {})
@@ -121,6 +149,82 @@ function DashboardContent() {
   const [organizationSetupError, setOrganizationSetupError] = useState<string | null>(null)
   const [targetPlan, setTargetPlan] = useState<string | null>(null)
   const [showHamburgerMenu, setShowHamburgerMenu] = useState(false)
+  const [showQRCode, setShowQRCode] = useState(false)
+  const [businessInfoGathered, setBusinessInfoGathered] = useState(0)
+
+  // Check business info gathered count to show QR code
+  useEffect(() => {
+    const checkBusinessInfo = async () => {
+      if (auth.user && auth.currentOrganization && businessInfoGathered >= 5) {
+        setShowQRCode(true)
+      }
+    }
+    checkBusinessInfo()
+  }, [auth.user, auth.currentOrganization, businessInfoGathered])
+
+  // Monitor chat messages for QR code trigger
+  useEffect(() => {
+    // Check if any recent message mentions QR code generation
+    const recentMessages = chat.messages.slice(-5) // Check last 5 messages instead of 3
+    const hasQRMention = recentMessages.some(msg => 
+      msg.role === 'ai' && (
+        msg.content.includes('QR code') || 
+        msg.content.includes('QR') ||
+        msg.content.includes('código QR') ||
+        msg.content.includes('client chat system') ||
+        msg.content.includes('sistema de chat con los clientes') ||
+        msg.content.includes('available in your dashboard') ||
+        msg.content.includes('disponible en su panel') ||
+        msg.content.includes('Generaré un código QR') ||
+        msg.content.includes('generate a QR code') ||
+        msg.content.includes('share with your customers') ||
+        msg.content.includes('compartir con sus clientes') ||
+        msg.content.includes('chat directly with your personalized') ||
+        msg.content.includes('chatear directamente con su') ||
+        msg.content.includes('configurar su sistema de chat')
+      )
+    )
+    
+    console.log('QR Code Detection:', {
+      hasQRMention,
+      selectedAgent: !!selectedAgent,
+      recentMessagesCount: recentMessages.length,
+      lastMessage: recentMessages[recentMessages.length - 1]?.content?.substring(0, 100)
+    })
+    
+    if (hasQRMention && selectedAgent) {
+      console.log('🎯 QR Code trigger detected! Switching to QR view and showing QR code component.')
+      setShowQRCode(true)
+      // Automatically switch to QR code view
+      setActiveView('qrcode')
+    }
+  }, [chat.messages, selectedAgent])
+
+  // Also check business info gathered count directly
+  useEffect(() => {
+    const checkBusinessInfoCount = async () => {
+      if (auth.user && auth.currentOrganization && selectedAgent) {
+        try {
+          // Check business constraints directly
+          const { data: viewData, error } = await supabase
+            .from('business_constraints_view')
+            .select('business_constraints')
+            .eq('organization_id', auth.currentOrganization.id)
+            .single()
+
+          if (viewData && viewData.business_constraints && viewData.business_constraints.business_info_gathered >= 5) {
+            console.log('🎯 Business info count trigger detected! Showing QR code component.')
+            setShowQRCode(true)
+            setBusinessInfoGathered(viewData.business_constraints.business_info_gathered)
+          }
+        } catch (error) {
+          console.error('Error checking business info count:', error)
+        }
+      }
+    }
+
+    checkBusinessInfoCount()
+  }, [auth.user, auth.currentOrganization, selectedAgent, chat.messages, supabase])
 
   // Handle URL params for plans
   useEffect(() => {
@@ -143,10 +247,59 @@ function DashboardContent() {
     chat.messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [chat.messages, chat.chatLoading])
 
-  // Load agents on mount
+  // Load agents and business data from dashboard init service
   useEffect(() => {
-    auth.fetchAgents()
-  }, [])
+    if (dashboardInit.initData && !dashboardInit.isLoading) {
+      // Use agents from dashboard init
+      if (dashboardInit.initData.agents && dashboardInit.initData.agents.length > 0) {
+        // Set agents in auth state for compatibility
+        auth.setAgents(dashboardInit.initData.agents)
+        
+        // Set the first agent as selected if none selected
+        if (!selectedAgent) {
+          console.log('Setting selected agent from dashboard init:', dashboardInit.initData.agents[0])
+          setSelectedAgent(dashboardInit.initData.agents[0])
+        }
+      }
+      
+      // Update business info gathered count
+      if (dashboardInit.initData.businessInfoFields) {
+        setBusinessInfoGathered(dashboardInit.initData.businessInfoFields.business_info_gathered || 0)
+      }
+    }
+  }, [dashboardInit.initData, dashboardInit.isLoading, selectedAgent])
+
+
+
+
+
+  // Handle auto-start chat response
+  useEffect(() => {
+    if (autoStartChat.initialResponse && chat.messages.length === 0) {
+      console.log('📝 Adding auto-start response to chat:', autoStartChat.initialResponse.substring(0, 100) + '...')
+      
+      // Add the initial AI response to chat messages
+      chat.setMessages([
+        {
+          id: 'auto-start-' + Date.now(),
+          content: autoStartChat.initialResponse,
+          role: 'ai',
+          timestamp: new Date()
+        }
+      ])
+    }
+  }, [autoStartChat.initialResponse, chat.messages.length, selectedAgent])
+
+  // Debug logging for QR code state
+  useEffect(() => {
+    console.log('QR Code State:', {
+      showQRCode,
+      selectedAgent: selectedAgent?.id,
+      businessInfoGathered,
+      hasOrganization: !!auth.currentOrganization,
+      messagesCount: chat.messages.length
+    })
+  }, [showQRCode, selectedAgent, businessInfoGathered, auth.currentOrganization, chat.messages.length])
 
   // Handle logout
   const handleLogout = async () => {
@@ -209,30 +362,45 @@ function DashboardContent() {
     switch (activeView) {
       case 'chat':
         return (
-          <ChatContainer
-            messages={chat.messages}
-            setMessages={chat.setMessages}
-            chatLoading={chat.chatLoading}
-            chatError={chat.chatError}
-            input={chat.input}
-            setInput={chat.setInput}
-            handleSend={chat.handleSend}
-            handleInputFocus={chat.handleInputFocus}
-            handleOTPFlow={authFlow.handleOTPFlow}
-            messagesEndRef={chat.messagesEndRef}
-            inputRef={chat.inputRef}
-            chatScrollContainerRef={chat.chatScrollContainerRef}
-            fileInputRef={chat.fileInputRef}
-            handleFileChange={chat.handleFileChange}
-            uploading={chat.uploading}
-            uploadProgress={chat.uploadProgress}
-            user={auth.user}
-            authState={auth.authState}
-            otpLoading={auth.otpLoading}
-            hasUserInteracted={mobile.hasUserInteracted}
-            setHasUserInteracted={mobile.setHasUserInteracted}
-            isMobile={mobile.isMobile}
-          />
+          <div className="w-full max-w-7xl mx-auto">
+            <ChatContainer
+              messages={chat.messages}
+              setMessages={chat.setMessages}
+              chatLoading={chat.chatLoading}
+              chatError={chat.chatError}
+              input={chat.input}
+              setInput={chat.setInput}
+              handleSend={chat.handleSend}
+              handleInputFocus={chat.handleInputFocus}
+              handleOTPFlow={authFlow.handleOTPFlow}
+              messagesEndRef={chat.messagesEndRef}
+              inputRef={chat.inputRef}
+              chatScrollContainerRef={chat.chatScrollContainerRef}
+              fileInputRef={chat.fileInputRef}
+              handleFileChange={chat.handleFileChange}
+              uploading={chat.uploading}
+              uploadProgress={chat.uploadProgress}
+              user={auth.user}
+              authState={auth.authState}
+              otpLoading={auth.otpLoading}
+              hasUserInteracted={mobile.hasUserInteracted}
+              setHasUserInteracted={mobile.setHasUserInteracted}
+              isMobile={mobile.isMobile}
+            />
+          </div>
+        )
+      case 'qrcode':
+        return selectedAgent ? (
+          <div className="w-full max-w-4xl mx-auto">
+            <ClientQRCode 
+              agent={selectedAgent}
+              isVisible={true}
+            />
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <p className="text-gray-500">No agent selected. Please go to Agents to create one.</p>
+          </div>
         )
       case 'agents':
         return <AgentsView />
@@ -259,14 +427,45 @@ function DashboardContent() {
     }
   }
 
-  if (auth.loading) {
+  if (auth.loading || dashboardInit.isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className="w-8 h-8 border-2 border-purple-400 border-t-transparent rounded-full"
-        />
+        <div className="text-center">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            className="w-8 h-8 border-2 border-purple-400 border-t-transparent rounded-full mx-auto mb-4"
+          />
+          <p className="text-gray-600">
+            {auth.loading ? 'Authenticating...' : 'Loading dashboard...'}
+          </p>
+          {autoStartChat.isAutoStarting && (
+            <p className="text-sm text-purple-600 mt-2">Starting conversation...</p>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  // Handle dashboard initialization error
+  if (dashboardInit.error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
+        <div className="text-center max-w-md mx-auto p-6">
+          <div className="text-red-500 mb-4">
+            <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Failed to load dashboard</h2>
+          <p className="text-gray-600 mb-4">{dashboardInit.error}</p>
+          <button
+            onClick={dashboardInit.retryInit}
+            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
       </div>
     )
   }

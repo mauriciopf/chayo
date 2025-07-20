@@ -67,18 +67,18 @@ export class BusinessInfoService {
         return []
       }
 
-      const prompt = `Based on this conversation context, generate 3-5 specific questions to gather missing health and wellness business information. 
+      const prompt = `Based on this conversation context, generate 3-5 specific questions to gather missing business information. 
 
 Current conversation context: "${currentConversation.substring(0, 500)}"
 
 Already answered fields: ${answeredFieldNames.join(', ') || 'None'}
 
 Generate questions that:
-1. Are specific to this health and wellness business type and context
+1. Are specific to this business type and context
 2. Haven't been answered yet
-3. Will help understand their health and wellness business better
+3. Will help understand their business better
 4. Are natural and conversational
-5. Focus on health, wellness, medical, or therapeutic aspects
+5. Focus on business operations and customer needs
 
 Return only the questions as a JSON array of objects with this structure:
 [
@@ -178,17 +178,12 @@ Return only the questions as a JSON array of objects with this structure:
         .eq('organization_id', organizationId)
         .order('created_at', { ascending: true })
 
-      console.log(`🔍 Looking for pending questions for organization ${organizationId}`)
-      console.log(`📊 Found ${existingFields?.length || 0} pending questions`)
-
       if (!existingFields || existingFields.length === 0) {
-        console.log(`⚠️ No questions found for organization ${organizationId}. This means no questions have been generated yet.`)
         return extractedInfo
       }
 
       // Filter to only unanswered questions for the prompt context
       const unansweredFields = existingFields.filter(f => !f.is_answered)
-      console.log(`📊 Found ${existingFields.length} total questions, ${unansweredFields.length} unanswered`)
 
       const apiKey = process.env.OPENAI_API_KEY
       if (!apiKey) {
@@ -198,16 +193,14 @@ Return only the questions as a JSON array of objects with this structure:
 
       const questionsContext = unansweredFields.map(f => `${f.field_name}: ${f.question_template}`).join('\n')
 
-      console.log(`📝 Questions context for extraction:`, questionsContext)
-
-      console.log(`💬 Analyzing conversation: "${conversation}"`)
-
-      const prompt = `Analyze this conversation and extract health and wellness business information that answers the pending questions.
+      const prompt = `Analyze this conversation and extract business information that answers the pending questions.
 
 Pending questions:
 ${questionsContext}
 
 Conversation: "${conversation}"
+
+IMPORTANT: You MUST respond with ONLY valid JSON. No explanations, no text, ONLY JSON.
 
 Return a JSON array of objects with:
 - field_name: the field name that was answered
@@ -220,7 +213,6 @@ Guidelines:
 - If the user mentions something related to a question, consider it answered
 - The conversation may be in Spanish - translate and interpret Spanish terms appropriately
 - Confidence scores: 0.9-1.0 for direct answers, 0.7-0.8 for clear but indirect answers, 0.5-0.6 for partial answers, 0.3-0.4 for implied or related answers
-- Only return empty array if absolutely no relevant information is found
 - Examples of Spanish terms that might answer questions:
   * "braces" → unique_approaches (orthodontic techniques)
   * "limpieza dental" → unique_approaches (dental cleaning services)
@@ -229,7 +221,11 @@ Guidelines:
   * "certificaciones" → business_qualifications
   * "medidas de seguridad" → safety_measures
 
-Only extract information that answers one of the pending questions. If no relevant information is found, return an empty array.`
+Response format:
+- If information found: [{"field_name": "example", "field_value": "value", "confidence": 0.8}]
+- If no information found: []
+
+RESPOND WITH ONLY JSON - NO OTHER TEXT.`
 
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
@@ -250,24 +246,28 @@ Only extract information that answers one of the pending questions. If no releva
         const content = data.choices?.[0]?.message?.content
         
         if (content) {
-          console.log(`🤖 AI Response: ${content}`)
           try {
+            // Try to parse as JSON
             const parsed = JSON.parse(content)
             if (Array.isArray(parsed)) {
               extractedInfo.push(...parsed.map(item => ({
                 ...item,
                 source: 'conversation' as const
               })))
-              console.log(`🔍 Extracted ${parsed.length} potential answers:`, parsed.map(p => `${p.field_name}: ${p.field_value} (confidence: ${p.confidence})`))
             } else {
               console.warn('AI response is not an array:', parsed)
             }
           } catch (parseError) {
-            console.warn('Failed to parse business info extraction:', parseError)
-            console.warn('Raw AI response:', content)
+            // Fallback: If AI returned text saying "empty array", treat as empty
+            if (content.toLowerCase().includes('empty array') || 
+                content.toLowerCase().includes('no relevant information') ||
+                content.toLowerCase().includes('return should be')) {
+              // Don't add anything to extractedInfo (empty result)
+            } else {
+              console.error('Unexpected AI response format - not JSON and not empty explanation')
+              console.error('Raw AI response:', content)
+            }
           }
-        } else {
-          console.warn('No content in AI response')
         }
       }
     } catch (error) {

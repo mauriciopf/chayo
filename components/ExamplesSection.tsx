@@ -13,70 +13,70 @@ export default function ExamplesSection() {
 
   const examples = [
     {
-      title: t('businesses.health_coach.title'),
-      business: t('businesses.health_coach.name'),
-      description: t('businesses.health_coach.description'),
+      title: t('businesses.food_truck.title'),
+      business: t('businesses.food_truck.name'),
+      description: t('businesses.food_truck.description'),
       beforeAfter: {
-        before: t('businesses.health_coach.beforeDetails'),
-        after: t('businesses.health_coach.afterDetails')
+        before: t('businesses.food_truck.beforeDetails'),
+        after: t('businesses.food_truck.afterDetails')
       },
       metrics: {
-        consultations: t('businesses.health_coach.metrics.consultations'),
-        satisfaction: t('businesses.health_coach.metrics.satisfaction'),
-        wellness: t('businesses.health_coach.metrics.wellness')
+        orders: t('businesses.food_truck.metrics.orders'),
+        efficiency: t('businesses.food_truck.metrics.efficiency'),
+        customers: t('businesses.food_truck.metrics.customers')
       },
       conversation: [
-        { type: "customer", message: t('businesses.health_coach.conversations.0.user') },
-        { type: "chayo", message: t('businesses.health_coach.conversations.0.chayo') },
-        { type: "customer", message: t('businesses.health_coach.conversations.1.user') },
-        { type: "chayo", message: t('businesses.health_coach.conversations.1.chayo') }
+        { type: "customer", message: t('businesses.food_truck.conversations.0.user') },
+        { type: "chayo", message: t('businesses.food_truck.conversations.0.chayo') },
+        { type: "customer", message: t('businesses.food_truck.conversations.1.user') },
+        { type: "chayo", message: t('businesses.food_truck.conversations.1.chayo') }
       ],
-      gradient: "from-green-400 to-emerald-400",
-      emoji: "🥗"
+      gradient: "from-orange-400 to-red-400",
+      emoji: "🌮"
     },
     {
-      title: t('businesses.medical_clinic.title'),
-      business: t('businesses.medical_clinic.name'),
-      description: t('businesses.medical_clinic.description'),
+      title: t('businesses.beauty_salon.title'),
+      business: t('businesses.beauty_salon.name'),
+      description: t('businesses.beauty_salon.description'),
       beforeAfter: {
-        before: t('businesses.medical_clinic.beforeDetails'),
-        after: t('businesses.medical_clinic.afterDetails')
+        before: t('businesses.beauty_salon.beforeDetails'),
+        after: t('businesses.beauty_salon.afterDetails')
       },
       metrics: {
-        appointments: t('businesses.medical_clinic.metrics.appointments'),
-        efficiency: t('businesses.medical_clinic.metrics.efficiency'),
-        patients: t('businesses.medical_clinic.metrics.patients')
+        appointments: t('businesses.beauty_salon.metrics.appointments'),
+        efficiency: t('businesses.beauty_salon.metrics.efficiency'),
+        customers: t('businesses.beauty_salon.metrics.customers')
       },
       conversation: [
-        { type: "customer", message: t('businesses.medical_clinic.conversations.0.user') },
-        { type: "chayo", message: t('businesses.medical_clinic.conversations.0.chayo') },
-        { type: "customer", message: t('businesses.medical_clinic.conversations.1.user') },
-        { type: "chayo", message: t('businesses.medical_clinic.conversations.1.chayo') }
+        { type: "customer", message: t('businesses.beauty_salon.conversations.0.user') },
+        { type: "chayo", message: t('businesses.beauty_salon.conversations.0.chayo') },
+        { type: "customer", message: t('businesses.beauty_salon.conversations.1.user') },
+        { type: "chayo", message: t('businesses.beauty_salon.conversations.1.chayo') }
       ],
-      gradient: "from-blue-400 to-cyan-400",
-      emoji: "🏥"
+      gradient: "from-pink-400 to-purple-400",
+      emoji: "💇"
     },
     {
-      title: t('businesses.physical_therapy.title'),
-      business: t('businesses.physical_therapy.name'),
-      description: t('businesses.physical_therapy.description'),
+      title: t('businesses.construction.title'),
+      business: t('businesses.construction.name'),
+      description: t('businesses.construction.description'),
       beforeAfter: {
-        before: t('businesses.physical_therapy.beforeDetails'),
-        after: t('businesses.physical_therapy.afterDetails')
+        before: t('businesses.construction.beforeDetails'),
+        after: t('businesses.construction.afterDetails')
       },
       metrics: {
-        sessions: t('businesses.physical_therapy.metrics.sessions'),
-        recovery: t('businesses.physical_therapy.metrics.recovery'),
-        patients: t('businesses.physical_therapy.metrics.patients')
+        projects: t('businesses.construction.metrics.projects'),
+        leads: t('businesses.construction.metrics.leads'),
+        customers: t('businesses.construction.metrics.customers')
       },
       conversation: [
-        { type: "customer", message: t('businesses.physical_therapy.conversations.0.user') },
-        { type: "chayo", message: t('businesses.physical_therapy.conversations.0.chayo') },
-        { type: "customer", message: t('businesses.physical_therapy.conversations.1.user') },
-        { type: "chayo", message: t('businesses.physical_therapy.conversations.1.chayo') }
+        { type: "customer", message: t('businesses.construction.conversations.0.user') },
+        { type: "chayo", message: t('businesses.construction.conversations.0.chayo') },
+        { type: "customer", message: t('businesses.construction.conversations.1.user') },
+        { type: "chayo", message: t('businesses.construction.conversations.1.chayo') }
       ],
-      gradient: "from-purple-400 to-pink-400",
-      emoji: "💪"
+      gradient: "from-yellow-400 to-orange-400",
+      emoji: "🔨"
     }
   ];
 
@@ -104,7 +104,7 @@ export default function ExamplesSection() {
             {t('subheader')}
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            See how Chayo transforms health and wellness support across different specialties
+            See how Chayo transforms business support across different industries
           </p>
         </motion.div>
 

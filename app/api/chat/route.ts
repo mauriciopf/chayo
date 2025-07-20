@@ -11,29 +11,24 @@ export async function POST(req: NextRequest) {
     // Create server-side Supabase client
     const { supabase } = createClient(req)
     
-    // Debug authentication
+    // Check authentication
     const { data: { user }, error: authError } = await supabase.auth.getUser()
-    console.log('Chat API - Auth check:', { 
-      hasUser: !!user, 
-      authError: authError?.message,
-      userId: user?.id 
-    })
+    
+    if (!user) {
+      throw new Error('Authentication required')
+    }
     
     // Create chat service with server-side client
     const chatService = new ChatService(supabase)
     
-    // Parse request body
+    // Parse and validate request
     const body = await req.json()
-    
-    // Validate request
     const validatedRequest = validationService.validateChatRequest(body)
     validationService.validateUserMessages(validatedRequest.messages)
     validationService.validateMessageLengths(validatedRequest.messages)
     
-    // Sanitize messages
+    // Sanitize messages and process chat
     const sanitizedMessages = validationService.sanitizeMessages(validatedRequest.messages)
-    
-    // Process chat request
     const response = await chatService.processChat(
       sanitizedMessages,
       validatedRequest.agentId,
