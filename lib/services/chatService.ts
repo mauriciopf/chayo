@@ -310,8 +310,8 @@ export class ChatService {
    */
   private getFallbackSystemPrompt(context: ChatContext): string {
     const languageInstructions = context.locale === 'es' 
-      ? 'ALWAYS respond in Spanish (Español). Ask all questions in Spanish and maintain conversation in Spanish throughout.'
-      : 'ALWAYS respond in English. Ask all questions in English and maintain conversation in English throughout.'
+      ? 'ALWAYS respond in Spanish (Español). Ask all questions in Spanish and maintain conversation in Spanish throughout. NEVER mix Spanish and English in the same response.'
+      : 'ALWAYS respond in English. Ask all questions in English and maintain conversation in English throughout. NEVER mix Spanish and English in the same response.'
 
     return `You are Chayo, an AI business assistant. Your ONLY purpose is to gather information about this specific business.
 
@@ -462,8 +462,124 @@ Remember: Your ONLY job is to understand their business. Do not provide advice, 
         } catch (error) {
           console.warn('Failed to extract business info:', error)
         }
+
+        // 🔄 WRITABLE MEMORY UPDATES - Process memory updates from conversation
+        try {
+          const embeddingService = new (await import('./embeddingService')).EmbeddingService(this.supabase)
+          
+          // Check if conversation contains memory updates (business info changes)
+          const conversationText = messages.map(m => m.content).join(' ')
+          const memoryUpdateKeywords = [
+            'business hours changed', 'updated hours', 'new hours',
+            'moved location', 'new address', 'relocated',
+            'changed phone', 'new phone', 'updated contact',
+            'price change', 'updated pricing', 'new rates',
+            'service change', 'new service', 'updated service',
+            'policy change', 'updated policy', 'new policy'
+          ]
+
+          const hasMemoryUpdate = memoryUpdateKeywords.some(keyword => 
+            conversationText.toLowerCase().includes(keyword)
+          )
+
+          if (hasMemoryUpdate) {
+            console.log('🔄 Detected potential memory update in conversation')
+            
+            // Extract the specific update information
+            const updateInfo = await this.extractMemoryUpdate(conversationText, context.agent.id)
+            
+            if (updateInfo) {
+              const result = await embeddingService.updateMemory(
+                context.agent.id,
+                updateInfo,
+                'auto' // Use automatic conflict resolution
+              )
+              
+              console.log(`Memory update result: ${result.action} (${result.memoryId})`)
+              
+              if (result.conflicts && result.conflicts.length > 0) {
+                console.log(`Resolved ${result.conflicts.length} memory conflicts`)
+              }
+            }
+          }
+        } catch (error) {
+          console.warn('Failed to process memory updates:', error)
+        }
     } catch (error) {
       console.warn('Failed to store conversation:', error)
+    }
+  }
+
+  /**
+   * 🔍 Extract memory update information from conversation text
+   */
+  private async extractMemoryUpdate(conversationText: string, agentId: string): Promise<any> {
+    try {
+      const { default: OpenAI } = await import('openai')
+      const openai = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY,
+      })
+
+      const extractionPrompt = `
+Analyze this conversation and extract any business information updates that should be stored in memory.
+
+CONVERSATION: "${conversationText}"
+
+Look for updates to:
+- Business hours
+- Location/address
+- Contact information
+- Pricing
+- Services
+- Policies
+- Any other business details
+
+If you find a clear business update, respond with JSON:
+{
+  "text": "extracted update text",
+  "type": "knowledge",
+  "reason": "what was updated",
+  "confidence": 0.0-1.0
+}
+
+If no clear update is found, respond with: null
+`
+
+      const response = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [{ role: 'user', content: extractionPrompt }],
+        temperature: 0.1,
+        max_tokens: 300
+      })
+
+      const content = response.choices[0].message.content?.trim()
+      
+      if (content === 'null' || !content) {
+        return null
+      }
+
+      try {
+        const extracted = JSON.parse(content)
+        return {
+          text: extracted.text,
+          type: extracted.type || 'knowledge',
+          metadata: {
+            source: 'chat_memory_update',
+            agent_id: agentId,
+            extracted_at: new Date().toISOString(),
+            confidence: extracted.confidence || 0.8
+          },
+          reason: extracted.reason,
+          confidence: extracted.confidence || 0.8
+        }
+      } catch (parseError) {
+        console.warn('Failed to parse memory update extraction:', parseError)
+        return null
+      }
+
+    } catch (error) {
+      console.error('Error extracting memory update:', error)
+      return null
     }
   }
 }

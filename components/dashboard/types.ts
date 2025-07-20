@@ -47,4 +47,4 @@ export interface Organization {
 
 export type AuthState = 'authenticated' | 'awaitingName' | 'awaitingEmail' | 'awaitingOTP'
 export type OtpLoadingState = 'none' | 'sending' | 'verifying'
-export type ActiveView = 'chat' | 'agents' | 'performance' | 'users' | 'profile' | 'qrcode' 
+export type ActiveView = 'chat' | 'agents' | 'performance' | 'users' | 'profile' | 'qrcode' | 'business-summary' 

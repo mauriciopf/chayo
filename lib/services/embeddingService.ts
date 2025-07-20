@@ -16,6 +16,24 @@ export interface EmbeddingResult {
   segment_type: string
   metadata: Record<string, any>
   distance?: number
+  created_at?: string
+  updated_at?: string
+}
+
+export interface MemoryUpdate {
+  id?: string
+  text: string
+  type: 'conversation' | 'faq' | 'knowledge' | 'example' | 'document'
+  metadata?: Record<string, any>
+  confidence?: number
+  reason?: string
+}
+
+export interface ConflictResolution {
+  action: 'merge' | 'replace' | 'keep_both' | 'reject'
+  confidence: number
+  reason: string
+  merged_text?: string
 }
 
 export class EmbeddingService {
@@ -119,8 +137,6 @@ export class EmbeddingService {
           match_count: matchCount
         })
 
-        console.log('embedding data', data)
-
       if (error) {
         console.error('Error searching conversations:', error)
         throw new Error('Failed to search conversations')
@@ -130,6 +146,444 @@ export class EmbeddingService {
     } catch (error) {
       console.error('Error in searchSimilarConversations:', error)
       throw error
+    }
+  }
+
+  /**
+   * 🔄 UPDATE MEMORY - Core writable memory functionality
+   * Updates existing memories with new information and handles conflicts
+   */
+  async updateMemory(
+    agentId: string,
+    memoryUpdate: MemoryUpdate,
+    conflictStrategy: 'auto' | 'manual' = 'auto'
+  ): Promise<{
+    success: boolean
+    action: string
+    memoryId: string
+    conflicts?: EmbeddingResult[]
+    resolution?: ConflictResolution
+  }> {
+    try {
+      console.log('🔄 Updating memory:', memoryUpdate.text.substring(0, 100) + '...')
+
+      // Step 1: Find similar existing memories
+      const similarMemories = await this.searchSimilarConversations(
+        agentId,
+        memoryUpdate.text,
+        0.85, // Higher threshold for conflict detection
+        3
+      )
+
+      console.log(`Found ${similarMemories.length} similar memories`)
+
+      // Step 2: If updating specific memory by ID
+      if (memoryUpdate.id) {
+        return await this.updateSpecificMemory(agentId, memoryUpdate)
+      }
+
+      // Step 3: Handle conflicts with similar memories
+      if (similarMemories.length > 0) {
+        const resolution = await this.resolveMemoryConflicts(
+          memoryUpdate,
+          similarMemories,
+          conflictStrategy
+        )
+
+        switch (resolution.action) {
+          case 'merge':
+            return await this.mergeMemories(agentId, similarMemories[0], memoryUpdate, resolution)
+          case 'replace':
+            return await this.replaceMemory(agentId, similarMemories[0].id, memoryUpdate)
+          case 'reject':
+            return {
+              success: false,
+              action: 'rejected',
+              memoryId: '',
+              conflicts: similarMemories,
+              resolution
+            }
+          case 'keep_both':
+          default:
+            // Create new memory alongside existing ones
+            break
+        }
+      }
+
+      // Step 4: Create new memory if no conflicts or keeping both
+      const newMemory = await this.storeConversationEmbeddings(agentId, [{
+        text: memoryUpdate.text,
+        type: memoryUpdate.type,
+        metadata: {
+          ...memoryUpdate.metadata,
+          confidence: memoryUpdate.confidence || 0.95,
+          source: 'memory_update',
+          updated_at: new Date().toISOString()
+        }
+      }])
+
+      return {
+        success: true,
+        action: 'created',
+        memoryId: newMemory[0]?.id || '',
+        conflicts: similarMemories.length > 0 ? similarMemories : undefined
+      }
+
+    } catch (error) {
+      console.error('Error updating memory:', error)
+      throw error
+    }
+  }
+
+  /**
+   * 🔍 DETECT CONFLICTS - Analyzes potential conflicts between memories
+   */
+  private async resolveMemoryConflicts(
+    newMemory: MemoryUpdate,
+    existingMemories: EmbeddingResult[],
+    strategy: 'auto' | 'manual'
+  ): Promise<ConflictResolution> {
+    try {
+      const { default: OpenAI } = await import('openai')
+      const openai = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY,
+      })
+
+      const conflictAnalysisPrompt = `
+You are a memory conflict resolver. Analyze the following business information and determine how to handle the conflict.
+
+NEW MEMORY: "${newMemory.text}"
+EXISTING MEMORIES:
+${existingMemories.map((mem, i) => `${i + 1}. "${mem.conversation_segment}"`).join('\n')}
+
+Determine the best action:
+1. "merge" - Combine information (provide merged_text)
+2. "replace" - New information supersedes old
+3. "keep_both" - Information is complementary
+4. "reject" - New information is incorrect/duplicate
+
+Respond with JSON only:
+{
+  "action": "merge|replace|keep_both|reject",
+  "confidence": 0.0-1.0,
+  "reason": "explanation",
+  "merged_text": "combined text if merging"
+}
+`
+
+      const response = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [{ role: 'user', content: conflictAnalysisPrompt }],
+        temperature: 0.1,
+        max_tokens: 500
+      })
+
+      const analysis = JSON.parse(response.choices[0].message.content || '{}')
+      
+      return {
+        action: analysis.action || 'keep_both',
+        confidence: analysis.confidence || 0.5,
+        reason: analysis.reason || 'Automatic conflict resolution',
+        merged_text: analysis.merged_text
+      }
+
+    } catch (error) {
+      console.error('Error resolving conflicts:', error)
+      // Default to keeping both on error
+      return {
+        action: 'keep_both',
+        confidence: 0.5,
+        reason: 'Error in conflict analysis - defaulting to keep both'
+      }
+    }
+  }
+
+  /**
+   * 🔗 MERGE MEMORIES - Combines conflicting memories into one
+   */
+  private async mergeMemories(
+    agentId: string,
+    existingMemory: EmbeddingResult,
+    newMemory: MemoryUpdate,
+    resolution: ConflictResolution
+  ): Promise<{
+    success: boolean
+    action: string
+    memoryId: string
+    resolution: ConflictResolution
+  }> {
+    try {
+      const mergedText = resolution.merged_text || `${existingMemory.conversation_segment} ${newMemory.text}`
+      
+      // Update the existing memory with merged content
+      const { data, error } = await this.supabase
+        .from('conversation_embeddings')
+        .update({
+          conversation_segment: mergedText,
+          metadata: {
+            ...existingMemory.metadata,
+            ...newMemory.metadata,
+            merged_from: [existingMemory.conversation_segment, newMemory.text],
+            merge_confidence: resolution.confidence,
+            merge_reason: resolution.reason,
+            last_merged_at: new Date().toISOString()
+          },
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', existingMemory.id)
+        .eq('agent_id', agentId)
+        .select()
+
+      if (error) {
+        throw new Error('Failed to merge memories')
+      }
+
+      // Regenerate embedding for merged content
+      const newEmbedding = await this.generateEmbeddings([{
+        text: mergedText,
+        type: newMemory.type
+      }])
+
+      // Update embedding
+      await this.supabase
+        .from('conversation_embeddings')
+        .update({ embedding: newEmbedding[0] })
+        .eq('id', existingMemory.id)
+
+      console.log('✅ Successfully merged memories')
+
+      return {
+        success: true,
+        action: 'merged',
+        memoryId: existingMemory.id,
+        resolution
+      }
+
+    } catch (error) {
+      console.error('Error merging memories:', error)
+      throw error
+    }
+  }
+
+  /**
+   * 🔄 REPLACE MEMORY - Replaces old memory with new information
+   */
+  private async replaceMemory(
+    agentId: string,
+    memoryId: string,
+    newMemory: MemoryUpdate
+  ): Promise<{
+    success: boolean
+    action: string
+    memoryId: string
+  }> {
+    try {
+      // Generate new embedding
+      const newEmbedding = await this.generateEmbeddings([{
+        text: newMemory.text,
+        type: newMemory.type
+      }])
+
+      // Update the memory
+      const { data, error } = await this.supabase
+        .from('conversation_embeddings')
+        .update({
+          conversation_segment: newMemory.text,
+          segment_type: newMemory.type,
+          embedding: newEmbedding[0],
+          metadata: {
+            ...newMemory.metadata,
+            replaced_at: new Date().toISOString(),
+            replacement_reason: newMemory.reason || 'Information updated'
+          },
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', memoryId)
+        .eq('agent_id', agentId)
+        .select()
+
+      if (error) {
+        throw new Error('Failed to replace memory')
+      }
+
+      console.log('✅ Successfully replaced memory')
+
+      return {
+        success: true,
+        action: 'replaced',
+        memoryId
+      }
+
+    } catch (error) {
+      console.error('Error replacing memory:', error)
+      throw error
+    }
+  }
+
+  /**
+   * ✏️ UPDATE SPECIFIC MEMORY - Updates a memory by ID
+   */
+  private async updateSpecificMemory(
+    agentId: string,
+    memoryUpdate: MemoryUpdate
+  ): Promise<{
+    success: boolean
+    action: string
+    memoryId: string
+  }> {
+    try {
+      if (!memoryUpdate.id) {
+        throw new Error('Memory ID required for specific update')
+      }
+
+      // Generate new embedding
+      const newEmbedding = await this.generateEmbeddings([{
+        text: memoryUpdate.text,
+        type: memoryUpdate.type
+      }])
+
+      // Update the specific memory
+      const { data, error } = await this.supabase
+        .from('conversation_embeddings')
+        .update({
+          conversation_segment: memoryUpdate.text,
+          segment_type: memoryUpdate.type,
+          embedding: newEmbedding[0],
+          metadata: {
+            ...memoryUpdate.metadata,
+            updated_at: new Date().toISOString(),
+            update_reason: memoryUpdate.reason || 'Direct memory update'
+          },
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', memoryUpdate.id)
+        .eq('agent_id', agentId)
+        .select()
+
+      if (error || !data || data.length === 0) {
+        throw new Error('Memory not found or update failed')
+      }
+
+      console.log('✅ Successfully updated specific memory')
+
+      return {
+        success: true,
+        action: 'updated',
+        memoryId: memoryUpdate.id
+      }
+
+    } catch (error) {
+      console.error('Error updating specific memory:', error)
+      throw error
+    }
+  }
+
+  /**
+   * 📊 GET MEMORY CONFLICTS - Find conflicting memories for review
+   */
+  async getMemoryConflicts(
+    agentId: string,
+    similarityThreshold: number = 0.85
+  ): Promise<{
+    conflicts: Array<{
+      group: EmbeddingResult[]
+      similarity: number
+      topic: string
+    }>
+    totalConflicts: number
+  }> {
+    try {
+      // Get all memories for the agent
+      const { data: memories, error } = await this.supabase
+        .from('conversation_embeddings')
+        .select('*')
+        .eq('agent_id', agentId)
+        .order('created_at', { ascending: false })
+
+      if (error || !memories) {
+        throw new Error('Failed to fetch memories for conflict analysis')
+      }
+
+      const conflicts = []
+      const processed = new Set<string>()
+
+      // Compare each memory with others to find conflicts
+      for (let i = 0; i < memories.length; i++) {
+        if (processed.has(memories[i].id)) continue
+
+        const similar = await this.searchSimilarConversations(
+          agentId,
+          memories[i].conversation_segment,
+          similarityThreshold,
+          5
+        )
+
+        // Filter out the current memory and already processed ones
+        const conflictGroup = similar.filter(s => 
+          s.id !== memories[i].id && 
+          !processed.has(s.id)
+        )
+
+        if (conflictGroup.length > 0) {
+          // Add current memory to the group
+          conflictGroup.unshift(memories[i])
+          
+          // Mark all as processed
+          conflictGroup.forEach(mem => processed.add(mem.id))
+
+          conflicts.push({
+            group: conflictGroup,
+            similarity: conflictGroup[1]?.distance ? 1 - conflictGroup[1].distance : 0,
+            topic: this.extractTopic(memories[i].conversation_segment)
+          })
+        }
+      }
+
+      return {
+        conflicts,
+        totalConflicts: conflicts.length
+      }
+
+    } catch (error) {
+      console.error('Error getting memory conflicts:', error)
+      throw error
+    }
+  }
+
+  /**
+   * 🏷️ EXTRACT TOPIC - Simple topic extraction from text
+   */
+  private extractTopic(text: string): string {
+    // Simple topic extraction - take first 3-4 meaningful words
+    const words = text.split(' ').filter(word => 
+      word.length > 3 && 
+      !['this', 'that', 'with', 'from', 'they', 'have', 'been', 'will'].includes(word.toLowerCase())
+    )
+    return words.slice(0, 3).join(' ')
+  }
+
+  /**
+   * 🗑️ DELETE MEMORY - Remove specific memory
+   */
+  async deleteMemory(agentId: string, memoryId: string): Promise<boolean> {
+    try {
+      const { error } = await this.supabase
+        .from('conversation_embeddings')
+        .delete()
+        .eq('id', memoryId)
+        .eq('agent_id', agentId)
+
+      if (error) {
+        console.error('Error deleting memory:', error)
+        return false
+      }
+
+      console.log('✅ Successfully deleted memory')
+      return true
+
+    } catch (error) {
+      console.error('Error in deleteMemory:', error)
+      return false
     }
   }
 

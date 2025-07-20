@@ -316,10 +316,15 @@
     "navigation": {
       "chat": "Chat",
       "agents": "Agents",
+      "businessSummary": "Chayo's Brain",
       "performance": "Performance",
       "teamManagement": "Team Management",
       "accountSettings": "Account Settings",
       "billingPlans": "Billing & Plans"
+    },
+    "businessSummary": {
+      "title": "Chayo's Brain",
+      "description": "See everything Chayo knows about your business - all the information she has learned from your conversations"
     },
     "agentCount": "AI Agents",
     "teamCount": "Team",

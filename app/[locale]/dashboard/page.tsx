@@ -20,6 +20,7 @@ import MobileNavigation from '@/components/dashboard/MobileNavigation'
 import DesktopNavigation from '@/components/dashboard/DesktopNavigation'
 import AgentsView from '@/components/dashboard/AgentsView'
 import PWAPrompt from '@/components/dashboard/PWAPrompt'
+import BusinessSummary from '@/components/dashboard/BusinessSummary'
 import { ActiveView, Agent } from '@/components/dashboard/types'
 
 // Import existing dashboard components
@@ -404,6 +405,8 @@ function DashboardContent() {
         )
       case 'agents':
         return <AgentsView />
+      case 'business-summary':
+        return <BusinessSummary />
       case 'performance':
         return <PerformanceOverview />
       case 'users':

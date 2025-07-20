@@ -33,6 +33,15 @@ export default function DesktopNavigation({
       )
     },
     {
+      id: 'business-summary' as ActiveView,
+      label: t('navigation.businessSummary'),
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17h6l3 3V4a1 1 0 00-1-1H3a1 1 0 00-1 1v13a1 1 0 001 1h2zm0 0V9a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H9z" />
+        </svg>
+      )
+    },
+    {
       id: 'agents' as ActiveView,
       label: t('navigation.agents'),
       icon: (

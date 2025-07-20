@@ -316,10 +316,15 @@
     "navigation": {
       "chat": "Chat",
       "agents": "Agentes",
+      "businessSummary": "Cerebro de Chayo",
       "performance": "Rendimiento",
       "teamManagement": "Gestión de Equipo",
       "accountSettings": "Configuración de Cuenta",
       "billingPlans": "Facturación y Planes"
+    },
+    "businessSummary": {
+      "title": "Cerebro de Chayo",
+      "description": "Ve todo lo que Chayo sabe sobre tu negocio - toda la información que ha aprendido de tus conversaciones"
     },
     "agentCount": "Agentes de IA",
     "teamCount": "Equipo",

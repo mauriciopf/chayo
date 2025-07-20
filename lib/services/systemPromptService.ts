@@ -156,8 +156,8 @@ export class SystemPromptService {
     
     // Add language instructions based on locale
     const languageInstructions = locale === 'es' 
-      ? 'ALWAYS respond in Spanish (Español). Ask all questions in Spanish and maintain conversation in Spanish throughout.'
-      : 'ALWAYS respond in English. Ask all questions in English and maintain conversation in English throughout.'
+      ? 'ALWAYS respond in Spanish (Español). Ask all questions in Spanish and maintain conversation in Spanish throughout. NEVER mix Spanish and English in the same response.'
+      : 'ALWAYS respond in English. Ask all questions in English and maintain conversation in English throughout. NEVER mix Spanish and English in the same response.'
 
     let prompt = `You are Chayo, an AI business assistant. Your ONLY purpose is to gather information about this specific business.
 

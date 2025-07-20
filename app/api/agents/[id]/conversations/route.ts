@@ -61,20 +61,18 @@ export async function POST(
 
     return NextResponse.json({
       success: true,
-      message: `Successfully processed ${results.length} conversation segments`,
       data: {
         processedSegments: results.length,
         agentId,
         agentName: agent.name,
-        knowledgeSummary: summary,
-        systemPromptUpdated: updateSystemPrompt
+        knowledgeSummary: summary
       }
     })
 
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error processing conversations:', error)
     return NextResponse.json(
-      { error: 'Failed to process conversations', details: error.message },
+      { error: 'Failed to process conversations' },
       { status: 500 }
     )
   }
@@ -156,10 +154,10 @@ export async function GET(
       }
     })
 
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error fetching conversations:', error)
     return NextResponse.json(
-      { error: 'Failed to fetch conversations', details: error.message },
+      { error: 'Failed to fetch conversations' },
       { status: 500 }
     )
   }
@@ -201,22 +199,89 @@ export async function DELETE(
     // Delete all embeddings for this agent
     await embeddingService.deleteAgentEmbeddings(agentId)
 
-    // Update system prompt to remove conversation knowledge
-    await systemPromptService.updateAgentSystemPrompt(agentId)
-
     return NextResponse.json({
       success: true,
-      message: 'All conversation embeddings deleted successfully',
+      message: `All conversation embeddings deleted for agent ${agent.name}`
+    })
+
+  } catch (error) {
+    console.error('Error deleting conversations:', error)
+    return NextResponse.json(
+      { error: 'Failed to delete conversations' },
+      { status: 500 }
+    )
+  }
+}
+
+// 🔄 PATCH - Update memory with conflict resolution
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const agentId = params.id
+    const { 
+      memoryUpdate, 
+      conflictStrategy = 'auto' 
+    } = await request.json()
+
+    if (!memoryUpdate || !memoryUpdate.text) {
+      return NextResponse.json(
+        { error: 'Memory update with text is required' },
+        { status: 400 }
+      )
+    }
+
+    // Get user from auth
+    const { supabase } = createClient(request)
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    // Verify agent belongs to user
+    const { data: agent, error: agentError } = await supabase
+      .from('agents')
+      .select('id, name')
+      .eq('id', agentId)
+      .eq('user_id', user.id)
+      .single()
+
+    if (agentError || !agent) {
+      return NextResponse.json(
+        { error: 'Agent not found or unauthorized' },
+        { status: 403 }
+      )
+    }
+
+    // Update memory with conflict resolution
+    const result = await embeddingService.updateMemory(
+      agentId,
+      memoryUpdate,
+      conflictStrategy
+    )
+
+    // Get updated knowledge summary
+    const summary = await embeddingService.getBusinessKnowledgeSummary(agentId)
+
+    return NextResponse.json({
+      success: result.success,
       data: {
+        ...result,
         agentId,
-        agentName: agent.name
+        agentName: agent.name,
+        knowledgeSummary: summary
       }
     })
 
-  } catch (error: any) {
-    console.error('Error deleting conversations:', error)
+  } catch (error) {
+    console.error('Error updating memory:', error)
     return NextResponse.json(
-      { error: 'Failed to delete conversations', details: error.message },
+      { error: 'Failed to update memory' },
       { status: 500 }
     )
   }
