@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl'
 import ChatMessage from './ChatMessage'
 import { Message, Agent, AuthState } from './types'
 import QuickReplyChips from './QuickReplyChips';
+import TrainingHintChips, { TrainingHint } from './TrainingHintChips';
 import { ChatContextType, getSystemMessageForContext } from './chatContextMessages';
 
 interface ChatContainerProps {
@@ -61,6 +62,9 @@ export default function ChatContainer({
 
   // Add chat context state
   const [chatContext, setChatContext] = useState<ChatContextType>('business_setup')
+  
+  // Add training hint state
+  const [selectedTrainingHint, setSelectedTrainingHint] = useState<TrainingHint | null>(null)
 
   // Handler for quick reply chip click
   const handleQuickReply = (context: ChatContextType) => {
@@ -75,6 +79,49 @@ export default function ChatContainer({
         timestamp: new Date(),
       },
     ])
+  }
+
+  // Handler for training hint selection
+  const handleTrainingHintSelect = async (hint: TrainingHint | null) => {
+    setSelectedTrainingHint(hint)
+    
+    // Import training hint service
+    const { TrainingHintService } = await import('@/lib/services/trainingHintService')
+    
+    // Add a system message to inform the AI about the training focus
+    if (hint) {
+      const focusMessage = TrainingHintService.createFocusMessage(hint)
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now().toString() + '-focus',
+          role: 'system',
+          content: focusMessage,
+          timestamp: new Date(),
+        },
+      ])
+      
+      // Automatically trigger AI to generate a focused question
+      setTimeout(() => {
+        handleSend()
+      }, 100)
+    } else {
+      const generalMessage = TrainingHintService.createClearFocusMessage()
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now().toString() + '-general',
+          role: 'system',
+          content: generalMessage,
+          timestamp: new Date(),
+        },
+      ])
+      
+      // Automatically trigger AI to generate a general question
+      setTimeout(() => {
+        handleSend()
+      }, 100)
+    }
   }
 
   return (
@@ -170,7 +217,16 @@ export default function ChatContainer({
         <div ref={messagesEndRef} />
       </div>
 
-
+      {/* Training Hint Chips - Above Input Area */}
+      <div className="px-4 py-3 bg-gradient-to-r from-gray-50 to-white border-t border-gray-200 flex-shrink-0">
+        <div className={`mx-auto ${isMobile ? 'max-w-none' : 'max-w-4xl'}`}>
+          <TrainingHintChips 
+            selectedHint={selectedTrainingHint}
+            onHintSelect={handleTrainingHintSelect}
+            className="w-full"
+          />
+        </div>
+      </div>
 
       {/* Modern chat input design - 2 rows layout */}
       <div 

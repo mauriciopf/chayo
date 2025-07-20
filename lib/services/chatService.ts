@@ -202,7 +202,7 @@ export class ChatService {
   }
 
   /**
-   * Generate AI response using OpenAI
+   * Generate AI response using dynamic system prompt with RAG
    */
   private async generateAIResponse(messages: ChatMessage[], context: ChatContext): Promise<{ aiMessage: string; usingRAG: boolean }> {
     const apiKey = process.env.OPENAI_API_KEY
@@ -213,39 +213,49 @@ export class ChatService {
     // Get the last user message for context
     const lastUserMessage = messages.filter(m => m.role === 'user').pop()?.content || ''
     
-    // Generate dynamic system prompt
+    // Generate enhanced system prompt with training hints
     let systemPrompt: string
+    let promptMetadata: any
     let usingRAG = false
 
     try {
-      // Use the same Supabase client for system prompt service
-      const systemPromptService = new (await import('./systemPromptService')).SystemPromptService(this.supabase)
-      systemPrompt = await systemPromptService.getDynamicSystemPrompt(
+      // Use enhanced system prompt service that handles training hints
+      const { EnhancedSystemPromptService } = await import('./enhancedSystemPromptService')
+      const enhancedService = new EnhancedSystemPromptService(this.supabase)
+      
+      const result = await enhancedService.generateEnhancedPrompt(
         context.agent.id,
+        messages,
         lastUserMessage,
         context.locale
       )
 
-      // Check if RAG context was used
-      const hasDocumentContext = systemPrompt.includes('Relevant Document Information')
-      const hasConversationContext = systemPrompt.includes('Relevant Previous Conversations')
-      usingRAG = hasDocumentContext || hasConversationContext
-
-      // Log RAG usage for debugging
-      console.log(`RAG System Prompt for agent ${context.agent.id}:`, {
-        userQuery: lastUserMessage.substring(0, 100) + '...',
-        systemPromptLength: systemPrompt.length,
-        hasDocumentContext,
-        hasConversationContext,
-        usingRAG
-      })
+      systemPrompt = result.finalPrompt
+      promptMetadata = result.metadata
+      usingRAG = result.metadata.usingRAG
     } catch (error) {
-      console.warn('Failed to get dynamic system prompt, using fallback:', error)
+      console.warn('Failed to get enhanced system prompt, using fallback:', error)
       systemPrompt = this.getFallbackSystemPrompt(context)
+      
+      // Try to extract training hint context for fallback
+      try {
+        const { TrainingHintService } = await import('./trainingHintService')
+        const trainingHintContext = TrainingHintService.extractFromMessages(messages)
+        if (trainingHintContext.systemPromptAddition) {
+          systemPrompt += trainingHintContext.systemPromptAddition
+        }
+      } catch (hintError) {
+        console.warn('Failed to extract training hints for fallback:', hintError)
+      }
+      
       usingRAG = false
+      promptMetadata = {
+        hasTrainingHint: false,
+        usingRAG: false
+      }
     }
 
-    // Prepare messages with dynamic system prompt
+    // Prepare messages with dynamic system prompt (exclude system messages from user chat)
     const chatMessages = [
       { role: 'system', content: systemPrompt },
       ...messages.filter(m => m.role !== 'system')
