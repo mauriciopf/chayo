@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Button } from '@/components/ui/button'
 import { useTranslations } from 'next-intl'
 
 interface SetupInstructionsProps {
@@ -30,18 +29,18 @@ export default function SetupInstructions({ onRetry }: SetupInstructionsProps) {
       </p>
 
       <div className="flex justify-center space-x-4 mb-6">
-        <Button
+        <button
           onClick={() => setShowInstructions(!showInstructions)}
-          variant="outline"
+          className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100"
         >
           {showInstructions ? t('hideInstructions') : t('showInstructions')}
-        </Button>
-        <Button
+        </button>
+        <button
           onClick={onRetry}
-          className="bg-orange-400 hover:bg-orange-500"
+          className="px-4 py-2 bg-orange-400 text-white rounded-md hover:bg-orange-500"
         >
           {t('retry')}
-        </Button>
+        </button>
       </div>
 
       {showInstructions && (

@@ -60,7 +60,7 @@ export default function MarketingSection() {
             {/* Unified Inbox */}
             <div className="bg-white rounded-2xl shadow-xl p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-2xl font-bold text-gray-900">Health Support Hub</h3>
+                <h3 className="text-2xl font-bold text-gray-900">Business Support Hub</h3>
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
                   <span className="text-sm text-gray-600">Live</span>

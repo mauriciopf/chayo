@@ -142,7 +142,7 @@ export default function NewHeader() {
                 onClick={() => scrollToSection(item.id)}
                 whileHover={{ y: -2, scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="relative px-4 py-2 text-gray-700 hover:text-purple-600 font-medium transition-all duration-300 rounded-xl hover:bg-purple-50 group"
+                className="relative px-4 py-2 hover:text-purple-600 font-medium transition-all duration-300 rounded-xl hover:bg-purple-50 group"
               >
                 <span className="flex items-center space-x-2">
                   <span className="text-sm group-hover:scale-110 transition-transform duration-300">{item.icon}</span>
@@ -171,7 +171,7 @@ export default function NewHeader() {
                   onClick={() => router.push(`/${locale}/dashboard`)}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="px-4 py-2 text-gray-700 hover:text-purple-600 font-medium transition-all duration-300 rounded-xl hover:bg-gray-50"
+                  className="px-4 py-2 hover:text-purple-600 font-medium transition-all duration-300 rounded-xl hover:bg-gray-50"
                 >
                   {t('navigation.dashboard')}
                 </motion.button>
@@ -180,7 +180,7 @@ export default function NewHeader() {
                   onClick={handleSignOut}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="px-4 py-2 text-gray-700 hover:text-red-600 font-medium transition-all duration-300 rounded-xl hover:bg-gray-50"
+                  className="px-4 py-2 hover:text-red-600 font-medium transition-all duration-300 rounded-xl hover:bg-gray-50"
                 >
                   {t('navigation.signOut')}
                 </motion.button>
@@ -192,7 +192,7 @@ export default function NewHeader() {
                   onClick={() => router.push(`/${locale}/dashboard`)}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="px-4 py-2 text-gray-700 hover:text-purple-600 font-medium transition-all duration-300 rounded-xl hover:bg-gray-50"
+                  className="px-4 py-2 hover:text-purple-600 font-medium transition-all duration-300 rounded-xl hover:bg-gray-50"
                 >
                   {t('navigation.signIn')}
                 </motion.button>
@@ -226,7 +226,7 @@ export default function NewHeader() {
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="lg:hidden p-2 text-gray-700 hover:text-purple-600 transition-colors duration-300"
+            className="lg:hidden p-2 hover:text-purple-600 transition-colors duration-300"
           >
             <motion.div
               animate={isMenuOpen ? { rotate: 180 } : { rotate: 0 }}
@@ -282,7 +282,7 @@ export default function NewHeader() {
                 onClick={() => scrollToSection(item.id)}
                 whileHover={{ x: 5 }}
                 whileTap={{ scale: 0.98 }}
-                className="flex items-center space-x-3 w-full px-4 py-3 text-left text-gray-700 hover:text-purple-600 hover:bg-purple-50 font-medium transition-all duration-300 rounded-xl"
+                className="flex items-center space-x-3 w-full px-4 py-3 text-left hover:text-purple-600 hover:bg-purple-50 font-medium transition-all duration-300 rounded-xl"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1 }}

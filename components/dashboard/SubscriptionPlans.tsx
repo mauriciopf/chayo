@@ -188,7 +188,7 @@ export default function SubscriptionPlans({ currentSubscription, onClose, onSubs
 
         {/* Launch Notice */}
         <div className="px-6 pb-4">
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
             <div className="flex items-center">
               <svg className="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -287,14 +287,14 @@ export default function SubscriptionPlans({ currentSubscription, onClose, onSubs
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
                     </div>
-                    <span className="text-sm text-gray-700 leading-tight">{feature}</span>
+                    <span className="text-sm leading-tight">{feature}</span>
                   </li>
                 ))}
               </ul>
 
               {currentPlan === plan.id ? (
                 <div className="space-y-3">
-                  <div className="text-center py-3 bg-green-100 text-green-800 rounded-lg font-medium">
+                  <div className="text-center py-3 bg-gray-100 text-gray-800 rounded-lg font-medium">
                     {t('currentPlan')}
                   </div>
                   <button
@@ -331,7 +331,7 @@ export default function SubscriptionPlans({ currentSubscription, onClose, onSubs
               ) : (
                 <button
                   disabled
-                  className="w-full py-3 rounded-lg font-semibold bg-gray-200 text-gray-500 cursor-not-allowed"
+                  className="w-full py-3 rounded-lg font-semibold bg-gray-200 cursor-not-allowed"
                 >
                   🔒 {t('comingSoon')}
                 </button>

@@ -237,7 +237,7 @@
     "supportedFiles": "Supported: PDF, DOC, TXT files"
   },
   "marketing": {
-    "title": "Health Support that Actually Works",
+    "title": "Business Support that Actually Works",
     "subtitle": "Stop missing important business reminders and appointments",
     "beforeAfter": {
       "before": "Before Chayo",
@@ -267,7 +267,7 @@
     "pricing": "Pricing",
     "signIn": "Sign In",
     "signOut": "Sign Out",
-    "dashboard": "Dashboard",
+    "dashboard": "Business Hub",
     "tagline": "Your digital comadre ✨"
   },
   "auth": {

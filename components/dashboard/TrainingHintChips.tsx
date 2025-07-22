@@ -13,7 +13,7 @@ export type TrainingHint = {
 }
 
 interface TrainingHintChipsProps {
-  selectedHint: TrainingHint | null
+  selectedHint?: TrainingHint | null
   onHintSelect: (hint: TrainingHint | null) => void
   organizationId?: string
   className?: string
@@ -21,7 +21,7 @@ interface TrainingHintChipsProps {
 }
 
 const TrainingHintChips: React.FC<TrainingHintChipsProps> = ({ 
-  selectedHint, 
+  selectedHint: controlledSelectedHint, 
   onHintSelect,
   organizationId,
   className = '',
@@ -30,6 +30,8 @@ const TrainingHintChips: React.FC<TrainingHintChipsProps> = ({
   const t = useTranslations('chat')
   const [trainingHints, setTrainingHints] = useState<TrainingHint[]>([])
   const [loading, setLoading] = useState(false)
+  const [internalSelectedHint, setInternalSelectedHint] = useState<TrainingHint | null>(null)
+  const selectedHint = controlledSelectedHint !== undefined ? controlledSelectedHint : internalSelectedHint
 
   // Fetch dynamic training hints based on business info fields
   useEffect(() => {
@@ -84,10 +86,20 @@ const TrainingHintChips: React.FC<TrainingHintChipsProps> = ({
 
 
   const handleHintClick = (hint: TrainingHint) => {
-    if (selectedHint?.id === hint.id) {
-      onHintSelect(null) // Deselect if already selected
+    if (controlledSelectedHint === undefined) {
+      if (selectedHint?.id === hint.id) {
+        setInternalSelectedHint(null)
+        onHintSelect(null)
+      } else {
+        setInternalSelectedHint(hint)
+        onHintSelect(hint)
+      }
     } else {
-      onHintSelect(hint)
+      if (selectedHint?.id === hint.id) {
+        onHintSelect(null)
+      } else {
+        onHintSelect(hint)
+      }
     }
   }
 

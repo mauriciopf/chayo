@@ -135,7 +135,7 @@ export default function ClientQRCode({ agent, isVisible }: ClientQRCodeProps) {
             <div className="flex space-x-3">
               <button
                 onClick={shareQR}
-                className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+                className="flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium"
               >
                 📱 Share QR Code
               </button>

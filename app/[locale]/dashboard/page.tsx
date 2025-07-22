@@ -476,7 +476,7 @@ function DashboardContent() {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
+    <div className="flex h-screen min-h-0 bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
       {/* Desktop Navigation Sidebar */}
       <DesktopNavigation
         activeView={activeView}
@@ -488,7 +488,7 @@ function DashboardContent() {
       />
 
       {/* Main Content Area */}
-      <div className="flex flex-col flex-1 min-w-0">
+      <div className="flex flex-col flex-1 min-w-0 min-h-0">
         {/* Mobile Header */}
         <div className="md:hidden">
           <MobileHeader 
@@ -510,7 +510,7 @@ function DashboardContent() {
           subscription={auth.subscription}
         />
 
-        <div className={`flex-1 flex flex-col items-center w-full ${
+        <div className={`flex-1 flex flex-col items-center w-full min-h-0 ${
           activeView === 'chat' && mobile.isMobile
             ? 'px-0 py-0' 
             : 'px-4 sm:px-6 lg:px-8 py-4 md:px-8 md:py-8'

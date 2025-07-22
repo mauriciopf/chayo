@@ -224,7 +224,7 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
                 animate={{ opacity: 1, y: 0 }}
                 className={`p-3 rounded-lg ${
                   profileMessage.type === 'success'
-                    ? 'bg-green-50 text-green-800 border border-green-200'
+                    ? 'bg-gray-50 text-gray-800 border border-gray-200'
                     : 'bg-red-50 text-red-800 border border-red-200'
                 }`}
               >
@@ -269,7 +269,7 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
               <button
                 type="button"
                 onClick={handleOrgNameUpdate}
-                className="px-3 py-1 bg-green-500 text-white rounded text-xs font-medium disabled:opacity-50"
+                className="px-3 py-1 bg-purple-600 text-white rounded text-xs font-medium disabled:opacity-50"
                 disabled={orgLoading || !orgName}
               >
                 {t('save')}
@@ -323,7 +323,7 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
                 animate={{ opacity: 1, y: 0 }}
                 className={`p-3 rounded-lg ${
                   passwordMessage.type === 'success'
-                    ? 'bg-green-50 text-green-800 border border-green-200'
+                    ? 'bg-gray-50 text-gray-800 border border-gray-200'
                     : 'bg-red-50 text-red-800 border border-red-200'
                 }`}
               >

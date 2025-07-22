@@ -1,7 +1,7 @@
 {
   "footer": {
     "brand": "Chayo",
-    "tagline": "Tu comadre digital digital, 24/7",
+    "tagline": "Tu comadre digital, 24/7",
     "description": "Tu comadre digital de IA que nunca duerme. Inteligente, confiable y siempre lista para ayudarte a hacer crecer tu negocio.",
     "language": "Idioma:",
     "quickLinks": "Enlaces Rápidos",
@@ -237,7 +237,7 @@
     "supportedFiles": "Formatos: PDF, DOC, TXT"
   },
   "marketing": {
-    "title": "Apoyo de Salud que Realmente Funciona",
+    "title": "Apoyo Empresarial que Realmente Funciona",
     "subtitle": "Deja de perder recordatorios importantes de negocio y citas",
     "beforeAfter": {
       "before": "Antes de Chayo",
@@ -267,8 +267,8 @@
     "pricing": "Precios",
     "signIn": "Iniciar Sesión",
     "signOut": "Cerrar Sesión",
-    "dashboard": "Panel",
-    "tagline": "Tu comadre digital digital ✨"
+    "dashboard": "Hub Empresarial",
+    "tagline": "Tu comadre digital ✨"
   },
   "auth": {
     "signIn": "Iniciar Sesión",

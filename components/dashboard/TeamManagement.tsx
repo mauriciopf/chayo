@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
-import { Button } from '@/components/ui/button'
 
 interface TeamMember {
   id: string
@@ -217,12 +216,12 @@ export default function TeamManagement({ organizationId, organizationName }: Tea
           </p>
         </div>
         {canManageTeam && (
-          <Button
+          <button
             onClick={() => setShowInviteModal(true)}
-            className="bg-orange-400 hover:bg-orange-500"
+            className="bg-orange-400 hover:bg-orange-500 text-white px-4 py-2 rounded-md"
           >
             {t('inviteMember')}
-          </Button>
+          </button>
         )}
       </div>
 
@@ -374,20 +373,20 @@ export default function TeamManagement({ organizationId, organizationName }: Tea
                 </div>
               </div>
               <div className="flex justify-end space-x-3 mt-6">
-                <Button
-                  variant="outline"
+                <button
                   onClick={() => setShowInviteModal(false)}
                   disabled={inviting}
+                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-md"
                 >
                   {t('cancel')}
-                </Button>
-                <Button
+                </button>
+                <button
                   onClick={handleInviteMember}
                   disabled={!inviteEmail || inviting}
-                  className="bg-orange-400 hover:bg-orange-500"
+                  className="bg-orange-400 hover:bg-orange-500 text-white px-4 py-2 rounded-md"
                 >
                   {inviting ? t('sending') : t('sendInvitation')}
-                </Button>
+                </button>
               </div>
             </motion.div>
           </div>

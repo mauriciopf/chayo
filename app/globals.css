@@ -25,8 +25,9 @@ html {
   --text-secondary: #52525b;
   --text-muted: #a1a1aa;
   --border-color: rgba(24, 24, 27, 0.08);
-  --accent-primary: #10b981;
-  --accent-secondary: #059669;
+  --accent-primary: #6ba48c; /* Soft green */
+  --accent-secondary: #c5ddd2; /* Light mint */
+  --button-hover: #2d333b;
   --font-sans: 'Inter', 'Segoe UI', 'Helvetica Neue', system-ui, sans-serif;
 }
 
@@ -38,8 +39,9 @@ html {
   --text-secondary: #52525b;
   --text-muted: #a1a1aa;
   --border-color: rgba(24, 24, 27, 0.08);
-  --accent-primary: #10b981;
-  --accent-secondary: #059669;
+  --accent-primary: #6ba48c;
+  --accent-secondary: #c5ddd2;
+  --button-hover: #e0e7ef;
 }
 
 /* Dark mode variables (refined dark, not black) */
@@ -50,8 +52,9 @@ html {
   --text-secondary: #d4d4d8;
   --text-muted: #a1a1aa;
   --border-color: rgba(255, 255, 255, 0.08);
-  --accent-primary: #34d399;
-  --accent-secondary: #10b981;
+  --accent-primary: #6ba48c;
+  --accent-secondary: #c5ddd2;
+  --button-hover: #2d333b;
 }
 
 /* Base typography improvements */

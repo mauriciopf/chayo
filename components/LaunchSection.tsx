@@ -77,7 +77,7 @@ export default function LaunchSection({ onStartCall }: LaunchSectionProps) {
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h3 className="text-2xl font-bold text-gray-900">Today's Results</h3>
-                  <p className="text-gray-600">Chayo's daily health support</p>
+                  <p className="text-gray-600">Chayo's daily business support</p>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>

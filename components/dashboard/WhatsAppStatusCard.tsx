@@ -69,7 +69,7 @@ export default function WhatsAppStatusCard({ agentId, onSetup }: WhatsAppStatusC
         <div className="flex items-center">
           <div className={`w-10 h-10 rounded-xl flex items-center justify-center mr-3 ${
             status?.isConnected 
-              ? 'bg-gradient-to-r from-green-500 to-green-600' 
+              ? 'bg-gradient-to-r from-gray-700 to-gray-900' 
               : 'bg-gradient-to-r from-gray-400 to-gray-500'
           }`}>
             <span className="text-white text-xl">📱</span>
@@ -84,7 +84,7 @@ export default function WhatsAppStatusCard({ agentId, onSetup }: WhatsAppStatusC
         
         <div className={`px-3 py-1 rounded-full text-xs font-medium ${
           status?.isConnected
-            ? 'bg-green-100 text-green-800'
+            ? 'bg-gray-100 text-gray-800'
             : 'bg-gray-100 text-gray-600'
         }`}>
           {status?.isConnected ? t('active') : t('inactive')}
@@ -107,7 +107,7 @@ export default function WhatsAppStatusCard({ agentId, onSetup }: WhatsAppStatusC
           
           <div className="flex justify-between text-sm">
             <span className="text-gray-600">{t('status')}</span>
-            <span className="font-medium text-green-600">{status.status || t('active')}</span>
+            <span className="font-medium text-gray-200">{status.status || t('active')}</span>
           </div>
           
           {status.messageCount !== undefined && (
@@ -142,7 +142,7 @@ export default function WhatsAppStatusCard({ agentId, onSetup }: WhatsAppStatusC
           </p>
           <button
             onClick={onSetup}
-            className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-2 rounded-xl font-medium transition-all duration-200 shadow-lg"
+            className="bg-gradient-to-r from-gray-700 to-gray-900 hover:from-gray-800 hover:to-gray-900 text-white px-6 py-2 rounded-xl font-medium transition-all duration-200 shadow-lg"
           >
             {t('setupWhatsApp')}
           </button>

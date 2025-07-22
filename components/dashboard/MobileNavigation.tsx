@@ -178,7 +178,7 @@ export default function MobileNavigation({
                   onManageBilling()
                   onClose()
                 }}
-                className="w-full flex items-center space-x-3 px-6 py-3 text-left hover:bg-gray-50 transition-colors text-gray-700"
+                className="w-full flex items-center space-x-3 px-6 py-3 text-left hover:bg-gray-50 transition-colors"
               >
                 <span className="text-gray-400">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
