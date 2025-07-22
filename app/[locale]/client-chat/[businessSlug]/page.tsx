@@ -79,39 +79,19 @@ export default function ClientChatBusinessPage() {
     )
   }
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-lg">🤖</span>
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-gray-900">
-                Chat with {organization.name}
-              </h1>
-              <p className="text-sm text-gray-600">
-                Tu Comadre Digital - AI Business Assistant
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col">
       {/* Chat Container */}
-      <div className="max-w-4xl mx-auto px-4 py-6">
-        <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+      <div className="flex-1 w-full max-w-4xl mx-auto px-2 sm:px-4 py-2 sm:py-6 flex flex-col">
+        <div className="bg-white rounded-t-xl sm:rounded-xl shadow-lg border border-gray-200 overflow-hidden flex-1 flex flex-col h-full">
           <ClientChatContainer 
             agent={agent}
-            className="h-[calc(100vh-200px)]"
+            className="h-full flex-1"
           />
         </div>
       </div>
       {/* Footer */}
-      <div className="text-center py-4">
-        <p className="text-xs text-gray-500">
-          Powered by Chayo AI • Tu Comadre Digital
-        </p>
+      <div className="text-center py-3 px-2 bg-white/80 border-t border-gray-200 text-xs text-gray-500 sticky bottom-0 z-10">
+        Powered by Chayo AI • Tu Comadre Digital
       </div>
     </div>
   )

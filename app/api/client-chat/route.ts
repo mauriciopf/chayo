@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { ClientSystemPromptService } from '@/lib/services/clientSystemPromptService'
+import { embeddingService } from '@/lib/services/embeddingService'
 
 export async function POST(request: NextRequest) {
   try {
@@ -37,11 +38,46 @@ export async function POST(request: NextRequest) {
     const clientSystemPromptService = new ClientSystemPromptService(supabase)
     const systemPrompt = await clientSystemPromptService.generateClientSystemPrompt(agentId)
 
+    // --- RAG: Retrieve relevant business embeddings ---
+    let ragMessages: Array<{role: string, content: string}> = []
+    try {
+      // Use the embeddingService to search for relevant conversation embeddings
+      if (embeddingService && agent.organization_id) {
+        const relevantEmbeddings = await embeddingService.searchSimilarConversations(
+          agent.id,
+          message,
+          0.7, // similarity threshold
+          5    // fetch more to allow deduplication
+        )
+        // Deduplicate by normalized segment text
+        const seen = new Set<string>()
+        const uniqueEmbeddings = []
+        for (const emb of relevantEmbeddings) {
+          const norm = emb.conversation_segment.trim().toLowerCase()
+          if (!seen.has(norm)) {
+            seen.add(norm)
+            uniqueEmbeddings.push(emb)
+          }
+          if (uniqueEmbeddings.length >= 3) break // Only keep top 3 unique
+        }
+        if (uniqueEmbeddings.length > 0) {
+          ragMessages = uniqueEmbeddings.map((emb: any) => ({
+            role: 'system',
+            content: `Relevant business info: ${emb.conversation_segment}`
+          }))
+        }
+      }
+    } catch (err) {
+      console.warn('RAG/embedding retrieval failed:', err)
+    }
+    // --- END RAG ---
+
     console.log('Client system prompt generated, length:', systemPrompt.length)
 
     // Prepare messages for OpenAI
     const openAIMessages = [
       { role: 'system', content: systemPrompt },
+      ...ragMessages,
       ...messages.map((msg: any) => ({
         role: msg.role === 'ai' ? 'assistant' : msg.role,
         content: msg.content
