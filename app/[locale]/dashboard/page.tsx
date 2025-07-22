@@ -393,16 +393,17 @@ function DashboardContent() {
           </div>
         )
       case 'qrcode':
-        return selectedAgent ? (
+        return selectedAgent && auth.currentOrganization ? (
           <div className="w-full max-w-4xl mx-auto">
             <ClientQRCode 
               agent={selectedAgent}
+              organizationSlug={auth.currentOrganization.slug}
               isVisible={true}
             />
           </div>
         ) : (
           <div className="text-center py-8">
-            <p className="text-gray-500">No agent selected. Please go to Agents to create one.</p>
+            <p className="text-gray-500">No agent or business selected. Please go to Agents to create one.</p>
           </div>
         )
       case 'agents':

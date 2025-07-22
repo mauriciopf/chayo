@@ -1,52 +1,60 @@
-'use client'
+"use client"
 
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import ClientChatContainer from '@/components/dashboard/ClientChatContainer'
-import { Agent } from '@/components/dashboard/types'
+import { Agent, Organization } from '@/components/dashboard/types'
 import { createClient } from '@/lib/supabase/client'
 
-export default function ClientChatPage() {
+export default function ClientChatBusinessPage() {
   const params = useParams()
-  const agentId = params.agentId as string
+  const businessSlug = params.businessSlug as string
   const [agent, setAgent] = useState<Agent | null>(null)
+  const [organization, setOrganization] = useState<Organization | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const supabase = createClient()
 
   useEffect(() => {
-    const fetchAgent = async () => {
+    const fetchBusinessAgent = async () => {
       try {
-        if (!agentId) {
-          setError('No agent ID provided')
+        if (!businessSlug) {
+          setError('No business slug provided')
           setLoading(false)
           return
         }
-
-        // Fetch agent details
+        // Fetch organization by slug
+        const { data: orgData, error: orgError } = await supabase
+          .from('organizations')
+          .select('*')
+          .eq('slug', businessSlug)
+          .single()
+        if (orgError || !orgData) {
+          setError('Business not found')
+          setLoading(false)
+          return
+        }
+        setOrganization(orgData)
+        // Fetch agent for this organization (assume one agent per business)
         const { data: agentData, error: agentError } = await supabase
           .from('agents')
           .select('*')
-          .eq('id', agentId)
+          .eq('organization_id', orgData.id)
           .single()
-
         if (agentError || !agentData) {
-          setError('Agent not found')
+          setError('Chat agent not found for this business')
           setLoading(false)
           return
         }
-
         setAgent(agentData)
         setLoading(false)
       } catch (err) {
-        console.error('Error fetching agent:', err)
         setError('Failed to load chat')
         setLoading(false)
       }
     }
-
-    fetchAgent()
-  }, [agentId, supabase])
+    fetchBusinessAgent()
+  }, [businessSlug, supabase])
 
   if (loading) {
     return (
@@ -58,8 +66,7 @@ export default function ClientChatPage() {
       </div>
     )
   }
-
-  if (error || !agent) {
+  if (error || !agent || !organization) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-red-50 to-pink-100 flex items-center justify-center">
         <div className="text-center">
@@ -71,7 +78,6 @@ export default function ClientChatPage() {
       </div>
     )
   }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* Header */}
@@ -83,7 +89,7 @@ export default function ClientChatPage() {
             </div>
             <div>
               <h1 className="text-xl font-bold text-gray-900">
-                Chat with {agent.name}
+                Chat with {organization.name}
               </h1>
               <p className="text-sm text-gray-600">
                 Tu Comadre Digital - AI Business Assistant
@@ -92,7 +98,6 @@ export default function ClientChatPage() {
           </div>
         </div>
       </div>
-
       {/* Chat Container */}
       <div className="max-w-4xl mx-auto px-4 py-6">
         <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
@@ -102,7 +107,6 @@ export default function ClientChatPage() {
           />
         </div>
       </div>
-
       {/* Footer */}
       <div className="text-center py-4">
         <p className="text-xs text-gray-500">

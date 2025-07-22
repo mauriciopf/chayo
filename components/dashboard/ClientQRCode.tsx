@@ -7,21 +7,22 @@ import { Agent } from './types'
 
 interface ClientQRCodeProps {
   agent: Agent
+  organizationSlug: string
   isVisible: boolean
 }
 
-export default function ClientQRCode({ agent, isVisible }: ClientQRCodeProps) {
+export default function ClientQRCode({ agent, organizationSlug, isVisible }: ClientQRCodeProps) {
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('')
   const [clientChatUrl, setClientChatUrl] = useState<string>('')
   const [copied, setCopied] = useState(false)
 
   useEffect(() => {
-    if (agent && isVisible) {
+    if (agent && organizationSlug && isVisible) {
       console.log('🔧 Generating QR code for agent:', agent.id)
       
-      // Generate the client chat URL
+      // Generate the client chat URL using the business slug
       const baseUrl = window.location.origin
-      const chatUrl = `${baseUrl}/client-chat/${agent.id}`
+      const chatUrl = `${baseUrl}/client-chat/${organizationSlug}`
       setClientChatUrl(chatUrl)
       
       console.log('📱 Client chat URL:', chatUrl)
@@ -44,7 +45,7 @@ export default function ClientQRCode({ agent, isVisible }: ClientQRCodeProps) {
         setQrCodeUrl('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjU2IiBoZWlnaHQ9IjI1NiIgdmlld0JveD0iMCAwIDI1NiAyNTYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyNTYiIGhlaWdodD0iMjU2IiBmaWxsPSJ3aGl0ZSIvPgo8dGV4dCB4PSIxMjgiIHk9IjEyOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iYmxhY2siPk5vIFFSPC90ZXh0Pgo8L3N2Zz4K')
       })
     }
-  }, [agent, isVisible])
+  }, [agent, organizationSlug, isVisible])
 
   const copyToClipboard = async () => {
     try {
