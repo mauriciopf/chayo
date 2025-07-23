@@ -189,12 +189,17 @@ CREATE POLICY "Organization owners can delete their organizations" ON organizati
   FOR DELETE USING (auth.uid() = owner_id);
 
 -- Create policies for team_members table
+DROP POLICY IF EXISTS "Team members can view members of their organizations" ON team_members;
+
 CREATE POLICY "Team members can view members of their organizations" ON team_members
   FOR SELECT USING (
-    organization_id IN (
-      SELECT organization_id FROM team_members 
-      WHERE user_id = auth.uid() AND status = 'active'
-    ) OR
+    EXISTS (
+      SELECT 1 FROM team_members AS tm2
+      WHERE tm2.organization_id = team_members.organization_id
+        AND tm2.user_id = auth.uid()
+        AND tm2.status = 'active'
+    )
+    OR
     organization_id IN (
       SELECT id FROM organizations WHERE owner_id = auth.uid()
     )
@@ -298,15 +303,15 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION create_default_organization()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO organizations (name, slug, owner_id)
+  INSERT INTO public.organizations (name, slug, owner_id)
   VALUES (
     'My Organization',
-    'org-' || encode(gen_random_bytes(8), 'hex'),
+    'org-' || REPLACE(NEW.id::text, '-', ''),
     NEW.id
   );
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Create trigger to create default organization for new users
 CREATE TRIGGER create_default_organization_trigger
