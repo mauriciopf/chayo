@@ -3,15 +3,16 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import ChatMessage from './ChatMessage'
-import { Message, Agent } from './types'
+import { Message, Agent, Organization } from './types'
 import { createClient } from '@/lib/supabase/client'
 
 interface ClientChatContainerProps {
   agent: Agent
+  organization: Organization
   className?: string
 }
 
-export default function ClientChatContainer({ agent, className = '' }: ClientChatContainerProps) {
+export default function ClientChatContainer({ agent, organization, className = '' }: ClientChatContainerProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -63,7 +64,7 @@ export default function ClientChatContainer({ agent, className = '' }: ClientCha
         },
         body: JSON.stringify({
           message: input.trim(),
-          agentId: agent.id,
+          organizationId: organization.id,
           messages: messages.slice(-10) // Send last 10 messages for context
         }),
       })

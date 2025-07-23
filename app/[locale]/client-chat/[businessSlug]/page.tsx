@@ -85,6 +85,7 @@ export default function ClientChatBusinessPage() {
         <div className="bg-white rounded-t-xl sm:rounded-xl shadow-lg border border-gray-200 overflow-hidden flex-1 flex flex-col h-full">
           <ClientChatContainer 
             agent={agent}
+            organization={organization}
             className="h-full flex-1"
           />
         </div>
