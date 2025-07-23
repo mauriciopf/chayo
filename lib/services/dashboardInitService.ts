@@ -5,8 +5,6 @@ export interface DashboardInitData {
   business: any
   agents: any[]
   businessInfoFields: any
-  shouldAutoStartChat: boolean
-  initialChatMessage?: string
 }
 
 export class DashboardInitService {
@@ -26,7 +24,15 @@ export class DashboardInitService {
       // Get current user
       const { data: { user }, error: authError } = await this.supabase.auth.getUser()
       if (authError || !user) {
-        throw new Error('User not authenticated')
+        // Return default state for unauthenticated users
+        return {
+          agents: [],
+          business: null,
+          businessInfoFields: {
+            business_info_gathered: 0,
+            whatsapp_trial_mentioned: false
+          }
+        }
       }
 
       // Fetch all data in parallel
@@ -36,21 +42,10 @@ export class DashboardInitService {
         this.fetchBusinessInfoFields(user.id)
       ])
 
-      // Determine if we should auto-start chat
-      const shouldAutoStartChat = this.shouldAutoStartChat(businessInfoFields)
-      let initialChatMessage = undefined
-      if (shouldAutoStartChat) {
-        initialChatMessage = await this.generateInitialChatMessage(business, locale)
-      }
-
-
-
       return {
         business,
         agents,
-        businessInfoFields,
-        shouldAutoStartChat,
-        initialChatMessage
+        businessInfoFields
       }
     } catch (error) {
       console.error('❌ Error initializing dashboard:', error)
@@ -252,7 +247,7 @@ export class DashboardInitService {
    * Auto-start chat conversation by returning the initial AI message directly
    * No API call needed - just return the pre-generated message
    */
-  async autoStartChat(agentId: string, initialMessage: string, locale: string): Promise<string | null> {
+  async autoStartChat(initialMessage: string, locale: string): Promise<string | null> {
     try {
       // Simply return the initial message as the AI's first response
       // No need to call the chat API since this is just the opening message

@@ -69,27 +69,8 @@ function DashboardContent() {
   // Initialize dashboard data
   const dashboardInit = useDashboardInit(locale)
   
-  // Check if all dependencies are ready for auto-start
-  const isAutoStartReady = !!(
-    dashboardInit.initData && 
-    !dashboardInit.isLoading && 
-    selectedAgent && 
-    auth.user && 
-    !auth.loading &&
-    dashboardInit.initData.shouldAutoStartChat &&
-    dashboardInit.initData.initialChatMessage
-  )
-  
-
-  
   // Auto-start chat when dashboard data is ready
-  const autoStartChat = useAutoStartChat(
-    selectedAgent?.id || null,
-    dashboardInit.initData?.shouldAutoStartChat || false,
-    dashboardInit.initData?.initialChatMessage,
-    locale,
-    isAutoStartReady
-  )
+  const autoStartChat = useAutoStartChat(locale)
   
   // Initialize mobile hook with placeholder scroll function
   const mobile = useMobile(() => {})
@@ -518,14 +499,8 @@ function DashboardContent() {
             : 'px-4 sm:px-6 lg:px-8 py-4 md:px-8 md:py-8'
         }`}>
         {/* Unauthenticated banner */}
-        {!auth.user && (
-          <div className="w-full text-center mb-4">
-            <div className="inline-block px-4 py-2 bg-yellow-100 text-yellow-800 rounded-full font-semibold">
-              You are not signed in. Start chatting below to authenticate.
-            </div>
-          </div>
-        )}
-
+        {/* Remove any JSX or logic that renders the label 'You are not signed in. Start chatting below to authenticate.' */}
+        {/* Only render the ChatContainer for unauthenticated users. */}
         {renderCurrentView()}
       </div>
 

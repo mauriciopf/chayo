@@ -43,7 +43,7 @@ export function useAuth() {
       const { data: org } = await supabase
         .from('organizations')
         .select('id')
-        .eq('user_id', user.id)
+        .eq('owner_id', user.id)
         .single()
 
       if (!org) return
@@ -142,62 +142,22 @@ export function useAuth() {
     
     const getUser = async () => {
       try {
-        await new Promise(resolve => setTimeout(resolve, 100))
-        
-        const pollForUser = async (attempts = 0) => {
-          const maxAttempts = 5
-          const delay = 500
-          
-          try {
-            const { data: { user } } = await supabase.auth.getUser()
-            
-            if (!isMounted) return
-            
-            if (user) {
-              console.log('Dashboard: User found', user.email)
-              setUser(user)
-              
-              await ensureUserHasOrganization(user)
-              
-              await Promise.all([
-                fetchAgents(),
-                fetchSubscription(user.id),
-                fetchCurrentOrganization(user.id)
-              ])
-              return
-            }
-            
-            if (attempts < maxAttempts) {
-              console.log(`Dashboard: No user found, retrying... (${attempts + 1}/${maxAttempts})`)
-              await new Promise(resolve => setTimeout(resolve, delay))
-              return pollForUser(attempts + 1)
-            }
-            
-            console.log('Dashboard: No user found after all attempts, showing chat for unauthenticated user')
-            setUser(null)
-          } catch (error) {
-            console.error('Dashboard: Error getting user:', error)
-            if (attempts < maxAttempts) {
-              await new Promise(resolve => setTimeout(resolve, delay))
-              return pollForUser(attempts + 1)
-            }
-            
-            if (isMounted) {
-              setUser(null)
-            }
-          }
+        const { data: { user }, error } = await supabase.auth.getUser()
+        if (error && error.status === 403) {
+          // Unauthenticated, don't retry
+          setUser(null)
+          setLoading(false)
+          return
         }
-        
-        await pollForUser()
-      } catch (error) {
-        console.error('Dashboard: Error in getUser:', error)
-        if (isMounted) {
+        if (user) {
+          setUser(user)
+        } else {
           setUser(null)
         }
+      } catch (error) {
+        setUser(null)
       } finally {
-        if (isMounted) {
-          setLoading(false)
-        }
+        setLoading(false)
       }
     }
 

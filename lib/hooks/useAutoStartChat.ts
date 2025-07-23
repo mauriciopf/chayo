@@ -8,11 +8,7 @@ export interface UseAutoStartChatReturn {
 }
 
 export function useAutoStartChat(
-  agentId: string | null,
-  shouldAutoStart: boolean,
-  initialMessage: string | undefined,
-  locale: string = 'en',
-  isReady: boolean = true // New parameter to ensure all dependencies are loaded
+  locale: string = 'en'
 ): UseAutoStartChatReturn {
   const [initialResponse, setInitialResponse] = useState<string | null>(null)
   const [isAutoStarting, setIsAutoStarting] = useState(false)
@@ -20,21 +16,21 @@ export function useAutoStartChat(
 
   useEffect(() => {
     const autoStartChat = async () => {
-      // Wait for all conditions to be met
-      if (!shouldAutoStart || !agentId || !initialMessage || initialResponse || !isReady) {
-        return // Don't auto-start if conditions not met or already started
+      // Always auto-start if not already started
+      if (initialResponse) {
+        return
       }
 
       try {
         setIsAutoStarting(true)
         setAutoStartError(null)
-        
+
+        // Call autoStartChat with empty agentId and locale
         const response = await dashboardInitService.autoStartChat(
-          agentId,
-          initialMessage,
+          '', // No initial message needed
           locale
         )
-        
+
         if (response) {
           setInitialResponse(response)
         } else {
@@ -50,9 +46,9 @@ export function useAutoStartChat(
 
     // Add a delay to ensure all dependencies are stable
     const timeoutId = setTimeout(autoStartChat, 1500)
-    
+
     return () => clearTimeout(timeoutId)
-  }, [agentId, shouldAutoStart, initialMessage, locale, initialResponse, isReady])
+  }, [locale, initialResponse])
 
   return {
     initialResponse,
