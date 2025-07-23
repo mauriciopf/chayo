@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import type { User } from '@supabase/supabase-js'
-import { AuthState, OtpLoadingState, Agent, UserSubscription, Organization } from '../types'
+import { AuthState, OtpLoadingState, Agent, UserSubscription, Organization } from '@/components/dashboard/types'
 import { organizationService } from '@/lib/services/organizationService'
 
 export function useAuth() {
@@ -28,7 +28,7 @@ export function useAuth() {
   // Ensure user has organization
   const ensureUserHasOrganization = async (user: User) => {
     try {
-      await organizationService.ensureUserHasOrganization(user)
+      await organizationService.ensureUserHasOrganization(user.id)
     } catch (error) {
       console.error('Error ensuring user has organization:', error)
     }

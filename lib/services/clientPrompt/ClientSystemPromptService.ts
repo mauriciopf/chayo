@@ -1,5 +1,5 @@
-import { embeddingService } from './embeddingService'
-import type { EmbeddingResult } from './embeddingService'
+import { embeddingService } from '../embeddingService'
+import type { EmbeddingResult } from '../embedding/types'
 
 export class ClientSystemPromptService {
   /**
@@ -7,13 +7,15 @@ export class ClientSystemPromptService {
    * - Uses only business knowledge from conversation_embeddings (not business_constraints_view).
    * - Makes the AI assistant focus only on this business.
    */
-  static async buildClientSystemPrompt(organizationId: string, userQuery: string = ''): Promise<string> {
+  static async buildClientSystemPrompt(organizationId: string, userQuery: string = '', supabase: any): Promise<string> {
     let relevantChunks: Array<Pick<EmbeddingResult, 'conversation_segment' | 'metadata'>> = []
     try {
       if (userQuery && userQuery.trim().length > 0) {
-        relevantChunks = await embeddingService.searchSimilarConversations(organizationId, userQuery, 0.8, 5)
+        const { generateEmbeddings } = await import('../embedding/EmbeddingGenerator')
+        const queryEmbedding = (await generateEmbeddings([{ text: userQuery, type: 'conversation', metadata: {} }]))[0]
+        relevantChunks = await embeddingService.searchSimilarConversations(organizationId, queryEmbedding, 0.8, 5)
       } else {
-        const { data, error } = await embeddingService['supabase']
+        const { data, error } = await supabase
           .from('conversation_embeddings')
           .select('conversation_segment, metadata')
           .eq('organization_id', organizationId)

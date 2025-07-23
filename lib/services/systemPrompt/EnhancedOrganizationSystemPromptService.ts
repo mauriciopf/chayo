@@ -1,5 +1,5 @@
-import { SystemPromptService } from './systemPromptService'
-import { TrainingHintService, type TrainingHintContext } from './trainingHintService'
+import { OrganizationSystemPromptService } from './OrganizationSystemPromptService'
+import { TrainingHintService, type TrainingHintContext } from '../trainingHintService'
 
 export interface SystemPromptResult {
   finalPrompt: string
@@ -16,7 +16,7 @@ export interface SystemPromptResult {
 /**
  * Enhanced system prompt service that combines base system prompts with training hints
  */
-export class EnhancedSystemPromptService {
+export class EnhancedOrganizationSystemPromptService {
   constructor(private supabaseClient: any) {}
 
   /**
@@ -33,8 +33,8 @@ export class EnhancedSystemPromptService {
       const trainingHintContext = TrainingHintService.extractFromMessages(messages)
 
       // Step 2: Generate base system prompt using existing service
-      const systemPromptService = new SystemPromptService(this.supabaseClient)
-      const baseSystemPrompt = await systemPromptService.getDynamicSystemPrompt(
+      const organizationSystemPromptService = new OrganizationSystemPromptService()
+      const baseSystemPrompt = await organizationSystemPromptService.generateSystemPrompt(
         agentId,
         userQuery,
         locale

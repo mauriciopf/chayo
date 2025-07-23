@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { ClientSystemPromptService } from '@/lib/services/clientSystemPromptService'
+import { ClientSystemPromptService } from '@/lib/services/clientPrompt/ClientSystemPromptService'
 import { embeddingService } from '@/lib/services/embeddingService'
 
 export async function POST(request: NextRequest) {
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get client-facing system prompt (RAG-based)
-    const systemPrompt = await ClientSystemPromptService.buildClientSystemPrompt(organizationId, message)
+    const systemPrompt = await ClientSystemPromptService.buildClientSystemPrompt(organizationId, message, supabase)
     // No ragMessages needed, all context is in the system prompt
 
     console.log('Client system prompt generated, length:', systemPrompt.length)

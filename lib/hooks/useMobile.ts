@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { isMobileDevice } from '../PWAPrompt'
+import PWAPrompt, { isMobileDevice } from '@/components/dashboard/PWAPrompt'
 
 export function useMobile(scrollChatToBottom: () => void) {
   const [isMobile, setIsMobile] = useState(false)

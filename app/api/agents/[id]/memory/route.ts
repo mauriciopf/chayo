@@ -39,33 +39,16 @@ export async function GET(
       )
     }
 
-    if (action === 'conflicts') {
-      // Get memory conflicts
-      const conflicts = await embeddingService.getMemoryConflicts(agentId, threshold)
-      
-      return NextResponse.json({
-        success: true,
-        data: {
-          agentId,
-          agentName: agent.name,
-          conflicts: conflicts.conflicts,
-          totalConflicts: conflicts.totalConflicts,
-          threshold
-        }
-      })
-    } else {
-      // Get memory summary
-      const summary = await embeddingService.getBusinessKnowledgeSummary(agentId)
-      
-      return NextResponse.json({
-        success: true,
-        data: {
-          agentId,
-          agentName: agent.name,
-          summary
-        }
-      })
-    }
+    // Only support summary action
+    const summary = await embeddingService.getBusinessKnowledgeSummary(agentId)
+    return NextResponse.json({
+      success: true,
+      data: {
+        agentId,
+        agentName: agent.name,
+        summary
+      }
+    })
 
   } catch (error) {
     console.error('Error getting memory data:', error)

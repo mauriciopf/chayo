@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Message, Agent, AuthState } from '../types'
+import { Message, Agent, AuthState } from '@/components/dashboard/types'
 
 interface UseChatProps {
   authState: AuthState

@@ -35,7 +35,8 @@ export default function UserProfile({ user, subscription, onLogout, onManageBill
     async function fetchOrg() {
       setOrgLoading(true)
       setOrgError('')
-      const org = await organizationService.getUserOrganization(user.id)
+      const orgs = await organizationService.getUserOrganizations(user.id)
+      const org = orgs && orgs.length > 0 ? orgs[0] : null;
       if (org) {
         setOrgName(org.name)
         setOrgId(org.id)

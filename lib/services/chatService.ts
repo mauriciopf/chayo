@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/client'
-import { systemPromptService } from './systemPromptService'
+import { organizationSystemPromptService } from './systemPrompt/OrganizationSystemPromptService'
 import { embeddingService } from './embeddingService'
 import { SupabaseClient } from '@supabase/supabase-js'
 
@@ -220,8 +220,8 @@ export class ChatService {
 
     try {
       // Use enhanced system prompt service that handles training hints
-      const { EnhancedSystemPromptService } = await import('./enhancedSystemPromptService')
-      const enhancedService = new EnhancedSystemPromptService(this.supabase)
+      const { EnhancedOrganizationSystemPromptService } = await import('./systemPrompt/EnhancedOrganizationSystemPromptService')
+      const enhancedService = new EnhancedOrganizationSystemPromptService(this.supabase)
       
       const result = await enhancedService.generateEnhancedPrompt(
         context.agent.id,
@@ -447,8 +447,7 @@ Remember: Your ONLY job is to understand their business. Do not provide advice, 
           metadata: segment.metadata
         }))
         
-        // Use the same Supabase client for embedding service
-        const embeddingService = new (await import('./embeddingService')).EmbeddingService(this.supabase)
+        const { embeddingService } = await import('./embeddingService')
         await embeddingService.storeConversationEmbeddings(context.agent.id, segmentsForEmbedding)
       } catch (error) {
         console.warn('Failed to store embeddings (this is optional):', error)
@@ -475,7 +474,7 @@ Remember: Your ONLY job is to understand their business. Do not provide advice, 
 
         // 🔄 WRITABLE MEMORY UPDATES - Process memory updates from conversation
         try {
-          const embeddingService = new (await import('./embeddingService')).EmbeddingService(this.supabase)
+          const { embeddingService } = await import('./embeddingService')
           
           // Check if conversation contains memory updates (business info changes)
           const conversationText = messages.map(m => m.content).join(' ')

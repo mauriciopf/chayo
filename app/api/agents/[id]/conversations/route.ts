@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { embeddingService } from '@/lib/services/embeddingService'
-import { systemPromptService } from '@/lib/services/systemPromptService'
+import { organizationSystemPromptService } from '@/lib/services/systemPrompt/OrganizationSystemPromptService'
 
 export async function POST(
   request: NextRequest,
@@ -53,7 +53,7 @@ export async function POST(
 
     // Update system prompt if requested
     if (updateSystemPrompt) {
-      await systemPromptService.updateAgentSystemPrompt(agentId)
+      // await organizationSystemPromptService.updateAgentSystemPrompt(agentId)
     }
 
     // Get updated knowledge summary
@@ -118,9 +118,12 @@ export async function GET(
     
     if (query) {
       // Search for similar conversations
+      // Generate embedding for the query string
+      const { generateEmbeddings } = await import('@/lib/services/embedding/EmbeddingGenerator')
+      const queryEmbedding = (await generateEmbeddings([{ text: query, type: 'conversation', metadata: {} }]))[0]
       results = await embeddingService.searchSimilarConversations(
         agent.organization_id,
-        query,
+        queryEmbedding,
         0.7,
         limit
       )
@@ -197,7 +200,7 @@ export async function DELETE(
     }
 
     // Delete all embeddings for this organization
-    await embeddingService.deleteAgentEmbeddings(agent.organization_id)
+    await embeddingService.deleteOrganizationEmbeddings(agent.organization_id)
 
     return NextResponse.json({
       success: true,
