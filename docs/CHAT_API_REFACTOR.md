@@ -126,7 +126,6 @@ import { chatService } from '@/lib/services/chatService'
 // Test chat processing directly
 const response = await chatService.processChat(
   [{ role: 'user', content: 'Hello' }],
-  null,
   'en'
 )
 ```
@@ -179,7 +178,7 @@ const error = errorHandlingService.handleValidationError(new Error('test'))
 
 // Test chat service
 import { chatService } from '@/lib/services/chatService'
-const response = await chatService.processChat(messages, null, 'en')
+const response = await chatService.processChat(messages, 'en')
 ```
 
 This modular approach makes the codebase much more maintainable and easier to extend in the future. 

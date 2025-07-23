@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { ChatService } from '@/lib/services/chatService'
+import { OrganizationChatService } from '@/lib/services/organizationChatService'
 import { validationService } from '@/lib/services/validationService'
 import { errorHandlingService } from '@/lib/services/errorHandlingService'
 import { createClient } from '@/lib/supabase/server'
@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     }
     
     // Create chat service with server-side client
-    const chatService = new ChatService(supabase)
+    const chatService = new OrganizationChatService(supabase)
     
     // Parse and validate request
     const body = await req.json()
@@ -31,7 +31,6 @@ export async function POST(req: NextRequest) {
     const sanitizedMessages = validationService.sanitizeMessages(validatedRequest.messages)
     const response = await chatService.processChat(
       sanitizedMessages,
-      validatedRequest.agentId,
       validatedRequest.locale
     )
     
