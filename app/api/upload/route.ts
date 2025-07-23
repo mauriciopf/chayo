@@ -1,19 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, getUserOrganization } from '@/lib/supabase/server'
+import { chunkText } from '@/lib/utils/text'
 import { EmbeddingService } from '@/lib/services/embeddingService'
 
 export const runtime = 'nodejs' // must be nodejs for file processing
-
-// Helper: chunk text into ~1000 character segments
-function chunkText(text: string, chunkSize = 1000): string[] {
-  const chunks = []
-  let i = 0
-  while (i < text.length) {
-    chunks.push(text.slice(i, i + chunkSize))
-    i += chunkSize
-  }
-  return chunks
-}
 
 export async function POST(req: NextRequest) {
   try {

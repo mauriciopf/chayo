@@ -1,5 +1,6 @@
 import React from "react"
 import { useTranslations } from 'next-intl'
+import { formatTime } from '@/lib/utils/time'
 
 interface ChatMessageProps {
   role: "user" | "ai" | "system"
@@ -10,9 +11,6 @@ interface ChatMessageProps {
 
 export default function ChatMessage({ role, content, timestamp, usingRAG }: ChatMessageProps) {
   const t = useTranslations('chat')
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-  }
 
   if (role === "system") {
     return (
