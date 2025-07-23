@@ -152,14 +152,6 @@ export class DashboardInitService {
   }
 
   /**
-   * Determine if chat should auto-start - ALWAYS true if user is authenticated
-   */
-  private shouldAutoStartChat(businessInfoFields: any): boolean {
-    // Chat should ALWAYS auto-start for authenticated users
-    return true
-  }
-
-  /**
    * Ensure initial business info requirements (e.g., business_name question) are present for the organization
    */
   private async ensureInitialBusinessInfoRequirements(organizationId: string, locale: string) {
@@ -187,16 +179,10 @@ export class DashboardInitService {
   /**
    * Generate appropriate initial chat message by fetching first question
    */
-  private async generateInitialChatMessage(business: any, locale: string): Promise<string> {
+  async generateInitialChatMessage(business: any, locale: string): Promise<string> {
     try {
       const isSpanish = locale === 'es'
 
-      if (!business) {
-        // No business exists - start with business type question
-        return isSpanish 
-          ? '¡Hola! Soy Chayo, tu asistente de IA para negocios de salud y bienestar. Estoy aquí para entender mejor tu negocio. Para empezar, ¿qué tipo de negocio de salud o bienestar tienes?'
-          : 'Hello! I\'m Chayo, your AI assistant for health and wellness businesses. I\'m here to understand your business better. To get started, what type of health or wellness business do you run?'
-      }
 
       // Business exists - ensure initial requirements (e.g., business_name question)
       await this.ensureInitialBusinessInfoRequirements(business.id, locale)
