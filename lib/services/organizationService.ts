@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
+import { SupabaseClient } from '@supabase/supabase-js'
 
 export interface Organization {
   id: string
@@ -72,6 +73,7 @@ export class OrganizationService {
 
   /**
    * Gets the user's primary organization
+   * Syncs the organization name with business_name from business_constraints_view if needed
    */
   async getUserOrganization(userId: string): Promise<Organization | null> {
     try {
@@ -106,6 +108,29 @@ export class OrganizationService {
       }
 
       const organization = membership.organizations as unknown as Organization
+
+      // --- Sync organization name with business_constraints_view ---
+      // Fetch business constraints from the view
+      const { data: viewData, error: viewError } = await this.supabase
+        .from('business_constraints_view')
+        .select('business_constraints')
+        .eq('organization_id', organization.id)
+        .single()
+
+      if (!viewError && viewData?.business_constraints?.business_name) {
+        const businessName = viewData.business_constraints.business_name
+        if (businessName && businessName !== organization.name) {
+          // Update the organization name if it differs
+          const { error: updateError } = await this.supabase
+            .from('organizations')
+            .update({ name: businessName })
+            .eq('id', organization.id)
+          if (!updateError) {
+            organization.name = businessName
+          }
+        }
+      }
+      // --- End sync logic ---
 
       // Fetch user subscription separately
       const { data: subscription } = await this.supabase

@@ -5,79 +5,44 @@ import { embeddingService } from '@/lib/services/embeddingService'
 
 export async function POST(request: NextRequest) {
   try {
-    const { message, agentId, messages = [] } = await request.json()
+    const { message, organizationId, messages = [] } = await request.json()
 
-    if (!message || !agentId) {
+    if (!message || !organizationId) {
       return NextResponse.json(
-        { error: 'Message and agentId are required' },
+        { error: 'Message and organizationId are required' },
         { status: 400 }
       )
     }
 
-    console.log('Client Chat API - Request:', { agentId, message: message.substring(0, 50) + '...' })
+    console.log('Client Chat API - Request:', { organizationId, message: message.substring(0, 50) + '...' })
 
     // Create server-side Supabase client
     const { supabase } = createClient(request)
 
-    // Verify agent exists
-    const { data: agent, error: agentError } = await supabase
-      .from('agents')
+    // Verify organization exists
+    const { data: organization, error: orgError } = await supabase
+      .from('organizations')
       .select('*')
-      .eq('id', agentId)
+      .eq('id', organizationId)
       .single()
 
-    if (agentError || !agent) {
-      console.error('Agent not found:', agentError)
+    if (orgError || !organization) {
+      console.error('Organization not found:', orgError)
       return NextResponse.json(
-        { error: 'Agent not found' },
+        { error: 'Organization not found' },
         { status: 404 }
       )
     }
 
-    // Get client-facing system prompt
-    const clientSystemPromptService = new ClientSystemPromptService(supabase)
-    const systemPrompt = await clientSystemPromptService.generateClientSystemPrompt(agentId)
-
-    // --- RAG: Retrieve relevant business embeddings ---
-    let ragMessages: Array<{role: string, content: string}> = []
-    try {
-      // Use the embeddingService to search for relevant conversation embeddings
-      if (embeddingService && agent.organization_id) {
-        const relevantEmbeddings = await embeddingService.searchSimilarConversations(
-          agent.id,
-          message,
-          0.7, // similarity threshold
-          5    // fetch more to allow deduplication
-        )
-        // Deduplicate by normalized segment text
-        const seen = new Set<string>()
-        const uniqueEmbeddings = []
-        for (const emb of relevantEmbeddings) {
-          const norm = emb.conversation_segment.trim().toLowerCase()
-          if (!seen.has(norm)) {
-            seen.add(norm)
-            uniqueEmbeddings.push(emb)
-          }
-          if (uniqueEmbeddings.length >= 3) break // Only keep top 3 unique
-        }
-        if (uniqueEmbeddings.length > 0) {
-          ragMessages = uniqueEmbeddings.map((emb: any) => ({
-            role: 'system',
-            content: `Relevant business info: ${emb.conversation_segment}`
-          }))
-        }
-      }
-    } catch (err) {
-      console.warn('RAG/embedding retrieval failed:', err)
-    }
-    // --- END RAG ---
+    // Get client-facing system prompt (RAG-based)
+    const systemPrompt = await ClientSystemPromptService.buildClientSystemPrompt(organizationId, message)
+    // No ragMessages needed, all context is in the system prompt
 
     console.log('Client system prompt generated, length:', systemPrompt.length)
 
     // Prepare messages for OpenAI
     const openAIMessages = [
       { role: 'system', content: systemPrompt },
-      ...ragMessages,
       ...messages.map((msg: any) => ({
         role: msg.role === 'ai' ? 'assistant' : msg.role,
         content: msg.content

@@ -80,7 +80,7 @@ export class EmbeddingService {
    * Store conversation embeddings in Supabase
    */
   async storeConversationEmbeddings(
-    agentId: string, 
+    organizationId: string, 
     segments: ConversationSegment[]
   ): Promise<EmbeddingResult[]> {
     try {
@@ -89,7 +89,7 @@ export class EmbeddingService {
 
       // Prepare data for insertion
       const embeddingData = segments.map((segment, index) => ({
-        agent_id: agentId,
+        organization_id: organizationId,
         conversation_segment: segment.text,
         embedding: embeddings[index],
         segment_type: segment.type,
@@ -118,7 +118,7 @@ export class EmbeddingService {
    * Search for similar conversation segments
    */
   async searchSimilarConversations(
-    agentId: string,
+    organizationId: string,
     query: string,
     matchThreshold: number = 0.8,
     matchCount: number = 5
@@ -128,11 +128,11 @@ export class EmbeddingService {
       const queryEmbeddings = await this.generateEmbeddings([{ text: query, type: 'conversation' }])
       const queryEmbedding = queryEmbeddings[0]
 
-      // Search using the database function
+      // Search using the database function (update the function to use organization_id)
       const { data, error } = await this.supabase
-        .rpc('search_similar_conversations', {
+        .rpc('search_similar_conversations_by_org', {
           query_embedding: queryEmbedding,
-          agent_id_param: agentId,
+          organization_id_param: organizationId,
           match_threshold: matchThreshold,
           match_count: matchCount
         })
@@ -154,7 +154,7 @@ export class EmbeddingService {
    * Updates existing memories with new information and handles conflicts
    */
   async updateMemory(
-    agentId: string,
+    organizationId: string,
     memoryUpdate: MemoryUpdate,
     conflictStrategy: 'auto' | 'manual' = 'auto'
   ): Promise<{
@@ -169,7 +169,7 @@ export class EmbeddingService {
 
       // Step 1: Find similar existing memories
       const similarMemories = await this.searchSimilarConversations(
-        agentId,
+        organizationId,
         memoryUpdate.text,
         0.85, // Higher threshold for conflict detection
         3
@@ -179,7 +179,7 @@ export class EmbeddingService {
 
       // Step 2: If updating specific memory by ID
       if (memoryUpdate.id) {
-        return await this.updateSpecificMemory(agentId, memoryUpdate)
+        return await this.updateSpecificMemory(organizationId, memoryUpdate)
       }
 
       // Step 3: Handle conflicts with similar memories
@@ -192,9 +192,9 @@ export class EmbeddingService {
 
         switch (resolution.action) {
           case 'merge':
-            return await this.mergeMemories(agentId, similarMemories[0], memoryUpdate, resolution)
+            return await this.mergeMemories(organizationId, similarMemories[0], memoryUpdate, resolution)
           case 'replace':
-            return await this.replaceMemory(agentId, similarMemories[0].id, memoryUpdate)
+            return await this.replaceMemory(organizationId, similarMemories[0].id, memoryUpdate)
           case 'reject':
             return {
               success: false,
@@ -211,7 +211,7 @@ export class EmbeddingService {
       }
 
       // Step 4: Create new memory if no conflicts or keeping both
-      const newMemory = await this.storeConversationEmbeddings(agentId, [{
+      const newMemory = await this.storeConversationEmbeddings(organizationId, [{
         text: memoryUpdate.text,
         type: memoryUpdate.type,
         metadata: {
@@ -302,7 +302,7 @@ Respond with JSON only:
    * 🔗 MERGE MEMORIES - Combines conflicting memories into one
    */
   private async mergeMemories(
-    agentId: string,
+    organizationId: string,
     existingMemory: EmbeddingResult,
     newMemory: MemoryUpdate,
     resolution: ConflictResolution
@@ -331,7 +331,7 @@ Respond with JSON only:
           updated_at: new Date().toISOString()
         })
         .eq('id', existingMemory.id)
-        .eq('agent_id', agentId)
+        .eq('organization_id', organizationId)
         .select()
 
       if (error) {
@@ -369,7 +369,7 @@ Respond with JSON only:
    * 🔄 REPLACE MEMORY - Replaces old memory with new information
    */
   private async replaceMemory(
-    agentId: string,
+    organizationId: string,
     memoryId: string,
     newMemory: MemoryUpdate
   ): Promise<{
@@ -399,7 +399,7 @@ Respond with JSON only:
           updated_at: new Date().toISOString()
         })
         .eq('id', memoryId)
-        .eq('agent_id', agentId)
+        .eq('organization_id', organizationId)
         .select()
 
       if (error) {
@@ -424,7 +424,7 @@ Respond with JSON only:
    * ✏️ UPDATE SPECIFIC MEMORY - Updates a memory by ID
    */
   private async updateSpecificMemory(
-    agentId: string,
+    organizationId: string,
     memoryUpdate: MemoryUpdate
   ): Promise<{
     success: boolean
@@ -457,7 +457,7 @@ Respond with JSON only:
           updated_at: new Date().toISOString()
         })
         .eq('id', memoryUpdate.id)
-        .eq('agent_id', agentId)
+        .eq('organization_id', organizationId)
         .select()
 
       if (error || !data || data.length === 0) {
@@ -482,7 +482,7 @@ Respond with JSON only:
    * 📊 GET MEMORY CONFLICTS - Find conflicting memories for review
    */
   async getMemoryConflicts(
-    agentId: string,
+    organizationId: string,
     similarityThreshold: number = 0.85
   ): Promise<{
     conflicts: Array<{
@@ -497,7 +497,7 @@ Respond with JSON only:
       const { data: memories, error } = await this.supabase
         .from('conversation_embeddings')
         .select('*')
-        .eq('agent_id', agentId)
+        .eq('organization_id', organizationId)
         .order('created_at', { ascending: false })
 
       if (error || !memories) {
@@ -512,7 +512,7 @@ Respond with JSON only:
         if (processed.has(memories[i].id)) continue
 
         const similar = await this.searchSimilarConversations(
-          agentId,
+          organizationId,
           memories[i].conversation_segment,
           similarityThreshold,
           5
@@ -565,13 +565,13 @@ Respond with JSON only:
   /**
    * 🗑️ DELETE MEMORY - Remove specific memory
    */
-  async deleteMemory(agentId: string, memoryId: string): Promise<boolean> {
+  async deleteMemory(organizationId: string, memoryId: string): Promise<boolean> {
     try {
       const { error } = await this.supabase
         .from('conversation_embeddings')
         .delete()
         .eq('id', memoryId)
-        .eq('agent_id', agentId)
+        .eq('organization_id', organizationId)
 
       if (error) {
         console.error('Error deleting memory:', error)
@@ -590,11 +590,11 @@ Respond with JSON only:
   /**
    * Get business knowledge summary for an agent
    */
-  async getBusinessKnowledgeSummary(agentId: string) {
+  async getBusinessKnowledgeSummary(organizationId: string) {
     try {
       const { data, error } = await this.supabase
         .rpc('get_business_knowledge_summary', {
-          agent_id_param: agentId
+          organization_id_param: organizationId
         })
 
       if (error) {
@@ -613,7 +613,7 @@ Respond with JSON only:
    * Process and store business conversations from various formats
    */
   async processBusinessConversations(
-    agentId: string,
+    organizationId: string,
     conversations: any[],
     format: 'json' | 'csv' | 'text' = 'json'
   ): Promise<EmbeddingResult[]> {
@@ -635,7 +635,7 @@ Respond with JSON only:
       }
 
       // Store the processed segments
-      return await this.storeConversationEmbeddings(agentId, segments)
+      return await this.storeConversationEmbeddings(organizationId, segments)
     } catch (error) {
       console.error('Error processing conversations:', error)
       throw error
@@ -718,21 +718,21 @@ Respond with JSON only:
   }
 
   /**
-   * Delete all embeddings for an agent
+   * Delete all embeddings for an organization
    */
-  async deleteAgentEmbeddings(agentId: string): Promise<void> {
+  async deleteOrganizationEmbeddings(organizationId: string): Promise<void> {
     try {
       const { error } = await this.supabase
         .from('conversation_embeddings')
         .delete()
-        .eq('agent_id', agentId)
+        .eq('organization_id', organizationId)
 
       if (error) {
         console.error('Error deleting embeddings:', error)
         throw new Error('Failed to delete embeddings')
       }
     } catch (error) {
-      console.error('Error in deleteAgentEmbeddings:', error)
+      console.error('Error in deleteOrganizationEmbeddings:', error)
       throw error
     }
   }

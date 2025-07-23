@@ -29,10 +29,10 @@ export async function POST(
       )
     }
 
-    // Verify agent belongs to user
+    // Verify agent belongs to user and get organization_id
     const { data: agent, error: agentError } = await supabase
       .from('agents')
-      .select('id, name')
+      .select('id, name, organization_id')
       .eq('id', agentId)
       .eq('user_id', user.id)
       .single()
@@ -46,7 +46,7 @@ export async function POST(
 
     // Process and store conversations
     const results = await embeddingService.processBusinessConversations(
-      agentId,
+      agent.organization_id,
       conversations,
       format
     )
@@ -57,7 +57,7 @@ export async function POST(
     }
 
     // Get updated knowledge summary
-    const summary = await embeddingService.getBusinessKnowledgeSummary(agentId)
+    const summary = await embeddingService.getBusinessKnowledgeSummary(agent.organization_id)
 
     return NextResponse.json({
       success: true,
@@ -99,10 +99,10 @@ export async function GET(
       )
     }
 
-    // Verify agent belongs to user
+    // Verify agent belongs to user and get organization_id
     const { data: agent, error: agentError } = await supabase
       .from('agents')
-      .select('id, name')
+      .select('id, name, organization_id')
       .eq('id', agentId)
       .eq('user_id', user.id)
       .single()
@@ -119,7 +119,7 @@ export async function GET(
     if (query) {
       // Search for similar conversations
       results = await embeddingService.searchSimilarConversations(
-        agentId,
+        agent.organization_id,
         query,
         0.7,
         limit
@@ -129,7 +129,7 @@ export async function GET(
       const { data, error } = await supabase
         .from('conversation_embeddings')
         .select('*')
-        .eq('agent_id', agentId)
+        .eq('organization_id', agent.organization_id)
         .order('created_at', { ascending: false })
         .limit(limit)
 
@@ -141,7 +141,7 @@ export async function GET(
     }
 
     // Get knowledge summary
-    const summary = await embeddingService.getBusinessKnowledgeSummary(agentId)
+    const summary = await embeddingService.getBusinessKnowledgeSummary(agent.organization_id)
 
     return NextResponse.json({
       success: true,
@@ -181,10 +181,10 @@ export async function DELETE(
       )
     }
 
-    // Verify agent belongs to user
+    // Verify agent belongs to user and get organization_id
     const { data: agent, error: agentError } = await supabase
       .from('agents')
-      .select('id, name')
+      .select('id, name, organization_id')
       .eq('id', agentId)
       .eq('user_id', user.id)
       .single()
@@ -196,8 +196,8 @@ export async function DELETE(
       )
     }
 
-    // Delete all embeddings for this agent
-    await embeddingService.deleteAgentEmbeddings(agentId)
+    // Delete all embeddings for this organization
+    await embeddingService.deleteAgentEmbeddings(agent.organization_id)
 
     return NextResponse.json({
       success: true,
@@ -243,10 +243,10 @@ export async function PATCH(
       )
     }
 
-    // Verify agent belongs to user
+    // Verify agent belongs to user and get organization_id
     const { data: agent, error: agentError } = await supabase
       .from('agents')
-      .select('id, name')
+      .select('id, name, organization_id')
       .eq('id', agentId)
       .eq('user_id', user.id)
       .single()
@@ -260,13 +260,13 @@ export async function PATCH(
 
     // Update memory with conflict resolution
     const result = await embeddingService.updateMemory(
-      agentId,
+      agent.organization_id,
       memoryUpdate,
       conflictStrategy
     )
 
     // Get updated knowledge summary
-    const summary = await embeddingService.getBusinessKnowledgeSummary(agentId)
+    const summary = await embeddingService.getBusinessKnowledgeSummary(agent.organization_id)
 
     return NextResponse.json({
       success: result.success,

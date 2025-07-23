@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
     const embeddingService = new EmbeddingService(supabase)
     
     // Generate and store embeddings
-    const results = await embeddingService.storeConversationEmbeddings(agentId, segments)
+    const results = await embeddingService.storeConversationEmbeddings(org.id, segments)
 
     return NextResponse.json({
       message: 'File processed and embedded',

@@ -10,6 +10,7 @@ interface DesktopNavigationProps {
   onManageBilling: () => void
   user: any
   subscription: any
+  businessName: string
 }
 
 export default function DesktopNavigation({
@@ -18,7 +19,8 @@ export default function DesktopNavigation({
   onLogout,
   onManageBilling,
   user,
-  subscription
+  subscription,
+  businessName
 }: DesktopNavigationProps) {
   const t = useTranslations('dashboard')
 
@@ -118,6 +120,18 @@ export default function DesktopNavigation({
             </p>
           </div>
         </div>
+        {/* Business Name Label */}
+        {businessName && (
+          <div className="mt-4 mb-2">
+            <span
+              className="block max-w-full font-bold text-gray-900 text-base tracking-wide truncate"
+              style={{ letterSpacing: '0.02em' }}
+              title={businessName}
+            >
+              {businessName}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Navigation Menu */}

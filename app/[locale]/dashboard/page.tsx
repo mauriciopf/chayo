@@ -486,6 +486,7 @@ function DashboardContent() {
         onManageBilling={handleManageBilling}
         user={auth.user}
         subscription={auth.subscription}
+        businessName={auth.currentOrganization?.name || ''}
       />
 
       {/* Main Content Area */}

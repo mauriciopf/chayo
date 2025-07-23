@@ -50,14 +50,6 @@ export default function ChatMessage({ role, content, timestamp, usingRAG }: Chat
             <div className={`flex-1 ${role === "user" ? "text-right" : "text-left"}`}>
               <div className={`inline-block ${role === "user" ? "bg-purple-600 text-white" : "bg-white text-gray-900"} rounded-2xl px-4 py-3 shadow-sm max-w-2xl`}>
                 <div className="text-sm leading-relaxed whitespace-pre-wrap">{content}</div>
-                {usingRAG && role === "ai" && (
-                  <div className="flex items-center gap-1 mt-2 text-xs text-blue-600">
-                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    {t('usingRAG')}
-                  </div>
-                )}
               </div>
               {timestamp && (
                 <div className={`text-xs text-gray-500 mt-2 ${

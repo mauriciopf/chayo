@@ -165,6 +165,31 @@ export class DashboardInitService {
   }
 
   /**
+   * Ensure initial business info requirements (e.g., business_name question) are present for the organization
+   */
+  private async ensureInitialBusinessInfoRequirements(organizationId: string, locale: string) {
+    const { BusinessInfoService } = await import('./businessInfoService')
+    const businessInfoService = new BusinessInfoService(this.supabase)
+    // Check if business_name is already answered or pending
+    const answered = (await businessInfoService.getBusinessInfo(organizationId)).some(q => q.field_name === 'business_name')
+    const pending = (await businessInfoService.getPendingQuestions(organizationId)).some(q => q.field_name === 'business_name')
+    if (!answered && !pending) {
+      // Insert the business_name question directly
+      const question_template =
+        locale === 'es'
+          ? '¿Cuál es el nombre de tu negocio?'
+          : 'What is the name of your business?'
+      await this.supabase.from('business_info_fields').insert({
+        organization_id: organizationId,
+        field_name: 'business_name',
+        field_type: 'text',
+        is_answered: false,
+        question_template
+      })
+    }
+  }
+
+  /**
    * Generate appropriate initial chat message by fetching first question
    */
   private async generateInitialChatMessage(business: any, locale: string): Promise<string> {
@@ -178,13 +203,16 @@ export class DashboardInitService {
           : 'Hello! I\'m Chayo, your AI assistant for health and wellness businesses. I\'m here to understand your business better. To get started, what type of health or wellness business do you run?'
       }
 
+      // Business exists - ensure initial requirements (e.g., business_name question)
+      await this.ensureInitialBusinessInfoRequirements(business.id, locale)
+
       // Business exists - fetch the next appropriate question
       try {
         const { BusinessInfoService } = await import('./businessInfoService')
         const businessInfoService = new BusinessInfoService(this.supabase)
         
         // Get pending questions for this organization
-        const pendingQuestions = await businessInfoService.getPendingQuestions(business.id)
+        let pendingQuestions = await businessInfoService.getPendingQuestions(business.id)
         
         if (pendingQuestions && pendingQuestions.length > 0) {
           // Return the first pending question as the initial message
