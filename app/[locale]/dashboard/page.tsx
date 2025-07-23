@@ -522,14 +522,12 @@ function DashboardContent() {
           }}
         />
       )}
-      {showManageDocsModal && managingAgentId && (
+      {showManageDocsModal && auth.currentOrganization && (
         <ManageDocumentsModal
-          agentId={managingAgentId}
-          agentName={managingAgentName}
+          organizationId={auth.currentOrganization.id}
+          organizationName={auth.currentOrganization.name}
           onClose={() => {
             setShowManageDocsModal(false)
-            setManagingAgentId(null)
-            setManagingAgentName('')
           }}
         />
       )}

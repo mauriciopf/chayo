@@ -41,10 +41,10 @@ CREATE TABLE IF NOT EXISTS user_subscriptions (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Create agent_documents table for PDF uploads
-CREATE TABLE IF NOT EXISTS agent_documents (
+-- Create business_documents table for PDF uploads
+CREATE TABLE IF NOT EXISTS business_documents (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  agent_id UUID NOT NULL REFERENCES agents(id) ON DELETE CASCADE,
+  organization_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   filename TEXT NOT NULL,
   file_size INTEGER NOT NULL,
@@ -99,7 +99,7 @@ CREATE TABLE IF NOT EXISTS team_invitations (
 ALTER TABLE agents ENABLE ROW LEVEL SECURITY;
 ALTER TABLE conversation_embeddings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_subscriptions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE agent_documents ENABLE ROW LEVEL SECURITY;
+ALTER TABLE business_documents ENABLE ROW LEVEL SECURITY;
 ALTER TABLE organizations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE team_members ENABLE ROW LEVEL SECURITY;
 ALTER TABLE team_invitations ENABLE ROW LEVEL SECURITY;
@@ -156,17 +156,17 @@ CREATE POLICY "Users can insert their own subscriptions" ON user_subscriptions
 CREATE POLICY "Users can update their own subscriptions" ON user_subscriptions
   FOR UPDATE USING (auth.uid() = user_id);
 
--- Create policies for agent_documents table
-CREATE POLICY "Users can view their own agent documents" ON agent_documents
+-- Create policies for business_documents table
+CREATE POLICY "Users can view their own business documents" ON business_documents
   FOR SELECT USING (auth.uid() = user_id);
 
-CREATE POLICY "Users can insert their own agent documents" ON agent_documents
+CREATE POLICY "Users can insert their own business documents" ON business_documents
   FOR INSERT WITH CHECK (auth.uid() = user_id);
 
-CREATE POLICY "Users can update their own agent documents" ON agent_documents
+CREATE POLICY "Users can update their own business documents" ON business_documents
   FOR UPDATE USING (auth.uid() = user_id);
 
-CREATE POLICY "Users can delete their own agent documents" ON agent_documents
+CREATE POLICY "Users can delete their own business documents" ON business_documents
   FOR DELETE USING (auth.uid() = user_id);
 
 -- Create policies for organizations table
@@ -238,10 +238,10 @@ CREATE INDEX IF NOT EXISTS conversation_embeddings_created_at_idx ON conversatio
 CREATE INDEX IF NOT EXISTS conversation_embeddings_vector_idx ON conversation_embeddings USING ivfflat (embedding vector_cosine_ops) WITH (lists = 100);
 CREATE INDEX IF NOT EXISTS user_subscriptions_user_id_idx ON user_subscriptions(user_id);
 CREATE INDEX IF NOT EXISTS user_subscriptions_stripe_customer_id_idx ON user_subscriptions(stripe_customer_id);
-CREATE INDEX IF NOT EXISTS agent_documents_agent_id_idx ON agent_documents(agent_id);
-CREATE INDEX IF NOT EXISTS agent_documents_user_id_idx ON agent_documents(user_id);
-CREATE INDEX IF NOT EXISTS agent_documents_created_at_idx ON agent_documents(created_at);
-CREATE INDEX IF NOT EXISTS agent_documents_embedding_status_idx ON agent_documents(embedding_status);
+CREATE INDEX IF NOT EXISTS business_documents_organization_id_idx ON business_documents(organization_id);
+CREATE INDEX IF NOT EXISTS business_documents_user_id_idx ON business_documents(user_id);
+CREATE INDEX IF NOT EXISTS business_documents_created_at_idx ON business_documents(created_at);
+CREATE INDEX IF NOT EXISTS business_documents_embedding_status_idx ON business_documents(embedding_status);
 CREATE INDEX IF NOT EXISTS organizations_owner_id_idx ON organizations(owner_id);
 CREATE INDEX IF NOT EXISTS organizations_slug_idx ON organizations(slug);
 CREATE INDEX IF NOT EXISTS team_members_organization_id_idx ON team_members(organization_id);
@@ -274,8 +274,8 @@ CREATE TRIGGER update_user_subscriptions_updated_at
   BEFORE UPDATE ON user_subscriptions 
   FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
 
-CREATE TRIGGER update_agent_documents_updated_at 
-  BEFORE UPDATE ON agent_documents 
+CREATE TRIGGER update_business_documents_updated_at 
+  BEFORE UPDATE ON business_documents 
   FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
 
 CREATE TRIGGER update_organizations_updated_at 
@@ -443,7 +443,7 @@ CREATE POLICY "Users can delete their own business info fields" ON business_info
 GRANT ALL ON agents TO authenticated;
 GRANT ALL ON conversation_embeddings TO authenticated;
 GRANT ALL ON user_subscriptions TO authenticated;
-GRANT ALL ON agent_documents TO authenticated;
+GRANT ALL ON business_documents TO authenticated;
 GRANT ALL ON organizations TO authenticated;
 GRANT ALL ON team_members TO authenticated;
 GRANT ALL ON team_invitations TO authenticated;
@@ -453,7 +453,7 @@ GRANT ALL ON business_info_fields TO authenticated;
 COMMENT ON TABLE agents IS 'AI agents representing businesses with conversation-based knowledge';
 COMMENT ON TABLE conversation_embeddings IS 'Stores embeddings of business conversations for AI knowledge retrieval';
 COMMENT ON TABLE user_subscriptions IS 'User subscription and billing information';
-COMMENT ON TABLE agent_documents IS 'PDF documents uploaded for agent training';
+COMMENT ON TABLE business_documents IS 'PDF documents uploaded for agent training';
 COMMENT ON TABLE organizations IS 'Organizations for team management';
 COMMENT ON TABLE team_members IS 'Organization membership and roles';
 COMMENT ON TABLE team_invitations IS 'Pending team invitations';

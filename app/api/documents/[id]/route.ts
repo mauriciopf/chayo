@@ -18,7 +18,7 @@ export async function DELETE(
 
     // Get document details to verify ownership and get storage path
     const { data: document, error: fetchError } = await supabase
-      .from('agent_documents')
+      .from('business_documents')
       .select('*')
       .eq('id', documentId)
       .eq('user_id', user.id)
@@ -40,7 +40,7 @@ export async function DELETE(
 
     // Delete document record from database
     const { error: deleteError } = await supabase
-      .from('agent_documents')
+      .from('business_documents')
       .delete()
       .eq('id', documentId)
       .eq('user_id', user.id)

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { getUserOrganization } from '@/lib/supabase/server'
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,10 +14,9 @@ export async function POST(request: NextRequest) {
 
     const formData = await request.formData()
     const file = formData.get('file') as File
-    const agentId = formData.get('agentId') as string
 
-    if (!file || !agentId) {
-      return NextResponse.json({ error: 'File and agentId are required' }, { status: 400 })
+    if (!file) {
+      return NextResponse.json({ error: 'File is required' }, { status: 400 })
     }
 
     // Validate file type
@@ -30,22 +30,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'File size must be less than 10MB' }, { status: 400 })
     }
 
-    // Verify agent belongs to user
-    const { data: agent, error: agentError } = await supabase
-      .from('agents')
-      .select('id')
-      .eq('id', agentId)
-      .eq('user_id', user.id)
-      .single()
-
-    if (agentError || !agent) {
-      return NextResponse.json({ error: 'Agent not found' }, { status: 404 })
+    // Get organization context
+    const org = await getUserOrganization(supabase, user.id)
+    if (!org) {
+      return NextResponse.json({ error: 'No organization found' }, { status: 400 })
     }
 
     // Generate unique filename
     const timestamp = Date.now()
     const originalName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
-    const storagePath = `agent_documents/${user.id}/${agentId}/${timestamp}_${originalName}`
+    const storagePath = `business_documents/${org.id}/${timestamp}_${originalName}`
 
     // Upload file to Supabase Storage
     const { data: uploadData, error: uploadError } = await supabase.storage
@@ -62,9 +56,9 @@ export async function POST(request: NextRequest) {
 
     // Save document metadata to database
     const { data: document, error: dbError } = await supabase
-      .from('agent_documents')
+      .from('business_documents')
       .insert({
-        agent_id: agentId,
+        organization_id: org.id,
         user_id: user.id,
         filename: file.name,
         file_size: file.size,
@@ -105,18 +99,17 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { searchParams } = new URL(request.url)
-    const agentId = searchParams.get('agentId')
-
-    if (!agentId) {
-      return NextResponse.json({ error: 'agentId is required' }, { status: 400 })
+    // Get organization context
+    const org = await getUserOrganization(supabase, user.id)
+    if (!org) {
+      return NextResponse.json({ error: 'No organization found' }, { status: 400 })
     }
 
-    // Get documents for the agent
+    // Get documents for the organization
     const { data: documents, error } = await supabase
-      .from('agent_documents')
+      .from('business_documents')
       .select('*')
-      .eq('agent_id', agentId)
+      .eq('organization_id', org.id)
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
 

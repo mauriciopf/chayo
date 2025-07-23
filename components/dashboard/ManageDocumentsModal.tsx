@@ -15,14 +15,14 @@ interface Document {
 }
 
 interface ManageDocumentsModalProps {
-  agentId: string
-  agentName: string
+  organizationId: string
+  organizationName: string
   onClose: () => void
 }
 
 export default function ManageDocumentsModal({ 
-  agentId, 
-  agentName, 
+  organizationId, 
+  organizationName, 
   onClose 
 }: ManageDocumentsModalProps) {
   const t = useTranslations('manageDocumentsModal')
@@ -31,12 +31,12 @@ export default function ManageDocumentsModal({
 
   useEffect(() => {
     fetchDocuments()
-  }, [agentId])
+  }, [organizationId])
 
   const fetchDocuments = async () => {
     setLoading(true)
     try {
-      const response = await fetch(`/api/documents?agentId=${agentId}`)
+      const response = await fetch(`/api/documents`)
       if (response.ok) {
         const { documents } = await response.json()
         setDocuments(documents || [])
@@ -69,7 +69,7 @@ export default function ManageDocumentsModal({
             <div>
               <h2 className="text-xl font-semibold text-gray-900">{t('title')}</h2>
               <p className="text-sm text-gray-500 mt-1">
-                {t('agent')}: <span className="font-medium">{agentName}</span>
+                {t('organization')}: <span className="font-medium">{organizationName}</span>
               </p>
             </div>
             <button
