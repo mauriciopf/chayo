@@ -121,7 +121,8 @@ function DashboardContent() {
     useEffect(() => {
       if (
         dashboardInit.initialMessage &&
-        !dashboardInit.shouldShowAuthPrompt
+        !dashboardInit.shouldShowAuthPrompt &&
+        chat.messages.length === 0
       ) {
         chat.setMessages([
           {
