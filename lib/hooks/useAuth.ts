@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import type { User } from '@supabase/supabase-js'
 import { AuthState, OtpLoadingState, Agent, UserSubscription, Organization } from '@/components/dashboard/types'
@@ -23,7 +23,6 @@ export function useAuth() {
   const [currentOrganization, setCurrentOrganization] = useState<Organization | null>(null)
 
   const router = useRouter()
-  const supabase = createClient()
 
   // Ensure user has organization
   const ensureUserHasOrganization = async (user: User) => {
@@ -34,106 +33,9 @@ export function useAuth() {
     }
   }
 
-  // Fetch agents
-  const fetchAgents = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
 
-      const { data: org } = await supabase
-        .from('organizations')
-        .select('id')
-        .eq('owner_id', user.id)
-        .single()
 
-      if (!org) return
 
-      const { data: agents, error } = await supabase
-        .from('agents')
-        .select('*')
-        .eq('organization_id', org.id)
-        .order('created_at', { ascending: false })
-
-      if (error) {
-        console.error('Error fetching agents:', error)
-        return
-      }
-
-      setAgents(agents || [])
-    } catch (error) {
-      console.error('Error fetching agents:', error)
-    }
-  }
-
-  // Fetch subscription
-  const fetchSubscription = async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('user_subscriptions')
-        .select('*')
-        .eq('user_id', userId)
-        .single()
-
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error fetching subscription:', error)
-        return
-      }
-
-      setSubscription(data || null)
-    } catch (error) {
-      console.error('Error fetching subscription:', error)
-    }
-  }
-
-  // Fetch current organization
-  const fetchCurrentOrganization = async (userId: string) => {
-    try {
-      const { data: membership, error } = await supabase
-        .from('team_members')
-        .select(`
-          organization_id,
-          organizations!inner (
-            id,
-            name,
-            slug,
-            owner_id,
-            created_at
-          )
-        `)
-        .eq('user_id', userId)
-        .eq('status', 'active')
-        .order('joined_at', { ascending: true })
-        .limit(1)
-        .single()
-
-      if (error || !membership?.organizations) {
-        console.error('Error fetching current organization:', error)
-        return
-      }
-
-      const organization = membership.organizations as unknown as Organization
-      console.log('🔍 useAuth: Setting current organization:', organization)
-      setCurrentOrganization(organization)
-    } catch (error) {
-      console.error('Error fetching current organization:', error)
-    }
-  }
-
-  // Auth state sync
-  useEffect(() => {
-    console.log('🔄 Auth state sync - Current state:', { loading, user: user?.id, authState })
-    
-    if (loading) {
-      console.log('⏳ Auth state sync - Setting to loading')
-      setAuthState('loading')
-    } else if (user) {
-      console.log('✅ Auth state sync - Setting to authenticated')
-      setAuthState('authenticated')
-    } else {
-      console.log('👤 Auth state sync - Setting to awaitingName')
-      setAuthState('awaitingName')
-    }
-  }, [user, loading])
 
   // Resend cooldown timer
   useEffect(() => {
@@ -145,82 +47,162 @@ export function useAuth() {
 
   // Main auth setup effect
   useEffect(() => {
-    console.log('🔄 Main auth setup effect - Starting')
     let isMounted = true
-    
-    const getUser = async () => {
-      console.log('🔄 Getting user from Supabase...')
+
+    // Fetch agents
+    const fetchAgents = async () => {
       try {
-        const { data: { user }, error } = await supabase.auth.getUser()
-        console.log('📋 getUser result:', { user: user?.id, error: error?.message })
+        const { data: { user }, error: userError } = await supabase.auth.getUser()
         
-        if (error && error.status === 403) {
-          // Unauthenticated, don't retry
-          console.log('❌ User not authenticated (403)')
-          setUser(null)
-          setLoading(false)
+        if (userError || !user) {
+          setAgents([])
           return
         }
-        if (user) {
-          console.log('✅ User found, setting user state')
-          setUser(user)
-          // If we have a user, we should also set loading to false immediately
-          setLoading(false)
-        } else {
-          console.log('👤 No user found, setting user to null')
-          setUser(null)
+
+        const { data: org } = await supabase
+          .from('organizations')
+          .select('id')
+          .eq('owner_id', user.id)
+          .maybeSingle()
+
+        if (!org) {
+          setAgents([])
+          return
+        }
+
+        const { data: agents, error } = await supabase
+          .from('agents')
+          .select('*')
+          .eq('organization_id', org.id)
+          .order('created_at', { ascending: false })
+
+        if (error) {
+          setAgents([])
+          return
+        }
+
+        setAgents(agents || [])
+      } catch (error) {
+        setAgents([])
+      }
+    }
+
+    // Fetch subscription
+    const fetchSubscription = async (userId: string) => {
+      try {
+        const { data, error } = await supabase
+          .from('user_subscriptions')
+          .select('*')
+          .eq('user_id', userId)
+          .maybeSingle()
+
+        if (error) {
+          setSubscription(null)
+          return
+        }
+
+        setSubscription(data || null)
+      } catch (error) {
+        setSubscription(null)
+      }
+    }
+
+    // Fetch current organization
+    const fetchCurrentOrganization = async (userId: string) => {
+      try {
+        const { data: membership, error } = await supabase
+          .from('team_members')
+          .select(`
+            organization_id,
+            organizations!inner (
+              id,
+              name,
+              slug,
+              owner_id,
+              created_at
+            )
+          `)
+          .eq('user_id', userId)
+          .eq('status', 'active')
+          .order('joined_at', { ascending: true })
+          .limit(1)
+          .maybeSingle()
+
+        if (error || !membership?.organizations) {
+          setCurrentOrganization(null)
+          return
+        }
+
+        const organization = membership.organizations as unknown as Organization
+        setCurrentOrganization(organization)
+      } catch (error) {
+        setCurrentOrganization(null)
+      }
+    }
+
+    const handleAuthenticatedUser = async (user: User) => {
+      if (!isMounted) return
+      
+      setUser(user)
+      setAuthState('authenticated')
+      setLoading(true)
+      
+      try {
+        await ensureUserHasOrganization(user)
+        
+        const results = await Promise.allSettled([
+          fetchAgents(),
+          fetchSubscription(user.id),
+          fetchCurrentOrganization(user.id)
+        ])
+        
+        setLoading(false)
+
+      } catch (error) {
+        console.error('Error handling authenticated user:', error)
+        if (isMounted) {
           setLoading(false)
         }
-      } catch (error) {
-        console.error('❌ Error getting user:', error)
-        setUser(null)
-        setLoading(false)
       }
     }
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Dashboard: Auth state change:', event, session?.user?.email)
-        
         if (!isMounted) return
         
         if (event === 'SIGNED_IN' && session?.user) {
-          console.log('Dashboard: User signed in via auth state change')
-          setUser(session.user)
-          setLoading(true)
-          
-          await ensureUserHasOrganization(session.user)
-          await Promise.all([
-            fetchAgents(),
-            fetchSubscription(session.user.id),
-            fetchCurrentOrganization(session.user.id)
-          ])
-          setLoading(false)
+          await handleAuthenticatedUser(session.user)
         } else if (event === 'SIGNED_OUT') {
-          console.log('Dashboard: User signed out')
           setUser(null)
-          setLoading(false) // Ensure loading is set to false immediately
+          setAuthState('awaitingName')
+          setLoading(false)
           setAgents([])
           setSubscription(null)
           setOrganizations([])
           setCurrentOrganization(null)
-          // Reset auth state to ensure proper transition
-          setAuthState('awaitingName')
         } else if (event === 'TOKEN_REFRESHED' && session?.user) {
-          console.log('Dashboard: Token refreshed')
+          // Only update user and auth state, don't refetch data unless needed
           setUser(session.user)
-          setLoading(false) // Ensure loading is false when token is refreshed
+          setAuthState('authenticated')
+          // Don't set loading to true here to avoid infinite loading
+        } else if (event === 'INITIAL_SESSION') {
+          // Handle initial session state
+          if (session?.user) {
+            await handleAuthenticatedUser(session.user)
+          } else {
+            setUser(null)
+            setAuthState('awaitingName')
+            setLoading(false)
+          }
         }
       }
     )
-
-    getUser()
 
     return () => {
       isMounted = false
       subscription.unsubscribe()
     }
-  }, [router, supabase.auth])
+  }, [router])
 
   return {
     // Auth state
@@ -252,9 +234,6 @@ export function useAuth() {
     setCurrentOrganization,
     
     // Methods
-    fetchAgents,
-    fetchSubscription,
-    fetchCurrentOrganization,
     ensureUserHasOrganization,
   }
 } 
