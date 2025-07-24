@@ -263,14 +263,29 @@ export class DashboardInitService {
   }
 
   /**
-   * Auto-start chat conversation by returning the initial AI message directly
-   * No API call needed - just return the pre-generated message
+   * Auto-start chat conversation by generating an initial AI message
    */
   async autoStartChat(initialMessage: string, locale: string): Promise<string | null> {
     try {
-      // Simply return the initial message as the AI's first response
-      // No need to call the chat API since this is just the opening message
-      return initialMessage
+      // Get current user
+      const { data: { user }, error: authError } = await this.supabase.auth.getUser()
+      if (authError || !user) {
+        // For unauthenticated users, return a generic welcome message
+        return locale === 'es'
+          ? '¡Hola! Soy Chayo, tu asistente de IA. Comienza a chatear conmigo para configurar tu negocio.'
+          : 'Hello! I\'m Chayo, your AI assistant. Start chatting with me to set up your business.'
+      }
+
+      // For authenticated users, generate a personalized initial message
+      const business = await this.fetchBusiness(user.id)
+      if (business) {
+        return await this.generateInitialChatMessage(business, locale)
+      } else {
+        // No business yet - return a setup message
+        return locale === 'es'
+          ? '¡Hola! Soy Chayo. Vamos a configurar tu negocio. ¿Cuál es el nombre de tu empresa?'
+          : 'Hello! I\'m Chayo. Let\'s set up your business. What\'s your company name?'
+      }
     } catch (error) {
       console.error('Error auto-starting chat:', error)
       return null

@@ -121,7 +121,6 @@ function DashboardContent() {
     useEffect(() => {
       if (
         dashboardInit.initialMessage &&
-        !dashboardInit.shouldShowAuthPrompt &&
         chat.messages.length === 0
       ) {
         chat.setMessages([
@@ -133,7 +132,7 @@ function DashboardContent() {
           }
         ])
       }
-    }, [dashboardInit.initialMessage, chat.messages.length, dashboardInit.shouldShowAuthPrompt])
+    }, [dashboardInit.initialMessage, chat.messages.length])
 
   // No need for additional effects - we'll pass handleOTPFlow directly to ChatContainer
 
@@ -275,7 +274,7 @@ function DashboardContent() {
 
   // Handle auto-start chat response
   useEffect(() => {
-    if (autoStartChat.initialResponse && chat.messages.length === 0) {
+    if (autoStartChat.initialResponse && chat.messages.length === 0 && !dashboardInit.shouldShowAuthPrompt) {
       console.log('📝 Adding auto-start response to chat:', autoStartChat.initialResponse.substring(0, 100) + '...')
       
       // Add the initial AI response to chat messages
@@ -288,7 +287,7 @@ function DashboardContent() {
         }
       ])
     }
-  }, [autoStartChat.initialResponse, chat.messages.length, selectedAgent])
+  }, [autoStartChat.initialResponse, chat.messages.length, dashboardInit.shouldShowAuthPrompt])
 
   // Debug logging for QR code state
   useEffect(() => {
