@@ -7,7 +7,7 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    const agentId = params.id
+    const organizationId = params.id
     const { phoneNumber, countryCode, greeting, isNewNumber = true } = await request.json()
 
     // Get user from auth
@@ -21,18 +21,48 @@ export async function POST(
       )
     }
 
-    // Verify agent belongs to user
+    // Verify user has access to organization
+    const { data: membership, error: membershipError } = await supabase
+      .from('team_members')
+      .select('organization_id, role')
+      .eq('organization_id', organizationId)
+      .eq('user_id', user.id)
+      .eq('status', 'active')
+      .single()
+
+    if (membershipError || !membership) {
+      return NextResponse.json(
+        { error: 'Organization access denied' },
+        { status: 403 }
+      )
+    }
+
+    // Get organization and agent info
+    const { data: organization, error: orgError } = await supabase
+      .from('organizations')
+      .select('name')
+      .eq('id', organizationId)
+      .single()
+
+    if (orgError || !organization) {
+      return NextResponse.json(
+        { error: 'Organization not found' },
+        { status: 404 }
+      )
+    }
+
+    // Get the agent for this organization
     const { data: agent, error: agentError } = await supabase
       .from('agents')
       .select('id, name, system_prompt')
-      .eq('id', agentId)
+      .eq('organization_id', organizationId)
       .eq('user_id', user.id)
       .single()
 
     if (agentError || !agent) {
       return NextResponse.json(
-        { error: 'Agent not found or unauthorized' },
-        { status: 403 }
+        { error: 'No agent found for this organization' },
+        { status: 404 }
       )
     }
 
@@ -61,7 +91,7 @@ export async function POST(
       
       try {
         const messagingService = await twilioClient.messaging.v1.services.create({
-          friendlyName: `Chayo AI - ${agent.name}`,
+          friendlyName: `Chayo AI - ${organization.name}`,
           usecase: 'conversational',
           useInboundWebhookOnNumber: false,
           inboundRequestUrl: TWILIO_CONFIG.webhookUrl,
@@ -98,134 +128,106 @@ export async function POST(
 
       const existingNumber = existingNumbers.find(num => num.phoneNumber === formattedPhone)
 
-      let phoneNumberSid: string
-
-      if (!existingNumber) {
+      if (existingNumber) {
+        console.log('Phone number already registered:', formattedPhone)
+      } else {
         // Add phone number to messaging service
-        const phoneNumberResource = await twilioClient.messaging.v1
+        await twilioClient.messaging.v1
           .services(messagingServiceSid)
           .phoneNumbers.create({
-            phoneNumberSid: formattedPhone // This might need to be a Twilio phone number SID
+            phoneNumberSid: formattedPhone
           })
-        
-        phoneNumberSid = phoneNumberResource.sid
-      } else {
-        phoneNumberSid = existingNumber.sid
+        console.log('Phone number registered:', formattedPhone)
       }
 
-      // Store WhatsApp channel configuration in database
+      // Create or update agent channel record
+      const { data: existingChannel, error: channelCheckError } = await supabase
+        .from('agent_channels')
+        .select('*')
+        .eq('agent_id', agent.id)
+        .eq('channel_type', 'whatsapp')
+        .single()
+
       const channelData = {
-        agent_id: agentId,
+        agent_id: agent.id,
         channel_type: 'whatsapp',
         phone_number: formattedPhone,
         country_code: countryCode,
-        business_name: agent.name,
-        business_description: greeting || `AI assistant for ${agent.name}`,
-        twilio_messaging_service_sid: messagingServiceSid,
-        twilio_phone_number_sid: phoneNumberSid,
-        webhook_url: TWILIO_CONFIG.webhookUrl,
-        status: isNewNumber ? 'trial' : 'pending_migration',
-        connected: isNewNumber ? true : false,
-        user_id: user.id,
+        business_name: organization.name,
+        business_description: greeting || `WhatsApp support for ${organization.name}`,
         number_flow: isNewNumber ? 'new' : 'existing',
+        twilio_messaging_service_sid: messagingServiceSid,
+        webhook_url: TWILIO_CONFIG.webhookUrl,
+        status: 'pending_verification',
+        user_id: user.id,
+        connected: false,
         credentials: {
-          twilioAccountSid: TWILIO_CONFIG.accountSid,
-          messagingServiceSid,
-          phoneNumberSid,
-          webhookUrl: TWILIO_CONFIG.webhookUrl
+          messaging_service_sid: messagingServiceSid,
+          phone_number: formattedPhone
         }
       }
 
-      // Upsert channel configuration
-      const { data: channel, error: channelError } = await supabase
-        .from('agent_channels')
-        .upsert(channelData, {
-          onConflict: 'agent_id,channel_type'
-        })
-        .select()
-        .single()
+      let channel
+      if (existingChannel && !channelCheckError) {
+        // Update existing channel
+        const { data: updatedChannel, error: updateError } = await supabase
+          .from('agent_channels')
+          .update(channelData)
+          .eq('id', existingChannel.id)
+          .select()
+          .single()
 
-      if (channelError) {
-        console.error('Database error:', channelError)
-        return NextResponse.json(
-          { error: 'Failed to save channel configuration' },
-          { status: 500 }
-        )
-      }
-
-      // Create trial record for new numbers (3-day trial)
-      if (isNewNumber) {
-        const trialEndDate = new Date()
-        trialEndDate.setDate(trialEndDate.getDate() + 3)
-
-        const { error: trialError } = await supabase
-          .from('whatsapp_trials')
-          .insert({
-            user_id: user.id,
-            agent_id: agentId,
-            phone_number: formattedPhone,
-            twilio_number_sid: phoneNumberSid,
-            trial_end_date: trialEndDate.toISOString(),
-            status: 'active'
-          })
-
-        if (trialError) {
-          console.error('Failed to create trial record:', trialError)
-          // Don't fail the entire request, just log the error
-        } else {
-          console.log('Created 3-day trial for WhatsApp number:', formattedPhone)
+        if (updateError) {
+          throw new Error(`Failed to update channel: ${updateError.message}`)
         }
+        channel = updatedChannel
+      } else {
+        // Create new channel
+        const { data: newChannel, error: insertError } = await supabase
+          .from('agent_channels')
+          .insert(channelData)
+          .select()
+          .single()
+
+        if (insertError) {
+          throw new Error(`Failed to create channel: ${insertError.message}`)
+        }
+        channel = newChannel
       }
 
       return NextResponse.json({
         success: true,
-        message: isNewNumber 
-          ? 'WhatsApp channel setup with 3-day trial completed' 
-          : 'WhatsApp channel setup completed',
         data: {
-          channelId: channel.id,
+          channel,
+          organizationId,
+          organizationName: organization.name,
+          agentId: agent.id,
+          agentName: agent.name,
           phoneNumber: formattedPhone,
-          status: isNewNumber ? 'trial' : 'pending_verification',
           messagingServiceSid,
-          isTrial: isNewNumber,
-          trialEndsAt: isNewNumber 
-            ? new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString()
-            : undefined,
-          nextSteps: isNewNumber 
-            ? [
-                'Your 3-day WhatsApp trial has started',
-                'Test messaging functionality',
-                'Upgrade to continue using after trial period'
-              ]
-            : [
-                'Verify your WhatsApp Business account with Twilio',
-                'Complete WhatsApp Business API setup',
-                'Test message flow'
-              ]
+          nextSteps: [
+            'Complete WhatsApp Business verification in Twilio Console',
+            'Set up webhook endpoints for message handling',
+            'Test the integration with a trial message'
+          ]
         }
       })
 
     } catch (twilioError: any) {
-      console.error('Twilio API error:', twilioError)
-      
-      // Handle specific Twilio errors
-      if (twilioError.code === 21608) {
-        return NextResponse.json(
-          { error: 'Phone number is not a valid Twilio phone number. Please use a Twilio-verified number.' },
-          { status: 400 }
-        )
-      }
-      
+      console.error('Twilio setup error:', twilioError)
       return NextResponse.json(
-        { error: 'Failed to register phone number with Twilio', details: twilioError.message },
+        { 
+          error: 'Failed to setup WhatsApp integration', 
+          details: twilioError.message 
+        },
         { status: 500 }
       )
     }
 
-  } catch (error: any) {
+  } catch (error) {
     console.error('WhatsApp setup error:', error)
     return NextResponse.json(
-      { error: 'Internal server error', details: error.message },
+      { error: 'Internal server error' },
       { status: 500 }
     )
   }

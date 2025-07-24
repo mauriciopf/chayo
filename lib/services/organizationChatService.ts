@@ -330,48 +330,20 @@ export class OrganizationChatService {
    */
   private async storeConversation(messages: ChatMessage[], aiMessage: string, context: ChatContext): Promise<void> {
     try {
-      // Create conversation segments from the messages
-      const conversationSegments = messages.map(msg => ({
-        organization_id: context.organization?.id,
-        conversation_segment: msg.content,
-        segment_type: 'conversation',
-        metadata: {
-          role: msg.role,
-          source: 'chat_interface',
-          user_id: context.user.id,
-          timestamp: new Date().toISOString()
-        }
-      }))
-
-      // Add the AI response as a segment
-      conversationSegments.push({
-        organization_id: context.organization?.id,
-        conversation_segment: aiMessage,
-        segment_type: 'conversation',
-        metadata: {
-          role: 'assistant',
-          source: 'chat_interface',
-          user_id: context.user.id,
-          timestamp: new Date().toISOString()
-        }
-      })
-
-      // Store conversations with embeddings for RAG
-      await this.supabase.from('conversation_embeddings').insert(conversationSegments)
+      // Use the new conversation storage service
+      const { conversationStorageService } = await import('./conversationStorageService')
       
-      // Also store embeddings for better RAG performance
-      try {
-        const segmentsForEmbedding = conversationSegments.map(segment => ({
-          text: segment.conversation_segment,
-          type: 'conversation' as const,
-          metadata: segment.metadata
-        }))
-        
-        const { embeddingService } = await import('./embeddingService')
-        await embeddingService.storeConversationEmbeddings(context.organization.id, segmentsForEmbedding)
-      } catch (error) {
-        console.warn('Failed to store embeddings (this is optional):', error)
-      }
+      // Store the conversation exchange
+      await conversationStorageService.storeConversationExchange(
+        context.organization.id,
+        messages[messages.length - 1]?.content || '', // Last user message
+        aiMessage,
+        {
+          source: 'dashboard_chat',
+          user_id: context.user.id,
+          organization_name: context.organization.name
+        }
+      )
 
               // Extract and update business information
         try {

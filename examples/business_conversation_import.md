@@ -1,6 +1,6 @@
 # Business Conversation Import System
 
-This system allows you to import business conversations into your agents to enhance their knowledge and responses.
+This system allows you to import business conversations into your organizations to enhance their knowledge and responses.
 
 ## Database Migration
 
@@ -15,11 +15,11 @@ First, run the migration to set up the conversation embeddings table:
 
 ### Upload Business Conversations
 
-**POST** `/api/agents/{agentId}/conversations`
+**POST** `/api/organizations/{organizationId}/conversations`
 
 ```javascript
 // Example: Upload business conversations
-const response = await fetch('/api/agents/your-agent-id/conversations', {
+const response = await fetch('/api/organizations/your-organization-id/conversations', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
@@ -52,22 +52,22 @@ console.log('Processed segments:', result.data.processedSegments)
 
 ### Search Conversations
 
-**GET** `/api/agents/{agentId}/conversations?query=return policy&limit=5`
+**GET** `/api/organizations/{organizationId}/conversations?query=return policy&limit=5`
 
 ```javascript
 // Example: Search for similar conversations
-const response = await fetch('/api/agents/your-agent-id/conversations?query=return policy&limit=5')
+const response = await fetch('/api/organizations/your-organization-id/conversations?query=return policy&limit=5')
 const result = await response.json()
 console.log('Similar conversations:', result.data.conversations)
 ```
 
 ### Delete All Conversations
 
-**DELETE** `/api/agents/{agentId}/conversations`
+**DELETE** `/api/organizations/{organizationId}/conversations`
 
 ```javascript
 // Example: Delete all conversation embeddings
-const response = await fetch('/api/agents/your-agent-id/conversations', {
+const response = await fetch('/api/organizations/your-organization-id/conversations', {
   method: 'DELETE'
 })
 const result = await response.json()

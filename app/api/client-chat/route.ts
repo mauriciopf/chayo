@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { ClientSystemPromptService } from '@/lib/services/clientPrompt/ClientSystemPromptService'
 import { embeddingService } from '@/lib/services/embeddingService'
+import { conversationStorageService } from '@/lib/services/conversationStorageService'
 
 export async function POST(request: NextRequest) {
   try {
@@ -85,8 +86,16 @@ export async function POST(request: NextRequest) {
 
     console.log('Client chat response generated successfully')
 
-    // Store the conversation in embeddings (optional for client chats)
-    // We could add this later if needed for improving the service
+    // Store the conversation exchange for future reference
+    await conversationStorageService.storeConversationExchange(
+      organizationId,
+      message,
+      assistantResponse,
+      {
+        channel: 'client_chat',
+        organization_name: organization.name
+      }
+    )
 
     return NextResponse.json({
       response: assistantResponse

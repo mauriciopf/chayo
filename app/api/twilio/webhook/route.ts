@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { twilioClient } from '@/lib/twilio/client'
 import { createClient } from '@/lib/supabase/server'
+import { conversationStorageService } from '@/lib/services/conversationStorageService'
 
 export async function POST(request: NextRequest) {
   try {
@@ -43,7 +44,8 @@ export async function POST(request: NextRequest) {
           tone,
           goals,
           system_prompt,
-          user_id
+          user_id,
+          organization_id
         )
       `)
       .eq('channel_type', 'whatsapp')
@@ -82,6 +84,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to save message' }, { status: 500 })
     }
 
+    // Store the incoming message in conversation embeddings
+    await conversationStorageService.storeSingleMessage(
+      channel.agents.organization_id,
+      messageBody,
+      'user',
+      {
+        channel: 'whatsapp',
+        from_number: fromNumber,
+        to_number: toNumber,
+        message_sid: messageSid
+      }
+    )
+
     // TODO: Generate AI response using the agent's configuration
     // For now, send a simple acknowledgment
     const aiResponse = await generateAIResponse(messageBody, channel.agents)
@@ -118,6 +133,20 @@ export async function POST(request: NextRequest) {
             twilioDirection: twilioResponse.direction
           }
         })
+
+      // Store the AI response in conversation embeddings
+      await conversationStorageService.storeSingleMessage(
+        channel.agents.organization_id,
+        aiResponse,
+        'assistant',
+        {
+          channel: 'whatsapp',
+          from_number: toNumber,
+          to_number: fromNumber,
+          message_sid: twilioResponse.sid,
+          parent_message_id: savedMessage.id
+        }
+      )
 
       console.log('AI response sent:', twilioResponse.sid)
       

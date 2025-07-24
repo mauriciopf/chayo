@@ -72,7 +72,7 @@ await embeddingService.updateMemory(agentId, {
 
 ### **1. Memory Updates (PATCH)**
 ```bash
-PATCH /api/agents/{agentId}/conversations
+PATCH /api/organizations/{organizationId}/conversations
 Content-Type: application/json
 
 {
@@ -107,7 +107,7 @@ Content-Type: application/json
 
 ### **2. Conflict Detection (GET)**
 ```bash
-GET /api/agents/{agentId}/memory?action=conflicts&threshold=0.85
+GET /api/organizations/{organizationId}/memory?action=conflicts&threshold=0.85
 ```
 
 **Response:**
@@ -141,7 +141,7 @@ GET /api/agents/{agentId}/memory?action=conflicts&threshold=0.85
 
 ### **3. Memory Deletion (DELETE)**
 ```bash
-DELETE /api/agents/{agentId}/memory
+DELETE /api/organizations/{organizationId}/memory
 Content-Type: application/json
 
 {

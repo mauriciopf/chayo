@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { embeddingService } from '@/lib/services/embeddingService'
-import { organizationSystemPromptService } from '@/lib/services/systemPrompt/OrganizationSystemPromptService'
 
 export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const agentId = params.id
+    const organizationId = params.id
     const { conversations, format = 'json', updateSystemPrompt = true } = await request.json()
 
     if (!conversations || !Array.isArray(conversations)) {
@@ -29,42 +28,37 @@ export async function POST(
       )
     }
 
-    // Verify agent belongs to user and get organization_id
-    const { data: agent, error: agentError } = await supabase
-      .from('agents')
-      .select('id, name, organization_id')
-      .eq('id', agentId)
+    // Verify user has access to organization
+    const { data: membership, error: membershipError } = await supabase
+      .from('team_members')
+      .select('organization_id, role')
+      .eq('organization_id', organizationId)
       .eq('user_id', user.id)
+      .eq('status', 'active')
       .single()
 
-    if (agentError || !agent) {
+    if (membershipError || !membership) {
       return NextResponse.json(
-        { error: 'Agent not found or unauthorized' },
+        { error: 'Organization access denied' },
         { status: 403 }
       )
     }
 
     // Process and store conversations
     const results = await embeddingService.processBusinessConversations(
-      agent.organization_id,
+      organizationId,
       conversations,
       format
     )
 
-    // Update system prompt if requested
-    if (updateSystemPrompt) {
-      // await organizationSystemPromptService.updateAgentSystemPrompt(agentId)
-    }
-
     // Get updated knowledge summary
-    const summary = await embeddingService.getBusinessKnowledgeSummary(agent.organization_id)
+    const summary = await embeddingService.getBusinessKnowledgeSummary(organizationId)
 
     return NextResponse.json({
       success: true,
       data: {
         processedSegments: results.length,
-        agentId,
-        agentName: agent.name,
+        organizationId,
         knowledgeSummary: summary
       }
     })
@@ -83,7 +77,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const agentId = params.id
+    const organizationId = params.id
     const { searchParams } = new URL(request.url)
     const query = searchParams.get('query')
     const limit = parseInt(searchParams.get('limit') || '10')
@@ -99,17 +93,18 @@ export async function GET(
       )
     }
 
-    // Verify agent belongs to user and get organization_id
-    const { data: agent, error: agentError } = await supabase
-      .from('agents')
-      .select('id, name, organization_id')
-      .eq('id', agentId)
+    // Verify user has access to organization
+    const { data: membership, error: membershipError } = await supabase
+      .from('team_members')
+      .select('organization_id, role')
+      .eq('organization_id', organizationId)
       .eq('user_id', user.id)
+      .eq('status', 'active')
       .single()
 
-    if (agentError || !agent) {
+    if (membershipError || !membership) {
       return NextResponse.json(
-        { error: 'Agent not found or unauthorized' },
+        { error: 'Organization access denied' },
         { status: 403 }
       )
     }
@@ -118,11 +113,10 @@ export async function GET(
     
     if (query) {
       // Search for similar conversations
-      // Generate embedding for the query string
       const { generateEmbeddings } = await import('@/lib/services/embedding/EmbeddingGenerator')
       const queryEmbedding = (await generateEmbeddings([{ text: query, type: 'conversation', metadata: {} }]))[0]
       results = await embeddingService.searchSimilarConversations(
-        agent.organization_id,
+        organizationId,
         queryEmbedding,
         0.7,
         limit
@@ -132,7 +126,7 @@ export async function GET(
       const { data, error } = await supabase
         .from('conversation_embeddings')
         .select('*')
-        .eq('organization_id', agent.organization_id)
+        .eq('organization_id', organizationId)
         .order('created_at', { ascending: false })
         .limit(limit)
 
@@ -144,14 +138,13 @@ export async function GET(
     }
 
     // Get knowledge summary
-    const summary = await embeddingService.getBusinessKnowledgeSummary(agent.organization_id)
+    const summary = await embeddingService.getBusinessKnowledgeSummary(organizationId)
 
     return NextResponse.json({
       success: true,
       data: {
         conversations: results,
-        agentId,
-        agentName: agent.name,
+        organizationId,
         knowledgeSummary: summary,
         totalResults: results.length
       }
@@ -171,7 +164,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const agentId = params.id
+    const organizationId = params.id
 
     // Get user from auth
     const { supabase } = createClient(request)
@@ -184,27 +177,28 @@ export async function DELETE(
       )
     }
 
-    // Verify agent belongs to user and get organization_id
-    const { data: agent, error: agentError } = await supabase
-      .from('agents')
-      .select('id, name, organization_id')
-      .eq('id', agentId)
+    // Verify user has access to organization
+    const { data: membership, error: membershipError } = await supabase
+      .from('team_members')
+      .select('organization_id, role')
+      .eq('organization_id', organizationId)
       .eq('user_id', user.id)
+      .eq('status', 'active')
       .single()
 
-    if (agentError || !agent) {
+    if (membershipError || !membership) {
       return NextResponse.json(
-        { error: 'Agent not found or unauthorized' },
+        { error: 'Organization access denied' },
         { status: 403 }
       )
     }
 
     // Delete all embeddings for this organization
-    await embeddingService.deleteOrganizationEmbeddings(agent.organization_id)
+    await embeddingService.deleteOrganizationEmbeddings(organizationId)
 
     return NextResponse.json({
       success: true,
-      message: `All conversation embeddings deleted for agent ${agent.name}`
+      message: `All conversation embeddings deleted for organization ${organizationId}`
     })
 
   } catch (error) {
@@ -216,13 +210,13 @@ export async function DELETE(
   }
 }
 
-// 🔄 PATCH - Update memory with conflict resolution
+// PATCH - Update memory with conflict resolution
 export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const agentId = params.id
+    const organizationId = params.id
     const { 
       memoryUpdate, 
       conflictStrategy = 'auto' 
@@ -246,37 +240,37 @@ export async function PATCH(
       )
     }
 
-    // Verify agent belongs to user and get organization_id
-    const { data: agent, error: agentError } = await supabase
-      .from('agents')
-      .select('id, name, organization_id')
-      .eq('id', agentId)
+    // Verify user has access to organization
+    const { data: membership, error: membershipError } = await supabase
+      .from('team_members')
+      .select('organization_id, role')
+      .eq('organization_id', organizationId)
       .eq('user_id', user.id)
+      .eq('status', 'active')
       .single()
 
-    if (agentError || !agent) {
+    if (membershipError || !membership) {
       return NextResponse.json(
-        { error: 'Agent not found or unauthorized' },
+        { error: 'Organization access denied' },
         { status: 403 }
       )
     }
 
     // Update memory with conflict resolution
     const result = await embeddingService.updateMemory(
-      agent.organization_id,
+      organizationId,
       memoryUpdate,
       conflictStrategy
     )
 
     // Get updated knowledge summary
-    const summary = await embeddingService.getBusinessKnowledgeSummary(agent.organization_id)
+    const summary = await embeddingService.getBusinessKnowledgeSummary(organizationId)
 
     return NextResponse.json({
       success: result.success,
       data: {
         ...result,
-        agentId,
-        agentName: agent.name,
+        organizationId,
         knowledgeSummary: summary
       }
     })
