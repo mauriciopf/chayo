@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
 import { SupabaseClient } from '@supabase/supabase-js'
 
 export interface ChatMessage {
@@ -21,7 +21,7 @@ export class OrganizationChatService {
   private supabase: SupabaseClient
 
   constructor(supabaseClient?: SupabaseClient) {
-    this.supabase = supabaseClient || createClient()
+    this.supabase = supabaseClient || supabase
   }
 
   /**

@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
 import type { User } from '@supabase/supabase-js'
 import { AuthState, OtpLoadingState, Agent, UserSubscription, Organization } from '@/components/dashboard/types'
 import { organizationService } from '@/lib/services/organizationService'
@@ -22,7 +21,6 @@ export function useAuth() {
   const [organizations, setOrganizations] = useState<Organization[]>([])
   const [currentOrganization, setCurrentOrganization] = useState<Organization | null>(null)
 
-  const router = useRouter()
 
   // Ensure user has organization
   const ensureUserHasOrganization = async (user: User) => {
@@ -47,6 +45,7 @@ export function useAuth() {
 
   // Main auth setup effect
   useEffect(() => {
+    console.log('🔄 Main auth setup effect - Starting')
     let isMounted = true
 
     // Fetch agents
@@ -150,7 +149,7 @@ export function useAuth() {
       try {
         await ensureUserHasOrganization(user)
         
-        const results = await Promise.allSettled([
+       await Promise.allSettled([
           fetchAgents(),
           fetchSubscription(user.id),
           fetchCurrentOrganization(user.id)
@@ -202,7 +201,7 @@ export function useAuth() {
       isMounted = false
       subscription.unsubscribe()
     }
-  }, [router])
+  }, [])
 
   return {
     // Auth state

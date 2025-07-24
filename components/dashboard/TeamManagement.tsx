@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslations } from 'next-intl'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
 
 interface TeamMember {
   id: string
@@ -38,8 +38,6 @@ export default function TeamManagement({ organizationId, organizationName }: Tea
   const [inviteRole, setInviteRole] = useState('member')
   const [inviting, setInviting] = useState(false)
   const [currentUserRole, setCurrentUserRole] = useState<string>('')
-
-  const supabase = createClient()
 
   useEffect(() => {
     fetchData()

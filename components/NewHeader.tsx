@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { supabase } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import { useTranslations, useLocale } from 'next-intl';
 
@@ -12,7 +12,6 @@ export default function NewHeader() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
-  const supabase = createClient();
   const t = useTranslations();
   const locale = useLocale();
   const [showPwaPrompt, setShowPwaPrompt] = useState(false);

@@ -1,7 +1,5 @@
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
 import type { EmbeddingResult } from './types'
-
-const supabase = createClient()
 
 export async function searchSimilarConversations(
   organizationId: string,

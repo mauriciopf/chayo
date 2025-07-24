@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import ClientChatContainer from '@/components/dashboard/ClientChatContainer'
 import { Agent, Organization } from '@/components/dashboard/types'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
 
 export default function ClientChatBusinessPage() {
   const params = useParams()
@@ -13,7 +13,6 @@ export default function ClientChatBusinessPage() {
   const [organization, setOrganization] = useState<Organization | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const supabase = createClient()
 
   useEffect(() => {
     const fetchBusinessAgent = async () => {

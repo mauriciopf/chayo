@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
 import { Message, AuthState, OtpLoadingState } from './types'
 
 interface AuthFlowProps {
@@ -48,8 +48,7 @@ export function useAuthFlow({
   messages,
   setMessages
 }: AuthFlowProps) {
-  const supabase = createClient()
-
+  
   const handleOTPFlow = async () => {
     
     if (authState === 'awaitingName') {

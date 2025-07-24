@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import ChatMessage from './ChatMessage'
 import { Message, Agent, Organization } from './types'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
 
 interface ClientChatContainerProps {
   agent: Agent
@@ -20,7 +20,6 @@ export default function ClientChatContainer({ agent, organization, className = '
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const chatScrollContainerRef = useRef<HTMLDivElement>(null)
-  const supabase = createClient()
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {

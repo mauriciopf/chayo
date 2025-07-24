@@ -1,7 +1,5 @@
-import { createClient } from '@/lib/supabase/client'
-import type { Organization, TeamMember } from './types'
-
-const supabase = createClient()
+import { supabase } from '@/lib/supabase/client'
+import type { Organization } from './types'
 
 export async function getOrganizationById(id: string): Promise<Organization | null> {
   const { data, error } = await supabase

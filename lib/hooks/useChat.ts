@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
 import { Message, Agent, AuthState } from '@/components/dashboard/types'
 
 interface UseChatProps {
@@ -46,8 +46,6 @@ export function useChat({
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const chatScrollContainerRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
-
-  const supabase = createClient()
 
   // Scroll functionality - only scroll to bottom for new user messages, not AI responses
   const scrollToShowUserMessage = (smooth = true) => {

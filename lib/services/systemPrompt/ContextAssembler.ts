@@ -1,6 +1,4 @@
-import { createClient } from '@/lib/supabase/client'
-
-const supabase = createClient()
+import { supabase } from '@/lib/supabase/client'
 
 export async function getConversationKnowledge(agentId: string, maxLength: number = 4000): Promise<string | null> {
   const { data: conversations, error } = await supabase

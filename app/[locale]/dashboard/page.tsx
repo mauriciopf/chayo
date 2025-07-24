@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { motion } from 'framer-motion'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useTranslations, useLocale } from 'next-intl'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
 
 // Import our new components and hooks
 import { useAuth } from '@/lib/hooks/useAuth'
@@ -60,8 +60,7 @@ function DashboardContent() {
   const locale = useLocale()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const supabase = createClient()
-
+  
   // Initialize all hooks
   const auth = useAuth()
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null)

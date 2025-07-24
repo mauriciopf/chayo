@@ -1,7 +1,5 @@
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
 import type { ConversationSegment, EmbeddingResult } from './types'
-
-const supabase = createClient()
 
 export async function insertEmbeddings(organizationId: string, segments: ConversationSegment[], embeddings: number[][]): Promise<EmbeddingResult[]> {
   const embeddingData = segments.map((segment, index) => ({

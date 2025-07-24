@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
 import { motion } from 'framer-motion'
 import { useTranslations } from 'next-intl'
 import type { User } from '@supabase/supabase-js'
@@ -30,8 +30,6 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
   const [orgLoading, setOrgLoading] = useState(false)
   const [orgError, setOrgError] = useState('')
   const [orgSuccess, setOrgSuccess] = useState('')
-
-  const supabase = createClient()
 
   useEffect(() => {
     if (user) {

@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
 import { SupabaseClient } from '@supabase/supabase-js'
 
 export interface BusinessInfoField {
@@ -26,7 +26,7 @@ export class BusinessInfoService {
   private supabase: SupabaseClient
 
   constructor(supabaseClient?: SupabaseClient) {
-    this.supabase = supabaseClient || createClient()
+    this.supabase = supabaseClient || supabase
   }
 
   /**

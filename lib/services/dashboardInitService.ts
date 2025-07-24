@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
 import { SupabaseClient } from '@supabase/supabase-js'
 
 export interface DashboardInitData {
@@ -11,7 +11,7 @@ export class DashboardInitService {
   private supabase: SupabaseClient
 
   constructor(supabaseClient?: SupabaseClient) {
-    this.supabase = supabaseClient || createClient()
+    this.supabase = supabaseClient || supabase
   }
 
   /**
