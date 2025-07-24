@@ -52,29 +52,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Failed to check existing fields' }, { status: 500 })
     }
 
-    const hasBusinessName = existingFields?.some(field => field.field_name === 'business_name')
-    
-    if (!hasBusinessName) {
-      // Insert the business_name question
-      const question_template = locale === 'es' 
-        ? '¿Cuál es el nombre de tu negocio?'
-        : 'What is the name of your business?'
-      
-      const { error: insertError } = await supabase
-        .from('business_info_fields')
-        .insert({
-          organization_id: organizationId,
-          field_name: 'business_name',
-          field_type: 'text',
-          is_answered: false,
-          question_template
-        })
-
-      if (insertError) {
-        console.error('Error inserting business info field:', insertError)
-        return NextResponse.json({ error: 'Failed to create business info field' }, { status: 500 })
-      }
-    }
+    // For new organizations, we don't create any questions here
+    // Questions will be generated dynamically by the AI when the user starts chatting
+    console.log('Organization ready for dynamic question generation')
 
     return NextResponse.json({ 
       success: true,

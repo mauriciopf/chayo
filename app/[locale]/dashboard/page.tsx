@@ -117,22 +117,22 @@ function DashboardContent() {
     setMessages: chat.setMessages,
   })
 
-  // Set initial chat message from dashboardInit if available
-  useEffect(() => {
-    if (
-      dashboardInit.initialMessage &&
-      chat.messages.length === 0
-    ) {
-      chat.setMessages([
-        {
-          id: 'initial-' + Date.now(),
-          role: 'ai',
-          content: dashboardInit.initialMessage,
-          timestamp: new Date(),
-        }
-      ])
-    }
-  }, [dashboardInit.initialMessage, chat.messages.length, dashboardInit.shouldShowAuthPrompt])
+      // Set initial chat message from dashboardInit if available
+    useEffect(() => {
+      if (
+        dashboardInit.initialMessage &&
+        !dashboardInit.shouldShowAuthPrompt
+      ) {
+        chat.setMessages([
+          {
+            id: 'initial-' + Date.now(),
+            role: 'ai',
+            content: dashboardInit.initialMessage,
+            timestamp: new Date(),
+          }
+        ])
+      }
+    }, [dashboardInit.initialMessage, chat.messages.length, dashboardInit.shouldShowAuthPrompt])
 
   // No need for additional effects - we'll pass handleOTPFlow directly to ChatContainer
 

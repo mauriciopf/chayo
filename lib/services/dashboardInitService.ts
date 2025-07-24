@@ -19,7 +19,7 @@ export class DashboardInitService {
    */
   async initializeDashboard(locale: string = 'en'): Promise<DashboardInitData> {
     try {
-      console.log('🚀 Initializing dashboard data...')
+
       
       // Get current user
       const { data: { user }, error: authError } = await this.supabase.auth.getUser()
@@ -126,22 +126,11 @@ export class DashboardInitService {
         return null
       }
 
-      // Get business constraints from view
-      const { data: viewData, error } = await this.supabase
-        .from('business_constraints_view')
-        .select('business_constraints')
-        .eq('organization_id', organization.id)
-        .single()
-
-      if (error || !viewData?.business_constraints) {
-        console.warn('No business constraints found:', error)
-        return {
-          business_info_gathered: 0,
-          whatsapp_trial_mentioned: false
-        }
+      // For new users, return default state instead of querying the view
+      return {
+        business_info_gathered: 0,
+        whatsapp_trial_mentioned: false
       }
-
-      return viewData.business_constraints
     } catch (error) {
       console.error('Error fetching business info fields:', error)
       return {
@@ -215,7 +204,42 @@ export class DashboardInitService {
           return greeting + firstQuestion
         }
         
-        // If no pending questions, business info is complete - focus on client communication
+        // If no pending questions, generate dynamic questions for new users
+        console.log('🔄 No pending questions found, generating dynamic questions for new user')
+        
+        try {
+          const response = await fetch('/api/generate-business-questions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              organizationId: business.id,
+              conversation: ''
+            })
+          })
+
+          if (response.ok) {
+            const { questions } = await response.json()
+            
+            if (questions && questions.length > 0) {
+              const firstQuestion = questions[0].question_template
+              
+              const greeting = isSpanish
+                ? '¡Hola! Soy Chayo, tu asistente de IA. Empecemos configurando tu negocio. '
+                : 'Hello! I\'m Chayo, your AI assistant. Let\'s start setting up your business. '
+              
+              return greeting + firstQuestion
+            }
+          } else {
+            const errorData = await response.json()
+            console.error('Failed to generate business questions:', errorData)
+          }
+        } catch (error) {
+          console.error('Error calling generate business questions API:', error)
+        }
+        
+        // If no questions could be generated, business info is complete - focus on client communication
         return isSpanish
           ? '¡Hola! Soy Chayo. Ya tienes tu información de negocio completa. Ahora enfoquémonos en cómo quieres que Chayo se comunique con tus clientes. ¿Qué tono prefieres que use Chayo al hablar con tus clientes?'
           : 'Hello! I\'m Chayo. Your business information is complete. Now let\'s focus on how you want Chayo to communicate with your clients. What tone would you prefer Chayo to use when speaking with your customers?'

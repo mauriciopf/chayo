@@ -24,44 +24,26 @@ export function useDashboardInit(
   const [shouldShowAuthPrompt, setShouldShowAuthPrompt] = useState(false)
 
   const initializeDashboard = async () => {
-    console.log('🔄 Dashboard init - Starting with:', { authState, user: user?.id, locale })
-    
     try {
       setIsLoading(true)
       setError(null)
       setInitialMessage(null)
       setShouldShowAuthPrompt(false)
       
-      // Don't show auth prompt while loading
-      if (authState === 'loading') {
-        console.log('⏳ Dashboard init - Still loading, waiting...')
-        setIsLoading(false)
-        return
-      }
-      
-      // Only show auth prompt if user is definitely not authenticated
-      if (authState === 'awaitingName' && user === null) {
-        console.log('👤 Dashboard init - Showing auth prompt for unauthenticated user')
-        setShouldShowAuthPrompt(true)
-        setInitialMessage(authPromptMessage || "Hi there! What's your name? (First name only is fine)")
-        setIsLoading(false)
-        return
-      }
-
-      // Handle authenticated users - initialize dashboard
-      if (authState === 'authenticated' && user) {
-        console.log('🔄 Dashboard init - Starting dashboard initialization for authenticated user')
+      // If we have a user, proceed with initialization regardless of auth state
+      if (user) {
         const data = await dashboardInitService.initializeDashboard(locale)
         setInitData(data)
-        console.log('✅ Dashboard init - Dashboard initialization successful')
 
-        // If there are no business info fields gathered, generate the initial chat message
-        if (data.business && data.businessInfoFields?.business_info_gathered === 0) {
+        // If we have a business, generate the initial chat message
+        if (data.business) {
           const msg = await dashboardInitService.generateInitialChatMessage(data.business, locale)
           setInitialMessage(msg)
         }
       } else {
-        console.log('⚠️ Dashboard init - Unexpected state:', { authState, user: user?.id })
+        // Only show auth prompt if no user
+        setShouldShowAuthPrompt(true)
+        setInitialMessage(authPromptMessage || "Hi there! What's your name? (First name only is fine)")
       }
     } catch (err) {
       console.error('❌ Dashboard initialization failed:', err)
@@ -72,7 +54,6 @@ export function useDashboardInit(
   }
 
   useEffect(() => {
-    console.log('🔄 Dashboard init - useEffect triggered:', { authState, user: user?.id, locale })
     initializeDashboard()
   }, [locale, authState, user])
 

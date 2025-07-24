@@ -63,8 +63,8 @@ export class BusinessInfoService {
       // Generate new questions dynamically using OpenAI
       const apiKey = process.env.OPENAI_API_KEY
       if (!apiKey) {
-        console.warn('OpenAI API key not set, cannot generate business questions')
-        return []
+        console.error('OpenAI API key not set, cannot generate business questions')
+        throw new Error('OpenAI API key is required for dynamic question generation')
       }
 
       const prompt = `Based on this conversation context, generate 3-5 specific questions to gather missing business information. 

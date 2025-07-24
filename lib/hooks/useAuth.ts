@@ -121,11 +121,16 @@ export function useAuth() {
 
   // Auth state sync
   useEffect(() => {
+    console.log('🔄 Auth state sync - Current state:', { loading, user: user?.id, authState })
+    
     if (loading) {
+      console.log('⏳ Auth state sync - Setting to loading')
       setAuthState('loading')
     } else if (user) {
+      console.log('✅ Auth state sync - Setting to authenticated')
       setAuthState('authenticated')
     } else {
+      console.log('👤 Auth state sync - Setting to awaitingName')
       setAuthState('awaitingName')
     }
   }, [user, loading])
@@ -140,25 +145,35 @@ export function useAuth() {
 
   // Main auth setup effect
   useEffect(() => {
+    console.log('🔄 Main auth setup effect - Starting')
     let isMounted = true
     
     const getUser = async () => {
+      console.log('🔄 Getting user from Supabase...')
       try {
         const { data: { user }, error } = await supabase.auth.getUser()
+        console.log('📋 getUser result:', { user: user?.id, error: error?.message })
+        
         if (error && error.status === 403) {
           // Unauthenticated, don't retry
+          console.log('❌ User not authenticated (403)')
           setUser(null)
           setLoading(false)
           return
         }
         if (user) {
+          console.log('✅ User found, setting user state')
           setUser(user)
+          // If we have a user, we should also set loading to false immediately
+          setLoading(false)
         } else {
+          console.log('👤 No user found, setting user to null')
           setUser(null)
+          setLoading(false)
         }
       } catch (error) {
+        console.error('❌ Error getting user:', error)
         setUser(null)
-      } finally {
         setLoading(false)
       }
     }
@@ -194,6 +209,7 @@ export function useAuth() {
         } else if (event === 'TOKEN_REFRESHED' && session?.user) {
           console.log('Dashboard: Token refreshed')
           setUser(session.user)
+          setLoading(false) // Ensure loading is false when token is refreshed
         }
       }
     )
