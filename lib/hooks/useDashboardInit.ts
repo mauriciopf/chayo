@@ -30,8 +30,8 @@ export function useDashboardInit(
       setInitialMessage(null)
       setShouldShowAuthPrompt(false)
       
-      // If we have a user, proceed with initialization regardless of auth state
-      if (user) {
+      // Only initialize if user is authenticated and present
+      if (authState === 'authenticated' && user) {
         const data = await dashboardInitService.initializeDashboard(locale)
         setInitData(data)
 
@@ -40,15 +40,19 @@ export function useDashboardInit(
           const msg = await dashboardInitService.generateInitialChatMessage(data.business, locale)
           setInitialMessage(msg)
         }
-      } else {
-        // Only show auth prompt if no user
+        setIsLoading(false)
+      } else if (authState !== 'loading' && !user) {
+        // Only show auth prompt if not loading and no user
         setShouldShowAuthPrompt(true)
         setInitialMessage(authPromptMessage || "Hi there! What's your name? (First name only is fine)")
+        setIsLoading(false)
+      } else {
+        // Still loading
+        setIsLoading(true)
       }
     } catch (err) {
       console.error('❌ Dashboard initialization failed:', err)
       setError(err instanceof Error ? err.message : 'Failed to initialize dashboard')
-    } finally {
       setIsLoading(false)
     }
   }
