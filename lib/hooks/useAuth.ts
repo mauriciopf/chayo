@@ -8,7 +8,7 @@ import { organizationService } from '@/lib/services/organizationService'
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-  const [authState, setAuthState] = useState<AuthState>('awaitingName')
+  const [authState, setAuthState] = useState<AuthState>('loading')
   const [otpLoading, setOtpLoading] = useState<OtpLoadingState>('none')
   const [otpError, setOtpError] = useState<string | null>(null)
   const [otpSent, setOtpSent] = useState(false)
@@ -121,9 +121,11 @@ export function useAuth() {
 
   // Auth state sync
   useEffect(() => {
-    if (user) {
+    if (loading) {
+      setAuthState('loading')
+    } else if (user) {
       setAuthState('authenticated')
-    } else if (!loading) {
+    } else {
       setAuthState('awaitingName')
     }
   }, [user, loading])
@@ -182,10 +184,13 @@ export function useAuth() {
         } else if (event === 'SIGNED_OUT') {
           console.log('Dashboard: User signed out')
           setUser(null)
+          setLoading(false) // Ensure loading is set to false immediately
           setAgents([])
           setSubscription(null)
           setOrganizations([])
           setCurrentOrganization(null)
+          // Reset auth state to ensure proper transition
+          setAuthState('awaitingName')
         } else if (event === 'TOKEN_REFRESHED' && session?.user) {
           console.log('Dashboard: Token refreshed')
           setUser(session.user)

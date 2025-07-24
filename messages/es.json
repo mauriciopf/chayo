@@ -1045,6 +1045,7 @@
     "uploading": "Subiendo documento...",
     "uploadTitle": "Subir un archivo",
     "loading": "La IA está pensando...",
-    "usingRAG": "Usando conocimiento de documentos"
+    "usingRAG": "Usando conocimiento de documentos",
+    "authPrompt": "¡Hola! ¿Cuál es tu nombre? (Solo el primer nombre está bien)"
   }
 }

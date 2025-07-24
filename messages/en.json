@@ -1020,6 +1020,7 @@
     "uploading": "Uploading document...",
     "uploadTitle": "Upload a file",
     "loading": "AI is thinking...",
-    "usingRAG": "Using document knowledge"
+    "usingRAG": "Using document knowledge",
+    "authPrompt": "Hi there! What's your name? (First name only is fine)"
   }
 }

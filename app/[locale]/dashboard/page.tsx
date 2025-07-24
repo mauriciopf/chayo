@@ -67,7 +67,7 @@ function DashboardContent() {
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null)
   
   // Initialize dashboard data
-  const dashboardInit = useDashboardInit(locale)
+  const dashboardInit = useDashboardInit(locale, auth.authState, auth.user, t('authPrompt'))
   
   // Auto-start chat when dashboard data is ready
   const autoStartChat = useAutoStartChat(locale)
@@ -132,7 +132,7 @@ function DashboardContent() {
         }
       ])
     }
-  }, [dashboardInit.initialMessage, chat.messages.length])
+  }, [dashboardInit.initialMessage, chat.messages.length, dashboardInit.shouldShowAuthPrompt])
 
   // No need for additional effects - we'll pass handleOTPFlow directly to ChatContainer
 
@@ -329,33 +329,41 @@ function DashboardContent() {
 
   // Render current view content
   const renderCurrentView = () => {
-    if (!auth.user) {
+    // Don't render chat container for unauthenticated users during loading
+    if (auth.authState === 'loading') {
+      return null
+    }
+    
+    // Only show chat container for unauthenticated users when not loading
+    if (auth.authState === 'awaitingName' && !auth.user) {
       return (
-        <ChatContainer
-          messages={chat.messages}
-          setMessages={chat.setMessages}
-          chatLoading={chat.chatLoading}
-          chatError={chat.chatError}
-          input={chat.input}
-          setInput={chat.setInput}
-          handleSend={chat.handleSend}
-          handleInputFocus={chat.handleInputFocus}
-          handleOTPFlow={authFlow.handleOTPFlow}
-          messagesEndRef={chat.messagesEndRef}
-          inputRef={chat.inputRef}
-          chatScrollContainerRef={chat.chatScrollContainerRef}
-          fileInputRef={chat.fileInputRef}
-          handleFileChange={chat.handleFileChange}
-          uploading={chat.uploading}
-          uploadProgress={chat.uploadProgress}
-          user={auth.user}
-          authState={auth.authState}
-          otpLoading={auth.otpLoading}
-          hasUserInteracted={mobile.hasUserInteracted}
-          setHasUserInteracted={mobile.setHasUserInteracted}
-          isMobile={mobile.isMobile}
-          organizationId={auth.currentOrganization?.id}
-        />
+        <div className="w-full max-w-7xl mx-auto">
+          <ChatContainer
+            messages={chat.messages}
+            setMessages={chat.setMessages}
+            chatLoading={chat.chatLoading}
+            chatError={chat.chatError}
+            input={chat.input}
+            setInput={chat.setInput}
+            handleSend={chat.handleSend}
+            handleInputFocus={chat.handleInputFocus}
+            handleOTPFlow={authFlow.handleOTPFlow}
+            messagesEndRef={chat.messagesEndRef}
+            inputRef={chat.inputRef}
+            chatScrollContainerRef={chat.chatScrollContainerRef}
+            fileInputRef={chat.fileInputRef}
+            handleFileChange={chat.handleFileChange}
+            uploading={chat.uploading}
+            uploadProgress={chat.uploadProgress}
+            user={auth.user}
+            authState={auth.authState}
+            otpLoading={auth.otpLoading}
+            hasUserInteracted={mobile.hasUserInteracted}
+            setHasUserInteracted={mobile.setHasUserInteracted}
+            isMobile={mobile.isMobile}
+            organizationId={auth.currentOrganization?.id}
+          />
+        </div>
       )
     }
 
@@ -418,14 +426,14 @@ function DashboardContent() {
           />
         ) : null
       case 'profile':
-        return (
+        return auth.user ? (
           <ProfileSettings 
             user={auth.user} 
             onUserUpdate={(updatedUser) => {
               // Handle user update if needed
             }} 
           />
-        )
+        ) : null
       default:
         return null
     }
@@ -446,6 +454,82 @@ function DashboardContent() {
           {autoStartChat.isAutoStarting && (
             <p className="text-sm text-purple-600 mt-2">Starting conversation...</p>
           )}
+        </div>
+      </div>
+    )
+  }
+
+  // Handle auth prompt for unauthenticated users
+  if (dashboardInit.shouldShowAuthPrompt) {
+    return (
+      <div className="flex h-screen min-h-0 bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
+        {/* Desktop Navigation Sidebar */}
+        <DesktopNavigation
+          activeView={activeView}
+          onViewChange={setActiveView}
+          onLogout={handleLogout}
+          onManageBilling={handleManageBilling}
+          user={auth.user}
+          subscription={auth.subscription}
+          businessName={auth.currentOrganization?.name || ''}
+        />
+
+        {/* Main Content Area */}
+        <div className="flex flex-col flex-1 min-w-0 min-h-0">
+          {/* Mobile Header */}
+          <div className="md:hidden">
+            <MobileHeader 
+              activeView={activeView}
+              onMenuToggle={() => setShowHamburgerMenu(true)}
+              user={auth.user}
+            />
+          </div>
+
+          {/* Mobile Navigation */}
+          <MobileNavigation
+            isOpen={showHamburgerMenu}
+            onClose={() => setShowHamburgerMenu(false)}
+            activeView={activeView}
+            onViewChange={setActiveView}
+            onLogout={handleLogout}
+            onManageBilling={handleManageBilling}
+            user={auth.user}
+            subscription={auth.subscription}
+          />
+
+          <div className={`flex-1 flex flex-col items-center w-full min-h-0 ${
+            activeView === 'chat' && mobile.isMobile
+              ? 'px-0 py-0' 
+              : 'px-4 sm:px-6 lg:px-8 py-4 md:px-8 md:py-8'
+          }`}>
+            <div className="w-full max-w-7xl mx-auto">
+              <ChatContainer
+                messages={chat.messages}
+                setMessages={chat.setMessages}
+                chatLoading={chat.chatLoading}
+                chatError={chat.chatError}
+                input={chat.input}
+                setInput={chat.setInput}
+                handleSend={chat.handleSend}
+                handleInputFocus={chat.handleInputFocus}
+                handleOTPFlow={authFlow.handleOTPFlow}
+                messagesEndRef={chat.messagesEndRef}
+                inputRef={chat.inputRef}
+                chatScrollContainerRef={chat.chatScrollContainerRef}
+                fileInputRef={chat.fileInputRef}
+                handleFileChange={chat.handleFileChange}
+                uploading={chat.uploading}
+                uploadProgress={chat.uploadProgress}
+                user={auth.user}
+                authState={auth.authState}
+                otpLoading={auth.otpLoading}
+                hasUserInteracted={mobile.hasUserInteracted}
+                setHasUserInteracted={mobile.setHasUserInteracted}
+                isMobile={mobile.isMobile}
+                organizationId={auth.currentOrganization?.id}
+              />
+            </div>
+          </div>
         </div>
       </div>
     )

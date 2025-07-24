@@ -273,6 +273,33 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
+-- Create function to create organization with team member in one transaction
+-- This function bypasses RLS policies to avoid circular dependency issues
+CREATE OR REPLACE FUNCTION create_organization_with_owner(
+  org_name TEXT,
+  org_slug TEXT,
+  owner_id UUID
+)
+RETURNS UUID AS $$
+DECLARE
+  new_org_id UUID;
+BEGIN
+  -- Create the organization
+  INSERT INTO organizations (name, slug, owner_id)
+  VALUES (org_name, org_slug, owner_id)
+  RETURNING id INTO new_org_id;
+  
+  -- Add the user as an active owner in team_members
+  INSERT INTO team_members (organization_id, user_id, role, status)
+  VALUES (new_org_id, owner_id, 'owner', 'active');
+  
+  RETURN new_org_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Grant execute permission to authenticated users
+GRANT EXECUTE ON FUNCTION create_organization_with_owner(TEXT, TEXT, UUID) TO authenticated;
+
 -- Create triggers for updated_at
 DROP TRIGGER IF EXISTS update_agents_updated_at ON agents;
 CREATE TRIGGER update_agents_updated_at 
@@ -315,13 +342,22 @@ $$ LANGUAGE plpgsql;
 -- Create function to automatically create default organization for new users
 CREATE OR REPLACE FUNCTION create_default_organization()
 RETURNS TRIGGER AS $$
+DECLARE
+  new_org_id UUID;
 BEGIN
+  -- Create the organization
   INSERT INTO public.organizations (name, slug, owner_id)
   VALUES (
     'My Organization',
     'org-' || REPLACE(NEW.id::text, '-', ''),
     NEW.id
-  );
+  )
+  RETURNING id INTO new_org_id;
+  
+  -- Add the user as an active owner in team_members
+  INSERT INTO public.team_members (organization_id, user_id, role, status)
+  VALUES (new_org_id, NEW.id, 'owner', 'active');
+  
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

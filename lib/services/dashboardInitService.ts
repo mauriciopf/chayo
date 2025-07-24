@@ -155,24 +155,33 @@ export class DashboardInitService {
    * Ensure initial business info requirements (e.g., business_name question) are present for the organization
    */
   private async ensureInitialBusinessInfoRequirements(organizationId: string, locale: string) {
-    const { BusinessInfoService } = await import('./businessInfoService')
-    const businessInfoService = new BusinessInfoService(this.supabase)
-    // Check if business_name is already answered or pending
-    const answered = (await businessInfoService.getBusinessInfo(organizationId)).some(q => q.field_name === 'business_name')
-    const pending = (await businessInfoService.getPendingQuestions(organizationId)).some(q => q.field_name === 'business_name')
-    if (!answered && !pending) {
-      // Insert the business_name question directly
-      const question_template =
-        locale === 'es'
-          ? '¿Cuál es el nombre de tu negocio?'
-          : 'What is the name of your business?'
-      await this.supabase.from('business_info_fields').insert({
-        organization_id: organizationId,
-        field_name: 'business_name',
-        field_type: 'text',
-        is_answered: false,
-        question_template
+    try {
+      console.log('Ensuring business info requirements for organization:', organizationId)
+      
+      // Use the server-side API route to avoid RLS policy violations
+      const response = await fetch('/api/business-info-fields', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          organizationId,
+          locale
+        })
       })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error('Failed to initialize business info fields:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData
+        })
+      } else {
+        console.log('Successfully initialized business info fields')
+      }
+    } catch (error) {
+      console.error('Error ensuring initial business info requirements:', error)
     }
   }
 

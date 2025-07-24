@@ -69,28 +69,6 @@ export function useChat({
     })
   }
 
-  // Auto-start authentication flow and clear welcome message when authenticated
-  useEffect(() => {
-    if (authState !== 'authenticated' && messages.length === 0 && user === null) {
-      setMessages([
-        {
-          id: Date.now().toString(),
-          role: 'ai',
-          content: "Hi there! What's your name? (First name only is fine)",
-          timestamp: new Date(),
-        },
-      ])
-    } else if (authState === 'authenticated' && user) {
-      // Clear the welcome message when user becomes authenticated
-      // Only clear if the only message is the initial welcome message
-      if (messages.length === 1 && 
-          messages[0].role === 'ai' && 
-          messages[0].content.includes("Hi there! What's your name?")) {
-        setMessages([])
-      }
-    }
-  }, [authState, messages.length, user])
-
   // Only scroll when user sends a message (justSent is true)
   useEffect(() => {
     if (justSent) {
@@ -157,7 +135,7 @@ export function useChat({
       // Get the current session for authentication
       const { data: { session } } = await supabase.auth.getSession()
       
-      const res = await fetch("/api/chat", {
+      const res = await fetch("/api/organization-chat", {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",

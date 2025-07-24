@@ -31,15 +31,22 @@ export class OrganizationChatService {
     messages: ChatMessage[],
     locale: string = 'en'
   ): Promise<ChatResponse> {
+    console.log('🔧 OrganizationChatService - Starting processChat')
+    
     try {
       // Get user and organization context
       const { data: { user }, error: authError } = await this.supabase.auth.getUser()
       if (authError || !user) {
+        console.error('❌ Authentication failed in chat service:', authError)
         throw new Error('Authentication required')
       }
 
+      console.log('✅ User authenticated in chat service:', { userId: user.id })
+
       // Get or create organization
+      console.log('🔍 Getting or creating organization...')
       const organization = await this.getOrCreateOrganization(user)
+      console.log('✅ Organization ready:', { orgId: organization.id, orgName: organization.name })
       
       const context: ChatContext = {
         user,
@@ -48,20 +55,25 @@ export class OrganizationChatService {
       }
 
       // Generate AI response
+      console.log('🤖 Generating AI response...')
       const { aiMessage, usingRAG } = await this.generateAIResponse(messages, context)
+      console.log('✅ AI response generated:', { length: aiMessage.length, usingRAG })
       
       // Update WhatsApp trial status if mentioned
+      console.log('📱 Updating WhatsApp trial status...')
       await this.updateWhatsAppTrialStatus(aiMessage, context)
       
       // Store conversation for RAG
+      console.log('💾 Storing conversation...')
       await this.storeConversation(messages, aiMessage, context)
+      console.log('✅ Conversation stored')
 
       return {
         aiMessage,
         usingRAG
       }
     } catch (error) {
-      console.error('Chat service error:', error)
+      console.error('❌ Chat service error:', error)
       throw error
     }
   }
@@ -70,7 +82,51 @@ export class OrganizationChatService {
    * Get or create organization for user
    */
   private async getOrCreateOrganization(user: any): Promise<any> {
-    // Try to find existing organization
+    console.log('🔍 getOrCreateOrganization - Starting for user:', user.id)
+    
+    // First, check if user already owns an organization
+    const { data: ownedOrg, error: ownedOrgError } = await this.supabase
+      .from('organizations')
+      .select('*')
+      .eq('owner_id', user.id)
+      .single()
+
+    console.log('🔍 Owned organization check:', { ownedOrg, ownedOrgError })
+
+    if (ownedOrg && !ownedOrgError) {
+      console.log('✅ Found existing organization owned by user:', { orgId: ownedOrg.id, orgName: ownedOrg.name })
+      
+      // Check if user is in team_members, if not add them
+      const { data: existingMember, error: memberCheckError } = await this.supabase
+        .from('team_members')
+        .select('id')
+        .eq('organization_id', ownedOrg.id)
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .single()
+
+      if (!existingMember && !memberCheckError) {
+        console.log('📝 Adding user to team_members for existing organization...')
+        const { error: addMemberError } = await this.supabase
+          .from('team_members')
+          .insert({
+            organization_id: ownedOrg.id,
+            user_id: user.id,
+            role: 'owner',
+            status: 'active'
+          })
+
+        if (addMemberError) {
+          console.error('❌ Failed to add user to team_members:', addMemberError)
+        } else {
+          console.log('✅ User added to team_members successfully')
+        }
+      }
+
+      return ownedOrg
+    }
+
+    // If no owned organization, check for team membership
     const { data: membership, error: membershipError } = await this.supabase
       .from('team_members')
       .select('organization_id')
@@ -78,37 +134,11 @@ export class OrganizationChatService {
       .eq('status', 'active')
       .single()
 
-    if (!membership || membershipError) {
-      // Create new organization
-      const emailPrefix = user.email?.split('@')[0] || 'user'
-      const randomSuffix = Math.random().toString(36).substring(2, 8)
-      const slug = `${emailPrefix.replace(/[^a-zA-Z0-9]/g, '')}-${randomSuffix}`
-      const name = `${emailPrefix}'s Organization`
+    console.log('🔍 Membership check:', { membership, membershipError })
 
-      const { data: newOrg, error: orgError } = await this.supabase
-        .from('organizations')
-        .insert({
-          name,
-          slug,
-          owner_id: user.id
-        })
-        .select()
-        .single()
-
-      if (!orgError && newOrg) {
-        // Add user as owner in team_members
-        await this.supabase
-          .from('team_members')
-          .insert({
-            organization_id: newOrg.id,
-            user_id: user.id,
-            role: 'owner',
-            status: 'active'
-          })
-
-        return newOrg
-      }
-    } else {
+    if (membership && !membershipError) {
+      console.log('✅ Found existing membership, getting organization...')
+      
       // Get existing organization
       const { data: org, error: orgError } = await this.supabase
         .from('organizations')
@@ -116,12 +146,54 @@ export class OrganizationChatService {
         .eq('id', membership.organization_id)
         .single()
 
+      console.log('🔍 Organization fetch result:', { org, orgError })
+
       if (!orgError && org) {
         return org
+      } else {
+        console.error('❌ Failed to fetch organization:', orgError)
       }
     }
 
-    throw new Error('Failed to get or create organization')
+    // Only create new organization if user has no existing organization or membership
+    console.log('📝 No existing organization or membership found, creating new organization...')
+    
+    // Create new organization using server-side function to avoid RLS issues
+    const emailPrefix = user.email?.split('@')[0] || 'user'
+    const randomSuffix = Math.random().toString(36).substring(2, 8)
+    const slug = `${emailPrefix.replace(/[^a-zA-Z0-9]/g, '')}-${randomSuffix}`
+    const name = `${emailPrefix}'s Organization`
+
+    console.log('📝 Creating organization with:', { name, slug, owner_id: user.id })
+
+    const { data: newOrgId, error: orgError } = await this.supabase
+      .rpc('create_organization_with_owner', {
+        org_name: name,
+        org_slug: slug,
+        owner_id: user.id
+      })
+
+    console.log('📝 Organization creation result:', { newOrgId, orgError })
+
+    if (!orgError && newOrgId) {
+      // Fetch the created organization
+      const { data: newOrg, error: fetchError } = await this.supabase
+        .from('organizations')
+        .select('*')
+        .eq('id', newOrgId)
+        .single()
+
+      if (fetchError || !newOrg) {
+        console.error('❌ Failed to fetch created organization:', fetchError)
+        throw new Error(`Failed to fetch created organization: ${fetchError?.message || 'Unknown error'}`)
+      }
+
+      console.log('✅ Organization and team member created successfully')
+      return newOrg
+    } else {
+      console.error('❌ Failed to create organization:', orgError)
+      throw new Error(`Failed to create organization: ${orgError?.message || 'Unknown error'}`)
+    }
   }
 
   /**
