@@ -127,11 +127,32 @@ export class DashboardInitService {
         .eq('owner_id', userId)
         .single()
       if (!organization) {
-        return null
+        return {
+          business_info_gathered: 0,
+          whatsapp_trial_mentioned: false
+        }
       }
+
+      // Count answered business info fields directly
+      const { data: answeredFields, error: fieldsError } = await this.supabaseClient
+        .from('business_info_fields')
+        .select('field_name')
+        .eq('organization_id', organization.id)
+        .eq('is_answered', true)
+
+      if (fieldsError) {
+        console.warn('Error fetching business info fields:', fieldsError)
+        return {
+          business_info_gathered: 0,
+          whatsapp_trial_mentioned: false
+        }
+      }
+
+      const businessInfoGathered = answeredFields?.length || 0
+
       return {
-        business_info_gathered: 0,
-        whatsapp_trial_mentioned: false
+        business_info_gathered: businessInfoGathered,
+        whatsapp_trial_mentioned: false // This could be enhanced to check for WhatsApp trial mentions
       }
     } catch (error) {
       console.error('Error fetching business info fields:', error)
