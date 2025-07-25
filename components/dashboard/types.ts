@@ -8,13 +8,11 @@ export interface Message {
 
 export interface Agent {
   id: string
+  organization_id: string
   name: string
-  greeting: string
-  tone: string
-  goals: string[]
-  system_prompt: string
-  paused: boolean
+  description?: string | null
   created_at: string
+  updated_at: string
 }
 
 export interface UserSubscription {

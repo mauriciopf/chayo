@@ -1,10 +1,27 @@
 import { supabase } from '@/lib/supabase/client'
 import { SupabaseClient } from '@supabase/supabase-js'
+import { getAgentChatLinkForOrganization } from './agentService'
+import { Agent, Organization } from '@/components/dashboard/types'
+
+// Define AgentChannel type based on agent_channels table and query usage
+export interface AgentChannel {
+  id: string
+  agent_id: string
+  organization_id: string
+  channel: string // e.g. 'whatsapp', 'agent_chat_link', 'web_widget'
+  config?: Record<string, any> | null // channel-specific config (optional)
+  created_at: string
+  updated_at: string
+}
 
 export interface DashboardInitData {
-  business: any
-  agents: any[]
-  businessInfoFields: any
+  business: Organization | null
+  agents: Agent[]
+  businessInfoFields: {
+    business_info_gathered: number
+    whatsapp_trial_mentioned: boolean
+  }
+  agentChatLink?: AgentChannel | null
 }
 
 export class DashboardInitService {
@@ -31,7 +48,8 @@ export class DashboardInitService {
           businessInfoFields: {
             business_info_gathered: 0,
             whatsapp_trial_mentioned: false
-          }
+          },
+          agentChatLink: null
         }
       }
 
@@ -42,10 +60,21 @@ export class DashboardInitService {
         this.fetchBusinessInfoFields(user.id)
       ])
 
+      // Fetch agent chat link if business exists
+      let agentChatLink = null
+      if (business && business.id) {
+        try {
+          agentChatLink = await getAgentChatLinkForOrganization(this.supabase, business.id)
+        } catch (e) {
+          agentChatLink = null
+        }
+      }
+
       return {
         business,
         agents,
-        businessInfoFields
+        businessInfoFields,
+        agentChatLink
       }
     } catch (error) {
       console.error('❌ Error initializing dashboard:', error)

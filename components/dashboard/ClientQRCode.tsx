@@ -3,30 +3,23 @@
 import { useState, useEffect } from 'react'
 import QRCode from 'qrcode'
 import { motion } from 'framer-motion'
-import { Agent } from './types'
+import { AgentChannel } from '@/lib/services/dashboardInitService'
 
 interface ClientQRCodeProps {
-  agent: Agent
   organizationSlug: string
-  isVisible: boolean
 }
 
-export default function ClientQRCode({ agent, organizationSlug, isVisible }: ClientQRCodeProps) {
+export default function ClientQRCode({ organizationSlug }: ClientQRCodeProps) {
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('')
   const [clientChatUrl, setClientChatUrl] = useState<string>('')
   const [copied, setCopied] = useState(false)
 
   useEffect(() => {
-    if (agent && organizationSlug && isVisible) {
-      console.log('🔧 Generating QR code for agent:', agent.id)
-      
+    if (organizationSlug) {
       // Generate the client chat URL using the business slug
       const baseUrl = window.location.origin
       const chatUrl = `${baseUrl}/client-chat/${organizationSlug}`
       setClientChatUrl(chatUrl)
-      
-      console.log('📱 Client chat URL:', chatUrl)
-
       // Generate QR code with better error handling
       QRCode.toDataURL(chatUrl, {
         width: 256,
@@ -37,15 +30,13 @@ export default function ClientQRCode({ agent, organizationSlug, isVisible }: Cli
         },
         errorCorrectionLevel: 'M'
       }).then(url => {
-        console.log('✅ QR code generated successfully')
         setQrCodeUrl(url)
       }).catch(err => {
-        console.error('❌ Error generating QR code:', err)
         // Fallback: create a simple placeholder
         setQrCodeUrl('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjU2IiBoZWlnaHQ9IjI1NiIgdmlld0JveD0iMCAwIDI1NiAyNTYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyNTYiIGhlaWdodD0iMjU2IiBmaWxsPSJ3aGl0ZSIvPgo8dGV4dCB4PSIxMjgiIHk9IjEyOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iYmxhY2siPk5vIFFSPC90ZXh0Pgo8L3N2Zz4K')
       })
     }
-  }, [agent, organizationSlug, isVisible])
+  }, [organizationSlug])
 
   const copyToClipboard = async () => {
     try {
@@ -61,8 +52,8 @@ export default function ClientQRCode({ agent, organizationSlug, isVisible }: Cli
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `Chat with ${agent.name}`,
-          text: `Chat directly with our AI assistant for ${agent.name}`,
+          title: `Chat with your business` ,
+          text: `Chat directly with our AI assistant` ,
           url: clientChatUrl
         })
       } catch (err) {
@@ -77,13 +68,13 @@ export default function ClientQRCode({ agent, organizationSlug, isVisible }: Cli
   const downloadQR = () => {
     if (qrCodeUrl) {
       const link = document.createElement('a')
-      link.download = `${agent.name}-qr-code.png`
+      link.download = `business-qr-code.png`
       link.href = qrCodeUrl
       link.click()
     }
   }
 
-  if (!isVisible || !agent) return null
+  if (!organizationSlug) return null
 
   return (
     <motion.div

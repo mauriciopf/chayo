@@ -3,6 +3,7 @@ import { OrganizationChatService } from '@/lib/services/organizationChatService'
 import { validationService } from '@/lib/services/validationService'
 import { errorHandlingService } from '@/lib/services/errorHandlingService'
 import { createClient } from '@/lib/supabase/server'
+import { maybeCreateAgentChatLinkIfThresholdMet } from '@/lib/services/agentService'
 
 export const runtime = 'edge'
 
@@ -38,7 +39,6 @@ export async function POST(req: NextRequest) {
     console.log('📥 Request body:', {
       messageCount: body.messages?.length || 0,
       locale: body.locale,
-      agentId: body.agentId,
       lastMessage: body.messages?.[body.messages.length - 1]?.content?.substring(0, 100) + '...'
     })
     
@@ -53,17 +53,19 @@ export async function POST(req: NextRequest) {
     const sanitizedMessages = validationService.sanitizeMessages(validatedRequest.messages)
     console.log('✅ Messages sanitized, processing chat...')
     
+    // Process chat using the service's encapsulated logic
     const response = await chatService.processChat(
       sanitizedMessages,
       validatedRequest.locale
     )
+    // Check/create agent chat link if threshold met, using the organization returned from processChat
+    const agentChatLink = await maybeCreateAgentChatLinkIfThresholdMet(supabase, response.organization)
     
-    console.log('✅ Chat processed successfully:', {
-      responseLength: response.aiMessage?.length || 0,
-      usingRAG: response.usingRAG
+    return NextResponse.json({
+      aiMessage: response.aiMessage,
+      usingRAG: response.usingRAG,
+      agentChatLink
     })
-    
-    return NextResponse.json(response)
     
   } catch (error) {
     console.error('❌ Organization Chat API - Error occurred:', {

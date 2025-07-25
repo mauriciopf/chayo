@@ -4,8 +4,6 @@ import { Message, Agent, AuthState } from '@/components/dashboard/types'
 
 interface UseChatProps {
   authState: AuthState
-  selectedAgent: Agent | null
-  setSelectedAgent: (agent: Agent | null) => void
   user: any
   isMobile: boolean
   pendingName: string
@@ -20,8 +18,6 @@ interface UseChatProps {
 
 export function useChat({
   authState,
-  selectedAgent,
-  setSelectedAgent,
   user,
   isMobile,
   pendingName,
@@ -144,8 +140,7 @@ export function useChat({
             role: role === "ai" ? "assistant" : role, 
             content 
           })),
-          locale,
-          ...(selectedAgent && { agentId: selectedAgent.id })
+          locale
         })
       })
       
@@ -158,9 +153,8 @@ export function useChat({
       
       const data = await res.json()
       
-      if (data.agent && !selectedAgent) {
-        setSelectedAgent(data.agent)
-      }
+      // After receiving the API response:
+      // (No more selectedAgent logic)
       
       setMessages((msgs) => [
         ...msgs,

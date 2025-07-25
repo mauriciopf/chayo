@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase/client'
 import { SupabaseClient } from '@supabase/supabase-js'
+import { getFilledBusinessInfoFieldCount } from './businessInfoFieldService'
 
 export interface ChatMessage {
   role: 'user' | 'assistant' | 'system'
@@ -30,7 +31,7 @@ export class OrganizationChatService {
   async processChat(
     messages: ChatMessage[],
     locale: string = 'en'
-  ): Promise<ChatResponse> {
+  ): Promise<ChatResponse & { organization: any }> {
     console.log('🔧 OrganizationChatService - Starting processChat')
     
     try {
@@ -70,7 +71,8 @@ export class OrganizationChatService {
 
       return {
         aiMessage,
-        usingRAG
+        usingRAG,
+        organization
       }
     } catch (error) {
       console.error('❌ Chat service error:', error)
@@ -78,10 +80,8 @@ export class OrganizationChatService {
     }
   }
 
-  /**
-   * Get or create organization for user
-   */
-  private async getOrCreateOrganization(user: any): Promise<any> {
+  // Make getOrCreateOrganization public
+  public async getOrCreateOrganization(user: any): Promise<any> {
     console.log('🔍 getOrCreateOrganization - Starting for user:', user.id)
     
     // First, check if user already owns an organization
@@ -196,10 +196,8 @@ export class OrganizationChatService {
     }
   }
 
-  /**
-   * Generate AI response using dynamic system prompt with RAG
-   */
-  private async generateAIResponse(messages: ChatMessage[], context: ChatContext): Promise<{ aiMessage: string; usingRAG: boolean }> {
+  // Make generateAIResponse public
+  public async generateAIResponse(messages: ChatMessage[], context: ChatContext): Promise<{ aiMessage: string; usingRAG: boolean }> {
     const apiKey = process.env.OPENAI_API_KEY
     if (!apiKey) {
       throw new Error('OpenAI API key not set')
@@ -325,14 +323,11 @@ export class OrganizationChatService {
     // }
   }
 
-  /**
-   * Store conversation for RAG
-   */
-  private async storeConversation(messages: ChatMessage[], aiMessage: string, context: ChatContext): Promise<void> {
+  // Make storeConversation public
+  public async storeConversation(messages: ChatMessage[], aiMessage: string, context: ChatContext): Promise<void> {
     try {
       // Use the new conversation storage service
       const { conversationStorageService } = await import('./conversationStorageService')
-      
       // Store the conversation exchange
       await conversationStorageService.storeConversationExchange(
         context.organization.id,
@@ -345,67 +340,57 @@ export class OrganizationChatService {
         }
       )
 
-              // Extract and update business information
-        try {
-          const businessInfoService = new (await import('./businessInfoService')).BusinessInfoService(this.supabase)
-          
-          // Combine all user messages for business info extraction
-          const userMessages = messages.filter(m => m.role === 'user').map(m => m.content).join(' ')
-          
-          if (userMessages.trim()) {
-            const extractedInfo = await businessInfoService.extractBusinessInfo(context.organization.id, userMessages)
-            
-            if (extractedInfo.length > 0) {
-              await businessInfoService.updateBusinessInfoFields(context.organization.id, extractedInfo)
-              console.log(`Extracted ${extractedInfo.length} business info fields from conversation`)
+      // Extract and update business information
+      try {
+        const businessInfoService = new (await import('./businessInfoService')).BusinessInfoService(this.supabase)
+        // Combine all user messages for business info extraction
+        const userMessages = messages.filter(m => m.role === 'user').map(m => m.content).join(' ')
+        if (userMessages.trim()) {
+          const extractedInfo = await businessInfoService.extractBusinessInfo(context.organization.id, userMessages)
+          if (extractedInfo.length > 0) {
+            await businessInfoService.updateBusinessInfoFields(context.organization.id, extractedInfo)
+            console.log(`Extracted ${extractedInfo.length} business info fields from conversation`)
+          }
+        }
+      } catch (error) {
+        console.warn('Failed to extract business info:', error)
+      }
+
+      // 🔄 WRITABLE MEMORY UPDATES - Process memory updates from conversation
+      try {
+        const { embeddingService } = await import('./embeddingService')
+        // Check if conversation contains memory updates (business info changes)
+        const conversationText = messages.map(m => m.content).join(' ')
+        const memoryUpdateKeywords = [
+          'business hours changed', 'updated hours', 'new hours',
+          'moved location', 'new address', 'relocated',
+          'changed phone', 'new phone', 'updated contact',
+          'price change', 'updated pricing', 'new rates',
+          'service change', 'new service', 'updated service',
+          'policy change', 'updated policy', 'new policy'
+        ]
+        const hasMemoryUpdate = memoryUpdateKeywords.some(keyword => 
+          conversationText.toLowerCase().includes(keyword)
+        )
+        if (hasMemoryUpdate) {
+          console.log('🔄 Detected potential memory update in conversation')
+          // Extract the specific update information
+          const updateInfo = await this.extractMemoryUpdate(conversationText, context.organization.id) // Pass organization ID
+          if (updateInfo) {
+            const result = await embeddingService.updateMemory(
+              context.organization.id, // Pass organization ID
+              updateInfo,
+              'auto' // Use automatic conflict resolution
+            )
+            console.log(`Memory update result: ${result.action} (${result.memoryId})`)
+            if (result.conflicts && result.conflicts.length > 0) {
+              console.log(`Resolved ${result.conflicts.length} memory conflicts`)
             }
           }
-        } catch (error) {
-          console.warn('Failed to extract business info:', error)
         }
-
-        // 🔄 WRITABLE MEMORY UPDATES - Process memory updates from conversation
-        try {
-          const { embeddingService } = await import('./embeddingService')
-          
-          // Check if conversation contains memory updates (business info changes)
-          const conversationText = messages.map(m => m.content).join(' ')
-          const memoryUpdateKeywords = [
-            'business hours changed', 'updated hours', 'new hours',
-            'moved location', 'new address', 'relocated',
-            'changed phone', 'new phone', 'updated contact',
-            'price change', 'updated pricing', 'new rates',
-            'service change', 'new service', 'updated service',
-            'policy change', 'updated policy', 'new policy'
-          ]
-
-          const hasMemoryUpdate = memoryUpdateKeywords.some(keyword => 
-            conversationText.toLowerCase().includes(keyword)
-          )
-
-          if (hasMemoryUpdate) {
-            console.log('🔄 Detected potential memory update in conversation')
-            
-            // Extract the specific update information
-            const updateInfo = await this.extractMemoryUpdate(conversationText, context.organization.id) // Pass organization ID
-            
-            if (updateInfo) {
-              const result = await embeddingService.updateMemory(
-                context.organization.id, // Pass organization ID
-                updateInfo,
-                'auto' // Use automatic conflict resolution
-              )
-              
-              console.log(`Memory update result: ${result.action} (${result.memoryId})`)
-              
-              if (result.conflicts && result.conflicts.length > 0) {
-                console.log(`Resolved ${result.conflicts.length} memory conflicts`)
-              }
-            }
-          }
-        } catch (error) {
-          console.warn('Failed to process memory updates:', error)
-        }
+      } catch (error) {
+        console.warn('Failed to process memory updates:', error)
+      }
     } catch (error) {
       console.warn('Failed to store conversation:', error)
     }
