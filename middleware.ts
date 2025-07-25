@@ -1,22 +1,42 @@
-import createMiddleware from 'next-intl/middleware';
+import createIntlMiddleware from "next-intl/middleware";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
+import type { NextRequest } from "next/server";
 
-export default createMiddleware({
-  // A list of all locales that are supported
-  locales: ['en', 'es'],
-  
-  // Used when no locale matches
-  defaultLocale: 'en',
-  
-  // The prefix for the locale in the URL
-  localePrefix: 'always',
-  
-  // Enable automatic locale detection
-  localeDetection: true
+const intlMiddleware = createIntlMiddleware({
+  locales: ["en", "es"],
+  defaultLocale: "en",
+  localePrefix: "always",
+  localeDetection: true,
 });
+
+export async function middleware(request: NextRequest) {
+  // Run i18n middleware first
+  const intlResponse = intlMiddleware(request);
+  const cookieStore = cookies();
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll: () => cookieStore.getAll(),
+        setAll: (newCookies) => {
+          newCookies.forEach(({ name, value, options }) => {
+            intlResponse.cookies.set({ name, value, ...options });
+          });
+        },
+      },
+    }
+  );
+
+  await supabase.auth.getUser(); // ✅ refresh session if needed
+  return intlResponse;
+}
 
 export const config = {
   matcher: [
-    // Match all routes except static files and API routes
-    '/((?!api|_next|_vercel|.*\\..*).*)'
-  ]
+    // Match all routes except static files, API routes, and Next.js internals
+    "/((?!_next|_vercel|api|.*\\..*).*)",
+  ],
 };

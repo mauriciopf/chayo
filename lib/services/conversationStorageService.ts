@@ -1,4 +1,3 @@
-import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { embeddingService } from '@/lib/services/embeddingService'
 
 export interface ConversationMessage {

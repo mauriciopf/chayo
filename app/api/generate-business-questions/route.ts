@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Generate questions using the server-side BusinessInfoService
-    const businessInfoService = new BusinessInfoService(supabase)
+    const businessInfoService = new BusinessInfoService()
     const questions = await businessInfoService.generateBusinessQuestions(organizationId, conversation)
 
     return NextResponse.json({ 

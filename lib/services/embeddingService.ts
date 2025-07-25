@@ -3,6 +3,7 @@ import { generateEmbeddings } from './embedding/EmbeddingGenerator'
 import { insertEmbeddings } from './embedding/EmbeddingStore'
 import { searchSimilarConversations } from './embedding/VectorSearch'
 import { updateMemory as memoryManagerUpdateMemory } from './embedding/MemoryManager'
+import { supabase } from '@/lib/supabase/client'
 // OpenAI client will be initialized when needed
 // This avoids issues with server-side vs client-side execution
 
@@ -44,8 +45,7 @@ export class EmbeddingService {
   async processBusinessConversations(
     organizationId: string,
     conversations: string[],
-    format: string = 'json',
-    supabaseClient?: any
+    format: string = 'json'
   ): Promise<EmbeddingResult[]> {
     // Prepare segments
     const segments: ConversationSegment[] = conversations.map((content) => ({
@@ -61,12 +61,9 @@ export class EmbeddingService {
    * Get a summary of business knowledge from conversation embeddings
    */
   async getBusinessKnowledgeSummary(
-    organizationId: string,
-    supabaseClient?: any
+    organizationId: string
   ): Promise<string> {
     // Fetch recent conversation segments for the organization
-    const supabase = supabaseClient || (globalThis as any).supabase
-    if (!supabase) return ''
     const { data, error } = await supabase
       .from('conversation_embeddings')
       .select('conversation_segment')
@@ -81,11 +78,8 @@ export class EmbeddingService {
    * Delete all embeddings for an organization
    */
   async deleteOrganizationEmbeddings(
-    organizationId: string,
-    supabaseClient?: any
+    organizationId: string
   ): Promise<void> {
-    const supabase = supabaseClient || (globalThis as any).supabase
-    if (!supabase) return
     await supabase
       .from('conversation_embeddings')
       .delete()
@@ -97,11 +91,8 @@ export class EmbeddingService {
    */
   async deleteMemory(
     organizationId: string,
-    memoryId: string,
-    supabaseClient?: any
+    memoryId: string
   ): Promise<boolean> {
-    const supabase = supabaseClient || (globalThis as any).supabase
-    if (!supabase) return false
     const { error } = await supabase
       .from('conversation_embeddings')
       .delete()

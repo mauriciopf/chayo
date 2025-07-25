@@ -17,7 +17,7 @@ export interface SystemPromptResult {
  * Enhanced system prompt service that combines base system prompts with training hints
  */
 export class EnhancedOrganizationSystemPromptService {
-  constructor(private supabaseClient: any) {}
+  constructor() {}
 
   /**
    * Generate a complete system prompt with training hints and RAG context

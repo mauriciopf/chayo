@@ -1,7 +1,8 @@
 import { SupabaseClient } from '@supabase/supabase-js'
+import { supabase } from '@/lib/supabase/client'
 import { getFilledBusinessInfoFieldCount } from './businessInfoFieldService'
 
-export async function getAgentChatLinkForOrganization(supabase: SupabaseClient, organizationId: string) {
+export async function getAgentChatLinkForOrganization(organizationId: string) {
   const { data, error } = await supabase
     .from('agent_channels')
     .select('*, agent:agents(*)')
@@ -12,7 +13,7 @@ export async function getAgentChatLinkForOrganization(supabase: SupabaseClient, 
   return data
 }
 
-export async function createAgentAndChannelForOrganization(supabase: SupabaseClient, organizationId: string, name: string) {
+export async function createAgentAndChannelForOrganization(organizationId: string, name: string) {
   // Create agent
   const { data: agent, error: agentError } = await supabase
     .from('agents')
@@ -33,15 +34,13 @@ export async function createAgentAndChannelForOrganization(supabase: SupabaseCli
 }
 
 export async function maybeCreateAgentChatLinkIfThresholdMet(
-  supabase: SupabaseClient,
   organization: { id: string, slug: string },
   threshold = 10
 ) {
-  const filledFields = await getFilledBusinessInfoFieldCount(supabase, organization.id)
-  let agentChatLink = await getAgentChatLinkForOrganization(supabase, organization.id)
+  const filledFields = await getFilledBusinessInfoFieldCount(organization.id)
+  let agentChatLink = await getAgentChatLinkForOrganization(organization.id)
   if (filledFields > threshold && !agentChatLink) {
     agentChatLink = await createAgentAndChannelForOrganization(
-      supabase,
       organization.id,
       organization.slug
     )
