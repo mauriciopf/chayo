@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { supabase } from '@/lib/supabase/server'
 import { twilioClient, TWILIO_CONFIG } from '@/lib/twilio/client'
 
 // Comprehensive test endpoint for WhatsApp integration
 export async function GET(request: NextRequest) {
   try {
-    const { supabase } = createClient(request)
+    // Authentication using server supabase client
     
     // Check authentication
     const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -121,7 +121,7 @@ export async function GET(request: NextRequest) {
       status: 'INFO',
       details: {
         NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || 'Not set',
-        NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL ? '✓ Present' : '✗ Missing',
+        NEXT_PUBLIC_NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_NEXT_PUBLIC_SUPABASE_URL ? '✓ Present' : '✗ Missing',
         SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY ? '✓ Present' : '✗ Missing',
         NODE_ENV: process.env.NODE_ENV
       }

@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslations } from 'next-intl'
 import { supabase } from '@/lib/supabase/client'
-import { fetchWithSupabaseAuth } from '@/lib/utils/fetchWithSupabaseAuth'
 
 interface TeamMember {
   id: string
@@ -56,7 +55,9 @@ export default function TeamManagement({ organizationId, organizationName }: Tea
 
   const fetchMembers = async () => {
     try {
-      const response = await fetchWithSupabaseAuth(`/api/team-members?organizationId=${organizationId}`)
+      const response = await fetch(`/api/team-members?organizationId=${organizationId}`, {
+        credentials: 'include'
+      })
       if (response.ok) {
         const { members } = await response.json()
         setMembers(members || [])
@@ -68,7 +69,9 @@ export default function TeamManagement({ organizationId, organizationName }: Tea
 
   const fetchInvitations = async () => {
     try {
-      const response = await fetchWithSupabaseAuth(`/api/invitations?organizationId=${organizationId}`)
+      const response = await fetch(`/api/invitations?organizationId=${organizationId}`, {
+        credentials: 'include'
+      })
       if (response.ok) {
         const { invitations } = await response.json()
         setInvitations(invitations || [])
@@ -103,9 +106,10 @@ export default function TeamManagement({ organizationId, organizationName }: Tea
 
     setInviting(true)
     try {
-      const response = await fetchWithSupabaseAuth('/api/invitations', {
+      const response = await fetch('/api/invitations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           organizationId,
           email: inviteEmail,
@@ -132,9 +136,10 @@ export default function TeamManagement({ organizationId, organizationName }: Tea
 
   const handleUpdateMember = async (memberId: string, updates: { role?: string; status?: string }) => {
     try {
-      const response = await fetchWithSupabaseAuth('/api/team-members', {
+      const response = await fetch('/api/team-members', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ memberId, ...updates })
       })
 
@@ -154,8 +159,9 @@ export default function TeamManagement({ organizationId, organizationName }: Tea
     if (!confirm('Are you sure you want to remove this member?')) return
 
     try {
-      const response = await fetchWithSupabaseAuth(`/api/team-members?memberId=${memberId}`, {
-        method: 'DELETE'
+      const response = await fetch(`/api/team-members?memberId=${memberId}`, {
+        method: 'DELETE',
+        credentials: 'include'
       })
 
       if (response.ok) {
@@ -172,8 +178,9 @@ export default function TeamManagement({ organizationId, organizationName }: Tea
 
   const handleCancelInvitation = async (invitationId: string) => {
     try {
-      const response = await fetchWithSupabaseAuth(`/api/invitations?invitationId=${invitationId}`, {
-        method: 'DELETE'
+      const response = await fetch(`/api/invitations?invitationId=${invitationId}`, {
+        method: 'DELETE',
+        credentials: 'include'
       })
 
       if (response.ok) {

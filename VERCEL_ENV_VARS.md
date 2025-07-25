@@ -4,8 +4,8 @@ Add these environment variables in your Vercel project settings:
 
 ## Required for Basic Functionality:
 ```
-NEXT_PUBLIC_SUPABASE_URL=https://nkmduznghoxkuxniqgfx.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rbWR1em5naG94a3V4bmlxZ2Z4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE5NTMzNzAsImV4cCI6MjA2NzUyOTM3MH0.VfocmQ7U6wc4jiTL_30dm9m_ibe0QZYeRH4NRrTdPuU
+NEXT_PUBLIC_NEXT_PUBLIC_SUPABASE_URL=https://nkmduznghoxkuxniqgfx.supabase.co
+NEXT_PUBLIC_NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rbWR1em5naG94a3V4bmlxZ2Z4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE5NTMzNzAsImV4cCI6MjA2NzUyOTM3MH0.VfocmQ7U6wc4jiTL_30dm9m_ibe0QZYeRH4NRrTdPuU
 ```
 
 ## For Stripe Integration (Update with your real keys):

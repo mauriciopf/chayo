@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { supabase } from '@/lib/supabase/server'
 
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const { supabase } = createClient(request)
+    // Authentication using server supabase client
     
     // Check if user is authenticated
     const { data: { user }, error: authError } = await supabase.auth.getUser()

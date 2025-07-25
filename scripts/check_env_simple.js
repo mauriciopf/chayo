@@ -27,12 +27,12 @@ try {
   });
   
   // Check required Supabase vars
-  const hasUrl = envContent.includes('NEXT_PUBLIC_SUPABASE_URL');
-  const hasKey = envContent.includes('NEXT_PUBLIC_SUPABASE_ANON_KEY');
+  const hasUrl = envContent.includes('NEXT_PUBLIC_NEXT_PUBLIC_SUPABASE_URL');
+  const hasKey = envContent.includes('NEXT_PUBLIC_NEXT_PUBLIC_SUPABASE_ANON_KEY');
   
   console.log('\n🔍 Required Supabase Variables:');
-  console.log(`NEXT_PUBLIC_SUPABASE_URL: ${hasUrl ? '✅ Found' : '❌ Missing'}`);
-  console.log(`NEXT_PUBLIC_SUPABASE_ANON_KEY: ${hasKey ? '✅ Found' : '❌ Missing'}`);
+  console.log(`NEXT_PUBLIC_NEXT_PUBLIC_SUPABASE_URL: ${hasUrl ? '✅ Found' : '❌ Missing'}`);
+  console.log(`NEXT_PUBLIC_NEXT_PUBLIC_SUPABASE_ANON_KEY: ${hasKey ? '✅ Found' : '❌ Missing'}`);
   
 } catch (error) {
   console.log('❌ .env.local file not found or not readable');

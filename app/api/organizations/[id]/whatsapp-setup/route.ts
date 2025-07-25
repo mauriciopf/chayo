@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { supabase } from '@/lib/supabase/server'
 import { twilioClient, TWILIO_CONFIG } from '@/lib/twilio/client'
 
 export async function POST(
@@ -11,7 +11,7 @@ export async function POST(
     const { phoneNumber, countryCode, greeting, isNewNumber = true } = await request.json()
 
     // Get user from auth
-    const { supabase } = createClient(request)
+    // Authentication using server supabase client
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     
     if (authError || !user) {

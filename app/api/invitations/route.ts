@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { supabase } from '@/lib/supabase/server'
 import crypto from 'crypto'
 
 export async function GET(req: NextRequest) {
   try {
-    const { supabase } = createClient(req)
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {
@@ -41,7 +40,6 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { supabase } = createClient(req)
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {
@@ -111,7 +109,6 @@ export async function POST(req: NextRequest) {
 
 export async function PUT(req: NextRequest) {
   try {
-    const { supabase } = createClient(req)
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {
@@ -191,7 +188,6 @@ export async function PUT(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
-    const { supabase } = createClient(req)
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {

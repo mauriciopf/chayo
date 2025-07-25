@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { supabase } from '@/lib/supabase/server'
 import { getUserOrganizations } from '@/lib/services/organization/UserOrganizationManager'
 
 export async function POST(request: NextRequest) {
   try {
-    const { supabase } = createClient(request)
+    // Authentication using server supabase client
     // Check if user is authenticated
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const { supabase } = createClient(request)
+    // Authentication using server supabase client
     
     // Check if user is authenticated
     const { data: { user }, error: authError } = await supabase.auth.getUser()

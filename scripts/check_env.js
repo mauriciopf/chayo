@@ -3,8 +3,8 @@ require('dotenv').config({ path: '.env.local' });
 console.log('🔍 Environment Variables Check\n');
 
 const requiredVars = [
-  'NEXT_PUBLIC_SUPABASE_URL',
-  'NEXT_PUBLIC_SUPABASE_ANON_KEY'
+  'NEXT_PUBLIC_NEXT_PUBLIC_SUPABASE_URL',
+  'NEXT_PUBLIC_NEXT_PUBLIC_SUPABASE_ANON_KEY'
 ];
 
 console.log('Required Environment Variables:');
@@ -33,7 +33,7 @@ optionalVars.forEach(varName => {
 });
 
 console.log('\n🔗 Testing Supabase URL format...');
-const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const url = process.env.NEXT_PUBLIC_NEXT_PUBLIC_SUPABASE_URL;
 if (url) {
   if (url.includes('supabase.co')) {
     console.log('✅ URL format looks correct');

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { twilioClient, TWILIO_CONFIG } from '@/lib/twilio/client'
-import { createClient } from '@/lib/supabase/server'
+import { supabase } from '@/lib/supabase/server'
 
 interface WhatsAppSetupRequest {
   phoneNumber: string
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get user from auth
-    const { supabase } = createClient(request)
+    // Authentication using server supabase client
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     
     if (authError || !user) {

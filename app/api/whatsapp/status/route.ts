@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { supabase } from '@/lib/supabase/server'
 
 export async function GET(request: NextRequest) {
   try {
@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get user from auth
-    const { supabase } = createClient(request)
+    // Authentication using server supabase client
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     
     if (authError || !user) {

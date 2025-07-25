@@ -1,57 +1,17 @@
 import { createServerClient } from '@supabase/ssr'
-import { NextRequest, NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
 
-export const createClient = (request: NextRequest) => {
-  let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
-  })
+const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-  // Check for Authorization header
-  const authHeader = request.headers.get('authorization')
-  const accessToken = authHeader?.replace('Bearer ', '')
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return request.cookies.get(name)?.value
-        },
-        set(name: string, value: string, options: any) {
-          request.cookies.set({
-            name,
-            value,
-            ...options,
-          })
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          })
-        },
-        remove(name: string, options: any) {
-          request.cookies.set({
-            name,
-            value: '',
-            ...options,
-          })
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          })
-        },
-      },
-      global: {
-        headers: {
-          ...(accessToken && { Authorization: `Bearer ${accessToken}` })
-        }
-      }
-    }
+if (!url || !key) {
+  throw new Error(
+    '❌ SUPABASE URL or ANON KEY is missing. Check NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in your .env.local'
   )
-
-  return { supabase, response }
 }
+
+export const supabase = createServerClient({
+  supabaseUrl: url,
+  supabaseKey: key,
+  cookies,
+})

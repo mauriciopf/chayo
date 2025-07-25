@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { supabase } from '@/lib/supabase/server'
 import { twilioClient } from '@/lib/twilio/client'
 
 // This endpoint will be called by a CRON job to check and expire trials
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Create admin client (bypassing RLS)
-    const { supabase } = createClient(request)
+    // Authentication using server supabase client
 
     // Find expired trials that haven't been processed yet
     const { data: expiredTrials, error: trialsError } = await supabase

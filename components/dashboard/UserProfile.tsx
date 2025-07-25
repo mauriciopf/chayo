@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslations } from 'next-intl'
 import type { User } from '@supabase/supabase-js'
 import { organizationService } from '@/lib/services/organizationService'
-import { fetchWithSupabaseAuth } from '@/lib/utils/fetchWithSupabaseAuth'
 
 interface UserSubscription {
   user_id: string
@@ -52,9 +51,10 @@ export default function UserProfile({ user, subscription, onLogout, onManageBill
     setOrgError('')
     setOrgSuccess('')
     try {
-      const res = await fetchWithSupabaseAuth(`/api/organizations/update`, {
+      const res = await fetch(`/api/organizations/update`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ organizationId: orgId, name: orgName })
       })
       const data = await res.json()
@@ -77,9 +77,10 @@ export default function UserProfile({ user, subscription, onLogout, onManageBill
 
     // Fallback to direct customer portal
     try {
-      const response = await fetchWithSupabaseAuth('/api/stripe/customer-portal', {
+      const response = await fetch('/api/stripe/customer-portal', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
       })
 
       const { url, error } = await response.json()

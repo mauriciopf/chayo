@@ -26,8 +26,8 @@ Check these settings:
 
 Verify your `.env.local` file has:
 ```bash
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+NEXT_PUBLIC_NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 ```
 
 ### 4. Test with Console Logs

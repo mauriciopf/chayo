@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '@/lib/supabase/client'
 import { Message, Agent, AuthState } from '@/components/dashboard/types'
-import { fetchWithSupabaseAuth } from '@/lib/utils/fetchWithSupabaseAuth'
 
 interface UseChatProps {
   authState: AuthState
@@ -128,9 +127,10 @@ export function useChat({
       // Get the current session for authentication
       const { data: { session } } = await supabase.auth.getSession()
       
-      const res = await fetchWithSupabaseAuth("/api/organization-chat", {
+      const res = await fetch("/api/organization-chat", {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           messages: [...messages, newUserMsg].map(({ role, content }) => ({ 
             role: role === "ai" ? "assistant" : role, 
@@ -193,8 +193,9 @@ export function useChat({
     formData.append('file', file)
 
     try {
-      const res = await fetchWithSupabaseAuth('/api/upload', {
+      const res = await fetch('/api/upload', {
         method: 'POST',
+        credentials: 'include',
         body: formData,
       })
       if (!res.ok) {

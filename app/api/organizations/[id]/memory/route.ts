@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { supabase } from '@/lib/supabase/server'
 import { embeddingService } from '@/lib/services/embeddingService'
 
 // 🔍 GET - Get memory conflicts and analysis
@@ -14,7 +14,7 @@ export async function GET(
     const threshold = parseFloat(searchParams.get('threshold') || '0.85')
 
     // Get user from auth
-    const { supabase } = createClient(request)
+    // Authentication using server supabase client
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     
     if (authError || !user) {
@@ -91,7 +91,7 @@ export async function DELETE(
     }
 
     // Get user from auth
-    const { supabase } = createClient(request)
+    // Authentication using server supabase client
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     
     if (authError || !user) {

@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { useTranslations } from 'next-intl'
-import { fetchWithSupabaseAuth } from '@/lib/utils/fetchWithSupabaseAuth'
 
 interface WhatsAppOnboardingProps {
   agentId: string
@@ -69,7 +68,9 @@ export default function WhatsAppOnboarding({ agentId, agentName, onSuccess, onCa
       }
       
       const country = countryMapping[formData.countryCode] || 'US'
-      const response = await fetchWithSupabaseAuth(`/api/twilio/phone-numbers?countryCode=${country}`)
+      const response = await fetch(`/api/twilio/phone-numbers?countryCode=${country}`, {
+        credentials: 'include'
+      })
       const data = await response.json()
       
       if (data.success) {
@@ -138,9 +139,10 @@ export default function WhatsAppOnboarding({ agentId, agentName, onSuccess, onCa
       
       if (numberFlow === 'new') {
         // First purchase the Twilio number
-        const purchaseResponse = await fetchWithSupabaseAuth('/api/twilio/phone-numbers', {
+        const purchaseResponse = await fetch('/api/twilio/phone-numbers', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({ phoneNumber: formData.selectedTwilioNumber })
         })
         
@@ -154,11 +156,12 @@ export default function WhatsAppOnboarding({ agentId, agentName, onSuccess, onCa
         phoneNumberToUse = `+${formData.countryCode}${formData.phoneNumber}`
       }
 
-      const response = await fetchWithSupabaseAuth('/api/whatsapp/setup', {
+      const response = await fetch('/api/whatsapp/setup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           phoneNumber: phoneNumberToUse,
           countryCode: formData.countryCode,
