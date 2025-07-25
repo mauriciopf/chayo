@@ -5,7 +5,11 @@ export default function QRSection({ show, dashboardInit }: { show: boolean, dash
   if (!show || !dashboardInit?.initData?.business || !dashboardInit?.initData?.agentChatLink) return null
   return (
     <div className="w-full max-w-4xl mx-auto my-8">
-      <ClientQRCode organizationSlug={dashboardInit.initData.business.slug || ''} />
+      <ClientQRCode 
+        organizationSlug={dashboardInit.initData.business.slug || ''} 
+        filledFields={dashboardInit.initData.businessInfoFields?.business_info_gathered || 0}
+        threshold={dashboardInit.initData.threshold || 10}
+      />
     </div>
   )
 } 

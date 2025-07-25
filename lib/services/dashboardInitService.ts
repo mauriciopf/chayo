@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase/client'
-import { getAgentChatLinkForOrganization } from './agentService'
+import { getAgentChatLinkForOrganization, agentService } from './agentService'
 import { Agent, Organization } from '@/components/dashboard/types'
 
 // Define AgentChannel type based on agent_channels table and query usage
@@ -21,6 +21,7 @@ export interface DashboardInitData {
     whatsapp_trial_mentioned: boolean
   }
   agentChatLink?: AgentChannel | null
+  threshold: number
 }
 
 export class DashboardInitService {
@@ -46,7 +47,8 @@ export class DashboardInitService {
             business_info_gathered: 0,
             whatsapp_trial_mentioned: false
           },
-          agentChatLink: null
+          agentChatLink: null,
+          threshold: 10
         }
       }
       // Fetch all data in parallel
@@ -68,7 +70,8 @@ export class DashboardInitService {
         business,
         agents,
         businessInfoFields,
-        agentChatLink
+        agentChatLink,
+        threshold: agentService.getThreshold()
       }
     } catch (error) {
       console.error('❌ Error initializing dashboard:', error)

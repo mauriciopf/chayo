@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseServerClient } from "@/lib/supabase/server"
+import { generateSlugFromName } from '@/lib/utils/text'
 
 export async function POST(req: NextRequest) {
   try {
@@ -79,9 +80,8 @@ The migration script will:
 
     // Create organization for user with retry logic for race conditions
     const emailPrefix = user.email?.split('@')[0] || 'user'
-    const randomSuffix = Math.random().toString(36).substring(2, 8)
-    const slug = `${emailPrefix.replace(/[^a-zA-Z0-9]/g, '')}-${randomSuffix}`
     const name = `${emailPrefix}'s Organization`
+    const slug = generateSlugFromName(name)
 
     // Try to create organization, but handle race conditions
     let organization = null

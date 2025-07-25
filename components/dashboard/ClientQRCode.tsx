@@ -7,9 +7,11 @@ import { AgentChannel } from '@/lib/services/dashboardInitService'
 
 interface ClientQRCodeProps {
   organizationSlug: string
+  filledFields?: number
+  threshold?: number
 }
 
-export default function ClientQRCode({ organizationSlug }: ClientQRCodeProps) {
+export default function ClientQRCode({ organizationSlug, filledFields = 0, threshold = 10 }: ClientQRCodeProps) {
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('')
   const [clientChatUrl, setClientChatUrl] = useState<string>('')
   const [copied, setCopied] = useState(false)
@@ -91,7 +93,40 @@ export default function ClientQRCode({ organizationSlug }: ClientQRCodeProps) {
           Share this QR code with your customers so they can chat directly with your personalized Chayo assistant
         </p>
 
-        {qrCodeUrl && (
+        {/* Progress Indicator */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-gray-700">
+              Business Information Progress
+            </span>
+            <span className="text-sm text-gray-500">
+              {filledFields} / {threshold} fields completed
+            </span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-3">
+            <div 
+              className={`h-3 rounded-full transition-all duration-500 ${
+                filledFields >= threshold 
+                  ? 'bg-green-500' 
+                  : filledFields >= threshold * 0.7 
+                    ? 'bg-yellow-500' 
+                    : 'bg-red-500'
+              }`}
+              style={{ width: `${Math.min((filledFields / threshold) * 100, 100)}%` }}
+            />
+          </div>
+          <div className="mt-2 text-xs text-gray-500">
+            {filledFields >= threshold ? (
+              <span className="text-green-600 font-medium">✅ QR Code is ready to share!</span>
+            ) : (
+              <span>
+                {threshold - filledFields} more field{threshold - filledFields !== 1 ? 's' : ''} needed to unlock QR code
+              </span>
+            )}
+          </div>
+        </div>
+
+        {qrCodeUrl && filledFields >= threshold ? (
           <div className="flex flex-col items-center space-y-4">
             {/* QR Code */}
             <div className="bg-white p-4 rounded-lg border-2 border-gray-100">
@@ -148,6 +183,20 @@ export default function ClientQRCode({ organizationSlug }: ClientQRCodeProps) {
                 <li>• Customers can scan to chat instantly with Chayo</li>
                 <li>• Chayo will represent your business professionally</li>
               </ul>
+            </div>
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 max-w-md mx-auto">
+              <div className="text-yellow-600 mb-3">
+                <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              <h4 className="font-medium text-yellow-900 mb-2">QR Code Not Ready Yet</h4>
+              <p className="text-sm text-yellow-800">
+                Complete your business information to unlock the QR code. You need {threshold - filledFields} more field{threshold - filledFields !== 1 ? 's' : ''} to continue.
+              </p>
             </div>
           </div>
         )}

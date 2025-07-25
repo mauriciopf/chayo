@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseServerClient } from "@/lib/supabase/server"
+import { generateSlugFromName } from '@/lib/utils/text'
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,15 +26,18 @@ export async function POST(request: NextRequest) {
     if (memberError || !member) {
       return NextResponse.json({ error: 'Not a member of this organization' }, { status: 403 })
     }
-    // Update organization name
+    // Generate new slug based on the updated name
+    const newSlug = generateSlugFromName(name)
+    
+    // Update organization name and slug
     const { error: updateError } = await supabase
       .from('organizations')
-      .update({ name })
+      .update({ name, slug: newSlug })
       .eq('id', organizationId)
     if (updateError) {
       return NextResponse.json({ error: 'Failed to update organization' }, { status: 500 })
     }
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ success: true, slug: newSlug })
   } catch (error: any) {
     return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
   }

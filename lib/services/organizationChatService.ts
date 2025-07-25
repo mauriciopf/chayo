@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase/client'
+import { generateSlugFromName } from '@/lib/utils/text'
 import { getFilledBusinessInfoFieldCount } from './businessInfoFieldService'
 
 export interface ChatMessage {
@@ -107,9 +108,8 @@ export class OrganizationChatService {
     }
     // Only create new organization if user has no existing organization or membership
     const emailPrefix = user.email?.split('@')[0] || 'user'
-    const randomSuffix = Math.random().toString(36).substring(2, 8)
-    const slug = `${emailPrefix.replace(/[^a-zA-Z0-9]/g, '')}-${randomSuffix}`
     const name = `${emailPrefix}'s Organization`
+    const slug = generateSlugFromName(name)
     const { data: newOrgId, error: orgError } = await this.supabaseClient
       .rpc('create_organization_with_owner', {
         org_name: name,

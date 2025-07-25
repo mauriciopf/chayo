@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase/client'
+import { generateSlugFromName } from '@/lib/utils/text'
 
 export interface BusinessInfoField {
   id?: string
@@ -281,6 +282,9 @@ RESPOND WITH ONLY JSON - NO OTHER TEXT.`
    */
   async updateBusinessInfoFields(organizationId: string, extractedInfo: ExtractedInfo[]): Promise<void> {
     try {
+      let businessNameUpdated = false
+      let newBusinessName = ''
+
       for (const info of extractedInfo) {
         if (info.confidence > 0.3) { // Lowered from 0.7 to 0.3 for much better answer recognition
           // Update the field with the answer
@@ -301,9 +305,37 @@ RESPOND WITH ONLY JSON - NO OTHER TEXT.`
             console.error('Error updating business info field:', updateError)
           } else {
             console.log(`✅ Updated field ${info.field_name} for organization ${organizationId} with confidence ${info.confidence}`)
+            
+            // Track if business_name was updated
+            if (info.field_name === 'business_name') {
+              businessNameUpdated = true
+              newBusinessName = info.field_value
+            }
           }
         } else {
           console.log(`❌ Rejected field ${info.field_name} with confidence ${info.confidence} (below threshold 0.3)`)
+        }
+      }
+
+      // If business_name was updated, also update the organization slug and name
+      if (businessNameUpdated && newBusinessName) {
+        try {
+          const newSlug = generateSlugFromName(newBusinessName)
+          const { error: orgUpdateError } = await this.supabaseClient
+            .from('organizations')
+            .update({ 
+              name: newBusinessName,
+              slug: newSlug 
+            })
+            .eq('id', organizationId)
+
+          if (orgUpdateError) {
+            console.error('Error updating organization name and slug:', orgUpdateError)
+          } else {
+            console.log(`✅ Updated organization name to "${newBusinessName}" and slug to "${newSlug}"`)
+          }
+        } catch (error) {
+          console.error('Error updating organization name and slug:', error)
         }
       }
 

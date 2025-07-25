@@ -39,13 +39,18 @@ export class AgentService {
     return { agent, channel }
   }
 
+  getThreshold(): number {
+    return 10 // This could be made configurable via environment variable or database
+  }
+
   async maybeCreateAgentChatLinkIfThresholdMet(
     organization: { id: string, slug: string },
-    threshold = 10
+    threshold?: number
   ) {
+    const actualThreshold = threshold ?? this.getThreshold()
     const filledFields = await getFilledBusinessInfoFieldCount(organization.id)
     let agentChatLink = await this.getAgentChatLinkForOrganization(organization.id)
-    if (filledFields > threshold && !agentChatLink) {
+    if (filledFields > actualThreshold && !agentChatLink) {
       agentChatLink = await this.createAgentAndChannelForOrganization(
         organization.id,
         organization.slug
@@ -61,4 +66,4 @@ export const agentService = new AgentService()
 // Export individual functions for backward compatibility
 export const getAgentChatLinkForOrganization = (organizationId: string) => agentService.getAgentChatLinkForOrganization(organizationId)
 export const createAgentAndChannelForOrganization = (organizationId: string, name: string) => agentService.createAgentAndChannelForOrganization(organizationId, name)
-export const maybeCreateAgentChatLinkIfThresholdMet = (organization: { id: string, slug: string }, threshold = 10) => agentService.maybeCreateAgentChatLinkIfThresholdMet(organization, threshold) 
+export const maybeCreateAgentChatLinkIfThresholdMet = (organization: { id: string, slug: string }, threshold?: number) => agentService.maybeCreateAgentChatLinkIfThresholdMet(organization, threshold) 

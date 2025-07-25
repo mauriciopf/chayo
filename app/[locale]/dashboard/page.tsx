@@ -235,6 +235,8 @@ function DashboardContent() {
           <div className="w-full max-w-4xl mx-auto">
             <ClientQRCode 
               organizationSlug={auth.currentOrganization.slug}
+              filledFields={dashboardInit.initData?.businessInfoFields?.business_info_gathered || 0}
+              threshold={dashboardInit.initData?.threshold || 10}
             />
           </div>
         ) : (
