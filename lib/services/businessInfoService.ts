@@ -183,7 +183,7 @@ Return only the questions as a JSON array of objects with this structure:
       }
 
       // Filter to only unanswered questions for the prompt context
-      const unansweredFields = existingFields.filter(f => !f.is_answered)
+      const unansweredFields = existingFields.filter((f: BusinessInfoField) => !f.is_answered)
 
       const apiKey = process.env.OPENAI_API_KEY
       if (!apiKey) {
@@ -191,7 +191,7 @@ Return only the questions as a JSON array of objects with this structure:
         return extractedInfo
       }
 
-      const questionsContext = unansweredFields.map(f => `${f.field_name}: ${f.question_template}`).join('\n')
+      const questionsContext = unansweredFields.map((f: BusinessInfoField) => `${f.field_name}: ${f.question_template}`).join('\n')
 
       const prompt = `Analyze this conversation and extract business information that answers the pending questions.
 
@@ -389,7 +389,7 @@ RESPOND WITH ONLY JSON - NO OTHER TEXT.`
         return []
       }
 
-      console.log(`📋 Found ${fields?.length || 0} pending questions for organization ${organizationId}:`, fields?.map(f => f.field_name))
+      console.log(`📋 Found ${fields?.length || 0} pending questions for organization ${organizationId}:`, fields?.map((f: BusinessInfoField) => f.field_name))
       return fields || []
     } catch (error) {
       console.error('Error getting pending questions:', error)
