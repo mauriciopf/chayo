@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { OrganizationChatService } from '@/lib/services/organizationChatService'
 import { validationService } from '@/lib/services/validationService'
 import { errorHandlingService } from '@/lib/services/errorHandlingService'
-import { supabase } from '@/lib/supabase/server'
+import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { maybeCreateAgentChatLinkIfThresholdMet } from '@/lib/services/agentService'
 
 export const runtime = 'edge'
@@ -11,6 +11,7 @@ export async function POST(req: NextRequest) {
   console.log('🚀 Organization Chat API - Request started')
   
   try {
+    const supabase = getSupabaseServerClient()
     // Check authentication
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     

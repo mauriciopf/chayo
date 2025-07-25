@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase/server'
+import { getSupabaseServerClient } from '@/lib/supabase/server'
 
 export async function POST(req: NextRequest) {
   try {
@@ -8,6 +8,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Valid email required' }, { status: 400 });
     }
 
+    const supabase = getSupabaseServerClient()
     // Authentication using server supabase client;
     
     // Send OTP via Supabase Auth 

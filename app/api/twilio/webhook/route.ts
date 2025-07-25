@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { twilioClient } from '@/lib/twilio/client'
-import { supabase } from '@/lib/supabase/server'
+import { getSupabaseServerClient } from "@/lib/supabase/server"
 import { conversationStorageService } from '@/lib/services/conversationStorageService'
 
 export async function POST(request: NextRequest) {
@@ -30,6 +30,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get Supabase client
+    const supabase = getSupabaseServerClient()
     // Authentication using server supabase client
 
     // Find the agent channel configuration for this number

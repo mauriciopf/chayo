@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
-import { supabase } from '@/lib/supabase/server'
+import { getSupabaseServerClient } from "@/lib/supabase/server"
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
 export async function POST(req: NextRequest) {
   try {
+    const supabase = getSupabaseServerClient()
     const { priceId, planName } = await req.json()
     
     if (!priceId) {

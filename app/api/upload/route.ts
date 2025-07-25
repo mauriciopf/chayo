@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase/server'
+import { getSupabaseServerClient } from "@/lib/supabase/server"
 import { getUserOrganizations } from '@/lib/services/organization/UserOrganizationManager'
 import { chunkText } from '@/lib/utils/text'
 import { embeddingService } from '@/lib/services/embeddingService'
@@ -8,6 +8,7 @@ export const runtime = 'nodejs' // must be nodejs for file processing
 
 export async function POST(req: NextRequest) {
   try {
+    const supabase = getSupabaseServerClient()
     const formData = await req.formData()
     const file = formData.get('file') as File | null
     if (!file) {

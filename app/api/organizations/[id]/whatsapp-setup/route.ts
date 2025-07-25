@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase/server'
+import { getSupabaseServerClient } from "@/lib/supabase/server"
 import { twilioClient, TWILIO_CONFIG } from '@/lib/twilio/client'
 
 export async function POST(
@@ -7,6 +7,7 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
+    const supabase = getSupabaseServerClient()
     const organizationId = params.id
     const { phoneNumber, countryCode, greeting, isNewNumber = true } = await request.json()
 

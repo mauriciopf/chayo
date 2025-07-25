@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase/server'
+import { getSupabaseServerClient } from "@/lib/supabase/server"
 import { BusinessInfoService } from '@/lib/services/businessInfoService'
 
 export async function POST(req: NextRequest) {
   try {
+    const supabase = getSupabaseServerClient()
     // Authentication using server supabase client
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase/server'
+import { getSupabaseServerClient } from "@/lib/supabase/server"
 import { embeddingService } from '@/lib/services/embeddingService'
 
 export async function POST(
@@ -18,6 +18,7 @@ export async function POST(
     }
 
     // Get user from auth
+    const supabase = getSupabaseServerClient()
     // Authentication using server supabase client
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     
@@ -83,6 +84,7 @@ export async function GET(
     const limit = parseInt(searchParams.get('limit') || '10')
 
     // Get user from auth
+    const supabase = getSupabaseServerClient()
     // Authentication using server supabase client
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     
@@ -167,6 +169,7 @@ export async function DELETE(
     const organizationId = params.id
 
     // Get user from auth
+    const supabase = getSupabaseServerClient()
     // Authentication using server supabase client
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     
@@ -230,6 +233,7 @@ export async function PATCH(
     }
 
     // Get user from auth
+    const supabase = getSupabaseServerClient()
     // Authentication using server supabase client
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     

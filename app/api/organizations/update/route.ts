@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase/server'
+import { getSupabaseServerClient } from "@/lib/supabase/server"
 
 export async function POST(request: NextRequest) {
   try {
+    const supabase = getSupabaseServerClient()
     const { organizationId, name } = await request.json()
     if (!organizationId || !name) {
       return NextResponse.json({ error: 'Organization ID and name are required' }, { status: 400 })

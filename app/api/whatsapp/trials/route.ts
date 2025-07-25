@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase/server'
+import { getSupabaseServerClient } from "@/lib/supabase/server"
 import { twilioClient } from '@/lib/twilio/client'
 
 export async function GET(request: NextRequest) {
   try {
+    const supabase = getSupabaseServerClient()
     // Authentication using server supabase client
     
     // Get user from auth
@@ -50,6 +51,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const supabase = getSupabaseServerClient()
     const { action, trialId } = await request.json()
 
     if (!action || !trialId) {

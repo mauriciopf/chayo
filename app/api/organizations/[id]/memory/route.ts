@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase/server'
+import { getSupabaseServerClient } from "@/lib/supabase/server"
 import { embeddingService } from '@/lib/services/embeddingService'
 
 // 🔍 GET - Get memory conflicts and analysis
@@ -8,6 +8,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    const supabase = getSupabaseServerClient()
     const organizationId = params.id
     const { searchParams } = new URL(request.url)
     const action = searchParams.get('action') // 'conflicts' or 'summary'
@@ -80,6 +81,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    const supabase = getSupabaseServerClient()
     const organizationId = params.id
     const { memoryId } = await request.json()
 

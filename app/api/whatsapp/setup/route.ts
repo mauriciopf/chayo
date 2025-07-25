@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { twilioClient, TWILIO_CONFIG } from '@/lib/twilio/client'
-import { supabase } from '@/lib/supabase/server'
+import { getSupabaseServerClient } from "@/lib/supabase/server"
 
 interface WhatsAppSetupRequest {
   phoneNumber: string
@@ -14,6 +14,7 @@ interface WhatsAppSetupRequest {
 
 export async function POST(request: NextRequest) {
   try {
+    const supabase = getSupabaseServerClient()
     const { 
       phoneNumber, 
       countryCode, 

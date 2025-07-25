@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase/server'
+import { getSupabaseServerClient } from "@/lib/supabase/server"
 import { twilioClient, TWILIO_CONFIG } from '@/lib/twilio/client'
 
 // Comprehensive test endpoint for WhatsApp integration
 export async function GET(request: NextRequest) {
   try {
+    const supabase = getSupabaseServerClient()
     // Authentication using server supabase client
     
     // Check authentication

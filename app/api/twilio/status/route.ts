@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase/server'
+import { getSupabaseServerClient } from "@/lib/supabase/server"
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,6 +22,7 @@ export async function POST(request: NextRequest) {
 
     // Update message status in database if needed
     if (messageSid) {
+      const supabase = getSupabaseServerClient()
       // Authentication using server supabase client
       
       await supabase
