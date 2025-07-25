@@ -1,7 +1,9 @@
+import { fetchWithSupabaseAuth } from '@/lib/utils/fetchWithSupabaseAuth'
+
 export const useBillingManagement = () => {
   const handleManageBilling = async () => {
     try {
-      const response = await fetch('/api/stripe/customer-portal', {
+      const response = await fetchWithSupabaseAuth('/api/stripe/customer-portal', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       })

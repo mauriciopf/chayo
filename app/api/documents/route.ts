@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { getUserOrganization } from '@/lib/supabase/server'
+import { getUserOrganizations } from '@/lib/services/organization/UserOrganizationManager'
 
 export async function POST(request: NextRequest) {
   try {
     const { supabase } = createClient(request)
-    
     // Check if user is authenticated
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
@@ -31,7 +30,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Get organization context
-    const org = await getUserOrganization(supabase, user.id)
+    const orgs = await getUserOrganizations(user.id)
+    const org = orgs[0]
     if (!org) {
       return NextResponse.json({ error: 'No organization found' }, { status: 400 })
     }
@@ -100,7 +100,8 @@ export async function GET(request: NextRequest) {
     }
 
     // Get organization context
-    const org = await getUserOrganization(supabase, user.id)
+    const orgs = await getUserOrganizations(user.id)
+    const org = orgs[0]
     if (!org) {
       return NextResponse.json({ error: 'No organization found' }, { status: 400 })
     }

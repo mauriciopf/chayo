@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient, getUserOrganization } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
+import { getUserOrganizations } from '@/lib/services/organization/UserOrganizationManager'
 import { chunkText } from '@/lib/utils/text'
 import { embeddingService } from '@/lib/services/embeddingService'
 
@@ -19,7 +20,8 @@ export async function POST(req: NextRequest) {
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-    const org = await getUserOrganization(supabase, user.id)
+    const orgs = await getUserOrganizations(user.id)
+    const org = orgs[0]
     if (!org) {
       return NextResponse.json({ error: 'No organization found' }, { status: 400 })
     }

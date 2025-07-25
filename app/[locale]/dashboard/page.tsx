@@ -49,14 +49,13 @@ function DashboardContent() {
   // Initialize all hooks
   const auth = useAuth()
   const dashboardInit = useDashboardInit(locale, auth.authState, auth.user, t('authPrompt'))
-  const autoStartChat = useAutoStartChat(locale)
+  const autoStartChat = useAutoStartChat(locale, !dashboardInit.isLoading)
   const mobile = useMobile(() => {})
   
   // Initialize chat hook
   const chat = useChat({
     authState: auth.authState,
     user: auth.user,
-    isMobile: mobile.isMobile,
     pendingName: auth.pendingName,
     pendingEmail: auth.pendingEmail,
     otpLoading: auth.otpLoading,

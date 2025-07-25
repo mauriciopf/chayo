@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '@/lib/supabase/client'
 import { Message, Agent, AuthState } from '@/components/dashboard/types'
+import { fetchWithSupabaseAuth } from '@/lib/utils/fetchWithSupabaseAuth'
 
 interface UseChatProps {
   authState: AuthState
   user: any
-  isMobile: boolean
   pendingName: string
   pendingEmail: string
   otpLoading: string
@@ -19,7 +19,6 @@ interface UseChatProps {
 export function useChat({
   authState,
   user,
-  isMobile,
   pendingName,
   pendingEmail,
   otpLoading,
@@ -119,7 +118,7 @@ export function useChat({
     setJustSent(true) // Set justSent to trigger scroll after DOM update
     
     // Close keyboard on mobile devices
-    if (isMobile && inputRef.current) {
+    if (inputRef.current) {
       inputRef.current.blur()
     }
     
@@ -129,12 +128,9 @@ export function useChat({
       // Get the current session for authentication
       const { data: { session } } = await supabase.auth.getSession()
       
-      const res = await fetch("/api/organization-chat", {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          ...(session?.access_token && { "Authorization": `Bearer ${session.access_token}` })
-        },
+      const res = await fetchWithSupabaseAuth("/api/organization-chat", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: [...messages, newUserMsg].map(({ role, content }) => ({ 
             role: role === "ai" ? "assistant" : role, 
@@ -197,7 +193,7 @@ export function useChat({
     formData.append('file', file)
 
     try {
-      const res = await fetch('/api/upload', {
+      const res = await fetchWithSupabaseAuth('/api/upload', {
         method: 'POST',
         body: formData,
       })
