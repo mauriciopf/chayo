@@ -18,6 +18,11 @@ export interface ChatContext {
 }
 
 export class OrganizationChatService {
+  private supabaseClient: any
+
+  constructor(supabaseClient?: any) {
+    this.supabaseClient = supabaseClient || supabase
+  }
   
   /**
    * Process a chat request and generate AI response
@@ -28,7 +33,7 @@ export class OrganizationChatService {
   ): Promise<ChatResponse & { organization: any }> {
     try {
       // Get user and organization context
-      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      const { data: { user }, error: authError } = await this.supabaseClient.auth.getUser()
       if (authError || !user) {
         throw new Error('Authentication required')
       }
@@ -56,14 +61,14 @@ export class OrganizationChatService {
   }
   public async getOrCreateOrganization(user: any): Promise<any> {
     // First, check if user already owns an organization
-    const { data: ownedOrg, error: ownedOrgError } = await supabase
+    const { data: ownedOrg, error: ownedOrgError } = await this.supabaseClient
       .from('organizations')
       .select('*')
       .eq('owner_id', user.id)
       .single()
     if (ownedOrg && !ownedOrgError) {
       // Check if user is in team_members, if not add them
-      const { data: existingMember, error: memberCheckError } = await supabase
+      const { data: existingMember, error: memberCheckError } = await this.supabaseClient
         .from('team_members')
         .select('id')
         .eq('organization_id', ownedOrg.id)
@@ -71,7 +76,7 @@ export class OrganizationChatService {
         .eq('status', 'active')
         .single()
       if (!existingMember && !memberCheckError) {
-        await supabase
+        await this.supabaseClient
           .from('team_members')
           .insert({
             organization_id: ownedOrg.id,
@@ -83,7 +88,7 @@ export class OrganizationChatService {
       return ownedOrg
     }
     // If no owned organization, check for team membership
-    const { data: membership, error: membershipError } = await supabase
+    const { data: membership, error: membershipError } = await this.supabaseClient
       .from('team_members')
       .select('organization_id')
       .eq('user_id', user.id)
@@ -91,7 +96,7 @@ export class OrganizationChatService {
       .single()
     if (membership && !membershipError) {
       // Get existing organization
-      const { data: org, error: orgError } = await supabase
+      const { data: org, error: orgError } = await this.supabaseClient
         .from('organizations')
         .select('*')
         .eq('id', membership.organization_id)
@@ -105,7 +110,7 @@ export class OrganizationChatService {
     const randomSuffix = Math.random().toString(36).substring(2, 8)
     const slug = `${emailPrefix.replace(/[^a-zA-Z0-9]/g, '')}-${randomSuffix}`
     const name = `${emailPrefix}'s Organization`
-    const { data: newOrgId, error: orgError } = await supabase
+    const { data: newOrgId, error: orgError } = await this.supabaseClient
       .rpc('create_organization_with_owner', {
         org_name: name,
         org_slug: slug,
@@ -113,7 +118,7 @@ export class OrganizationChatService {
       })
     if (!orgError && newOrgId) {
       // Fetch the created organization
-      const { data: newOrg, error: fetchError } = await supabase
+      const { data: newOrg, error: fetchError } = await this.supabaseClient
         .from('organizations')
         .select('*')
         .eq('id', newOrgId)

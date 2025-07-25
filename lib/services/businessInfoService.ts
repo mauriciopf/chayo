@@ -22,6 +22,12 @@ export interface ExtractedInfo {
 }
 
 export class BusinessInfoService {
+  private supabaseClient: any
+
+  constructor(supabaseClient?: any) {
+    this.supabaseClient = supabaseClient || supabase
+  }
+
   /**
    * Generate dynamic questions for business information gathering
    */
@@ -165,7 +171,7 @@ Return only the questions as a JSON array of objects with this structure:
     try {
       // Get ALL questions to match against (not just pending ones)
       // This allows us to extract answers even if questions were just created
-      const { data: existingFields } = await supabase
+      const { data: existingFields } = await this.supabaseClient
         .from('business_info_fields')
         .select('field_name, question_template, is_answered')
         .eq('organization_id', organizationId)
@@ -278,7 +284,7 @@ RESPOND WITH ONLY JSON - NO OTHER TEXT.`
       for (const info of extractedInfo) {
         if (info.confidence > 0.3) { // Lowered from 0.7 to 0.3 for much better answer recognition
           // Update the field with the answer
-          const { error: updateError } = await supabase
+          const { error: updateError } = await this.supabaseClient
             .from('business_info_fields')
             .update({
               field_value: info.field_value,
@@ -315,7 +321,7 @@ RESPOND WITH ONLY JSON - NO OTHER TEXT.`
    */
   async getBusinessInfo(organizationId: string): Promise<BusinessInfoField[]> {
     try {
-      const { data: fields, error } = await supabase
+      const { data: fields, error } = await this.supabaseClient
         .from('business_info_fields')
         .select('*')
         .eq('organization_id', organizationId)
@@ -339,7 +345,7 @@ RESPOND WITH ONLY JSON - NO OTHER TEXT.`
    */
   async getPendingQuestions(organizationId: string): Promise<BusinessInfoField[]> {
     try {
-      const { data: fields, error } = await supabase
+      const { data: fields, error } = await this.supabaseClient
         .from('business_info_fields')
         .select('*')
         .eq('organization_id', organizationId)

@@ -3,7 +3,7 @@ import { OrganizationChatService } from '@/lib/services/organizationChatService'
 import { validationService } from '@/lib/services/validationService'
 import { errorHandlingService } from '@/lib/services/errorHandlingService'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
-import { maybeCreateAgentChatLinkIfThresholdMet } from '@/lib/services/agentService'
+import { AgentService } from '@/lib/services/agentService'
 import { cookies } from 'next/headers'
 
 export const runtime = 'edge'
@@ -24,8 +24,9 @@ export async function POST(req: NextRequest) {
       throw new Error('Authentication required')
     }
     
-    // Create chat service with server-side client
-    const chatService = new OrganizationChatService()
+    // Create services with server-side client
+    const chatService = new OrganizationChatService(supabase)
+    const agentService = new AgentService(supabase)
     
     // Parse and validate request
     const body = await req.json()
@@ -44,7 +45,7 @@ export async function POST(req: NextRequest) {
       validatedRequest.locale
     )
     // Check/create agent chat link if threshold met, using the organization returned from processChat
-    const agentChatLink = await maybeCreateAgentChatLinkIfThresholdMet(response.organization)
+    const agentChatLink = await agentService.maybeCreateAgentChatLinkIfThresholdMet(response.organization)
     
     return NextResponse.json({
       aiMessage: response.aiMessage,

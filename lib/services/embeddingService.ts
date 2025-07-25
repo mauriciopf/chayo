@@ -8,6 +8,12 @@ import { supabase } from '@/lib/supabase/client'
 // This avoids issues with server-side vs client-side execution
 
 export class EmbeddingService {
+  private supabaseClient: any
+
+  constructor(supabaseClient?: any) {
+    this.supabaseClient = supabaseClient || supabase
+  }
+
   async storeConversationEmbeddings(
     organizationId: string,
     segments: ConversationSegment[]
@@ -64,7 +70,7 @@ export class EmbeddingService {
     organizationId: string
   ): Promise<string> {
     // Fetch recent conversation segments for the organization
-    const { data, error } = await supabase
+    const { data, error } = await this.supabaseClient
       .from('conversation_embeddings')
       .select('conversation_segment')
       .eq('organization_id', organizationId)
@@ -80,7 +86,7 @@ export class EmbeddingService {
   async deleteOrganizationEmbeddings(
     organizationId: string
   ): Promise<void> {
-    await supabase
+    await this.supabaseClient
       .from('conversation_embeddings')
       .delete()
       .eq('organization_id', organizationId)
@@ -93,7 +99,7 @@ export class EmbeddingService {
     organizationId: string,
     memoryId: string
   ): Promise<boolean> {
-    const { error } = await supabase
+    const { error } = await this.supabaseClient
       .from('conversation_embeddings')
       .delete()
       .eq('organization_id', organizationId)

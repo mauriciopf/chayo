@@ -24,13 +24,19 @@ export interface DashboardInitData {
 }
 
 export class DashboardInitService {
+  private supabaseClient: any
+
+  constructor(supabaseClient?: any) {
+    this.supabaseClient = supabaseClient || supabase
+  }
+
   /**
    * Initialize all dashboard data on load
    */
   async initializeDashboard(locale: string = 'en'): Promise<DashboardInitData> {
     try {
       // Get current user
-      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      const { data: { user }, error: authError } = await this.supabaseClient.auth.getUser()
       if (authError || !user) {
         // Return default state for unauthenticated users
         return {
@@ -71,7 +77,7 @@ export class DashboardInitService {
   }
   private async fetchBusiness(userId: string): Promise<any> {
     try {
-      const { data: organization, error } = await supabase
+      const { data: organization, error } = await this.supabaseClient
         .from('organizations')
         .select('*')
         .eq('owner_id', userId)
@@ -88,7 +94,7 @@ export class DashboardInitService {
   }
   private async fetchAgents(userId: string): Promise<any[]> {
     try {
-      const { data: organization } = await supabase
+      const { data: organization } = await this.supabaseClient
         .from('organizations')
         .select('id')
         .eq('owner_id', userId)
@@ -96,7 +102,7 @@ export class DashboardInitService {
       if (!organization) {
         return []
       }
-      const { data: agents, error } = await supabase
+      const { data: agents, error } = await this.supabaseClient
         .from('agents')
         .select('*')
         .eq('organization_id', organization.id)
@@ -112,7 +118,7 @@ export class DashboardInitService {
   }
   private async fetchBusinessInfoFields(userId: string): Promise<any> {
     try {
-      const { data: organization } = await supabase
+      const { data: organization } = await this.supabaseClient
         .from('organizations')
         .select('id')
         .eq('owner_id', userId)
@@ -220,7 +226,7 @@ export class DashboardInitService {
   }
   async autoStartChat(initialMessage: string, locale: string): Promise<string | null> {
     try {
-      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      const { data: { user }, error: authError } = await this.supabaseClient.auth.getUser()
       if (authError || !user) {
         return locale === 'es'
           ? '¡Hola! Soy Chayo, tu asistente de IA. Comienza a chatear conmigo para configurar tu negocio.'
