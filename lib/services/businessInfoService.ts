@@ -65,16 +65,19 @@ export class BusinessInfoService {
       const { EnhancedOrganizationSystemPromptService } = await import('./systemPrompt/EnhancedOrganizationSystemPromptService')
       const enhancedService = new EnhancedOrganizationSystemPromptService()
       
+      // Only generate one question at a time
       const questions = await enhancedService.generateBusinessQuestions(
         organizationId,
         currentConversation,
         answeredFieldNames
       )
 
-      // Store the generated questions
+      // Store only the first question if any were generated
       if (questions && questions.length > 0) {
-        await this.storeBusinessQuestions(organizationId, questions)
-        console.log(`❓ Generated ${questions.length} new questions:`, questions.map((q: any) => q.field_name))
+        const singleQuestion = [questions[0]] // Only take the first question
+        await this.storeBusinessQuestions(organizationId, singleQuestion)
+        console.log(`❓ Generated and stored 1 new question: ${questions[0].field_name}`)
+        return singleQuestion
       }
 
       return questions || []
@@ -87,7 +90,7 @@ export class BusinessInfoService {
   /**
    * Store generated questions in the database
    */
-  private async storeBusinessQuestions(organizationId: string, questions: {question_template: string, field_name: string, field_type: string, multiple_choices?: string[], allow_multiple?: boolean, show_other?: boolean}[]): Promise<void> {
+  public async storeBusinessQuestions(organizationId: string, questions: {question_template: string, field_name: string, field_type: string, multiple_choices?: string[], allow_multiple?: boolean, show_other?: boolean}[]): Promise<void> {
     try {
       const questionFields = questions.map(question => ({
         organization_id: organizationId,

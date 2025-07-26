@@ -359,6 +359,8 @@ export class OrganizationChatService {
       )
       try {
         const businessInfoService = new (await import('./businessInfoService')).BusinessInfoService()
+        
+        // Extract business info from user messages
         const userMessages = messages.filter(m => m.role === 'user').map(m => m.content).join(' ')
         if (userMessages.trim()) {
           const extractedInfo = await businessInfoService.extractBusinessInfo(context.organization.id, userMessages)
@@ -367,6 +369,8 @@ export class OrganizationChatService {
             console.log(`Extracted ${extractedInfo.length} business info fields from conversation`)
           }
         }
+        
+
       } catch (error) {
         console.warn('Failed to extract business info:', error)
       }
@@ -406,6 +410,8 @@ export class OrganizationChatService {
       console.warn('Failed to store conversation:', error)
     }
   }
+
+
   private async extractMemoryUpdate(conversationText: string, organizationId: string): Promise<any> {
     try {
       const { default: OpenAI } = await import('openai')

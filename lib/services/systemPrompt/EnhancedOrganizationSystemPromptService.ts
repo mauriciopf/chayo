@@ -186,18 +186,18 @@ Now, here is your base prompt:
         return []
       }
 
-      const prompt = `Based on this conversation context, generate 3-5 specific questions to gather missing business information. 
+      const prompt = `Based on this conversation context, generate 1 specific question to gather missing business information. 
 
 Current conversation context: "${currentConversation.substring(0, 500)}"
 
 Already answered fields: ${answeredFieldNames.join(', ') || 'None'}
 
-Generate questions that:
-1. Are specific to this business type and context
-2. Haven't been answered yet
+Generate 1 question that:
+1. Is specific to this business type and context
+2. Hasn't been answered yet
 3. Will help understand their business better
-4. Are natural and conversational
-5. Focus on business operations and customer needs
+4. Is natural and conversational
+5. Focuses on business operations and customer needs
 
 CRITICAL INSTRUCTION: ~90% of questions should be MULTIPLE CHOICE. Only use OPEN QUESTIONS for:
 - Business names (e.g., "What's your business name?")
@@ -218,27 +218,14 @@ Examples of good multiple choice questions:
 - Operating hours: ["Morning only", "Afternoon only", "Full day", "Evening hours"]
 - Payment methods: ["Cash only", "Insurance", "Credit cards", "Payment plans"]
 
-Return only the questions as a JSON array of objects with this structure:
+Return only 1 question as a JSON array with this structure:
 [
-  {
-    "question_template": "What is the name of your health business?",
-    "field_name": "business_name",
-    "field_type": "text"
-  },
   {
     "question_template": "What type of health or wellness business do you run?",
     "field_name": "business_type",
     "field_type": "multiple_choice",
     "multiple_choices": ["Dental Clinic", "Medical Practice", "Wellness Center", "Specialty Clinic"],
     "allow_multiple": false,
-    "show_other": true
-  },
-  {
-    "question_template": "Which services do you offer?",
-    "field_name": "services_offered",
-    "field_type": "multiple_choice",
-    "multiple_choices": ["Consultation", "Treatment", "Follow-up", "Emergency Care"],
-    "allow_multiple": true,
     "show_other": true
   }
 ]`
