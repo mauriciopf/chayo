@@ -50,6 +50,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       aiMessage: response.aiMessage,
       usingRAG: response.usingRAG,
+      multipleChoices: response.multipleChoices,
+      allowMultiple: response.allowMultiple,
+      showOtherOption: response.showOtherOption,
       agentChatLink
     })
     

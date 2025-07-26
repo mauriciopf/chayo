@@ -19,6 +19,7 @@ interface ChatContainerProps {
   input: string;
   setInput: (input: string) => void;
   handleSend: () => void;
+  sendMessage: (messageContent: string) => Promise<void>;
   handleInputFocus: () => void;
   handleOTPFlow: () => Promise<void>;
   messagesEndRef: React.RefObject<HTMLDivElement>;
@@ -45,6 +46,7 @@ export default function ChatContainer({
   input,
   setInput,
   handleSend,
+  sendMessage,
   handleInputFocus,
   handleOTPFlow,
   messagesEndRef,
@@ -97,6 +99,17 @@ export default function ChatContainer({
         timestamp: new Date(),
       },
     ])
+  }
+
+  // Handler for multiple choice option selection
+  const handleMultipleChoiceSelect = (selectedOptions: string | string[]) => {
+    // Handle both single and multiple selections
+    const finalInput = Array.isArray(selectedOptions) 
+      ? selectedOptions.join(', ') 
+      : selectedOptions
+    
+    // Automatically send the message directly
+    sendMessage(finalInput)
   }
 
   // Handler for training hint selection
@@ -156,7 +169,12 @@ export default function ChatContainer({
         }}
       >
         {messages.length === 0 && !chatLoading && <ChatEmptyState />}
-        <ChatMessages messages={messages} chatLoading={chatLoading} chatError={chatError} />
+        <ChatMessages 
+          messages={messages} 
+          chatLoading={chatLoading} 
+          chatError={chatError} 
+          onOptionSelect={handleMultipleChoiceSelect}
+        />
         <div ref={messagesEndRef} />
       </div>
 

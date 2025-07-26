@@ -1,6 +1,7 @@
 import React from 'react'
 import { AnimatePresence } from 'framer-motion'
 import ChatMessage from './ChatMessage'
+import ChatMessageWithMultipleChoice from './ChatMessageWithMultipleChoice'
 import { Message } from './types'
 import { useTranslations } from 'next-intl'
 
@@ -8,23 +9,43 @@ interface ChatMessagesProps {
   messages: Message[]
   chatLoading: boolean
   chatError: string | null
+  onOptionSelect?: (selectedOptions: string | string[]) => void
 }
 
-const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, chatLoading, chatError }) => {
-  const t = useTranslations('chat')
+const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, chatLoading, chatError, onOptionSelect }) => {
+    const t = useTranslations('chat')
+  
+
+  
   return (
     <>
       <AnimatePresence>
-        {messages.map((msg) => (
-          <div key={msg.id} data-message-id={msg.id}>
-            <ChatMessage 
-              role={msg.role} 
-              content={msg.content} 
-              timestamp={msg.timestamp} 
-              usingRAG={msg.usingRAG}
-            />
-          </div>
-        ))}
+        {messages.map((msg) => {
+          // Additional check: if message content contains raw multiple choice data but wasn't parsed,
+          // we should still route it to the multiple choice component
+          const hasRawMultipleChoiceData = msg.role === 'ai' && 
+            ((msg.content.includes('OPTIONS:') && msg.content.includes('MULTIPLE:')) ||
+             (msg.content.includes('QUESTION:') && msg.content.includes('OPTIONS:'))) &&
+            (!msg.multipleChoices || msg.multipleChoices.length === 0)
+          
+          return (
+            <div key={msg.id} data-message-id={msg.id}>
+              {(msg.multipleChoices && msg.multipleChoices.length > 0) || hasRawMultipleChoiceData ? (
+                <ChatMessageWithMultipleChoice
+                  message={msg}
+                  onOptionSelect={onOptionSelect}
+                />
+              ) : (
+                <ChatMessage 
+                  role={msg.role} 
+                  content={msg.content} 
+                  timestamp={msg.timestamp} 
+                  usingRAG={msg.usingRAG}
+                />
+              )}
+            </div>
+          )
+        })}
         {chatLoading && (
           <div className="py-6 bg-gray-50">
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

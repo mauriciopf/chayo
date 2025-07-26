@@ -4,6 +4,9 @@ export interface Message {
   content: string
   timestamp: Date
   usingRAG?: boolean
+  multipleChoices?: string[]
+  allowMultiple?: boolean
+  showOtherOption?: boolean
 }
 
 export interface Agent {

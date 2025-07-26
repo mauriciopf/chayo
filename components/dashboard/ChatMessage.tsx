@@ -12,6 +12,20 @@ interface ChatMessageProps {
 export default function ChatMessage({ role, content, timestamp, usingRAG }: ChatMessageProps) {
   const t = useTranslations('chat')
 
+  // Safeguard: Check if the content contains raw multiple choice data and clean it
+  const cleanContent = (() => {
+    if (role === 'ai' && content.includes('OPTIONS:') && content.includes('MULTIPLE:')) {
+      // Remove the raw formatting if it somehow got through
+      return content
+        .replace(/OPTIONS:\s*.+?(?=\n|MULTIPLE:|OTHER:|$)/gi, '')
+        .replace(/MULTIPLE:\s*(true|false)/gi, '')
+        .replace(/OTHER:\s*(true|false)/gi, '')
+        .replace(/\n\s*\n/g, '\n')
+        .trim() || "Please select an option:"
+    }
+    return content
+  })()
+
   if (role === "system") {
     return (
       <div className="flex justify-center my-4">
@@ -46,8 +60,8 @@ export default function ChatMessage({ role, content, timestamp, usingRAG }: Chat
 
             {/* Message Content */}
             <div className={`flex-1 ${role === "user" ? "text-right" : "text-left"}`}>
-              <div className={`inline-block ${role === "user" ? "bg-purple-600 text-white" : "bg-white text-gray-900"} rounded-2xl px-4 py-3 shadow-sm max-w-2xl`}>
-                <div className="text-sm leading-relaxed whitespace-pre-wrap">{content}</div>
+              <div className={`inline-block ${role === "user" ? "bg-purple-600 text-white" : "bg-white text-gray-900"} rounded-2xl px-4 py-3 shadow-sm min-w-[70%] max-w-2xl flex`}>
+                <div className="text-sm leading-relaxed whitespace-pre-wrap flex-1">{cleanContent}</div>
               </div>
               {timestamp && (
                 <div className={`text-xs text-gray-500 mt-2 ${

@@ -10,6 +10,9 @@ export interface ChatMessage {
 export interface ChatResponse {
   aiMessage: string
   usingRAG: boolean
+  multipleChoices?: string[]
+  allowMultiple?: boolean
+  showOtherOption?: boolean
 }
 
 export interface ChatContext {
@@ -46,7 +49,7 @@ export class OrganizationChatService {
         locale
       }
       // Generate AI response
-      const { aiMessage, usingRAG } = await this.generateAIResponse(messages, context)
+      const { aiMessage, usingRAG, multipleChoices, allowMultiple, showOtherOption } = await this.generateAIResponse(messages, context)
       // Update WhatsApp trial status if mentioned
       await this.updateWhatsAppTrialStatus(aiMessage, context)
       // Store conversation for RAG
@@ -54,6 +57,9 @@ export class OrganizationChatService {
       return {
         aiMessage,
         usingRAG,
+        multipleChoices,
+        allowMultiple,
+        showOtherOption,
         organization
       }
     } catch (error) {
@@ -131,7 +137,7 @@ export class OrganizationChatService {
       throw new Error(`Failed to create organization: ${orgError?.message || 'Unknown error'}`)
     }
   }
-  public async generateAIResponse(messages: ChatMessage[], context: ChatContext): Promise<{ aiMessage: string; usingRAG: boolean }> {
+  public async generateAIResponse(messages: ChatMessage[], context: ChatContext): Promise<{ aiMessage: string; usingRAG: boolean; multipleChoices?: string[]; allowMultiple?: boolean; showOtherOption?: boolean }> {
     const apiKey = process.env.OPENAI_API_KEY
     if (!apiKey) {
       throw new Error('OpenAI API key not set')
@@ -205,10 +211,25 @@ export class OrganizationChatService {
         }
       } else {
         const data = await openaiRes.json()
-        return {
-          aiMessage: data.choices?.[0]?.message?.content || '',
-          usingRAG
+        const aiMessage = data.choices?.[0]?.message?.content || ''
+        
+        // Parse multiple choice options if present
+        const multipleChoiceData = this.parseMultipleChoiceData(aiMessage)
+        
+        // Only extract question if we successfully parsed multiple choice data
+        const finalAiMessage = multipleChoiceData 
+          ? this.extractQuestionFromMultipleChoice(aiMessage) 
+          : aiMessage
+        
+        const result = {
+          aiMessage: finalAiMessage,
+          usingRAG,
+          multipleChoices: multipleChoiceData?.options || undefined,
+          allowMultiple: multipleChoiceData?.allowMultiple || false,
+          showOtherOption: multipleChoiceData?.showOtherOption || false
         }
+        
+        return result
       }
     } catch (error) {
       console.error('Error calling OpenAI API:', error)
@@ -218,6 +239,86 @@ export class OrganizationChatService {
       }
     }
   }
+
+  /**
+   * Parse multiple choice data from AI response
+   */
+  private parseMultipleChoiceData(aiMessage: string): { options: string[]; allowMultiple: boolean; showOtherOption: boolean } | null {
+    // Check if this looks like a multiple choice response
+    const hasQuestion = aiMessage.includes('QUESTION:')
+    const hasOptions = aiMessage.includes('OPTIONS:')
+    
+    if (!hasQuestion || !hasOptions) {
+      return null
+    }
+    
+    const optionsMatch = aiMessage.match(/OPTIONS:\s*(.+?)(?=\n|MULTIPLE:|OTHER:|$)/i)
+    if (!optionsMatch) {
+      return null
+    }
+
+    const optionsText = optionsMatch[1].trim()
+    
+    // Parse JSON array format ONLY
+    let options: string[] = []
+    
+    try {
+      options = JSON.parse(optionsText)
+    } catch (e) {
+      return null
+    }
+    
+    if (!Array.isArray(options) || options.length < 2) {
+      return null
+    }
+    
+    // Limit to reasonable number of options
+    if (options.length > 10) {
+      return null
+    }
+
+    // Parse MULTIPLE flag
+    const multipleMatch = aiMessage.match(/MULTIPLE:\s*(true|false)/i)
+    const allowMultiple = multipleMatch ? multipleMatch[1].toLowerCase() === 'true' : false
+
+    // Parse OTHER flag
+    const otherMatch = aiMessage.match(/OTHER:\s*(true|false)/i)
+    const showOtherOption = otherMatch ? otherMatch[1].toLowerCase() === 'true' : false
+    
+    return {
+      options,
+      allowMultiple,
+      showOtherOption
+    }
+  }
+
+  /**
+   * Extract the question part from a multiple choice response
+   */
+  private extractQuestionFromMultipleChoice(aiMessage: string): string {
+    // First try to extract the question using the QUESTION: field
+    const questionMatch = aiMessage.match(/QUESTION:\s*(.+?)(?:\n|OPTIONS:)/i)
+    if (questionMatch) {
+      return questionMatch[1].trim()
+    }
+    
+    // Fallback: remove all the multiple choice formatting and return just the question
+    let cleanedMessage = aiMessage
+      .replace(/QUESTION:\s*.+?(?=\n|OPTIONS:|$)/gi, '') // Remove QUESTION section
+      .replace(/OPTIONS:\s*.+?(?=\n|MULTIPLE:|OTHER:|$)/gi, '') // Remove OPTIONS section
+      .replace(/MULTIPLE:\s*(true|false)/gi, '') // Remove MULTIPLE flag
+      .replace(/OTHER:\s*(true|false)/gi, '') // Remove OTHER flag
+      .replace(/\n\s*\n/g, '\n') // Remove extra blank lines
+      .trim()
+    
+    // If the cleaned message is empty or just whitespace, return a default message
+    if (!cleanedMessage || cleanedMessage.length === 0) {
+      return "Please select an option:"
+    }
+    
+    return cleanedMessage
+  }
+
   private async updateWhatsAppTrialStatus(aiMessage: string, context: ChatContext): Promise<void> {
     // Check if WhatsApp trial was mentioned
     const whatsappTrialMentioned = aiMessage.toLowerCase().includes('whatsapp') && 

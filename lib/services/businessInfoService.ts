@@ -6,9 +6,10 @@ export interface BusinessInfoField {
   organization_id: string
   field_name: string
   field_value?: string
-  field_type: 'text' | 'array' | 'boolean' | 'number'
+  field_type: 'text' | 'array' | 'boolean' | 'number' | 'multiple_choice'
   is_answered: boolean
   question_template: string
+  multiple_choices?: string[]
   confidence?: number
   source?: 'conversation' | 'document' | 'manual'
   created_at?: string
@@ -29,12 +30,10 @@ export class BusinessInfoService {
     this.supabaseClient = supabaseClient || supabase
   }
 
-  /**
+    /**
    * Generate dynamic questions for business information gathering
    */
-  async generateBusinessQuestions(organizationId: string, currentConversation: string): Promise<{question_template: string, field_name: string}[]> {
-    let answeredFieldNames: string[] = []
-    
+  async generateBusinessQuestions(organizationId: string, currentConversation: string): Promise<{question_template: string, field_name: string, field_type: string, multiple_choices?: string[]}[]> {
     try {
       // Get existing answered fields
       const { data: answeredFields } = await supabase
@@ -43,12 +42,12 @@ export class BusinessInfoService {
         .eq('organization_id', organizationId)
         .eq('is_answered', true)
 
-      answeredFieldNames = answeredFields?.map(f => f.field_name) || []
+      const answeredFieldNames = answeredFields?.map(f => f.field_name) || []
 
       // Get existing unanswered questions
       const { data: existingQuestions } = await supabase
         .from('business_info_fields')
-        .select('field_name, question_template')
+        .select('field_name, question_template, field_type, multiple_choices')
         .eq('organization_id', organizationId)
         .eq('is_answered', false)
 
@@ -56,99 +55,47 @@ export class BusinessInfoService {
       if (existingQuestions && existingQuestions.length > 0) {
         return existingQuestions.map(q => ({
           question_template: q.question_template,
-          field_name: q.field_name
+          field_name: q.field_name,
+          field_type: q.field_type || 'text',
+          multiple_choices: q.multiple_choices
         }))
       }
 
-      // Generate new questions dynamically using OpenAI
-      const apiKey = process.env.OPENAI_API_KEY
-      if (!apiKey) {
-        console.error('OpenAI API key not set, cannot generate business questions')
-        throw new Error('OpenAI API key is required for dynamic question generation')
+      // Use the EnhancedOrganizationSystemPromptService to generate questions
+      const { EnhancedOrganizationSystemPromptService } = await import('./systemPrompt/EnhancedOrganizationSystemPromptService')
+      const enhancedService = new EnhancedOrganizationSystemPromptService()
+      
+      const questions = await enhancedService.generateBusinessQuestions(
+        organizationId,
+        currentConversation,
+        answeredFieldNames
+      )
+
+      // Store the generated questions
+      if (questions && questions.length > 0) {
+        await this.storeBusinessQuestions(organizationId, questions)
+        console.log(`❓ Generated ${questions.length} new questions:`, questions.map((q: any) => q.field_name))
       }
 
-      const prompt = `Based on this conversation context, generate 3-5 specific questions to gather missing business information. 
-
-Current conversation context: "${currentConversation.substring(0, 500)}"
-
-Already answered fields: ${answeredFieldNames.join(', ') || 'None'}
-
-Generate questions that:
-1. Are specific to this business type and context
-2. Haven't been answered yet
-3. Will help understand their business better
-4. Are natural and conversational
-5. Focus on business operations and customer needs
-
-Return only the questions as a JSON array of objects with this structure:
-[
-  {
-    "question_template": "What is the name of your health business?",
-    "field_name": "business_name"
-  },
-  {
-    "question_template": "What type of health or wellness business do you run?",
-    "field_name": "business_type"
-  }
-]`
-
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model: 'gpt-4',
-          messages: [{ role: 'user', content: prompt }],
-          temperature: 0.7,
-          max_tokens: 500
-        })
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        const content = data.choices?.[0]?.message?.content
-        
-        if (content) {
-          try {
-            const questions = JSON.parse(content)
-            if (Array.isArray(questions)) {
-              // Validate the structure
-              const validQuestions = questions.filter(q => 
-                q.question_template && q.field_name && 
-                typeof q.question_template === 'string' && 
-                typeof q.field_name === 'string'
-              )
-              
-              // Store these questions in the database
-              await this.storeBusinessQuestions(organizationId, validQuestions)
-              console.log(`❓ Generated ${validQuestions.length} new questions:`, validQuestions.map(q => q.field_name))
-              return validQuestions
-            }
-          } catch (parseError) {
-            console.warn('Failed to parse generated questions:', parseError)
-          }
-        }
-      }
+      return questions || []
     } catch (error) {
       console.error('Error generating business questions:', error)
+      return []
     }
-
-    return []
   }
 
   /**
    * Store generated questions in the database
    */
-  private async storeBusinessQuestions(organizationId: string, questions: {question_template: string, field_name: string}[]): Promise<void> {
+  private async storeBusinessQuestions(organizationId: string, questions: {question_template: string, field_name: string, field_type: string, multiple_choices?: string[], allow_multiple?: boolean, show_other?: boolean}[]): Promise<void> {
     try {
       const questionFields = questions.map(question => ({
         organization_id: organizationId,
         field_name: question.field_name,
-        field_type: 'text',
+        field_type: question.field_type,
         is_answered: false,
-        question_template: question.question_template
+        question_template: question.question_template,
+        multiple_choices: question.multiple_choices || null
       }))
 
       await supabase
@@ -167,8 +114,6 @@ Return only the questions as a JSON array of objects with this structure:
    * Extract business information from conversation
    */
   async extractBusinessInfo(organizationId: string, conversation: string): Promise<ExtractedInfo[]> {
-    const extractedInfo: ExtractedInfo[] = []
-    
     try {
       // Get ALL questions to match against (not just pending ones)
       // This allows us to extract answers even if questions were just created
@@ -179,102 +124,27 @@ Return only the questions as a JSON array of objects with this structure:
         .order('created_at', { ascending: true })
 
       if (!existingFields || existingFields.length === 0) {
-        return extractedInfo
+        return []
       }
 
       // Filter to only unanswered questions for the prompt context
       const unansweredFields = existingFields.filter((f: BusinessInfoField) => !f.is_answered)
 
-      const apiKey = process.env.OPENAI_API_KEY
-      if (!apiKey) {
-        console.warn('OpenAI API key not set, skipping business info extraction')
-        return extractedInfo
-      }
+      // Use the EnhancedOrganizationSystemPromptService to extract business info
+      const { EnhancedOrganizationSystemPromptService } = await import('./systemPrompt/EnhancedOrganizationSystemPromptService')
+      const enhancedService = new EnhancedOrganizationSystemPromptService()
+      
+      const extractedInfo = await enhancedService.extractBusinessInfo(
+        organizationId,
+        conversation,
+        unansweredFields
+      )
 
-      const questionsContext = unansweredFields.map((f: BusinessInfoField) => `${f.field_name}: ${f.question_template}`).join('\n')
-
-      const prompt = `Analyze this conversation and extract business information that answers the pending questions.
-
-Pending questions:
-${questionsContext}
-
-Conversation: "${conversation}"
-
-IMPORTANT: You MUST respond with ONLY valid JSON. No explanations, no text, ONLY JSON.
-
-Return a JSON array of objects with:
-- field_name: the field name that was answered
-- field_value: the extracted answer
-- confidence: confidence score 0-1
-
-Guidelines:
-- Be generous in recognizing answers - if the user provides any relevant information, extract it
-- Even partial answers should be extracted with appropriate confidence scores
-- If the user mentions something related to a question, consider it answered
-- The conversation may be in Spanish - translate and interpret Spanish terms appropriately
-- Confidence scores: 0.9-1.0 for direct answers, 0.7-0.8 for clear but indirect answers, 0.5-0.6 for partial answers, 0.3-0.4 for implied or related answers
-- Examples of Spanish terms that might answer questions:
-  * "braces" → unique_approaches (orthodontic techniques)
-  * "limpieza dental" → unique_approaches (dental cleaning services)
-  * "secretaria de salud" → partnerships (government health partnerships)
-  * "vecinos de la colonia" → target_market (local community residents)
-  * "certificaciones" → business_qualifications
-  * "medidas de seguridad" → safety_measures
-
-Response format:
-- If information found: [{"field_name": "example", "field_value": "value", "confidence": 0.8}]
-- If no information found: []
-
-RESPOND WITH ONLY JSON - NO OTHER TEXT.`
-
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model: 'gpt-4',
-          messages: [{ role: 'user', content: prompt }],
-          temperature: 0.1,
-          max_tokens: 500
-        })
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        const content = data.choices?.[0]?.message?.content
-        
-        if (content) {
-          try {
-            // Try to parse as JSON
-            const parsed = JSON.parse(content)
-            if (Array.isArray(parsed)) {
-              extractedInfo.push(...parsed.map(item => ({
-                ...item,
-                source: 'conversation' as const
-              })))
-            } else {
-              console.warn('AI response is not an array:', parsed)
-            }
-          } catch (parseError) {
-            // Fallback: If AI returned text saying "empty array", treat as empty
-            if (content.toLowerCase().includes('empty array') || 
-                content.toLowerCase().includes('no relevant information') ||
-                content.toLowerCase().includes('return should be')) {
-              // Don't add anything to extractedInfo (empty result)
-            } else {
-              console.error('Unexpected AI response format - not JSON and not empty explanation')
-              console.error('Raw AI response:', content)
-            }
-          }
-        }
-      }
+      return extractedInfo
     } catch (error) {
       console.error('Error extracting business info:', error)
+      return []
     }
-
-    return extractedInfo
   }
 
   /**

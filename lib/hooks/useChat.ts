@@ -15,6 +15,37 @@ interface UseChatProps {
   locale: string
 }
 
+interface UseChatReturn {
+  // State
+  messages: Message[]
+  setMessages: (messages: Message[] | ((prev: Message[]) => Message[])) => void
+  input: string
+  setInput: (input: string) => void
+  chatLoading: boolean
+  setChatLoading: (loading: boolean) => void
+  chatError: string | null
+  setChatError: (error: string | null) => void
+  justSent: boolean
+  setJustSent: (sent: boolean) => void
+  uploading: boolean
+  setUploading: (uploading: boolean) => void
+  uploadProgress: number | null
+  setUploadProgress: (progress: number | null) => void
+  
+  // Refs
+  messagesEndRef: React.RefObject<HTMLDivElement>
+  inputRef: React.RefObject<HTMLTextAreaElement>
+  chatScrollContainerRef: React.RefObject<HTMLDivElement>
+  fileInputRef: React.RefObject<HTMLInputElement>
+  
+  // Methods
+  scrollToShowUserMessage: (smooth?: boolean) => void
+  handleInputFocus: () => void
+  handleSend: () => Promise<void>
+  sendMessage: (messageContent: string) => Promise<void>
+  handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>
+}
+
 export function useChat({
   authState,
   user,
@@ -26,7 +57,7 @@ export function useChat({
   setResendCooldown,
   setAuthState,
   locale
-}: UseChatProps) {
+}: UseChatProps): UseChatReturn {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
   const [chatLoading, setChatLoading] = useState(false)
@@ -96,19 +127,15 @@ export function useChat({
     // Input is already correctly positioned with flexbox layout
   }
 
-  // Handle sending messages
-  const handleSend = async () => {
-    if (authState !== 'authenticated') {
-      // OTP flow is handled directly in ChatContainer
-      return
-    }
-    if (!input.trim() || chatLoading) return
+  // Send a message directly (for multiple choice responses)
+  const sendMessage = async (messageContent: string) => {
+    if (chatLoading) return
     
     setChatError(null)
     const newUserMsg: Message = {
       id: Date.now().toString(),
       role: "user",
-      content: input,
+      content: messageContent,
       timestamp: new Date()
     }
     
@@ -152,21 +179,39 @@ export function useChat({
       // After receiving the API response:
       // (No more selectedAgent logic)
       
+      const aiMessage: Message = { 
+        id: Date.now().toString() + "-ai", 
+        role: "ai", 
+        content: data.aiMessage,
+        timestamp: new Date(),
+        usingRAG: data.usingRAG,
+        multipleChoices: data.multipleChoices,
+        allowMultiple: data.allowMultiple,
+        showOtherOption: data.showOtherOption
+      }
+      
+      console.log('💬 useChat setting AI message:', aiMessage)
+      
       setMessages((msgs) => [
         ...msgs,
-        { 
-          id: Date.now().toString() + "-ai", 
-          role: "ai", 
-          content: data.aiMessage,
-          timestamp: new Date(),
-          usingRAG: data.usingRAG
-        }
+        aiMessage
       ])
     } catch (err) {
       setChatError("Error sending message")
     } finally {
       setChatLoading(false)
     }
+  }
+
+  // Handle sending messages
+  const handleSend = async () => {
+    if (authState !== 'authenticated') {
+      // OTP flow is handled directly in ChatContainer
+      return
+    }
+    if (!input.trim() || chatLoading) return
+    
+    await sendMessage(input)
   }
 
   // Handle file upload
@@ -250,6 +295,7 @@ export function useChat({
     scrollToShowUserMessage,
     handleInputFocus,
     handleSend,
+    sendMessage,
     handleFileChange,
   }
 } 

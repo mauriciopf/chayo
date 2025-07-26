@@ -16,6 +16,7 @@ import { useAutoStartChat } from '@/lib/hooks/useAutoStartChat'
 import { useQRCodeLogic } from '@/lib/hooks/useQRCodeLogic'
 import { useBillingManagement } from '@/lib/hooks/useBillingManagement'
 import { useLogout } from '@/lib/hooks/useLogout'
+import { useInitialChatMessage } from '@/lib/hooks/useInitialChatMessage'
 import { useAuthFlow } from '@/components/dashboard/AuthFlow'
 import ChatContainer from '@/components/dashboard/ChatContainer'
 import ClientQRCode from '@/components/dashboard/ClientQRCode'
@@ -100,19 +101,24 @@ function DashboardContent() {
   // Use logout hook
   const { handleLogout } = useLogout()
 
-  // Set initial chat message from dashboardInit if available
-  useEffect(() => {
-    if (dashboardInit.initialMessage && chat.messages.length === 0) {
-      chat.setMessages([
-        {
-          id: 'initial-' + Date.now(),
-          role: 'ai',
-          content: dashboardInit.initialMessage,
-          timestamp: new Date(),
-        }
-      ])
-    }
-  }, [dashboardInit.initialMessage, chat.messages.length])
+  // Use single hook for all initial chat messages
+  useInitialChatMessage({
+    messageSources: [
+      {
+        message: dashboardInit.initialMessage,
+        id: 'initial',
+        priority: 2 // Higher priority
+      },
+      {
+        message: autoStartChat.initialResponse,
+        id: 'auto-start',
+        priority: 1 // Lower priority
+      }
+    ],
+    messagesLength: chat.messages.length,
+    locale,
+    setMessages: chat.setMessages
+  })
 
   // Dashboard UI state
   const [activeView, setActiveView] = useState<ActiveView>(mobile.isMobile ? 'agents' : 'chat')
@@ -142,20 +148,6 @@ function DashboardContent() {
     chat.messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [chat.messages, chat.chatLoading])
 
-  // Handle auto-start chat response
-  useEffect(() => {
-    if (autoStartChat.initialResponse && chat.messages.length === 0 && !dashboardInit.shouldShowAuthPrompt) {
-      chat.setMessages([
-        {
-          id: 'auto-start-' + Date.now(),
-          content: autoStartChat.initialResponse,
-          role: 'ai',
-          timestamp: new Date()
-        }
-      ])
-    }
-  }, [autoStartChat.initialResponse, chat.messages.length, dashboardInit.shouldShowAuthPrompt])
-
 
 
 
@@ -181,6 +173,7 @@ function DashboardContent() {
             handleOTPFlow={authFlow.handleOTPFlow}
             messagesEndRef={chat.messagesEndRef}
             inputRef={chat.inputRef}
+            sendMessage={chat.sendMessage}
             chatScrollContainerRef={chat.chatScrollContainerRef}
             fileInputRef={chat.fileInputRef}
             handleFileChange={chat.handleFileChange}
@@ -210,6 +203,7 @@ function DashboardContent() {
               input={chat.input}
               setInput={chat.setInput}
               handleSend={chat.handleSend}
+              sendMessage={chat.sendMessage}
               handleInputFocus={chat.handleInputFocus}
               handleOTPFlow={authFlow.handleOTPFlow}
               messagesEndRef={chat.messagesEndRef}
