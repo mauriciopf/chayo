@@ -3,7 +3,6 @@ import MobileHeader from './MobileHeader'
 import MobileNavigation from './MobileNavigation'
 import SubscriptionPlans from './SubscriptionPlans'
 import ManageDocumentsModal from './ManageDocumentsModal'
-import QRSection from './QRSection'
 import React from 'react'
 
 export default function MainDashboardLayout({
@@ -16,7 +15,6 @@ export default function MainDashboardLayout({
   showHamburgerMenu,
   setShowHamburgerMenu,
   renderCurrentView,
-  showAgentChatQRCode,
   dashboardInit,
   showPlansModal,
   setShowPlansModal,
@@ -68,7 +66,6 @@ export default function MainDashboardLayout({
             : 'px-4 sm:px-6 lg:px-8 py-4 md:px-8 md:py-8'
         }`}>
           {renderCurrentView()}
-          <QRSection show={showAgentChatQRCode} dashboardInit={dashboardInit} />
         </div>
 
         {/* Modals */}

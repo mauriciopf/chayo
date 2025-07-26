@@ -16,7 +16,6 @@ export default function AuthPromptView({
   showHamburgerMenu,
   setShowHamburgerMenu,
   renderCurrentView,
-  showAgentChatQRCode,
   dashboardInit,
   showPlansModal,
   setShowPlansModal,
@@ -68,15 +67,6 @@ export default function AuthPromptView({
             : 'px-4 sm:px-6 lg:px-8 py-4 md:px-8 md:py-8'
         }`}>
           {renderCurrentView()}
-          {showAgentChatQRCode && dashboardInit.initData && dashboardInit.initData.business && (
-            <div className="w-full max-w-4xl mx-auto my-8">
-              <ClientQRCode
-                organizationSlug={dashboardInit.initData.business.slug || ''}
-                filledFields={dashboardInit.initData.businessInfoFields?.business_info_gathered || 0}
-                threshold={dashboardInit.initData.threshold || 10}
-              />
-            </div>
-          )}
         </div>
 
         {/* Modals */}

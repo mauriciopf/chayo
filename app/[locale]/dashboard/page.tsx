@@ -230,8 +230,7 @@ function DashboardContent() {
           </div>
         )
       case 'qrcode':
-        const agentChatChannel = dashboardInit.initData?.agentChatLink;
-        return (agentChatChannel && auth.currentOrganization) ? (
+        return auth.currentOrganization ? (
           <div className="w-full max-w-4xl mx-auto">
             <ClientQRCode 
               organizationSlug={auth.currentOrganization.slug}
@@ -241,7 +240,7 @@ function DashboardContent() {
           </div>
         ) : (
           <div className="text-center py-8">
-            <p className="text-gray-500">No business or agent chat link available. Please go to Business Summary to create one.</p>
+            <p className="text-gray-500">No business available. Please go to Business Summary to set up your business.</p>
           </div>
         )
       case 'agents':
@@ -271,10 +270,6 @@ function DashboardContent() {
     }
   }
 
-  // Render QR code if agentChatLink is available
-  const agentChatChannel = dashboardInit.initData?.agentChatLink;
-  const showAgentChatQRCode = !!(agentChatChannel && dashboardInit.initData?.business);
-
   if (auth.loading || dashboardInit.isLoading) {
     return (
       <LoadingScreen 
@@ -297,7 +292,6 @@ function DashboardContent() {
         showHamburgerMenu={showHamburgerMenu}
         setShowHamburgerMenu={setShowHamburgerMenu}
         renderCurrentView={renderCurrentView}
-        showAgentChatQRCode={showAgentChatQRCode}
         dashboardInit={dashboardInit}
         showPlansModal={showPlansModal}
         setShowPlansModal={setShowPlansModal}
@@ -345,7 +339,6 @@ function DashboardContent() {
       showHamburgerMenu={showHamburgerMenu}
       setShowHamburgerMenu={setShowHamburgerMenu}
       renderCurrentView={renderCurrentView}
-      showAgentChatQRCode={showAgentChatQRCode}
       dashboardInit={dashboardInit}
       showPlansModal={showPlansModal}
       setShowPlansModal={setShowPlansModal}
