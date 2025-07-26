@@ -38,9 +38,9 @@ export default function ChatMessage({ role, content, timestamp, usingRAG }: Chat
 
   return (
     <div className={`py-6 ${role === "user" ? "bg-white" : "bg-gray-50"}`}>
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className={`flex ${role === "user" ? "justify-end" : "justify-start"}`}>
-          <div className={`flex ${role === "user" ? "flex-row-reverse" : "flex-row"} items-start space-x-4 max-w-3xl`}>
+          <div className={`flex ${role === "user" ? "flex-row-reverse" : "flex-row"} items-start space-x-4 w-full`}>
             {/* Avatar */}
             <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
               role === "user" 
@@ -60,8 +60,8 @@ export default function ChatMessage({ role, content, timestamp, usingRAG }: Chat
 
             {/* Message Content */}
             <div className={`flex-1 ${role === "user" ? "text-right" : "text-left"}`}>
-              <div className={`inline-block ${role === "user" ? "bg-purple-600 text-white" : "bg-white text-gray-900"} rounded-2xl px-4 py-3 shadow-sm min-w-[70%] max-w-2xl flex`}>
-                <div className="text-sm leading-relaxed whitespace-pre-wrap flex-1">{cleanContent}</div>
+              <div className={`${role === "user" ? "inline-block" : "w-[70%]"} ${role === "user" ? "bg-purple-600 text-white" : "bg-white text-gray-900"} rounded-2xl px-4 py-3 shadow-sm`}>
+                <div className="text-sm leading-relaxed whitespace-pre-wrap">{cleanContent}</div>
               </div>
               {timestamp && (
                 <div className={`text-xs text-gray-500 mt-2 ${

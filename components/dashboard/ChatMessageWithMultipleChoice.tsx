@@ -87,17 +87,17 @@ export default function ChatMessageWithMultipleChoice({
        ((message.multipleChoices && message.multipleChoices.length > 0) || extractMultipleChoiceData) && 
        !hasSelectedOption ? (
         <div className="py-6 bg-gray-50">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="w-full px-4 sm:px-6 lg:px-8">
             <div className="flex justify-start">
-              <div className="flex items-start space-x-4 max-w-3xl">
+              <div className="flex items-start space-x-4 w-full">
                 <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center">
                   <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clipRule="evenodd" />
                   </svg>
                 </div>
                 <div className="flex-1">
-                  <div className="inline-block bg-white text-gray-900 rounded-2xl px-4 py-3 shadow-sm min-w-[70%] max-w-2xl flex flex-col">
-                    <div className="mb-3 flex-1">
+                  <div className="w-[70%] bg-white text-gray-900 rounded-2xl px-4 py-3 shadow-sm">
+                    <div className="mb-3">
                       <p className="text-sm">{cleanContent}</p>
                     </div>
                     
