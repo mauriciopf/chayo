@@ -9,7 +9,6 @@ export interface ChatMessage {
 
 export interface ChatResponse {
   aiMessage: string
-  usingRAG: boolean
   multipleChoices?: string[]
   allowMultiple?: boolean
   showOtherOption?: boolean
@@ -48,15 +47,14 @@ export class OrganizationChatService {
         organization,
         locale
       }
+      
+
       // Generate AI response
-      const { aiMessage, usingRAG, multipleChoices, allowMultiple, showOtherOption } = await this.generateAIResponse(messages, context)
+      const { aiMessage, multipleChoices, allowMultiple, showOtherOption } = await this.generateAIResponse(messages, context)
       // Update WhatsApp trial status if mentioned
       await this.updateWhatsAppTrialStatus(aiMessage, context)
-      // Store conversation for RAG
-      await this.storeConversation(messages, aiMessage, context)
       return {
         aiMessage,
-        usingRAG,
         multipleChoices,
         allowMultiple,
         showOtherOption,
@@ -137,17 +135,36 @@ export class OrganizationChatService {
       throw new Error(`Failed to create organization: ${orgError?.message || 'Unknown error'}`)
     }
   }
-  public async generateAIResponse(messages: ChatMessage[], context: ChatContext): Promise<{ aiMessage: string; usingRAG: boolean; multipleChoices?: string[]; allowMultiple?: boolean; showOtherOption?: boolean }> {
+  public async generateAIResponse(messages: ChatMessage[], context: ChatContext): Promise<{ aiMessage: string; multipleChoices?: string[]; allowMultiple?: boolean; showOtherOption?: boolean }> {
     const apiKey = process.env.OPENAI_API_KEY
     if (!apiKey) {
       throw new Error('OpenAI API key not set')
     }
+    
+    // Check if there are pending unanswered questions
+    const { data: pendingQuestions } = await this.supabaseClient
+      .from('business_info_fields')
+      .select('question_template, field_name, field_type, multiple_choices, allow_multiple, show_other_option')
+      .eq('organization_id', context.organization.id)
+      .eq('is_answered', false)
+      .limit(1)
+    
+    if (pendingQuestions && pendingQuestions.length > 0) {
+      // Return the pending question instead of generating a new AI response
+      const pendingQuestion = pendingQuestions[0]
+      return {
+        aiMessage: pendingQuestion.question_template,
+        multipleChoices: pendingQuestion.multiple_choices || undefined,
+        allowMultiple: pendingQuestion.allow_multiple || false,
+        showOtherOption: pendingQuestion.show_other_option || false
+      }
+    }
+    
     // Get the last user message for context
     const lastUserMessage = messages.filter(m => m.role === 'user').pop()?.content || ''
     // Generate enhanced system prompt with training hints
     let systemPrompt: string
     let promptMetadata: any
-    let usingRAG = false
     try {
       // Use enhanced system prompt service that handles training hints
       const { EnhancedOrganizationSystemPromptService } = await import('./systemPrompt/EnhancedOrganizationSystemPromptService')
@@ -160,12 +177,10 @@ export class OrganizationChatService {
       )
       systemPrompt = result.finalPrompt
       promptMetadata = result.metadata
-      usingRAG = result.metadata.usingRAG
     } catch (error) {
       console.warn('Failed to get enhanced system prompt, aborting chat:', error)
       return {
-        aiMessage: "I'm sorry, but I couldn't retrieve your business knowledge at this time. Please try again later or contact support if the problem persists.",
-        usingRAG: false
+        aiMessage: "I'm sorry, but I couldn't retrieve your business knowledge at this time. Please try again later or contact support if the problem persists."
       }
     }
     // Prepare messages with dynamic system prompt (exclude system messages from user chat)
@@ -193,20 +208,17 @@ export class OrganizationChatService {
         if (openaiRes.status === 429) {
           console.error('OpenAI quota exceeded:', errorData)
           return {
-            aiMessage: "I apologize, but I'm currently experiencing high demand and cannot process your request right now. Please try again in a few minutes, or contact support if this issue persists.",
-            usingRAG
+            aiMessage: "I apologize, but I'm currently experiencing high demand and cannot process your request right now. Please try again in a few minutes, or contact support if this issue persists."
           }
         } else if (openaiRes.status === 401) {
           console.error('OpenAI API key invalid:', errorData)
           return {
-            aiMessage: "I apologize, but there's a configuration issue with my AI service. Please contact support for assistance.",
-            usingRAG
+            aiMessage: "I apologize, but there's a configuration issue with my AI service. Please contact support for assistance."
           }
         } else {
           console.error('OpenAI API error:', errorData)
           return {
-            aiMessage: "I apologize, but I'm experiencing technical difficulties right now. Please try again in a moment.",
-            usingRAG
+            aiMessage: "I apologize, but I'm experiencing technical difficulties right now. Please try again in a moment."
           }
         }
       } else {
@@ -223,10 +235,14 @@ export class OrganizationChatService {
         
         const result = {
           aiMessage: finalAiMessage,
-          usingRAG,
           multipleChoices: multipleChoiceData?.options || undefined,
           allowMultiple: multipleChoiceData?.allowMultiple || false,
           showOtherOption: multipleChoiceData?.showOtherOption || false
+        }
+        
+        // Store the question if it contains a question (multiple choice or regular)
+        if (this.containsQuestion(aiMessage)) {
+          await this.storeAIGeneratedQuestion(context.organization.id, aiMessage, multipleChoiceData)
         }
         
         return result
@@ -234,8 +250,7 @@ export class OrganizationChatService {
     } catch (error) {
       console.error('Error calling OpenAI API:', error)
       return {
-        aiMessage: "I apologize, but I'm experiencing technical difficulties right now. Please try again in a moment.",
-        usingRAG
+        aiMessage: "I apologize, but I'm experiencing technical difficulties right now. Please try again in a moment."
       }
     }
   }
@@ -290,6 +305,75 @@ export class OrganizationChatService {
       allowMultiple,
       showOtherOption
     }
+  }
+
+  /**
+   * Check if a message contains a question
+   */
+  private containsQuestion(message: string): boolean {
+    // Check for question mark or QUESTION: format
+    return message.includes('?') || message.includes('QUESTION:')
+  }
+
+  /**
+   * Store AI-generated questions in the business_info_fields table
+   */
+  private async storeAIGeneratedQuestion(organizationId: string, aiMessage: string, multipleChoiceData: { options: string[]; allowMultiple: boolean; showOtherOption: boolean } | null): Promise<void> {
+    try {
+      // Extract the question text
+      const questionText = this.extractQuestionFromMultipleChoice(aiMessage)
+      
+      // Generate a field name based on the question content
+      const fieldName = this.generateFieldNameFromQuestion(questionText)
+      
+      // Check if this question already exists
+      const { data: existingQuestion } = await this.supabaseClient
+        .from('business_info_fields')
+        .select('id')
+        .eq('organization_id', organizationId)
+        .eq('field_name', fieldName)
+        .eq('is_answered', false)
+        .single()
+      
+      if (existingQuestion) {
+        return // Question already exists, don't duplicate
+      }
+      
+      // Store the question in business_info_fields table
+      const { error } = await this.supabaseClient
+        .from('business_info_fields')
+        .insert({
+          organization_id: organizationId,
+          field_name: fieldName,
+          field_type: multipleChoiceData ? 'multiple_choice' : 'text',
+          is_answered: false,
+          question_template: questionText,
+          multiple_choices: multipleChoiceData?.options || null
+        })
+      
+      if (error) {
+        console.error('Error storing AI-generated question:', error)
+      } else {
+        console.log(`📝 Stored AI-generated question: ${fieldName}`)
+      }
+    } catch (error) {
+      console.warn('Failed to store AI-generated question:', error)
+    }
+  }
+
+  /**
+   * Generate a field name from a question text
+   */
+  private generateFieldNameFromQuestion(questionText: string): string {
+    // Convert question to a field name
+    const fieldName = questionText
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]/g, '') // Remove special characters
+      .replace(/\s+/g, '_') // Replace spaces with underscores
+      .replace(/^(what|how|which|when|where|why|who)\s+/, '') // Remove question words
+      .substring(0, 50) // Limit length
+    
+    return fieldName || 'custom_question'
   }
 
   /**

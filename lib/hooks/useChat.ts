@@ -184,7 +184,6 @@ export function useChat({
         role: "ai", 
         content: data.aiMessage,
         timestamp: new Date(),
-        usingRAG: data.usingRAG,
         multipleChoices: data.multipleChoices,
         allowMultiple: data.allowMultiple,
         showOtherOption: data.showOtherOption

@@ -6,10 +6,9 @@ interface ChatMessageProps {
   role: "user" | "ai" | "system"
   content: string
   timestamp?: Date
-  usingRAG?: boolean
 }
 
-export default function ChatMessage({ role, content, timestamp, usingRAG }: ChatMessageProps) {
+export default function ChatMessage({ role, content, timestamp }: ChatMessageProps) {
   const t = useTranslations('chat')
 
   // Safeguard: Check if the content contains raw multiple choice data and clean it

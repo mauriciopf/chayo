@@ -44,12 +44,27 @@ export async function POST(req: NextRequest) {
       sanitizedMessages,
       validatedRequest.locale
     )
+    
+    // Store conversation for RAG after successful response
+    try {
+      await chatService.storeConversation(
+        sanitizedMessages,
+        response.aiMessage,
+        {
+          user,
+          organization: response.organization,
+          locale: validatedRequest.locale || 'en'
+        }
+      )
+    } catch (error) {
+      console.warn('Failed to store conversation:', error)
+    }
+    
     // Check/create agent chat link if threshold met, using the organization returned from processChat
     const agentChatLink = await agentService.maybeCreateAgentChatLinkIfThresholdMet(response.organization)
     
     return NextResponse.json({
       aiMessage: response.aiMessage,
-      usingRAG: response.usingRAG,
       multipleChoices: response.multipleChoices,
       allowMultiple: response.allowMultiple,
       showOtherOption: response.showOtherOption,

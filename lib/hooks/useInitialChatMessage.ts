@@ -64,8 +64,7 @@ export function useInitialChatMessage({
                   timestamp: new Date(),
                   multipleChoices: data.multipleChoices,
                   allowMultiple: data.allowMultiple,
-                  showOtherOption: data.showOtherOption,
-                  usingRAG: data.usingRAG
+                  showOtherOption: data.showOtherOption
                 }
               ])
             } else {

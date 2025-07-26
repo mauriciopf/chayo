@@ -3,7 +3,6 @@ export interface Message {
   role: "user" | "ai" | "system"
   content: string
   timestamp: Date
-  usingRAG?: boolean
   multipleChoices?: string[]
   allowMultiple?: boolean
   showOtherOption?: boolean

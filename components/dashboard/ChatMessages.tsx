@@ -40,7 +40,6 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, chatLoading, chat
                   role={msg.role} 
                   content={msg.content} 
                   timestamp={msg.timestamp} 
-                  usingRAG={msg.usingRAG}
                 />
               )}
             </div>

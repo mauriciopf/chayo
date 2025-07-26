@@ -118,7 +118,6 @@ export default function ClientChatContainer({ agent, organization, className = '
                 role={message.role}
                 content={message.content}
                 timestamp={message.timestamp}
-                usingRAG={message.usingRAG}
               />
             </motion.div>
           ))}
