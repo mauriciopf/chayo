@@ -4,14 +4,6 @@ import { Message, Agent, AuthState } from '@/components/dashboard/types'
 
 interface UseChatProps {
   authState: AuthState
-  user: any
-  pendingName: string
-  pendingEmail: string
-  otpLoading: string
-  setOtpError: (error: string | null) => void
-  setOtpSent: (sent: boolean) => void
-  setResendCooldown: (cooldown: number) => void
-  setAuthState: (state: AuthState) => void
   locale: string
 }
 
@@ -48,14 +40,6 @@ interface UseChatReturn {
 
 export function useChat({
   authState,
-  user,
-  pendingName,
-  pendingEmail,
-  otpLoading,
-  setOtpError,
-  setOtpSent,
-  setResendCooldown,
-  setAuthState,
   locale
 }: UseChatProps): UseChatReturn {
   const [messages, setMessages] = useState<Message[]>([])

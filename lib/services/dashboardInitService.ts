@@ -162,99 +162,79 @@ export class DashboardInitService {
       }
     }
   }
-  private async ensureInitialBusinessInfoRequirements(organizationId: string, locale: string) {
-    try {
-      console.log('Ensuring business info requirements for organization:', organizationId)
-      const response = await fetch('/api/business-info-fields', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          organizationId,
-          locale
-        })
-      })
-      if (!response.ok) {
-        const errorData = await response.json()
-        console.error('Failed to initialize business info fields:', {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorData
-        })
-      } else {
-        console.log('Successfully initialized business info fields')
-      }
-    } catch (error) {
-      console.error('Error ensuring initial business info requirements:', error)
-    }
-  }
-  async generateInitialChatMessage(business: any, locale: string): Promise<string> {
+
+  async generateInitialChatMessage(business: any, locale: string): Promise<{
+    content: string
+    multipleChoices?: string[]
+    allowMultiple?: boolean
+    showOtherOption?: boolean
+  }> {
     try {
       const isSpanish = locale === 'es'
-      await this.ensureInitialBusinessInfoRequirements(business.id, locale)
       try {
         const { BusinessInfoService } = await import('./businessInfoService')
         const businessInfoService = new BusinessInfoService()
         let pendingQuestions = await businessInfoService.getPendingQuestions(business.id)
+        console.log('Pending questions', pendingQuestions)
         if (pendingQuestions && pendingQuestions.length > 0) {
-          const firstQuestion = pendingQuestions[0].question_template
+          console.log('Pending questions found', pendingQuestions)
+          const firstQuestion = pendingQuestions[0]
           const greeting = isSpanish
             ? '¡Hola! Soy Chayo, tu asistente de IA. Continuemos configurando tu negocio. '
             : 'Hello! I\'m Chayo, your AI assistant. Let\'s continue setting up your business. '
-          return greeting + firstQuestion
+          
+          return {
+            content: greeting + firstQuestion.question_template,
+            multipleChoices: firstQuestion.multiple_choices,
+            // These properties don't exist in BusinessInfoField, so we'll use defaults
+            allowMultiple: false,
+            showOtherOption: false
+          }
         }
         console.log('🔄 No pending questions found, generating dynamic questions for new user')
         try {
           // Use the service directly instead of the API route
           const questions = await businessInfoService.generateBusinessQuestions(business.id, '')
           if (questions && questions.length > 0) {
-            const firstQuestion = questions[0].question_template
+            const firstQuestion = questions[0]
             const greeting = isSpanish
               ? '¡Hola! Soy Chayo, tu asistente de IA. Empecemos configurando tu negocio. '
               : 'Hello! I\'m Chayo, your AI assistant. Let\'s start setting up your business. '
-            return greeting + firstQuestion
+            
+            return {
+              content: greeting + firstQuestion.question_template,
+              multipleChoices: firstQuestion.multiple_choices,
+              allowMultiple: (firstQuestion as any).allow_multiple || false,
+              showOtherOption: (firstQuestion as any).show_other || false
+            }
           }
+
         } catch (error) {
           console.error('Error generating business questions:', error)
         }
-        return isSpanish
-          ? '¡Hola! Soy Chayo. Ya tienes tu información de negocio completa. Ahora enfoquémonos en cómo quieres que Chayo se comunique con tus clientes. ¿Qué tono prefieres que use Chayo al hablar con tus clientes?'
-          : 'Hello! I\'m Chayo. Your business information is complete. Now let\'s focus on how you want Chayo to communicate with your clients. What tone would you prefer Chayo to use when speaking with your customers?'
+        return {
+          content: isSpanish
+            ? '¡Hola! Soy Chayo. Ya tienes tu información de negocio completa. Ahora enfoquémonos en cómo quieres que Chayo se comunique con tus clientes. ¿Qué tono prefieres que use Chayo al hablar con tus clientes?'
+            : 'Hello! I\'m Chayo. Your business information is complete. Now let\'s focus on how you want Chayo to communicate with your clients. What tone would you prefer Chayo to use when speaking with your customers?'
+        }
       } catch (error) {
         console.error('Error fetching pending questions:', error)
-        return isSpanish
-          ? '¡Hola! Soy Chayo. Continuemos configurando tu asistente de IA para tu negocio.'
-          : 'Hello! I\'m Chayo. Let\'s continue setting up your AI assistant for your business.'
+        return {
+          content: isSpanish
+            ? '¡Hola! Soy Chayo. Continuemos configurando tu asistente de IA para tu negocio.'
+            : 'Hello! I\'m Chayo. Let\'s continue setting up your AI assistant for your business.'
+        }
       }
     } catch (error) {
       console.error('Error generating initial chat message:', error)
-      return locale === 'es'
-        ? '¡Hola! Soy Chayo, tu asistente de IA. ¿Cómo puedo ayudarte hoy?'
-        : 'Hello! I\'m Chayo, your AI assistant. How can I help you today?'
+      return {
+        content: locale === 'es'
+          ? '¡Hola! Soy Chayo, tu asistente de IA. ¿Cómo puedo ayudarte hoy?'
+          : 'Hello! I\'m Chayo, your AI assistant. How can I help you today?'
+      }
     }
   }
-  async autoStartChat(initialMessage: string, locale: string): Promise<string | null> {
-    try {
-      const { data: { user }, error: authError } = await this.supabaseClient.auth.getUser()
-      if (authError || !user) {
-        return locale === 'es'
-          ? '¡Hola! Soy Chayo, tu asistente de IA. Comienza a chatear conmigo para configurar tu negocio.'
-          : 'Hello! I\'m Chayo, your AI assistant. Start chatting with me to set up your business.'
-      }
-      const business = await this.fetchBusiness(user.id)
-      if (business) {
-        return await this.generateInitialChatMessage(business, locale)
-      } else {
-        return locale === 'es'
-          ? '¡Hola! Soy Chayo. Vamos a configurar tu negocio. ¿Cuál es el nombre de tu empresa?'
-          : 'Hello! I\'m Chayo. Let\'s set up your business. What\'s your company name?'
-      }
-    } catch (error) {
-      console.error('Error auto-starting chat:', error)
-      return null
-    }
-  }
+
 }
 
 export const dashboardInitService = new DashboardInitService() 

@@ -7,7 +7,12 @@ export interface UseDashboardInitReturn {
   isLoading: boolean
   error: string | null
   retryInit: () => void
-  initialMessage?: string | null
+  initialMessage?: {
+    content: string
+    multipleChoices?: string[]
+    allowMultiple?: boolean
+    showOtherOption?: boolean
+  } | null
   shouldShowAuthPrompt: boolean
 }
 
@@ -20,7 +25,12 @@ export function useDashboardInit(
   const [initData, setInitData] = useState<DashboardInitData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [initialMessage, setInitialMessage] = useState<string | null>(null)
+  const [initialMessage, setInitialMessage] = useState<{
+    content: string
+    multipleChoices?: string[]
+    allowMultiple?: boolean
+    showOtherOption?: boolean
+  } | null>(null)
   const [shouldShowAuthPrompt, setShouldShowAuthPrompt] = useState(false)
 
   const initializeDashboard = async () => {
@@ -44,7 +54,9 @@ export function useDashboardInit(
       } else if (authState !== 'loading' && !user) {
         // Only show auth prompt if not loading and no user
         setShouldShowAuthPrompt(true)
-        setInitialMessage(authPromptMessage || "Hi there! What's your name? (First name only is fine)")
+        setInitialMessage({
+          content: authPromptMessage || "Hi there! What's your name? (First name only is fine)"
+        })
         setIsLoading(false)
       } else {
         // Still loading

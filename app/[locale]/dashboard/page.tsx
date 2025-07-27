@@ -12,7 +12,7 @@ import { useAuth } from '@/lib/hooks/useAuth'
 import { useChat } from '@/lib/hooks/useChat'
 import { useMobile } from '@/lib/hooks/useMobile'
 import { useDashboardInit } from '@/lib/hooks/useDashboardInit'
-import { useAutoStartChat } from '@/lib/hooks/useAutoStartChat'
+
 import { useQRCodeLogic } from '@/lib/hooks/useQRCodeLogic'
 import { useBillingManagement } from '@/lib/hooks/useBillingManagement'
 import { useLogout } from '@/lib/hooks/useLogout'
@@ -50,20 +50,12 @@ function DashboardContent() {
   // Initialize all hooks
   const auth = useAuth()
   const dashboardInit = useDashboardInit(locale, auth.authState, auth.user, t('authPrompt'))
-  const autoStartChat = useAutoStartChat(locale, !dashboardInit.isLoading)
+
   const mobile = useMobile(() => {})
   
   // Initialize chat hook
   const chat = useChat({
     authState: auth.authState,
-    user: auth.user,
-    pendingName: auth.pendingName,
-    pendingEmail: auth.pendingEmail,
-    otpLoading: auth.otpLoading,
-    setOtpError: auth.setOtpError,
-    setOtpSent: auth.setOtpSent,
-    setResendCooldown: auth.setResendCooldown,
-    setAuthState: auth.setAuthState,
     locale
   })
 
@@ -101,20 +93,9 @@ function DashboardContent() {
   // Use logout hook
   const { handleLogout } = useLogout()
 
-  // Use single hook for all initial chat messages
+  // Use single hook for initial chat message
   useInitialChatMessage({
-    messageSources: [
-      {
-        message: dashboardInit.initialMessage,
-        id: 'initial',
-        priority: 2 // Higher priority
-      },
-      {
-        message: autoStartChat.initialResponse,
-        id: 'auto-start',
-        priority: 1 // Lower priority
-      }
-    ],
+    message: dashboardInit.initialMessage,
     messagesLength: chat.messages.length,
     locale,
     setMessages: chat.setMessages
@@ -268,7 +249,6 @@ function DashboardContent() {
     return (
       <LoadingScreen 
         message={auth.loading ? 'Authenticating...' : 'Loading dashboard...'}
-        isAutoStarting={autoStartChat.isAutoStarting}
       />
     )
   }
