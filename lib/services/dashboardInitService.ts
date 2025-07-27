@@ -206,31 +206,17 @@ export class DashboardInitService {
         }
         console.log('🔄 No pending questions found, generating dynamic questions for new user')
         try {
-          const response = await fetch('/api/generate-business-questions', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              organizationId: business.id,
-              conversation: ''
-            })
-          })
-          if (response.ok) {
-            const { questions } = await response.json()
-            if (questions && questions.length > 0) {
-              const firstQuestion = questions[0].question_template
-              const greeting = isSpanish
-                ? '¡Hola! Soy Chayo, tu asistente de IA. Empecemos configurando tu negocio. '
-                : 'Hello! I\'m Chayo, your AI assistant. Let\'s start setting up your business. '
-              return greeting + firstQuestion
-            }
-          } else {
-            const errorData = await response.json()
-            console.error('Failed to generate business questions:', errorData)
+          // Use the service directly instead of the API route
+          const questions = await businessInfoService.generateBusinessQuestions(business.id, '')
+          if (questions && questions.length > 0) {
+            const firstQuestion = questions[0].question_template
+            const greeting = isSpanish
+              ? '¡Hola! Soy Chayo, tu asistente de IA. Empecemos configurando tu negocio. '
+              : 'Hello! I\'m Chayo, your AI assistant. Let\'s start setting up your business. '
+            return greeting + firstQuestion
           }
         } catch (error) {
-          console.error('Error calling generate business questions API:', error)
+          console.error('Error generating business questions:', error)
         }
         return isSpanish
           ? '¡Hola! Soy Chayo. Ya tienes tu información de negocio completa. Ahora enfoquémonos en cómo quieres que Chayo se comunique con tus clientes. ¿Qué tono prefieres que use Chayo al hablar con tus clientes?'

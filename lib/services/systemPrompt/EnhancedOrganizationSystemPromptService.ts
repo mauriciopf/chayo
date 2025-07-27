@@ -175,7 +175,6 @@ Now, here is your base prompt:
    * Generate business questions for information gathering
    */
   async generateBusinessQuestions(
-    organizationId: string, 
     currentConversation: string, 
     answeredFieldNames: string[]
   ): Promise<{question_template: string, field_name: string, field_type: string, multiple_choices?: string[], allow_multiple?: boolean, show_other?: boolean}[]> {

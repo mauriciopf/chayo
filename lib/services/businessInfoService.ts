@@ -28,25 +28,16 @@ export class BusinessInfoService {
    */
   async generateBusinessQuestions(organizationId: string, currentConversation: string): Promise<{question_template: string, field_name: string, field_type: string, multiple_choices?: string[]}[]> {
     try {
-      // Get existing answered fields
-      const { data: answeredFields } = await supabase
-        .from('business_info_fields')
-        .select('field_name')
-        .eq('organization_id', organizationId)
-        .eq('is_answered', true)
-
-      const answeredFieldNames = answeredFields?.map(f => f.field_name) || []
-
       // Get existing unanswered questions
-      const { data: existingQuestions } = await supabase
+      const { data: unAnsweredQuestions } = await supabase
         .from('business_info_fields')
         .select('field_name, question_template, field_type, multiple_choices')
         .eq('organization_id', organizationId)
         .eq('is_answered', false)
 
       // If we have unanswered questions, return them
-      if (existingQuestions && existingQuestions.length > 0) {
-        return existingQuestions.map(q => ({
+      if (unAnsweredQuestions && unAnsweredQuestions.length > 0) {
+        return unAnsweredQuestions.map(q => ({
           question_template: q.question_template,
           field_name: q.field_name,
           field_type: q.field_type || 'text',
@@ -57,10 +48,17 @@ export class BusinessInfoService {
       // Use the EnhancedOrganizationSystemPromptService to generate questions
       const { EnhancedOrganizationSystemPromptService } = await import('./systemPrompt/EnhancedOrganizationSystemPromptService')
       const enhancedService = new EnhancedOrganizationSystemPromptService()
-      
+      // Get existing answered fields
+      const { data: answeredFields } = await supabase
+        .from('business_info_fields')
+        .select('field_name')
+        .eq('organization_id', organizationId)
+        .eq('is_answered', true)
+
+      const answeredFieldNames = answeredFields?.map(f => f.field_name) || []
+
       // Only generate one question at a time
       const questions = await enhancedService.generateBusinessQuestions(
-        organizationId,
         currentConversation,
         answeredFieldNames
       )
