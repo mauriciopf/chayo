@@ -16,13 +16,6 @@ export interface BusinessInfoField {
   updated_at?: string
 }
 
-export interface ExtractedInfo {
-  field_name: string
-  field_value: string
-  confidence: number
-  source: 'conversation' | 'document' | 'manual'
-}
-
 export class BusinessInfoService {
   private supabaseClient: any
 
@@ -76,7 +69,6 @@ export class BusinessInfoService {
       if (questions && questions.length > 0) {
         const singleQuestion = [questions[0]] // Only take the first question
         await this.storeBusinessQuestions(organizationId, singleQuestion)
-        console.log(`❓ Generated and stored 1 new question: ${questions[0].field_name}`)
         return singleQuestion
       }
 
@@ -114,108 +106,53 @@ export class BusinessInfoService {
 
 
   /**
-   * Extract business information from conversation
+   * Check if a specific question was answered in the conversation
    */
-  async extractBusinessInfo(organizationId: string, conversation: string): Promise<ExtractedInfo[]> {
+  async validateAnswerWithAI(conversation: string, question: string): Promise<{answered: boolean, answer?: string, confidence?: number}> {
     try {
-      // Get ALL questions to match against (not just pending ones)
-      // This allows us to extract answers even if questions were just created
-      const { data: existingFields } = await this.supabaseClient
-        .from('business_info_fields')
-        .select('field_name, question_template, is_answered')
-        .eq('organization_id', organizationId)
-        .order('created_at', { ascending: true })
-
-      if (!existingFields || existingFields.length === 0) {
-        return []
+      if (!question || question.length === 0) {
+        return { answered: false }
       }
 
-      // Filter to only unanswered questions for the prompt context
-      const unansweredFields = existingFields.filter((f: BusinessInfoField) => !f.is_answered)
-
-      // Use the EnhancedOrganizationSystemPromptService to extract business info
+      // Use the EnhancedOrganizationSystemPromptService to validate the answer
       const { EnhancedOrganizationSystemPromptService } = await import('./systemPrompt/EnhancedOrganizationSystemPromptService')
       const enhancedService = new EnhancedOrganizationSystemPromptService()
       
-      const extractedInfo = await enhancedService.extractBusinessInfo(
-        organizationId,
-        conversation,
-        unansweredFields
-      )
-
-      return extractedInfo
+      return await enhancedService.validateAnswerWithAI(conversation, question)
     } catch (error) {
-      console.error('Error extracting business info:', error)
-      return []
+      console.error('Error validating answer with AI:', error)
+      return { answered: false }
     }
   }
 
   /**
-   * Update business info fields with extracted information
+   * Update a question as answered in the database
    */
-  async updateBusinessInfoFields(organizationId: string, extractedInfo: ExtractedInfo[]): Promise<void> {
+  async updateQuestionAsAnswered(
+    organizationId: string,
+    fieldName: string,
+    answer: string,
+    confidence: number
+  ): Promise<void> {
     try {
-      let businessNameUpdated = false
-      let newBusinessName = ''
+      const { error } = await this.supabaseClient
+        .from('business_info_fields')
+        .update({
+          field_value: answer,
+          confidence: confidence,
+          is_answered: true,
+          updated_at: new Date().toISOString()
+        })
+        .eq('organization_id', organizationId)
+        .eq('field_name', fieldName)
 
-      for (const info of extractedInfo) {
-        if (info.confidence > 0.3) { // Lowered from 0.7 to 0.3 for much better answer recognition
-          // Update the field with the answer
-          const { error: updateError } = await this.supabaseClient
-            .from('business_info_fields')
-            .update({
-              field_value: info.field_value,
-              is_answered: true,
-              confidence: info.confidence,
-              source: info.source,
-              updated_at: new Date().toISOString()
-            })
-            .eq('organization_id', organizationId)
-            .eq('field_name', info.field_name)
-            .eq('is_answered', false)
-
-          if (updateError) {
-            console.error('Error updating business info field:', updateError)
-          } else {
-            console.log(`✅ Updated field ${info.field_name} for organization ${organizationId} with confidence ${info.confidence}`)
-            
-            // Track if business_name was updated
-            if (info.field_name === 'business_name') {
-              businessNameUpdated = true
-              newBusinessName = info.field_value
-            }
-          }
-        } else {
-          console.log(`❌ Rejected field ${info.field_name} with confidence ${info.confidence} (below threshold 0.3)`)
-        }
+      if (error) {
+        console.error('Error updating question as answered:', error)
+        throw error
       }
-
-      // If business_name was updated, also update the organization slug and name
-      if (businessNameUpdated && newBusinessName) {
-        try {
-          const newSlug = generateSlugFromName(newBusinessName)
-          const { error: orgUpdateError } = await this.supabaseClient
-            .from('organizations')
-            .update({ 
-              name: newBusinessName,
-              slug: newSlug 
-            })
-            .eq('id', organizationId)
-
-          if (orgUpdateError) {
-            console.error('Error updating organization name and slug:', orgUpdateError)
-          } else {
-            console.log(`✅ Updated organization name to "${newBusinessName}" and slug to "${newSlug}"`)
-          }
-        } catch (error) {
-          console.error('Error updating organization name and slug:', error)
-        }
-      }
-
-      // Business info count is now calculated dynamically from business_info_fields
-      console.log(`Updated ${extractedInfo.length} business info fields for organization ${organizationId}`)
     } catch (error) {
-      console.error('Error updating business info fields:', error)
+      console.error('Error updating question as answered:', error)
+      throw error
     }
   }
 
@@ -262,7 +199,6 @@ export class BusinessInfoService {
         return []
       }
 
-      console.log(`📋 Found ${fields?.length || 0} pending questions for organization ${organizationId}:`, fields?.map((f: BusinessInfoField) => f.field_name))
       return fields || []
     } catch (error) {
       console.error('Error getting pending questions:', error)

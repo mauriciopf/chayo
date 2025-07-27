@@ -241,6 +241,7 @@ export class OrganizationChatService {
         }
         
         // Store the question if it contains a question (multiple choice or regular)
+        // Only store if this is a NEW question, not a pending one
         if (this.containsQuestion(aiMessage)) {
           await this.storeAIGeneratedQuestion(context.organization.id, aiMessage, multipleChoiceData)
         }
@@ -336,28 +337,21 @@ export class OrganizationChatService {
         .single()
       
       if (existingQuestion) {
-        return // Question already exists, don't duplicate
+        return
       }
       
-      // Store the question in business_info_fields table
-      const { error } = await this.supabaseClient
+      await this.supabaseClient
         .from('business_info_fields')
         .insert({
           organization_id: organizationId,
           field_name: fieldName,
-          field_type: multipleChoiceData ? 'multiple_choice' : 'text',
+          field_type: multipleChoiceData ? 'multiple_choice' : 'text', // Dynamically set type
           is_answered: false,
           question_template: questionText,
-          multiple_choices: multipleChoiceData?.options || null
+          multiple_choices: multipleChoiceData?.options || null // Handle null multipleChoiceData
         })
-      
-      if (error) {
-        console.error('Error storing AI-generated question:', error)
-      } else {
-        console.log(`📝 Stored AI-generated question: ${fieldName}`)
-      }
     } catch (error) {
-      console.warn('Failed to store AI-generated question:', error)
+      console.error('   ❌ Error in storeAIGeneratedQuestion:', error)
     }
   }
 
@@ -441,22 +435,44 @@ export class OrganizationChatService {
           organization_name: context.organization.name
         }
       )
+      
       try {
         const businessInfoService = new (await import('./businessInfoService')).BusinessInfoService()
         
-        // Extract business info from user messages
-        const userMessages = messages.filter(m => m.role === 'user').map(m => m.content).join(' ')
-        if (userMessages.trim()) {
-          const extractedInfo = await businessInfoService.extractBusinessInfo(context.organization.id, userMessages)
-          if (extractedInfo.length > 0) {
-            await businessInfoService.updateBusinessInfoFields(context.organization.id, extractedInfo)
-            console.log(`Extracted ${extractedInfo.length} business info fields from conversation`)
+        // Get the pending unanswered question
+        const { data: pendingQuestions } = await this.supabaseClient
+          .from('business_info_fields')
+          .select('question_template, field_name')
+          .eq('organization_id', context.organization.id)
+          .eq('is_answered', false)
+          .order('created_at', { ascending: true })
+          .limit(1)
+
+        if (pendingQuestions && pendingQuestions.length > 0) {
+          const pendingQuestion = pendingQuestions[0]
+          const userMessages = messages.filter(m => m.role === 'user').map(m => m.content).join(' ')
+          
+          if (userMessages.trim()) {
+            // Check if the pending question was answered
+            const validationResult = await businessInfoService.validateAnswerWithAI(
+              userMessages, 
+              pendingQuestion.question_template
+            )
+            
+            if (validationResult.answered && validationResult.answer && validationResult.confidence) {
+              // Update the question as answered
+              await businessInfoService.updateQuestionAsAnswered(
+                context.organization.id,
+                pendingQuestion.field_name,
+                validationResult.answer,
+                validationResult.confidence
+              )
+              console.log(`Question "${pendingQuestion.question_template}" was answered with: ${validationResult.answer}`)
+            }
           }
         }
-        
-
       } catch (error) {
-        console.warn('Failed to extract business info:', error)
+        console.warn('Failed to validate and update business info:', error)
       }
       try {
         const { embeddingService } = await import('./embeddingService')

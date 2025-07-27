@@ -282,54 +282,44 @@ Return only 1 question as a JSON array with this structure:
   }
 
   /**
-   * Extract business information from conversation
+   * Check if a single question was answered in the conversation
    */
-  async extractBusinessInfo(
-    organizationId: string, 
+  async validateAnswerWithAI(
     conversation: string, 
-    unansweredFields: any[]
-  ): Promise<{field_name: string, field_value: string, confidence: number, source: 'conversation'}[]> {
+    question: string
+  ): Promise<{answered: boolean, answer?: string, confidence?: number}> {
     try {
       const apiKey = process.env.OPENAI_API_KEY
       if (!apiKey) {
-        console.warn('OpenAI API key not set, skipping business info extraction')
-        return []
+        console.warn('OpenAI API key not set, skipping answer validation')
+        return { answered: false }
       }
 
-      const questionsContext = unansweredFields.map((f: any) => `${f.field_name}: ${f.question_template}`).join('\n')
+      const prompt = `Check if the user's response answers this specific question.
 
-      const prompt = `Analyze this conversation and extract business information that answers the pending questions.
+QUESTION: "${question}"
 
-Pending questions:
-${questionsContext}
+USER'S RESPONSE: "${conversation}"
 
-Conversation: "${conversation}"
+TASK: Determine if the user answered the question and extract their answer.
 
-IMPORTANT: You MUST respond with ONLY valid JSON. No explanations, no text, ONLY JSON.
+RULES:
+- Only return true if the user clearly answered the question
+- For multiple choice: extract the selected option(s)
+- For text questions: extract the relevant information
+- Be specific - don't match vague or unrelated responses
+- If the question is not answered, return false
 
-Return a JSON array of objects with:
-- field_name: the field name that was answered
-- field_value: the extracted answer
-- confidence: confidence score 0-1
+Return JSON:
+{"answered": true, "answer": "user's answer", "confidence": 0.9}
 
-Guidelines:
-- Be generous in recognizing answers - if the user provides any relevant information, extract it
-- Even partial answers should be extracted with appropriate confidence scores
-- If the user mentions something related to a question, consider it answered
-- The conversation may be in Spanish - translate and interpret Spanish terms appropriately
-- Confidence scores: 0.9-1.0 for direct answers, 0.7-0.8 for clear but indirect answers, 0.5-0.6 for partial answers, 0.3-0.4 for implied or related answers
-- For multiple choice questions, extract the selected option(s) as the field_value
-- Examples of Spanish terms that might answer questions:
-  * "braces" → unique_approaches (orthodontic techniques)
-  * "limpieza dental" → unique_approaches (dental cleaning services)
-  * "secretaria de salud" → partnerships (government health partnerships)
-  * "vecinos de la colonia" → target_market (local community residents)
-  * "certificaciones" → business_qualifications
-  * "medidas de seguridad" → safety_measures
+Confidence scores:
+- 0.9-1.0: Direct, clear answer
+- 0.7-0.8: Clear but indirect answer  
+- 0.5-0.6: Partial answer
+- Below 0.5: Reject
 
-Response format:
-- If information found: [{"field_name": "example", "field_value": "value", "confidence": 0.8}]
-- If no information found: []
+If not answered, return: {"answered": false}
 
 RESPOND WITH ONLY JSON - NO OTHER TEXT.`
 
@@ -343,7 +333,7 @@ RESPOND WITH ONLY JSON - NO OTHER TEXT.`
           model: 'gpt-4',
           messages: [{ role: 'user', content: prompt }],
           temperature: 0.1,
-          max_tokens: 500
+          max_tokens: 200
         })
       })
 
@@ -353,34 +343,30 @@ RESPOND WITH ONLY JSON - NO OTHER TEXT.`
         
         if (content) {
           try {
-            // Try to parse as JSON
             const parsed = JSON.parse(content)
-            if (Array.isArray(parsed)) {
-              return parsed.map(item => ({
-                ...item,
-                source: 'conversation' as const
-              }))
+            
+            if (parsed.answered === true) {
+              return {
+                answered: true,
+                answer: parsed.answer,
+                confidence: parsed.confidence
+              }
             } else {
-              console.warn('AI response is not an array:', parsed)
+              return { answered: false }
             }
           } catch (parseError) {
-            // Fallback: If AI returned text saying "empty array", treat as empty
-            if (content.toLowerCase().includes('empty array') || 
-                content.toLowerCase().includes('no relevant information') ||
-                content.toLowerCase().includes('return should be')) {
-              return []
-            } else {
-              console.error('Unexpected AI response format - not JSON and not empty explanation')
-              console.error('Raw AI response:', content)
-            }
+            console.error('Failed to parse JSON response:', parseError)
+            return { answered: false }
           }
         }
+      } else {
+        console.error('OpenAI API error:', response.status, response.statusText)
       }
     } catch (error) {
-      console.error('Error extracting business info:', error)
+      console.error('Error validating answer with AI:', error)
     }
 
-    return []
+    return { answered: false }
   }
 
   /**
