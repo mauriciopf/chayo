@@ -141,7 +141,6 @@ console.log(result.metadata)
 //   basePromptLength: 2041,
 //   trainingHintContext: { hint: {...}, hasActiveHint: true },
 //   hasDocumentContext: true,
-//   usingRAG: true,
 //   systemPromptLength: 2847
 // }
 ```
@@ -170,7 +169,6 @@ interface SystemPromptResult {
     trainingHintContext: TrainingHintContext
     hasDocumentContext: boolean
     hasConversationContext: boolean
-    usingRAG: boolean
     systemPromptLength: number
   }
 }

@@ -1,10 +1,10 @@
 import { supabase } from '@/lib/supabase/client'
 
-export async function getConversationKnowledge(agentId: string, maxLength: number = 4000): Promise<string | null> {
+export async function getConversationKnowledge(organizationId: string, maxLength: number = 4000): Promise<string | null> {
   const { data: conversations, error } = await supabase
     .from('conversation_embeddings')
     .select('conversation_segment, metadata')
-    .eq('agent_id', agentId)
+    .eq('organization_id', organizationId)
     .eq('segment_type', 'conversation')
     .order('created_at', { ascending: false })
     .limit(10)

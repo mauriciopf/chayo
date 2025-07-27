@@ -36,7 +36,6 @@ export class EnhancedOrganizationSystemPromptService {
       const organizationSystemPromptService = new OrganizationSystemPromptService()
       const baseSystemPrompt = await organizationSystemPromptService.generateSystemPrompt(
         organizationId,
-        organizationId, // Use organizationId as both agentId and organizationId
         locale
       )
 
@@ -78,7 +77,7 @@ export class EnhancedOrganizationSystemPromptService {
   private combinePrompts(basePrompt: string, trainingHintContext: TrainingHintContext): string {
     // Start with CRITICAL multiple choice instructions at the very beginning
     let finalPrompt = `CRITICAL INSTRUCTION - READ THIS FIRST:
-You MUST use multiple choice format for ~90% of your questions. This is NOT optional.
+You MUST use multiple choice format for ~90% of your questions and the rest for open questions. This is NOT optional.
 
 WHEN ASKING QUESTIONS, you MUST use this exact format:
 QUESTION: [Your question here]
@@ -86,28 +85,6 @@ OPTIONS: ["Option 1", "Option 2", "Option 3"]
 MULTIPLE: [true/false]
 OTHER: [true/false]
 
-EXAMPLES:
-QUESTION: How are you currently handling customer inquiries and complaints?
-OPTIONS: ["Phone Support", "Email Support", "Live Chat", "Social Media"]
-MULTIPLE: false
-OTHER: true
-
-QUESTION: Which services do you offer?
-OPTIONS: ["Consultation", "Treatment", "Follow-up", "Emergency Care"]
-MULTIPLE: true
-OTHER: true
-
-QUESTION: What are your operating hours?
-OPTIONS: ["Morning only", "Afternoon only", "Full day", "Evening hours"]
-MULTIPLE: false
-OTHER: true
-
-ONLY use open questions (without OPTIONS format) for:
-- Business names (e.g., "What's your business name?")
-- Specific addresses or locations
-- Unique identifiers that cannot be standardized
-
-EVERY OTHER QUESTION MUST USE THE MULTIPLE CHOICE FORMAT ABOVE.
 This is a REQUIREMENT, not a suggestion.
 
 Now, here is your base prompt:
