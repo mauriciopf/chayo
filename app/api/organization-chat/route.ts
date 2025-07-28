@@ -33,8 +33,11 @@ export async function POST(req: NextRequest) {
     
     const validatedRequest = validationService.validateChatRequest(body)
     
-    validationService.validateUserMessages(validatedRequest.messages)
-    validationService.validateMessageLengths(validatedRequest.messages)
+    // Skip validation for initial messages (empty messages array)
+    if (validatedRequest.messages.length > 0) {
+      validationService.validateUserMessages(validatedRequest.messages)
+      validationService.validateMessageLengths(validatedRequest.messages)
+    }
     
     // Sanitize messages and process chat
     const sanitizedMessages = validationService.sanitizeMessages(validatedRequest.messages)
