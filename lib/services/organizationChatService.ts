@@ -439,7 +439,7 @@ export class OrganizationChatService {
       // Get the pending unanswered question
       const { data: pendingQuestions } = await this.supabaseClient
         .from('business_info_fields')
-        .select('question_template, field_name')
+        .select('id, question_template, field_name, is_answered')
         .eq('organization_id', context.organization.id)
         .eq('is_answered', false)
         .order('created_at', { ascending: true })

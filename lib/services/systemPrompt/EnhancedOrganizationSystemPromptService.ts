@@ -280,11 +280,12 @@ USER'S RESPONSE: "${conversation}"
 TASK: Determine if the user answered the question and extract their answer.
 
 RULES:
-- Only return true if the user clearly answered the question
-- For multiple choice: extract the selected option(s)
-- For text questions: extract the relevant information
-- Be specific - don't match vague or unrelated responses
-- If the question is not answered, return false
+- Accept partial answers that clearly relate to the question
+- For yes/no questions: accept "yes", "no", "yeah", "nope", etc.
+- For training questions: accept "trained", "training", "yes they are", etc.
+- For service questions: accept any mention of the service
+- Be lenient with short, direct answers
+- Only reject if completely unrelated or unclear
 
 Return JSON:
 {"answered": true, "answer": "user's answer", "confidence": 0.9}
@@ -292,7 +293,7 @@ Return JSON:
 Confidence scores:
 - 0.9-1.0: Direct, clear answer
 - 0.7-0.8: Clear but indirect answer  
-- 0.5-0.6: Partial answer
+- 0.5-0.6: Partial but relevant answer
 - Below 0.5: Reject
 
 If not answered, return: {"answered": false}
