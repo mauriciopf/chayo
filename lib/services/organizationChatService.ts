@@ -48,6 +48,8 @@ export class OrganizationChatService {
         locale
       }
       
+      // Check and update any pending questions BEFORE generating new response
+      await this.validateAndUpdatePendingQuestions(messages, context)
 
       // Generate AI response
       const { aiMessage, multipleChoices, allowMultiple, showOtherOption } = await this.generateAIResponse(messages, context)
@@ -142,12 +144,16 @@ export class OrganizationChatService {
     }
     
     // Check if there are pending unanswered questions
-    const { data: pendingQuestions } = await this.supabaseClient
+    const { data: pendingQuestions, error: pendingError } = await this.supabaseClient
       .from('business_info_fields')
       .select('question_template, field_name, field_type, multiple_choices, allow_multiple, show_other_option')
       .eq('organization_id', context.organization.id)
       .eq('is_answered', false)
       .limit(1)
+    
+    if (pendingError) {
+      console.error('Error fetching pending questions:', pendingError)
+    }
     
     if (pendingQuestions && pendingQuestions.length > 0) {
       // Return the pending question instead of generating a new AI response
@@ -422,6 +428,50 @@ export class OrganizationChatService {
     //   }
     // }
   }
+  /**
+   * Validate and update any pending questions before generating new AI response
+   * This prevents race conditions where questions might be marked as answered after the response is generated
+   */
+  private async validateAndUpdatePendingQuestions(messages: ChatMessage[], context: ChatContext): Promise<void> {
+    try {
+      const businessInfoService = new (await import('./businessInfoService')).BusinessInfoService()
+      
+      // Get the pending unanswered question
+      const { data: pendingQuestions } = await this.supabaseClient
+        .from('business_info_fields')
+        .select('question_template, field_name')
+        .eq('organization_id', context.organization.id)
+        .eq('is_answered', false)
+        .order('created_at', { ascending: true })
+        .limit(1)
+
+      if (pendingQuestions && pendingQuestions.length > 0) {
+        const pendingQuestion = pendingQuestions[0]
+        const userMessages = messages.filter(m => m.role === 'user').map(m => m.content).join(' ')
+        
+        if (userMessages.trim()) {
+          // Check if the pending question was answered
+          const validationResult = await businessInfoService.validateAnswerWithAI(
+            userMessages, 
+            pendingQuestion.question_template
+          )
+          
+          if (validationResult.answered && validationResult.answer && validationResult.confidence) {
+            // Update the question as answered
+            await businessInfoService.updateQuestionAsAnswered(
+              context.organization.id,
+              pendingQuestion.field_name,
+              validationResult.answer,
+              validationResult.confidence
+            )
+          }
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to validate and update pending questions:', error)
+    }
+  }
+
   public async storeConversation(messages: ChatMessage[], aiMessage: string, context: ChatContext): Promise<void> {
     try {
       const { conversationStorageService } = await import('./conversationStorageService')
@@ -435,73 +485,19 @@ export class OrganizationChatService {
           organization_name: context.organization.name
         }
       )
-      
-      try {
-        const businessInfoService = new (await import('./businessInfoService')).BusinessInfoService()
-        
-        // Get the pending unanswered question
-        const { data: pendingQuestions } = await this.supabaseClient
-          .from('business_info_fields')
-          .select('question_template, field_name')
-          .eq('organization_id', context.organization.id)
-          .eq('is_answered', false)
-          .order('created_at', { ascending: true })
-          .limit(1)
-
-        if (pendingQuestions && pendingQuestions.length > 0) {
-          const pendingQuestion = pendingQuestions[0]
-          const userMessages = messages.filter(m => m.role === 'user').map(m => m.content).join(' ')
-          
-          if (userMessages.trim()) {
-            // Check if the pending question was answered
-            const validationResult = await businessInfoService.validateAnswerWithAI(
-              userMessages, 
-              pendingQuestion.question_template
-            )
-            
-            if (validationResult.answered && validationResult.answer && validationResult.confidence) {
-              // Update the question as answered
-              await businessInfoService.updateQuestionAsAnswered(
-                context.organization.id,
-                pendingQuestion.field_name,
-                validationResult.answer,
-                validationResult.confidence
-              )
-              console.log(`Question "${pendingQuestion.question_template}" was answered with: ${validationResult.answer}`)
-            }
-          }
-        }
-      } catch (error) {
-        console.warn('Failed to validate and update business info:', error)
-      }
       try {
         const { embeddingService } = await import('./embeddingService')
         const conversationText = messages.map(m => m.content).join(' ')
-        const memoryUpdateKeywords = [
-          'business hours changed', 'updated hours', 'new hours',
-          'moved location', 'new address', 'relocated',
-          'changed phone', 'new phone', 'updated contact',
-          'price change', 'updated pricing', 'new rates',
-          'service change', 'new service', 'updated service',
-          'policy change', 'updated policy', 'new policy'
-        ]
-        const hasMemoryUpdate = memoryUpdateKeywords.some(keyword => 
-          conversationText.toLowerCase().includes(keyword)
-        )
-        if (hasMemoryUpdate) {
-          console.log('🔄 Detected potential memory update in conversation')
-          const updateInfo = await this.extractMemoryUpdate(conversationText, context.organization.id)
-          if (updateInfo) {
-            const result = await embeddingService.updateMemory(
-              context.organization.id,
-              updateInfo,
-              'auto'
-            )
-            console.log(`Memory update result: ${result.action} (${result.memoryId})`)
-            if (result.conflicts && result.conflicts.length > 0) {
-              console.log(`Resolved ${result.conflicts.length} memory conflicts`)
-            }
-          }
+        
+        // Use AI to dynamically detect if this conversation contains business information updates
+        const updateInfo = await this.extractMemoryUpdate(conversationText, context.organization.id)
+        
+        if (updateInfo) {
+          const result = await embeddingService.updateMemory(
+            context.organization.id,
+            updateInfo,
+            'auto'
+          )
         }
       } catch (error) {
         console.warn('Failed to process memory updates:', error)
@@ -520,28 +516,43 @@ export class OrganizationChatService {
       })
 
       const extractionPrompt = `
-Analyze this conversation and extract any business information updates that should be stored in memory.
+Analyze this conversation and determine if it contains any business information updates that should be stored in the AI's memory.
 
 CONVERSATION: "${conversationText}"
 
-Look for updates to:
-- Business hours
-- Location/address
-- Contact information
-- Pricing
-- Services
-- Policies
-- Any other business details
+Consider the following types of business updates:
+- Business hours, operating schedule, or availability changes
+- Location, address, or service area updates
+- Contact information (phone, email, website) changes
+- Pricing, rates, or cost updates
+- New or modified services offered
+- Policy changes (returns, refunds, appointments, etc.)
+- Business name or branding updates
+- Staff or team changes
+- Equipment or technology updates
+- Any other business-relevant information that customers should know
+
+IMPORTANT: Only extract information that is:
+1. Clearly stated as a change or update
+2. Specific and actionable
+3. Relevant to customers or business operations
+4. Not just general conversation or questions
 
 If you find a clear business update, respond with JSON:
 {
-  "text": "extracted update text",
+  "text": "the specific updated information in a clear, concise format",
   "type": "knowledge",
-  "reason": "what was updated",
-  "confidence": 0.0-1.0
+  "reason": "brief description of what was updated",
+  "confidence": 0.0-1.0 (how confident you are this is an actual update)
 }
 
-If no clear update is found, respond with: null
+If no clear business update is found, respond with: null
+
+Examples of what to extract:
+- "We now offer 24/7 customer support" → extract
+- "Our new address is 123 Main St" → extract  
+- "What are your hours?" → do NOT extract (just a question)
+- "I'm thinking of changing our hours" → do NOT extract (not confirmed)
 `
 
       const response = await openai.chat.completions.create({
