@@ -17,6 +17,240 @@ export interface SystemPromptResult {
  * Enhanced system prompt service that combines base system prompts with training hints
  */
 export class EnhancedOrganizationSystemPromptService {
+  // Centralized prompt configurations
+  public static readonly PROMPT_CONFIG = {
+    // Main system prompt instructions
+    SYSTEM_INSTRUCTIONS: {
+      MULTIPLE_CHOICE_PERCENTAGE: 99,
+      MULTIPLE_CHOICE_FORMAT: `FOR MULTIPLE CHOICE QUESTIONS, use this exact format:
+QUESTION: [Your question here]
+OPTIONS: ["Option 1", "Option 2", "Option 3"]
+MULTIPLE: [true/false]
+OTHER: [true/false]
+
+IMPORTANT: You MUST use this format for ~99% of your questions. Only use open questions for business names, addresses, or unique identifiers.`,
+      OPEN_QUESTION_FORMAT: `FOR OPEN QUESTIONS (business names, addresses, unique identifiers), just ask the question directly without any formatting:
+"What is your business name?"`,
+      REQUIREMENT_NOTE: "This is a REQUIREMENT, not a suggestion.",
+      CRITICAL_HEADER: `CRITICAL INSTRUCTION - READ THIS FIRST:
+You MUST use multiple choice format for ~{PERCENTAGE}% of your questions and the rest for open questions. This is NOT optional.
+
+{MULTIPLE_CHOICE_FORMAT}
+
+{OPEN_QUESTION_FORMAT}
+
+{REQUIREMENT_NOTE}
+
+ENFORCEMENT: Every time you ask a question, you MUST follow this format. If you don't follow the format, the system will not work properly.
+
+CRITICAL RULE: When asking questions, you MUST choose between:
+1. MULTIPLE CHOICE format (99% of questions) - Use the exact format above
+2. OPEN QUESTION format (only for business names, addresses, unique identifiers)
+
+You CANNOT ask open-ended questions about business operations, policies, services, etc. - these MUST be multiple choice.
+
+IMPORTANT: Your primary goal is to gather information that will help you communicate effectively with the business's clients. Focus on understanding:
+- What clients typically ask about
+- What information clients need to know
+- How the business handles common client inquiries
+- What policies and procedures clients should be aware of
+
+Now, here is your base prompt:`,
+      REMINDER_SECTION: `REMINDER - QUESTION FORMAT REQUIREMENT:
+For MULTIPLE CHOICE questions ({PERCENTAGE}% of questions), use this format:
+QUESTION: [question]
+OPTIONS: ["option1", "option2", "option3"]
+MULTIPLE: [true/false]
+OTHER: [true/false]
+
+For OPEN QUESTIONS (business names, addresses, unique identifiers), just ask directly:
+"What is your business name?"
+
+CRITICAL: You CANNOT ask open-ended questions about business operations, policies, services, etc. - these MUST be multiple choice.
+
+The system will automatically detect the format and display appropriate options.`
+    },
+
+    // Business question generation prompt
+    BUSINESS_QUESTIONS: {
+      CONTEXT_LIMIT: 500,
+      TEMPERATURE: 0.7, // Higher temperature for creative question generation
+      MAX_TOKENS: 500,
+      PROMPT_TEMPLATE: `Based on this conversation context, generate 1 specific question to gather missing business information that will help you communicate effectively with clients. 
+
+Current conversation context: "{CONTEXT}"
+
+Already answered fields: {ANSWERED_FIELDS}
+
+Generate 1 question that:
+1. Is specific to this business type and context
+2. Hasn't been answered yet
+3. Will help you understand what clients need to know about this business
+4. Is natural and conversational
+5. Focuses on client-facing information: policies, procedures, services, pricing, hours, etc.
+6. ONLY gathers information - do not provide advice or suggestions
+
+CRITICAL INSTRUCTION: ~{PERCENTAGE}% of questions should be MULTIPLE CHOICE. Only use OPEN QUESTIONS for:
+- Business names (e.g., "What's your business name?")
+- Specific addresses or locations
+- Unique identifiers that cannot be standardized
+- Custom values that don't fit predefined categories
+
+CRITICAL RULE: You CANNOT ask open-ended questions about business operations, policies, services, etc. - these MUST be multiple choice.
+
+For multiple choice questions:
+- Use allow_multiple: true for questions where users can select multiple options (e.g., "Which services do you offer?")
+- Use show_other: true to include "Other (please specify)" option for flexibility
+- Provide 2-4 relevant options that cover common scenarios
+- Think creatively about how to structure choices to capture most common answers
+
+IMPORTANT: Focus on gathering information that clients will need to know. Think about what questions clients typically ask and what information they need.
+
+Examples of good multiple choice questions for client communication:
+- Common client inquiries: ["Pricing questions", "Appointment scheduling", "Service availability", "Policy questions"]
+- Client communication preferences: ["Phone calls", "Text messages", "Email", "In-person visits"]
+- Service delivery: ["In-office", "Home visits", "Virtual consultations", "Mobile services"]
+- Payment options: ["Cash only", "Insurance accepted", "Credit cards", "Payment plans"]
+- Operating hours: ["Morning only", "Afternoon only", "Full day", "Evening hours"]
+
+Return only 1 question as a JSON array with this structure:
+[
+  {
+    "question_template": "What type of health or wellness business do you run?",
+    "field_name": "business_type",
+    "field_type": "multiple_choice",
+    "multiple_choices": ["Dental Clinic", "Medical Practice", "Wellness Center", "Specialty Clinic"],
+    "allow_multiple": false,
+    "show_other": true
+  }
+]`,
+      EXAMPLES: {
+        MULTIPLE_CHOICE: [
+          {
+            question_template: "What type of health or wellness business do you run?",
+            field_name: "business_type",
+            field_type: "multiple_choice",
+            multiple_choices: ["Dental Clinic", "Medical Practice", "Wellness Center", "Specialty Clinic"],
+            allow_multiple: false,
+            show_other: true
+          }
+        ],
+        OPEN_QUESTION: [
+          {
+            question_template: "What is your business name?",
+            field_name: "business_name",
+            field_type: "text"
+          }
+        ]
+      }
+    },
+
+    // Answer validation prompt
+    ANSWER_VALIDATION: {
+      TEMPERATURE: 0.1, // Low temperature for precise validation
+      MAX_TOKENS: 200,
+      PROMPT_TEMPLATE: `Check if the user's response answers this specific question.
+
+QUESTION: "{QUESTION}"
+
+USER'S RESPONSE: "{RESPONSE}"
+
+TASK: Determine if the user answered the question and extract their answer.
+
+RULES:
+- Accept partial answers that clearly relate to the question
+- For yes/no questions: accept "yes", "no", "yeah", "nope", etc.
+- For training questions: accept "trained", "training", "yes they are", etc.
+- For service questions: accept any mention of the service
+- Be lenient with short, direct answers
+- Only reject if completely unrelated or unclear
+
+Return JSON:
+{"answered": true, "answer": "user's answer", "confidence": 0.9}
+
+Confidence scores:
+- 0.9-1.0: Direct, clear answer
+- 0.7-0.8: Clear but indirect answer  
+- 0.5-0.6: Partial but relevant answer
+- Below 0.5: Reject
+
+If not answered, return: {"answered": false}
+
+RESPOND WITH ONLY JSON - NO OTHER TEXT.`
+    },
+
+    // Memory update extraction prompt
+    MEMORY_EXTRACTION: {
+      TEMPERATURE: 0.1, // Low temperature for precise extraction
+      MAX_TOKENS: 300,
+      PROMPT_TEMPLATE: `Analyze this conversation and determine if it contains any business information updates that should be stored in the AI's memory.
+
+CONVERSATION: "{CONVERSATION}"
+
+Consider the following types of business updates:
+- Business hours, operating schedule, or availability changes
+- Location, address, or service area updates
+- Contact information (phone, email, website) changes
+- Pricing, rates, or cost updates
+- New or modified services offered
+- Policy changes (returns, refunds, appointments, etc.)
+- Business name or branding updates
+- Staff or team changes
+- Equipment or technology updates
+- Any other business-relevant information that customers should know
+
+IMPORTANT: Only extract information that is:
+1. Clearly stated as a change or update
+2. Specific and actionable
+3. Relevant to customers or business operations
+4. Not just general conversation or questions
+
+If you find a clear business update, respond with ONLY valid JSON (no markdown formatting, no backticks):
+{
+  "text": "the specific updated information in a clear, concise format",
+  "type": "knowledge",
+  "reason": "brief description of what was updated",
+  "confidence": 0.0-1.0 (how confident you are this is an actual update)
+}
+
+If no clear business update is found, respond with: null
+
+Examples of what to extract:
+- "We now offer 24/7 customer support" → extract
+- "Our new address is 123 Main St" → extract  
+- "What are your hours?" → do NOT extract (just a question)
+- "I'm thinking of changing our hours" → do NOT extract (not confirmed)`
+    },
+
+    // Base system prompt configuration
+    BASE_SYSTEM_PROMPT: {
+      IDENTITY: "You are Chayo, the AI assistant for the business specified in the {CONVERSATION_KNOWLEDGE}. Your role is to act as a messenger between the business and their clients, helping clients get the information they need.",
+      BUSINESS_KNOWLEDGE_SECTION: "## Business Conversation Knowledge:\n{CONVERSATION_KNOWLEDGE}",
+      LANGUAGE_SECTION: "## Response only in the language of the business: \n{LOCALE}",
+      GUIDELINES_SECTION: `## Response Guidelines:
+- Your primary purpose is to gather information that will help you communicate effectively with clients.
+- Focus on understanding what clients need to know about the business.
+- Ask questions about client-facing information: policies, procedures, services, pricing, hours, etc.
+- Gather information about common client inquiries and how the business handles them.
+- Maintain a professional tone.
+- NEVER provide information, advice, or responses about other topics.
+- Ask ONE specific question at a time.
+- Always end with a relevant question.
+- Do not give advice, suggestions, or information - only gather information.
+- CRITICAL: Use multiple choice format for ~99% of questions (see format instructions above).
+- For open questions (business names, addresses), ask directly without formatting.
+- EVERY question you ask must follow the exact format specified in the instructions above.
+- NEVER ask open-ended questions about business operations, policies, services, etc. - these MUST be multiple choice.`,
+      PROMPT_TEMPLATE: `{IDENTITY}
+
+{BUSINESS_KNOWLEDGE_SECTION}
+
+{LANGUAGE_SECTION}
+
+{GUIDELINES_SECTION}`
+    }
+  }
+
   constructor() {}
 
   /**
@@ -75,20 +309,17 @@ export class EnhancedOrganizationSystemPromptService {
    * Combine base system prompt with training hint additions
    */
   private combinePrompts(basePrompt: string, trainingHintContext: TrainingHintContext): string {
+    const config = EnhancedOrganizationSystemPromptService.PROMPT_CONFIG.SYSTEM_INSTRUCTIONS
+    
+    // Generate the critical header using the template
+    let criticalHeader = config.CRITICAL_HEADER
+      .replace('{PERCENTAGE}', config.MULTIPLE_CHOICE_PERCENTAGE.toString())
+      .replace('{MULTIPLE_CHOICE_FORMAT}', config.MULTIPLE_CHOICE_FORMAT)
+      .replace('{OPEN_QUESTION_FORMAT}', config.OPEN_QUESTION_FORMAT)
+      .replace('{REQUIREMENT_NOTE}', config.REQUIREMENT_NOTE)
+    
     // Start with CRITICAL multiple choice instructions at the very beginning
-    let finalPrompt = `CRITICAL INSTRUCTION - READ THIS FIRST:
-You MUST use multiple choice format for ~90% of your questions and the rest for open questions. This is NOT optional.
-
-WHEN ASKING QUESTIONS, you MUST use this exact format:
-QUESTION: [Your question here]
-OPTIONS: ["Option 1", "Option 2", "Option 3"]
-MULTIPLE: [true/false]
-OTHER: [true/false]
-
-This is a REQUIREMENT, not a suggestion.
-
-Now, here is your base prompt:
-`
+    let finalPrompt = criticalHeader
 
     finalPrompt += basePrompt
 
@@ -98,14 +329,10 @@ Now, here is your base prompt:
     }
 
     // Add additional multiple choice instructions at the end as reinforcement
-    finalPrompt += '\n\nREMINDER - MULTIPLE CHOICE REQUIREMENT:\n'
-    finalPrompt += 'You MUST use the multiple choice format for most questions:\n'
-    finalPrompt += 'QUESTION: [question]\n'
-    finalPrompt += 'OPTIONS: ["option1", "option2", "option3"]\n'
-    finalPrompt += 'MULTIPLE: [true/false]\n'
-    finalPrompt += 'OTHER: [true/false]\n'
-    finalPrompt += '\nThe system will automatically detect this format and display clickable options.\n'
-    finalPrompt += 'If you do not use this format, users cannot select options and must type their answers.'
+    let reminderSection = config.REMINDER_SECTION
+      .replace('{PERCENTAGE}', config.MULTIPLE_CHOICE_PERCENTAGE.toString())
+    
+    finalPrompt += '\n\n' + reminderSection
 
     return finalPrompt
   }
@@ -149,6 +376,33 @@ Now, here is your base prompt:
   }
 
   /**
+   * Generate the prompt for answer validation
+   */
+  private generateAnswerValidationPrompt(question: string, conversation: string): string {
+    const config = EnhancedOrganizationSystemPromptService.PROMPT_CONFIG.ANSWER_VALIDATION
+    
+    return config.PROMPT_TEMPLATE
+      .replace('{QUESTION}', question)
+      .replace('{RESPONSE}', conversation)
+  }
+
+  /**
+   * Generate the prompt for business questions
+   */
+  private generateBusinessQuestionsPrompt(
+    currentConversation: string, 
+    answeredFieldNames: string[]
+  ): string {
+    const config = EnhancedOrganizationSystemPromptService.PROMPT_CONFIG.BUSINESS_QUESTIONS
+    const systemConfig = EnhancedOrganizationSystemPromptService.PROMPT_CONFIG.SYSTEM_INSTRUCTIONS
+    
+    return config.PROMPT_TEMPLATE
+      .replace('{CONTEXT}', currentConversation.substring(0, config.CONTEXT_LIMIT))
+      .replace('{ANSWERED_FIELDS}', answeredFieldNames.join(', ') || 'None')
+      .replace('{PERCENTAGE}', systemConfig.MULTIPLE_CHOICE_PERCENTAGE.toString())
+  }
+
+  /**
    * Generate business questions for information gathering
    */
   async generateBusinessQuestions(
@@ -162,49 +416,8 @@ Now, here is your base prompt:
         return []
       }
 
-      const prompt = `Based on this conversation context, generate 1 specific question to gather missing business information. 
-
-Current conversation context: "${currentConversation.substring(0, 500)}"
-
-Already answered fields: ${answeredFieldNames.join(', ') || 'None'}
-
-Generate 1 question that:
-1. Is specific to this business type and context
-2. Hasn't been answered yet
-3. Will help understand their business better
-4. Is natural and conversational
-5. Focuses on business operations and customer needs
-
-CRITICAL INSTRUCTION: ~90% of questions should be MULTIPLE CHOICE. Only use OPEN QUESTIONS for:
-- Business names (e.g., "What's your business name?")
-- Specific addresses or locations
-- Unique identifiers that cannot be standardized
-- Custom values that don't fit predefined categories
-
-For multiple choice questions:
-- Use allow_multiple: true for questions where users can select multiple options (e.g., "Which services do you offer?")
-- Use show_other: true to include "Other (please specify)" option for flexibility
-- Provide 2-4 relevant options that cover common scenarios
-- Think creatively about how to structure choices to capture most common answers
-
-Examples of good multiple choice questions:
-- Business type: ["Dental Clinic", "Medical Practice", "Wellness Center", "Specialty Clinic"]
-- Services: ["Consultation", "Treatment", "Follow-up", "Emergency Care"]
-- Target market: ["Adults", "Children", "Seniors", "Families"]
-- Operating hours: ["Morning only", "Afternoon only", "Full day", "Evening hours"]
-- Payment methods: ["Cash only", "Insurance", "Credit cards", "Payment plans"]
-
-Return only 1 question as a JSON array with this structure:
-[
-  {
-    "question_template": "What type of health or wellness business do you run?",
-    "field_name": "business_type",
-    "field_type": "multiple_choice",
-    "multiple_choices": ["Dental Clinic", "Medical Practice", "Wellness Center", "Specialty Clinic"],
-    "allow_multiple": false,
-    "show_other": true
-  }
-]`
+      const config = EnhancedOrganizationSystemPromptService.PROMPT_CONFIG.BUSINESS_QUESTIONS
+      const prompt = this.generateBusinessQuestionsPrompt(currentConversation, answeredFieldNames)
 
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
@@ -215,8 +428,8 @@ Return only 1 question as a JSON array with this structure:
         body: JSON.stringify({
           model: 'gpt-4o-mini',
           messages: [{ role: 'user', content: prompt }],
-          temperature: 0.7,
-          max_tokens: 500
+          temperature: config.TEMPERATURE,
+          max_tokens: config.MAX_TOKENS
         })
       })
 
@@ -271,34 +484,8 @@ Return only 1 question as a JSON array with this structure:
         return { answered: false }
       }
 
-      const prompt = `Check if the user's response answers this specific question.
-
-QUESTION: "${question}"
-
-USER'S RESPONSE: "${conversation}"
-
-TASK: Determine if the user answered the question and extract their answer.
-
-RULES:
-- Accept partial answers that clearly relate to the question
-- For yes/no questions: accept "yes", "no", "yeah", "nope", etc.
-- For training questions: accept "trained", "training", "yes they are", etc.
-- For service questions: accept any mention of the service
-- Be lenient with short, direct answers
-- Only reject if completely unrelated or unclear
-
-Return JSON:
-{"answered": true, "answer": "user's answer", "confidence": 0.9}
-
-Confidence scores:
-- 0.9-1.0: Direct, clear answer
-- 0.7-0.8: Clear but indirect answer  
-- 0.5-0.6: Partial but relevant answer
-- Below 0.5: Reject
-
-If not answered, return: {"answered": false}
-
-RESPOND WITH ONLY JSON - NO OTHER TEXT.`
+      const config = EnhancedOrganizationSystemPromptService.PROMPT_CONFIG.ANSWER_VALIDATION
+      const prompt = this.generateAnswerValidationPrompt(question, conversation)
 
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
@@ -309,8 +496,8 @@ RESPOND WITH ONLY JSON - NO OTHER TEXT.`
         body: JSON.stringify({
           model: 'gpt-4o-mini',
           messages: [{ role: 'user', content: prompt }],
-          temperature: 0.1,
-          max_tokens: 200
+          temperature: config.TEMPERATURE,
+          max_tokens: config.MAX_TOKENS
         })
       })
 
