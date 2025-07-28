@@ -213,7 +213,7 @@ Return only 1 question as a JSON array with this structure:
           'Authorization': `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-          model: 'gpt-4',
+          model: 'gpt-4o-mini',
           messages: [{ role: 'user', content: prompt }],
           temperature: 0.7,
           max_tokens: 500
@@ -307,7 +307,7 @@ RESPOND WITH ONLY JSON - NO OTHER TEXT.`
           'Authorization': `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-          model: 'gpt-4',
+          model: 'gpt-4o-mini',
           messages: [{ role: 'user', content: prompt }],
           temperature: 0.1,
           max_tokens: 200

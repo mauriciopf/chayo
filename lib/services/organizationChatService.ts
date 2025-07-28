@@ -202,7 +202,7 @@ export class OrganizationChatService {
           'Authorization': `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-          model: 'gpt-4',
+          model: 'gpt-4o-mini',
           messages: chatMessages,
           temperature: 0.7,
           max_tokens: 1000
