@@ -107,15 +107,25 @@ export class BusinessInfoService {
    */
   async validateAnswerWithAI(conversation: string, question: string): Promise<{answered: boolean, answer?: string, confidence?: number}> {
     try {
-      if (!question || question.length === 0) {
+      if (!conversation || conversation.length === 0) {
         return { answered: false }
       }
 
-      // Use the EnhancedOrganizationSystemPromptService to validate the answer
-      const { EnhancedOrganizationSystemPromptService } = await import('./systemPrompt/EnhancedOrganizationSystemPromptService')
-      const enhancedService = new EnhancedOrganizationSystemPromptService()
+      // Simple validation - if there's a conversation, consider it answered
+      // Extract the last user message as the answer
+      const lines = conversation.split('\n')
+      const userMessages = lines.filter(line => line.trim().length > 0 && !line.startsWith('AI:') && !line.startsWith('Assistant:'))
       
-      return await enhancedService.validateAnswerWithAI(conversation, question)
+      if (userMessages.length > 0) {
+        const lastUserMessage = userMessages[userMessages.length - 1].trim()
+        return { 
+          answered: true, 
+          answer: lastUserMessage,
+          confidence: 0.8
+        }
+      }
+
+      return { answered: false }
     } catch (error) {
       console.error('Error validating answer with AI:', error)
       return { answered: false }

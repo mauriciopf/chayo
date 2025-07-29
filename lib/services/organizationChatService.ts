@@ -59,31 +59,27 @@ export class OrganizationChatService {
       // Get current onboarding progress
       const progress = await onboardingService.getOnboardingProgress(organization.id)
       
-      // For initial messages (empty messages array), return onboarding questions
+      // For initial messages (empty messages array), start onboarding dynamically
       if (messages.length === 0) {
-        // Get the next question to ask
-        const nextQuestion = await onboardingService.getNextQuestion(organization.id)
+        // Generate the first onboarding question dynamically from AI
+        const aiResponse = await this.generateAIResponse([], context)
         
-        if (nextQuestion) {
-          return {
-            aiMessage: nextQuestion.question_template,
-            multipleChoices: nextQuestion.multiple_choices || undefined,
-            allowMultiple: nextQuestion.allow_multiple || false,
-            showOtherOption: nextQuestion.show_other || false,
-            organization,
-            setupCompleted: false
-          }
-        } else {
-          // If no onboarding questions, provide a greeting
-          const greeting = locale === 'es' 
-            ? '¡Hola! Soy Chayo, tu asistente de IA. ¿Cómo puedo ayudarte hoy?'
-            : 'Hello! I\'m Chayo, your AI assistant. How can I help you today?'
-          
-          return {
-            aiMessage: greeting,
-            organization,
-            setupCompleted: progress.isCompleted
-          }
+        // Extract question from AI response and store it
+        if (aiResponse.aiMessage && !aiResponse.aiMessage.includes('STATUS: setup_complete')) {
+          await this.storeAIGeneratedQuestion(organization.id, aiResponse.aiMessage, {
+            options: aiResponse.multipleChoices || [],
+            allowMultiple: aiResponse.allowMultiple || false,
+            showOtherOption: aiResponse.showOtherOption || false
+          })
+        }
+        
+        return {
+          aiMessage: aiResponse.aiMessage,
+          multipleChoices: aiResponse.multipleChoices,
+          allowMultiple: aiResponse.allowMultiple,
+          showOtherOption: aiResponse.showOtherOption,
+          organization,
+          setupCompleted: progress.isCompleted
         }
       }
       
@@ -104,29 +100,25 @@ export class OrganizationChatService {
           lastUserMessage // The user's response
         )
         
-        // Get the next question
-        const nextQuestion = await onboardingService.getNextQuestion(organization.id)
+        // Generate the next question dynamically from AI
+        const aiResponse = await this.generateAIResponse(messages, context)
         
-        if (nextQuestion) {
-          return {
-            aiMessage: nextQuestion.question_template,
-            multipleChoices: nextQuestion.multiple_choices || undefined,
-            allowMultiple: nextQuestion.allow_multiple || false,
-            showOtherOption: nextQuestion.show_other || false,
-            organization,
-            setupCompleted: false
-          }
-        } else {
-          // No more questions, onboarding is complete
-          const completionMessage = locale === 'es'
-            ? '¡Perfecto! Has completado la configuración inicial. ¿En qué más puedo ayudarte?'
-            : 'Perfect! You have completed the initial setup. How else can I help you?'
-          
-          return {
-            aiMessage: completionMessage,
-            organization,
-            setupCompleted: true
-          }
+        // Extract question from AI response and store it
+        if (aiResponse.aiMessage && !aiResponse.aiMessage.includes('STATUS: setup_complete')) {
+          await this.storeAIGeneratedQuestion(organization.id, aiResponse.aiMessage, {
+            options: aiResponse.multipleChoices || [],
+            allowMultiple: aiResponse.allowMultiple || false,
+            showOtherOption: aiResponse.showOtherOption || false
+          })
+        }
+        
+        return {
+          aiMessage: aiResponse.aiMessage,
+          multipleChoices: aiResponse.multipleChoices,
+          allowMultiple: aiResponse.allowMultiple,
+          showOtherOption: aiResponse.showOtherOption,
+          organization,
+          setupCompleted: aiResponse.aiMessage.includes('STATUS: setup_complete')
         }
       }
       

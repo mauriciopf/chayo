@@ -8,7 +8,10 @@ export function useOnboardingProgress(organizationId?: string) {
     answeredQuestions: 0,
     currentStage: 'stage_1',
     progressPercentage: 0,
-    isCompleted: false
+    isCompleted: false,
+    stage1Completed: false,
+    stage2Completed: false,
+    stage3Completed: false
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -34,7 +37,10 @@ export function useOnboardingProgress(organizationId?: string) {
         currentStage: progressData.currentStage,
         progressPercentage: progressData.progressPercentage,
         isCompleted: progressData.isCompleted,
-        currentQuestion
+        currentQuestion,
+        stage1Completed: progressData.stage1Completed,
+        stage2Completed: progressData.stage2Completed,
+        stage3Completed: progressData.stage3Completed
       })
     } catch (err) {
       console.error('Failed to fetch onboarding progress:', err)

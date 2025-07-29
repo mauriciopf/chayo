@@ -11,6 +11,9 @@ export interface SetupCompletionStatus {
   current_stage: string
   stage_progress: Record<string, any>
   completion_data: Record<string, any>
+  stage1_completed?: boolean
+  stage2_completed?: boolean
+  stage3_completed?: boolean
   created_at: string
   updated_at: string
 }
@@ -155,25 +158,70 @@ export class SetupCompletionService {
   }
 
   /**
-   * Process STATUS: setup_complete signal from AI response
+   * Process STATUS signals from AI response
    */
   async processCompletionSignal(organizationId: string, aiMessage: string): Promise<boolean> {
     try {
-      // Check if the message contains the completion signal
-      if (!aiMessage.includes('STATUS: setup_complete')) {
-        return false
+      // Check for stage-specific completion signals
+      if (aiMessage.includes('STATUS: stage_1_complete')) {
+        await this.markStageAsCompleted(organizationId, 'stage_1')
+      }
+      
+      if (aiMessage.includes('STATUS: stage_2_complete')) {
+        await this.markStageAsCompleted(organizationId, 'stage_2')
+      }
+      
+      if (aiMessage.includes('STATUS: stage_3_complete')) {
+        await this.markStageAsCompleted(organizationId, 'stage_3')
       }
 
-      // Extract completion data from the message
-      const completionData = this.extractCompletionData(aiMessage)
-      
-      // Mark setup as completed
-      await this.markAsCompleted(organizationId, completionData)
-      
-      return true
+      // Check if the message contains the final completion signal
+      if (aiMessage.includes('STATUS: setup_complete')) {
+        // Extract completion data from the message
+        const completionData = this.extractCompletionData(aiMessage)
+        
+        // Mark setup as completed
+        await this.markAsCompleted(organizationId, completionData)
+        
+        return true
+      }
+
+      return false
     } catch (error) {
       console.error('Error processing completion signal:', error)
       return false
+    }
+  }
+
+  /**
+   * Mark a specific stage as completed
+   */
+  async markStageAsCompleted(organizationId: string, stage: string): Promise<void> {
+    try {
+      const updateData: Record<string, any> = {
+        updated_at: new Date().toISOString()
+      }
+
+      // Set the appropriate stage completion flag
+      switch (stage) {
+        case 'stage_1':
+          updateData.stage1_completed = true
+          break
+        case 'stage_2':
+          updateData.stage2_completed = true
+          break
+        case 'stage_3':
+          updateData.stage3_completed = true
+          break
+      }
+
+      await this.supabaseClient
+        .from('setup_completion')
+        .update(updateData)
+        .eq('organization_id', organizationId)
+    } catch (error) {
+      console.error(`Error marking stage ${stage} as completed:`, error)
+      throw error
     }
   }
 
