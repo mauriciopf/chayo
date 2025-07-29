@@ -40,6 +40,7 @@ interface ChatContainerProps {
   isMobile: boolean;
   organizationId?: string;
   unlockQRCode?: () => void;
+  onNavigateToQR?: () => void;
 }
 
 export default function ChatContainer({
@@ -67,7 +68,8 @@ export default function ChatContainer({
   setHasUserInteracted,
   isMobile,
   organizationId,
-  unlockQRCode
+  unlockQRCode,
+  onNavigateToQR
 }: ChatContainerProps) {
   const t = useTranslations('chat')
 
@@ -180,6 +182,7 @@ export default function ChatContainer({
               unlockQRCode()
             }
           }}
+          onNavigateToQR={onNavigateToQR}
         />
         
         <ChatMessages 

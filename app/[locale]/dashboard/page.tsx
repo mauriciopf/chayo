@@ -172,6 +172,7 @@ function DashboardContent() {
             isMobile={mobile.isMobile}
             organizationId={auth.currentOrganization?.id}
             unlockQRCode={qrCodeLogic.unlockQRCode}
+            onNavigateToQR={() => setActiveView('qrcode')}
           />
         </div>
       )
@@ -205,9 +206,10 @@ function DashboardContent() {
               hasUserInteracted={mobile.hasUserInteracted}
               setHasUserInteracted={mobile.setHasUserInteracted}
               isMobile={mobile.isMobile}
-              organizationId={auth.currentOrganization?.id}
-              unlockQRCode={qrCodeLogic.unlockQRCode}
-            />
+                          organizationId={auth.currentOrganization?.id}
+            unlockQRCode={qrCodeLogic.unlockQRCode}
+            onNavigateToQR={() => setActiveView('qrcode')}
+          />
           </div>
         )
       case 'qrcode':
