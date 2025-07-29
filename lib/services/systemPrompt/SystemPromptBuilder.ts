@@ -7,7 +7,7 @@ export interface SystemPromptResult {
   userContent: string
 }
 
-export async function buildSystemPrompt(conversationKnowledge: string | null, locale: string = 'en'): Promise<{ systemContent: string }> {
+export async function buildSystemPrompt(conversationKnowledge: string | null, locale: string = 'en'): Promise<SystemPromptResult> {
   // Build the system prompt using the YAML configuration
   let systemPrompt = await YamlPromptLoader.buildSystemPrompt(locale)
   
@@ -17,6 +17,7 @@ export async function buildSystemPrompt(conversationKnowledge: string | null, lo
   }
   
   return {
-    systemContent: systemPrompt
+    systemContent: systemPrompt,
+    userContent: '' // Empty user content as this is system-level prompt
   }
 } 

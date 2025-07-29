@@ -86,7 +86,7 @@ function DashboardContent() {
   })
 
   // Use QR code logic hook
-  useQRCodeLogic({ auth, chat, dashboardInit })
+  const qrCodeLogic = useQRCodeLogic({ auth, chat, dashboardInit })
 
   // Use billing management hook
   const { handleManageBilling } = useBillingManagement()
@@ -171,6 +171,7 @@ function DashboardContent() {
             setHasUserInteracted={mobile.setHasUserInteracted}
             isMobile={mobile.isMobile}
             organizationId={auth.currentOrganization?.id}
+            unlockQRCode={qrCodeLogic.unlockQRCode}
           />
         </div>
       )
@@ -205,6 +206,7 @@ function DashboardContent() {
               setHasUserInteracted={mobile.setHasUserInteracted}
               isMobile={mobile.isMobile}
               organizationId={auth.currentOrganization?.id}
+              unlockQRCode={qrCodeLogic.unlockQRCode}
             />
           </div>
         )

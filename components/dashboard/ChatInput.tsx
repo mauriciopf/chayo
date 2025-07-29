@@ -20,6 +20,8 @@ interface ChatInputProps {
   isMobile: boolean
   chatContext: ChatContextType
   setChatContext: (context: ChatContextType) => void
+  currentOnboardingQuestion?: string
+  isOnboardingActive?: boolean
 }
 
 const ChatInput: React.FC<ChatInputProps> = ({
@@ -37,7 +39,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
   authState,
   isMobile,
   chatContext,
-  setChatContext
+  setChatContext,
+  currentOnboardingQuestion,
+  isOnboardingActive
 }) => {
   const t = useTranslations('chat')
 
@@ -54,7 +58,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         <div className="bg-gray-800 rounded-2xl shadow-lg border border-gray-700 p-2">
           <div className="w-full">
             <textarea
-              placeholder={t('inputPlaceholder')}
+              placeholder={isOnboardingActive && currentOnboardingQuestion ? currentOnboardingQuestion : t('inputPlaceholder')}
               value={input}
               onChange={(e) => {
                 setInput(e.target.value)
@@ -72,7 +76,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 }
               }}
               ref={inputRef as any}
-              className="w-full px-0 py-2 focus:outline-none resize-none bg-transparent placeholder-gray-400 text-white min-h-[2.75rem] max-h-[6rem]"
+              className={`w-full px-0 py-2 focus:outline-none resize-none bg-transparent text-white min-h-[2.75rem] max-h-[6rem] ${isOnboardingActive ? 'placeholder-blue-300' : 'placeholder-gray-400'}`}
               rows={1}
               disabled={uploading || otpLoading !== 'none'}
               onFocus={handleInputFocus}

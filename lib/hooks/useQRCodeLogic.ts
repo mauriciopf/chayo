@@ -11,6 +11,7 @@ interface QRCodeLogicProps {
 export const useQRCodeLogic = ({ auth, chat, dashboardInit }: QRCodeLogicProps) => {
   const [showQRCode, setShowQRCode] = useState(false)
   const [isOnboardingCompleted, setIsOnboardingCompleted] = useState(false)
+  const [qrCodeUnlocked, setQrCodeUnlocked] = useState(false)
 
   // Check onboarding completion to show QR code
   useEffect(() => {
@@ -21,7 +22,8 @@ export const useQRCodeLogic = ({ auth, chat, dashboardInit }: QRCodeLogicProps) 
           const isCompleted = await onboardingService.isOnboardingCompleted(auth.currentOrganization.id)
           setIsOnboardingCompleted(isCompleted)
           
-          if (isCompleted) {
+          // Only show QR code if onboarding is completed AND user has clicked "Start Using Chayo"
+          if (isCompleted && qrCodeUnlocked) {
             setShowQRCode(true)
           }
         } catch (error) {
@@ -30,7 +32,7 @@ export const useQRCodeLogic = ({ auth, chat, dashboardInit }: QRCodeLogicProps) 
       }
     }
     checkOnboardingCompletion()
-  }, [auth.user, auth.currentOrganization])
+  }, [auth.user, auth.currentOrganization, qrCodeUnlocked])
 
   // Check onboarding completion periodically
   useEffect(() => {
@@ -41,7 +43,8 @@ export const useQRCodeLogic = ({ auth, chat, dashboardInit }: QRCodeLogicProps) 
           const isCompleted = await onboardingService.isOnboardingCompleted(auth.currentOrganization.id)
           setIsOnboardingCompleted(isCompleted)
           
-          if (isCompleted) {
+          // Only show QR code if onboarding is completed AND user has clicked "Start Using Chayo"
+          if (isCompleted && qrCodeUnlocked) {
             setShowQRCode(true)
           }
         } catch (error) {
@@ -51,7 +54,14 @@ export const useQRCodeLogic = ({ auth, chat, dashboardInit }: QRCodeLogicProps) 
     }
 
     checkOnboardingCompletion()
-  }, [auth.user, auth.currentOrganization])
+  }, [auth.user, auth.currentOrganization, qrCodeUnlocked])
 
-  return { showQRCode, setShowQRCode, isOnboardingCompleted }
+  const unlockQRCode = () => {
+    setQrCodeUnlocked(true)
+    if (isOnboardingCompleted) {
+      setShowQRCode(true)
+    }
+  }
+
+  return { showQRCode, setShowQRCode, isOnboardingCompleted, unlockQRCode }
 } 

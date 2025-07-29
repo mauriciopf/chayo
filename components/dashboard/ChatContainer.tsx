@@ -39,6 +39,7 @@ interface ChatContainerProps {
   setHasUserInteracted: (interacted: boolean) => void;
   isMobile: boolean;
   organizationId?: string;
+  unlockQRCode?: () => void;
 }
 
 export default function ChatContainer({
@@ -65,7 +66,8 @@ export default function ChatContainer({
   hasUserInteracted,
   setHasUserInteracted,
   isMobile,
-  organizationId
+  organizationId,
+  unlockQRCode
 }: ChatContainerProps) {
   const t = useTranslations('chat')
 
@@ -200,6 +202,10 @@ export default function ChatContainer({
           onContinue={() => {
             setShowCompletion(false)
             setShowOnboardingProgress(false)
+            // Unlock QR code when user clicks "Start Using Chayo"
+            if (unlockQRCode) {
+              unlockQRCode()
+            }
           }}
         />
         
