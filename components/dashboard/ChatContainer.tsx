@@ -7,8 +7,8 @@ import ChatMessages from './ChatMessages'
 import ChatInput from './ChatInput'
 import ChatEmptyState from './ChatEmptyState'
 import { Message, AuthState } from './types'
-import { TrainingHint } from './TrainingHintChips'
-import ChatTrainingHints from './ChatTrainingHints';
+import { ActionableHint } from './ActionableHintChips'
+import ChatActionableHints from './ChatActionableHints';
 import { ChatContextType, getSystemMessageForContext } from './chatContextMessages';
 import OnboardingProgress, { OnboardingProgressData } from './OnboardingProgress'
 import OnboardingCompletion from './OnboardingCompletion'
@@ -74,23 +74,20 @@ export default function ChatContainer({
   // Add chat context state
   const [chatContext, setChatContext] = useState<ChatContextType>('business_setup')
   
-  // Add training hint state
-  const [selectedTrainingHint, setSelectedTrainingHint] = useState<TrainingHint | null>(null)
-  const [refreshHintsTrigger, setRefreshHintsTrigger] = useState(0)
+  // Add actionable hint state
+  const [selectedActionableHint, setSelectedActionableHint] = useState<ActionableHint | null>(null)
 
   // Add onboarding progress state using custom hook
   const { progress: onboardingProgress, refreshProgress: refreshOnboardingProgress } = useOnboardingProgress(organizationId)
   const [showOnboardingProgress, setShowOnboardingProgress] = useState(false)
   const [showCompletion, setShowCompletion] = useState(false)
 
-  // Refresh training hints and onboarding progress when messages change (new business info collected)
+  // Refresh onboarding progress when messages change (new business info collected)
   useEffect(() => {
     // Check if the last message is from AI (indicating new business info was processed)
     if (messages.length > 0 && messages[messages.length - 1].role === 'ai') {
-      // Trigger refresh of training hints after a short delay to allow API to update
+      // Refresh onboarding progress after a short delay to allow API to update
       const timer = setTimeout(() => {
-        setRefreshHintsTrigger(prev => prev + 1)
-        // Also refresh onboarding progress
         if (organizationId) {
           refreshOnboardingProgress()
         }
@@ -98,7 +95,7 @@ export default function ChatContainer({
       
       return () => clearTimeout(timer)
     }
-  }, [messages, organizationId])
+  }, [messages, organizationId, refreshOnboardingProgress])
 
   // Update onboarding visibility when progress changes
   useEffect(() => {
@@ -132,37 +129,13 @@ export default function ChatContainer({
     sendMessage(finalInput)
   }
 
-  // Handler for training hint selection
-  const handleTrainingHintSelect = async (hint: TrainingHint | null) => {
-    const { TrainingHintService } = await import('@/lib/services/trainingHintService')
+  // Handler for actionable hint selection
+  const handleActionableHintSelect = async (hint: ActionableHint | null) => {
     if (hint) {
-      const focusMessage = TrainingHintService.createFocusMessage(hint)
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now().toString() + '-focus',
-          role: 'system',
-          content: focusMessage,
-          timestamp: new Date(),
-        },
-      ])
-      setTimeout(() => {
-        handleSend()
-      }, 100)
-    } else {
-      const generalMessage = TrainingHintService.createClearFocusMessage()
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now().toString() + '-general',
-          role: 'system',
-          content: generalMessage,
-          timestamp: new Date(),
-        },
-      ])
-      setTimeout(() => {
-        handleSend()
-      }, 100)
+      // For now, just send the hint description as a message
+      // This will be expanded later when the functionality is implemented
+      const hintMessage = `I want to ${hint.description.toLowerCase()}`
+      sendMessage(hintMessage)
     }
   }
 
@@ -218,7 +191,7 @@ export default function ChatContainer({
         <div ref={messagesEndRef} />
       </div>
 
-      <ChatTrainingHints organizationId={organizationId} onHintSelect={handleTrainingHintSelect} />
+      <ChatActionableHints onHintSelect={handleActionableHintSelect} />
 
       <ChatInput
         input={input}
