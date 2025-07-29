@@ -190,13 +190,10 @@ export class DashboardInitService {
 
       const data = await response.json()
       
-      // Add greeting to the AI message
-      const greeting = isSpanish
-        ? '¡Hola! Soy Chayo, tu asistente de IA. '
-        : 'Hello! I\'m Chayo, your AI assistant. '
-      
+      // Return the AI message directly without adding a greeting
+      // The API already handles the appropriate message (greeting or onboarding question)
       return {
-        content: greeting + data.aiMessage,
+        content: data.aiMessage,
         multipleChoices: data.multipleChoices,
         allowMultiple: data.allowMultiple,
         showOtherOption: data.showOtherOption

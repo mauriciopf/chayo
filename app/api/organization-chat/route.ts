@@ -6,7 +6,7 @@ import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { AgentService } from '@/lib/services/agentService'
 import { cookies } from 'next/headers'
 
-export const runtime = 'edge'
+// Using Node.js runtime to support fs for reading systemPrompt.yaml
 
 export async function POST(req: NextRequest) {
   try {
@@ -64,7 +64,13 @@ export async function POST(req: NextRequest) {
     }
     
     // Check/create agent chat link if threshold met, using the organization returned from processChat
-    const agentChatLink = await agentService.maybeCreateAgentChatLinkIfThresholdMet(response.organization)
+    let agentChatLink = null
+    try {
+      agentChatLink = await agentService.maybeCreateAgentChatLinkIfThresholdMet(response.organization)
+    } catch (error) {
+      console.warn('Failed to create agent chat link:', error)
+      // Don't let this break the main response
+    }
     
     return NextResponse.json({
       aiMessage: response.aiMessage,

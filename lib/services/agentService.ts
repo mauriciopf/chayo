@@ -44,13 +44,17 @@ export class AgentService {
   }
 
   async maybeCreateAgentChatLinkIfThresholdMet(
-    organization: { id: string, slug: string },
-    threshold?: number
+    organization: { id: string, slug: string }
   ) {
-    const actualThreshold = threshold ?? this.getThreshold()
-    const filledFields = await getFilledBusinessInfoFieldCount(organization.id)
+    // Check if onboarding is completed
+    const { IntegratedOnboardingService } = await import('./integratedOnboardingService')
+    const onboardingService = new IntegratedOnboardingService()
+    const progress = await onboardingService.getOnboardingProgress(organization.id)
+    
     let agentChatLink = await this.getAgentChatLinkForOrganization(organization.id)
-    if (filledFields > actualThreshold && !agentChatLink) {
+    
+    // Only create agent chat link if onboarding is completed and no agent chat link exists
+    if (progress.isCompleted && !agentChatLink) {
       agentChatLink = await this.createAgentAndChannelForOrganization(
         organization.id,
         organization.slug
@@ -66,4 +70,4 @@ export const agentService = new AgentService()
 // Export individual functions for backward compatibility
 export const getAgentChatLinkForOrganization = (organizationId: string) => agentService.getAgentChatLinkForOrganization(organizationId)
 export const createAgentAndChannelForOrganization = (organizationId: string, name: string) => agentService.createAgentAndChannelForOrganization(organizationId, name)
-export const maybeCreateAgentChatLinkIfThresholdMet = (organization: { id: string, slug: string }, threshold?: number) => agentService.maybeCreateAgentChatLinkIfThresholdMet(organization, threshold) 
+export const maybeCreateAgentChatLinkIfThresholdMet = (organization: { id: string, slug: string }) => agentService.maybeCreateAgentChatLinkIfThresholdMet(organization) 

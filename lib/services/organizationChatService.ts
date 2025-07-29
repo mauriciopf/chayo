@@ -12,6 +12,7 @@ export interface ChatResponse {
   multipleChoices?: string[]
   allowMultiple?: boolean
   showOtherOption?: boolean
+  setupCompleted?: boolean
 }
 
 export interface ChatContext {
@@ -48,30 +49,136 @@ export class OrganizationChatService {
         locale
       }
       
-      // Check and update any pending questions BEFORE generating new response
-      const pendingQuestion = await this.validateAndUpdatePendingQuestions(messages, context)
-
-      if (pendingQuestion) {
-        // Return the pending question instead of generating a new AI response
+      // Initialize integrated onboarding service
+      const { IntegratedOnboardingService } = await import('./integratedOnboardingService')
+      const onboardingService = new IntegratedOnboardingService()
+      
+      // Initialize onboarding if not already done
+      await onboardingService.initializeOnboarding(organization.id)
+      
+      // Get current onboarding progress
+      const progress = await onboardingService.getOnboardingProgress(organization.id)
+      
+      // For initial messages (empty messages array), return onboarding questions
+      if (messages.length === 0) {
+        // Get the next question to ask
+        const nextQuestion = await onboardingService.getNextQuestion(organization.id)
+        
+        if (nextQuestion) {
+          return {
+            aiMessage: nextQuestion.question_template,
+            multipleChoices: nextQuestion.multiple_choices || undefined,
+            allowMultiple: nextQuestion.allow_multiple || false,
+            showOtherOption: nextQuestion.show_other || false,
+            organization,
+            setupCompleted: false
+          }
+        } else {
+          // If no onboarding questions, provide a greeting
+          const greeting = locale === 'es' 
+            ? '¡Hola! Soy Chayo, tu asistente de IA. ¿Cómo puedo ayudarte hoy?'
+            : 'Hello! I\'m Chayo, your AI assistant. How can I help you today?'
+          
+          return {
+            aiMessage: greeting,
+            organization,
+            setupCompleted: progress.isCompleted
+          }
+        }
+      }
+      
+      // Handle user responses to onboarding questions
+      const userMessages = messages.filter(m => m.role === 'user')
+      const assistantMessages = messages.filter(m => m.role === 'assistant')
+      
+      // If this is a user response to an onboarding question (has user message and assistant message)
+      if (userMessages.length > 0 && assistantMessages.length > 0 && !progress.isCompleted) {
+        // Process the user's response to the current onboarding question
+        const lastUserMessage = userMessages[userMessages.length - 1].content
+        const lastAssistantMessage = assistantMessages[assistantMessages.length - 1].content
+        
+        // Process the response and get the next question
+        const processingResult = await onboardingService.processAIResponse(
+          organization.id,
+          lastAssistantMessage, // The question that was asked
+          lastUserMessage // The user's response
+        )
+        
+        // Get the next question
+        const nextQuestion = await onboardingService.getNextQuestion(organization.id)
+        
+        if (nextQuestion) {
+          return {
+            aiMessage: nextQuestion.question_template,
+            multipleChoices: nextQuestion.multiple_choices || undefined,
+            allowMultiple: nextQuestion.allow_multiple || false,
+            showOtherOption: nextQuestion.show_other || false,
+            organization,
+            setupCompleted: false
+          }
+        } else {
+          // No more questions, onboarding is complete
+          const completionMessage = locale === 'es'
+            ? '¡Perfecto! Has completado la configuración inicial. ¿En qué más puedo ayudarte?'
+            : 'Perfect! You have completed the initial setup. How else can I help you?'
+          
+          return {
+            aiMessage: completionMessage,
+            organization,
+            setupCompleted: true
+          }
+        }
+      }
+      
+      // If onboarding is completed, proceed with normal chat
+      if (progress.isCompleted) {
+        const { aiMessage, multipleChoices, allowMultiple, showOtherOption } = await this.generateAIResponse(messages, context)
         return {
-          aiMessage: pendingQuestion.question_template,
-          multipleChoices: pendingQuestion.multiple_choices || undefined,
-          allowMultiple: pendingQuestion.allow_multiple || false,
-          showOtherOption: pendingQuestion.show_other_option || false,
-          organization
+          aiMessage,
+          multipleChoices,
+          allowMultiple,
+          showOtherOption,
+          organization,
+          setupCompleted: true
+        }
+      }
+      
+      // Get the next question to ask
+      const nextQuestion = await onboardingService.getNextQuestion(organization.id)
+      
+      if (nextQuestion) {
+        // Return the next question instead of generating a new AI response
+        return {
+          aiMessage: nextQuestion.question_template,
+          multipleChoices: nextQuestion.multiple_choices || undefined,
+          allowMultiple: nextQuestion.allow_multiple || false,
+          showOtherOption: nextQuestion.show_other || false,
+          organization,
+          setupCompleted: false
         }
       }
 
       // Generate AI response only if no pending questions
       const { aiMessage, multipleChoices, allowMultiple, showOtherOption } = await this.generateAIResponse(messages, context)
+      
+      // Process the AI response for onboarding progress
+      const lastUserMessage = messages.filter(m => m.role === 'user').pop()?.content || ''
+      const processingResult = await onboardingService.processAIResponse(
+        organization.id,
+        aiMessage,
+        lastUserMessage
+      )
+      
       // Update WhatsApp trial status if mentioned
       await this.updateWhatsAppTrialStatus(aiMessage, context)
+      
       return {
         aiMessage,
         multipleChoices,
         allowMultiple,
         showOtherOption,
-        organization
+        organization,
+        setupCompleted: processingResult.isCompleted
       }
     } catch (error) {
       throw error
@@ -157,34 +264,40 @@ export class OrganizationChatService {
     // Note: Pending questions are handled by validateAndUpdatePendingQuestions in processChat
     // This method should only generate new AI responses, not check for pending questions
     
-    // Get the last user message for context
-    const lastUserMessage = messages.filter(m => m.role === 'user').pop()?.content || ''
-    // Generate enhanced system prompt with training hints
-    let systemPrompt: string
-    let userContent: string
-    try {
-      // Use enhanced system prompt service that handles training hints
-      const { EnhancedOrganizationSystemPromptService } = await import('./systemPrompt/EnhancedOrganizationSystemPromptService')
-      const enhancedService = new EnhancedOrganizationSystemPromptService()
-      const result = await enhancedService.generateEnhancedPrompt(
-        context.organization.id, // Pass organization ID
-        messages,
-        lastUserMessage,
-        context.locale
-      )
-      systemPrompt = result.systemContent
-      userContent = result.userContent
-    } catch (error) {
-      console.warn('Failed to get enhanced system prompt, aborting chat:', error)
-      return {
-        aiMessage: "I'm sorry, but I couldn't retrieve your business knowledge at this time. Please try again later or contact support if the problem persists."
+                // Get the last user message for context
+      const lastUserMessage = messages.filter(m => m.role === 'user').pop()?.content || ''
+      
+      // Generate enhanced system prompt with training hints
+      let systemPrompt: string
+      try {
+        // Get training context from embedding service
+        let trainingContext = ''
+        try {
+          const { embeddingService } = await import('./embeddingService')
+          const conversationText = messages.map(m => m.content).join(' ')
+          const memory = await embeddingService.getBusinessKnowledgeSummary(context.organization.id)
+          if (memory) {
+            trainingContext = memory
+          }
+        } catch (error) {
+          console.warn('Failed to get training context:', error)
+        }
+
+        // Use server-side YAML loader for API routes
+        const { ServerYamlPromptLoader } = await import('./systemPrompt/ServerYamlPromptLoader')
+        systemPrompt = await ServerYamlPromptLoader.buildSystemPrompt(context.locale, trainingContext)
+      } catch (error) {
+        console.warn('Failed to get enhanced system prompt, aborting chat:', error)
+        return {
+          aiMessage: "I'm sorry, but I couldn't retrieve your business knowledge at this time. Please try again later or contact support if the problem persists."
+        }
       }
-    }
-    // Prepare messages with both system and user content
-    const chatMessages = [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: userContent }
-    ]
+      
+      // Prepare messages with full conversation history
+      const chatMessages = [
+        { role: 'system', content: systemPrompt },
+        ...messages.filter(m => m.role === 'user' || m.role === 'assistant')
+      ]
     try {
       const openaiRes = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
@@ -520,17 +633,44 @@ export class OrganizationChatService {
         apiKey: process.env.OPENAI_API_KEY,
       })
 
-      // Use centralized prompt configuration
-      const { EnhancedOrganizationSystemPromptService } = await import('./systemPrompt/EnhancedOrganizationSystemPromptService')
-      const config = EnhancedOrganizationSystemPromptService.PROMPT_CONFIG.MEMORY_EXTRACTION
-      
-      const extractionPrompt = config.PROMPT_TEMPLATE.replace('{CONVERSATION}', conversationText)
+      // Use simple memory extraction prompt
+      const extractionPrompt = `Analyze this conversation and determine if it contains any business information updates that should be stored in the AI's memory.
+
+CONVERSATION: "${conversationText}"
+
+Consider the following types of business updates:
+- Business hours, operating schedule, or availability changes
+- Location, address, or service area updates
+- Contact information (phone, email, website) changes
+- Pricing, rates, or cost updates
+- New or modified services offered
+- Policy changes (returns, refunds, appointments, etc.)
+- Business name or branding updates
+- Staff or team changes
+- Equipment or technology updates
+- Any other business-relevant information that customers should know
+
+IMPORTANT: Only extract information that is:
+1. Clearly stated as a change or update
+2. Specific and actionable
+3. Relevant to customers or business operations
+4. Not just general conversation or questions
+
+If you find a clear business update, respond with ONLY valid JSON (no markdown formatting, no backticks):
+{
+  "text": "the specific updated information in a clear, concise format",
+  "type": "knowledge",
+  "reason": "brief description of what was updated",
+  "confidence": 0.0-1.0 (how confident you are this is an actual update)
+}
+
+If no clear business update is found, respond with: null`
 
       const response = await openai.chat.completions.create({
         model: 'gpt-4o-mini',
         messages: [{ role: 'user', content: extractionPrompt }],
-        temperature: config.TEMPERATURE,
-        max_tokens: config.MAX_TOKENS
+        temperature: 0.1,
+        max_tokens: 300
       })
 
       const content = response.choices[0].message.content?.trim()

@@ -1,21 +1,22 @@
 import type { BusinessConstraints } from './types'
 import { EnhancedOrganizationSystemPromptService } from './EnhancedOrganizationSystemPromptService'
+import { YamlPromptLoader } from './YamlPromptLoader'
 
-export function buildSystemPrompt(conversationKnowledge: string | null, locale: string = 'en'): string {
-  const config = EnhancedOrganizationSystemPromptService.PROMPT_CONFIG.BASE_SYSTEM_PROMPT
-  
-  // Build the prompt using the centralized template
-  let prompt = config.PROMPT_TEMPLATE
-    .replace('{IDENTITY}', config.IDENTITY)
-    .replace('{LANGUAGE_SECTION}', config.LANGUAGE_SECTION.replace('{LOCALE}', locale))
-    .replace('{GUIDELINES_SECTION}', config.GUIDELINES_SECTION)
+export interface SystemPromptResult {
+  systemContent: string
+  userContent: string
+}
+
+export async function buildSystemPrompt(conversationKnowledge: string | null, locale: string = 'en'): Promise<{ systemContent: string }> {
+  // Build the system prompt using the YAML configuration
+  let systemPrompt = await YamlPromptLoader.buildSystemPrompt(locale)
   
   // Add business knowledge section if available
   if (conversationKnowledge) {
-    prompt = prompt.replace('{BUSINESS_KNOWLEDGE_SECTION}', config.BUSINESS_KNOWLEDGE_SECTION.replace('{CONVERSATION_KNOWLEDGE}', conversationKnowledge))
-  } else {
-    prompt = prompt.replace('{BUSINESS_KNOWLEDGE_SECTION}', '')
+    systemPrompt += `\n\n## 📚 BUSINESS KNOWLEDGE\n${conversationKnowledge}`
   }
   
-  return prompt
+  return {
+    systemContent: systemPrompt
+  }
 } 

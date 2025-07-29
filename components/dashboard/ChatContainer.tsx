@@ -10,6 +10,9 @@ import { Message, AuthState } from './types'
 import { TrainingHint } from './TrainingHintChips'
 import ChatTrainingHints from './ChatTrainingHints';
 import { ChatContextType, getSystemMessageForContext } from './chatContextMessages';
+import OnboardingProgress, { OnboardingProgressData } from './OnboardingProgress'
+import OnboardingCompletion from './OnboardingCompletion'
+import { useOnboardingProgress } from '@/lib/hooks/useOnboardingProgress'
 
 interface ChatContainerProps {
   messages: Message[];
@@ -73,18 +76,33 @@ export default function ChatContainer({
   const [selectedTrainingHint, setSelectedTrainingHint] = useState<TrainingHint | null>(null)
   const [refreshHintsTrigger, setRefreshHintsTrigger] = useState(0)
 
-  // Refresh training hints when messages change (new business info collected)
+  // Add onboarding progress state using custom hook
+  const { progress: onboardingProgress, refreshProgress: refreshOnboardingProgress } = useOnboardingProgress(organizationId)
+  const [showOnboardingProgress, setShowOnboardingProgress] = useState(false)
+  const [showCompletion, setShowCompletion] = useState(false)
+
+  // Refresh training hints and onboarding progress when messages change (new business info collected)
   useEffect(() => {
     // Check if the last message is from AI (indicating new business info was processed)
     if (messages.length > 0 && messages[messages.length - 1].role === 'ai') {
       // Trigger refresh of training hints after a short delay to allow API to update
       const timer = setTimeout(() => {
         setRefreshHintsTrigger(prev => prev + 1)
+        // Also refresh onboarding progress
+        if (organizationId) {
+          refreshOnboardingProgress()
+        }
       }, 1000) // 1 second delay to ensure business info is updated
       
       return () => clearTimeout(timer)
     }
-  }, [messages])
+  }, [messages, organizationId])
+
+  // Update onboarding visibility when progress changes
+  useEffect(() => {
+    setShowOnboardingProgress(!onboardingProgress.isCompleted)
+    setShowCompletion(onboardingProgress.isCompleted)
+  }, [onboardingProgress.isCompleted])
 
   // Handler for quick reply chip click
   const handleQuickReply = (context: ChatContextType) => {
@@ -169,6 +187,22 @@ export default function ChatContainer({
         }}
       >
         {messages.length === 0 && !chatLoading && <ChatEmptyState />}
+        
+        {/* Onboarding Progress */}
+        <OnboardingProgress 
+          progress={onboardingProgress}
+          isVisible={showOnboardingProgress}
+        />
+        
+        {/* Onboarding Completion */}
+        <OnboardingCompletion 
+          isVisible={showCompletion}
+          onContinue={() => {
+            setShowCompletion(false)
+            setShowOnboardingProgress(false)
+          }}
+        />
+        
         <ChatMessages 
           messages={messages} 
           chatLoading={chatLoading} 
@@ -196,6 +230,8 @@ export default function ChatContainer({
         isMobile={isMobile}
         chatContext={chatContext}
         setChatContext={handleQuickReply}
+        currentOnboardingQuestion={onboardingProgress.currentQuestion}
+        isOnboardingActive={showOnboardingProgress}
       />
     </motion.div>
   )

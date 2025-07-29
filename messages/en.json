@@ -1021,6 +1021,33 @@
     "uploadTitle": "Upload a file",
     "loading": "AI is thinking...",
     "usingRAG": "Using document knowledge",
-    "authPrompt": "Hi there! What's your name? (First name only is fine)"
+    "authPrompt": "Hi there! What's your name? (First name only is fine)",
+    "onboardingQuestion": "Setup Question",
+    "contextBusinessSetup": "Business Setup",
+    "contextWhatsappSetup": "WhatsApp Setup",
+    "contextCalendarSetup": "Calendar Setup",
+    "contextVideoAgentSetup": "Video Agent",
+    "authRequired": "Authentication required",
+    "loading": "Loading...",
+    "login": "Login",
+    "authenticated": "Authenticated"
+  },
+  "onboarding": {
+    "setupInProgress": "Setup in Progress",
+    "questions": "questions",
+    "complete": "complete",
+    "currentQuestion": "Current Question",
+    "stage1Name": "Core Setup",
+    "stage2Name": "Industry Details", 
+    "stage3Name": "Branding & Tone",
+    "stageDefault": "Setup",
+    "stage1Description": "Basic business information",
+    "stage2Description": "Industry-specific details",
+    "stage3Description": "Communication preferences",
+    "stageDefaultDescription": "Setting up your business",
+    "setupComplete": "Setup Complete!",
+    "setupCompleteDescription": "Your business is now configured and ready to go! Your AI assistant can now help you with client communications.",
+    "startUsing": "Start Using Chayo",
+    "setupCompleteNote": "You can update your business information anytime in the settings."
   }
 }

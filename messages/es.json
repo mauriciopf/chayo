@@ -1046,6 +1046,33 @@
     "uploadTitle": "Subir un archivo",
     "loading": "La IA está pensando...",
     "usingRAG": "Usando conocimiento de documentos",
-    "authPrompt": "¡Hola! ¿Cuál es tu nombre? (Solo el primer nombre está bien)"
+    "authPrompt": "¡Hola! ¿Cuál es tu nombre? (Solo el primer nombre está bien)",
+    "onboardingQuestion": "Pregunta de Configuración",
+    "contextBusinessSetup": "Configuración de Negocio",
+    "contextWhatsappSetup": "Configuración de WhatsApp",
+    "contextCalendarSetup": "Configuración de Calendario",
+    "contextVideoAgentSetup": "Agente de Video",
+    "authRequired": "Autenticación requerida",
+    "loading": "Cargando...",
+    "login": "Iniciar Sesión",
+    "authenticated": "Autenticado"
+  },
+  "onboarding": {
+    "setupInProgress": "Configuración en Progreso",
+    "questions": "preguntas",
+    "complete": "completado",
+    "currentQuestion": "Pregunta Actual",
+    "stage1Name": "Configuración Básica",
+    "stage2Name": "Detalles del Sector",
+    "stage3Name": "Marca y Tono",
+    "stageDefault": "Configuración",
+    "stage1Description": "Información básica del negocio",
+    "stage2Description": "Detalles específicos del sector",
+    "stage3Description": "Preferencias de comunicación",
+    "stageDefaultDescription": "Configurando tu negocio",
+    "setupComplete": "¡Configuración Completa!",
+    "setupCompleteDescription": "¡Tu negocio está ahora configurado y listo para usar! Tu asistente de IA ahora puede ayudarte con las comunicaciones de clientes.",
+    "startUsing": "Comenzar a Usar Chayo",
+    "setupCompleteNote": "Puedes actualizar la información de tu negocio en cualquier momento en la configuración."
   }
 }

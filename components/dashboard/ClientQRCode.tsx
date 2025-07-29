@@ -7,11 +7,15 @@ import { AgentChannel } from '@/lib/services/dashboardInitService'
 
 interface ClientQRCodeProps {
   organizationSlug: string
-  filledFields?: number
-  threshold?: number
+  isOnboardingCompleted?: boolean
+  onboardingProgress?: {
+    totalQuestions: number
+    answeredQuestions: number
+    progressPercentage: number
+  }
 }
 
-export default function ClientQRCode({ organizationSlug, filledFields = 0, threshold = 10 }: ClientQRCodeProps) {
+export default function ClientQRCode({ organizationSlug, isOnboardingCompleted = false, onboardingProgress }: ClientQRCodeProps) {
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('')
   const [clientChatUrl, setClientChatUrl] = useState<string>('')
   const [copied, setCopied] = useState(false)
@@ -97,36 +101,36 @@ export default function ClientQRCode({ organizationSlug, filledFields = 0, thres
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-gray-700">
-              Business Information Progress
+              Business Setup Progress
             </span>
             <span className="text-sm text-gray-500">
-              {filledFields} / {threshold} fields completed
+              {onboardingProgress?.answeredQuestions || 0} / {onboardingProgress?.totalQuestions || 0} questions completed
             </span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-3">
             <div 
               className={`h-3 rounded-full transition-all duration-500 ${
-                filledFields >= threshold 
+                isOnboardingCompleted 
                   ? 'bg-green-500' 
-                  : filledFields >= threshold * 0.7 
+                  : (onboardingProgress?.progressPercentage || 0) >= 70 
                     ? 'bg-yellow-500' 
                     : 'bg-red-500'
               }`}
-              style={{ width: `${Math.min((filledFields / threshold) * 100, 100)}%` }}
+              style={{ width: `${onboardingProgress?.progressPercentage || 0}%` }}
             />
           </div>
           <div className="mt-2 text-xs text-gray-500">
-            {filledFields >= threshold ? (
+            {isOnboardingCompleted ? (
               <span className="text-green-600 font-medium">✅ QR Code is ready to share!</span>
             ) : (
               <span>
-                {threshold - filledFields} more field{threshold - filledFields !== 1 ? 's' : ''} needed to unlock QR code
+                Complete your business setup to unlock the QR code
               </span>
             )}
           </div>
         </div>
 
-        {qrCodeUrl && filledFields >= threshold ? (
+        {qrCodeUrl && isOnboardingCompleted ? (
           <div className="flex flex-col items-center space-y-4">
             {/* QR Code */}
             <div className="bg-white p-4 rounded-lg border-2 border-gray-100">
@@ -195,7 +199,7 @@ export default function ClientQRCode({ organizationSlug, filledFields = 0, thres
               </div>
               <h4 className="font-medium text-yellow-900 mb-2">QR Code Not Ready Yet</h4>
               <p className="text-sm text-yellow-800">
-                Complete your business information to unlock the QR code. You need {threshold - filledFields} more field{threshold - filledFields !== 1 ? 's' : ''} to continue.
+                Complete your business setup to unlock the QR code. Finish the onboarding process to continue.
               </p>
             </div>
           </div>

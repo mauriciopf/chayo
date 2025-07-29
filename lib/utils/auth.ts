@@ -7,7 +7,7 @@ export function getSiteUrl(): string {
   const isDev = process.env.NODE_ENV === 'development'
   
   if (isDev) {
-    return 'http://localhost:3000'
+    return 'http://localhost:3001'
   }
   
   // In production, use the configured site URL or fallback to window.location.origin
