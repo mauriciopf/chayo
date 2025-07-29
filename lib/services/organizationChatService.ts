@@ -161,7 +161,7 @@ export class OrganizationChatService {
     const lastUserMessage = messages.filter(m => m.role === 'user').pop()?.content || ''
     // Generate enhanced system prompt with training hints
     let systemPrompt: string
-    let promptMetadata: any
+    let userContent: string
     try {
       // Use enhanced system prompt service that handles training hints
       const { EnhancedOrganizationSystemPromptService } = await import('./systemPrompt/EnhancedOrganizationSystemPromptService')
@@ -172,29 +172,31 @@ export class OrganizationChatService {
         lastUserMessage,
         context.locale
       )
-      systemPrompt = result.finalPrompt
-      promptMetadata = result.metadata
+      systemPrompt = result.systemContent
+      userContent = result.userContent
     } catch (error) {
       console.warn('Failed to get enhanced system prompt, aborting chat:', error)
       return {
         aiMessage: "I'm sorry, but I couldn't retrieve your business knowledge at this time. Please try again later or contact support if the problem persists."
       }
     }
-    // Prepare messages with only system prompt - no user message needed
+    // Prepare messages with both system and user content
     const chatMessages = [
-      { role: 'system', content: systemPrompt }
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userContent }
     ]
     try {
       const openaiRes = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
+          'Authorization': `Bearer ${apiKey}`,
+          'Cache-Control': 'no-cache'
         },
         body: JSON.stringify({
           model: 'gpt-4o-mini',
           messages: chatMessages,
-          temperature: 0.7,
+          temperature: 0.9,
           max_tokens: 1000
         })
       })
@@ -255,15 +257,22 @@ export class OrganizationChatService {
    */
   private parseMultipleChoiceData(aiMessage: string): { options: string[]; allowMultiple: boolean; showOtherOption: boolean } | null {
     // Check if this looks like a multiple choice response
-    const hasQuestion = aiMessage.includes('QUESTION:')
     const hasOptions = aiMessage.includes('OPTIONS:')
+    const hasMultiple = aiMessage.includes('MULTIPLE:')
+    const hasOther = aiMessage.includes('OTHER:')
     
-    if (!hasQuestion || !hasOptions) {
+    if (!hasOptions || !hasMultiple || !hasOther) {
       return null
     }
     
-    const optionsMatch = aiMessage.match(/OPTIONS:\s*(.+?)(?=\n|MULTIPLE:|OTHER:|$)/i)
+    // Try multiple regex patterns to be more robust
+    let optionsMatch = aiMessage.match(/OPTIONS:\s*(.+?)(?=\n|MULTIPLE:|OTHER:|$)/i)
     if (!optionsMatch) {
+      // Try alternative pattern
+      optionsMatch = aiMessage.match(/OPTIONS:\s*(\[.+?\])/i)
+    }
+    if (!optionsMatch) {
+      console.warn('No options match found in:', aiMessage)
       return null
     }
 
@@ -345,7 +354,7 @@ export class OrganizationChatService {
           multiple_choices: multipleChoiceData?.options || null // Handle null multipleChoiceData
         })
     } catch (error) {
-      console.error('   ❌ Error in storeAIGeneratedQuestion:', error)
+      // Silent error handling
     }
   }
 
@@ -464,7 +473,6 @@ export class OrganizationChatService {
       
       return null
     } catch (error) {
-      console.warn('Failed to validate and update pending questions:', error)
       return null
     }
   }
@@ -497,10 +505,10 @@ export class OrganizationChatService {
           )
         }
       } catch (error) {
-        console.warn('Failed to process memory updates:', error)
+        // Silent error handling
       }
     } catch (error) {
-      console.warn('Failed to store conversation:', error)
+      // Silent error handling
     }
   }
 
@@ -554,14 +562,10 @@ export class OrganizationChatService {
           confidence: extracted.confidence || 0.8
         }
       } catch (parseError) {
-        console.warn('Failed to parse memory update extraction:', parseError)
-        console.warn('Raw content:', content)
-        console.warn('Cleaned content:', cleanedContent)
         return null
       }
 
     } catch (error) {
-      console.error('Error extracting memory update:', error)
       return null
     }
   }
