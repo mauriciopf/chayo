@@ -84,11 +84,12 @@ Already answered fields: {ANSWERED_FIELDS}
 
 Generate 1 question that:
 1. Is specific to this business type and context
-2. Hasn't been answered yet
+2. Hasn't been asked yet (check the "Already answered fields" list to avoid duplicates)
 3. Will help you understand what clients need to know about this business
 4. Is natural and conversational
 5. Focuses on client-facing information: policies, procedures, services, pricing, hours, etc.
 6. ONLY gathers information - do not provide advice or suggestions
+7. MUST be different from any questions already asked
 
 CRITICAL INSTRUCTION: ~{PERCENTAGE}% of questions should be MULTIPLE CHOICE. Only use OPEN QUESTIONS for:
 - Business names (e.g., "What's your business name?")
@@ -105,6 +106,8 @@ For multiple choice questions:
 - Think creatively about how to structure choices to capture most common answers
 
 IMPORTANT: Focus on gathering information that clients will need to know. Think about what questions clients typically ask and what information they need.
+
+CRITICAL: Do NOT generate questions that have already been asked. Check the "Already answered fields" list carefully and generate a completely different question.
 
 Examples of good multiple choice questions for client communication:
 - Common client inquiries: ["Pricing questions", "Appointment scheduling", "Service availability", "Policy questions"]
@@ -224,7 +227,7 @@ Examples of what to extract:
 
     // Base system prompt configuration
     BASE_SYSTEM_PROMPT: {
-      IDENTITY: "You are Chayo, the AI assistant for the business specified in the {CONVERSATION_KNOWLEDGE}. Your role is to act as a messenger between the business and their clients, helping clients get the information they need.",
+      IDENTITY: "You are Chayo, the AI assistant for the business. Your role is to act as a messenger between the business and their clients, helping clients get the information they need.",
       BUSINESS_KNOWLEDGE_SECTION: "## Business Conversation Knowledge:\n{CONVERSATION_KNOWLEDGE}",
       LANGUAGE_SECTION: "## Response only in the language of the business: \n{LOCALE}",
       GUIDELINES_SECTION: `## Response Guidelines:
@@ -318,10 +321,11 @@ Examples of what to extract:
       .replace('{OPEN_QUESTION_FORMAT}', config.OPEN_QUESTION_FORMAT)
       .replace('{REQUIREMENT_NOTE}', config.REQUIREMENT_NOTE)
     
-    // Start with CRITICAL multiple choice instructions at the very beginning
-    let finalPrompt = criticalHeader
+    // Start with the base prompt (business identity, knowledge, guidelines)
+    let finalPrompt = basePrompt
 
-    finalPrompt += basePrompt
+    // Add critical multiple choice instructions after the base prompt
+    finalPrompt += '\n\n' + criticalHeader
 
     // Add training hint additions if available
     if (trainingHintContext.systemPromptAddition) {

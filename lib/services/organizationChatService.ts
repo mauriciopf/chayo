@@ -180,10 +180,9 @@ export class OrganizationChatService {
         aiMessage: "I'm sorry, but I couldn't retrieve your business knowledge at this time. Please try again later or contact support if the problem persists."
       }
     }
-    // Prepare messages with dynamic system prompt (exclude system messages from user chat)
+    // Prepare messages with only system prompt - no user message needed
     const chatMessages = [
-      { role: 'system', content: systemPrompt },
-      ...messages.filter(m => m.role !== 'system')
+      { role: 'system', content: systemPrompt }
     ]
     try {
       const openaiRes = await fetch('https://api.openai.com/v1/chat/completions', {

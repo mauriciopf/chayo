@@ -6,7 +6,7 @@ export function buildSystemPrompt(conversationKnowledge: string | null, locale: 
   
   // Build the prompt using the centralized template
   let prompt = config.PROMPT_TEMPLATE
-    .replace('{IDENTITY}', config.IDENTITY.replace('{CONVERSATION_KNOWLEDGE}', conversationKnowledge || 'business'))
+    .replace('{IDENTITY}', config.IDENTITY)
     .replace('{LANGUAGE_SECTION}', config.LANGUAGE_SECTION.replace('{LOCALE}', locale))
     .replace('{GUIDELINES_SECTION}', config.GUIDELINES_SECTION)
   

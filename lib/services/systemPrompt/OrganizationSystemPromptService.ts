@@ -7,7 +7,7 @@ export class OrganizationSystemPromptService {
     organizationId: string,
     locale: string = 'en'
   ): Promise<string> {
-    const conversationKnowledge = await getConversationKnowledge(organizationId, 4000)
+    const conversationKnowledge = await getConversationKnowledge(organizationId, 6000)
     return buildSystemPrompt(conversationKnowledge, locale)
   }
 }

@@ -48,14 +48,13 @@ export class BusinessInfoService {
       // Use the EnhancedOrganizationSystemPromptService to generate questions
       const { EnhancedOrganizationSystemPromptService } = await import('./systemPrompt/EnhancedOrganizationSystemPromptService')
       const enhancedService = new EnhancedOrganizationSystemPromptService()
-      // Get existing answered fields
-      const { data: answeredFields } = await supabase
+      // Get all existing fields (both answered and unanswered) to prevent duplicates
+      const { data: allFields } = await supabase
         .from('business_info_fields')
         .select('field_name')
         .eq('organization_id', organizationId)
-        .eq('is_answered', true)
 
-      const answeredFieldNames = answeredFields?.map(f => f.field_name) || []
+      const answeredFieldNames = allFields?.map(f => f.field_name) || []
 
       // Only generate one question at a time
       const questions = await enhancedService.generateBusinessQuestions(
