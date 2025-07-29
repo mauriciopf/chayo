@@ -3,7 +3,6 @@ import { OrganizationChatService } from '@/lib/services/organizationChatService'
 import { validationService } from '@/lib/services/validationService'
 import { errorHandlingService } from '@/lib/services/errorHandlingService'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
-import { AgentService } from '@/lib/services/agentService'
 import { cookies } from 'next/headers'
 
 // Using Node.js runtime to support fs for reading systemPrompt.yaml
@@ -26,7 +25,6 @@ export async function POST(req: NextRequest) {
     
     // Create services with server-side client
     const chatService = new OrganizationChatService(supabase)
-    const agentService = new AgentService(supabase)
     
     // Parse and validate request
     const body = await req.json()
@@ -63,14 +61,9 @@ export async function POST(req: NextRequest) {
       console.warn('Failed to store conversation:', error)
     }
     
-    // Check/create agent chat link if threshold met, using the organization returned from processChat
+    // Agent chat link creation is now handled by the onboarding completion status
+    // No need to create agent chat links here since we're using onboarding completion
     let agentChatLink = null
-    try {
-      agentChatLink = await agentService.maybeCreateAgentChatLinkIfThresholdMet(response.organization)
-    } catch (error) {
-      console.warn('Failed to create agent chat link:', error)
-      // Don't let this break the main response
-    }
     
     return NextResponse.json({
       aiMessage: response.aiMessage,

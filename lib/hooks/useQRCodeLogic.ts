@@ -1,6 +1,4 @@
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase/client'
-import { IntegratedOnboardingService } from '@/lib/services/integratedOnboardingService'
 
 interface QRCodeLogicProps {
   auth: any
@@ -18,13 +16,11 @@ export const useQRCodeLogic = ({ auth, chat, dashboardInit }: QRCodeLogicProps) 
     const checkOnboardingCompletion = async () => {
       if (auth.user && auth.currentOrganization) {
         try {
-          const onboardingService = new IntegratedOnboardingService()
-          const isCompleted = await onboardingService.isOnboardingCompleted(auth.currentOrganization.id)
-          setIsOnboardingCompleted(isCompleted)
-          
-          // Only show QR code if onboarding is completed AND user has clicked "Start Using Chayo"
-          if (isCompleted && qrCodeUnlocked) {
-            setShowQRCode(true)
+          // Use API endpoint instead of server-side service
+          const response = await fetch('/api/onboarding-status')
+          if (response.ok) {
+            const { isCompleted } = await response.json()
+            setIsOnboardingCompleted(isCompleted)
           }
         } catch (error) {
           console.error('Error checking onboarding completion:', error)
@@ -32,29 +28,14 @@ export const useQRCodeLogic = ({ auth, chat, dashboardInit }: QRCodeLogicProps) 
       }
     }
     checkOnboardingCompletion()
-  }, [auth.user, auth.currentOrganization, qrCodeUnlocked])
+  }, [auth.user, auth.currentOrganization])
 
-  // Check onboarding completion periodically
+  // Update QR code visibility when onboarding completion or unlock status changes
   useEffect(() => {
-    const checkOnboardingCompletion = async () => {
-      if (auth.user && auth.currentOrganization) {
-        try {
-          const onboardingService = new IntegratedOnboardingService()
-          const isCompleted = await onboardingService.isOnboardingCompleted(auth.currentOrganization.id)
-          setIsOnboardingCompleted(isCompleted)
-          
-          // Only show QR code if onboarding is completed AND user has clicked "Start Using Chayo"
-          if (isCompleted && qrCodeUnlocked) {
-            setShowQRCode(true)
-          }
-        } catch (error) {
-          console.error('Error checking onboarding completion:', error)
-        }
-      }
+    if (isOnboardingCompleted && qrCodeUnlocked) {
+      setShowQRCode(true)
     }
-
-    checkOnboardingCompletion()
-  }, [auth.user, auth.currentOrganization, qrCodeUnlocked])
+  }, [isOnboardingCompleted, qrCodeUnlocked])
 
   const unlockQRCode = () => {
     setQrCodeUnlocked(true)

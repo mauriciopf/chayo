@@ -1,4 +1,4 @@
-import { SystemPromptConfig } from './YamlPromptLoader'
+import { SystemPromptConfig, YamlPromptLoader } from './YamlPromptLoader'
 import fs from 'fs'
 import path from 'path'
 import yaml from 'js-yaml'
@@ -31,73 +31,9 @@ export class ServerYamlPromptLoader {
     }
   }
 
-  static async buildSystemPrompt(locale: string = 'en', trainingContext?: string): Promise<string> {
-    const config = this.loadConfig()
-    
-    const languageSection = config.language[locale as keyof typeof config.language] || config.language.en
-    
-    return `${config.identity}
-
-${config.objective}
-
-${config.behavior}
-
----
-## 🔄 ONBOARDING STAGES
-
-### Stage 1: Core Setup (Universal Questions)
-Ask these in order, one at a time:
-${config.onboarding_stages.stage_1.questions.map((q, index) => {
-  if (q.type === 'open_ended') {
-    return `  ${index + 1}. ${q.name} *(open-ended)*:
-     - "${q.question}"`
-  } else {
-    return `  ${index + 1}. ${q.name} *(multiple choice)*:
-     QUESTION: "${q.question}"
-     OPTIONS: ${JSON.stringify(q.options)}
-     MULTIPLE: ${q.multiple}
-     OTHER: ${q.other}`
-  }
-}).join('\n\n')}
-
----
-### Stage 2: Adaptive Branching (Dynamic Industry Questions)
-Based on the business type answer in Stage 1, dynamically ask 3–5 relevant follow-up questions:
-
-${Object.entries(config.onboarding_stages.stage_2.industry_questions).map(([industry, questions]) => 
-  `#### If ${industry.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}:
-  ${questions.map(q => `  - ${q}`).join('\n  ')}`
-).join('\n\n')}
-
-${config.onboarding_stages.stage_2.format_note}
-
----
-### Stage 3: Branding & Tone
-After core and adaptive questions, collect branding and messaging details:
-${config.onboarding_stages.stage_3.questions.map(q => 
-  `  - ${q.name}:
-    QUESTION: "${q.question}"
-    OPTIONS: ${JSON.stringify(q.options)}
-    MULTIPLE: ${q.multiple}
-    OTHER: ${q.other}`
-).join('\n\n')}
-
-${config.completion}
-
-${config.refinement_mode}
-
-${config.rules}
-
-${config.dynamics}
-
-${config.completion_signal}
-
----
-## LANGUAGE & CONTEXT
-${languageSection}
-
-${trainingContext ? `## 📚 BUSINESS KNOWLEDGE
-${trainingContext}` : ''}`
+  static async buildSystemPrompt(locale: string = 'en', trainingContext?: string, isSetupCompleted?: boolean): Promise<string> {
+    // Use the YamlPromptLoader to build the system prompt with the appropriate config
+    return await YamlPromptLoader.buildSystemPrompt(locale, trainingContext, isSetupCompleted)
   }
 
   static async getFallbackPrompt(): Promise<string> {

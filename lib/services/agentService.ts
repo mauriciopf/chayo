@@ -1,5 +1,4 @@
 import { supabase } from '@/lib/supabase/client'
-import { getFilledBusinessInfoFieldCount } from './businessInfoFieldService'
 
 export class AgentService {
   private supabaseClient: any
@@ -46,15 +45,26 @@ export class AgentService {
   async maybeCreateAgentChatLinkIfThresholdMet(
     organization: { id: string, slug: string }
   ) {
-    // Check if onboarding is completed
-    const { IntegratedOnboardingService } = await import('./integratedOnboardingService')
-    const onboardingService = new IntegratedOnboardingService()
-    const progress = await onboardingService.getOnboardingProgress(organization.id)
+    // Check if onboarding is completed by querying setup_completion directly
+    let isOnboardingCompleted = false
+    try {
+      const { data: setupStatus, error } = await this.supabaseClient
+        .from('setup_completion')
+        .select('setup_status')
+        .eq('organization_id', organization.id)
+        .single()
+      
+      if (!error && setupStatus) {
+        isOnboardingCompleted = setupStatus.setup_status === 'completed'
+      }
+    } catch (error) {
+      console.warn('Failed to check onboarding status:', error)
+    }
     
     let agentChatLink = await this.getAgentChatLinkForOrganization(organization.id)
     
     // Only create agent chat link if onboarding is completed and no agent chat link exists
-    if (progress.isCompleted && !agentChatLink) {
+    if (isOnboardingCompleted && !agentChatLink) {
       agentChatLink = await this.createAgentAndChannelForOrganization(
         organization.id,
         organization.slug

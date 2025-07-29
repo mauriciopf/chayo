@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { IntegratedOnboardingService } from '@/lib/services/integratedOnboardingService'
 import { OnboardingProgressData } from '@/components/dashboard/OnboardingProgress'
 
 export function useOnboardingProgress(organizationId?: string) {
@@ -23,25 +22,25 @@ export function useOnboardingProgress(organizationId?: string) {
     setError(null)
 
     try {
-      const onboardingService = new IntegratedOnboardingService()
-      const progressData = await onboardingService.getOnboardingProgress(organizationId)
-      
-      // Get the current question if there are pending questions
-      const currentQuestion = progressData.pendingQuestions.length > 0 
-        ? progressData.pendingQuestions[0].question_template 
-        : undefined
-
-      setProgress({
-        totalQuestions: progressData.totalQuestions,
-        answeredQuestions: progressData.answeredQuestions,
-        currentStage: progressData.currentStage,
-        progressPercentage: progressData.progressPercentage,
-        isCompleted: progressData.isCompleted,
-        currentQuestion,
-        stage1Completed: progressData.stage1Completed,
-        stage2Completed: progressData.stage2Completed,
-        stage3Completed: progressData.stage3Completed
-      })
+      // Use API endpoint instead of server-side service
+      const response = await fetch('/api/onboarding-status')
+      if (response.ok) {
+        const { progress: progressData } = await response.json()
+        
+        setProgress({
+          totalQuestions: progressData.totalQuestions,
+          answeredQuestions: progressData.answeredQuestions,
+          currentStage: progressData.currentStage,
+          progressPercentage: progressData.progressPercentage,
+          isCompleted: progressData.isCompleted,
+          currentQuestion: undefined, // API doesn't return pending questions for client safety
+          stage1Completed: progressData.stage1Completed,
+          stage2Completed: progressData.stage2Completed,
+          stage3Completed: progressData.stage3Completed
+        })
+      } else {
+        throw new Error('Failed to fetch onboarding status')
+      }
     } catch (err) {
       console.error('Failed to fetch onboarding progress:', err)
       setError('Failed to load onboarding progress')

@@ -59,9 +59,22 @@ export class OrganizationChatService {
       // Get current onboarding progress
       const progress = await onboardingService.getOnboardingProgress(organization.id)
       
-      // For initial messages (empty messages array), start onboarding dynamically
+      // For initial messages (empty messages array), check if onboarding is completed
       if (messages.length === 0) {
-        // Generate the first onboarding question dynamically from AI
+        // If onboarding is completed, just generate a greeting
+        if (progress.isCompleted) {
+          const aiResponse = await this.generateAIResponse([], context)
+          return {
+            aiMessage: aiResponse.aiMessage,
+            multipleChoices: aiResponse.multipleChoices,
+            allowMultiple: aiResponse.allowMultiple,
+            showOtherOption: aiResponse.showOtherOption,
+            organization,
+            setupCompleted: true
+          }
+        }
+        
+        // If onboarding is not completed, generate the first onboarding question dynamically from AI
         const aiResponse = await this.generateAIResponse([], context)
         
         // Extract question from AI response and store it
@@ -277,7 +290,11 @@ export class OrganizationChatService {
 
         // Use server-side YAML loader for API routes
         const { ServerYamlPromptLoader } = await import('./systemPrompt/ServerYamlPromptLoader')
-        systemPrompt = await ServerYamlPromptLoader.buildSystemPrompt(context.locale, trainingContext)
+        // Check if setup is completed by getting the organization's setup status
+        const { IntegratedOnboardingService } = await import('./integratedOnboardingService')
+        const onboardingService = new IntegratedOnboardingService()
+        const progress = await onboardingService.getOnboardingProgress(context.organization.id)
+        systemPrompt = await ServerYamlPromptLoader.buildSystemPrompt(context.locale, trainingContext, progress.isCompleted)
       } catch (error) {
         console.warn('Failed to get enhanced system prompt, aborting chat:', error)
         return {

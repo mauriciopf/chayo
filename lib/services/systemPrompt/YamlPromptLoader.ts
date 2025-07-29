@@ -1,4 +1,6 @@
 import yaml from 'js-yaml'
+import fs from 'fs'
+import path from 'path'
 
 export interface SystemPromptConfig {
   identity: string
@@ -53,85 +55,32 @@ export interface SystemPromptConfig {
 export class YamlPromptLoader {
   private static config: SystemPromptConfig | null = null
 
-  static async loadConfig(): Promise<SystemPromptConfig> {
-    if (this.config) {
+  static async loadConfig(isSetupCompleted?: boolean): Promise<SystemPromptConfig> {
+    if (this.config && !isSetupCompleted) {
       return this.config
     }
 
-    // Always return default config for client-side safety
-    this.config = this.getDefaultConfig()
-    return this.config
-  }
-
-  private static getDefaultConfig(): SystemPromptConfig {
-    return {
-      identity: "You are ChayoAI, an intelligent business assistant designed to help businesses set up their AI chatbot.",
-      objective: "Guide users through a comprehensive onboarding process to collect essential business information.",
-      behavior: "Be helpful, professional, and guide users step by step through the setup process.",
-      onboarding_stages: {
-        stage_1: {
-          title: "Core Setup",
-          description: "Collect basic business information",
-          questions: [
-            {
-              name: "Business Name",
-              type: "open_ended",
-              question: "What is the name of your business?",
-              field_name: "business_name"
-            },
-            {
-              name: "Business Type",
-              type: "multiple_choice",
-              question: "What type of business do you run?",
-              field_name: "business_type",
-              options: ["Restaurant", "Retail", "Service", "Healthcare", "Other"],
-              multiple: false,
-              other: true
-            }
-          ]
-        },
-        stage_2: {
-          title: "Industry Specific",
-          description: "Ask industry-relevant questions",
-          industry_questions: {
-            "Restaurant": ["What cuisine do you serve?", "Do you offer delivery?", "What are your operating hours?"],
-            "Retail": ["What products do you sell?", "Do you have online ordering?", "What are your store hours?"],
-            "Service": ["What services do you offer?", "Do you require appointments?", "What is your service area?"],
-            "Healthcare": ["What type of healthcare do you provide?", "Do you accept insurance?", "What are your office hours?"]
-          },
-          format_note: "Ask 3-5 relevant questions based on the business type."
-        },
-        stage_3: {
-          title: "Branding & Tone",
-          description: "Set the tone and style for your AI",
-          questions: [
-            {
-              name: "Communication Style",
-              type: "multiple_choice",
-              question: "How should your AI communicate with customers?",
-              field_name: "communication_style",
-              options: ["Professional", "Friendly", "Casual", "Formal"],
-              multiple: false,
-              other: false
-            }
-          ]
-        }
-      },
-      completion: "Setup complete! Your AI is ready to help customers.",
-      refinement_mode: "Continue to refine and improve your AI's responses.",
-      rules: "Always be helpful and accurate in your responses.",
-      dynamics: "Adapt your responses based on the business context.",
-      completion_signal: "Onboarding setup is now complete.",
-      language: {
-        en: "English",
-        es: "Español"
-      },
-      fallback_prompt: "I'm here to help you set up your business AI assistant. Let's start with some basic information about your business."
+    try {
+      // Choose the appropriate YAML file based on setup completion status
+      const fileName = isSetupCompleted ? 'systemPrompt.yaml' : 'onboardingSystemPrompt.yaml'
+      const yamlPath = path.join(process.cwd(), 'lib', 'services', 'systemPrompt', fileName)
+      const yamlContent = fs.readFileSync(yamlPath, 'utf8')
+      const config = yaml.load(yamlContent) as SystemPromptConfig
+      
+      // Only cache the onboarding config to avoid conflicts
+      if (!isSetupCompleted) {
+        this.config = config
+      }
+      return config
+    } catch (error) {
+      console.error(`Error loading ${isSetupCompleted ? 'systemPrompt.yaml' : 'onboardingSystemPrompt.yaml'}:`, error)
+      throw error
     }
   }
 
-  static async buildSystemPrompt(locale: string = 'en', trainingContext?: string): Promise<string> {
-    const config = await this.loadConfig()
+
+  static async buildSystemPrompt(locale: string = 'en', trainingContext?: string, isSetupCompleted?: boolean): Promise<string> {
+    const config = await this.loadConfig(isSetupCompleted)
     
     const languageSection = config.language[locale as keyof typeof config.language] || config.language.en
     
@@ -141,55 +90,11 @@ ${config.objective}
 
 ${config.behavior}
 
----
-## 🔄 ONBOARDING STAGES
-
-### Stage 1: Core Setup (Universal Questions)
-Ask these in order, one at a time:
-${config.onboarding_stages.stage_1.questions.map((q, index) => {
-  if (q.type === 'open_ended') {
-    return `  ${index + 1}. ${q.name} *(open-ended)*:
-     - "${q.question}"`
-  } else {
-    return `  ${index + 1}. ${q.name} *(multiple choice)*:
-     QUESTION: "${q.question}"
-     OPTIONS: ${JSON.stringify(q.options)}
-     MULTIPLE: ${q.multiple}
-     OTHER: ${q.other}`
-  }
-}).join('\n\n')}
-
----
-### Stage 2: Adaptive Branching (Dynamic Industry Questions)
-Based on the business type answer in Stage 1, dynamically ask 3–5 relevant follow-up questions:
-
-${Object.entries(config.onboarding_stages.stage_2.industry_questions).map(([industry, questions]) => 
-  `#### If ${industry.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}:
-  ${questions.map(q => `  - ${q}`).join('\n  ')}`
-).join('\n\n')}
-
-${config.onboarding_stages.stage_2.format_note}
-
----
-### Stage 3: Branding & Tone
-After core and adaptive questions, collect branding and messaging details:
-${config.onboarding_stages.stage_3.questions.map(q => 
-  `  - ${q.name}:
-    QUESTION: "${q.question}"
-    OPTIONS: ${JSON.stringify(q.options)}
-    MULTIPLE: ${q.multiple}
-    OTHER: ${q.other}`
-).join('\n\n')}
-
-${config.completion}
-
 ${config.refinement_mode}
 
 ${config.rules}
 
 ${config.dynamics}
-
-${config.completion_signal}
 
 ---
 ## LANGUAGE & CONTEXT

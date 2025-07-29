@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase/client'
-import { getAgentChatLinkForOrganization, agentService } from './agentService'
+import { getAgentChatLinkForOrganization } from './agentService'
 import { Agent, Organization } from '@/components/dashboard/types'
 
 // Define AgentChannel type based on agent_channels table and query usage
@@ -71,7 +71,7 @@ export class DashboardInitService {
         agents,
         businessInfoFields,
         agentChatLink,
-        threshold: agentService.getThreshold()
+        threshold: 10 // Hardcoded threshold value
       }
     } catch (error) {
       console.error('❌ Error initializing dashboard:', error)
