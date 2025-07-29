@@ -49,9 +49,20 @@ export class OrganizationChatService {
       }
       
       // Check and update any pending questions BEFORE generating new response
-      await this.validateAndUpdatePendingQuestions(messages, context)
+      const pendingQuestion = await this.validateAndUpdatePendingQuestions(messages, context)
 
-      // Generate AI response
+      if (pendingQuestion) {
+        // Return the pending question instead of generating a new AI response
+        return {
+          aiMessage: pendingQuestion.question_template,
+          multipleChoices: pendingQuestion.multiple_choices || undefined,
+          allowMultiple: pendingQuestion.allow_multiple || false,
+          showOtherOption: pendingQuestion.show_other_option || false,
+          organization
+        }
+      }
+
+      // Generate AI response only if no pending questions
       const { aiMessage, multipleChoices, allowMultiple, showOtherOption } = await this.generateAIResponse(messages, context)
       // Update WhatsApp trial status if mentioned
       await this.updateWhatsAppTrialStatus(aiMessage, context)
@@ -143,28 +154,8 @@ export class OrganizationChatService {
       throw new Error('OpenAI API key not set')
     }
     
-    // Check if there are pending unanswered questions
-    const { data: pendingQuestions, error: pendingError } = await this.supabaseClient
-      .from('business_info_fields')
-      .select('question_template, field_name, field_type, multiple_choices, allow_multiple, show_other_option')
-      .eq('organization_id', context.organization.id)
-      .eq('is_answered', false)
-      .limit(1)
-    
-    if (pendingError) {
-      console.error('Error fetching pending questions:', pendingError)
-    }
-    
-    if (pendingQuestions && pendingQuestions.length > 0) {
-      // Return the pending question instead of generating a new AI response
-      const pendingQuestion = pendingQuestions[0]
-      return {
-        aiMessage: pendingQuestion.question_template,
-        multipleChoices: pendingQuestion.multiple_choices || undefined,
-        allowMultiple: pendingQuestion.allow_multiple || false,
-        showOtherOption: pendingQuestion.show_other_option || false
-      }
-    }
+    // Note: Pending questions are handled by validateAndUpdatePendingQuestions in processChat
+    // This method should only generate new AI responses, not check for pending questions
     
     // Get the last user message for context
     const lastUserMessage = messages.filter(m => m.role === 'user').pop()?.content || ''
@@ -234,10 +225,8 @@ export class OrganizationChatService {
         // Parse multiple choice options if present
         const multipleChoiceData = this.parseMultipleChoiceData(aiMessage)
         
-        // Only extract question if we successfully parsed multiple choice data
-        const finalAiMessage = multipleChoiceData 
-          ? this.extractQuestionFromMultipleChoice(aiMessage) 
-          : aiMessage
+        // Always clean up the message to remove MULTIPLE and OTHER metadata
+        const finalAiMessage = this.extractQuestionFromMultipleChoice(aiMessage)
         
         const result = {
           aiMessage: finalAiMessage,
@@ -431,15 +420,16 @@ export class OrganizationChatService {
   /**
    * Validate and update any pending questions before generating new AI response
    * This prevents race conditions where questions might be marked as answered after the response is generated
+   * Returns the pending question if it wasn't answered, null otherwise
    */
-  private async validateAndUpdatePendingQuestions(messages: ChatMessage[], context: ChatContext): Promise<void> {
+  private async validateAndUpdatePendingQuestions(messages: ChatMessage[], context: ChatContext): Promise<any | null> {
     try {
       const businessInfoService = new (await import('./businessInfoService')).BusinessInfoService()
       
       // Get the pending unanswered question
       const { data: pendingQuestions } = await this.supabaseClient
         .from('business_info_fields')
-        .select('id, question_template, field_name, is_answered')
+        .select('id, question_template, field_name, field_type, multiple_choices, allow_multiple, show_other_option, is_answered')
         .eq('organization_id', context.organization.id)
         .eq('is_answered', false)
         .order('created_at', { ascending: true })
@@ -464,11 +454,19 @@ export class OrganizationChatService {
               validationResult.answer,
               validationResult.confidence
             )
+            // Question was answered, return null
+            return null
           }
         }
+        
+        // Question wasn't answered, return the pending question
+        return pendingQuestion
       }
+      
+      return null
     } catch (error) {
       console.warn('Failed to validate and update pending questions:', error)
+      return null
     }
   }
 
@@ -515,51 +513,17 @@ export class OrganizationChatService {
         apiKey: process.env.OPENAI_API_KEY,
       })
 
-      const extractionPrompt = `
-Analyze this conversation and determine if it contains any business information updates that should be stored in the AI's memory.
-
-CONVERSATION: "${conversationText}"
-
-Consider the following types of business updates:
-- Business hours, operating schedule, or availability changes
-- Location, address, or service area updates
-- Contact information (phone, email, website) changes
-- Pricing, rates, or cost updates
-- New or modified services offered
-- Policy changes (returns, refunds, appointments, etc.)
-- Business name or branding updates
-- Staff or team changes
-- Equipment or technology updates
-- Any other business-relevant information that customers should know
-
-IMPORTANT: Only extract information that is:
-1. Clearly stated as a change or update
-2. Specific and actionable
-3. Relevant to customers or business operations
-4. Not just general conversation or questions
-
-If you find a clear business update, respond with JSON:
-{
-  "text": "the specific updated information in a clear, concise format",
-  "type": "knowledge",
-  "reason": "brief description of what was updated",
-  "confidence": 0.0-1.0 (how confident you are this is an actual update)
-}
-
-If no clear business update is found, respond with: null
-
-Examples of what to extract:
-- "We now offer 24/7 customer support" → extract
-- "Our new address is 123 Main St" → extract  
-- "What are your hours?" → do NOT extract (just a question)
-- "I'm thinking of changing our hours" → do NOT extract (not confirmed)
-`
+      // Use centralized prompt configuration
+      const { EnhancedOrganizationSystemPromptService } = await import('./systemPrompt/EnhancedOrganizationSystemPromptService')
+      const config = EnhancedOrganizationSystemPromptService.PROMPT_CONFIG.MEMORY_EXTRACTION
+      
+      const extractionPrompt = config.PROMPT_TEMPLATE.replace('{CONVERSATION}', conversationText)
 
       const response = await openai.chat.completions.create({
         model: 'gpt-4o-mini',
         messages: [{ role: 'user', content: extractionPrompt }],
-        temperature: 0.1,
-        max_tokens: 300
+        temperature: config.TEMPERATURE,
+        max_tokens: config.MAX_TOKENS
       })
 
       const content = response.choices[0].message.content?.trim()
@@ -568,8 +532,16 @@ Examples of what to extract:
         return null
       }
 
+      // Clean the content to handle markdown code blocks
+      let cleanedContent = content
+      if (content.includes('```json')) {
+        cleanedContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
+      } else if (content.includes('```')) {
+        cleanedContent = content.replace(/```\n?/g, '').trim()
+      }
+
       try {
-        const extracted = JSON.parse(content)
+        const extracted = JSON.parse(cleanedContent)
         return {
           text: extracted.text,
           type: extracted.type || 'knowledge',
@@ -584,6 +556,8 @@ Examples of what to extract:
         }
       } catch (parseError) {
         console.warn('Failed to parse memory update extraction:', parseError)
+        console.warn('Raw content:', content)
+        console.warn('Cleaned content:', cleanedContent)
         return null
       }
 

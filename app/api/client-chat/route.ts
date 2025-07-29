@@ -15,12 +15,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log('Client Chat API - Request:', { organizationId, message: message.substring(0, 50) + '...' })
-
     const supabase = getSupabaseServerClient()
-    // Create server-side Supabase client
-    // Authentication using server supabase client
-
+    
     // Verify organization exists
     const { data: organization, error: orgError } = await supabase
       .from('organizations')
@@ -39,8 +35,6 @@ export async function POST(request: NextRequest) {
     // Get client-facing system prompt (RAG-based)
     const systemPrompt = await ClientSystemPromptService.buildClientSystemPrompt(organizationId, message, supabase)
     // No ragMessages needed, all context is in the system prompt
-
-    console.log('Client system prompt generated, length:', systemPrompt.length)
 
     // Prepare messages for OpenAI
     const openAIMessages = [
@@ -61,6 +55,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Call OpenAI
+    console.log('🚀 Calling OpenAI API...')
     const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -76,7 +71,7 @@ export async function POST(request: NextRequest) {
     })
 
     if (!openAIResponse.ok) {
-      console.error('OpenAI API error:', openAIResponse.status, await openAIResponse.text())
+      console.error('❌ OpenAI API error:', openAIResponse.status, await openAIResponse.text())
       return NextResponse.json({
         response: 'Lo siento, ocurrió un error. Por favor, intenta nuevamente.'
       })
@@ -85,7 +80,11 @@ export async function POST(request: NextRequest) {
     const openAIData = await openAIResponse.json()
     const assistantResponse = openAIData.choices[0]?.message?.content || 'Lo siento, no pude generar una respuesta.'
 
-    console.log('Client chat response generated successfully')
+    console.log('✅ Client chat response generated successfully:', {
+      responseLength: assistantResponse.length,
+      responsePreview: assistantResponse.substring(0, 100) + (assistantResponse.length > 100 ? '...' : ''),
+      openAIUsage: openAIData.usage
+    })
 
     // Store the conversation exchange for future reference
     await conversationStorageService.storeConversationExchange(

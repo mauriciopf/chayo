@@ -1,19 +1,21 @@
 import type { BusinessConstraints } from './types'
+import { EnhancedOrganizationSystemPromptService } from './EnhancedOrganizationSystemPromptService'
 
 export function buildSystemPrompt(conversationKnowledge: string | null, locale: string = 'en'): string {
-  let systemPrompt = `You are Chayo, the AI assistant for the business specified in the ${conversationKnowledge}`;
+  const config = EnhancedOrganizationSystemPromptService.PROMPT_CONFIG.BASE_SYSTEM_PROMPT
+  
+  // Build the prompt using the centralized template
+  let prompt = config.PROMPT_TEMPLATE
+    .replace('{IDENTITY}', config.IDENTITY.replace('{CONVERSATION_KNOWLEDGE}', conversationKnowledge || 'business'))
+    .replace('{LANGUAGE_SECTION}', config.LANGUAGE_SECTION.replace('{LOCALE}', locale))
+    .replace('{GUIDELINES_SECTION}', config.GUIDELINES_SECTION)
+  
+  // Add business knowledge section if available
   if (conversationKnowledge) {
-    systemPrompt += `\n\n## Business Conversation Knowledge:\n${conversationKnowledge}`;
+    prompt = prompt.replace('{BUSINESS_KNOWLEDGE_SECTION}', config.BUSINESS_KNOWLEDGE_SECTION.replace('{CONVERSATION_KNOWLEDGE}', conversationKnowledge))
+  } else {
+    prompt = prompt.replace('{BUSINESS_KNOWLEDGE_SECTION}', '')
   }
-  // Add more prompt logic as needed
-  systemPrompt += `\n\n## Response only in the language of the business: \n${locale}`;
-  systemPrompt += '\n\n## Response Guidelines:\n';
-  systemPrompt += '- ONLY ask questions about the business and their operations.\n';
-  systemPrompt += '- Focus on gathering internal business information first.\n';
-  systemPrompt += '- Maintain a professional tone.\n';
-  systemPrompt += '- NEVER provide information, advice, or responses about other topics.\n';
-  systemPrompt += '- Ask ONE specific question at a time.\n';
-  systemPrompt += '- Always end with a relevant question.\n';
-  systemPrompt += '- Do not give advice, suggestions, or information - only gather information.\n';
-  return systemPrompt;
+  
+  return prompt
 } 
