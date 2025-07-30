@@ -104,7 +104,7 @@ export default function ClientQRCode({ organizationSlug, isOnboardingCompleted =
               Business Setup Progress
             </span>
             <span className="text-sm text-gray-500">
-              {onboardingProgress?.answeredQuestions || 0} / {onboardingProgress?.totalQuestions || 0} questions completed
+              {onboardingProgress?.progressPercentage || 0}% Complete
             </span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-3">

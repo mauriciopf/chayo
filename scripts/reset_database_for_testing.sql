@@ -8,8 +8,6 @@ BEGIN;
 -- Delete conversation embeddings (depends on conversations)
 DELETE FROM conversation_embeddings;
 
--- Delete conversations
-DELETE FROM conversations;
 
 -- Delete business info fields (onboarding questions/answers)
 DELETE FROM business_info_fields;

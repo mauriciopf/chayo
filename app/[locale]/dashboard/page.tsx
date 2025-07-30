@@ -103,7 +103,7 @@ function DashboardContent() {
   })
 
   // Use onboarding progress hook
-  const { progress: onboardingProgress } = useOnboardingProgress(auth.currentOrganization?.id)
+  const { progress: onboardingProgress, refreshProgress: refreshOnboardingProgress } = useOnboardingProgress(auth.currentOrganization?.id)
 
   // Dashboard UI state
   const [activeView, setActiveView] = useState<ActiveView>(mobile.isMobile ? 'agents' : 'chat')
@@ -207,7 +207,10 @@ function DashboardContent() {
               setHasUserInteracted={mobile.setHasUserInteracted}
               isMobile={mobile.isMobile}
                           organizationId={auth.currentOrganization?.id}
-            unlockQRCode={qrCodeLogic.unlockQRCode}
+            unlockQRCode={async () => {
+              await qrCodeLogic.unlockQRCode()
+              refreshOnboardingProgress()
+            }}
             onNavigateToQR={() => setActiveView('qrcode')}
           />
           </div>

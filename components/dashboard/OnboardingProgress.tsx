@@ -117,7 +117,7 @@ export default function OnboardingProgress({ progress, isVisible }: OnboardingPr
             {progress.progressPercentage}%
           </div>
           <div className="text-xs text-gray-400">
-            {progress.answeredQuestions}/{progress.totalQuestions}
+            Setup Progress
           </div>
         </div>
       </div>
