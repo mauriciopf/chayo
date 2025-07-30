@@ -6,7 +6,7 @@ import { conversationStorageService } from '@/lib/services/conversationStorageSe
 
 export async function POST(request: NextRequest) {
   try {
-    const { message, organizationId, messages = [] } = await request.json()
+    const { message, organizationId, locale = 'en', messages = [] } = await request.json()
 
     if (!message || !organizationId) {
       return NextResponse.json(
@@ -32,8 +32,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get client-facing system prompt (RAG-based)
-    const systemPrompt = await ClientSystemPromptService.buildClientSystemPrompt(organizationId, message, supabase)
+    // Get client-facing system prompt (RAG-based) with locale support
+    const systemPrompt = await ClientSystemPromptService.buildClientSystemPrompt(organizationId, message, locale, supabase)
     // No ragMessages needed, all context is in the system prompt
 
     // Prepare messages for OpenAI

@@ -34,12 +34,7 @@ rules: |
   
   ## 📋 MULTIPLE CHOICE QUESTIONS
   - When offering options, gathering preferences, or collecting structured data, use multiple choice format
-  - REQUIRED TECHNICAL FORMAT for multiple-choice questions:
-    * Question text first
-    * Then OPTIONS: ["Option 1", "Option 2", "Option 3"] in JSON array format
-    * Then MULTIPLE: true/false (whether multiple selections allowed)
-    * Then OTHER: true/false (whether "Other" option is shown)
-  - EXAMPLE: "How would you like to be contacted?\nOPTIONS: [\"Phone\", \"Email\", \"WhatsApp\", \"Text Message\"]\nMULTIPLE: true\nOTHER: true"
+  - Follow the standardized formatting rules (provided separately)
   - Use multiple choice for: preferences, selections, scheduling options, service choices, contact methods
   
   ## 🔄 WHEN TO USE MULTIPLE CHOICE

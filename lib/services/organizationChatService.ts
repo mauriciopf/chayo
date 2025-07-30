@@ -306,13 +306,13 @@ export class OrganizationChatService {
           console.warn('Failed to get training context:', error)
         }
 
-        // Use server-side YAML loader for API routes
-        const { ServerYamlPromptLoader } = await import('./systemPrompt/ServerYamlPromptLoader')
+        // Use YAML loader for system prompts
+        const { YamlPromptLoader } = await import('./systemPrompt/YamlPromptLoader')
         // Check if setup is completed by getting the organization's setup status
         const { IntegratedOnboardingService } = await import('./integratedOnboardingService')
         const onboardingService = new IntegratedOnboardingService()
         const progress = await onboardingService.getOnboardingProgress(context.organization.id)
-        systemPrompt = await ServerYamlPromptLoader.buildSystemPrompt(context.locale, trainingContext, progress.isCompleted, progress.currentStage)
+        systemPrompt = await YamlPromptLoader.buildSystemPrompt(context.locale, trainingContext, progress.isCompleted, progress.currentStage)
       } catch (error) {
         console.warn('Failed to get enhanced system prompt, aborting chat:', error)
         return {

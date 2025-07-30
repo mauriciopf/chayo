@@ -1,5 +1,6 @@
 import { embeddingService } from '../embeddingService'
 import type { EmbeddingResult } from '../embedding/types'
+import { getLocaleInstructions } from '../systemPrompt/i18nPromptUtils'
 
 export class ClientSystemPromptService {
   /**
@@ -7,7 +8,7 @@ export class ClientSystemPromptService {
    * - Uses only business knowledge from conversation_embeddings (not business_constraints_view).
    * - Makes the AI assistant focus only on this business.
    */
-  static async buildClientSystemPrompt(organizationId: string, userQuery: string = '', supabase: any): Promise<string> {
+  static async buildClientSystemPrompt(organizationId: string, userQuery: string = '', locale: string = 'en', supabase: any): Promise<string> {
     let relevantChunks: Array<Pick<EmbeddingResult, 'conversation_segment' | 'metadata'>> = []
     try {
       if (userQuery && userQuery.trim().length > 0) {
@@ -37,7 +38,12 @@ export class ClientSystemPromptService {
       }
     }
 
+    // Get language-specific instructions
+    const languageInstructions = getLocaleInstructions(locale)
+    
     let prompt = `You are Chayo, the AI assistant for ${businessName}. You ONLY answer as the assistant for this specific business. Do NOT answer for other businesses or general topics.
+
+${languageInstructions.responseLanguage}
 
 ## Business Knowledge (from internal documents, FAQs, and past conversations):
 `;
@@ -47,14 +53,15 @@ export class ClientSystemPromptService {
         if (idx < relevantChunks.length - 1) prompt += '\n'
       })
     } else {
-      prompt += '- No business knowledge found yet. Politely ask the user to provide more information about the business.'
+      prompt += `- No business knowledge found yet. Please provide more information about the business.`
     }
 
     prompt += `
 
 ## Critical Rules:
 - You ONLY answer using the business knowledge above.
-- If you do not know the answer, say you do not have that information and ask for more details about the business.
+- Focus on helping customers with questions about this business.
+- If you do not know the answer, say you do not have that information and ask for more details.
 - NEVER answer for other businesses or provide generic advice.
 - Always be professional, helpful, and focused on this business.
 - If the user asks about something not related to this business, politely redirect them to business topics.

@@ -9,10 +9,11 @@ import { supabase } from '@/lib/supabase/client'
 interface ClientChatContainerProps {
   agent: Agent
   organization: Organization
+  locale?: string
   className?: string
 }
 
-export default function ClientChatContainer({ agent, organization, className = '' }: ClientChatContainerProps) {
+export default function ClientChatContainer({ agent, organization, locale = 'en', className = '' }: ClientChatContainerProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -55,7 +56,7 @@ export default function ClientChatContainer({ agent, organization, className = '
     setError(null)
 
     try {
-      // Call the client chat API endpoint (we'll create this next)
+      // Call the client chat API endpoint with locale support
       const response = await fetch('/api/client-chat', {
         method: 'POST',
         headers: {
@@ -64,6 +65,7 @@ export default function ClientChatContainer({ agent, organization, className = '
         body: JSON.stringify({
           message: input.trim(),
           organizationId: organization.id,
+          locale: locale, // Include locale for internationalization
           messages: messages.slice(-10) // Send last 10 messages for context
         }),
       })

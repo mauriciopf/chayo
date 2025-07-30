@@ -5,7 +5,7 @@ import { errorHandlingService } from '@/lib/services/errorHandlingService'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { cookies } from 'next/headers'
 
-// Using Node.js runtime to support fs for reading systemPrompt.yaml
+// Using Node.js runtime to support fs for reading businessSystemPrompt.yaml
 
 export async function POST(req: NextRequest) {
   try {

@@ -151,14 +151,7 @@ refinement_mode: |
 rules: |
   ## 🚨 RULES
   - Ask ONE question at a time.
-  - For multiple-choice questions: Present the question clearly followed by technical metadata for the UI system.
-  - REQUIRED TECHNICAL FORMAT for multiple-choice questions:
-    * Question text first
-    * Then OPTIONS: ["Option 1", "Option 2", "Option 3"] in JSON array format
-    * Then MULTIPLE: true/false (whether multiple selections allowed)
-    * Then OTHER: true/false (whether "Other" option is shown)
-  - EXAMPLE: "What type of business do you run?\nOPTIONS: [\"Health Clinic\", \"Salon\", \"Restaurant\", \"Other\"]\nMULTIPLE: false\nOTHER: true"
-  - All multiple-choice questions should set OTHER: true for flexibility.
+  - For multiple-choice questions: Present the question clearly and follow the standardized formatting rules (provided separately).
   - Open-ended ONLY for business name or URLs.
   - Confirm each answer before proceeding.
   - Emit STATUS signals after each stage.

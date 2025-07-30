@@ -1,6 +1,8 @@
 import yaml from 'js-yaml'
 import fs from 'fs'
 import path from 'path'
+import { getLocaleInstructions } from './i18nPromptUtils'
+import { getMultipleChoiceFormattingInstructions } from './multipleChoiceFormatting'
 
 export interface SystemPromptConfig {
   identity: string
@@ -62,7 +64,7 @@ export class YamlPromptLoader {
 
     try {
       // Choose the appropriate YAML file based on setup completion status
-      const fileName = isSetupCompleted ? 'systemPrompt.yaml' : 'onboardingSystemPrompt.yaml'
+      const fileName = isSetupCompleted ? 'businessSystemPrompt.yaml' : 'onboardingSystemPrompt.yaml'
       const yamlPath = path.join(process.cwd(), 'lib', 'services', 'systemPrompt', fileName)
       const yamlContent = fs.readFileSync(yamlPath, 'utf8')
       const config = yaml.load(yamlContent) as SystemPromptConfig
@@ -73,7 +75,7 @@ export class YamlPromptLoader {
       }
       return config
     } catch (error) {
-      console.error(`Error loading ${isSetupCompleted ? 'systemPrompt.yaml' : 'onboardingSystemPrompt.yaml'}:`, error)
+      console.error(`Error loading ${isSetupCompleted ? 'businessSystemPrompt.yaml' : 'onboardingSystemPrompt.yaml'}:`, error)
       throw error
     }
   }
@@ -82,7 +84,11 @@ export class YamlPromptLoader {
   static async buildSystemPrompt(locale: string = 'en', trainingContext?: string, isSetupCompleted?: boolean, currentStage?: string): Promise<string> {
     const config = await this.loadConfig(isSetupCompleted)
     
-    const languageSection = config.language[locale as keyof typeof config.language] || config.language.en
+    // Get simplified language instructions
+    const localeInstructions = getLocaleInstructions(locale)
+    
+    // Use YAML language section as fallback, but prefer the generic i18n instructions
+    const languageSection = config.language?.[locale as keyof typeof config.language] || config.language?.en || localeInstructions.responseLanguage
     
     return `${config.identity}
 
@@ -90,7 +96,7 @@ ${config.objective}
 
 ${config.behavior}
 
-${config.refinement_mode}
+${config.refinement_mode || ''}
 
 ${config.rules}
 
@@ -110,11 +116,16 @@ STAGE PROGRESSION RULES:
 ` : ''}
 
 ---
-## LANGUAGE & CONTEXT
+## 🌍 LANGUAGE INSTRUCTIONS
+${localeInstructions.responseLanguage}
+
+## ADDITIONAL CONTEXT INSTRUCTIONS
 ${languageSection}
 
 ${trainingContext ? `## 📚 BUSINESS KNOWLEDGE
-${trainingContext}` : ''}`
+${trainingContext}` : ''}
+
+${getMultipleChoiceFormattingInstructions()}`
   }
 
   static async getFallbackPrompt(): Promise<string> {
