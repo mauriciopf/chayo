@@ -1,14 +1,16 @@
 import React from "react"
 import { useTranslations } from 'next-intl'
 import { formatTime } from '@/lib/utils/time'
+import { Calendar } from 'lucide-react'
 
 interface ChatMessageProps {
   role: "user" | "ai" | "system"
   content: string
   timestamp?: Date
+  appointmentLink?: string
 }
 
-export default function ChatMessage({ role, content, timestamp }: ChatMessageProps) {
+export default function ChatMessage({ role, content, timestamp, appointmentLink }: ChatMessageProps) {
   const t = useTranslations('chat')
 
   // Safeguard: Check if the content contains raw multiple choice data and clean it
@@ -36,10 +38,10 @@ export default function ChatMessage({ role, content, timestamp }: ChatMessagePro
   }
 
   return (
-    <div className={`py-6 ${role === "user" ? "bg-white" : "bg-gray-50"}`}>
-      <div className="w-full px-4 sm:px-6 lg:px-8">
+    <div className={`py-4 ${role === "user" ? "bg-white" : "bg-gray-50"}`}>
+      <div className="w-full px-4">
         <div className={`flex ${role === "user" ? "justify-end" : "justify-start"}`}>
-          <div className={`flex ${role === "user" ? "flex-row-reverse" : "flex-row"} items-start space-x-4 w-full`}>
+          <div className={`flex ${role === "user" ? "flex-row-reverse" : "flex-row"} items-start gap-3 w-full max-w-full`}>
             {/* Avatar */}
             <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
               role === "user" 
@@ -57,13 +59,26 @@ export default function ChatMessage({ role, content, timestamp }: ChatMessagePro
               )}
             </div>
 
-            {/* Message Content */}
-            <div className={`flex-1 ${role === "user" ? "text-right" : "text-left"}`}>
-              <div className={`${role === "user" ? "inline-block" : "w-[70%]"} ${role === "user" ? "bg-purple-600 text-white" : "bg-white text-gray-900"} rounded-2xl px-4 py-3 shadow-sm`}>
-                <div className="text-sm leading-relaxed whitespace-pre-wrap">{cleanContent}</div>
+            {/* Message Content - Mobile Optimized */}
+            <div className={`flex-1 min-w-0 ${role === "user" ? "text-right" : "text-left"}`}>
+              <div className={`${role === "user" ? "inline-block max-w-[85%]" : "max-w-[85%]"} ${role === "user" ? "bg-purple-600 text-white" : "bg-white text-gray-900"} rounded-2xl px-4 py-3 shadow-sm`}>
+                <div className="text-base leading-relaxed whitespace-pre-wrap break-words">{cleanContent}</div>
+                
+                {/* Appointment Button - Mobile Optimized */}
+                {appointmentLink && (
+                  <div className="mt-3">
+                    <a
+                      href={appointmentLink}
+                      className="inline-flex items-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-base font-medium rounded-lg transition-colors touch-manipulation min-h-[44px]"
+                    >
+                      <Calendar className="w-5 h-5" />
+                      📱 Agendar Cita
+                    </a>
+                  </div>
+                )}
               </div>
               {timestamp && (
-                <div className={`text-xs text-gray-500 mt-2 ${
+                <div className={`text-xs text-gray-500 mt-2 px-1 ${
                   role === "user" ? "text-right" : "text-left"
                 }`}>
                   {formatTime(timestamp)}

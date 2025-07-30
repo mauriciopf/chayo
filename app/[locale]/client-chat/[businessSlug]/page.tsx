@@ -189,21 +189,32 @@ export default function ClientChatBusinessPage() {
     )
   }
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col">
-      {/* Chat Container */}
-      <div className="flex-1 w-full max-w-4xl mx-auto px-2 sm:px-4 py-2 sm:py-6 flex flex-col">
-        <div className="bg-white rounded-t-xl sm:rounded-xl shadow-lg border border-gray-200 overflow-hidden flex-1 flex flex-col h-full">
-          <ClientChatContainer 
-            agent={agent}
-            organization={organization}
-            locale={locale}
-            className="h-full flex-1"
-          />
+    <div className="h-full bg-white flex flex-col">
+      {/* Mobile Header - Compact */}
+      <div className="bg-white border-b border-gray-200 px-4 py-3 flex-shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center">
+            <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-lg font-semibold text-gray-900 truncate">
+              {organization.name}
+            </h1>
+            <p className="text-sm text-green-600">En línea</p>
+          </div>
         </div>
       </div>
-      {/* Footer */}
-      <div className="text-center py-3 px-2 bg-white/80 border-t border-gray-200 text-xs text-gray-500 sticky bottom-0 z-10">
-        Powered by Chayo AI • Tu Comadre Digital
+
+      {/* Chat Container - Full Screen */}
+      <div className="flex-1 flex flex-col min-h-0">
+        <ClientChatContainer 
+          agent={agent}
+          organization={organization}
+          locale={locale}
+          className="flex-1"
+        />
       </div>
     </div>
   )

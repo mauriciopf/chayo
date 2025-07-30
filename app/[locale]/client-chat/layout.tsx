@@ -14,8 +14,13 @@ export default function ClientChatLayout({
 }) {
   return (
     <html lang="en">
-      <body className="min-h-screen bg-gray-50">
-        <main className="container mx-auto max-w-4xl p-4">
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+      </head>
+      <body className="min-h-screen bg-white overscroll-none">
+        <main className="h-screen flex flex-col">
           {children}
         </main>
       </body>

@@ -27,18 +27,27 @@ export default function ClientChatContainer({ agent, organization, locale = 'en'
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  // Initial greeting message
+  // Initial greeting message with appointment booking option
   useEffect(() => {
-    if (agent) {
+    if (agent && organization) {
       const welcomeMessage: Message = {
         id: 'welcome',
-        content: `¡Hola! Soy Chayo, tu asistente digital para ${agent.name}. ¿En qué puedo ayudarte hoy?`,
+        content: `¡Hola! Soy Chayo, tu asistente digital para ${organization.name}. ¿En qué puedo ayudarte hoy?`,
         role: 'ai',
         timestamp: new Date()
       }
-      setMessages([welcomeMessage])
+      
+      const appointmentMessage: Message = {
+        id: 'appointment-option',
+        content: `📅 **Agendar una cita**\n\n¿Necesitas agendar una cita? Haz clic en el botón de abajo para ver nuestro calendario disponible y reservar tu horario.`,
+        role: 'ai',
+        timestamp: new Date(),
+        appointmentLink: `http://localhost:3000/${locale}/book-appointment/${organization.slug}`
+      }
+      
+      setMessages([welcomeMessage, appointmentMessage])
     }
-  }, [agent])
+  }, [agent, organization, locale])
 
   const handleSend = async () => {
     if (!input.trim() || loading) return
@@ -100,11 +109,11 @@ export default function ClientChatContainer({ agent, organization, locale = 'en'
   }
 
   return (
-    <div className={`flex flex-col h-full ${className}`}>
-      {/* Messages Area */}
+    <div className={`flex flex-col h-full w-full ${className}`}>
+      {/* Messages Area - Full Screen Mobile */}
       <div 
         ref={chatScrollContainerRef}
-        className="flex-1 overflow-y-auto p-4 space-y-4"
+        className="flex-1 overflow-y-auto"
         style={{ scrollBehavior: 'smooth' }}
       >
         <AnimatePresence>
@@ -120,6 +129,7 @@ export default function ClientChatContainer({ agent, organization, locale = 'en'
                 role={message.role}
                 content={message.content}
                 timestamp={message.timestamp}
+                appointmentLink={message.appointmentLink}
               />
             </motion.div>
           ))}
@@ -129,7 +139,7 @@ export default function ClientChatContainer({ agent, organization, locale = 'en'
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="flex justify-start"
+            className="flex justify-start px-4 py-2"
           >
             <div className="bg-gray-100 rounded-2xl px-4 py-3 max-w-xs">
               <div className="flex space-x-1">
@@ -144,36 +154,38 @@ export default function ClientChatContainer({ agent, organization, locale = 'en'
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Error Message */}
+      {/* Error Message - Mobile Full Width */}
       {error && (
-        <div className="px-4 py-2 bg-red-50 border-t border-red-200">
+        <div className="bg-red-50 border-t border-red-200 px-4 py-3">
           <p className="text-red-600 text-sm">{error}</p>
         </div>
       )}
 
-      {/* Input Area */}
-      <div className="border-t border-gray-200 p-4">
-        <div className="flex space-x-3">
-          <div className="flex-1 relative">
-            <textarea
-              ref={inputRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Escribe tu mensaje..."
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              rows={1}
-              style={{ minHeight: '48px', maxHeight: '120px' }}
-              disabled={loading}
-            />
+      {/* Input Area - Mobile Optimized Full Width */}
+      <div className="border-t border-gray-200 bg-white">
+        <div className="px-4 py-3 safe-area-inset-bottom">
+          <div className="flex gap-3">
+            <div className="flex-1">
+              <textarea
+                ref={inputRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Escribe tu mensaje..."
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base touch-manipulation"
+                rows={1}
+                style={{ minHeight: '44px', maxHeight: '120px' }}
+                disabled={loading}
+              />
+            </div>
+            <button
+              onClick={handleSend}
+              disabled={!input.trim() || loading}
+              className="px-4 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium touch-manipulation min-h-[44px] flex items-center"
+            >
+              {loading ? '...' : 'Enviar'}
+            </button>
           </div>
-          <button
-            onClick={handleSend}
-            disabled={!input.trim() || loading}
-            className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
-          >
-            {loading ? '...' : 'Enviar'}
-          </button>
         </div>
       </div>
     </div>

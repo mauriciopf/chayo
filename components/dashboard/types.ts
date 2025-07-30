@@ -6,6 +6,7 @@ export interface Message {
   multipleChoices?: string[]
   allowMultiple?: boolean
   showOtherOption?: boolean
+  appointmentLink?: string
 }
 
 export interface Agent {
