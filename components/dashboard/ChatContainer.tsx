@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useTranslations } from 'next-intl'
+import { CheckCircle } from 'lucide-react'
 import ChatMessages from './ChatMessages'
 import ChatInput from './ChatInput'
 import ChatEmptyState from './ChatEmptyState'
@@ -83,6 +84,15 @@ export default function ChatContainer({
   const { progress: onboardingProgress, refreshProgress: refreshOnboardingProgress } = useOnboardingProgress(organizationId)
   const [showOnboardingProgress, setShowOnboardingProgress] = useState(false)
   const [showCompletion, setShowCompletion] = useState(false)
+  
+  // Persistent flag using localStorage
+  const getCompletionModalShownKey = (orgId: string) => `onboarding_modal_shown_${orgId}`
+  const [hasShownCompletionModal, setHasShownCompletionModal] = useState(() => {
+    if (typeof window !== 'undefined' && organizationId) {
+      return localStorage.getItem(getCompletionModalShownKey(organizationId)) === 'true'
+    }
+    return false
+  })
 
   // Refresh onboarding progress when messages change (new business info collected)
   useEffect(() => {
@@ -102,8 +112,23 @@ export default function ChatContainer({
   // Update onboarding visibility when progress changes
   useEffect(() => {
     setShowOnboardingProgress(!onboardingProgress.isCompleted)
-    setShowCompletion(onboardingProgress.isCompleted)
-  }, [onboardingProgress.isCompleted])
+    
+    // Only show completion modal once when setup is completed
+    if (onboardingProgress.isCompleted && !hasShownCompletionModal && organizationId) {
+      setShowCompletion(true)
+      setHasShownCompletionModal(true)
+      // Persist the flag to localStorage
+      localStorage.setItem(getCompletionModalShownKey(organizationId), 'true')
+    }
+  }, [onboardingProgress.isCompleted, hasShownCompletionModal, organizationId])
+
+  // Update hasShownCompletionModal when organizationId changes
+  useEffect(() => {
+    if (organizationId) {
+      const hasShown = localStorage.getItem(getCompletionModalShownKey(organizationId)) === 'true'
+      setHasShownCompletionModal(hasShown)
+    }
+  }, [organizationId])
 
   // Handler for quick reply chip click
   const handleQuickReply = (context: ChatContextType) => {
@@ -180,6 +205,54 @@ export default function ChatContainer({
           }}
           onNavigateToQR={onNavigateToQR}
         />
+
+        {/* Show subtle banner after modal has been dismissed and setup is complete */}
+        {(() => {
+          const shouldShowBanner = onboardingProgress.isCompleted && hasShownCompletionModal && !showCompletion
+          console.log('🎯 Banner visibility check:', {
+            isCompleted: onboardingProgress.isCompleted,
+            hasShownModal: hasShownCompletionModal,
+            showCompletion: showCompletion,
+            shouldShowBanner
+          })
+          return shouldShowBanner
+        })() && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                <div>
+                  <p className="text-sm text-green-800 font-medium">
+                    Setup Complete! ✨
+                  </p>
+                  <p className="text-xs text-green-600 mt-0.5">
+                    Your AI assistant is ready to help with client communications.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  if (unlockQRCode) {
+                    unlockQRCode()
+                  }
+                  if (onNavigateToQR) {
+                    onNavigateToQR()
+                  }
+                }}
+                className="inline-flex items-center px-3 py-1.5 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 transition-colors flex-shrink-0 ml-4"
+              >
+                Start Using Chayo
+                <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+          </motion.div>
+        )}
         
         <ChatMessages 
           messages={messages} 

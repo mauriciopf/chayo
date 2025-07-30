@@ -157,9 +157,40 @@ export class BusinessInfoService {
         console.error('Error updating question as answered:', error)
         throw error
       }
+
+      // Special handling: Update organization name when business_name is answered
+      if (fieldName === 'business_name' && answer && answer.trim().length > 0) {
+        console.log('📝 Updating organization name to:', answer.trim())
+        await this.updateOrganizationName(organizationId, answer.trim())
+      }
     } catch (error) {
       console.error('Error updating question as answered:', error)
       throw error
+    }
+  }
+
+  /**
+   * Update organization name when business name is provided
+   */
+  private async updateOrganizationName(organizationId: string, businessName: string): Promise<void> {
+    try {
+      const { error } = await this.supabaseClient
+        .from('organizations')
+        .update({
+          name: businessName,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', organizationId)
+
+      if (error) {
+        console.error('Error updating organization name:', error)
+        throw error
+      }
+
+      console.log('✅ Successfully updated organization name to:', businessName)
+    } catch (error) {
+      console.error('Error updating organization name:', error)
+      // Don't throw error here - organization name update shouldn't fail the entire onboarding
     }
   }
 

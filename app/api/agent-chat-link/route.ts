@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
     // Get user's organization
     const { data: organization, error: orgError } = await supabase
       .from('organizations')
-      .select('id')
+      .select('id, slug')
       .eq('owner_id', user.id)
       .single()
     
@@ -28,18 +28,29 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ agentChatLink: null })
     }
     
-    // Get agent chat link for the organization
-    const { data: agentChatLink, error: linkError } = await supabase
-      .from('agent_channels')
-      .select('*, agent:agents(*)')
+    // Get client chat agent for this organization
+    const { data: agent, error: agentError } = await supabase
+      .from('agents')
+      .select('*')
       .eq('organization_id', organization.id)
-      .eq('channel', 'agent_chat_link')
+      .eq('channel', 'client_chat')
       .maybeSingle()
     
-    if (linkError) {
-      console.warn('Error fetching agent chat link:', linkError)
+    if (agentError) {
+      console.warn('Error fetching client chat agent:', agentError)
       return NextResponse.json({ agentChatLink: null })
     }
+    
+    // Return agent data formatted as chat link
+    const agentChatLink = agent ? {
+      id: agent.id,
+      organization_id: organization.id,
+      channel: 'client_chat',
+      url: `/client-chat/${organization.slug}`,
+      status: agent.paused ? 'paused' : 'active',
+      connected: true,
+      agent: agent
+    } : null
     
     return NextResponse.json({ agentChatLink })
     
