@@ -61,6 +61,7 @@ export class OrganizationChatService {
       
       // For initial messages (empty messages array), check if onboarding is completed
       if (messages.length === 0) {
+        console.log('🔍 Processing initial message - onboarding completed:', progress.isCompleted)
         // If onboarding is completed, just generate a greeting
         if (progress.isCompleted) {
           const aiResponse = await this.generateAIResponse([], context)
@@ -74,7 +75,24 @@ export class OrganizationChatService {
           }
         }
         
-        // If onboarding is not completed, generate the first onboarding question dynamically from AI
+        // If onboarding is not completed, check for existing pending questions first
+        const existingQuestion = await onboardingService.getNextQuestion(organization.id)
+        
+        if (existingQuestion) {
+          // Return the existing pending question instead of generating a new one
+          console.log('🔍 Returning existing pending question:', existingQuestion.question_template)
+          return {
+            aiMessage: existingQuestion.question_template,
+            multipleChoices: existingQuestion.multiple_choices || undefined,
+            allowMultiple: existingQuestion.allow_multiple || false,
+            showOtherOption: existingQuestion.show_other || false,
+            organization,
+            setupCompleted: false
+          }
+        }
+        
+        // Only generate a new question if no pending questions exist
+        console.log('🔍 No pending questions found, generating new onboarding question')
         const aiResponse = await this.generateAIResponse([], context)
         
         // Extract question from AI response and store it
@@ -294,7 +312,7 @@ export class OrganizationChatService {
         const { IntegratedOnboardingService } = await import('./integratedOnboardingService')
         const onboardingService = new IntegratedOnboardingService()
         const progress = await onboardingService.getOnboardingProgress(context.organization.id)
-        systemPrompt = await ServerYamlPromptLoader.buildSystemPrompt(context.locale, trainingContext, progress.isCompleted)
+        systemPrompt = await ServerYamlPromptLoader.buildSystemPrompt(context.locale, trainingContext, progress.isCompleted, progress.currentStage)
       } catch (error) {
         console.warn('Failed to get enhanced system prompt, aborting chat:', error)
         return {

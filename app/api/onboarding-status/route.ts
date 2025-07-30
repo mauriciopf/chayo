@@ -112,28 +112,22 @@ export async function GET(req: NextRequest) {
       ? Object.entries(stageCounts).sort(([,a], [,b]) => (b as number) - (a as number))[0][0]
       : 'stage_1'
     
-    // Calculate progress based on completion status rather than just question count
+    // Calculate progress based on total answered questions vs total expected questions
     let progressPercentage = 0
     if (isCompleted) {
       progressPercentage = 100
     } else if (totalQuestions > 0) {
-      const stage1Answered = stage1Questions.filter((q: any) => q.is_answered).length
-      const stage2Answered = stage2Questions.filter((q: any) => q.is_answered).length
-      const stage3Answered = stage3Questions.filter((q: any) => q.is_answered).length
+      // Simple calculation: (answered questions / total questions) * 100
+      progressPercentage = Math.round((answeredQuestions / totalQuestions) * 100)
       
-      // Calculate progress based on current stage
-      if (currentStage === 'stage_1') {
-        progressPercentage = stage1Questions.length > 0 ? Math.round((stage1Answered / stage1Questions.length) * 100) : 0
-      } else if (currentStage === 'stage_2') {
-        // Stage 2: 33% for stage 1 + progress in stage 2
-        const stage1Progress = 33 // Stage 1 is complete
-        const stage2Progress = stage2Questions.length > 0 ? (stage2Answered / stage2Questions.length) * 33 : 0
-        progressPercentage = Math.round(stage1Progress + stage2Progress)
-      } else if (currentStage === 'stage_3') {
-        // Stage 3: 66% for stages 1-2 + progress in stage 3
-        const stage1And2Progress = 66 // Stages 1 and 2 are complete
-        const stage3Progress = stage3Questions.length > 0 ? (stage3Answered / stage3Questions.length) * 34 : 0
-        progressPercentage = Math.round(stage1And2Progress + stage3Progress)
+      // Ensure we don't show 0% if there are any answered questions
+      if (answeredQuestions > 0 && progressPercentage === 0) {
+        progressPercentage = Math.round((1 / totalQuestions) * 100)
+      }
+      
+      // Cap at 99% until actually completed to avoid showing 100% prematurely
+      if (progressPercentage >= 100 && !isCompleted) {
+        progressPercentage = 99
       }
     }
     

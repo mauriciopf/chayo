@@ -31,9 +31,9 @@ export class ServerYamlPromptLoader {
     }
   }
 
-  static async buildSystemPrompt(locale: string = 'en', trainingContext?: string, isSetupCompleted?: boolean): Promise<string> {
+  static async buildSystemPrompt(locale: string = 'en', trainingContext?: string, isSetupCompleted?: boolean, currentStage?: string): Promise<string> {
     // Use the YamlPromptLoader to build the system prompt with the appropriate config
-    return await YamlPromptLoader.buildSystemPrompt(locale, trainingContext, isSetupCompleted)
+    return await YamlPromptLoader.buildSystemPrompt(locale, trainingContext, isSetupCompleted, currentStage)
   }
 
   static async getFallbackPrompt(): Promise<string> {

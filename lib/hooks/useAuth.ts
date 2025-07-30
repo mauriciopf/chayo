@@ -47,6 +47,26 @@ export function useAuth() {
   useEffect(() => {
     console.log('🔄 Main auth setup effect - Starting')
     let isMounted = true
+    let hasInitialized = false
+    let isTabSwitching = false
+    let authSubscription: any = null
+    
+    // Track tab visibility to avoid unnecessary auth calls
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        // Tab is being hidden - set flag to ignore auth events temporarily
+        isTabSwitching = true
+      } else {
+        // Tab is visible again - re-enable auth events after a short delay
+        setTimeout(() => {
+          isTabSwitching = false
+        }, 500) // Small delay to avoid immediate auth events
+      }
+    }
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    
+
 
     // Fetch agents
     const fetchAgents = async () => {
@@ -142,35 +162,57 @@ export function useAuth() {
     const handleAuthenticatedUser = async (user: User) => {
       if (!isMounted) return
       
+      console.log('🔄 handleAuthenticatedUser - Starting for user:', user.id)
       setUser(user)
       setAuthState('authenticated')
       setLoading(true)
       
       try {
-        await ensureUserHasOrganization(user)
-        
-       await Promise.allSettled([
+        await Promise.allSettled([
+          ensureUserHasOrganization(user),
           fetchAgents(),
           fetchSubscription(user.id),
           fetchCurrentOrganization(user.id)
         ])
-        
-        setLoading(false)
 
       } catch (error) {
         console.error('Error handling authenticated user:', error)
+      } finally {
+        // Always set loading to false, regardless of success or failure
         if (isMounted) {
+          console.log('✅ handleAuthenticatedUser - Complete, setting loading to false')
           setLoading(false)
         }
       }
     }
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    authSubscription = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (!isMounted) return
         
+        // Skip auth events during tab switching to prevent unnecessary loading states
+        if (isTabSwitching && (event === 'TOKEN_REFRESHED' || event === 'SIGNED_IN')) {
+          console.log('🔄 Skipping auth event during tab switch:', event)
+          // Still update user data silently if it's different, just don't trigger loading states
+          if (session?.user && session.user.id === user?.id) {
+            setUser(session.user)
+          }
+          return
+        }
+        
+        console.log('🔄 Auth state change:', event, 'hasInitialized:', hasInitialized, 'isTabSwitching:', isTabSwitching)
+        
         if (event === 'SIGNED_IN' && session?.user) {
-          await handleAuthenticatedUser(session.user)
+          // Only do full auth flow if we haven't initialized yet, or if user actually changed
+          const userChanged = !user || user.id !== session.user.id
+          if (!hasInitialized || userChanged) {
+            await handleAuthenticatedUser(session.user)
+            hasInitialized = true
+          } else {
+            // Just update user data without expensive operations
+            setUser(session.user)
+            setAuthState('authenticated')
+          }
         } else if (event === 'SIGNED_OUT') {
           setUser(null)
           setAuthState('awaitingName')
@@ -179,19 +221,27 @@ export function useAuth() {
           setSubscription(null)
           setOrganizations([])
           setCurrentOrganization(null)
+          hasInitialized = false
         } else if (event === 'TOKEN_REFRESHED' && session?.user) {
           // Only update user and auth state, don't refetch data unless needed
           setUser(session.user)
           setAuthState('authenticated')
           // Don't set loading to true here to avoid infinite loading
         } else if (event === 'INITIAL_SESSION') {
-          // Handle initial session state
-          if (session?.user) {
+          // Handle initial session state - only do full flow once
+          if (session?.user && !hasInitialized) {
             await handleAuthenticatedUser(session.user)
+            hasInitialized = true
+          } else if (session?.user && hasInitialized) {
+            // Already initialized, just update user
+            setUser(session.user)
+            setAuthState('authenticated')
+            setLoading(false)
           } else {
             setUser(null)
             setAuthState('awaitingName')
             setLoading(false)
+            hasInitialized = true
           }
         }
       }
@@ -199,7 +249,10 @@ export function useAuth() {
 
     return () => {
       isMounted = false
-      subscription.unsubscribe()
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      if (authSubscription) {
+        authSubscription.data.subscription.unsubscribe()
+      }
     }
   }, [])
 

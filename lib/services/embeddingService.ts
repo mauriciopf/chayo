@@ -14,6 +14,20 @@ export class EmbeddingService {
     this.supabaseClient = supabaseClient || supabase
   }
 
+  private async getSupabaseClient() {
+    // Check if we're in a server-side context (API route)
+    if (typeof window === 'undefined') {
+      try {
+        const { getSupabaseServerClient } = await import('@/lib/supabase/server')
+        return getSupabaseServerClient()
+      } catch (error) {
+        console.warn('Failed to load server client, falling back to provided client')
+        return this.supabaseClient
+      }
+    }
+    return this.supabaseClient
+  }
+
   async storeConversationEmbeddings(
     organizationId: string,
     segments: ConversationSegment[]
@@ -69,15 +83,30 @@ export class EmbeddingService {
   async getBusinessKnowledgeSummary(
     organizationId: string
   ): Promise<string> {
-    // Fetch recent conversation segments for the organization
-    const { data, error } = await this.supabaseClient
-      .from('conversation_embeddings')
-      .select('conversation_segment')
-      .eq('organization_id', organizationId)
-      .order('created_at', { ascending: false })
-      .limit(10)
-    if (error || !data) return ''
-    return data.map((row: any) => row.conversation_segment).join('\n')
+    try {
+      const supabase = await this.getSupabaseClient()
+      console.log('📚 Getting business knowledge summary for organization:', organizationId)
+      
+      // Fetch recent conversation segments for the organization
+      const { data, error } = await supabase
+        .from('conversation_embeddings')
+        .select('conversation_segment')
+        .eq('organization_id', organizationId)
+        .order('created_at', { ascending: false })
+        .limit(10)
+        
+      if (error) {
+        console.error('❌ Failed to get business knowledge:', error)
+        return ''
+      }
+      
+      const summary = data ? data.map((row: any) => row.conversation_segment).join('\n') : ''
+      console.log('✅ Retrieved business knowledge:', summary.length > 0 ? `${summary.length} characters` : 'no data')
+      return summary
+    } catch (error) {
+      console.error('❌ Error getting business knowledge summary:', error)
+      return ''
+    }
   }
 
   /**
@@ -86,10 +115,20 @@ export class EmbeddingService {
   async deleteOrganizationEmbeddings(
     organizationId: string
   ): Promise<void> {
-    await this.supabaseClient
+    const supabase = await this.getSupabaseClient()
+    console.log('🗑️ Deleting embeddings for organization:', organizationId)
+    
+    const { error } = await supabase
       .from('conversation_embeddings')
       .delete()
       .eq('organization_id', organizationId)
+      
+    if (error) {
+      console.error('❌ Failed to delete embeddings:', error)
+      throw new Error(`Failed to delete embeddings: ${error.message}`)
+    }
+    
+    console.log('✅ Successfully deleted embeddings for organization:', organizationId)
   }
 
   /**
@@ -99,12 +138,27 @@ export class EmbeddingService {
     organizationId: string,
     memoryId: string
   ): Promise<boolean> {
-    const { error } = await this.supabaseClient
-      .from('conversation_embeddings')
-      .delete()
-      .eq('organization_id', organizationId)
-      .eq('id', memoryId)
-    return !error
+    try {
+      const supabase = await this.getSupabaseClient()
+      console.log('🗑️ Deleting memory:', memoryId, 'for organization:', organizationId)
+      
+      const { error } = await supabase
+        .from('conversation_embeddings')
+        .delete()
+        .eq('organization_id', organizationId)
+        .eq('id', memoryId)
+        
+      if (error) {
+        console.error('❌ Failed to delete memory:', error)
+        return false
+      }
+      
+      console.log('✅ Successfully deleted memory:', memoryId)
+      return true
+    } catch (error) {
+      console.error('❌ Error deleting memory:', error)
+      return false
+    }
   }
 }
 

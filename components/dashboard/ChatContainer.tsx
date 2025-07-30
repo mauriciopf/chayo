@@ -165,11 +165,7 @@ export default function ChatContainer({
       >
         {messages.length === 0 && !chatLoading && <ChatEmptyState />}
         
-        {/* Onboarding Progress */}
-        <OnboardingProgress 
-          progress={onboardingProgress}
-          isVisible={showOnboardingProgress}
-        />
+
         
         {/* Onboarding Completion */}
         <OnboardingCompletion 
@@ -193,6 +189,12 @@ export default function ChatContainer({
         />
         <div ref={messagesEndRef} />
       </div>
+
+      {/* Onboarding Progress - moved here to be above actionable hints */}
+      <OnboardingProgress 
+        progress={onboardingProgress}
+        isVisible={showOnboardingProgress}
+      />
 
       <ChatActionableHints onHintSelect={handleActionableHintSelect} />
 

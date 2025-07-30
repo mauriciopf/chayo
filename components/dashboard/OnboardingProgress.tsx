@@ -3,7 +3,7 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import { useTranslations } from 'next-intl'
-import { CheckCircle, Circle } from 'lucide-react'
+import { CheckCircle, Circle, Clock } from 'lucide-react'
 
 export interface OnboardingProgressData {
   totalQuestions: number
@@ -47,61 +47,85 @@ export default function OnboardingProgress({ progress, isVisible }: OnboardingPr
     )
   }
 
+  // Helper function to get stage status
+  const getStageStatus = (stageNumber: number) => {
+    const isCurrentStage = progress.currentStage === `stage_${stageNumber}`
+    
+    if (stageNumber === 1) {
+      return progress.stage1Completed ? 'completed' : isCurrentStage ? 'active' : 'pending'
+    } else if (stageNumber === 2) {
+      return progress.stage2Completed ? 'completed' : isCurrentStage ? 'active' : 'pending'
+    } else if (stageNumber === 3) {
+      return progress.stage3Completed ? 'completed' : isCurrentStage ? 'active' : 'pending'
+    }
+    return 'pending'
+  }
+
+  // Helper function to get stage icon and styles
+  const getStageDisplay = (stageNumber: number, label: string) => {
+    const status = getStageStatus(stageNumber)
+    
+    let icon, textClass, iconClass
+    
+    if (status === 'completed') {
+      icon = <CheckCircle className="w-3 h-3" />
+      textClass = 'text-green-600 font-medium'
+      iconClass = 'text-green-500'
+    } else if (status === 'active') {
+      icon = <Clock className="w-3 h-3" />
+      textClass = 'text-blue-600 font-medium'
+      iconClass = 'text-blue-500'
+    } else {
+      icon = <Circle className="w-3 h-3" />
+      textClass = 'text-gray-400'
+      iconClass = 'text-gray-300'
+    }
+
+    return (
+      <div className="flex items-center space-x-1">
+        <span className={iconClass}>
+          {icon}
+        </span>
+        <span className={`text-xs ${textClass}`}>
+          {label}
+        </span>
+      </div>
+    )
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 10 }}
-      className="mb-4"
+      className="mb-4 bg-white border border-gray-100 rounded-lg p-3 shadow-sm"
     >
       {/* Stage Progress Indicators */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center space-x-4">
-          {/* Stage 1 */}
-          <div className="flex items-center space-x-1">
-            {progress.stage1Completed ? (
-              <CheckCircle className="w-3 h-3 text-green-500" />
-            ) : (
-              <Circle className="w-3 h-3 text-gray-300" />
-            )}
-            <span className={`text-xs ${progress.stage1Completed ? 'text-green-600 font-medium' : 'text-gray-400'}`}>
-              Core
-            </span>
-          </div>
+          {/* Stage 1 - Core Setup */}
+          {getStageDisplay(1, 'Core')}
 
-          {/* Stage 2 */}
-          <div className="flex items-center space-x-1">
-            {progress.stage2Completed ? (
-              <CheckCircle className="w-3 h-3 text-green-500" />
-            ) : (
-              <Circle className="w-3 h-3 text-gray-300" />
-            )}
-            <span className={`text-xs ${progress.stage2Completed ? 'text-green-600 font-medium' : 'text-gray-400'}`}>
-              Industry
-            </span>
-          </div>
+          {/* Stage 2 - Industry Questions */}
+          {getStageDisplay(2, 'Industry')}
 
-          {/* Stage 3 */}
-          <div className="flex items-center space-x-1">
-            {progress.stage3Completed ? (
-              <CheckCircle className="w-3 h-3 text-green-500" />
-            ) : (
-              <Circle className="w-3 h-3 text-gray-300" />
-            )}
-            <span className={`text-xs ${progress.stage3Completed ? 'text-green-600 font-medium' : 'text-gray-400'}`}>
-              Branding
-            </span>
-          </div>
+          {/* Stage 3 - Branding & Tone */}
+          {getStageDisplay(3, 'Branding')}
         </div>
 
-        <span className="text-xs text-gray-400">
-          {progress.progressPercentage}%
-        </span>
+        <div className="text-right">
+          <div className="text-xs font-medium text-gray-600">
+            {progress.progressPercentage}%
+          </div>
+          <div className="text-xs text-gray-400">
+            {progress.answeredQuestions}/{progress.totalQuestions}
+          </div>
+        </div>
       </div>
       
       {/* Progress Bar */}
-      <div className="w-full bg-gray-100 rounded-full h-1 mb-3">
+      <div className="w-full bg-gray-100 rounded-full h-2 mb-3">
         <motion.div
-          className="bg-blue-500 h-1 rounded-full"
+          className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full"
           initial={{ width: 0 }}
           animate={{ width: `${progress.progressPercentage}%` }}
           transition={{ duration: 0.6, ease: "easeOut" }}
@@ -109,10 +133,10 @@ export default function OnboardingProgress({ progress, isVisible }: OnboardingPr
       </div>
 
       {/* Current Stage Label */}
-      <div className="text-xs text-gray-500 text-center">
-        {progress.currentStage === 'stage_1' ? 'Core Setup' : 
-         progress.currentStage === 'stage_2' ? 'Industry Questions' :
-         progress.currentStage === 'stage_3' ? 'Branding & Tone' : 'Setup Progress'}
+      <div className="text-xs text-gray-500 text-center font-medium">
+        {progress.currentStage === 'stage_1' ? 'Core Business Setup' : 
+         progress.currentStage === 'stage_2' ? 'Industry-Specific Questions' :
+         progress.currentStage === 'stage_3' ? 'Branding & Tone Preferences' : 'Setup In Progress'}
       </div>
     </motion.div>
   )
