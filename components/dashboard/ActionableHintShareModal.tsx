@@ -11,6 +11,7 @@ interface ActionableHintShareModalProps {
   onClose: () => void
   hint: ActionableHint | null
   organizationId: string
+  onSettingsChange?: () => void
 }
 
 type AgentToolSettings = {
@@ -21,7 +22,8 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
   isOpen,
   onClose,
   hint,
-  organizationId
+  organizationId,
+  onSettingsChange
 }) => {
 
   const [agentToolSettings, setAgentToolSettings] = useState<AgentToolSettings>({
@@ -71,6 +73,8 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
           ...prev,
           [toolType]: enabled
         }))
+        // Notify parent component that settings have changed
+        onSettingsChange?.()
       }
     } catch (error) {
       console.error('Error updating agent tool setting:', error)

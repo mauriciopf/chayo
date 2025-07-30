@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslations } from 'next-intl'
 
@@ -13,19 +13,28 @@ export type ActionableHint = {
 }
 
 interface ActionableHintChipsProps {
-  selectedHint?: ActionableHint | null
-  onHintSelect: (hint: ActionableHint | null) => void
+  onHintSelect: (hint: ActionableHint) => void
+  organizationId: string
   className?: string
 }
 
+type AgentToolSettings = {
+  [key in ActionableHint['category']]: boolean
+}
+
 const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({ 
-  selectedHint: controlledSelectedHint, 
   onHintSelect,
+  organizationId,
   className = ''
 }) => {
   const t = useTranslations('chat')
-  const [internalSelectedHint, setInternalSelectedHint] = useState<ActionableHint | null>(null)
-  const selectedHint = controlledSelectedHint !== undefined ? controlledSelectedHint : internalSelectedHint
+  const [agentToolSettings, setAgentToolSettings] = useState<AgentToolSettings>({
+    appointments: false,
+    documents: false,
+    payments: false,
+    notifications: false,
+    faqs: false
+  })
 
   // Define the actionable hints
   const actionableHints: ActionableHint[] = [
@@ -70,22 +79,28 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
 
 
 
-  const handleHintClick = (hint: ActionableHint) => {
-    if (controlledSelectedHint === undefined) {
-      if (selectedHint?.id === hint.id) {
-        setInternalSelectedHint(null)
-        onHintSelect(null)
-      } else {
-        setInternalSelectedHint(hint)
-        onHintSelect(hint)
-      }
-    } else {
-      if (selectedHint?.id === hint.id) {
-        onHintSelect(null)
-      } else {
-        onHintSelect(hint)
-      }
+  // Load agent tool settings on component mount
+  useEffect(() => {
+    if (organizationId) {
+      loadAgentToolSettings()
     }
+  }, [organizationId])
+
+  const loadAgentToolSettings = async () => {
+    try {
+      const response = await fetch(`/api/organizations/${organizationId}/agent-tools`)
+      if (response.ok) {
+        const settings = await response.json()
+        setAgentToolSettings(settings)
+      }
+    } catch (error) {
+      console.error('Error loading agent tool settings:', error)
+    }
+  }
+
+  const handleHintClick = (hint: ActionableHint) => {
+    // Always open the modal when a hint is clicked
+    onHintSelect(hint)
   }
 
   return (
@@ -108,14 +123,14 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
                 }}
                 onClick={() => handleHintClick(hint)}
                 className={`flex-shrink-0 px-5 py-3 rounded-2xl transition-all duration-300 text-sm font-semibold group relative overflow-hidden ${
-                  selectedHint?.id === hint.id
+                  agentToolSettings[hint.category]
                     ? 'bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-500 text-white shadow-lg shadow-blue-500/25 ring-2 ring-blue-200 ring-offset-2'
                     : 'bg-gray-900/90 backdrop-blur-sm border border-gray-700/60 text-gray-200 hover:bg-gray-800/90 hover:border-blue-400/60 hover:text-white hover:shadow-lg hover:shadow-blue-500/20 hover:scale-105'
                 }`}
                 title={hint.description}
               >
-                {/* Subtle background pattern for selected state */}
-                {selectedHint?.id === hint.id && (
+                {/* Subtle background pattern for enabled state */}
+                {agentToolSettings[hint.category] && (
                   <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent" />
                 )}
                 
@@ -123,8 +138,8 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
                   {hint.label}
                 </span>
                 
-                {/* Selection indicator */}
-                {selectedHint?.id === hint.id && (
+                {/* Active indicator */}
+                {agentToolSettings[hint.category] && (
                   <motion.div
                     initial={{ scale: 0, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
