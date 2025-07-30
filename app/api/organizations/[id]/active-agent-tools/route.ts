@@ -21,7 +21,7 @@ export async function GET(
     }
 
     // Filter to only return enabled tools
-    const activeTools = {}
+    const activeTools: Record<string, boolean> = {}
     if (data) {
       Object.keys(data).forEach(key => {
         if (data[key] === true) {

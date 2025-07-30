@@ -77,8 +77,7 @@ export default function ChatContainer({
   // Add chat context state
   const [chatContext, setChatContext] = useState<ChatContextType>('business_setup')
   
-  // Add actionable hint state
-  const [selectedActionableHint, setSelectedActionableHint] = useState<ActionableHint | null>(null)
+
 
   // Add onboarding progress state using custom hook
   const { progress: onboardingProgress, refreshProgress: refreshOnboardingProgress } = useOnboardingProgress(organizationId)
