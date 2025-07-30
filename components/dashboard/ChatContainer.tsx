@@ -8,7 +8,7 @@ import ChatMessages from './ChatMessages'
 import ChatInput from './ChatInput'
 import ChatEmptyState from './ChatEmptyState'
 import { Message, AuthState } from './types'
-import { ActionableHint } from './ActionableHintChips'
+
 import ChatActionableHints from './ChatActionableHints';
 import { ChatContextType, getSystemMessageForContext } from './chatContextMessages';
 import OnboardingProgress, { OnboardingProgressData } from './OnboardingProgress'
@@ -156,15 +156,7 @@ export default function ChatContainer({
     sendMessage(finalInput)
   }
 
-  // Handler for actionable hint selection
-  const handleActionableHintSelect = async (hint: ActionableHint | null) => {
-    if (hint) {
-      // For now, just send the hint description as a message
-      // This will be expanded later when the functionality is implemented
-      const hintMessage = `I want to ${hint.description.toLowerCase()}`
-      sendMessage(hintMessage)
-    }
-  }
+
 
   return (
     <motion.div
@@ -269,7 +261,7 @@ export default function ChatContainer({
         isVisible={showOnboardingProgress}
       />
 
-      <ChatActionableHints onHintSelect={handleActionableHintSelect} />
+      <ChatActionableHints organizationId={organizationId || ''} />
 
       <ChatInput
         input={input}
