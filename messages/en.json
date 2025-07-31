@@ -1049,5 +1049,71 @@
     "setupCompleteDescription": "Your business is now configured and ready to go! Your AI assistant can now help you with client communications.",
     "startUsing": "Start Using Chayo",
     "setupCompleteNote": "You can continue updating your business information anytime here in the chat."
+  },
+  "agentTools": {
+    "common": {
+      "loading": "Loading...",
+      "save": "Save",
+      "cancel": "Cancel",
+      "edit": "Edit",
+      "delete": "Delete",
+      "create": "Create",
+      "preview": "Preview",
+      "editor": "Editor",
+      "add": "Add",
+      "remove": "Remove",
+      "noData": "No data available"
+    },
+    "intakeForms": {
+      "title": "Intake Forms",
+      "emptyState": "No forms",
+      "emptyDescription": "Create your intake form to collect information from your clients.",
+      "createForm": "Create form",
+      "editForm": "Edit Form",
+      "formPreview": "Form Preview",
+      "formBuilder": "Form Builder",
+      "formName": "Form Name",
+      "formNamePlaceholder": "Ex: Admission Form",
+      "fieldLabel": "Label",
+      "fieldLabelPlaceholder": "Ex: Full Name",
+      "fieldPlaceholder": "Placeholder",
+      "fieldPlaceholderText": "Ex: Enter your name",
+      "required": "Required",
+      "addOption": "Add option",
+      "instructions": {
+        "step1": "Click on field type buttons to add to form",
+        "step2": "Drag fields to reorder them",
+        "step3": "Click on any field to configure it",
+        "step4": "Use \"Preview\" to see how the form will look"
+      },
+      "builtWithFormio": "Form built",
+      "noDefinition": "No definition",
+      "clickToAdd": "Click on field types to add"
+    },
+    "faqs": {
+      "title": "Frequently Asked Questions",
+      "emptyState": "No FAQs",
+      "emptyDescription": "Create your first FAQ to help your clients with common questions.",
+      "createFaq": "Create FAQ",
+      "editFaq": "Edit FAQ",
+      "addQuestion": "Add Question",
+      "questionLabel": "Question",
+      "questionPlaceholder": "Ex: What are your business hours?",
+      "answerLabel": "Answer",
+      "answerPlaceholder": "Ex: We are open Monday to Friday from 9:00 AM to 6:00 PM",
+      "noQuestionsAvailable": "No questions available",
+      "questionsWillAppear": "Questions will appear here once you add them",
+      "didntFind": "Didn't find what you were looking for?",
+      "contactUs": "Contact us →",
+      "newFaq": "New FAQ",
+      "instructions": {
+        "step1": "Click \"Add Question\" to create Q&A",
+        "step2": "Drag questions to reorder them",
+        "step3": "Click on any question to edit it",
+        "step4": "Use \"Preview\" to see how the FAQ will look"
+      },
+      "defaultName": "Frequently Asked Questions",
+      "addFrequentQuestions": "Add frequently asked questions for your clients"
+    }
   }
 }

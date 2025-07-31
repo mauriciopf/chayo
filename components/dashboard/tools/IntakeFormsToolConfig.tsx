@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { Plus, Edit, Trash2, Eye, FileText, Loader2, ExternalLink } from 'lucide-react'
-
+import { useTranslations } from 'next-intl'
 import { supabase } from '@/lib/supabase/client'
 import dynamic from 'next/dynamic'
 
@@ -415,6 +415,7 @@ interface IntakeForm {
 }
 
 export default function IntakeFormsToolConfig({ organizationId, isEnabled, onSettingsChange }: IntakeFormsToolConfigProps) {
+  const t = useTranslations('agentTools')
   const [forms, setForms] = useState<IntakeForm[]>([])
   const [loading, setLoading] = useState(true)
   const [showFormBuilder, setShowFormBuilder] = useState(false)
@@ -666,7 +667,7 @@ export default function IntakeFormsToolConfig({ organizationId, isEnabled, onSet
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Formularios de Admisión</h3>
+        <h3 className="text-lg font-semibold">{t('intakeForms.title')}</h3>
       </div>
 
       {loading ? (
@@ -680,13 +681,13 @@ export default function IntakeFormsToolConfig({ organizationId, isEnabled, onSet
           className="w-full text-center py-8 rounded-lg border-2 border-dashed border-gray-300 hover:border-purple-400 hover:bg-purple-50 transition-all group"
         >
           <FileText className="w-12 h-12 mx-auto mb-4 text-gray-400 group-hover:text-purple-500 transition-colors" />
-          <h4 className="text-lg font-medium text-gray-900 mb-2 group-hover:text-purple-900">Sin formularios</h4>
+          <h4 className="text-lg font-medium text-gray-900 mb-2 group-hover:text-purple-900">{t('intakeForms.emptyState')}</h4>
           <p className="text-gray-600 mb-4 group-hover:text-purple-700">
-            Crea tu formulario de admisión para recopilar información de tus clientes.
+            {t('intakeForms.emptyDescription')}
           </p>
           <div className="flex items-center justify-center px-4 py-2 bg-purple-600 text-white rounded-lg group-hover:bg-purple-700 transition-colors mx-auto w-fit">
             <Plus className="w-4 h-4 mr-2" />
-            Crear formulario
+            {t('intakeForms.createForm')}
           </div>
         </button>
       ) : (

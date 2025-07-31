@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { Plus, Edit, Trash2, Eye, MessageCircle, Loader2, ExternalLink, ChevronDown, ChevronRight, X } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { supabase } from '@/lib/supabase/client'
 
 // FAQ Interface
@@ -47,7 +48,7 @@ function FAQPreview({ faqName, faqItems }: FAQPreviewProps) {
       <div className="bg-gradient-to-r from-purple-600 to-purple-700 text-white p-6 rounded-t-lg">
         <div className="flex items-center gap-3 mb-2">
           <MessageCircle className="w-6 h-6" />
-          <h3 className="text-xl font-semibold">Preguntas Frecuentes</h3>
+          <h3 className="text-xl font-semibold">{t('faqs.title')}</h3>
         </div>
         <h4 className="text-lg opacity-90">{faqName || 'FAQ Sin Nombre'}</h4>
         <p className="text-sm opacity-75 mt-1">
@@ -60,8 +61,8 @@ function FAQPreview({ faqName, faqItems }: FAQPreviewProps) {
         {faqItems.length === 0 ? (
           <div className="text-center py-12">
             <MessageCircle className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-            <p className="text-gray-500">No hay preguntas disponibles</p>
-            <p className="text-sm text-gray-400 mt-1">Las preguntas aparecerán aquí una vez que las agregues</p>
+                    <p className="text-gray-500">{t('faqs.noQuestionsAvailable')}</p>
+        <p className="text-sm text-gray-400 mt-1">{t('faqs.questionsWillAppear')}</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -110,12 +111,12 @@ function FAQPreview({ faqName, faqItems }: FAQPreviewProps) {
         {faqItems.length > 0 && (
           <div className="mt-8 pt-6 border-t border-gray-100">
             <div className="text-center">
-              <p className="text-sm text-gray-500 mb-2">
-                ¿No encontraste lo que buscabas?
-              </p>
-              <button className="text-purple-600 hover:text-purple-700 text-sm font-medium">
-                Contacta con nosotros →
-              </button>
+                        <p className="text-sm text-gray-500 mb-2">
+            {t('faqs.didntFind')}
+          </p>
+          <button className="text-purple-600 hover:text-purple-700 text-sm font-medium">
+            {t('faqs.contactUs')}
+          </button>
             </div>
           </div>
         )}
@@ -229,7 +230,7 @@ function SimpleFAQBuilder({ faqItems, onChange }: SimpleFAQBuilderProps) {
           className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
         >
           <Plus className="w-4 h-4" />
-          Agregar Pregunta
+          {t('faqs.addQuestion')}
         </button>
       </div>
 
@@ -239,7 +240,7 @@ function SimpleFAQBuilder({ faqItems, onChange }: SimpleFAQBuilderProps) {
           <div className="flex items-center justify-center h-32 text-gray-500">
             <div className="text-center">
               <MessageCircle className="w-8 h-8 mx-auto mb-2 opacity-50" />
-              <p className="text-sm">Agrega preguntas frecuentes para tus clientes</p>
+              <p className="text-sm">{t('faqs.addFrequentQuestions')}</p>
             </div>
           </div>
         ) : (
@@ -267,7 +268,7 @@ function SimpleFAQBuilder({ faqItems, onChange }: SimpleFAQBuilderProps) {
                     {/* Question */}
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">
-                        Pregunta *
+                        {t('faqs.questionLabel')} *
                       </label>
                       <input
                         type="text"
@@ -281,7 +282,7 @@ function SimpleFAQBuilder({ faqItems, onChange }: SimpleFAQBuilderProps) {
                     {/* Answer */}
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">
-                        Respuesta *
+                        {t('faqs.answerLabel')} *
                       </label>
                       <textarea
                         value={itemConfig.answer}
@@ -356,11 +357,12 @@ interface FAQToolConfigProps {
 }
 
 export default function FAQToolConfig({ organizationId, isEnabled, onSettingsChange }: FAQToolConfigProps) {
+  const t = useTranslations('agentTools')
   const [loading, setLoading] = useState(true)
   const [faqs, setFAQs] = useState<FAQ[]>([])
   const [isCreating, setIsCreating] = useState(false)
   const [editingFAQ, setEditingFAQ] = useState<FAQ | null>(null)
-  const [faqName, setFAQName] = useState('Preguntas Frecuentes')
+  const [faqName, setFAQName] = useState(t('faqs.defaultName'))
   const [faqItems, setFAQItems] = useState<FAQItem[]>([])
   const [isPreview, setIsPreview] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -393,7 +395,7 @@ export default function FAQToolConfig({ organizationId, isEnabled, onSettingsCha
   const handleCreateFAQ = () => {
     setIsCreating(true)
     setEditingFAQ(null)
-    setFAQName('Preguntas Frecuentes')
+    setFAQName(t('faqs.defaultName'))
     setFAQItems([])
     setIsPreview(false)
   }
@@ -497,10 +499,10 @@ export default function FAQToolConfig({ organizationId, isEnabled, onSettingsCha
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <h4 className="text-sm font-medium text-blue-900 mb-2">💡 Cómo usar el constructor</h4>
               <div className="text-sm text-blue-800 space-y-1">
-                <p><strong>1.</strong> Haz clic en "Agregar Pregunta" para crear Q&A</p>
-                <p><strong>2.</strong> Arrastra las preguntas para reordenarlas</p>
-                <p><strong>3.</strong> Haz clic en cualquier pregunta para editarla</p>
-                <p><strong>4.</strong> Usa "Vista Previa" para ver cómo se verá el FAQ</p>
+                <p><strong>1.</strong> {t('faqs.instructions.step1')}</p>
+                <p><strong>2.</strong> {t('faqs.instructions.step2')}</p>
+                <p><strong>3.</strong> {t('faqs.instructions.step3')}</p>
+                <p><strong>4.</strong> {t('faqs.instructions.step4')}</p>
               </div>
             </div>
             
@@ -518,7 +520,7 @@ export default function FAQToolConfig({ organizationId, isEnabled, onSettingsCha
             onClick={() => setIsCreating(false)}
             className="px-4 py-2 text-gray-600 hover:text-gray-800"
           >
-            Cancelar
+            {t('common.cancel')}
           </button>
           <button
             onClick={handleSaveFAQ}
@@ -544,7 +546,7 @@ export default function FAQToolConfig({ organizationId, isEnabled, onSettingsCha
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Preguntas Frecuentes (FAQ)</h3>
+        <h3 className="text-lg font-semibold">{t('faqs.title')}</h3>
       </div>
 
       {loading ? (
@@ -558,9 +560,9 @@ export default function FAQToolConfig({ organizationId, isEnabled, onSettingsCha
           className="w-full text-center py-8 rounded-lg border-2 border-dashed border-gray-300 hover:border-purple-400 hover:bg-purple-50 transition-all group"
         >
           <MessageCircle className="w-12 h-12 mx-auto mb-4 text-gray-400 group-hover:text-purple-500 transition-colors" />
-          <h4 className="text-lg font-medium text-gray-900 mb-2 group-hover:text-purple-900">Sin FAQs</h4>
+          <h4 className="text-lg font-medium text-gray-900 mb-2 group-hover:text-purple-900">{t('faqs.emptyState')}</h4>
           <p className="text-gray-600 mb-4 group-hover:text-purple-700">
-            Crea tu primer FAQ para ayudar a tus clientes con preguntas comunes.
+            {t('faqs.emptyDescription')}
           </p>
           <div className="flex items-center justify-center px-4 py-2 bg-purple-600 text-white rounded-lg group-hover:bg-purple-700 transition-colors mx-auto w-fit">
             <Plus className="w-4 h-4 mr-2" />

@@ -1074,5 +1074,71 @@
     "setupCompleteDescription": "¡Tu negocio está ahora configurado y listo para usar! Tu asistente de IA ahora puede ayudarte con las comunicaciones de clientes.",
     "startUsing": "Comenzar a Usar Chayo",
     "setupCompleteNote": "Puedes continuar actualizando la información de tu negocio en cualquier momento aquí en el chat."
+  },
+  "agentTools": {
+    "common": {
+      "loading": "Cargando...",
+      "save": "Guardar",
+      "cancel": "Cancelar",
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "create": "Crear",
+      "preview": "Vista Previa",
+      "editor": "Editor",
+      "add": "Agregar",
+      "remove": "Eliminar",
+      "noData": "Sin datos disponibles"
+    },
+    "intakeForms": {
+      "title": "Formularios de Admisión",
+      "emptyState": "Sin formularios",
+      "emptyDescription": "Crea tu formulario de admisión para recopilar información de tus clientes.",
+      "createForm": "Crear formulario",
+      "editForm": "Editar Formulario",
+      "formPreview": "Vista Previa del Formulario",
+      "formBuilder": "Constructor de Formularios",
+      "formName": "Nombre del Formulario",
+      "formNamePlaceholder": "Ej: Formulario de Admisión",
+      "fieldLabel": "Etiqueta",
+      "fieldLabelPlaceholder": "Ej: Nombre completo",
+      "fieldPlaceholder": "Marcador de posición",
+      "fieldPlaceholderText": "Ej: Ingresa tu nombre",
+      "required": "Obligatorio",
+      "addOption": "Agregar opción",
+      "instructions": {
+        "step1": "Haz clic en los botones de campo para agregar al formulario",
+        "step2": "Arrastra los campos para reordenarlos",
+        "step3": "Haz clic en cualquier campo para configurarlo",
+        "step4": "Usa \"Vista Previa\" para ver cómo se verá el formulario"
+      },
+      "builtWithFormio": "Formulario construido",
+      "noDefinition": "Sin definición",
+      "clickToAdd": "Haz clic en los tipos de campo para agregar"
+    },
+    "faqs": {
+      "title": "Preguntas Frecuentes",
+      "emptyState": "Sin FAQs",
+      "emptyDescription": "Crea tu primer FAQ para ayudar a tus clientes con preguntas comunes.",
+      "createFaq": "Crear FAQ",
+      "editFaq": "Editar FAQ",
+      "addQuestion": "Agregar Pregunta",
+      "questionLabel": "Pregunta",
+      "questionPlaceholder": "Ej: ¿Cuáles son sus horarios de atención?",
+      "answerLabel": "Respuesta",
+      "answerPlaceholder": "Ej: Estamos abiertos de lunes a viernes de 9:00 AM a 6:00 PM",
+      "noQuestionsAvailable": "No hay preguntas disponibles",
+      "questionsWillAppear": "Las preguntas aparecerán aquí una vez que las agregues",
+      "didntFind": "¿No encontraste lo que buscabas?",
+      "contactUs": "Contacta con nosotros →",
+      "newFaq": "Nuevo FAQ",
+      "instructions": {
+        "step1": "Haz clic en \"Agregar Pregunta\" para crear Q&A",
+        "step2": "Arrastra las preguntas para reordenarlas",
+        "step3": "Haz clic en cualquier pregunta para editarla",
+        "step4": "Usa \"Vista Previa\" para ver cómo se verá el FAQ"
+      },
+      "defaultName": "Preguntas Frecuentes",
+      "addFrequentQuestions": "Agrega preguntas frecuentes para tus clientes"
+    }
   }
 }
