@@ -1078,6 +1078,7 @@
   "agentTools": {
     "common": {
       "loading": "Cargando...",
+      "saving": "Guardando...",
       "save": "Guardar",
       "cancel": "Cancelar",
       "edit": "Editar",
@@ -1138,7 +1139,11 @@
         "step4": "Usa \"Vista Previa\" para ver cómo se verá el FAQ"
       },
       "defaultName": "Preguntas Frecuentes",
-      "addFrequentQuestions": "Agrega preguntas frecuentes para tus clientes"
+      "addFrequentQuestions": "Agrega preguntas frecuentes para tus clientes",
+      "noNameFaq": "FAQ Sin Nombre",
+      "findAnswers": "Encuentra respuestas a las preguntas más comunes",
+      "defaultQuestion": "¿Nueva pregunta?",
+      "defaultAnswer": "Escribe tu respuesta aquí..."
     }
   }
 }

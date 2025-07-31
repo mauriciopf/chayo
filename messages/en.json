@@ -1053,6 +1053,7 @@
   "agentTools": {
     "common": {
       "loading": "Loading...",
+      "saving": "Saving...",
       "save": "Save",
       "cancel": "Cancel",
       "edit": "Edit",
@@ -1113,7 +1114,11 @@
         "step4": "Use \"Preview\" to see how the FAQ will look"
       },
       "defaultName": "Frequently Asked Questions",
-      "addFrequentQuestions": "Add frequently asked questions for your clients"
+      "addFrequentQuestions": "Add frequently asked questions for your clients",
+      "noNameFaq": "Unnamed FAQ",
+      "findAnswers": "Find answers to the most common questions",
+      "defaultQuestion": "New question?",
+      "defaultAnswer": "Write your answer here..."
     }
   }
 }

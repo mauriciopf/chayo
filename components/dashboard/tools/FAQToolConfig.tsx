@@ -30,6 +30,7 @@ interface FAQPreviewProps {
 }
 
 function FAQPreview({ faqName, faqItems }: FAQPreviewProps) {
+  const t = useTranslations('agentTools')
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set())
 
   const toggleItem = (itemId: string) => {
@@ -50,9 +51,9 @@ function FAQPreview({ faqName, faqItems }: FAQPreviewProps) {
           <MessageCircle className="w-6 h-6" />
           <h3 className="text-xl font-semibold">{t('faqs.title')}</h3>
         </div>
-        <h4 className="text-lg opacity-90">{faqName || 'FAQ Sin Nombre'}</h4>
+        <h4 className="text-lg opacity-90">{faqName || t('faqs.noNameFaq')}</h4>
         <p className="text-sm opacity-75 mt-1">
-          Encuentra respuestas a las preguntas más comunes
+          {t('faqs.findAnswers')}
         </p>
       </div>
 
@@ -132,6 +133,7 @@ interface SimpleFAQBuilderProps {
 }
 
 function SimpleFAQBuilder({ faqItems, onChange }: SimpleFAQBuilderProps) {
+  const t = useTranslations('agentTools')
   const [editingItem, setEditingItem] = useState<string | null>(null)
   const [itemConfig, setItemConfig] = useState({
     question: '',
@@ -142,8 +144,8 @@ function SimpleFAQBuilder({ faqItems, onChange }: SimpleFAQBuilderProps) {
   const addNewItem = () => {
     const newItem: FAQItem = {
       id: `faq_${Date.now()}`,
-      question: '¿Nueva pregunta?',
-      answer: 'Escribe tu respuesta aquí...',
+      question: t('faqs.defaultQuestion'),
+      answer: t('faqs.defaultAnswer'),
       order: faqItems.length
     }
     onChange([...faqItems, newItem])
@@ -300,7 +302,7 @@ function SimpleFAQBuilder({ faqItems, onChange }: SimpleFAQBuilderProps) {
                         disabled={!itemConfig.question.trim() || !itemConfig.answer.trim()}
                         className="px-3 py-1 bg-purple-600 text-white text-xs rounded hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        Guardar
+                        {t('common.save')}
                       </button>
                     </div>
                   </div>
@@ -530,11 +532,11 @@ export default function FAQToolConfig({ organizationId, isEnabled, onSettingsCha
             {saving ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Guardando...
+                {t('common.saving')}
               </>
             ) : (
               <>
-                Guardar FAQ
+                                        {t('common.save')} FAQ
               </>
             )}
           </button>
