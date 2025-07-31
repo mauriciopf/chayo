@@ -39,7 +39,9 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, chatLoading, chat
                 <ChatMessage 
                   role={msg.role} 
                   content={msg.content} 
-                  timestamp={msg.timestamp} 
+                  timestamp={msg.timestamp}
+                  appointmentLink={msg.appointmentLink}
+                  documentSigningLink={msg.documentSigningLink}
                 />
               )}
             </div>
@@ -76,7 +78,9 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, chatLoading, chat
           <ChatMessage 
             role="ai" 
             content={chatError} 
-            timestamp={new Date()} 
+            timestamp={new Date()}
+            appointmentLink={undefined}
+            documentSigningLink={undefined}
           />
         )}
       </AnimatePresence>

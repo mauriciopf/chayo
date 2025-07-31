@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Check, Settings } from 'lucide-react'
+import { X, Check, Settings, Upload, FileText, Trash2 } from 'lucide-react'
 import { ActionableHint } from './ActionableHintChips'
 import Switch from '../ui/Switch'
 
@@ -16,6 +16,16 @@ interface ActionableHintShareModalProps {
 
 type AgentToolSettings = {
   [key in ActionableHint['category']]: boolean
+}
+
+interface BusinessDocument {
+  id: string
+  filename: string
+  file_size: number
+  file_type: string
+  created_at: string
+  processed: boolean
+  embedding_status: string
 }
 
 const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
@@ -34,13 +44,19 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
     faqs: false
   })
   const [loading, setLoading] = useState(false)
+  const [documents, setDocuments] = useState<BusinessDocument[]>([])
+  const [uploading, setUploading] = useState(false)
+  const [documentLoading, setDocumentLoading] = useState(false)
 
-  // Load agent tool settings when modal opens
+  // Load agent tool settings and documents when modal opens
   useEffect(() => {
     if (isOpen && organizationId) {
       loadAgentToolSettings()
+      if (hint?.category === 'documents') {
+        loadDocuments()
+      }
     }
-  }, [isOpen, organizationId])
+  }, [isOpen, organizationId, hint?.category])
 
   const loadAgentToolSettings = async () => {
     try {
@@ -82,6 +98,67 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
       setLoading(false)
     }
   }
+
+  const loadDocuments = async () => {
+    try {
+      setDocumentLoading(true)
+      const response = await fetch(`/api/organizations/${organizationId}/agent-documents/upload`)
+      if (response.ok) {
+        const data = await response.json()
+        setDocuments(data.documents || [])
+      }
+    } catch (error) {
+      console.error('Error loading agent documents:', error)
+    } finally {
+      setDocumentLoading(false)
+    }
+  }
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    if (file.type !== 'application/pdf') {
+      alert('Only PDF files are allowed')
+      return
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      alert('File size must be less than 10MB')
+      return
+    }
+
+    try {
+      setUploading(true)
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const response = await fetch(`/api/organizations/${organizationId}/agent-documents/upload`, {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        alert(`Document ceremony created successfully! Ceremony URL: ${data.ceremony_url}`)
+        await loadDocuments() // Refresh the list
+      } else {
+        const error = await response.json()
+        alert(error.error || 'Failed to create ceremony')
+      }
+    } catch (error) {
+      console.error('Error uploading file:', error)
+      alert('Failed to upload file')
+    } finally {
+      setUploading(false)
+      // Reset file input
+      if (event.target) {
+        event.target.value = ''
+      }
+    }
+  }
+
+  // Document functions removed - ceremonies are created automatically on upload
 
   const getCategoryContent = (category: ActionableHint['category']) => {
     switch (category) {
@@ -226,6 +303,84 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
                   ))}
                 </ul>
               </div>
+
+              {/* Document Management - Only show for documents category */}
+              {hint?.category === 'documents' && isCurrentToolEnabled && (
+                <div className="mb-6 space-y-4">
+                  <div className="border-t border-gray-200 pt-6">
+                    <h3 className="font-medium text-gray-900 mb-4">Manage Documents</h3>
+                    
+                    {/* Upload Section */}
+                    <div className="mb-6">
+                      <label className="block">
+                        <input
+                          type="file"
+                          accept=".pdf"
+                          onChange={handleFileUpload}
+                          disabled={uploading}
+                          className="hidden"
+                        />
+                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors cursor-pointer">
+                          <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                          <p className="text-sm text-gray-600 mb-1">
+                            {uploading ? 'Uploading...' : 'Click to upload PDF document'}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            PDF files only, max 10MB
+                          </p>
+                        </div>
+                      </label>
+                    </div>
+
+                    {/* Signing Ceremonies List */}
+                    <div>
+                      <h4 className="font-medium text-gray-900 mb-3">Document Signing Ceremonies</h4>
+                      {documentLoading ? (
+                        <div className="text-center py-4">
+                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
+                          <p className="text-sm text-gray-500 mt-2">Loading ceremonies...</p>
+                        </div>
+                      ) : documents.length === 0 ? (
+                        <div className="text-center py-8 text-gray-500">
+                          <FileText className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                          <p className="text-sm">No signing ceremonies created yet</p>
+                          <p className="text-xs">Upload PDF documents to automatically create signing ceremonies</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-3">
+                          {documents.map((ceremony) => (
+                            <div key={ceremony.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                              <div className="flex items-center gap-3 flex-1">
+                                <FileText className="w-5 h-5 text-blue-600" />
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium text-gray-900 truncate">
+                                    {ceremony.document_name}
+                                  </p>
+                                  <p className="text-xs text-gray-500">
+                                    Status: {ceremony.status} • {new Date(ceremony.created_at).toLocaleDateString()}
+                                  </p>
+                                  <p className="text-xs text-gray-400 truncate">
+                                    Ceremony URL: {ceremony.ceremony_url}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                                  ceremony.status === 'completed' ? 'bg-green-100 text-green-800' :
+                                  ceremony.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                  'bg-gray-100 text-gray-800'
+                                }`}>
+                                  {ceremony.status}
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {!isCurrentToolEnabled && (
                 <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">

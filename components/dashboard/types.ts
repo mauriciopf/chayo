@@ -7,6 +7,7 @@ export interface Message {
   allowMultiple?: boolean
   showOtherOption?: boolean
   appointmentLink?: string
+  documentSigningLink?: string
 }
 
 export interface Agent {

@@ -1,16 +1,17 @@
 import React from "react"
 import { useTranslations } from 'next-intl'
 import { formatTime } from '@/lib/utils/time'
-import { Calendar } from 'lucide-react'
+import { Calendar, FileText } from 'lucide-react'
 
 interface ChatMessageProps {
   role: "user" | "ai" | "system"
   content: string
   timestamp?: Date
   appointmentLink?: string
+  documentSigningLink?: string
 }
 
-export default function ChatMessage({ role, content, timestamp, appointmentLink }: ChatMessageProps) {
+export default function ChatMessage({ role, content, timestamp, appointmentLink, documentSigningLink }: ChatMessageProps) {
   const t = useTranslations('chat')
 
   // Safeguard: Check if the content contains raw multiple choice data and clean it
@@ -73,6 +74,19 @@ export default function ChatMessage({ role, content, timestamp, appointmentLink 
                     >
                       <Calendar className="w-5 h-5" />
                       📱 Agendar Cita
+                    </a>
+                  </div>
+                )}
+
+                {/* Document Signing Button - Mobile Optimized */}
+                {documentSigningLink && (
+                  <div className="mt-3">
+                    <a
+                      href={documentSigningLink}
+                      className="inline-flex items-center gap-2 px-4 py-3 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white text-base font-medium rounded-lg transition-colors touch-manipulation min-h-[44px]"
+                    >
+                      <FileText className="w-5 h-5" />
+                      📝 Firmar Documento
                     </a>
                   </div>
                 )}

@@ -27,26 +27,100 @@ export default function ClientChatContainer({ agent, organization, locale = 'en'
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  // Initial greeting message with appointment booking option
+  // Initial greeting message with service options
   useEffect(() => {
-    if (agent && organization) {
-      const welcomeMessage: Message = {
-        id: 'welcome',
-        content: `¡Hola! Soy Chayo, tu asistente digital para ${organization.name}. ¿En qué puedo ayudarte hoy?`,
-        role: 'ai',
-        timestamp: new Date()
+    const initializeMessages = async () => {
+      if (agent && organization) {
+        const welcomeMessage: Message = {
+          id: 'welcome',
+          content: `¡Hola! Soy Chayo, tu asistente digital para ${organization.name}. ¿En qué puedo ayudarte hoy?`,
+          role: 'ai',
+          timestamp: new Date()
+        }
+        
+        const initialMessages: Message[] = [welcomeMessage]
+
+        // Check if agent tools are enabled
+        try {
+          const response = await fetch(`/api/organizations/${organization.id}/agent-tools`)
+          if (response.ok) {
+            const agentTools = await response.json()
+            
+            // Add appointment message if appointments tool is enabled
+            if (agentTools.appointments) {
+              const appointmentMessage: Message = {
+                id: 'appointment-option',
+                content: `📅 **Agendar una cita**\n\n¿Necesitas agendar una cita? Haz clic en el botón de abajo para ver nuestro calendario disponible y reservar tu horario.`,
+                role: 'ai',
+                timestamp: new Date(),
+                appointmentLink: `http://localhost:3000/${locale}/book-appointment/${organization.slug}`
+              }
+              initialMessages.push(appointmentMessage)
+            }
+
+            // Add document signing message if documents tool is enabled
+            if (agentTools.documents) {
+              try {
+                // Fetch available document ceremonies
+                const ceremoniesResponse = await fetch(`/api/organizations/${organization.id}/agent-documents/upload`)
+                if (ceremoniesResponse.ok) {
+                  const ceremoniesData = await ceremoniesResponse.json()
+                  const ceremonies = ceremoniesData.documents || []
+                  
+                  if (ceremonies.length > 0) {
+                    // Show the most recent pending ceremony
+                    const pendingCeremony = ceremonies.find((c: any) => c.status === 'pending') || ceremonies[0]
+                    
+                    const documentMessage: Message = {
+                      id: 'document-option',
+                      content: `📝 **Firmar documento**\n\n¿Necesitas firmar el documento "${pendingCeremony.document_name}"? Haz clic en el botón de abajo para acceder al proceso de firma.`,
+                      role: 'ai',
+                      timestamp: new Date(),
+                      documentSigningLink: pendingCeremony.ceremony_url
+                    }
+                    initialMessages.push(documentMessage)
+                  } else {
+                    // No documents available yet
+                    const documentMessage: Message = {
+                      id: 'document-option',
+                      content: `📝 **Firmar documentos**\n\nSi necesitas firmar algún documento, te enviaré el enlace correspondiente cuando esté disponible.`,
+                      role: 'ai',
+                      timestamp: new Date()
+                    }
+                    initialMessages.push(documentMessage)
+                  }
+                }
+              } catch (error) {
+                console.error('Error fetching document ceremonies:', error)
+                // Fallback message
+                const documentMessage: Message = {
+                  id: 'document-option',
+                  content: `📝 **Firmar documentos**\n\nSi necesitas firmar algún documento, te enviaré el enlace correspondiente cuando esté disponible.`,
+                  role: 'ai',
+                  timestamp: new Date()
+                }
+                initialMessages.push(documentMessage)
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching agent tools:', error)
+          // Fallback: Always show appointment option
+          const appointmentMessage: Message = {
+            id: 'appointment-option',
+            content: `📅 **Agendar una cita**\n\n¿Necesitas agendar una cita? Haz clic en el botón de abajo para ver nuestro calendario disponible y reservar tu horario.`,
+            role: 'ai',
+            timestamp: new Date(),
+            appointmentLink: `http://localhost:3000/${locale}/book-appointment/${organization.slug}`
+          }
+          initialMessages.push(appointmentMessage)
+        }
+        
+        setMessages(initialMessages)
       }
-      
-      const appointmentMessage: Message = {
-        id: 'appointment-option',
-        content: `📅 **Agendar una cita**\n\n¿Necesitas agendar una cita? Haz clic en el botón de abajo para ver nuestro calendario disponible y reservar tu horario.`,
-        role: 'ai',
-        timestamp: new Date(),
-        appointmentLink: `http://localhost:3000/${locale}/book-appointment/${organization.slug}`
-      }
-      
-      setMessages([welcomeMessage, appointmentMessage])
     }
+
+    initializeMessages()
   }, [agent, organization, locale])
 
   const handleSend = async () => {
@@ -130,6 +204,7 @@ export default function ClientChatContainer({ agent, organization, locale = 'en'
                 content={message.content}
                 timestamp={message.timestamp}
                 appointmentLink={message.appointmentLink}
+                documentSigningLink={message.documentSigningLink}
               />
             </motion.div>
           ))}
