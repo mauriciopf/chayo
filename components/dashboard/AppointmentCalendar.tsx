@@ -117,9 +117,31 @@ const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
     setIsLoading(true)
     
     try {
-      // TODO: Implement actual booking logic
-      console.log('Booking appointment:', appointmentDetails)
-      await new Promise(resolve => setTimeout(resolve, 2000)) // Simulate API call
+      // Format date for API (YYYY-MM-DD)
+      const formattedDate = selectedDate ? selectedDate.toISOString().split('T')[0] : ''
+      
+      const response = await fetch('/api/appointments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          organizationId,
+          clientName: appointmentDetails.name,
+          clientEmail: appointmentDetails.email,
+          clientPhone: appointmentDetails.phone || null,
+          appointmentDate: formattedDate,
+          appointmentTime: selectedTime,
+          serviceType: null, // Can be added later if needed
+          notes: appointmentDetails.notes || null
+        })
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to book appointment')
+      }
       
       // Reset form
       setSelectedDate(null)
@@ -138,7 +160,8 @@ const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
       alert('¡Cita agendada exitosamente! Te contactaremos pronto para confirmar.')
     } catch (error) {
       console.error('Error booking appointment:', error)
-      alert('Error al agendar la cita. Por favor, inténtalo de nuevo.')
+      const errorMessage = error instanceof Error ? error.message : 'Error al agendar la cita. Por favor, inténtalo de nuevo.'
+      alert(errorMessage)
     } finally {
       setIsLoading(false)
     }

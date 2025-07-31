@@ -4,6 +4,26 @@ import { getSupabaseServerClient } from '@/lib/supabase/server'
 export async function GET(req: NextRequest) {
   try {
     const supabase = getSupabaseServerClient()
+    const { searchParams } = new URL(req.url)
+    const slug = searchParams.get('slug')
+
+    // If slug is provided, fetch organization by slug (public endpoint)
+    if (slug) {
+      const { data: organizations, error: orgError } = await supabase
+        .from('organizations')
+        .select('id, name, slug, created_at')
+        .eq('slug', slug)
+        .limit(1)
+
+      if (orgError) {
+        console.error('Error fetching organization by slug:', orgError)
+        return NextResponse.json({ error: 'Failed to fetch organization' }, { status: 500 })
+      }
+
+      return NextResponse.json({ organizations })
+    }
+
+    // Otherwise, get user's organizations (authenticated endpoint)
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {

@@ -2,9 +2,11 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Check, Settings, Upload, FileText, Trash2 } from 'lucide-react'
+import { X, Check, Settings } from 'lucide-react'
 import { ActionableHint } from './ActionableHintChips'
 import Switch from '../ui/Switch'
+import AppointmentToolConfig from './tools/AppointmentToolConfig'
+import DocumentToolConfig from './tools/DocumentToolConfig'
 
 interface ActionableHintShareModalProps {
   isOpen: boolean
@@ -18,19 +20,7 @@ type AgentToolSettings = {
   [key in ActionableHint['category']]: boolean
 }
 
-interface BusinessDocument {
-  id: string
-  file_name: string
-  file_path: string
-  file_size: number
-  mime_type: string
-  status: string
-  signed_file_path?: string
-  business_owner_email: string
-  created_at: string
-  updated_at: string
-  signing_url: string
-}
+
 
 const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
   isOpen,
@@ -48,19 +38,13 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
     faqs: false
   })
   const [loading, setLoading] = useState(false)
-  const [documents, setDocuments] = useState<BusinessDocument[]>([])
-  const [uploading, setUploading] = useState(false)
-  const [documentLoading, setDocumentLoading] = useState(false)
 
-  // Load agent tool settings and documents when modal opens
+  // Load agent tool settings when modal opens
   useEffect(() => {
     if (isOpen && organizationId) {
       loadAgentToolSettings()
-      if (hint?.category === 'documents') {
-        loadDocuments()
-      }
     }
-  }, [isOpen, organizationId, hint?.category])
+  }, [isOpen, organizationId])
 
   const loadAgentToolSettings = async () => {
     try {
@@ -103,96 +87,7 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
     }
   }
 
-  const loadDocuments = async () => {
-    try {
-      setDocumentLoading(true)
-      const response = await fetch(`/api/organizations/${organizationId}/agent-documents/upload`)
-      if (response.ok) {
-        const data = await response.json()
-        setDocuments(data.documents || [])
-      }
-    } catch (error) {
-      console.error('Error loading agent documents:', error)
-    } finally {
-      setDocumentLoading(false)
-    }
-  }
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (!file) return
-
-    if (file.type !== 'application/pdf') {
-      alert('Only PDF files are allowed')
-      return
-    }
-
-    if (file.size > 10 * 1024 * 1024) {
-      alert('File size must be less than 10MB')
-      return
-    }
-
-    // Check if replacing existing document
-    const isReplacing = documents.length > 0
-    if (isReplacing && !confirm('This will replace your current document. Are you sure?')) {
-      return
-    }
-
-    try {
-      setUploading(true)
-      const formData = new FormData()
-      formData.append('file', file)
-
-      const response = await fetch(`/api/organizations/${organizationId}/agent-documents/upload`, {
-        method: 'POST',
-        body: formData,
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        const action = isReplacing ? 'replaced' : 'uploaded'
-        alert(`Document ${action} successfully! Signing URL: ${data.document.signing_url}`)
-        await loadDocuments() // Refresh the list
-      } else {
-        const error = await response.json()
-        alert(error.error || 'Failed to upload document')
-      }
-    } catch (error) {
-      console.error('Error uploading file:', error)
-      alert('Failed to upload file')
-    } finally {
-      setUploading(false)
-      // Reset file input
-      if (event.target) {
-        event.target.value = ''
-      }
-    }
-  }
-
-  const handleDeleteDocument = async (documentId: string) => {
-    if (!confirm('Are you sure you want to delete this document? This action cannot be undone.')) {
-      return
-    }
-
-    try {
-      const response = await fetch(`/api/organizations/${organizationId}/agent-documents/${documentId}`, {
-        method: 'DELETE',
-      })
-
-      if (response.ok) {
-        alert('Document deleted successfully!')
-        await loadDocuments() // Refresh the list
-      } else {
-        const error = await response.json()
-        alert(error.error || 'Failed to delete document')
-      }
-    } catch (error) {
-      console.error('Error deleting document:', error)
-      alert('Failed to delete document')
-    }
-  }
-
-  // Document functions removed - ceremonies are created automatically on upload
 
   const getCategoryContent = (category: ActionableHint['category']) => {
     switch (category) {
@@ -338,98 +233,24 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
                 </ul>
               </div>
 
-              {/* Document Management - Only show for documents category */}
-              {hint?.category === 'documents' && isCurrentToolEnabled && (
-                <div className="mb-6 space-y-4">
-                  <div className="border-t border-gray-200 pt-6">
-                    <h3 className="font-medium text-gray-900 mb-4">Manage Documents</h3>
-                    
-                    {/* Upload Section */}
-                    <div className="mb-6">
-                      <label className="block">
-                        <input
-                          type="file"
-                          accept=".pdf"
-                          onChange={handleFileUpload}
-                          disabled={uploading}
-                          className="hidden"
-                        />
-                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors cursor-pointer">
-                          <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                          <p className="text-sm text-gray-600 mb-1">
-                            {uploading 
-                              ? (documents.length > 0 ? 'Replacing...' : 'Uploading...') 
-                              : (documents.length > 0 ? 'Click to replace PDF document' : 'Click to upload PDF document')
-                            }
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {documents.length > 0 
-                              ? 'This will replace your current document • PDF files only, max 10MB'
-                              : 'PDF files only, max 10MB'
-                            }
-                          </p>
-                        </div>
-                      </label>
-                    </div>
-
-                    {/* Documents List */}
-                    <div>
-                      <h4 className="font-medium text-gray-900 mb-3">Uploaded Documents</h4>
-                      {documentLoading ? (
-                        <div className="text-center py-4">
-                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
-                          <p className="text-sm text-gray-500 mt-2">Loading documents...</p>
-                        </div>
-                      ) : documents.length === 0 ? (
-                        <div className="text-center py-8 text-gray-500">
-                          <FileText className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                                                  <p className="text-sm">No documents uploaded yet</p>
-                        <p className="text-xs">Upload PDF documents to enable client signing</p>
-                        </div>
-                      ) : (
-                        <div className="space-y-3">
-                          {documents.map((document) => (
-                            <div key={document.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
-                              <div className="flex items-center gap-3 flex-1">
-                                <FileText className="w-5 h-5 text-blue-600" />
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-sm font-medium text-gray-900 truncate">
-                                    {document.file_name}
-                                  </p>
-                                  <p className="text-xs text-gray-500">
-                                    Status: {document.status} • {new Date(document.created_at).toLocaleDateString()}
-                                  </p>
-                                  <p className="text-xs text-gray-400 truncate">
-                                    Signing URL: {document.signing_url}
-                                  </p>
-                                </div>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                                  document.status === 'signed' ? 'bg-green-100 text-green-800' :
-                                  document.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                                  'bg-gray-100 text-gray-800'
-                                }`}>
-                                  {document.status}
-                                </span>
-                                <button
-                                  onClick={() => handleDeleteDocument(document.id)}
-                                  className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 rounded"
-                                  title="Delete document"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
+              {/* Tool-specific configuration components */}
+              {hint?.category === 'appointments' && (
+                <AppointmentToolConfig 
+                  organizationId={organizationId}
+                  isEnabled={isCurrentToolEnabled}
+                  onSettingsChange={onSettingsChange}
+                />
               )}
 
-              {!isCurrentToolEnabled && (
+              {hint?.category === 'documents' && (
+                <DocumentToolConfig 
+                  organizationId={organizationId}
+                  isEnabled={isCurrentToolEnabled}
+                  onSettingsChange={onSettingsChange}
+                />
+              )}
+
+              {!isCurrentToolEnabled && !['appointments', 'documents'].includes(hint?.category || '') && (
                 <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
                   <p className="text-amber-800 text-sm">
                     Enable this agent tool above to make it available to your clients.

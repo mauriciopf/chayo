@@ -76,14 +76,55 @@ export default function ClientChatContainer({ agent, organization, locale = 'en'
             
             // Add appointment message if appointments tool is enabled
             if (agentTools.appointments) {
-              const appointmentMessage: Message = {
-                id: 'appointment-option',
-                content: `📅 **Agendar una cita**\n\n¿Necesitas agendar una cita? Haz clic en el botón de abajo para ver nuestro calendario disponible y reservar tu horario.`,
-                role: 'ai',
-                timestamp: new Date(),
-                appointmentLink: `http://localhost:3000/${locale}/book-appointment/${organization.slug}`
+              try {
+                // Fetch appointment settings to determine provider
+                const appointmentResponse = await fetch(`/api/organizations/${organization.id}/appointment-settings`)
+                let appointmentLink = `http://localhost:3000/${locale}/book-appointment/${organization.slug}` // default fallback
+                let appointmentContent = `📅 **Agendar una cita**\n\n¿Necesitas agendar una cita? Haz clic en el botón de abajo para ver nuestro calendario disponible y reservar tu horario.`
+
+                if (appointmentResponse.ok) {
+                  const appointmentData = await appointmentResponse.json()
+                  const settings = appointmentData.settings
+
+                  if (settings) {
+                    switch (settings.provider) {
+                      case 'calendly':
+                        appointmentLink = `http://localhost:3000/${locale}/appointment/calendly/${organization.slug}`
+                        appointmentContent = `📅 **Agendar una cita**\n\n¿Necesitas agendar una cita? Usa nuestro sistema de reservas integrado con Calendly.`
+                        break
+                      case 'vagaro':
+                      case 'square':
+                        appointmentLink = settings.provider_url || appointmentLink
+                        appointmentContent = `📅 **Agendar una cita**\n\n¿Necesitas agendar una cita? Haz clic en el botón de abajo para acceder a nuestro sistema de reservas.`
+                        break
+                      case 'custom':
+                      default:
+                        appointmentContent = `📅 **Agendar una cita**\n\n¿Necesitas agendar una cita? Usa nuestro sistema de reservas Chayo Appointments - fácil, rápido y sin complicaciones.`
+                        break
+                    }
+                  }
+                }
+
+                const appointmentMessage: Message = {
+                  id: 'appointment-option',
+                  content: appointmentContent,
+                  role: 'ai',
+                  timestamp: new Date(),
+                  appointmentLink: appointmentLink
+                }
+                initialMessages.push(appointmentMessage)
+              } catch (error) {
+                console.error('Error fetching appointment settings:', error)
+                // Fallback to default appointment message
+                const appointmentMessage: Message = {
+                  id: 'appointment-option',
+                  content: `📅 **Agendar una cita**\n\n¿Necesitas agendar una cita? Haz clic en el botón de abajo para ver nuestro calendario disponible y reservar tu horario.`,
+                  role: 'ai',
+                  timestamp: new Date(),
+                  appointmentLink: `http://localhost:3000/${locale}/book-appointment/${organization.slug}`
+                }
+                initialMessages.push(appointmentMessage)
               }
-              initialMessages.push(appointmentMessage)
             }
 
             // Add document signing message if documents tool is enabled and there are active documents
