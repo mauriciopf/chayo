@@ -9,17 +9,17 @@ export async function POST(
     const supabase = getSupabaseServerClient()
     const documentId = params.documentId
 
-    // Get document metadata
+    // Get document metadata (documents are always active now, no status check)
     const { data: document, error: docError } = await supabase
       .from('agent_document_tool')
       .select('*')
       .eq('id', documentId)
-      .eq('status', 'pending') // Only allow signing of pending documents
+      .eq('status', 'active') // Documents stay active for multiple signatures
       .single()
 
     if (docError || !document) {
       return NextResponse.json(
-        { error: 'Document not found or already signed' }, 
+        { error: 'Document not found or not available for signing' }, 
         { status: 404 }
       )
     }
@@ -29,11 +29,27 @@ export async function POST(
     const signedPdf = formData.get('signedPdf') as File
     const signerName = formData.get('signerName') as string
     const signerEmail = formData.get('signerEmail') as string
+    const anonymousUserId = formData.get('anonymousUserId') as string
 
     if (!signedPdf || !signerName || !signerEmail) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
+      )
+    }
+
+    // Double-check for duplicate signatures by name+email
+    const { data: existingSignature } = await supabase
+      .rpc('check_existing_signature', {
+        p_document_id: documentId,
+        p_signer_name: signerName.trim(),
+        p_signer_email: signerEmail.trim()
+      })
+
+    if (existingSignature === true) {
+      return NextResponse.json(
+        { error: 'You have already signed this document with these credentials' },
+        { status: 409 }
       )
     }
 
@@ -53,26 +69,28 @@ export async function POST(
       throw new Error(`Failed to upload signed PDF: ${uploadError.message}`)
     }
 
-    // Update document status with signature information
-    const { error: updateError } = await supabase
-      .from('agent_document_tool')
-      .update({
-        status: 'signed',
-        recipient_name: signerName,
-        recipient_email: signerEmail,
-        signed_at: new Date().toISOString(),
+    // Create signature record (documents stay active for multiple signatures)
+    const { data: signatureData, error: signatureError } = await supabase
+      .from('document_signatures')
+      .insert({
+        document_id: documentId,
+        organization_id: document.organization_id,
+        anonymous_user_id: anonymousUserId || null,
+        signer_name: signerName.trim(),
+        signer_email: signerEmail.trim(),
         signed_file_path: uploadData.path,
-        updated_at: new Date().toISOString()
+        signed_at: new Date().toISOString()
       })
-      .eq('id', documentId)
+      .select()
+      .single()
 
-    if (updateError) {
-      // Clean up uploaded file if database update fails
+    if (signatureError) {
+      // Clean up uploaded file if signature creation fails
       await supabase.storage
         .from('agent-documents')
         .remove([uploadData.path])
       
-      throw new Error(`Failed to update document status: ${updateError.message}`)
+      throw new Error(`Failed to create signature record: ${signatureError.message}`)
     }
 
     // TODO: Send email notification to business owner
@@ -83,12 +101,13 @@ export async function POST(
     return NextResponse.json({
       success: true,
       message: 'Document signed successfully',
-      document: {
-        id: documentId,
-        status: 'signed',
+      signature: {
+        id: signatureData.id,
+        document_id: documentId,
         signer_name: signerName,
         signer_email: signerEmail,
-        signed_at: new Date().toISOString()
+        signed_at: signatureData.signed_at,
+        anonymous_user_id: anonymousUserId || null
       }
     })
 

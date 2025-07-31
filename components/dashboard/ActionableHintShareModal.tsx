@@ -25,9 +25,6 @@ interface BusinessDocument {
   file_size: number
   mime_type: string
   status: string
-  recipient_name?: string
-  recipient_email?: string
-  signed_at?: string
   signed_file_path?: string
   business_owner_email: string
   created_at: string

@@ -58,35 +58,35 @@ export default function ClientChatContainer({ agent, organization, locale = 'en'
               initialMessages.push(appointmentMessage)
             }
 
-            // Add document signing message if documents tool is enabled and there are pending documents
+            // Add document signing message if documents tool is enabled and there are active documents
             if (agentTools.documents) {
               try {
-                // Fetch available document ceremonies
-                const ceremoniesResponse = await fetch(`/api/organizations/${organization.id}/agent-documents/upload`)
-                if (ceremoniesResponse.ok) {
-                  const ceremoniesData = await ceremoniesResponse.json()
-                  const ceremonies = ceremoniesData.documents || []
+                // Fetch available documents
+                const documentsResponse = await fetch(`/api/organizations/${organization.id}/agent-documents/upload`)
+                if (documentsResponse.ok) {
+                  const documentsData = await documentsResponse.json()
+                  const documents = documentsData.documents || []
                   
-                  // Only show documents that are pending
-                  const pendingDocuments = ceremonies.filter((doc: any) => doc.status === 'pending')
+                  // Show all active documents (documents are always available for signing now)
+                  const activeDocuments = documents.filter((doc: any) => doc.status === 'active')
                   
-                  if (pendingDocuments.length > 0) {
-                    // Show the most recent pending document
-                    const pendingDocument = pendingDocuments[0]
+                  if (activeDocuments.length > 0) {
+                    // Show the most recent active document
+                    const activeDocument = activeDocuments[0]
                     
                     const documentMessage: Message = {
                       id: 'document-option',
-                      content: `📝 **Firmar documento**\n\n¿Necesitas firmar el documento "${pendingDocument.file_name}"? Haz clic en el botón de abajo para acceder al proceso de firma.`,
+                      content: `📝 **Firmar documento**\n\n¿Necesitas firmar el documento "${activeDocument.file_name}"? Haz clic en el botón de abajo para acceder al proceso de firma.`,
                       role: 'ai',
                       timestamp: new Date(),
-                      documentSigningLink: pendingDocument.signing_url
+                      documentSigningLink: activeDocument.signing_url
                     }
                     initialMessages.push(documentMessage)
                   }
-                  // Note: If no pending documents, don't show any document option
+                  // Note: Documents are always available for signing with the new approach
                 }
               } catch (error) {
-                console.error('Error fetching document ceremonies:', error)
+                console.error('Error fetching documents:', error)
                 // Don't show document option if there's an error
               }
             }

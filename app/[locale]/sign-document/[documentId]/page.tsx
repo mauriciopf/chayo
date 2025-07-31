@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib'
+import { supabase } from '@/lib/supabase/client'
 
 interface DocumentData {
   id: string
@@ -33,10 +34,64 @@ export default function SignDocumentPage() {
   // Signing form data
   const [signerName, setSignerName] = useState('')
   const [signerEmail, setSignerEmail] = useState('')
+  
+  // Anonymous session management
+  const [anonymousUser, setAnonymousUser] = useState<any>(null)
+  const [alreadySigned, setAlreadySigned] = useState(false)
+  const [existingSignature, setExistingSignature] = useState<any>(null)
 
   useEffect(() => {
     fetchDocument()
+    setupAnonymousSession()
   }, [documentId])
+
+  // Setup anonymous session for document signing
+  const setupAnonymousSession = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (!user) {
+        // No session - create anonymous one
+        const { data, error } = await supabase.auth.signInAnonymously()
+        if (error) {
+          console.error('Error creating anonymous session:', error)
+        } else if (data.user) {
+          setAnonymousUser(data.user)
+          console.log('Created anonymous session:', data.user.id)
+        }
+      } else {
+        // Already have a session (could be anonymous from previous visit)
+        setAnonymousUser(user)
+        console.log('Using existing session:', user.id)
+      }
+    } catch (error) {
+      console.error('Error setting up anonymous session:', error)
+    }
+  }
+
+  // Check if name+email combination already signed this document
+  const checkExistingSignature = async (name: string, email: string) => {
+    if (!name.trim() || !email.trim()) return false
+
+    try {
+      const { data, error } = await supabase
+        .rpc('check_existing_signature', {
+          p_document_id: documentId,
+          p_signer_name: name.trim(),
+          p_signer_email: email.trim()
+        })
+
+      if (error) {
+        console.error('Error checking existing signature:', error)
+        return false
+      }
+
+      return data === true
+    } catch (error) {
+      console.error('Error checking signature:', error)
+      return false
+    }
+  }
 
   const analyzePdfFormFields = async (pdfBlob: Blob) => {
     try {
@@ -144,6 +199,15 @@ export default function SignDocumentPage() {
       return
     }
 
+    // Check if this name+email combination already signed this document
+    const hasAlreadySigned = await checkExistingSignature(signerName, signerEmail)
+    
+    if (hasAlreadySigned) {
+      setAlreadySigned(true)
+      setError('✅ You have already signed this document with these credentials!')
+      return
+    }
+
     // If there are form fields, check if required ones are filled
     if (hasFormFields) {
       const missingFields = formFields.filter(field => 
@@ -214,6 +278,9 @@ export default function SignDocumentPage() {
       formData.append('signedPdf', new Blob([signedPdfBytes], { type: 'application/pdf' }))
       formData.append('signerName', signerName)
       formData.append('signerEmail', signerEmail)
+      if (anonymousUser?.id) {
+        formData.append('anonymousUserId', anonymousUser.id)
+      }
       
       const submitResponse = await fetch(`/api/sign-document/${documentId}/submit`, {
         method: 'POST',

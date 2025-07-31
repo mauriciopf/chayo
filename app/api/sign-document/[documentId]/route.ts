@@ -17,12 +17,12 @@ export async function GET(
         organizations!inner(id, slug)
       `)
       .eq('id', documentId)
-      .eq('status', 'pending') // Only allow signing of pending documents
+      .eq('status', 'active') // Documents are always active for multiple signatures
       .single()
 
     if (error || !document) {
       return NextResponse.json(
-        { error: 'Document not found or already signed' }, 
+        { error: 'Document not found or not available for signing' }, 
         { status: 404 }
       )
     }
