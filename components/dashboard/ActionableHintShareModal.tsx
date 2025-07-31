@@ -20,12 +20,19 @@ type AgentToolSettings = {
 
 interface BusinessDocument {
   id: string
-  filename: string
+  file_name: string
+  file_path: string
   file_size: number
-  file_type: string
+  mime_type: string
+  status: string
+  recipient_name?: string
+  recipient_email?: string
+  signed_at?: string
+  signed_file_path?: string
+  business_owner_email: string
   created_at: string
-  processed: boolean
-  embedding_status: string
+  updated_at: string
+  signing_url: string
 }
 
 const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
@@ -128,6 +135,12 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
       return
     }
 
+    // Check if replacing existing document
+    const isReplacing = documents.length > 0
+    if (isReplacing && !confirm('This will replace your current document. Are you sure?')) {
+      return
+    }
+
     try {
       setUploading(true)
       const formData = new FormData()
@@ -140,11 +153,12 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
 
       if (response.ok) {
         const data = await response.json()
-        alert(`Document ceremony created successfully! Ceremony URL: ${data.ceremony_url}`)
+        const action = isReplacing ? 'replaced' : 'uploaded'
+        alert(`Document ${action} successfully! Signing URL: ${data.document.signing_url}`)
         await loadDocuments() // Refresh the list
       } else {
         const error = await response.json()
-        alert(error.error || 'Failed to create ceremony')
+        alert(error.error || 'Failed to upload document')
       }
     } catch (error) {
       console.error('Error uploading file:', error)
@@ -155,6 +169,29 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
       if (event.target) {
         event.target.value = ''
       }
+    }
+  }
+
+  const handleDeleteDocument = async (documentId: string) => {
+    if (!confirm('Are you sure you want to delete this document? This action cannot be undone.')) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/organizations/${organizationId}/agent-documents/${documentId}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        alert('Document deleted successfully!')
+        await loadDocuments() // Refresh the list
+      } else {
+        const error = await response.json()
+        alert(error.error || 'Failed to delete document')
+      }
+    } catch (error) {
+      console.error('Error deleting document:', error)
+      alert('Failed to delete document')
     }
   }
 
@@ -323,55 +360,68 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
                         <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors cursor-pointer">
                           <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
                           <p className="text-sm text-gray-600 mb-1">
-                            {uploading ? 'Uploading...' : 'Click to upload PDF document'}
+                            {uploading 
+                              ? (documents.length > 0 ? 'Replacing...' : 'Uploading...') 
+                              : (documents.length > 0 ? 'Click to replace PDF document' : 'Click to upload PDF document')
+                            }
                           </p>
                           <p className="text-xs text-gray-500">
-                            PDF files only, max 10MB
+                            {documents.length > 0 
+                              ? 'This will replace your current document • PDF files only, max 10MB'
+                              : 'PDF files only, max 10MB'
+                            }
                           </p>
                         </div>
                       </label>
                     </div>
 
-                    {/* Signing Ceremonies List */}
+                    {/* Documents List */}
                     <div>
-                      <h4 className="font-medium text-gray-900 mb-3">Document Signing Ceremonies</h4>
+                      <h4 className="font-medium text-gray-900 mb-3">Uploaded Documents</h4>
                       {documentLoading ? (
                         <div className="text-center py-4">
                           <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
-                          <p className="text-sm text-gray-500 mt-2">Loading ceremonies...</p>
+                          <p className="text-sm text-gray-500 mt-2">Loading documents...</p>
                         </div>
                       ) : documents.length === 0 ? (
                         <div className="text-center py-8 text-gray-500">
                           <FileText className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                          <p className="text-sm">No signing ceremonies created yet</p>
-                          <p className="text-xs">Upload PDF documents to automatically create signing ceremonies</p>
+                                                  <p className="text-sm">No documents uploaded yet</p>
+                        <p className="text-xs">Upload PDF documents to enable client signing</p>
                         </div>
                       ) : (
                         <div className="space-y-3">
-                          {documents.map((ceremony) => (
-                            <div key={ceremony.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                          {documents.map((document) => (
+                            <div key={document.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
                               <div className="flex items-center gap-3 flex-1">
                                 <FileText className="w-5 h-5 text-blue-600" />
                                 <div className="flex-1 min-w-0">
                                   <p className="text-sm font-medium text-gray-900 truncate">
-                                    {ceremony.document_name}
+                                    {document.file_name}
                                   </p>
                                   <p className="text-xs text-gray-500">
-                                    Status: {ceremony.status} • {new Date(ceremony.created_at).toLocaleDateString()}
+                                    Status: {document.status} • {new Date(document.created_at).toLocaleDateString()}
                                   </p>
                                   <p className="text-xs text-gray-400 truncate">
-                                    Ceremony URL: {ceremony.ceremony_url}
+                                    Signing URL: {document.signing_url}
                                   </p>
                                 </div>
                               </div>
                               <div className="flex items-center gap-2">
                                 <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                                  ceremony.status === 'completed' ? 'bg-green-100 text-green-800' :
-                                  ceremony.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                  document.status === 'signed' ? 'bg-green-100 text-green-800' :
+                                  document.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                                   'bg-gray-100 text-gray-800'
                                 }`}>
-                                  {ceremony.status}
+                                  {document.status}
                                 </span>
+                                <button
+                                  onClick={() => handleDeleteDocument(document.id)}
+                                  className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 rounded"
+                                  title="Delete document"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
                               </div>
                             </div>
                           ))}

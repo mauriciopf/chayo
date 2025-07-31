@@ -2,103 +2,35 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { getUserOrganizations } from '@/lib/services/organization/UserOrganizationManager'
 
-// Function to create SignatureAPI ceremony directly from file
-async function createSignatureApiCeremony(file: File, organizationName: string, businessOwnerEmail: string) {
-  const apiKey = process.env.SIGNATURE_API_KEY
-  const baseUrl = process.env.SIGNATURE_API_URL || 'https://api.signatureapi.com'
-
-  if (!apiKey) {
-    throw new Error('SignatureAPI API key is required. Please add SIGNATURE_API_KEY to your .env.local file.')
-  }
-
+// Function to upload PDF to Supabase storage
+async function uploadPdfToStorage(file: File, organizationId: string, supabase: any) {
   try {
-    // 1. Create envelope
-    const envelopeResponse = await fetch(`${baseUrl}/envelopes`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        name: `${organizationName} - ${file.name}`,
-        description: `Document signing for ${organizationName}`
+    // Generate unique file path
+    const timestamp = Date.now()
+    const fileName = `${timestamp}-${file.name}`
+    const filePath = `agent-documents/${organizationId}/${fileName}`
+
+    // Upload to Supabase storage
+    const { data, error } = await supabase.storage
+      .from('agent-documents')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false
       })
-    })
 
-    if (!envelopeResponse.ok) {
-      throw new Error(`Failed to create envelope: ${envelopeResponse.statusText}`)
+    if (error) {
+      throw new Error(`Storage upload failed: ${error.message}`)
     }
-
-    const envelope = await envelopeResponse.json()
-    const envelopeId = envelope.id
-
-    // 2. Upload file directly to SignatureAPI
-    const fileFormData = new FormData()
-    fileFormData.append('file', file)
-
-    const fileResponse = await fetch(`${baseUrl}/files`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: fileFormData
-    })
-
-    if (!fileResponse.ok) {
-      throw new Error(`Failed to upload file: ${fileResponse.statusText}`)
-    }
-
-    const fileData = await fileResponse.json()
-    const fileId = fileData.id
-
-    // 3. Add document to envelope
-    const documentResponse = await fetch(`${baseUrl}/envelopes/${envelopeId}/documents`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        file_id: fileId,
-        name: file.name
-      })
-    })
-
-    if (!documentResponse.ok) {
-      throw new Error(`Failed to add document: ${documentResponse.statusText}`)
-    }
-
-    // 4. Create ceremony for guest/anonymous signing 
-    // Most e-signature platforms support guest signing where the client enters their details
-    const ceremonyResponse = await fetch(`${baseUrl}/envelopes/${envelopeId}/ceremony`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        embedded: true,
-        guest_signing: true, // Enable guest signing mode
-        collect_signer_info: true, // Client will provide their own name/email
-        require_name: true,
-        require_email: true
-      })
-    })
-
-    if (!ceremonyResponse.ok) {
-      throw new Error(`Failed to create ceremony: ${ceremonyResponse.statusText}`)
-    }
-
-    const ceremony = await ceremonyResponse.json()
 
     return {
-      envelope_id: envelopeId,
-      ceremony_url: ceremony.url,
-      file_id: fileId
+      filePath: data.path,
+      fileName: file.name,
+      fileSize: file.size,
+      mimeType: file.type
     }
 
   } catch (error) {
-    console.error('SignatureAPI error:', error)
+    console.error('Storage upload error:', error)
     throw error
   }
 }
@@ -149,33 +81,29 @@ export async function POST(
       return NextResponse.json({ error: 'User email is required' }, { status: 400 })
     }
 
-    // LIMIT: Delete existing ceremonies for this organization (one document per account)
+    // LIMIT: Delete existing documents for this organization (one document per account)
     const { error: deleteError } = await supabase
       .from('agent_document_tool')
       .delete()
       .eq('organization_id', organizationId)
 
     if (deleteError) {
-      console.warn('Warning: Could not delete existing ceremonies:', deleteError)
+      console.warn('Warning: Could not delete existing documents:', deleteError)
       // Continue anyway - don't block new upload
     }
 
-    // Create SignatureAPI ceremony directly
-    const ceremonyData = await createSignatureApiCeremony(
-      file,
-      organization.name || 'Business',
-      businessOwnerEmail
-    )
+    // Upload PDF to Supabase storage
+    const uploadResult = await uploadPdfToStorage(file, organizationId, supabase)
 
-    // Store ceremony metadata in our database
-    // Note: recipient_name and recipient_email will be populated via webhook when client signs
-    const { data: ceremony, error: dbError } = await supabase
+    // Store document metadata in our database
+    const { data: document, error: dbError } = await supabase
       .from('agent_document_tool')
       .insert({
         organization_id: organizationId,
-        envelope_id: ceremonyData.envelope_id,
-        ceremony_url: ceremonyData.ceremony_url,
-        document_name: file.name,
+        file_path: uploadResult.filePath,
+        file_name: uploadResult.fileName,
+        file_size: uploadResult.fileSize,
+        mime_type: uploadResult.mimeType,
         status: 'pending',
         business_owner_email: businessOwnerEmail,
         created_by: user.id
@@ -184,23 +112,37 @@ export async function POST(
       .single()
 
     if (dbError) {
-      console.error('Database error:', dbError)
-      return NextResponse.json({ error: 'Failed to save ceremony metadata' }, { status: 500 })
+      // Clean up uploaded file if database insert fails
+      await supabase.storage
+        .from('agent-documents')
+        .remove([uploadResult.filePath])
+      
+      throw new Error(`Database error: ${dbError.message}`)
     }
 
     return NextResponse.json({
       success: true,
-      ceremony: ceremony,
-      ceremony_url: ceremonyData.ceremony_url,
-      message: 'Document ceremony created successfully'
+      document: {
+        id: document.id,
+        file_name: document.file_name,
+        file_size: document.file_size,
+        status: document.status,
+        created_at: document.created_at,
+        // Generate signing URL for client chat
+        signing_url: `/en/sign-document/${document.id}`
+      }
     })
 
   } catch (error) {
     console.error('Upload error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Internal server error' },
+      { status: 500 }
+    )
   }
 }
 
+// GET endpoint to list documents for an organization
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -224,22 +166,32 @@ export async function GET(
       return NextResponse.json({ error: 'Organization not found' }, { status: 404 })
     }
 
-    // Get agent document ceremonies for the organization
-    const { data: ceremonies, error } = await supabase
+    // Get documents for this organization
+    const { data: documents, error } = await supabase
       .from('agent_document_tool')
       .select('*')
       .eq('organization_id', organizationId)
       .order('created_at', { ascending: false })
 
     if (error) {
-      console.error('Error fetching ceremonies:', error)
-      return NextResponse.json({ error: 'Failed to fetch ceremonies' }, { status: 500 })
+      throw new Error(`Database error: ${error.message}`)
     }
 
-    return NextResponse.json({ documents: ceremonies })
+    // Add signing URLs to documents
+    const documentsWithUrls = documents.map(doc => ({
+      ...doc,
+      signing_url: `/en/sign-document/${doc.id}`
+    }))
+
+    return NextResponse.json({
+      documents: documentsWithUrls
+    })
 
   } catch (error) {
-    console.error('Error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    console.error('Get documents error:', error)
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Internal server error' },
+      { status: 500 }
+    )
   }
 }

@@ -68,15 +68,15 @@ export default function ClientChatContainer({ agent, organization, locale = 'en'
                   const ceremonies = ceremoniesData.documents || []
                   
                   if (ceremonies.length > 0) {
-                    // Show the most recent pending ceremony
-                    const pendingCeremony = ceremonies.find((c: any) => c.status === 'pending') || ceremonies[0]
+                    // Show the most recent pending document
+                    const pendingDocument = ceremonies.find((doc: any) => doc.status === 'pending') || ceremonies[0]
                     
                     const documentMessage: Message = {
                       id: 'document-option',
-                      content: `📝 **Firmar documento**\n\n¿Necesitas firmar el documento "${pendingCeremony.document_name}"? Haz clic en el botón de abajo para acceder al proceso de firma.`,
+                      content: `📝 **Firmar documento**\n\n¿Necesitas firmar el documento "${pendingDocument.file_name}"? Haz clic en el botón de abajo para acceder al proceso de firma.`,
                       role: 'ai',
                       timestamp: new Date(),
-                      documentSigningLink: pendingCeremony.ceremony_url
+                      documentSigningLink: pendingDocument.signing_url
                     }
                     initialMessages.push(documentMessage)
                   } else {
