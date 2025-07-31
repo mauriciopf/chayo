@@ -7,6 +7,7 @@ import { ActionableHint } from './ActionableHintChips'
 import Switch from '../ui/Switch'
 import AppointmentToolConfig from './tools/AppointmentToolConfig'
 import DocumentToolConfig from './tools/DocumentToolConfig'
+import PaymentToolConfig from './tools/PaymentToolConfig'
 
 interface ActionableHintShareModalProps {
   isOpen: boolean
@@ -250,7 +251,15 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
                 />
               )}
 
-              {!isCurrentToolEnabled && !['appointments', 'documents'].includes(hint?.category || '') && (
+              {hint?.category === 'payments' && (
+                <PaymentToolConfig 
+                  organizationId={organizationId}
+                  isEnabled={isCurrentToolEnabled}
+                  onSettingsChange={onSettingsChange}
+                />
+              )}
+
+              {!isCurrentToolEnabled && !['appointments', 'documents', 'payments'].includes(hint?.category || '') && (
                 <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
                   <p className="text-amber-800 text-sm">
                     Enable this agent tool above to make it available to your clients.

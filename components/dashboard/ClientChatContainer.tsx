@@ -172,6 +172,54 @@ export default function ClientChatContainer({ agent, organization, locale = 'en'
                 // Don't show document option if there's an error
               }
             }
+
+            // Add payment message if payments tool is enabled
+            if (agentTools.payments) {
+              try {
+                // Fetch Stripe settings to check if payments are configured
+                const stripeResponse = await fetch(`/api/organizations/${organization.id}/stripe-settings`)
+                if (stripeResponse.ok) {
+                  const stripeData = await stripeResponse.json()
+                  
+                  if (stripeData.settings && stripeData.settings.stripe_user_id) {
+                    let paymentContent = `💳 **Realizar un pago**\n\n¿Necesitas realizar un pago?`
+                    
+                    // Customize message based on payment type
+                    switch (stripeData.settings.payment_type) {
+                      case 'dynamic':
+                        paymentContent += ` Puedes ingresar el monto que desees pagar. Haz clic en el botón de abajo para proceder.`
+                        break
+                      case 'manual_price_id':
+                        paymentContent += ` Haz clic en el botón de abajo para acceder al enlace de pago.`
+                        break
+                      case 'custom_ui':
+                        if (stripeData.settings.service_name && stripeData.settings.service_amount) {
+                          const amount = (stripeData.settings.service_amount / 100).toFixed(2)
+                          paymentContent += ` Servicio: ${stripeData.settings.service_name} - $${amount} ${stripeData.settings.service_currency.toUpperCase()}. Haz clic en el botón de abajo para pagar.`
+                        } else {
+                          paymentContent += ` Haz clic en el botón de abajo para proceder con el pago.`
+                        }
+                        break
+                      default:
+                        paymentContent += ` Haz clic en el botón de abajo para proceder con el pago.`
+                    }
+
+                    const paymentMessage: Message = {
+                      id: 'payment-option',
+                      content: paymentContent,
+                      role: 'ai',
+                      timestamp: new Date(),
+                      paymentAvailable: true,
+                      paymentType: stripeData.settings.payment_type
+                    }
+                    initialMessages.push(paymentMessage)
+                  }
+                }
+              } catch (error) {
+                console.error('Error fetching payment settings:', error)
+                // Don't show payment option if there's an error
+              }
+            }
           }
         } catch (error) {
           console.error('Error fetching agent tools:', error)
@@ -275,6 +323,8 @@ export default function ClientChatContainer({ agent, organization, locale = 'en'
                 timestamp={message.timestamp}
                 appointmentLink={message.appointmentLink}
                 documentSigningLink={message.documentSigningLink}
+                paymentAvailable={message.paymentAvailable}
+                paymentType={message.paymentType}
               />
             </motion.div>
           ))}

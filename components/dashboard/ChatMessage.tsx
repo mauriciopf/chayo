@@ -1,7 +1,7 @@
-import React from "react"
+import React, { useState } from "react"
 import { useTranslations } from 'next-intl'
 import { formatTime } from '@/lib/utils/time'
-import { Calendar, FileText } from 'lucide-react'
+import { Calendar, FileText, CreditCard } from 'lucide-react'
 
 interface ChatMessageProps {
   role: "user" | "ai" | "system"
@@ -9,9 +9,129 @@ interface ChatMessageProps {
   timestamp?: Date
   appointmentLink?: string
   documentSigningLink?: string
+  paymentAvailable?: boolean
+  paymentType?: 'dynamic' | 'manual_price_id' | 'custom_ui'
 }
 
-export default function ChatMessage({ role, content, timestamp, appointmentLink, documentSigningLink }: ChatMessageProps) {
+// PaymentButton component for handling different payment types
+function PaymentButton({ paymentType }: { paymentType: 'dynamic' | 'manual_price_id' | 'custom_ui' }) {
+  const [amount, setAmount] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [showAmountInput, setShowAmountInput] = useState(false)
+
+  const handlePayment = async () => {
+    if (paymentType === 'dynamic' && !amount) {
+      setShowAmountInput(true)
+      return
+    }
+
+    setLoading(true)
+    try {
+      // Get organization ID from URL path
+      const pathParts = window.location.pathname.split('/')
+      const businessSlug = pathParts[pathParts.length - 1]
+      
+      // Get organization by slug - we'll need to create this endpoint or modify existing one
+      const orgResponse = await fetch(`/api/organizations?slug=${businessSlug}`)
+      if (!orgResponse.ok) {
+        throw new Error('Organization not found')
+      }
+      
+      const orgData = await orgResponse.json()
+      const organizationId = orgData.organization?.id
+
+      if (!organizationId) {
+        throw new Error('Organization ID not found')
+      }
+
+      // Create payment link
+      const paymentData: any = {
+        organizationId
+      }
+
+      if (paymentType === 'dynamic') {
+        paymentData.amount = parseFloat(amount)
+      }
+
+      const response = await fetch('/api/payments/create-link', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(paymentData)
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to create payment link')
+      }
+
+      const result = await response.json()
+      
+      // Redirect to payment URL
+      window.location.href = result.paymentUrl
+
+    } catch (error) {
+      console.error('Payment error:', error)
+      alert(error instanceof Error ? error.message : 'Error processing payment')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="mt-3">
+      {paymentType === 'dynamic' && showAmountInput && !loading && (
+        <div className="mb-3">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Ingresa el monto a pagar:
+          </label>
+          <div className="flex gap-2">
+            <div className="flex-1">
+              <div className="flex">
+                <span className="inline-flex items-center px-3 py-2 border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm rounded-l-md">
+                  $
+                </span>
+                <input
+                  type="number"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  placeholder="0.00"
+                  step="0.01"
+                  min="0"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-r-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[44px]"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      <button
+        onClick={handlePayment}
+        disabled={loading || (paymentType === 'dynamic' && showAmountInput && !amount)}
+        className="inline-flex items-center gap-2 px-4 py-3 bg-purple-600 hover:bg-purple-700 active:bg-purple-800 text-white text-base font-medium rounded-lg transition-colors touch-manipulation min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {loading ? (
+          <>
+            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+            Procesando...
+          </>
+        ) : (
+          <>
+            <CreditCard className="w-5 h-5" />
+            {paymentType === 'dynamic' && showAmountInput ? 
+              (amount ? `💳 Pagar $${amount}` : 'Ingresa monto') : 
+              '💳 Realizar Pago'
+            }
+          </>
+        )}
+      </button>
+    </div>
+  )
+}
+
+export default function ChatMessage({ role, content, timestamp, appointmentLink, documentSigningLink, paymentAvailable, paymentType }: ChatMessageProps) {
   const t = useTranslations('chat')
 
   // Safeguard: Check if the content contains raw multiple choice data and clean it
@@ -89,6 +209,11 @@ export default function ChatMessage({ role, content, timestamp, appointmentLink,
                       📝 Firmar Documento
                     </a>
                   </div>
+                )}
+
+                {/* Payment Button - Mobile Optimized */}
+                {paymentAvailable && (
+                  <PaymentButton paymentType={paymentType || 'custom_ui'} />
                 )}
               </div>
               {timestamp && (

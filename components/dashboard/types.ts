@@ -8,6 +8,8 @@ export interface Message {
   showOtherOption?: boolean
   appointmentLink?: string
   documentSigningLink?: string
+  paymentAvailable?: boolean
+  paymentType?: 'dynamic' | 'manual_price_id' | 'custom_ui'
 }
 
 export interface Agent {
