@@ -44,6 +44,9 @@ export async function GET(
       }, { status: 400 })
     }
 
+    // Extract organization data (handle both array and object cases)
+    const organization = Array.isArray(form.organizations) ? form.organizations[0] : form.organizations
+
     // Return form data for public consumption (no sensitive org data)
     return NextResponse.json({ 
       form: {
@@ -53,8 +56,8 @@ export async function GET(
         fields: form.fields, // Legacy field, empty for Form.io forms
         formio_definition: form.formio_definition,
         organization: {
-          name: form.organizations?.name,
-          slug: form.organizations?.slug
+          name: organization?.name,
+          slug: organization?.slug
         }
       }
     })
