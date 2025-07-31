@@ -24,7 +24,7 @@ export async function GET(
       appointments: false,
       documents: false,
       payments: false,
-      notifications: false,
+      intake_forms: false,
       faqs: false
     })
   } catch (error) {
@@ -43,7 +43,7 @@ export async function POST(
     const { toolType, enabled } = await request.json()
 
     // Validate tool type
-    const validToolTypes = ['appointments', 'documents', 'payments', 'notifications', 'faqs']
+    const validToolTypes = ['appointments', 'documents', 'payments', 'intake_forms', 'faqs']
     if (!validToolTypes.includes(toolType)) {
       return NextResponse.json({ error: 'Invalid tool type' }, { status: 400 })
     }

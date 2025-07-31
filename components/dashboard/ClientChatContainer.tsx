@@ -220,6 +220,50 @@ export default function ClientChatContainer({ agent, organization, locale = 'en'
                 // Don't show payment option if there's an error
               }
             }
+
+            // Add intake form message if intake_forms tool is enabled
+            if (agentTools.intake_forms) {
+              try {
+                // Fetch active intake forms
+                const formsResponse = await fetch(`/api/organizations/${organization.id}/intake-forms`)
+                if (formsResponse.ok) {
+                  const formsData = await formsResponse.json()
+                  const forms = formsData.forms || []
+                  
+                  // Find the first active form
+                  const activeForm = forms.find((form: any) => form.is_active)
+                  
+                  if (activeForm && anonymousUser) {
+                    // Check if current anonymous user has already submitted this form
+                    const { data: existingResponse } = await supabase
+                      .from('intake_form_responses')
+                      .select('id')
+                      .eq('form_id', activeForm.id)
+                      .eq('anonymous_user_id', anonymousUser.id)
+                      .single()
+                    
+                    // Only show form option if this anonymous user hasn't submitted yet
+                    if (!existingResponse) {
+                      const intakeFormMessage: Message = {
+                        id: 'intake-form-option',
+                        content: `📋 **Llenar formulario**\n\n¿Podrías llenar nuestro formulario "${activeForm.name}"? Esto nos ayudará a brindarte un mejor servicio. Haz clic en el botón de abajo para empezar.`,
+                        role: 'ai',
+                        timestamp: new Date(),
+                        intakeFormAvailable: true,
+                        intakeFormId: activeForm.id,
+                        intakeFormName: activeForm.name
+                      }
+                      initialMessages.push(intakeFormMessage)
+                    } else {
+                      console.log('Intake form already submitted by this anonymous user - hiding option')
+                    }
+                  }
+                }
+              } catch (error) {
+                console.error('Error fetching intake forms:', error)
+                // Don't show intake form option if there's an error
+              }
+            }
           }
         } catch (error) {
           console.error('Error fetching agent tools:', error)
@@ -325,6 +369,9 @@ export default function ClientChatContainer({ agent, organization, locale = 'en'
                 documentSigningLink={message.documentSigningLink}
                 paymentAvailable={message.paymentAvailable}
                 paymentType={message.paymentType}
+                intakeFormAvailable={message.intakeFormAvailable}
+                intakeFormId={message.intakeFormId}
+                intakeFormName={message.intakeFormName}
               />
             </motion.div>
           ))}

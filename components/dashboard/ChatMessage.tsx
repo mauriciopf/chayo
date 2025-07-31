@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import { useTranslations } from 'next-intl'
 import { formatTime } from '@/lib/utils/time'
-import { Calendar, FileText, CreditCard } from 'lucide-react'
+import { Calendar, FileText, CreditCard, ClipboardList } from 'lucide-react'
 
 interface ChatMessageProps {
   role: "user" | "ai" | "system"
@@ -11,6 +11,9 @@ interface ChatMessageProps {
   documentSigningLink?: string
   paymentAvailable?: boolean
   paymentType?: 'dynamic' | 'manual_price_id' | 'custom_ui'
+  intakeFormAvailable?: boolean
+  intakeFormId?: string
+  intakeFormName?: string
 }
 
 // PaymentButton component for handling different payment types
@@ -131,7 +134,7 @@ function PaymentButton({ paymentType }: { paymentType: 'dynamic' | 'manual_price
   )
 }
 
-export default function ChatMessage({ role, content, timestamp, appointmentLink, documentSigningLink, paymentAvailable, paymentType }: ChatMessageProps) {
+export default function ChatMessage({ role, content, timestamp, appointmentLink, documentSigningLink, paymentAvailable, paymentType, intakeFormAvailable, intakeFormId, intakeFormName }: ChatMessageProps) {
   const t = useTranslations('chat')
 
   // Safeguard: Check if the content contains raw multiple choice data and clean it
@@ -214,6 +217,19 @@ export default function ChatMessage({ role, content, timestamp, appointmentLink,
                 {/* Payment Button - Mobile Optimized */}
                 {paymentAvailable && (
                   <PaymentButton paymentType={paymentType || 'custom_ui'} />
+                )}
+
+                {/* Intake Form Button - Mobile Optimized */}
+                {intakeFormAvailable && intakeFormId && (
+                  <div className="mt-3">
+                    <a
+                      href={`/fill-form/${intakeFormId}`}
+                      className="inline-flex items-center gap-2 px-4 py-3 bg-purple-600 hover:bg-purple-700 active:bg-purple-800 text-white text-base font-medium rounded-lg transition-colors touch-manipulation min-h-[44px]"
+                    >
+                      <ClipboardList className="w-5 h-5" />
+                      📋 Llenar Formulario
+                    </a>
+                  </div>
                 )}
               </div>
               {timestamp && (

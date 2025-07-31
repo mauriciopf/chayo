@@ -9,7 +9,7 @@ export type ActionableHint = {
   label: string
   icon: string
   description: string
-  category: 'appointments' | 'documents' | 'payments' | 'notifications' | 'faqs'
+  category: 'appointments' | 'documents' | 'payments' | 'intake_forms' | 'faqs'
 }
 
 interface ActionableHintChipsProps {
@@ -32,7 +32,7 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
     appointments: false,
     documents: false,
     payments: false,
-    notifications: false,
+    intake_forms: false,
     faqs: false
   })
 
@@ -60,11 +60,11 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
       category: 'payments'
     },
     {
-      id: 'send_reminder',
-      label: '🔔 Send reminders or notifications',
-      icon: '🔔',
-      description: 'Remind clients of appointments, deadlines, or events.',
-      category: 'notifications'
+      id: 'collect_intake_form',
+      label: '📋 Collect intake form',
+      icon: '📋',
+      description: 'Send custom forms to collect client information, preferences, or requirements.',
+      category: 'intake_forms'
     },
     {
       id: 'answer_faqs',

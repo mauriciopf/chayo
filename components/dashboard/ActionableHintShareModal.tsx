@@ -8,6 +8,7 @@ import Switch from '../ui/Switch'
 import AppointmentToolConfig from './tools/AppointmentToolConfig'
 import DocumentToolConfig from './tools/DocumentToolConfig'
 import PaymentToolConfig from './tools/PaymentToolConfig'
+import IntakeFormsToolConfig from './tools/IntakeFormsToolConfig'
 
 interface ActionableHintShareModalProps {
   isOpen: boolean
@@ -35,7 +36,7 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
     appointments: false,
     documents: false,
     payments: false,
-    notifications: false,
+    intake_forms: false,
     faqs: false
   })
   const [loading, setLoading] = useState(false)
@@ -125,15 +126,15 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
             'Payment status tracking'
           ]
         }
-      case 'notifications':
+      case 'intake_forms':
         return {
-          title: 'Smart Notifications',
-          description: 'Send automated reminders and notifications to your clients.',
+          title: 'Intake Forms',
+          description: 'Create custom forms to collect client information, preferences, and requirements.',
           features: [
-            'Appointment reminders',
-            'Payment due notifications',
-            'Custom message scheduling',
-            'Multi-channel delivery'
+            'Custom form builder with multiple field types',
+            'Client information collection',
+            'Automatic form responses storage',
+            'Pre-chat data gathering'
           ]
         }
       case 'faqs':
@@ -259,7 +260,15 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
                 />
               )}
 
-              {!isCurrentToolEnabled && !['appointments', 'documents', 'payments'].includes(hint?.category || '') && (
+              {hint?.category === 'intake_forms' && (
+                <IntakeFormsToolConfig 
+                  organizationId={organizationId}
+                  isEnabled={isCurrentToolEnabled}
+                  onSettingsChange={onSettingsChange}
+                />
+              )}
+
+              {!isCurrentToolEnabled && !['appointments', 'documents', 'payments', 'intake_forms'].includes(hint?.category || '') && (
                 <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
                   <p className="text-amber-800 text-sm">
                     Enable this agent tool above to make it available to your clients.

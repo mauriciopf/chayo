@@ -10,6 +10,9 @@ export interface Message {
   documentSigningLink?: string
   paymentAvailable?: boolean
   paymentType?: 'dynamic' | 'manual_price_id' | 'custom_ui'
+  intakeFormAvailable?: boolean
+  intakeFormId?: string
+  intakeFormName?: string
 }
 
 export interface Agent {
