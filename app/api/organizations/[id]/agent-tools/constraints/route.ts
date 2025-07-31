@@ -29,6 +29,7 @@ export async function GET(
       supabase
     )
 
+
     return NextResponse.json(constraintResult)
   } catch (error) {
     console.error('Agent tools constraints GET error:', error)

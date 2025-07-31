@@ -54,13 +54,17 @@ export class AgentToolConstraintsService {
         return {
           canEnable: false,
           reason: 'Appointment settings not configured',
-          missingConfig: ['Appointment settings', 'Calendar integration']
+          missingConfig: ['Configure appointment provider']
         }
       }
 
       const missing = []
-      if (!settings.provider_config) missing.push('Calendar provider')
-      if (!settings.available_slots) missing.push('Available time slots')
+      if (!settings.provider) missing.push('Appointment provider')
+      
+      // For external providers, check if URL is configured
+      if (settings.provider && settings.provider !== 'custom' && !settings.provider_url) {
+        missing.push('Provider URL')
+      }
 
       if (missing.length > 0) {
         return {
@@ -86,7 +90,7 @@ export class AgentToolConstraintsService {
     try {
       // Check if organization has at least one document uploaded
       const { data: documents, error } = await supabase
-        .from('documents')
+        .from('business_documents')
         .select('id')
         .eq('organization_id', organizationId)
         .limit(1)
@@ -125,19 +129,29 @@ export class AgentToolConstraintsService {
         .from('stripe_settings')
         .select('*')
         .eq('organization_id', organizationId)
+        .eq('is_active', true)
         .single()
 
       if (error || !settings) {
         return {
           canEnable: false,
           reason: 'Stripe settings not configured',
-          missingConfig: ['Stripe account connection', 'Payment configuration']
+          missingConfig: ['Connect Stripe account', 'Configure payment settings']
         }
       }
 
       const missing = []
-      if (!settings.stripe_account_id) missing.push('Stripe account')
-      if (!settings.webhook_endpoint_secret) missing.push('Webhook configuration')
+      if (!settings.stripe_user_id) missing.push('Stripe account connection')
+      if (!settings.access_token) missing.push('Stripe authentication')
+      
+      // Check payment configuration based on payment type
+      if (settings.payment_type === 'manual_price_id' && !settings.price_id) {
+        missing.push('Stripe Price ID')
+      }
+      
+      if (settings.payment_type === 'custom_ui' && (!settings.service_name || !settings.service_amount)) {
+        missing.push('Service configuration')
+      }
 
       if (missing.length > 0) {
         return {

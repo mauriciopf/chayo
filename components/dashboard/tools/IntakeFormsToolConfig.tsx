@@ -675,20 +675,20 @@ export default function IntakeFormsToolConfig({ organizationId, isEnabled, onSet
           <span className="ml-2 text-gray-600">Cargando formularios...</span>
         </div>
       ) : forms.length === 0 ? (
-        <div className="text-center py-8">
-          <FileText className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-          <h4 className="text-lg font-medium text-gray-900 mb-2">Sin formularios</h4>
-          <p className="text-gray-600 mb-4">
+        <button
+          onClick={handleCreateForm}
+          className="w-full text-center py-8 rounded-lg border-2 border-dashed border-gray-300 hover:border-purple-400 hover:bg-purple-50 transition-all group"
+        >
+          <FileText className="w-12 h-12 mx-auto mb-4 text-gray-400 group-hover:text-purple-500 transition-colors" />
+          <h4 className="text-lg font-medium text-gray-900 mb-2 group-hover:text-purple-900">Sin formularios</h4>
+          <p className="text-gray-600 mb-4 group-hover:text-purple-700">
             Crea tu formulario de admisión para recopilar información de tus clientes.
           </p>
-          <button
-            onClick={handleCreateForm}
-            className="flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-          >
+          <div className="flex items-center justify-center px-4 py-2 bg-purple-600 text-white rounded-lg group-hover:bg-purple-700 transition-colors mx-auto w-fit">
             <Plus className="w-4 h-4 mr-2" />
             Crear formulario
-          </button>
-        </div>
+          </div>
+        </button>
       ) : (
         <div className="space-y-4">
           {forms.map((form) => (

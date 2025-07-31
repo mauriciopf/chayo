@@ -360,7 +360,7 @@ export default function FAQToolConfig({ organizationId, isEnabled, onSettingsCha
   const [faqs, setFAQs] = useState<FAQ[]>([])
   const [isCreating, setIsCreating] = useState(false)
   const [editingFAQ, setEditingFAQ] = useState<FAQ | null>(null)
-  const [faqName, setFAQName] = useState('')
+  const [faqName, setFAQName] = useState('Preguntas Frecuentes')
   const [faqItems, setFAQItems] = useState<FAQItem[]>([])
   const [isPreview, setIsPreview] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -393,7 +393,7 @@ export default function FAQToolConfig({ organizationId, isEnabled, onSettingsCha
   const handleCreateFAQ = () => {
     setIsCreating(true)
     setEditingFAQ(null)
-    setFAQName('')
+    setFAQName('Preguntas Frecuentes')
     setFAQItems([])
     setIsPreview(false)
   }
@@ -407,7 +407,7 @@ export default function FAQToolConfig({ organizationId, isEnabled, onSettingsCha
   }
 
   const handleSaveFAQ = async () => {
-    if (!faqName.trim()) return
+    if (faqItems.length === 0) return
 
     setSaving(true)
     try {
@@ -493,20 +493,6 @@ export default function FAQToolConfig({ organizationId, isEnabled, onSettingsCha
 
         {!isPreview ? (
           <div className="space-y-4">
-            {/* FAQ Name */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Nombre del FAQ *
-              </label>
-              <input
-                type="text"
-                value={faqName}
-                onChange={(e) => setFAQName(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                placeholder="Ej: Preguntas Frecuentes Generales"
-              />
-            </div>
-
             {/* Helpful instructions */}
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <h4 className="text-sm font-medium text-blue-900 mb-2">💡 Cómo usar el constructor</h4>
@@ -536,7 +522,7 @@ export default function FAQToolConfig({ organizationId, isEnabled, onSettingsCha
           </button>
           <button
             onClick={handleSaveFAQ}
-            disabled={!faqName.trim() || saving}
+                            disabled={faqItems.length === 0 || saving}
             className="flex items-center px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {saving ? (
@@ -567,20 +553,20 @@ export default function FAQToolConfig({ organizationId, isEnabled, onSettingsCha
           <span className="ml-2 text-gray-600">Cargando FAQs...</span>
         </div>
       ) : faqs.length === 0 ? (
-        <div className="text-center py-8">
-          <MessageCircle className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-          <h4 className="text-lg font-medium text-gray-900 mb-2">Sin FAQs</h4>
-          <p className="text-gray-600 mb-4">
+        <button
+          onClick={handleCreateFAQ}
+          className="w-full text-center py-8 rounded-lg border-2 border-dashed border-gray-300 hover:border-purple-400 hover:bg-purple-50 transition-all group"
+        >
+          <MessageCircle className="w-12 h-12 mx-auto mb-4 text-gray-400 group-hover:text-purple-500 transition-colors" />
+          <h4 className="text-lg font-medium text-gray-900 mb-2 group-hover:text-purple-900">Sin FAQs</h4>
+          <p className="text-gray-600 mb-4 group-hover:text-purple-700">
             Crea tu primer FAQ para ayudar a tus clientes con preguntas comunes.
           </p>
-          <button
-            onClick={handleCreateFAQ}
-            className="flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-          >
+          <div className="flex items-center justify-center px-4 py-2 bg-purple-600 text-white rounded-lg group-hover:bg-purple-700 transition-colors mx-auto w-fit">
             <Plus className="w-4 h-4 mr-2" />
             Crear FAQ
-          </button>
-        </div>
+          </div>
+        </button>
       ) : (
         <div className="space-y-4">
           <div className="flex justify-end">

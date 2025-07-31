@@ -62,6 +62,7 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
       const response = await fetch(`/api/organizations/${organizationId}/agent-tools`)
       if (response.ok) {
         const settings = await response.json()
+
         setAgentToolSettings(settings)
       }
     } catch (error) {
@@ -74,6 +75,7 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
       const response = await fetch(`/api/organizations/${organizationId}/agent-tools/constraints?toolType=${toolType}`)
       if (response.ok) {
         const constraints = await response.json()
+
         setToolConstraints(prev => ({
           ...prev,
           [toolType]: constraints
@@ -86,6 +88,13 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
 
   const updateAgentToolSetting = async (toolType: ActionableHint['category'], enabled: boolean) => {
     setLoading(true)
+    
+    // Optimistic update - immediately update the UI state
+    setAgentToolSettings(prev => ({
+      ...prev,
+      [toolType]: enabled
+    }))
+    
     try {
       const response = await fetch(`/api/organizations/${organizationId}/agent-tools`, {
         method: 'POST',
@@ -99,18 +108,31 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
       })
 
       if (response.ok) {
-        setAgentToolSettings(prev => ({
-          ...prev,
-          [toolType]: enabled
-        }))
         // Notify parent component that settings have changed
         onSettingsChange?.()
+
       } else if (response.status === 422) {
-        // Constraint error - reload constraints to show updated information
-        await loadToolConstraints(toolType)
+        // Constraint error - show warning but keep the UI state as user intended
+        const errorData = await response.json()
+        console.log(`⚠️ Warning for ${toolType}:`, errorData)
+        // Note: We keep the UI state as the user set it, just show the constraint info
+      } else {
+        // For other errors, revert the optimistic update
+        setAgentToolSettings(prev => ({
+          ...prev,
+          [toolType]: !enabled
+        }))
       }
+      
+      // Always reload constraints to show current status
+      await loadToolConstraints(toolType)
     } catch (error) {
       console.error('Error updating agent tool setting:', error)
+      // Revert the optimistic update on network errors
+      setAgentToolSettings(prev => ({
+        ...prev,
+        [toolType]: !enabled
+      }))
     } finally {
       setLoading(false)
     }
@@ -239,30 +261,30 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
                   <Switch
                     enabled={isCurrentToolEnabled}
                     onChange={(enabled) => updateAgentToolSetting(hint.category, enabled)}
-                    disabled={loading || (currentToolConstraints && !currentToolConstraints.canEnable)}
+                    disabled={loading}
                     size="md"
                   />
                 </div>
 
                 {/* Constraint Information */}
-                {currentToolConstraints && !currentToolConstraints.canEnable && (
-                  <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                {currentToolConstraints && !currentToolConstraints.canEnable && isCurrentToolEnabled && (
+                  <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                     <div className="flex items-start gap-3">
-                      <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                      <Info className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
                       <div className="flex-1">
-                        <h4 className="text-sm font-medium text-amber-800 mb-1">
-                          Configuration Required
+                        <h4 className="text-sm font-medium text-blue-800 mb-1">
+                          Setup Needed for Full Functionality
                         </h4>
-                        <p className="text-sm text-amber-700 mb-2">
-                          {currentToolConstraints.reason}
+                        <p className="text-sm text-blue-700 mb-2">
+                          Tool is enabled, but {currentToolConstraints.reason?.toLowerCase()}
                         </p>
                         {currentToolConstraints.missingConfig && currentToolConstraints.missingConfig.length > 0 && (
                           <div>
-                            <p className="text-xs text-amber-600 mb-1 font-medium">Missing:</p>
-                            <ul className="text-xs text-amber-700 space-y-1">
+                            <p className="text-xs text-blue-600 mb-1 font-medium">To complete setup:</p>
+                            <ul className="text-xs text-blue-700 space-y-1">
                               {currentToolConstraints.missingConfig.map((item, index) => (
                                 <li key={index} className="flex items-center gap-1">
-                                  <span className="w-1 h-1 bg-amber-500 rounded-full flex-shrink-0"></span>
+                                  <span className="w-1 h-1 bg-blue-500 rounded-full flex-shrink-0"></span>
                                   {item}
                                 </li>
                               ))}
@@ -274,13 +296,13 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
                   </div>
                 )}
 
-                {currentToolConstraints && currentToolConstraints.canEnable && !isCurrentToolEnabled && (
+                {currentToolConstraints && currentToolConstraints.canEnable && isCurrentToolEnabled && (
                   <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
                     <div className="flex items-center gap-3">
                       <Check className="w-5 h-5 text-green-600 flex-shrink-0" />
                       <div className="flex-1">
                         <p className="text-sm text-green-700">
-                          Configuration complete! You can now enable this tool.
+                          ✨ This tool is fully configured and ready to use!
                         </p>
                       </div>
                     </div>

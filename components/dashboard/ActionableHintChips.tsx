@@ -91,6 +91,7 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
       const response = await fetch(`/api/organizations/${organizationId}/agent-tools`)
       if (response.ok) {
         const settings = await response.json()
+
         setAgentToolSettings(settings)
       }
     } catch (error) {
@@ -127,23 +128,15 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
                     ? 'bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-500 text-white shadow-lg shadow-blue-500/25 ring-2 ring-blue-200 ring-offset-2 cursor-pointer'
                     : 'bg-gray-300/80 border border-gray-400/50 text-gray-500 cursor-pointer opacity-60 hover:opacity-80 hover:bg-gray-400/80 hover:text-gray-600 hover:border-amber-400/60 hover:ring-1 hover:ring-amber-300/30'
                 }`}
-                title={agentToolSettings[hint.category] 
-                  ? hint.description 
-                  : `${hint.description} (Click to configure this tool)`
-                }
+                title={hint.description}
               >
                 {/* Subtle background pattern for enabled state */}
                 {agentToolSettings[hint.category] && (
                   <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent" />
                 )}
                 
-                <span className="whitespace-nowrap font-medium relative z-10 flex items-center gap-2">
+                <span className="whitespace-nowrap font-medium relative z-10">
                   {hint.label}
-                  {!agentToolSettings[hint.category] && (
-                    <span className="text-xs bg-amber-200/80 text-amber-700 px-2 py-0.5 rounded-full">
-                      Setup Required
-                    </span>
-                  )}
                 </span>
                 
                 {/* Active indicator */}
