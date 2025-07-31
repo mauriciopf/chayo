@@ -18,6 +18,7 @@ export async function GET(
         name,
         description,
         fields,
+        formio_definition,
         is_active,
         organizations (
           id,
@@ -49,7 +50,8 @@ export async function GET(
         id: form.id,
         name: form.name,
         description: form.description,
-        fields: form.fields,
+        fields: form.fields, // Legacy field, empty for Form.io forms
+        formio_definition: form.formio_definition,
         organization: {
           name: form.organizations?.name,
           slug: form.organizations?.slug

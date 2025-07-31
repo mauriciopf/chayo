@@ -10,10 +10,14 @@ export async function PUT(
     const supabase = getSupabaseServerClient()
     const organizationId = params.id
     const formId = params.formId
-    const { name, description, fields } = await request.json()
+    const { name, description, formio_definition } = await request.json()
 
-    if (!name || !fields || !Array.isArray(fields)) {
-      return NextResponse.json({ error: 'Missing required fields: name, fields' }, { status: 400 })
+    if (!name) {
+      return NextResponse.json({ error: 'Missing required field: name' }, { status: 400 })
+    }
+
+    if (!formio_definition) {
+      return NextResponse.json({ error: 'Missing required field: formio_definition' }, { status: 400 })
     }
 
     const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -33,22 +37,14 @@ export async function PUT(
       return NextResponse.json({ error: 'Access denied' }, { status: 403 })
     }
 
-    // Validate fields structure
-    for (const field of fields) {
-      if (!field.id || !field.name || !field.label || !field.type) {
-        return NextResponse.json({ 
-          error: 'Invalid field structure. Each field must have id, name, label, and type' 
-        }, { status: 400 })
-      }
-    }
-
     // Update the intake form
     const { data: form, error } = await supabase
       .from('intake_forms')
       .update({
         name: name.trim(),
         description: description?.trim() || null,
-        fields: fields,
+        fields: [], // Empty array for form.io forms (legacy field)
+        formio_definition: formio_definition,
         updated_at: new Date().toISOString()
       })
       .eq('id', formId)

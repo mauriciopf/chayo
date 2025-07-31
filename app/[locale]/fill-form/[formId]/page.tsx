@@ -4,6 +4,13 @@ import React, { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { ArrowLeft, Send, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import dynamic from 'next/dynamic'
+
+// Dynamically import Form.io components to avoid SSR issues
+const FormioForm = dynamic(() => import('react-formio').then(mod => mod.Form), {
+  ssr: false,
+  loading: () => <div className="flex items-center justify-center p-4"><Loader2 className="w-6 h-6 animate-spin" /></div>
+})
 
 interface FormField {
   id: string
@@ -19,7 +26,8 @@ interface IntakeForm {
   id: string
   name: string
   description: string
-  fields: FormField[]
+  fields: FormField[] // Legacy field, empty for Form.io forms
+  formio_definition?: any
   organization: {
     name: string
     slug: string
@@ -158,6 +166,50 @@ export default function FillFormPage() {
         body: JSON.stringify({
           responses: formData,
           clientName: formData.name || formData.client_name || null,
+          clientEmail: formData.email || formData.client_email || null,
+          anonymousUserId: anonymousUserId
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Error al enviar el formulario')
+      }
+
+      setSubmitted(true)
+      
+      // Redirect to client chat after a delay
+      setTimeout(() => {
+        if (form?.organization.slug) {
+          router.push(`/client-chat/${form.organization.slug}`)
+        }
+      }, 3000)
+
+    } catch (error: any) {
+      alert(error.message)
+      console.error('Error submitting form:', error)
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  // Form.io submission handler
+  const handleFormioSubmit = async (submission: any) => {
+    console.log('Form.io submission received:', submission)
+    setSubmitting(true)
+    
+    try {
+      // Extract data from Form.io submission object
+      const formData = submission.data || submission
+      
+      const response = await fetch(`/api/intake-forms/${formId}/submit`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          responses: formData,
+          clientName: formData.name || formData.client_name || (formData.firstName && formData.lastName ? `${formData.firstName} ${formData.lastName}` : null),
           clientEmail: formData.email || formData.client_email || null,
           anonymousUserId: anonymousUserId
         })
@@ -366,37 +418,59 @@ export default function FillFormPage() {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {form.fields.map((field) => (
-                <div key={field.id}>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {field.label}
-                    {field.required && <span className="text-red-500 ml-1">*</span>}
-                  </label>
-                  {renderField(field)}
-                </div>
-              ))}
-
-              <div className="pt-6 border-t">
-                <button
-                  type="submit"
-                  disabled={submitting || !validateForm()}
-                  className="w-full px-6 py-3 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 active:bg-purple-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 min-h-[44px]"
-                >
-                  {submitting ? (
-                    <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                      Enviando...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-5 h-5" />
-                      Enviar Formulario
-                    </>
-                  )}
-                </button>
+            {form.formio_definition ? (
+              // Form.io form rendering
+              <div className="space-y-6">
+                <FormioForm
+                  form={form.formio_definition}
+                  onSubmit={handleFormioSubmit}
+                  options={{
+                    readOnly: false,
+                    noAlerts: false,
+                    submitMessage: 'Enviando...'
+                  }}
+                />
+                {submitting && (
+                  <div className="flex items-center justify-center gap-2 text-purple-600">
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span>Enviando formulario...</span>
+                  </div>
+                )}
               </div>
-            </form>
+            ) : (
+              // Fallback: Legacy custom form rendering
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {form.fields.map((field) => (
+                  <div key={field.id}>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {field.label}
+                      {field.required && <span className="text-red-500 ml-1">*</span>}
+                    </label>
+                    {renderField(field)}
+                  </div>
+                ))}
+
+                <div className="pt-6 border-t">
+                  <button
+                    type="submit"
+                    disabled={submitting || !validateForm()}
+                    className="w-full px-6 py-3 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 active:bg-purple-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 min-h-[44px]"
+                  >
+                    {submitting ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        Enviando...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-5 h-5" />
+                        Enviar Formulario
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       </div>
