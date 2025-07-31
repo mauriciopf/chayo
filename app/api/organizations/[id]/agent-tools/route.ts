@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { AgentToolConstraintsService } from '@/lib/services/agentToolConstraints'
 
 export async function GET(
   request: NextRequest,
@@ -46,6 +47,23 @@ export async function POST(
     const validToolTypes = ['appointments', 'documents', 'payments', 'intake_forms', 'faqs']
     if (!validToolTypes.includes(toolType)) {
       return NextResponse.json({ error: 'Invalid tool type' }, { status: 400 })
+    }
+
+    // Check constraints before enabling a tool
+    if (enabled) {
+      const constraintResult = await AgentToolConstraintsService.checkToolConstraints(
+        organizationId, 
+        toolType, 
+        supabase
+      )
+
+      if (!constraintResult.canEnable) {
+        return NextResponse.json({ 
+          error: 'Configuration required',
+          reason: constraintResult.reason,
+          missingConfig: constraintResult.missingConfig
+        }, { status: 422 })
+      }
     }
 
     // Update agent tool setting using the database function

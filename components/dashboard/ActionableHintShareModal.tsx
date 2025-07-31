@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Check, Settings } from 'lucide-react'
+import { X, Check, Settings, AlertCircle, Info } from 'lucide-react'
 import { ActionableHint } from './ActionableHintChips'
 import Switch from '../ui/Switch'
 import AppointmentToolConfig from './tools/AppointmentToolConfig'
@@ -23,6 +23,12 @@ type AgentToolSettings = {
   [key in ActionableHint['category']]: boolean
 }
 
+type ToolConstraint = {
+  canEnable: boolean
+  reason?: string
+  missingConfig?: string[]
+}
+
 
 
 const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
@@ -40,14 +46,16 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
     intake_forms: false,
     faqs: false
   })
+  const [toolConstraints, setToolConstraints] = useState<{ [key: string]: ToolConstraint }>({})
   const [loading, setLoading] = useState(false)
 
-  // Load agent tool settings when modal opens
+  // Load agent tool settings and constraints when modal opens
   useEffect(() => {
-    if (isOpen && organizationId) {
+    if (isOpen && organizationId && hint?.category) {
       loadAgentToolSettings()
+      loadToolConstraints(hint.category)
     }
-  }, [isOpen, organizationId])
+  }, [isOpen, organizationId, hint?.category])
 
   const loadAgentToolSettings = async () => {
     try {
@@ -58,6 +66,21 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
       }
     } catch (error) {
       console.error('Error loading agent tool settings:', error)
+    }
+  }
+
+  const loadToolConstraints = async (toolType: string) => {
+    try {
+      const response = await fetch(`/api/organizations/${organizationId}/agent-tools/constraints?toolType=${toolType}`)
+      if (response.ok) {
+        const constraints = await response.json()
+        setToolConstraints(prev => ({
+          ...prev,
+          [toolType]: constraints
+        }))
+      }
+    } catch (error) {
+      console.error('Error loading tool constraints:', error)
     }
   }
 
@@ -82,6 +105,9 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
         }))
         // Notify parent component that settings have changed
         onSettingsChange?.()
+      } else if (response.status === 422) {
+        // Constraint error - reload constraints to show updated information
+        await loadToolConstraints(toolType)
       }
     } catch (error) {
       console.error('Error updating agent tool setting:', error)
@@ -160,6 +186,7 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
   if (!content) return null
 
   const isCurrentToolEnabled = agentToolSettings[hint.category]
+  const currentToolConstraints = toolConstraints[hint.category]
 
   return (
     <AnimatePresence>
@@ -212,10 +239,53 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
                   <Switch
                     enabled={isCurrentToolEnabled}
                     onChange={(enabled) => updateAgentToolSetting(hint.category, enabled)}
-                    disabled={loading}
+                    disabled={loading || (currentToolConstraints && !currentToolConstraints.canEnable)}
                     size="md"
                   />
                 </div>
+
+                {/* Constraint Information */}
+                {currentToolConstraints && !currentToolConstraints.canEnable && (
+                  <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                    <div className="flex items-start gap-3">
+                      <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                      <div className="flex-1">
+                        <h4 className="text-sm font-medium text-amber-800 mb-1">
+                          Configuration Required
+                        </h4>
+                        <p className="text-sm text-amber-700 mb-2">
+                          {currentToolConstraints.reason}
+                        </p>
+                        {currentToolConstraints.missingConfig && currentToolConstraints.missingConfig.length > 0 && (
+                          <div>
+                            <p className="text-xs text-amber-600 mb-1 font-medium">Missing:</p>
+                            <ul className="text-xs text-amber-700 space-y-1">
+                              {currentToolConstraints.missingConfig.map((item, index) => (
+                                <li key={index} className="flex items-center gap-1">
+                                  <span className="w-1 h-1 bg-amber-500 rounded-full flex-shrink-0"></span>
+                                  {item}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {currentToolConstraints && currentToolConstraints.canEnable && !isCurrentToolEnabled && (
+                  <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <Check className="w-5 h-5 text-green-600 flex-shrink-0" />
+                      <div className="flex-1">
+                        <p className="text-sm text-green-700">
+                          Configuration complete! You can now enable this tool.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Description */}

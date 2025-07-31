@@ -31,11 +31,49 @@ export class ClientSystemPromptService {
     }
 
     let businessName = 'this business'
-    for (const chunk of relevantChunks) {
-      if (chunk.metadata?.business_name) {
-        businessName = chunk.metadata.business_name
-        break
+    let organizationSlug = ''
+    
+    // Get organization details for FAQ link
+    try {
+      const { data: orgData, error: orgError } = await supabase
+        .from('organizations')
+        .select('name, slug')
+        .eq('id', organizationId)
+        .single()
+      
+      if (!orgError && orgData) {
+        businessName = orgData.name || businessName
+        organizationSlug = orgData.slug || ''
       }
+    } catch (err) {
+      console.error('Error fetching organization details:', err)
+    }
+
+    // Fallback: Extract business name from embeddings if not found in organization
+    if (businessName === 'this business') {
+      for (const chunk of relevantChunks) {
+        if (chunk.metadata?.business_name) {
+          businessName = chunk.metadata.business_name
+          break
+        }
+      }
+    }
+
+    // Check if FAQ tool is enabled for this organization
+    let hasFAQsEnabled = false
+    try {
+      const { data: toolsData, error: toolsError } = await supabase
+        .from('agent_tools')
+        .select('enabled')
+        .eq('organization_id', organizationId)
+        .eq('tool_type', 'faqs')
+        .single()
+      
+      if (!toolsError && toolsData?.enabled) {
+        hasFAQsEnabled = true
+      }
+    } catch (err) {
+      console.error('Error checking FAQ tool availability:', err)
     }
 
     // Get language-specific instructions
@@ -56,11 +94,24 @@ ${languageInstructions.responseLanguage}
       prompt += `- No business knowledge found yet. Please provide more information about the business.`
     }
 
+    // Add FAQ information only if tool is enabled
+    if (hasFAQsEnabled && organizationSlug) {
+      const faqLanguage = locale === 'es' ? 'es' : 'en'
+      prompt += `
+
+## 📋 FAQ Tool Available:
+- If customers specifically ask about FAQs, frequently asked questions, or say they want to see common questions, you can direct them to: /${faqLanguage}/faqs/${organizationSlug}
+- ONLY suggest the FAQ page when customers explicitly ask for FAQs or common questions.
+- Do NOT automatically suggest FAQs for every question - only when specifically requested.
+`
+    }
+
     prompt += `
 
 ## Critical Rules:
 - You ONLY answer using the business knowledge above.
-- Focus on helping customers with questions about this business.
+- Focus on helping customers with questions about this business.${hasFAQsEnabled && organizationSlug ? `
+- ONLY direct customers to FAQs when they specifically ask about FAQs or common questions: /${locale === 'es' ? 'es' : 'en'}/faqs/${organizationSlug}` : ''}
 - If you do not know the answer, say you do not have that information and ask for more details.
 - NEVER answer for other businesses or provide generic advice.
 - Always be professional, helpful, and focused on this business.
