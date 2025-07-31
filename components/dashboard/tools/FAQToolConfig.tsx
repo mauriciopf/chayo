@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Plus, Edit, Trash2, Eye, MessageCircle, Loader2, ExternalLink } from 'lucide-react'
+import { Plus, Edit, Trash2, Eye, MessageCircle, Loader2, ExternalLink, ChevronDown, ChevronRight, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
 
 // FAQ Interface
@@ -20,6 +20,108 @@ interface FAQItem {
   question: string
   answer: string
   order: number
+}
+
+// FAQ Preview Component (client-facing style)
+interface FAQPreviewProps {
+  faqName: string
+  faqItems: FAQItem[]
+}
+
+function FAQPreview({ faqName, faqItems }: FAQPreviewProps) {
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set())
+
+  const toggleItem = (itemId: string) => {
+    const newExpanded = new Set(expandedItems)
+    if (newExpanded.has(itemId)) {
+      newExpanded.delete(itemId)
+    } else {
+      newExpanded.add(itemId)
+    }
+    setExpandedItems(newExpanded)
+  }
+
+  return (
+    <div className="border border-gray-200 rounded-lg bg-white shadow-sm">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-purple-600 to-purple-700 text-white p-6 rounded-t-lg">
+        <div className="flex items-center gap-3 mb-2">
+          <MessageCircle className="w-6 h-6" />
+          <h3 className="text-xl font-semibold">Preguntas Frecuentes</h3>
+        </div>
+        <h4 className="text-lg opacity-90">{faqName || 'FAQ Sin Nombre'}</h4>
+        <p className="text-sm opacity-75 mt-1">
+          Encuentra respuestas a las preguntas más comunes
+        </p>
+      </div>
+
+      {/* Content */}
+      <div className="p-6">
+        {faqItems.length === 0 ? (
+          <div className="text-center py-12">
+            <MessageCircle className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+            <p className="text-gray-500">No hay preguntas disponibles</p>
+            <p className="text-sm text-gray-400 mt-1">Las preguntas aparecerán aquí una vez que las agregues</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {faqItems.map((item, index) => {
+              const isExpanded = expandedItems.has(item.id)
+              return (
+                <div
+                  key={item.id}
+                  className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-sm transition-shadow"
+                >
+                  {/* Question Header */}
+                  <button
+                    onClick={() => toggleItem(item.id)}
+                    className="w-full p-4 text-left bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between"
+                  >
+                    <div className="flex items-start gap-3 flex-1">
+                      <span className="text-purple-600 font-semibold text-sm mt-0.5">
+                        {String(index + 1).padStart(2, '0')}
+                      </span>
+                      <span className="font-medium text-gray-900 text-sm leading-relaxed">
+                        {item.question}
+                      </span>
+                    </div>
+                    {isExpanded ? (
+                      <ChevronDown className="w-5 h-5 text-gray-500 flex-shrink-0" />
+                    ) : (
+                      <ChevronRight className="w-5 h-5 text-gray-500 flex-shrink-0" />
+                    )}
+                  </button>
+
+                  {/* Answer Content */}
+                  {isExpanded && (
+                    <div className="p-4 bg-white border-t border-gray-100">
+                      <div className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap">
+                        {item.answer}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        )}
+
+        {/* Footer */}
+        {faqItems.length > 0 && (
+          <div className="mt-8 pt-6 border-t border-gray-100">
+            <div className="text-center">
+              <p className="text-sm text-gray-500 mb-2">
+                ¿No encontraste lo que buscabas?
+              </p>
+              <button className="text-purple-600 hover:text-purple-700 text-sm font-medium">
+                Contacta con nosotros →
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
 }
 
 // Simple FAQ Builder Component
@@ -262,6 +364,7 @@ export default function FAQToolConfig({ organizationId, isEnabled, onSettingsCha
   const [faqItems, setFAQItems] = useState<FAQItem[]>([])
   const [isPreview, setIsPreview] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [previewingFAQ, setPreviewingFAQ] = useState<FAQ | null>(null)
 
   // Load FAQs
   useEffect(() => {
@@ -421,25 +524,7 @@ export default function FAQToolConfig({ organizationId, isEnabled, onSettingsCha
             />
           </div>
         ) : (
-          <div className="border border-gray-200 rounded-lg p-6 bg-white">
-            <h4 className="text-lg font-semibold text-gray-900 mb-4">{faqName || 'FAQ Sin Nombre'}</h4>
-            {faqItems.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">No hay preguntas creadas aún</p>
-            ) : (
-              <div className="space-y-4">
-                {faqItems.map((item, index) => (
-                  <div key={item.id} className="border-b border-gray-200 pb-4 last:border-b-0">
-                    <div className="font-medium text-gray-900 mb-2">
-                      {index + 1}. {item.question}
-                    </div>
-                    <div className="text-gray-600 text-sm">
-                      {item.answer}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <FAQPreview faqName={faqName} faqItems={faqItems} />
         )}
 
         <div className="flex justify-end gap-3 pt-4 border-t">
@@ -523,6 +608,13 @@ export default function FAQToolConfig({ organizationId, isEnabled, onSettingsCha
                 
                 <div className="flex items-center gap-2">
                   <button
+                    onClick={() => setPreviewingFAQ(faq)}
+                    className="p-2 text-gray-500 hover:text-purple-600 transition-colors"
+                    title="Vista Previa"
+                  >
+                    <Eye className="w-4 h-4" />
+                  </button>
+                  <button
                     onClick={() => handleEditFAQ(faq)}
                     className="p-2 text-gray-500 hover:text-blue-600 transition-colors"
                     title="Editar FAQ"
@@ -540,6 +632,34 @@ export default function FAQToolConfig({ organizationId, isEnabled, onSettingsCha
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Preview Modal */}
+      {previewingFAQ && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="bg-white rounded-lg shadow-xl">
+              {/* Modal Header */}
+              <div className="flex items-center justify-between p-4 border-b border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900">Vista Previa del FAQ</h3>
+                <button
+                  onClick={() => setPreviewingFAQ(null)}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <X className="w-5 h-5 text-gray-500" />
+                </button>
+              </div>
+              
+              {/* Modal Content */}
+              <div className="p-6">
+                <FAQPreview 
+                  faqName={previewingFAQ.name} 
+                  faqItems={previewingFAQ.faq_items || []} 
+                />
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
