@@ -124,18 +124,26 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
                 onClick={() => handleHintClick(hint)}
                 className={`flex-shrink-0 px-5 py-3 rounded-2xl transition-all duration-300 text-sm font-semibold group relative overflow-hidden ${
                   agentToolSettings[hint.category]
-                    ? 'bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-500 text-white shadow-lg shadow-blue-500/25 ring-2 ring-blue-200 ring-offset-2'
-                    : 'bg-gray-900/90 backdrop-blur-sm border border-gray-700/60 text-gray-200 hover:bg-gray-800/90 hover:border-blue-400/60 hover:text-white hover:shadow-lg hover:shadow-blue-500/20 hover:scale-105'
+                    ? 'bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-500 text-white shadow-lg shadow-blue-500/25 ring-2 ring-blue-200 ring-offset-2 cursor-pointer'
+                    : 'bg-gray-300/80 border border-gray-400/50 text-gray-500 cursor-pointer opacity-60 hover:opacity-80 hover:bg-gray-400/80 hover:text-gray-600 hover:border-amber-400/60 hover:ring-1 hover:ring-amber-300/30'
                 }`}
-                title={hint.description}
+                title={agentToolSettings[hint.category] 
+                  ? hint.description 
+                  : `${hint.description} (Click to configure this tool)`
+                }
               >
                 {/* Subtle background pattern for enabled state */}
                 {agentToolSettings[hint.category] && (
                   <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent" />
                 )}
                 
-                <span className="whitespace-nowrap font-medium relative z-10">
+                <span className="whitespace-nowrap font-medium relative z-10 flex items-center gap-2">
                   {hint.label}
+                  {!agentToolSettings[hint.category] && (
+                    <span className="text-xs bg-amber-200/80 text-amber-700 px-2 py-0.5 rounded-full">
+                      Setup Required
+                    </span>
+                  )}
                 </span>
                 
                 {/* Active indicator */}
