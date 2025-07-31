@@ -27,6 +27,7 @@ export default function SignDocumentPage() {
   const [formFields, setFormFields] = useState<any[]>([])
   const [fieldValues, setFieldValues] = useState<{[key: string]: string}>({})
   const [hasFormFields, setHasFormFields] = useState(false)
+
   
   // Signing form data
   const [signerName, setSignerName] = useState('')
@@ -65,7 +66,7 @@ export default function SignDocumentPage() {
           } catch (e) {
             // Field might not have a value yet
           }
-          
+
           return {
             id: `field_${index}`,
             name: fieldName,
@@ -322,8 +323,10 @@ export default function SignDocumentPage() {
               {/* PDF Form Fields */}
               {hasFormFields && formFields.length > 0 && (
                 <div className="space-y-4">
-                  <h3 className="text-md font-medium text-gray-900 border-t pt-4">
+                  <h3 className="text-md font-medium text-gray-900 border-t pt-4 flex items-center gap-2">
+                    <span>📝</span>
                     Document Fields
+                    <span className="text-xs text-gray-500 bg-blue-50 px-2 py-1 rounded">Live Preview</span>
                   </h3>
                   {formFields.map((field) => (
                     <div key={field.id}>
@@ -332,50 +335,74 @@ export default function SignDocumentPage() {
                       </label>
                       
                       {field.type === 'PDFTextField' && (
-                        <input
-                          type="text"
-                          id={field.id}
-                          value={fieldValues[field.name] || ''}
-                          onChange={(e) => setFieldValues(prev => ({
-                            ...prev,
-                            [field.name]: e.target.value
-                          }))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                          placeholder={`Enter ${field.name}`}
-                        />
+                        <div className="space-y-2">
+                          <input
+                            type="text"
+                            id={field.id}
+                            value={fieldValues[field.name] || ''}
+                            onChange={(e) => setFieldValues(prev => ({
+                              ...prev,
+                              [field.name]: e.target.value
+                            }))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder={`Enter ${field.name}`}
+                          />
+                          {fieldValues[field.name] && (
+                            <div className="bg-green-50 border border-green-200 rounded-md p-2">
+                              <p className="text-xs text-green-700 font-medium">PDF Preview:</p>
+                              <p className="text-sm text-green-800 font-mono">{fieldValues[field.name]}</p>
+                            </div>
+                          )}
+                        </div>
                       )}
                       
                       {field.type === 'PDFCheckBox' && (
-                        <div className="flex items-center">
-                          <input
-                            type="checkbox"
-                            id={field.id}
-                            checked={fieldValues[field.name] === 'true'}
-                            onChange={(e) => setFieldValues(prev => ({
-                              ...prev,
-                              [field.name]: e.target.checked ? 'true' : 'false'
-                            }))}
-                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                          />
-                          <label htmlFor={field.id} className="ml-2 text-sm text-gray-700">
-                            Check this box
-                          </label>
+                        <div className="space-y-2">
+                          <div className="flex items-center">
+                            <input
+                              type="checkbox"
+                              id={field.id}
+                              checked={fieldValues[field.name] === 'true'}
+                              onChange={(e) => setFieldValues(prev => ({
+                                ...prev,
+                                [field.name]: e.target.checked ? 'true' : 'false'
+                              }))}
+                              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            />
+                            <label htmlFor={field.id} className="ml-2 text-sm text-gray-700">
+                              Check this box
+                            </label>
+                          </div>
+                          {fieldValues[field.name] === 'true' && (
+                            <div className="bg-green-50 border border-green-200 rounded-md p-2">
+                              <p className="text-xs text-green-700 font-medium">PDF Preview:</p>
+                              <p className="text-sm text-green-800">☑️ Checked</p>
+                            </div>
+                          )}
                         </div>
                       )}
                       
                       {field.type === 'PDFDropdown' && (
-                        <select
-                          id={field.id}
-                          value={fieldValues[field.name] || ''}
-                          onChange={(e) => setFieldValues(prev => ({
-                            ...prev,
-                            [field.name]: e.target.value
-                          }))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        >
-                          <option value="">Select an option</option>
-                          {/* Note: We'd need to get dropdown options from pdf-lib, for now just basic */}
-                        </select>
+                        <div className="space-y-2">
+                          <select
+                            id={field.id}
+                            value={fieldValues[field.name] || ''}
+                            onChange={(e) => setFieldValues(prev => ({
+                              ...prev,
+                              [field.name]: e.target.value
+                            }))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          >
+                            <option value="">Select an option</option>
+                            {/* Note: We'd need to get dropdown options from pdf-lib, for now just basic */}
+                          </select>
+                          {fieldValues[field.name] && (
+                            <div className="bg-green-50 border border-green-200 rounded-md p-2">
+                              <p className="text-xs text-green-700 font-medium">PDF Preview:</p>
+                              <p className="text-sm text-green-800 font-mono">{fieldValues[field.name]}</p>
+                            </div>
+                          )}
+                        </div>
                       )}
                       
                       <p className="text-xs text-gray-500 mt-1">
@@ -387,10 +414,18 @@ export default function SignDocumentPage() {
               )}
 
               {!hasFormFields && (
-                <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
-                  <p className="text-sm text-blue-800">
-                    This PDF doesn't contain fillable form fields. Your signature will be recorded with your name and email for verification purposes.
-                  </p>
+                <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+                  <div className="flex items-start gap-3">
+                    <span className="text-2xl">📄</span>
+                    <div>
+                      <p className="text-sm font-medium text-blue-900 mb-1">
+                        Static PDF Document
+                      </p>
+                      <p className="text-sm text-blue-800">
+                        This PDF doesn't contain interactive form fields. Your signature will be recorded with your name and email for verification purposes.
+                      </p>
+                    </div>
+                  </div>
                 </div>
               )}
 
