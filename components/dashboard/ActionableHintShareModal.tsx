@@ -9,6 +9,7 @@ import AppointmentToolConfig from './tools/AppointmentToolConfig'
 import DocumentToolConfig from './tools/DocumentToolConfig'
 import PaymentToolConfig from './tools/PaymentToolConfig'
 import IntakeFormsToolConfig from './tools/IntakeFormsToolConfig'
+import FAQToolConfig from './tools/FAQToolConfig'
 
 interface ActionableHintShareModalProps {
   isOpen: boolean
@@ -268,7 +269,15 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
                 />
               )}
 
-              {!isCurrentToolEnabled && !['appointments', 'documents', 'payments', 'intake_forms'].includes(hint?.category || '') && (
+              {hint?.category === 'faqs' && (
+                <FAQToolConfig 
+                  organizationId={organizationId}
+                  isEnabled={isCurrentToolEnabled}
+                  onSettingsChange={onSettingsChange}
+                />
+              )}
+
+              {!isCurrentToolEnabled && !['appointments', 'documents', 'payments', 'intake_forms', 'faqs'].includes(hint?.category || '') && (
                 <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
                   <p className="text-amber-800 text-sm">
                     Enable this agent tool above to make it available to your clients.
