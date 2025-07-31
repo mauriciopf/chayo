@@ -42,30 +42,21 @@ export default function SignDocumentPage() {
 
   useEffect(() => {
     fetchDocument()
-    setupAnonymousSession()
+    getExistingAnonymousSession()
   }, [documentId])
 
-  // Setup anonymous session for document signing
-  const setupAnonymousSession = async () => {
+  // Get existing anonymous session (created at client chat level)
+  const getExistingAnonymousSession = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser()
-      
-      if (!user) {
-        // No session - create anonymous one
-        const { data, error } = await supabase.auth.signInAnonymously()
-        if (error) {
-          console.error('Error creating anonymous session:', error)
-        } else if (data.user) {
-          setAnonymousUser(data.user)
-          console.log('Created anonymous session:', data.user.id)
-        }
-      } else {
-        // Already have a session (could be anonymous from previous visit)
+      if (user) {
         setAnonymousUser(user)
-        console.log('Using existing session:', user.id)
+        console.log('Using existing anonymous session:', user.id)
+      } else {
+        console.log('No anonymous session found - user needs to visit client chat first')
       }
     } catch (error) {
-      console.error('Error setting up anonymous session:', error)
+      console.error('Error getting anonymous session:', error)
     }
   }
 

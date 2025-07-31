@@ -18,9 +18,34 @@ export default function ClientChatContainer({ agent, organization, locale = 'en'
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [anonymousUser, setAnonymousUser] = useState<any>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const chatScrollContainerRef = useRef<HTMLDivElement>(null)
+
+  // Setup anonymous session for document signing persistence
+  const setupAnonymousSession = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (!user) {
+        // No session - create anonymous one that persists in localStorage
+        const { data, error } = await supabase.auth.signInAnonymously()
+        if (error) {
+          console.error('Error creating anonymous session:', error)
+        } else if (data.user) {
+          setAnonymousUser(data.user)
+          console.log('Created persistent anonymous session:', data.user.id)
+        }
+      } else {
+        // Already have a session (persisted from localStorage)
+        setAnonymousUser(user)
+        console.log('Using existing anonymous session:', user.id)
+      }
+    } catch (error) {
+      console.error('Error setting up anonymous session:', error)
+    }
+  }
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -30,6 +55,9 @@ export default function ClientChatContainer({ agent, organization, locale = 'en'
   // Initial greeting message with service options
   useEffect(() => {
     const initializeMessages = async () => {
+      // Setup anonymous session for client chat persistence
+      await setupAnonymousSession()
+      
       if (agent && organization) {
         const welcomeMessage: Message = {
           id: 'welcome',
@@ -59,7 +87,7 @@ export default function ClientChatContainer({ agent, organization, locale = 'en'
             }
 
             // Add document signing message if documents tool is enabled and there are active documents
-            if (agentTools.documents) {
+            if (agentTools.documents && anonymousUser) {
               try {
                 // Fetch available documents
                 const documentsResponse = await fetch(`/api/organizations/${organization.id}/agent-documents/upload`)
@@ -71,19 +99,32 @@ export default function ClientChatContainer({ agent, organization, locale = 'en'
                   const activeDocuments = documents.filter((doc: any) => doc.status === 'active')
                   
                   if (activeDocuments.length > 0) {
-                    // Show the most recent active document
+                    // Check if current anonymous user has already signed this document
                     const activeDocument = activeDocuments[0]
                     
-                    const documentMessage: Message = {
-                      id: 'document-option',
-                      content: `📝 **Firmar documento**\n\n¿Necesitas firmar el documento "${activeDocument.file_name}"? Haz clic en el botón de abajo para acceder al proceso de firma.`,
-                      role: 'ai',
-                      timestamp: new Date(),
-                      documentSigningLink: activeDocument.signing_url
+                    // Check for existing signature by this anonymous user
+                    const { data: existingSignature } = await supabase
+                      .from('document_signatures')
+                      .select('id')
+                      .eq('document_id', activeDocument.id)
+                      .eq('anonymous_user_id', anonymousUser.id)
+                      .single()
+                    
+                    // Only show document option if this anonymous user hasn't signed yet
+                    if (!existingSignature) {
+                      const documentMessage: Message = {
+                        id: 'document-option',
+                        content: `📝 **Firmar documento**\n\n¿Necesitas firmar el documento "${activeDocument.file_name}"? Haz clic en el botón de abajo para acceder al proceso de firma.`,
+                        role: 'ai',
+                        timestamp: new Date(),
+                        documentSigningLink: activeDocument.signing_url
+                      }
+                      initialMessages.push(documentMessage)
+                    } else {
+                      console.log('Document already signed by this anonymous user - hiding option')
                     }
-                    initialMessages.push(documentMessage)
                   }
-                  // Note: Documents are always available for signing with the new approach
+                  // Note: Documents are hidden if already signed by this anonymous session
                 }
               } catch (error) {
                 console.error('Error fetching documents:', error)
