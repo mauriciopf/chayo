@@ -58,7 +58,7 @@ export default function ClientChatContainer({ agent, organization, locale = 'en'
               initialMessages.push(appointmentMessage)
             }
 
-            // Add document signing message if documents tool is enabled
+            // Add document signing message if documents tool is enabled and there are pending documents
             if (agentTools.documents) {
               try {
                 // Fetch available document ceremonies
@@ -67,9 +67,12 @@ export default function ClientChatContainer({ agent, organization, locale = 'en'
                   const ceremoniesData = await ceremoniesResponse.json()
                   const ceremonies = ceremoniesData.documents || []
                   
-                  if (ceremonies.length > 0) {
+                  // Only show documents that are pending
+                  const pendingDocuments = ceremonies.filter((doc: any) => doc.status === 'pending')
+                  
+                  if (pendingDocuments.length > 0) {
                     // Show the most recent pending document
-                    const pendingDocument = ceremonies.find((doc: any) => doc.status === 'pending') || ceremonies[0]
+                    const pendingDocument = pendingDocuments[0]
                     
                     const documentMessage: Message = {
                       id: 'document-option',
@@ -79,27 +82,12 @@ export default function ClientChatContainer({ agent, organization, locale = 'en'
                       documentSigningLink: pendingDocument.signing_url
                     }
                     initialMessages.push(documentMessage)
-                  } else {
-                    // No documents available yet
-                    const documentMessage: Message = {
-                      id: 'document-option',
-                      content: `📝 **Firmar documentos**\n\nSi necesitas firmar algún documento, te enviaré el enlace correspondiente cuando esté disponible.`,
-                      role: 'ai',
-                      timestamp: new Date()
-                    }
-                    initialMessages.push(documentMessage)
                   }
+                  // Note: If no pending documents, don't show any document option
                 }
               } catch (error) {
                 console.error('Error fetching document ceremonies:', error)
-                // Fallback message
-                const documentMessage: Message = {
-                  id: 'document-option',
-                  content: `📝 **Firmar documentos**\n\nSi necesitas firmar algún documento, te enviaré el enlace correspondiente cuando esté disponible.`,
-                  role: 'ai',
-                  timestamp: new Date()
-                }
-                initialMessages.push(documentMessage)
+                // Don't show document option if there's an error
               }
             }
           }

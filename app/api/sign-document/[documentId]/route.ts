@@ -9,10 +9,13 @@ export async function GET(
     const supabase = getSupabaseServerClient()
     const documentId = params.documentId
 
-    // Get document metadata (no auth required for signing)
+    // Get document metadata with organization info (no auth required for signing)
     const { data: document, error } = await supabase
       .from('agent_document_tool')
-      .select('*')
+      .select(`
+        *,
+        organizations!inner(id, slug)
+      `)
       .eq('id', documentId)
       .eq('status', 'pending') // Only allow signing of pending documents
       .single()
@@ -31,7 +34,8 @@ export async function GET(
         file_name: document.file_name,
         file_size: document.file_size,
         status: document.status,
-        organization_id: document.organization_id
+        organization_id: document.organization_id,
+        organization_slug: document.organizations?.slug
       }
     })
 

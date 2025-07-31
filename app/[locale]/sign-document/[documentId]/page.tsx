@@ -11,6 +11,7 @@ interface DocumentData {
   file_size: number
   status: string
   organization_id: string
+  organization_slug?: string
 }
 
 export default function SignDocumentPage() {
@@ -55,6 +56,8 @@ export default function SignDocumentPage() {
           
           // Try to get current value if it exists
           let currentValue = ''
+          let options: string[] = []
+          
           try {
             if (fieldType === 'PDFTextField') {
               currentValue = (field as any).getText() || ''
@@ -62,6 +65,14 @@ export default function SignDocumentPage() {
               currentValue = (field as any).isChecked() ? 'true' : 'false'
             } else if (fieldType === 'PDFDropdown') {
               currentValue = (field as any).getSelected()?.[0] || ''
+              // Get dropdown options
+              try {
+                options = (field as any).getOptions() || []
+                console.log(`Dropdown "${fieldName}" options:`, options)
+              } catch (optionError) {
+                console.warn(`Could not get options for dropdown "${fieldName}":`, optionError)
+                options = []
+              }
             }
           } catch (e) {
             // Field might not have a value yet
@@ -72,6 +83,7 @@ export default function SignDocumentPage() {
             name: fieldName,
             type: fieldType,
             currentValue,
+            options, // Include dropdown options
             required: false // We'll assume all fields are optional for now
           }
         })
@@ -215,8 +227,13 @@ export default function SignDocumentPage() {
       // Success! Show confirmation
       alert('¡Documento firmado exitosamente! The business owner will be notified.')
       
-      // Optionally redirect or show success state
-      window.close() // Close if opened in new tab
+      // Redirect back to client chat
+      if (document?.organization_slug) {
+        window.location.href = `/en/client-chat/${document.organization_slug}`
+      } else {
+        // Fallback: close window if no organization slug available
+        window.close()
+      }
       
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to sign document')
@@ -323,10 +340,8 @@ export default function SignDocumentPage() {
               {/* PDF Form Fields */}
               {hasFormFields && formFields.length > 0 && (
                 <div className="space-y-4">
-                  <h3 className="text-md font-medium text-gray-900 border-t pt-4 flex items-center gap-2">
-                    <span>📝</span>
+                  <h3 className="text-md font-medium text-gray-900 border-t pt-4">
                     Document Fields
-                    <span className="text-xs text-gray-500 bg-blue-50 px-2 py-1 rounded">Live Preview</span>
                   </h3>
                   {formFields.map((field) => (
                     <div key={field.id}>
@@ -335,55 +350,39 @@ export default function SignDocumentPage() {
                       </label>
                       
                       {field.type === 'PDFTextField' && (
-                        <div className="space-y-2">
-                          <input
-                            type="text"
-                            id={field.id}
-                            value={fieldValues[field.name] || ''}
-                            onChange={(e) => setFieldValues(prev => ({
-                              ...prev,
-                              [field.name]: e.target.value
-                            }))}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder={`Enter ${field.name}`}
-                          />
-                          {fieldValues[field.name] && (
-                            <div className="bg-green-50 border border-green-200 rounded-md p-2">
-                              <p className="text-xs text-green-700 font-medium">PDF Preview:</p>
-                              <p className="text-sm text-green-800 font-mono">{fieldValues[field.name]}</p>
-                            </div>
-                          )}
-                        </div>
+                        <input
+                          type="text"
+                          id={field.id}
+                          value={fieldValues[field.name] || ''}
+                          onChange={(e) => setFieldValues(prev => ({
+                            ...prev,
+                            [field.name]: e.target.value
+                          }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          placeholder={`Enter ${field.name}`}
+                        />
                       )}
                       
                       {field.type === 'PDFCheckBox' && (
-                        <div className="space-y-2">
-                          <div className="flex items-center">
-                            <input
-                              type="checkbox"
-                              id={field.id}
-                              checked={fieldValues[field.name] === 'true'}
-                              onChange={(e) => setFieldValues(prev => ({
-                                ...prev,
-                                [field.name]: e.target.checked ? 'true' : 'false'
-                              }))}
-                              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                            />
-                            <label htmlFor={field.id} className="ml-2 text-sm text-gray-700">
-                              Check this box
-                            </label>
-                          </div>
-                          {fieldValues[field.name] === 'true' && (
-                            <div className="bg-green-50 border border-green-200 rounded-md p-2">
-                              <p className="text-xs text-green-700 font-medium">PDF Preview:</p>
-                              <p className="text-sm text-green-800">☑️ Checked</p>
-                            </div>
-                          )}
+                        <div className="flex items-center">
+                          <input
+                            type="checkbox"
+                            id={field.id}
+                            checked={fieldValues[field.name] === 'true'}
+                            onChange={(e) => setFieldValues(prev => ({
+                              ...prev,
+                              [field.name]: e.target.checked ? 'true' : 'false'
+                            }))}
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                          />
+                          <label htmlFor={field.id} className="ml-2 text-sm text-gray-700">
+                            Check this box
+                          </label>
                         </div>
                       )}
                       
                       {field.type === 'PDFDropdown' && (
-                        <div className="space-y-2">
+                        <div>
                           <select
                             id={field.id}
                             value={fieldValues[field.name] || ''}
@@ -394,13 +393,20 @@ export default function SignDocumentPage() {
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                           >
                             <option value="">Select an option</option>
-                            {/* Note: We'd need to get dropdown options from pdf-lib, for now just basic */}
+                            {field.options && field.options.length > 0 ? (
+                              field.options.map((option: string, optionIndex: number) => (
+                                <option key={optionIndex} value={option}>
+                                  {option}
+                                </option>
+                              ))
+                            ) : (
+                              <option value="" disabled>No options available</option>
+                            )}
                           </select>
-                          {fieldValues[field.name] && (
-                            <div className="bg-green-50 border border-green-200 rounded-md p-2">
-                              <p className="text-xs text-green-700 font-medium">PDF Preview:</p>
-                              <p className="text-sm text-green-800 font-mono">{fieldValues[field.name]}</p>
-                            </div>
+                          {field.options && field.options.length === 0 && (
+                            <p className="text-xs text-amber-600 mt-1">
+                              ⚠️ No options found in PDF dropdown
+                            </p>
                           )}
                         </div>
                       )}
@@ -414,18 +420,10 @@ export default function SignDocumentPage() {
               )}
 
               {!hasFormFields && (
-                <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
-                  <div className="flex items-start gap-3">
-                    <span className="text-2xl">📄</span>
-                    <div>
-                      <p className="text-sm font-medium text-blue-900 mb-1">
-                        Static PDF Document
-                      </p>
-                      <p className="text-sm text-blue-800">
-                        This PDF doesn't contain interactive form fields. Your signature will be recorded with your name and email for verification purposes.
-                      </p>
-                    </div>
-                  </div>
+                <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
+                  <p className="text-sm text-blue-800">
+                    This PDF doesn't contain fillable form fields. Your signature will be recorded with your name and email for verification purposes.
+                  </p>
                 </div>
               )}
 
@@ -449,7 +447,7 @@ export default function SignDocumentPage() {
               <div className="text-xs text-gray-500 pt-2">
                 <p>
                   By clicking "Sign Document", you agree that the information provided constitutes your legal signature 
-                  and you accept the terms of this document. {hasFormFields && 'Your form field entries will be permanently saved to the document.'}
+                  and you accept the terms of this document. {hasFormFields && 'Your entries will be permanently saved to the document.'}
                 </p>
               </div>
             </div>
