@@ -48,8 +48,10 @@ export function useClientModeChat({
   // Initial greeting message with service options
   useEffect(() => {
     const initializeMessages = async () => {
-      // Setup anonymous session for client chat persistence
-      await setupAnonymousSession()
+      // Setup anonymous session for client chat persistence only if we don't have one
+      if (!anonymousUser) {
+        await setupAnonymousSession()
+      }
       
       if (agent && organization) {
         const welcomeMessage: Message = {
@@ -267,7 +269,7 @@ export function useClientModeChat({
     }
 
     initializeMessages()
-  }, [agent, organization, locale, anonymousUser])
+  }, [agent, organization, locale])
 
   const handleSend = async () => {
     if (!input.trim() || loading) return
@@ -279,23 +281,26 @@ export function useClientModeChat({
       timestamp: new Date()
     }
 
-    setMessages(prev => [...prev, userMessage])
+    const messageText = input.trim()
     setInput('')
     setLoading(true)
     setError(null)
 
+    // Add user message to chat
+    setMessages(prev => [...prev, userMessage])
+
     try {
-      // Call the client chat API endpoint with locale support
+      // Use functional update to get the current messages including the user message
       const response = await fetch('/api/client-chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          message: input.trim(),
+          message: messageText,
           organizationId: organization.id,
-          locale: locale, // Include locale for internationalization
-          messages: messages.slice(-10) // Send last 10 messages for context
+          locale: locale,
+          messages: [...messages, userMessage].slice(-10) // Send last 10 messages for context
         }),
       })
 
@@ -316,6 +321,8 @@ export function useClientModeChat({
     } catch (err) {
       console.error('Error sending message:', err)
       setError('Failed to send message. Please try again.')
+      // Remove the user message on error
+      setMessages(prev => prev.slice(0, -1))
     } finally {
       setLoading(false)
     }
