@@ -271,7 +271,7 @@ async function createStripePayment(provider: any, amount: number, description: s
 async function createPayPalPayment(provider: any, amount: number, description: string, customerEmail: string, organization: any) {
   const baseUrl = provider.provider_settings?.base_url || 'https://api-m.sandbox.paypal.com'
   
-  let paymentAmount: number | null = null
+  let paymentAmount: number
   let invoiceData: any
 
   if (provider.payment_type === 'dynamic') {
@@ -281,34 +281,6 @@ async function createPayPalPayment(provider: any, amount: number, description: s
     }
     paymentAmount = Math.round(amount * 100) // Convert to cents
     
-    // Create PayPal invoice for dynamic amount
-    invoiceData = {
-      detail: {
-        invoice_number: `INV-${Date.now()}`,
-        reference: `Payment for ${organization.name}`,
-        invoice_date: new Date().toISOString().split('T')[0],
-        currency_code: provider.service_currency?.toUpperCase() || 'USD',
-        note: description || `Payment for ${organization.name}`
-      },
-      invoicer: {
-        name: { given_name: organization.name },
-        email_address: customerEmail || 'noreply@example.com'
-      },
-      primary_recipients: [{
-        billing_info: {
-          name: { given_name: 'Customer' },
-          email_address: customerEmail || 'customer@example.com'
-        }
-      }],
-      items: [{
-        name: description || 'Service Payment',
-        quantity: '1',
-        unit_amount: {
-          currency_code: provider.service_currency?.toUpperCase() || 'USD',
-          value: (paymentAmount / 100).toFixed(2)
-        }
-      }]
-    }
   } else if (provider.payment_type === 'manual_price_id' || provider.payment_type === 'custom_ui') {
     // Fixed pricing
     if (!provider.service_amount || provider.service_amount <= 0) {
@@ -316,35 +288,37 @@ async function createPayPalPayment(provider: any, amount: number, description: s
     }
     paymentAmount = provider.service_amount
     
-    invoiceData = {
-      detail: {
-        invoice_number: `INV-${Date.now()}`,
-        reference: `Payment for ${organization.name}`,
-        invoice_date: new Date().toISOString().split('T')[0],
-        currency_code: provider.service_currency?.toUpperCase() || 'USD',
-        note: description || provider.service_name || `Payment for ${organization.name}`
-      },
-      invoicer: {
-        name: { given_name: organization.name },
-        email_address: customerEmail || 'noreply@example.com'
-      },
-      primary_recipients: [{
-        billing_info: {
-          name: { given_name: 'Customer' },
-          email_address: customerEmail || 'customer@example.com'
-        }
-      }],
-      items: [{
-        name: provider.service_name || description || 'Service Payment',
-        quantity: '1',
-        unit_amount: {
-          currency_code: provider.service_currency?.toUpperCase() || 'USD',
-          value: (paymentAmount / 100).toFixed(2)
-        }
-      }]
-    }
   } else {
     throw new Error('Invalid payment type configuration')
+  }
+
+  // Create PayPal invoice data (now that paymentAmount is guaranteed to be set)
+  invoiceData = {
+    detail: {
+      invoice_number: `INV-${Date.now()}`,
+      reference: `Payment for ${organization.name}`,
+      invoice_date: new Date().toISOString().split('T')[0],
+      currency_code: provider.service_currency?.toUpperCase() || 'USD',
+      note: description || provider.service_name || `Payment for ${organization.name}`
+    },
+    invoicer: {
+      name: { given_name: organization.name },
+      email_address: customerEmail || 'noreply@example.com'
+    },
+    primary_recipients: [{
+      billing_info: {
+        name: { given_name: 'Customer' },
+        email_address: customerEmail || 'customer@example.com'
+      }
+    }],
+    items: [{
+      name: provider.service_name || description || 'Service Payment',
+      quantity: '1',
+      unit_amount: {
+        currency_code: provider.service_currency?.toUpperCase() || 'USD',
+        value: (paymentAmount / 100).toFixed(2)
+      }
+    }]
   }
 
   // Create PayPal invoice
