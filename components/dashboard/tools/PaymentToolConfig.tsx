@@ -301,7 +301,7 @@ export default function PaymentToolConfig({
 
       {/* Payment Providers Section */}
       <div className="space-y-6">
-        {paymentProviders.length === 0 ? (
+        {paymentProviders.length === 0 && !showAddProvider ? (
           // Empty state - clickable container
           <button
             onClick={() => setShowAddProvider(true)}
@@ -317,7 +317,7 @@ export default function PaymentToolConfig({
               Add Payment Provider
             </div>
           </button>
-        ) : (
+        ) : paymentProviders.length > 0 ? (
           // Connected providers list
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -406,7 +406,7 @@ export default function PaymentToolConfig({
               )
             })}
           </div>
-        )}
+        ) : null}
 
         {/* Provider Selection */}
         {showAddProvider && (
