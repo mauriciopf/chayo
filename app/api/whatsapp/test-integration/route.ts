@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
+
+export const dynamic = 'force-dynamic'
 import { getSupabaseServerClient } from "@/lib/supabase/server"
 import { twilioClient, TWILIO_CONFIG } from '@/lib/twilio/client'
 

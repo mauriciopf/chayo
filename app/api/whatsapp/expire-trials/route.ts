@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseServerClient } from "@/lib/supabase/server"
 import { twilioClient } from '@/lib/twilio/client'
 
+export const dynamic = 'force-dynamic'
+
 // This endpoint will be called by a CRON job to check and expire trials
 export async function GET(request: NextRequest) {
   try {
