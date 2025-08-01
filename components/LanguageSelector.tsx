@@ -28,8 +28,8 @@ export default function LanguageSelector() {
 
   return (
     <>
-      {/* Mobile Language Selector - Top of screen */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-[100] bg-white/95 backdrop-blur-md border-b border-gray-200/50 px-4 py-2">
+      {/* Mobile Language Selector */}
+      <div className="md:hidden bg-white/95 backdrop-blur-md border-b border-gray-200/50 px-4 py-2">
         <div className="flex justify-between items-center">
           <div className="text-sm font-medium text-gray-700">
             Language / Idioma
@@ -71,8 +71,8 @@ export default function LanguageSelector() {
         </div>
       </div>
 
-      {/* Desktop Language Selector - Top right corner */}
-      <div className="hidden md:block fixed top-4 right-4 z-[100]">
+      {/* Desktop Language Selector */}
+      <div className="hidden md:block absolute top-4 right-4">
         <div className="relative">
           <button
             onClick={() => setIsOpen(!isOpen)}
@@ -112,13 +112,12 @@ export default function LanguageSelector() {
       {/* Backdrop to close dropdown when clicking outside */}
       {isOpen && (
         <div 
-          className="fixed inset-0 z-[90]" 
+          className="fixed inset-0 z-[50]" 
           onClick={() => setIsOpen(false)}
         />
       )}
 
-      {/* Mobile spacer to push content below the language selector */}
-      <div className="md:hidden h-12"></div>
+
     </>
   )
 }

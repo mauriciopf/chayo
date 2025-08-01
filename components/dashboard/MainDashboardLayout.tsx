@@ -3,6 +3,7 @@ import MobileHeader from './MobileHeader'
 import MobileNavigation from './MobileNavigation'
 import SubscriptionPlans from './SubscriptionPlans'
 import ManageDocumentsModal from './ManageDocumentsModal'
+import BetaBanner from '../BetaBanner'
 import React from 'react'
 
 export default function MainDashboardLayout({
@@ -25,9 +26,13 @@ export default function MainDashboardLayout({
   handleManageDocsModalClose
 }: any) {
   return (
-    <div className="flex h-screen min-h-0 bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
-      {/* Desktop Navigation Sidebar */}
-      <DesktopNavigation
+    <div className="flex flex-col h-screen min-h-0 bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
+      {/* Beta Banner */}
+      <BetaBanner />
+      
+      <div className="flex flex-1 min-h-0">
+        {/* Desktop Navigation Sidebar */}
+        <DesktopNavigation
         activeView={activeView}
         onViewChange={setActiveView}
         onLogout={handleLogout}
@@ -91,6 +96,7 @@ export default function MainDashboardLayout({
           />
         )}
       </div>
+    </div>
     </div>
   )
 } 

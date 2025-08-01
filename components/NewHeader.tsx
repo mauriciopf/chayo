@@ -70,10 +70,10 @@ export default function NewHeader() {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
-      className={`fixed top-0 left-0 right-0 z-[60] transition-all duration-500 ${
+      className={`bg-white/95 backdrop-blur-xl shadow-lg border-b border-gray-100 transition-all duration-500 ${
         isScrolled 
-          ? 'bg-white/95 backdrop-blur-xl shadow-lg border-b border-gray-100' 
-          : 'bg-white/80 backdrop-blur-md'
+          ? 'shadow-xl' 
+          : 'shadow-lg'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 lg:px-8">
@@ -86,7 +86,7 @@ export default function NewHeader() {
             onClick={() => scrollToSection('hero')}
           >
             {/* Sleek Text Logo */}
-            <div className="relative">
+            <div className="relative flex items-center gap-3">
               <motion.h1 
                 className="text-3xl lg:text-4xl font-black tracking-tight"
                 whileHover={{ scale: 1.02 }}
@@ -119,6 +119,16 @@ export default function NewHeader() {
               >
                 {t('navigation.tagline')}
               </motion.p>
+              
+              {/* Beta Badge */}
+              <motion.span
+                className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold px-2 py-1 rounded-full"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
+              >
+                BETA
+              </motion.span>
               
               {/* Subtle background glow effect */}
               <motion.div

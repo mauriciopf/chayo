@@ -15,6 +15,7 @@ import ExamplesSection from "./ExamplesSection";
 import PricingSection from "./PricingSection";
 import NewFooter from "./NewFooter";
 import StartACall from "./StartACall";
+import BetaBanner from "./BetaBanner";
 
 interface ChayoAIHomeProps {
   darkMode?: boolean;
@@ -49,10 +50,13 @@ export default function ChayoAIHome({ darkMode: parentDarkMode }: ChayoAIHomePro
 
   return (
     <div className="bg-white text-gray-900 transition-colors duration-700">
+      {/* Beta Banner */}
+      <BetaBanner />
+      
       {/* New Landing Page Layout */}
       <NewHeader />
       
-      <main className="pt-16 lg:pt-20">
+      <main>
         {/* Hero Section - Fullscreen Phone Simulation */}
         <section id="hero">
           <NewHero onStartCall={handleStartCall} />

@@ -4,6 +4,7 @@ import {notFound} from 'next/navigation';
 import type { Metadata } from 'next'
 import '../globals.css'
 import LanguageSelector from '@/components/LanguageSelector'
+import ConditionalLanguageSelector from '@/components/ConditionalLanguageSelector'
 
 // Define supported locales directly
 const locales = ['en', 'es'];
@@ -78,7 +79,7 @@ export default async function LocaleLayout({
       </head>
       <body className="font-sans">
         <NextIntlClientProvider messages={messages} locale={locale}>
-          <LanguageSelector />
+          <ConditionalLanguageSelector />
           {children}
         </NextIntlClientProvider>
       </body>

@@ -99,7 +99,12 @@ export default function DesktopNavigation({
           <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-sm">C</span>
           </div>
-          <span className="font-semibold text-gray-900">Chayo</span>
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-gray-900">Chayo</span>
+            <span className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+              BETA
+            </span>
+          </div>
         </div>
       </div>
 

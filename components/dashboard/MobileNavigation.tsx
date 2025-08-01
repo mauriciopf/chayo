@@ -207,8 +207,13 @@ export default function MobileNavigation({
             {/* Footer */}
             <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 bg-gray-50">
               <div className="text-center">
-                <p className="text-xs text-gray-500">Chayo Dashboard</p>
-                <p className="text-xs text-gray-400">Version 1.0</p>
+                <div className="flex items-center justify-center gap-2 mb-1">
+                  <p className="text-xs text-gray-500">Chayo Dashboard</p>
+                  <span className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                    BETA
+                  </span>
+                </div>
+                <p className="text-xs text-gray-400">Free until Dec 31, 2025</p>
               </div>
             </div>
           </motion.div>
