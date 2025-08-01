@@ -65,7 +65,7 @@ export class YamlPromptLoader {
     try {
       // Choose the appropriate YAML file based on setup completion status
       const fileName = isSetupCompleted ? 'businessSystemPrompt.yaml' : 'onboardingSystemPrompt.yaml'
-      const yamlPath = path.join(process.cwd(), 'lib', 'services', 'systemPrompt', fileName)
+      const yamlPath = path.join(process.cwd(), 'lib', 'features', 'chat', 'services', 'systemPrompt', fileName)
       const yamlContent = fs.readFileSync(yamlPath, 'utf8')
       const config = yaml.load(yamlContent) as SystemPromptConfig
       
