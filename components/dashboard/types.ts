@@ -13,6 +13,7 @@ export interface Message {
   intakeFormAvailable?: boolean
   intakeFormId?: string
   intakeFormName?: string
+  faqLink?: string
 }
 
 export interface Agent {

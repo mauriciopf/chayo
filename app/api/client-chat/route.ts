@@ -3,6 +3,7 @@ import { getSupabaseServerClient } from "@/lib/supabase/server"
 import { ClientSystemPromptService } from '@/lib/services/clientPrompt/ClientSystemPromptService'
 import { embeddingService } from '@/lib/services/embeddingService'
 import { conversationStorageService } from '@/lib/services/conversationStorageService'
+import { ToolIntentService } from '@/lib/services/toolIntentService'
 
 export async function POST(request: NextRequest) {
   try {
@@ -78,11 +79,26 @@ export async function POST(request: NextRequest) {
     }
 
     const openAIData = await openAIResponse.json()
-    const assistantResponse = openAIData.choices[0]?.message?.content || 'Lo siento, no pude generar una respuesta.'
+    const rawResponse = openAIData.choices[0]?.message?.content || 'Lo siento, no pude generar una respuesta.'
+
+    // Parse intents from AI response using ToolIntentService
+    const { content: assistantResponse, intents } = ToolIntentService.parseIntentsFromResponse(rawResponse)
+
+    // Get enabled tools to validate intents
+    const { data: enabledToolsData } = await supabase
+      .from('agent_tools')
+      .select('tool_type')
+      .eq('organization_id', organizationId)
+      .eq('enabled', true)
+
+    const enabledTools = enabledToolsData?.map((tool: any) => tool.tool_type) || []
+    const validatedIntents = ToolIntentService.validateIntents(intents, enabledTools)
 
     console.log('✅ Client chat response generated successfully:', {
       responseLength: assistantResponse.length,
       responsePreview: assistantResponse.substring(0, 100) + (assistantResponse.length > 100 ? '...' : ''),
+      detectedIntents: intents,
+      validatedIntents: validatedIntents,
       openAIUsage: openAIData.usage
     })
 
@@ -93,12 +109,14 @@ export async function POST(request: NextRequest) {
       assistantResponse,
       {
         channel: 'client_chat',
-        organization_name: organization.name
+        organization_name: organization.name,
+        detected_intents: validatedIntents // Store intents for analytics
       }
     )
 
     return NextResponse.json({
-      response: assistantResponse
+      response: assistantResponse,
+      intents: validatedIntents
     })
 
   } catch (error) {

@@ -1,6 +1,7 @@
 import { embeddingService } from '../embeddingService'
 import type { EmbeddingResult } from '../embedding/types'
 import { getLocaleInstructions } from '../systemPrompt/i18nPromptUtils'
+import { ToolIntentService } from '../toolIntentService'
 
 export class ClientSystemPromptService {
   /**
@@ -59,21 +60,22 @@ export class ClientSystemPromptService {
       }
     }
 
-    // Check if FAQ tool is enabled for this organization
-    let hasFAQsEnabled = false
+    // Get all enabled agent tools for this organization
+    let enabledTools: string[] = []
+    let faqsEnabled = false
     try {
       const { data: toolsData, error: toolsError } = await supabase
         .from('agent_tools')
-        .select('enabled')
+        .select('tool_type, enabled')
         .eq('organization_id', organizationId)
-        .eq('tool_type', 'faqs')
-        .single()
+        .eq('enabled', true)
       
-      if (!toolsError && toolsData?.enabled) {
-        hasFAQsEnabled = true
+      if (!toolsError && toolsData) {
+        enabledTools = toolsData.map((tool: any) => tool.tool_type)
+        faqsEnabled = enabledTools.includes('faqs')
       }
     } catch (err) {
-      console.error('Error checking FAQ tool availability:', err)
+      console.error('Error fetching enabled agent tools:', err)
     }
 
     // Get language-specific instructions
@@ -94,8 +96,17 @@ ${languageInstructions.responseLanguage}
       prompt += `- No business knowledge found yet. Please provide more information about the business.`
     }
 
-    // Add FAQ information only if tool is enabled
-    if (hasFAQsEnabled && organizationSlug) {
+    // Add intent detection instructions for enabled tools
+    if (enabledTools.length > 0) {
+      const intentInstructions = ToolIntentService.buildIntentInstructions(enabledTools)
+      prompt += `
+
+${intentInstructions}
+`
+    }
+
+    // Add FAQ information only if tool is enabled (backward compatibility)
+    if (faqsEnabled && organizationSlug) {
       const faqLanguage = locale === 'es' ? 'es' : 'en'
       prompt += `
 
@@ -110,13 +121,14 @@ ${languageInstructions.responseLanguage}
 
 ## Critical Rules:
 - You ONLY answer using the business knowledge above.
-- Focus on helping customers with questions about this business.${hasFAQsEnabled && organizationSlug ? `
+- Focus on helping customers with questions about this business.${faqsEnabled && organizationSlug ? `
 - ONLY direct customers to FAQs when they specifically ask about FAQs or common questions: /${locale === 'es' ? 'es' : 'en'}/faqs/${organizationSlug}` : ''}
 - If you do not know the answer, say you do not have that information and ask for more details.
 - NEVER answer for other businesses or provide generic advice.
 - Always be professional, helpful, and focused on this business.
 - If the user asks about something not related to this business, politely redirect them to business topics.
 - Use the business name (${businessName}) when appropriate to reinforce the business identity.
+- When tools are available, use the JSON response format with proper intent detection as instructed above.
 `
 
     return prompt
