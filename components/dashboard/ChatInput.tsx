@@ -4,6 +4,8 @@ import { AuthState, Message } from './types'
 import { ChatContextType } from './chatContextMessages'
 import { useTranslations } from 'next-intl'
 
+type ChatMode = 'business' | 'client'
+
 interface ChatInputProps {
   input: string
   setInput: (input: string) => void
@@ -22,6 +24,8 @@ interface ChatInputProps {
   setChatContext: (context: ChatContextType) => void
   currentOnboardingQuestion?: string
   isOnboardingActive?: boolean
+  chatMode?: ChatMode
+  onModeSwitch?: (mode: ChatMode) => void
 }
 
 const ChatInput: React.FC<ChatInputProps> = ({
@@ -41,7 +45,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
   chatContext,
   setChatContext,
   currentOnboardingQuestion,
-  isOnboardingActive
+  isOnboardingActive,
+  chatMode,
+  onModeSwitch
 }) => {
   const t = useTranslations('chat')
 
@@ -83,7 +89,12 @@ const ChatInput: React.FC<ChatInputProps> = ({
             />
           </div>
           <div className="flex justify-between items-center pt-1">
-            <QuickReplyChips context={chatContext} onSelect={setChatContext} />
+            <QuickReplyChips 
+              context={chatContext} 
+              onSelect={setChatContext} 
+              chatMode={chatMode}
+              onModeSwitch={onModeSwitch}
+            />
             <div className="flex gap-1">
               <button
                 onClick={() => fileInputRef.current?.click()}

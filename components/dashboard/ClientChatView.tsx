@@ -3,17 +3,27 @@
 import React, { useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import ChatMessage from './ChatMessage'
-import { Message, Agent, Organization } from './types'
+import ChatInput from './ChatInput'
 import { useClientModeChat } from '@/lib/hooks/useClientModeChat'
+import { Agent, Organization } from './types'
 
-interface ClientChatContainerProps {
+type ChatMode = 'business' | 'client'
+
+interface ClientChatViewProps {
   agent: Agent
   organization: Organization
   locale?: string
   className?: string
+  onModeSwitch?: (mode: ChatMode) => void
 }
 
-export default function ClientChatContainer({ agent, organization, locale = 'en', className = '' }: ClientChatContainerProps) {
+export default function ClientChatView({ 
+  agent, 
+  organization, 
+  locale = 'en', 
+  className = '',
+  onModeSwitch
+}: ClientChatViewProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const chatScrollContainerRef = useRef<HTMLDivElement>(null)
@@ -96,33 +106,25 @@ export default function ClientChatContainer({ agent, organization, locale = 'en'
         </div>
       )}
 
-      {/* Input Area - Mobile Optimized Full Width */}
-      <div className="border-t border-gray-200 bg-white">
-        <div className="px-4 py-3 safe-area-inset-bottom">
-          <div className="flex gap-3">
-            <div className="flex-1">
-              <textarea
-                ref={inputRef}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Escribe tu mensaje..."
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base touch-manipulation"
-                rows={1}
-                style={{ minHeight: '44px', maxHeight: '120px' }}
-                disabled={loading}
-              />
-            </div>
-            <button
-              onClick={handleSend}
-              disabled={!input.trim() || loading}
-              className="px-4 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium touch-manipulation min-h-[44px] flex items-center"
-            >
-              {loading ? '...' : 'Enviar'}
-            </button>
-          </div>
-        </div>
-      </div>
+      <ChatInput
+        input={input}
+        setInput={setInput}
+        handleSend={handleSend}
+        handleInputFocus={() => {}} // No special focus logic needed for client mode
+        handleOTPFlow={async () => {}} // No OTP needed for client mode
+        inputRef={inputRef}
+        fileInputRef={useRef<HTMLInputElement>(null)} // No file uploads in client mode
+        handleFileChange={() => {}} // No file uploads in client mode
+        uploading={false} // No file uploads in client mode
+        otpLoading={'none'} // No OTP in client mode
+        chatLoading={loading}
+        authState={'authenticated'} // Always authenticated for client mode
+        isMobile={true} // Client mode is mobile-optimized
+        chatContext={'business_setup'} // Default context
+        setChatContext={() => {}} // No context switching in client mode
+        chatMode={'client'}
+        onModeSwitch={onModeSwitch}
+      />
     </div>
   )
 }

@@ -173,6 +173,9 @@ function DashboardContent() {
             organizationId={auth.currentOrganization?.id}
             unlockQRCode={qrCodeLogic.unlockQRCode}
             onNavigateToQR={() => setActiveView('qrcode')}
+            agent={auth.agents[0]}
+            organization={auth.currentOrganization}
+            locale={locale}
           />
         </div>
       )
@@ -206,13 +209,16 @@ function DashboardContent() {
               hasUserInteracted={mobile.hasUserInteracted}
               setHasUserInteracted={mobile.setHasUserInteracted}
               isMobile={mobile.isMobile}
-                          organizationId={auth.currentOrganization?.id}
-            unlockQRCode={async () => {
-              await qrCodeLogic.unlockQRCode()
-              refreshOnboardingProgress()
-            }}
-            onNavigateToQR={() => setActiveView('qrcode')}
-          />
+              organizationId={auth.currentOrganization?.id}
+              unlockQRCode={async () => {
+                await qrCodeLogic.unlockQRCode()
+                refreshOnboardingProgress()
+              }}
+              onNavigateToQR={() => setActiveView('qrcode')}
+              agent={auth.agents[0]}
+              organization={auth.currentOrganization}
+              locale={locale}
+            />
           </div>
         )
       case 'qrcode':
