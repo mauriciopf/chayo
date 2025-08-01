@@ -52,6 +52,7 @@ export async function POST(req: NextRequest) {
 
     // Handle the event
     switch (event.type) {
+      // Platform subscription events
       case 'checkout.session.completed':
         await handleCheckoutSessionCompleted(event.data.object as Stripe.Checkout.Session)
         break
@@ -70,6 +71,15 @@ export async function POST(req: NextRequest) {
       
       case 'invoice.payment_failed':
         await handleInvoicePaymentFailed(event.data.object as Stripe.Invoice)
+        break
+      
+      // Connect account events (for payment tool)
+      case 'account.updated':
+        await handleAccountUpdated(event.data.object as Stripe.Account)
+        break
+      
+      case 'capability.updated':
+        await handleCapabilityUpdated(event.data.object as Stripe.Capability)
         break
       
       default:
@@ -166,6 +176,42 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
 
     if (error) {
       console.error('Error updating subscription status:', error)
+    }
+  }
+}
+
+// Connect account event handlers
+async function handleAccountUpdated(account: Stripe.Account) {
+  // Update stripe_settings when account capabilities change
+  const { error } = await supabase
+    .from('stripe_settings')
+    .update({
+      is_active: account.details_submitted && account.charges_enabled,
+      updated_at: new Date().toISOString()
+    })
+    .eq('stripe_user_id', account.id)
+
+  if (error) {
+    console.error('Error updating Stripe account status:', error)
+  } else {
+    console.log(`Updated account ${account.id}: active=${account.details_submitted && account.charges_enabled}`)
+  }
+}
+
+async function handleCapabilityUpdated(capability: Stripe.Capability) {
+  // Update account status when capabilities change (e.g., transfers enabled)
+  if (capability.id === 'transfers') {
+    const { error } = await supabase
+      .from('stripe_settings')
+      .update({
+        updated_at: new Date().toISOString()
+      })
+      .eq('stripe_user_id', capability.account)
+
+    if (error) {
+      console.error('Error updating capability status:', error)
+    } else {
+      console.log(`Updated capability ${capability.id} for account ${capability.account}: ${capability.status}`)
     }
   }
 }

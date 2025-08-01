@@ -38,12 +38,19 @@ In your Stripe Dashboard (https://dashboard.stripe.com):
 2. Click **Add endpoint**
 3. Endpoint URL: `https://yourdomain.com/api/stripe/webhook`
 4. Select events:
+
+**For Platform Subscriptions:**
    - `checkout.session.completed`
    - `customer.subscription.created`
    - `customer.subscription.updated`
    - `customer.subscription.deleted`
    - `invoice.payment_succeeded`
    - `invoice.payment_failed`
+
+**For Connect Accounts (Payment Tool):**
+   - `account.updated`
+   - `capability.updated`
+
 5. Copy the Webhook Secret (starts with `whsec_`)
 
 ## Step 2: Environment Variables
@@ -55,6 +62,7 @@ Copy `.env.example` to `.env.local` and fill in your values:
 STRIPE_SECRET_KEY=sk_test_your_actual_secret_key
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_your_actual_publishable_key
 STRIPE_WEBHOOK_SECRET=whsec_your_actual_webhook_secret
+NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 # Stripe Price IDs
 NEXT_PUBLIC_STRIPE_PRICE_ID_BASIC=price_your_actual_basic_price_id

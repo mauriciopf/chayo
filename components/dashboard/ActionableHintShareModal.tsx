@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Check, Settings, AlertCircle, Info } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { ActionableHint } from './ActionableHintChips'
 import Switch from '../ui/Switch'
 import AppointmentToolConfig from './tools/AppointmentToolConfig'
@@ -38,6 +39,7 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
   organizationId,
   onSettingsChange
 }) => {
+  const t = useTranslations('agentTools')
 
   const [agentToolSettings, setAgentToolSettings] = useState<AgentToolSettings>({
     appointments: false,
@@ -144,57 +146,57 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
     switch (category) {
       case 'appointments':
         return {
-          title: 'Appointment Booking',
-          description: 'Allow clients to schedule appointments directly through your chat interface.',
+          title: t('modal.appointments.title'),
+          description: t('modal.appointments.description'),
           features: [
-            'Real-time availability checking',
-            'Automatic calendar integration',
-            'Email and SMS confirmations',
-            'Rescheduling capabilities'
+            t('modal.appointments.features.0'),
+            t('modal.appointments.features.1'),
+            t('modal.appointments.features.2'),
+            t('modal.appointments.features.3')
           ]
         }
       case 'documents':
         return {
-          title: 'Document Sharing',
-          description: 'Share forms, contracts, and documents seamlessly with your clients.',
+          title: t('modal.documents.title'),
+          description: t('modal.documents.description'),
           features: [
-            'Secure document upload',
-            'Digital signature collection',
-            'Form auto-fill capabilities',
-            'Document status tracking'
+            t('modal.documents.features.0'),
+            t('modal.documents.features.1'),
+            t('modal.documents.features.2'),
+            t('modal.documents.features.3')
           ]
         }
       case 'payments':
         return {
-          title: 'Payment Collection',
-          description: 'Collect payments and deposits directly through your chat interface.',
+          title: t('modal.payments.title'),
+          description: t('modal.payments.description'),
           features: [
-            'Secure payment processing',
-            'Multiple payment methods',
-            'Automatic receipt generation',
-            'Payment status tracking'
+            t('modal.payments.features.0'),
+            t('modal.payments.features.1'),
+            t('modal.payments.features.2'),
+            t('modal.payments.features.3')
           ]
         }
       case 'intake_forms':
         return {
-          title: 'Intake Forms',
-          description: 'Create custom forms to collect client information, preferences, and requirements.',
+          title: t('modal.intakeForms.title'),
+          description: t('modal.intakeForms.description'),
           features: [
-            'Custom form builder with multiple field types',
-            'Client information collection',
-            'Automatic form responses storage',
-            'Pre-chat data gathering'
+            t('modal.intakeForms.features.0'),
+            t('modal.intakeForms.features.1'),
+            t('modal.intakeForms.features.2'),
+            t('modal.intakeForms.features.3')
           ]
         }
       case 'faqs':
         return {
-          title: 'FAQ Assistant',
-          description: 'Provide instant answers to common questions about your business.',
+          title: t('modal.faqs.title'),
+          description: t('modal.faqs.description'),
           features: [
-            'Intelligent question matching',
-            'Business hours information',
-            'Pricing and policy details',
-            'Location and contact info'
+            t('modal.faqs.features.0'),
+            t('modal.faqs.features.1'),
+            t('modal.faqs.features.2'),
+            t('modal.faqs.features.3')
           ]
         }
       default:
@@ -233,7 +235,7 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
                 <span className="text-2xl">{hint.icon}</span>
                 <div>
                   <h2 className="text-xl font-semibold text-gray-900">{content.title}</h2>
-                  <p className="text-sm text-gray-500">Share this feature with your clients</p>
+                  <p className="text-sm text-gray-500">{t('modal.shareFeature')}</p>
                 </div>
               </div>
               <button
@@ -252,9 +254,9 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
                   <div className="flex items-center gap-3">
                     <Settings className="w-5 h-5 text-gray-600" />
                     <div>
-                      <h3 className="font-medium text-gray-900">Enable {content.title} Tool</h3>
+                      <h3 className="font-medium text-gray-900">{t('modal.enableTool', { title: content.title })}</h3>
                       <p className="text-sm text-gray-600">
-                        Make this agent tool available in your client chat
+                        {t('modal.makeToolAvailable')}
                       </p>
                     </div>
                   </div>
@@ -273,14 +275,14 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
                       <Info className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
                       <div className="flex-1">
                         <h4 className="text-sm font-medium text-blue-800 mb-1">
-                          Setup Needed for Full Functionality
+                          {t('modal.setupNeeded')}
                         </h4>
                         <p className="text-sm text-blue-700 mb-2">
-                          Tool is enabled, but {currentToolConstraints.reason?.toLowerCase()}
+                          {t('modal.toolEnabled', { reason: currentToolConstraints.reason?.toLowerCase() || '' })}
                         </p>
                         {currentToolConstraints.missingConfig && currentToolConstraints.missingConfig.length > 0 && (
                           <div>
-                            <p className="text-xs text-blue-600 mb-1 font-medium">To complete setup:</p>
+                            <p className="text-xs text-blue-600 mb-1 font-medium">{t('modal.toCompleteSetup')}</p>
                             <ul className="text-xs text-blue-700 space-y-1">
                               {currentToolConstraints.missingConfig.map((item, index) => (
                                 <li key={index} className="flex items-center gap-1">
@@ -302,7 +304,7 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
                       <Check className="w-5 h-5 text-green-600 flex-shrink-0" />
                       <div className="flex-1">
                         <p className="text-sm text-green-700">
-                          ✨ This tool is fully configured and ready to use!
+                          {t('modal.toolConfigured')}
                         </p>
                       </div>
                     </div>
@@ -317,7 +319,7 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
 
               {/* Features */}
               <div className="mb-6">
-                <h3 className="font-medium text-gray-900 mb-3">Features included:</h3>
+                <h3 className="font-medium text-gray-900 mb-3">{t('modal.featuresIncluded')}</h3>
                 <ul className="space-y-2">
                   {content.features.map((feature, index) => (
                     <li key={index} className="flex items-center gap-2 text-sm text-gray-600">

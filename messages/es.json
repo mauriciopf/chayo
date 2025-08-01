@@ -1144,6 +1144,66 @@
       "findAnswers": "Encuentra respuestas a las preguntas más comunes",
       "defaultQuestion": "¿Nueva pregunta?",
       "defaultAnswer": "Escribe tu respuesta aquí..."
+    },
+    "modal": {
+      "shareFeature": "Comparte esta función con tus clientes",
+      "enableTool": "Habilitar Herramienta {title}",
+      "makeToolAvailable": "Hacer esta herramienta de agente disponible en tu chat de cliente",
+      "setupNeeded": "Configuración Necesaria para Funcionalidad Completa",
+      "toolEnabled": "La herramienta está habilitada, pero {reason}",
+      "toCompleteSetup": "Para completar la configuración:",
+      "toolConfigured": "✨ ¡Esta herramienta está completamente configurada y lista para usar!",
+      "featuresIncluded": "Características incluidas:",
+      "appointments": {
+        "title": "Reserva de Citas",
+        "description": "Permite a los clientes programar citas directamente a través de tu interfaz de chat.",
+        "features": [
+          "Verificación de disponibilidad en tiempo real",
+          "Integración automática de calendario",
+          "Confirmaciones por email y SMS",
+          "Capacidades de reprogramación"
+        ]
+      },
+      "documents": {
+        "title": "Compartir Documentos",
+        "description": "Comparte formularios, contratos y documentos sin problemas con tus clientes.",
+        "features": [
+          "Carga segura de documentos",
+          "Recolección de firmas digitales",
+          "Capacidades de auto-llenado de formularios",
+          "Seguimiento del estado de documentos"
+        ]
+      },
+      "payments": {
+        "title": "Recolección de Pagos",
+        "description": "Recauda pagos y depósitos directamente a través de tu interfaz de chat.",
+        "features": [
+          "Procesamiento seguro de pagos",
+          "Múltiples métodos de pago",
+          "Generación automática de recibos",
+          "Seguimiento del estado de pagos"
+        ]
+      },
+      "intakeForms": {
+        "title": "Formularios de Admisión",
+        "description": "Crea formularios personalizados para recopilar información, preferencias y requisitos del cliente.",
+        "features": [
+          "Constructor de formularios personalizado con múltiples tipos de campo",
+          "Recolección de información del cliente",
+          "Almacenamiento automático de respuestas de formularios",
+          "Recopilación de datos previos al chat"
+        ]
+      },
+      "faqs": {
+        "title": "Asistente de FAQ",
+        "description": "Proporciona respuestas instantáneas a preguntas comunes sobre tu negocio.",
+        "features": [
+          "Coincidencia inteligente de preguntas",
+          "Información de horarios de negocio",
+          "Detalles de precios y políticas",
+          "Información de ubicación y contacto"
+        ]
+      }
     }
   }
 }

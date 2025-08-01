@@ -125,18 +125,13 @@ export default function PaymentToolConfig({
 
       if (!response.ok) {
         const errorData = await response.json()
-        if (errorData.manualSetup) {
-          alert('Stripe OAuth is not yet configured. Please contact support for setup assistance.')
-        } else {
-          throw new Error(errorData.message || 'Failed to initialize Stripe connection')
-        }
-        return
+        throw new Error(errorData.message || 'Failed to initialize Stripe connection')
       }
 
-      const { authUrl } = await response.json()
+      const { onboardingUrl } = await response.json()
       
-      // Redirect to Stripe OAuth page
-      window.location.href = authUrl
+      // Redirect to Stripe Connect onboarding
+      window.location.href = onboardingUrl
       
     } catch (error) {
       console.error('Error connecting to Stripe:', error)

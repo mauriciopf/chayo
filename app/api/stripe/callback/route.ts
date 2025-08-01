@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 
+// DEPRECATED: This file is for the old OAuth flow
+// New implementation uses Connect Onboarding in /api/stripe/connect/
+// This file is kept for backward compatibility only
+
 const STRIPE_CONFIG = {
   clientId: process.env.STRIPE_CLIENT_ID,
   clientSecret: process.env.STRIPE_CLIENT_SECRET,

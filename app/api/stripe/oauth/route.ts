@@ -1,17 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
+import Stripe from 'stripe'
 
-// Stripe OAuth configuration
-const STRIPE_CONFIG = {
-  clientId: process.env.STRIPE_CLIENT_ID,
-  clientSecret: process.env.STRIPE_CLIENT_SECRET,
-  authorizeUrl: 'https://connect.stripe.com/oauth/authorize',
-  tokenUrl: 'https://connect.stripe.com/oauth/token',
-  scope: 'read_write',
-  redirectUri: `${process.env.NEXT_PUBLIC_APP_URL}/api/stripe/callback`
-}
+// Initialize Stripe
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
-// POST - Initialize Stripe OAuth flow
+// POST - Initialize Stripe Connect Onboarding flow
 export async function POST(request: NextRequest) {
   try {
     const supabase = getSupabaseServerClient()
@@ -40,39 +34,61 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Access denied' }, { status: 403 })
     }
 
-    // Check if Stripe OAuth credentials are configured
-    if (!STRIPE_CONFIG.clientId || !STRIPE_CONFIG.clientSecret) {
-      return NextResponse.json({
-        error: 'Stripe OAuth not configured',
-        message: 'Stripe OAuth integration is not yet configured. Please add STRIPE_CLIENT_ID and STRIPE_CLIENT_SECRET to environment variables.',
-        manualSetup: true
-      }, { status: 501 })
+    // Check if Stripe is already connected for this organization
+    const { data: existingSettings } = await supabase
+      .from('stripe_settings')
+      .select('*')
+      .eq('organization_id', organizationId)
+      .single()
+
+    let accountId: string
+
+    if (existingSettings?.stripe_user_id && !existingSettings.is_active) {
+      // Use existing account if onboarding wasn't completed
+      accountId = existingSettings.stripe_user_id
+    } else if (!existingSettings) {
+      // Create new connected account
+      const account = await stripe.accounts.create({
+        type: 'express',
+        metadata: {
+          organization_id: organizationId,
+          user_id: user.id
+        }
+      })
+      accountId = account.id
+
+      // Save account to database
+      await supabase
+        .from('stripe_settings')
+        .insert({
+          organization_id: organizationId,
+          stripe_user_id: accountId,
+          is_active: false // Will be true after onboarding completion
+        })
+    } else {
+      return NextResponse.json({ 
+        error: 'Stripe already connected',
+        message: 'This organization already has an active Stripe connection.' 
+      }, { status: 400 })
     }
 
-    // Generate state parameter for security (includes org ID and user ID)
-    const state = Buffer.from(JSON.stringify({
-      organizationId,
-      userId: user.id,
-      timestamp: Date.now()
-    })).toString('base64url')
-
-    // Build OAuth authorization URL
-    const authUrl = new URL(STRIPE_CONFIG.authorizeUrl)
-    authUrl.searchParams.set('response_type', 'code')
-    authUrl.searchParams.set('client_id', STRIPE_CONFIG.clientId)
-    authUrl.searchParams.set('scope', STRIPE_CONFIG.scope)
-    authUrl.searchParams.set('redirect_uri', STRIPE_CONFIG.redirectUri)
-    authUrl.searchParams.set('state', state)
+    // Generate onboarding link
+    const accountLink = await stripe.accountLinks.create({
+      account: accountId,
+      refresh_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/stripe/connect/refresh?organization_id=${organizationId}`,
+      return_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/stripe/connect/success?organization_id=${organizationId}`,
+      type: 'account_onboarding',
+    })
 
     return NextResponse.json({
-      authUrl: authUrl.toString(),
-      state
+      onboardingUrl: accountLink.url,
+      accountId: accountId
     })
 
   } catch (error) {
-    console.error('Stripe OAuth initialization error:', error)
+    console.error('Stripe Connect initialization error:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     )
   }

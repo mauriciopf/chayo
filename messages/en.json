@@ -1119,6 +1119,66 @@
       "findAnswers": "Find answers to the most common questions",
       "defaultQuestion": "New question?",
       "defaultAnswer": "Write your answer here..."
+    },
+    "modal": {
+      "shareFeature": "Share this feature with your clients",
+      "enableTool": "Enable {title} Tool",
+      "makeToolAvailable": "Make this agent tool available in your client chat",
+      "setupNeeded": "Setup Needed for Full Functionality", 
+      "toolEnabled": "Tool is enabled, but {reason}",
+      "toCompleteSetup": "To complete setup:",
+      "toolConfigured": "✨ This tool is fully configured and ready to use!",
+      "featuresIncluded": "Features included:",
+      "appointments": {
+        "title": "Appointment Booking",
+        "description": "Allow clients to schedule appointments directly through your chat interface.",
+        "features": [
+          "Real-time availability checking",
+          "Automatic calendar integration", 
+          "Email and SMS confirmations",
+          "Rescheduling capabilities"
+        ]
+      },
+      "documents": {
+        "title": "Document Sharing",
+        "description": "Share forms, contracts, and documents seamlessly with your clients.",
+        "features": [
+          "Secure document upload",
+          "Digital signature collection",
+          "Form auto-fill capabilities", 
+          "Document status tracking"
+        ]
+      },
+      "payments": {
+        "title": "Payment Collection",
+        "description": "Collect payments and deposits directly through your chat interface.",
+        "features": [
+          "Secure payment processing",
+          "Multiple payment methods",
+          "Automatic receipt generation",
+          "Payment status tracking"
+        ]
+      },
+      "intakeForms": {
+        "title": "Intake Forms",
+        "description": "Create custom forms to collect client information, preferences, and requirements.",
+        "features": [
+          "Custom form builder with multiple field types",
+          "Client information collection", 
+          "Automatic form responses storage",
+          "Pre-chat data gathering"
+        ]
+      },
+      "faqs": {
+        "title": "FAQ Assistant",
+        "description": "Provide instant answers to common questions about your business.",
+        "features": [
+          "Intelligent question matching",
+          "Business hours information",
+          "Pricing and policy details",
+          "Location and contact info"
+        ]
+      }
     }
   }
 }
