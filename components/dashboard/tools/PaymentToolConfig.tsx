@@ -1,11 +1,12 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { CreditCard, ExternalLink, Settings, DollarSign, Zap, Code, Check, X } from 'lucide-react'
+import { CreditCard, ExternalLink, Settings, DollarSign, Zap, Code, Check, X, Plus, ArrowRight } from 'lucide-react'
 
-interface PaymentSettings {
+interface PaymentProvider {
   id: string
-  stripe_user_id: string | null
+  provider_type: 'stripe' | 'paypal' | 'square'
+  provider_account_id: string | null
   payment_type: 'dynamic' | 'manual_price_id' | 'custom_ui'
   price_id: string | null
   service_name: string | null
@@ -14,6 +15,7 @@ interface PaymentSettings {
   service_type: 'one_time' | 'recurring'
   recurring_interval?: string
   is_active: boolean
+  is_default: boolean
 }
 
 interface PaymentToolConfigProps {
@@ -27,10 +29,13 @@ export default function PaymentToolConfig({
   isEnabled, 
   onSettingsChange 
 }: PaymentToolConfigProps) {
-  const [paymentSettings, setPaymentSettings] = useState<PaymentSettings | null>(null)
+  const [paymentProviders, setPaymentProviders] = useState<PaymentProvider[]>([])
+  const [selectedProvider, setSelectedProvider] = useState<PaymentProvider | null>(null)
   const [selectedPaymentType, setSelectedPaymentType] = useState<'dynamic' | 'manual_price_id' | 'custom_ui'>('manual_price_id')
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [showAddProvider, setShowAddProvider] = useState(false)
+  const [selectedProviderType, setSelectedProviderType] = useState<'stripe' | 'paypal' | 'square'>('stripe')
   
   // Manual Price ID form
   const [priceId, setPriceId] = useState('')
@@ -42,12 +47,40 @@ export default function PaymentToolConfig({
   const [serviceType, setServiceType] = useState<'one_time' | 'recurring'>('one_time')
   const [recurringInterval, setRecurringInterval] = useState('month')
 
+  // Provider type configurations
+  const providerTypes = [
+    {
+      id: 'stripe',
+      name: 'Stripe',
+      icon: <CreditCard className="w-6 h-6" />,
+      description: 'Accept payments via Stripe Connect',
+      color: 'from-blue-500 to-purple-600',
+      authUrl: '/api/stripe/oauth'
+    },
+    {
+      id: 'paypal',
+      name: 'PayPal',
+      icon: <DollarSign className="w-6 h-6" />,
+      description: 'Generate PayPal invoices and payment links',
+      color: 'from-blue-600 to-blue-800',
+      authUrl: '/api/paypal/oauth'
+    },
+    {
+      id: 'square',
+      name: 'Square',
+      icon: <Settings className="w-6 h-6" />,
+      description: 'Create Square checkout links and payments',
+      color: 'from-gray-700 to-gray-900',
+      authUrl: '/api/square/oauth'
+    }
+  ]
+
   const paymentOptions = [
     {
       id: 'manual_price_id',
       name: 'Manual Price ID',
       icon: <Code className="w-5 h-5" />,
-      description: 'Use a Price ID from your Stripe dashboard',
+      description: 'Use a Price/Product ID from your provider dashboard',
       pros: ['Full control in Stripe dashboard', 'Supports all Stripe features', 'Easy to manage'],
       setup: 'Create a product in Stripe and provide the Price ID'
     },
@@ -69,51 +102,62 @@ export default function PaymentToolConfig({
     }
   ]
 
-  // Load existing settings when component mounts
+  // Load existing providers when component mounts
   useEffect(() => {
     if (isEnabled) {
-      loadPaymentSettings()
+      loadPaymentProviders()
     }
   }, [isEnabled, organizationId])
 
-  const loadPaymentSettings = async () => {
+  const loadPaymentProviders = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/organizations/${organizationId}/stripe-settings`)
+      const response = await fetch(`/api/organizations/${organizationId}/payment-providers`)
       
       if (response.ok) {
         const data = await response.json()
-        if (data.settings) {
-          setPaymentSettings(data.settings)
-          setSelectedPaymentType(data.settings.payment_type)
+        setPaymentProviders(data.providers || [])
+        
+        // Set the default provider as selected
+        const defaultProvider = data.providers?.find((p: PaymentProvider) => p.is_default)
+        if (defaultProvider) {
+          setSelectedProvider(defaultProvider)
+          setSelectedPaymentType(defaultProvider.payment_type)
           
           // Populate form fields based on current settings
-          if (data.settings.price_id) {
-            setPriceId(data.settings.price_id)
+          if (defaultProvider.price_id) {
+            setPriceId(defaultProvider.price_id)
           }
-          if (data.settings.service_name) {
-            setServiceName(data.settings.service_name)
-            setServiceAmount((data.settings.service_amount / 100).toString())
-            setServiceCurrency(data.settings.service_currency)
-            setServiceType(data.settings.service_type)
-            if (data.settings.recurring_interval) {
-              setRecurringInterval(data.settings.recurring_interval)
+          if (defaultProvider.service_name) {
+            setServiceName(defaultProvider.service_name)
+            setServiceAmount((defaultProvider.service_amount / 100).toString())
+            setServiceCurrency(defaultProvider.service_currency)
+            setServiceType(defaultProvider.service_type)
+            if (defaultProvider.recurring_interval) {
+              setRecurringInterval(defaultProvider.recurring_interval)
             }
           }
+        } else if (data.providers?.length > 0) {
+          // If no default, select the first active provider
+          const firstActive = data.providers.find((p: PaymentProvider) => p.is_active)
+          setSelectedProvider(firstActive || data.providers[0])
         }
       }
     } catch (error) {
-      console.error('Error loading payment settings:', error)
+      console.error('Error loading payment providers:', error)
     } finally {
       setLoading(false)
     }
   }
 
-  const handleConnectStripe = async () => {
+  const handleConnectProvider = async (providerType: 'stripe' | 'paypal' | 'square') => {
     try {
       setSaving(true)
       
-      const response = await fetch('/api/stripe/oauth', {
+      const provider = providerTypes.find(p => p.id === providerType)
+      if (!provider) return
+      
+      const response = await fetch(provider.authUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -125,61 +169,69 @@ export default function PaymentToolConfig({
 
       if (!response.ok) {
         const errorData = await response.json()
-        throw new Error(errorData.message || 'Failed to initialize Stripe connection')
+        throw new Error(errorData.message || `Failed to initialize ${provider.name} connection`)
       }
 
-      const { onboardingUrl } = await response.json()
+      const { onboardingUrl, authUrl } = await response.json()
       
-      // Redirect to Stripe Connect onboarding
-      window.location.href = onboardingUrl
+      // Redirect to provider OAuth/onboarding
+      window.location.href = onboardingUrl || authUrl
       
     } catch (error) {
-      console.error('Error connecting to Stripe:', error)
-      alert('Failed to connect to Stripe. Please try again.')
+      console.error(`Error connecting to ${providerType}:`, error)
+      const providerInfo = providerTypes.find(p => p.id === providerType)
+      alert(`Failed to connect to ${providerInfo?.name || providerType}. Please try again.`)
     } finally {
       setSaving(false)
     }
   }
 
-  const handleDisconnectStripe = async () => {
-    if (!confirm('Are you sure you want to disconnect Stripe? This will disable payment collection.')) {
+  const handleDisconnectProvider = async (provider: PaymentProvider) => {
+    if (!confirm(`Are you sure you want to disconnect ${provider.provider_type.toUpperCase()}? This will disable payment collection for this provider.`)) {
       return
     }
 
     try {
       setSaving(true)
-      const response = await fetch(`/api/organizations/${organizationId}/stripe-settings`, {
+      const response = await fetch(`/api/organizations/${organizationId}/payment-providers/${provider.id}`, {
         method: 'DELETE'
       })
 
       if (!response.ok) {
-        throw new Error('Failed to disconnect Stripe')
+        throw new Error(`Failed to disconnect ${provider.provider_type}`)
       }
 
-      setPaymentSettings(null)
+      // Reload providers to update the UI
+      await loadPaymentProviders()
       onSettingsChange?.()
-      alert('Stripe disconnected successfully!')
+      alert(`${provider.provider_type.toUpperCase()} disconnected successfully!`)
       
     } catch (error) {
-      console.error('Error disconnecting Stripe:', error)
-      alert('Failed to disconnect Stripe. Please try again.')
+      console.error(`Error disconnecting ${provider.provider_type}:`, error)
+      alert(`Failed to disconnect ${provider.provider_type.toUpperCase()}. Please try again.`)
     } finally {
       setSaving(false)
     }
   }
 
   const handleSaveSettings = async () => {
+    if (!selectedProvider) {
+      alert('Please select a payment provider first')
+      return
+    }
+
     try {
       setSaving(true)
 
       let requestData: any = {
-        paymentType: selectedPaymentType
+        paymentType: selectedPaymentType,
+        providerId: selectedProvider.id
       }
 
       // Add type-specific data
       if (selectedPaymentType === 'manual_price_id') {
         if (!priceId.trim()) {
-          alert('Please enter a Stripe Price ID')
+          alert(`Please enter a ${selectedProvider.provider_type} Price/Product ID`)
           return
         }
         requestData.priceId = priceId.trim()
@@ -204,7 +256,7 @@ export default function PaymentToolConfig({
         }
       }
 
-      const response = await fetch(`/api/organizations/${organizationId}/stripe-settings`, {
+      const response = await fetch(`/api/organizations/${organizationId}/payment-providers/${selectedProvider.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -217,7 +269,7 @@ export default function PaymentToolConfig({
         throw new Error(errorData.error || 'Failed to save payment settings')
       }
 
-      await loadPaymentSettings()
+      await loadPaymentProviders()
       onSettingsChange?.()
       alert('Payment settings saved successfully!')
 
@@ -243,241 +295,363 @@ export default function PaymentToolConfig({
       <div>
         <h3 className="text-lg font-medium text-gray-900 mb-2">Payment Collection</h3>
         <p className="text-sm text-gray-600">
-          Connect your Stripe account to collect payments from clients through the chat.
+          Connect payment providers (Stripe, PayPal, Square) to collect payments from clients through the chat.
         </p>
       </div>
 
-      {/* Stripe Connection Status */}
-      <div className="p-4 border border-gray-200 rounded-lg">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className={`w-3 h-3 rounded-full ${paymentSettings?.stripe_user_id ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-            <span className="text-sm font-medium text-gray-900">Stripe Account</span>
-          </div>
-          <span className={`text-xs px-2 py-1 rounded-full ${
-            paymentSettings?.stripe_user_id 
-              ? 'bg-green-100 text-green-800' 
-              : 'bg-gray-100 text-gray-600'
-          }`}>
-            {paymentSettings?.stripe_user_id ? 'Connected' : 'Not Connected'}
-          </span>
-        </div>
-        {paymentSettings?.stripe_user_id && (
-          <div className="mt-2 text-xs text-gray-500">
-            Stripe Account ID: {paymentSettings.stripe_user_id}
-          </div>
-        )}
-      </div>
-
-      {/* Connect/Disconnect Button */}
-      <div className="flex gap-3">
-        {!paymentSettings?.stripe_user_id ? (
+      {/* Payment Providers Section */}
+      <div className="space-y-6">
+        {paymentProviders.length === 0 ? (
+          // Empty state - clickable container
           <button
-            onClick={handleConnectStripe}
-            disabled={saving}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+            onClick={() => setShowAddProvider(true)}
+            className="w-full text-center py-8 rounded-lg border-2 border-dashed border-gray-300 hover:border-blue-400 hover:bg-blue-50 transition-all group"
           >
-            {saving ? (
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-            ) : (
-              <ExternalLink className="w-4 h-4" />
-            )}
-            Connect Stripe Account
+            <CreditCard className="w-12 h-12 mx-auto mb-4 text-gray-400 group-hover:text-blue-500 transition-colors" />
+            <h4 className="text-lg font-medium text-gray-900 mb-2 group-hover:text-blue-900">Connect Payment Provider</h4>
+            <p className="text-gray-600 mb-4 group-hover:text-blue-700">
+              Connect payment providers (Stripe, PayPal, Square) to collect payments from clients through the chat.
+            </p>
+            <div className="flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg group-hover:bg-blue-700 transition-colors mx-auto w-fit">
+              <Plus className="w-4 h-4 mr-2" />
+              Add Payment Provider
+            </div>
           </button>
         ) : (
-          <button
-            onClick={handleDisconnectStripe}
-            className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 border border-red-200 rounded-lg"
-          >
-            <X className="w-4 h-4" />
-            Disconnect Stripe
-          </button>
-        )}
-      </div>
-
-      {/* Payment Options - Only show if Stripe is connected */}
-      {paymentSettings?.stripe_user_id && (
-        <div className="space-y-6">
-          <div>
-            <h4 className="font-medium text-gray-900 mb-3">Choose Payment Option</h4>
+          // Connected providers list
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h4 className="font-medium text-gray-900">Connected Providers</h4>
+              <button
+                onClick={() => setShowAddProvider(true)}
+                className="flex items-center gap-2 px-4 py-2 text-blue-600 hover:bg-blue-50 border border-blue-200 rounded-lg transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                Add Provider
+              </button>
+            </div>
             
-            {/* Payment Option Cards */}
-            <div className="grid gap-4">
-              {paymentOptions.map((option) => (
-                <div
-                  key={option.id}
-                  className={`p-4 border rounded-lg cursor-pointer transition-colors ${
-                    selectedPaymentType === option.id
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                  onClick={() => setSelectedPaymentType(option.id as any)}
-                >
-                  <div className="flex items-start gap-3">
-                    <div className={`p-2 rounded-lg ${
-                      selectedPaymentType === option.id ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600'
-                    }`}>
-                      {option.icon}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h5 className="font-medium text-gray-900">{option.name}</h5>
-                        {selectedPaymentType === option.id && (
-                          <Check className="w-4 h-4 text-blue-600" />
+            {paymentProviders.map((provider) => {
+              const providerInfo = providerTypes.find(p => p.id === provider.provider_type)
+              return (
+                <div key={provider.id} className="p-4 border border-gray-200 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-lg bg-gradient-to-r ${providerInfo?.color || 'from-gray-400 to-gray-600'} flex items-center justify-center text-white`}>
+                        {providerInfo?.icon}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium text-gray-900">{providerInfo?.name || provider.provider_type}</span>
+                          {provider.is_default && (
+                            <span className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full">Default</span>
+                          )}
+                          <span className={`text-xs px-2 py-1 rounded-full ${
+                            provider.is_active 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-gray-100 text-gray-600'
+                          }`}>
+                            {provider.is_active ? 'Active' : 'Inactive'}
+                          </span>
+                        </div>
+                        {provider.provider_account_id && (
+                          <div className="text-xs text-gray-500 mt-1">
+                            Account: {provider.provider_account_id}
+                          </div>
                         )}
                       </div>
-                      <p className="text-sm text-gray-600 mb-2">{option.description}</p>
-                      <p className="text-xs text-gray-500 mb-2">{option.setup}</p>
-                      <div className="flex flex-wrap gap-1">
-                        {option.pros.map((pro, index) => (
-                          <span key={index} className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
-                            {pro}
-                          </span>
-                        ))}
-                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {!provider.is_default && provider.is_active && (
+                        <button
+                          onClick={() => {
+                            // Set as default provider
+                            fetch(`/api/organizations/${organizationId}/payment-providers/${provider.id}`, {
+                              method: 'PATCH',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ is_default: true })
+                            }).then(() => loadPaymentProviders())
+                          }}
+                          className="text-xs px-3 py-1 text-blue-600 hover:bg-blue-50 border border-blue-200 rounded-md"
+                        >
+                          Set as Default
+                        </button>
+                      )}
+                      <button
+                        onClick={() => {
+                          setSelectedProvider(provider)
+                          setSelectedPaymentType(provider.payment_type)
+                          if (provider.price_id) setPriceId(provider.price_id)
+                          if (provider.service_name) {
+                            setServiceName(provider.service_name)
+                            setServiceAmount(provider.service_amount ? (provider.service_amount / 100).toString() : '')
+                            setServiceCurrency(provider.service_currency)
+                            setServiceType(provider.service_type)
+                            if (provider.recurring_interval) setRecurringInterval(provider.recurring_interval)
+                          }
+                        }}
+                        className="text-xs px-3 py-1 text-gray-600 hover:bg-gray-50 border border-gray-200 rounded-md"
+                      >
+                        Configure
+                      </button>
+                      <button
+                        onClick={() => handleDisconnectProvider(provider)}
+                        className="text-xs px-3 py-1 text-red-600 hover:bg-red-50 border border-red-200 rounded-md"
+                      >
+                        Disconnect
+                      </button>
                     </div>
                   </div>
                 </div>
-              ))}
+              )
+            })}
+          </div>
+        )}
+
+        {/* Provider Selection */}
+        {showAddProvider && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h4 className="font-medium text-gray-900">Add Payment Provider</h4>
+              <button
+                onClick={() => setShowAddProvider(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="grid gap-4">
+              {providerTypes.map((provider) => {
+                const isConnected = paymentProviders.some(p => p.provider_type === provider.id)
+                return (
+                  <div
+                    key={provider.id}
+                    className={`p-4 border rounded-lg transition-colors ${
+                      isConnected 
+                        ? 'border-gray-200 bg-gray-50 opacity-60' 
+                        : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer'
+                    }`}
+                    onClick={() => !isConnected && handleConnectProvider(provider.id as any)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`w-12 h-12 rounded-lg bg-gradient-to-r ${provider.color} flex items-center justify-center text-white`}>
+                        {provider.icon}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <h5 className="font-medium text-gray-900">{provider.name}</h5>
+                          {isConnected && (
+                            <span className="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">Connected</span>
+                          )}
+                        </div>
+                        <p className="text-sm text-gray-600">{provider.description}</p>
+                      </div>
+                      {!isConnected && (
+                        <ArrowRight className="w-5 h-5 text-gray-400" />
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           </div>
+        )}
 
-          {/* Configuration based on selected option */}
-          {selectedPaymentType === 'manual_price_id' && (
-            <div className="space-y-4">
-              <h5 className="font-medium text-gray-900">Manual Price ID Setup</h5>
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <h6 className="font-medium text-blue-900 mb-2">Setup Instructions:</h6>
-                <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
-                  <li>Log into your Stripe Dashboard</li>
-                  <li>Go to <strong>Products</strong> → <strong>Add Product</strong></li>
-                  <li>Create your service (e.g., "Initial Consultation - $80")</li>
-                  <li>Copy the <strong>Price ID</strong> (starts with "price_")</li>
-                  <li>Paste it below</li>
-                </ol>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Stripe Price ID
-                </label>
-                <input
-                  type="text"
-                  value={priceId}
-                  onChange={(e) => setPriceId(e.target.value)}
-                  placeholder="price_1ABCxyz..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  Find this in your Stripe Dashboard under Products → [Your Product] → Pricing
-                </p>
+        {/* Configuration Panel */}
+        {selectedProvider && (
+          <div className="space-y-6 border-t pt-6">
+            <div className="flex items-center gap-3">
+              <h4 className="font-medium text-gray-900">Configure {selectedProvider.provider_type.toUpperCase()}</h4>
+              <span className={`text-xs px-2 py-1 rounded-full ${
+                selectedProvider.is_default 
+                  ? 'bg-blue-100 text-blue-800' 
+                  : 'bg-gray-100 text-gray-600'
+              }`}>
+                {selectedProvider.is_default ? 'Default Provider' : 'Secondary Provider'}
+              </span>
+            </div>
+
+            {/* Payment Options */}
+            <div>
+              <h5 className="font-medium text-gray-900 mb-3">Choose Payment Option</h5>
+              <div className="grid gap-4">
+                {paymentOptions.map((option) => (
+                  <div
+                    key={option.id}
+                    className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                      selectedPaymentType === option.id
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                    onClick={() => setSelectedPaymentType(option.id as any)}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className={`p-2 rounded-lg ${
+                        selectedPaymentType === option.id ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600'
+                      }`}>
+                        {option.icon}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h6 className="font-medium text-gray-900">{option.name}</h6>
+                          {selectedPaymentType === option.id && (
+                            <Check className="w-4 h-4 text-blue-600" />
+                          )}
+                        </div>
+                        <p className="text-sm text-gray-600 mb-2">{option.description}</p>
+                        <p className="text-xs text-gray-500 mb-2">{option.setup}</p>
+                        <div className="flex flex-wrap gap-1">
+                          {option.pros.map((pro, index) => (
+                            <span key={index} className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
+                              {pro}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
-          )}
 
-          {selectedPaymentType === 'custom_ui' && (
-            <div className="space-y-4">
-              <h5 className="font-medium text-gray-900">Service Setup</h5>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Configuration Forms */}
+            {selectedPaymentType === 'manual_price_id' && (
+              <div className="space-y-4">
+                <h6 className="font-medium text-gray-900">Manual Price ID Setup</h6>
+                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <h6 className="font-medium text-blue-900 mb-2">Setup Instructions:</h6>
+                  <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
+                    <li>Log into your {selectedProvider.provider_type} Dashboard</li>
+                    <li>Go to Products/Services section</li>
+                    <li>Create your service (e.g., "Initial Consultation - $80")</li>
+                    <li>Copy the Price/Product ID</li>
+                    <li>Paste it below</li>
+                  </ol>
+                </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Service Name
+                    {selectedProvider.provider_type.toUpperCase()} Price/Product ID
                   </label>
                   <input
                     type="text"
-                    value={serviceName}
-                    onChange={(e) => setServiceName(e.target.value)}
-                    placeholder="Initial Consultation"
+                    value={priceId}
+                    onChange={(e) => setPriceId(e.target.value)}
+                    placeholder={
+                      selectedProvider.provider_type === 'stripe' ? 'price_1ABCxyz...' :
+                      selectedProvider.provider_type === 'paypal' ? 'P-ABC123...' :
+                      'sq0idp-ABC123...'
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Price
-                  </label>
-                  <div className="flex">
-                    <span className="inline-flex items-center px-3 py-2 border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm rounded-l-md">
-                      {serviceCurrency.toUpperCase()}
-                    </span>
-                    <input
-                      type="number"
-                      value={serviceAmount}
-                      onChange={(e) => setServiceAmount(e.target.value)}
-                      placeholder="80.00"
-                      step="0.01"
-                      min="0"
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-r-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                </div>
               </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Payment Type
-                  </label>
-                  <select
-                    value={serviceType}
-                    onChange={(e) => setServiceType(e.target.value as 'one_time' | 'recurring')}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="one_time">One-time Payment</option>
-                    <option value="recurring">Recurring Payment</option>
-                  </select>
-                </div>
-                {serviceType === 'recurring' && (
+            )}
+
+            {selectedPaymentType === 'custom_ui' && (
+              <div className="space-y-4">
+                <h6 className="font-medium text-gray-900">Service Setup</h6>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Billing Interval
+                      Service Name
+                    </label>
+                    <input
+                      type="text"
+                      value={serviceName}
+                      onChange={(e) => setServiceName(e.target.value)}
+                      placeholder="Initial Consultation"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Price
+                    </label>
+                    <div className="flex">
+                      <span className="inline-flex items-center px-3 py-2 border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm rounded-l-md">
+                        {serviceCurrency.toUpperCase()}
+                      </span>
+                      <input
+                        type="number"
+                        value={serviceAmount}
+                        onChange={(e) => setServiceAmount(e.target.value)}
+                        placeholder="80.00"
+                        step="0.01"
+                        min="0"
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-r-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Payment Type
                     </label>
                     <select
-                      value={recurringInterval}
-                      onChange={(e) => setRecurringInterval(e.target.value)}
+                      value={serviceType}
+                      onChange={(e) => setServiceType(e.target.value as 'one_time' | 'recurring')}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
-                      <option value="day">Daily</option>
-                      <option value="week">Weekly</option>
-                      <option value="month">Monthly</option>
-                      <option value="year">Yearly</option>
+                      <option value="one_time">One-time Payment</option>
+                      <option value="recurring">Recurring Payment</option>
                     </select>
                   </div>
-                )}
+                  {serviceType === 'recurring' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Billing Interval
+                      </label>
+                      <select
+                        value={recurringInterval}
+                        onChange={(e) => setRecurringInterval(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="day">Daily</option>
+                        <option value="week">Weekly</option>
+                        <option value="month">Monthly</option>
+                        <option value="year">Yearly</option>
+                      </select>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {selectedPaymentType === 'dynamic' && (
-            <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-              <h5 className="font-medium text-green-900 mb-2">Dynamic Pricing</h5>
-              <p className="text-sm text-green-800 mb-2">
-                With dynamic pricing, clients can enter their own amount when making a payment. 
-                Perfect for consultations, donations, or variable-priced services.
-              </p>
-              <p className="text-xs text-green-700">
-                No additional setup required. Clients will see an amount input when they choose to pay.
-              </p>
-            </div>
-          )}
+            {selectedPaymentType === 'dynamic' && (
+              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                <h6 className="font-medium text-green-900 mb-2">Dynamic Pricing</h6>
+                <p className="text-sm text-green-800 mb-2">
+                  With dynamic pricing, clients can enter their own amount when making a payment. 
+                  Perfect for consultations, donations, or variable-priced services.
+                </p>
+                <p className="text-xs text-green-700">
+                  No additional setup required. Clients will see an amount input when they choose to pay.
+                </p>
+              </div>
+            )}
 
-          {/* Save Button */}
-          <div className="flex justify-end">
-            <button
-              onClick={handleSaveSettings}
-              disabled={saving || !paymentSettings?.stripe_user_id}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-            >
-              {saving ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  Saving...
-                </>
-              ) : (
-                'Save Payment Settings'
-              )}
-            </button>
+            {/* Save Button */}
+            <div className="flex justify-end">
+              <button
+                onClick={handleSaveSettings}
+                disabled={saving || !selectedProvider}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {saving ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Saving...
+                  </>
+                ) : (
+                  'Save Payment Settings'
+                )}
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }

@@ -126,7 +126,7 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
                 className={`flex-shrink-0 px-5 py-3 rounded-2xl transition-all duration-300 text-sm font-semibold group relative overflow-hidden ${
                   agentToolSettings[hint.category]
                     ? 'bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-500 text-white shadow-lg shadow-blue-500/25 ring-2 ring-blue-200 ring-offset-2 cursor-pointer'
-                    : 'bg-gray-300/80 border border-gray-400/50 text-gray-500 cursor-pointer opacity-60 hover:opacity-80 hover:bg-gray-400/80 hover:text-gray-600 hover:border-amber-400/60 hover:ring-1 hover:ring-amber-300/30'
+                    : 'bg-gray-900 border border-gray-700 text-gray-300 cursor-pointer opacity-80 hover:opacity-100 hover:bg-gray-800 hover:text-gray-200 hover:border-amber-400/60 hover:ring-1 hover:ring-amber-300/30'
                 }`}
                 title={hint.description}
               >

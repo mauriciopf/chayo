@@ -124,33 +124,48 @@ export class AgentToolConstraintsService {
     supabase: any
   ): Promise<ToolConstraintResult> {
     try {
-      // Check if Stripe settings are configured
-      const { data: settings, error } = await supabase
-        .from('stripe_settings')
+      // Check if any payment provider is configured
+      const { data: providers, error } = await supabase
+        .from('payment_providers')
         .select('*')
         .eq('organization_id', organizationId)
         .eq('is_active', true)
-        .single()
 
-      if (error || !settings) {
+      if (error || !providers || providers.length === 0) {
         return {
           canEnable: false,
-          reason: 'Stripe settings not configured',
-          missingConfig: ['Connect Stripe account', 'Configure payment settings']
+          reason: 'No payment provider configured',
+          missingConfig: ['Connect a payment provider (Stripe, PayPal, or Square)']
+        }
+      }
+
+      // Check if there's a default provider
+      const defaultProvider = providers.find((p: any) => p.is_default)
+      if (!defaultProvider) {
+        return {
+          canEnable: false,
+          reason: 'No default payment provider',
+          missingConfig: ['Set a default payment provider']
         }
       }
 
       const missing = []
-      if (!settings.stripe_user_id) missing.push('Stripe account connection')
-      if (!settings.access_token) missing.push('Stripe authentication')
       
-      // Check payment configuration based on payment type
-      if (settings.payment_type === 'manual_price_id' && !settings.price_id) {
-        missing.push('Stripe Price ID')
+      // Check provider account connection
+      if (!defaultProvider.provider_account_id) {
+        missing.push(`${defaultProvider.provider_type.toUpperCase()} account connection`)
+      }
+      if (!defaultProvider.access_token) {
+        missing.push(`${defaultProvider.provider_type.toUpperCase()} authentication`)
       }
       
-      if (settings.payment_type === 'custom_ui' && (!settings.service_name || !settings.service_amount)) {
-        missing.push('Service configuration')
+      // Check payment configuration based on payment type
+      if (defaultProvider.payment_type === 'manual_price_id' && !defaultProvider.price_id) {
+        missing.push(`${defaultProvider.provider_type.toUpperCase()} Price/Product ID`)
+      }
+      
+      if (defaultProvider.payment_type === 'custom_ui' && (!defaultProvider.service_name || !defaultProvider.service_amount)) {
+        missing.push('Service configuration (name and amount)')
       }
 
       if (missing.length > 0) {
