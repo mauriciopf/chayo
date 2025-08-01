@@ -128,7 +128,8 @@ export async function GET(request: NextRequest) {
         nonce: tokenData.nonce
       },
       payment_type: 'manual_price_id',
-      is_active: true
+      is_active: true,
+      is_default: false
     }
 
     // Check if PayPal provider already exists for this organization

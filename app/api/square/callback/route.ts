@@ -140,7 +140,8 @@ export async function GET(request: NextRequest) {
         token_type: tokenData.token_type
       },
       payment_type: 'manual_price_id',
-      is_active: true
+      is_active: true,
+      is_default: false
     }
 
     // Check if Square provider already exists for this organization
