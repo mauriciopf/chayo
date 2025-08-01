@@ -246,6 +246,9 @@ async function createStripePayment(provider: any, amount: number, description: s
     if (!provider.default_price_id) {
       throw new Error('Default price not configured')
     }
+    if (!provider.service_amount || provider.service_amount <= 0) {
+      throw new Error('Service amount is required for custom UI pricing')
+    }
 
     const paymentLink = await createStripePaymentLink(
       provider.access_token,
@@ -308,6 +311,9 @@ async function createPayPalPayment(provider: any, amount: number, description: s
     }
   } else if (provider.payment_type === 'manual_price_id' || provider.payment_type === 'custom_ui') {
     // Fixed pricing
+    if (!provider.service_amount || provider.service_amount <= 0) {
+      throw new Error('Service amount is required for fixed pricing')
+    }
     paymentAmount = provider.service_amount
     
     invoiceData = {
@@ -432,6 +438,9 @@ async function createSquarePayment(provider: any, amount: number, description: s
     }
   } else if (provider.payment_type === 'manual_price_id' || provider.payment_type === 'custom_ui') {
     // Fixed pricing
+    if (!provider.service_amount || provider.service_amount <= 0) {
+      throw new Error('Service amount is required for fixed pricing')
+    }
     paymentAmount = provider.service_amount
     
     checkoutData = {
