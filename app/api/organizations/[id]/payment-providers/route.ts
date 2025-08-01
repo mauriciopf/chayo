@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
 
 // GET - List payment providers for organization
 export async function GET(

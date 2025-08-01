@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getSupabaseServerClient } from '@/lib/supabase/server'
-import { AgentToolConstraintsService } from '@/lib/services/agentToolConstraints'
+import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
+import { AgentToolConstraintsService } from '@/lib/features/tools/shared/services/agentToolConstraints'
 
 export async function GET(
   request: NextRequest,

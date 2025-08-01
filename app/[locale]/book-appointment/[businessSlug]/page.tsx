@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
-import AppointmentCalendar from '@/components/dashboard/AppointmentCalendar'
-import { Agent, Organization } from '@/components/dashboard/types'
-import { supabase } from '@/lib/supabase/client'
+import AppointmentCalendar from '@/lib/features/tools/appointments/components/AppointmentCalendar'
+import { Agent, Organization } from '@/lib/shared/types'
+import { supabase } from '@/lib/shared/supabase/client'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 

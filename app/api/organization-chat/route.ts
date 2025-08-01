@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { OrganizationChatService } from '@/lib/services/organizationChatService'
-import { validationService } from '@/lib/services/validationService'
-import { errorHandlingService } from '@/lib/services/errorHandlingService'
-import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { OrganizationChatService } from '@/lib/features/chat/services/organizationChatService'
+import { validationService, errorHandlingService } from '@/lib/shared/services'
+import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
 import { cookies } from 'next/headers'
 
 // Using Node.js runtime to support fs for reading businessSystemPrompt.yaml

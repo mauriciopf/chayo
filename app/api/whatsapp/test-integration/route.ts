@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 export const dynamic = 'force-dynamic'
-import { getSupabaseServerClient } from "@/lib/supabase/server"
-import { twilioClient, TWILIO_CONFIG } from '@/lib/twilio/client'
+import { getSupabaseServerClient } from "@/lib/shared/supabase/server"
+import { twilioClient, TWILIO_CONFIG } from '@/lib/shared/twilio/client'
 
 // Comprehensive test endpoint for WhatsApp integration
 export async function GET(request: NextRequest) {

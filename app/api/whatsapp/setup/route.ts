@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { twilioClient, TWILIO_CONFIG } from '@/lib/twilio/client'
-import { getSupabaseServerClient } from "@/lib/supabase/server"
+import { twilioClient, TWILIO_CONFIG } from '@/lib/shared/twilio/client'
+import { getSupabaseServerClient } from "@/lib/shared/supabase/server"
 
 interface WhatsAppSetupRequest {
   phoneNumber: string

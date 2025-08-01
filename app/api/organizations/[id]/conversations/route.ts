@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getSupabaseServerClient } from "@/lib/supabase/server"
-import { embeddingService } from '@/lib/services/embeddingService'
+import { getSupabaseServerClient } from "@/lib/shared/supabase/server"
+import { embeddingService } from '@/lib/shared/services/embeddingService'
 
 export async function POST(
   request: NextRequest,
@@ -115,7 +115,7 @@ export async function GET(
     
     if (query) {
       // Search for similar conversations
-      const { generateEmbeddings } = await import('@/lib/services/embedding/EmbeddingGenerator')
+      const { generateEmbeddings } = await import('@/lib/shared/services/embedding/EmbeddingGenerator')
       const queryEmbedding = (await generateEmbeddings([{ text: query, type: 'conversation', metadata: {} }]))[0]
       results = await embeddingService.searchSimilarConversations(
         organizationId,

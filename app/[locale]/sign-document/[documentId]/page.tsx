@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib'
-import { supabase } from '@/lib/supabase/client'
+import { supabase } from '@/lib/shared/supabase/client'
 
 interface DocumentData {
   id: string

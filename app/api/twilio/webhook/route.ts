@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { twilioClient } from '@/lib/twilio/client'
-import { getSupabaseServerClient } from "@/lib/supabase/server"
-import { conversationStorageService } from '@/lib/services/conversationStorageService'
+import { twilioClient } from '@/lib/shared/twilio/client'
+import { getSupabaseServerClient } from "@/lib/shared/supabase/server"
+import { conversationStorageService } from '@/lib/shared/services/conversationStorageService'
 
 export async function POST(request: NextRequest) {
   try {

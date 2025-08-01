@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
-import ClientChatContainer from '@/components/dashboard/ClientChatContainer'
-import { Agent, Organization } from '@/components/dashboard/types'
-import { supabase } from '@/lib/supabase/client'
+import ClientChatContainer from '@/lib/features/chat/components/ClientChatContainer'
+import { Agent, Organization } from '@/lib/shared/types'
+import { supabase } from '@/lib/shared/supabase/client'
 
 // Helper function to update organization name from business info
 async function updateOrganizationNameFromBusinessInfo(organizationId: string): Promise<void> {

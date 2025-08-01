@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
 
 // SignatureAPI webhook handler for signing completion events
 export async function POST(request: NextRequest) {

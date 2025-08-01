@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getSupabaseServerClient } from "@/lib/supabase/server"
-import { twilioClient, TWILIO_CONFIG } from '@/lib/twilio/client'
+import { getSupabaseServerClient } from "@/lib/shared/supabase/server"
+import { twilioClient, TWILIO_CONFIG } from '@/lib/shared/twilio/client'
 
 export async function POST(
   request: NextRequest,

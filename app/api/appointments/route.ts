@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
 
 // POST - Create new appointment (public endpoint for clients)
 export async function POST(request: NextRequest) {

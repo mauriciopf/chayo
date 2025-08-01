@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import StartACall from '@/components/StartACall'
+import StartACall from '@/components/marketing/StartACall'
 
 export default function StartACallPage() {
   const [darkMode, setDarkMode] = useState(true)

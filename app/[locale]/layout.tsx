@@ -3,8 +3,8 @@ import {getMessages} from 'next-intl/server';
 import {notFound} from 'next/navigation';
 import type { Metadata } from 'next'
 import '../globals.css'
-import LanguageSelector from '@/components/LanguageSelector'
-import ConditionalLanguageSelector from '@/components/ConditionalLanguageSelector'
+
+import ConditionalLanguageSelector from '@/components/layout/ConditionalLanguageSelector'
 
 // Define supported locales directly
 const locales = ['en', 'es'];

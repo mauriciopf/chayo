@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getSupabaseServerClient } from "@/lib/supabase/server"
-import { embeddingService } from '@/lib/services/embeddingService'
+import { getSupabaseServerClient } from "@/lib/shared/supabase/server"
+import { embeddingService } from '@/lib/shared/services/embeddingService'
 
 // 🔍 GET - Get memory conflicts and analysis
 export async function GET(

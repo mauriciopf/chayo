@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getSupabaseServerClient } from "@/lib/supabase/server"
-import { ClientSystemPromptService } from '@/lib/services/clientPrompt/ClientSystemPromptService'
-import { embeddingService } from '@/lib/services/embeddingService'
-import { conversationStorageService } from '@/lib/services/conversationStorageService'
-import { ToolIntentService } from '@/lib/services/toolIntentService'
+import { getSupabaseServerClient } from "@/lib/shared/supabase/server"
+import { ClientSystemPromptService } from '@/lib/features/chat/services/clientPrompt/ClientSystemPromptService'
+import { embeddingService, conversationStorageService } from '@/lib/shared/services'
+import { ToolIntentService } from '@/lib/features/tools/shared/services'
 
 export async function POST(request: NextRequest) {
   try {

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getSupabaseServerClient } from '@/lib/supabase/server'
-import { getUserOrganizations } from '@/lib/services/organization/UserOrganizationManager'
+import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
+import { getUserOrganizations } from '@/lib/features/organizations/services/organization/UserOrganizationManager'
 
 // Function to upload PDF to Supabase storage
 async function uploadPdfToStorage(file: File, organizationId: string, supabase: any) {

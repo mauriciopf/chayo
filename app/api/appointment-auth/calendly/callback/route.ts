@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
 
 const OAUTH_CONFIG = {
   clientId: process.env.CALENDLY_CLIENT_ID,

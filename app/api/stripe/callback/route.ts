@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
 
 // DEPRECATED: This file is for the old OAuth flow
 // New implementation uses Connect Onboarding in /api/stripe/connect/

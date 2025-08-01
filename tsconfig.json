@@ -23,9 +23,26 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./*"
-      ]
+      "@/*": ["./*"],
+      "@/components/*": ["./components/*"],
+      "@/lib/shared/*": ["./lib/shared/*"],
+      "@/lib/features/*": ["./lib/features/*"],
+      
+      // Legacy mappings - redirect old paths to new locations
+      "@/lib/services/*": ["./lib/shared/services/*"],
+      "@/lib/hooks/*": ["./lib/shared/hooks/*"],
+      "@/lib/utils": ["./lib/shared/utils"],
+      "@/lib/supabase/*": ["./lib/shared/supabase/*"],
+      "@/lib/twilio/*": ["./lib/shared/twilio/*"],
+      
+      // Common patterns
+      "@/components/dashboard/types": ["./lib/shared/types"],
+      "@/components/dashboard/*": ["./lib/features/dashboard/components/*", "./lib/features/chat/components/*"],
+      "@/lib/services/embeddingService": ["./lib/shared/services/embeddingService"],
+      "@/lib/services/conversationStorageService": ["./lib/shared/services/conversationStorageService"],
+      "@/lib/services/organizationService": ["./lib/features/organizations/services/organizationService"],
+      "@/lib/services/toolIntentService": ["./lib/features/tools/shared/services/toolIntentService"],
+      "@/lib/services/agentToolConstraints": ["./lib/features/tools/shared/services/agentToolConstraints"]
     },
     "target": "ES2017"
   },

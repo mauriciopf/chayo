@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getSupabaseServerClient } from "@/lib/supabase/server"
-import { generateSlugFromName } from '@/lib/utils/text'
+import { getSupabaseServerClient } from "@/lib/shared/supabase/server"
+import { generateSlugFromName } from '@/lib/shared/utils/text'
 
 export async function POST(request: NextRequest) {
   try {

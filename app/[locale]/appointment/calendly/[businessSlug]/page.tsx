@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { ArrowLeft, Calendar, ExternalLink } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import CalendlyEmbed from '@/components/dashboard/providers/CalendlyEmbed'
+import CalendlyEmbed from '@/lib/features/dashboard/components/providers/CalendlyEmbed'
 
 interface CalendlyAppointmentPageProps {
   params: {

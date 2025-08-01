@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getSupabaseServerClient } from '@/lib/supabase/server'
-import { getUserOrganizations } from '@/lib/services/organization/UserOrganizationManager'
+import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
+import { getUserOrganizations } from '@/lib/features/organizations/services/organization/UserOrganizationManager'
 
 export async function POST(request: NextRequest) {
   try {
