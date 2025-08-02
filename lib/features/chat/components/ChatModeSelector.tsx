@@ -64,13 +64,17 @@ const ChatModeSelector: React.FC<ChatModeSelectorProps> = ({
 
       {/* Dropdown Menu */}
       {isMenuOpen && onModeSwitch && (
-        <div 
-          className="absolute left-0 w-64 bg-gray-800 rounded-md shadow-lg border border-gray-600 overflow-hidden z-[999999]"
-          style={{
-            bottom: '100%',
-            marginBottom: '6px'
-          }}
-        >
+        <>
+          <div className="fixed inset-0" style={{ zIndex: 99999998 }} onClick={() => setIsMenuOpen(false)} />
+          <div 
+            className="absolute left-0 w-80 rounded-md shadow-xl border border-gray-600 overflow-hidden"
+            style={{
+              bottom: '100%',
+              marginBottom: '6px',
+              backgroundColor: '#1f2937',
+              zIndex: 99999999
+            }}
+          >
           {modeItems.map((item) => (
             <button
               key={item.key}
@@ -82,9 +86,9 @@ const ChatModeSelector: React.FC<ChatModeSelectorProps> = ({
               }`}
             >
               <span className="text-xs mt-0.5">{item.icon}</span>
-              <div className="flex-1">
-                <div className="font-medium text-xs">{item.label}</div>
-                <div className={`text-xs mt-0.5 whitespace-nowrap ${chatMode === item.key ? 'text-white/80' : 'text-gray-400'}`}>
+              <div className="flex-1 min-w-0">
+                <div className="font-medium text-xs whitespace-nowrap overflow-hidden text-ellipsis">{item.label}</div>
+                <div className={`text-xs mt-0.5 whitespace-nowrap overflow-hidden text-ellipsis ${chatMode === item.key ? 'text-white/80' : 'text-gray-400'}`}>
                   {item.description}
                 </div>
               </div>
@@ -93,7 +97,8 @@ const ChatModeSelector: React.FC<ChatModeSelectorProps> = ({
               )}
             </button>
           ))}
-        </div>
+          </div>
+        </>
       )}
 
       {/* Back to Business Setup Button (when in other contexts) - only show in business mode */}
