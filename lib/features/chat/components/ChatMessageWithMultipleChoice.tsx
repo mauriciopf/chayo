@@ -13,7 +13,6 @@ interface ChatMessageWithMultipleChoiceProps {
     timestamp: Date
     multipleChoices?: string[]
     allowMultiple?: boolean
-    showOtherOption?: boolean
   }
   onOptionSelect?: (selectedOptions: string | string[]) => void
   disabled?: boolean
@@ -37,8 +36,7 @@ export default function ChatMessageWithMultipleChoice({
             return {
               question: jsonData.question_template,
               options: jsonData.multiple_choices,
-              allowMultiple: false, // Default as per our system
-              showOtherOption: jsonData.multiple_choices.includes('Other')
+              allowMultiple: false // Default as per our system
             }
           }
         } catch (error) {
@@ -58,13 +56,9 @@ export default function ChatMessageWithMultipleChoice({
               const multipleMatch = message.content.match(/MULTIPLE:\s*(true|false)/i)
               const allowMultiple = multipleMatch ? multipleMatch[1].toLowerCase() === 'true' : false
               
-              const otherMatch = message.content.match(/OTHER:\s*(true|false)/i)
-              const showOtherOption = otherMatch ? otherMatch[1].toLowerCase() === 'true' : false
-              
               return {
                 options,
-                allowMultiple,
-                showOtherOption
+                allowMultiple
               }
             }
           } catch (e) {
@@ -151,7 +145,6 @@ export default function ChatMessageWithMultipleChoice({
                         disabled={disabled}
                         className="w-full"
                         allowMultiple={extractMultipleChoiceData?.allowMultiple ?? message.allowMultiple ?? false}
-                        showOtherOption={extractMultipleChoiceData?.showOtherOption ?? message.showOtherOption ?? false}
                       />
                     </motion.div>
                   </div>

@@ -5,7 +5,6 @@ export interface Message {
   timestamp: Date
   multipleChoices?: string[]
   allowMultiple?: boolean
-  showOtherOption?: boolean
   appointmentLink?: string
   documentSigningLink?: string
   paymentAvailable?: boolean

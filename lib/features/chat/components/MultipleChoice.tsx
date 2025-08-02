@@ -9,7 +9,6 @@ interface MultipleChoiceProps {
   disabled?: boolean
   className?: string
   allowMultiple?: boolean
-  showOtherOption?: boolean
   otherOptionLabel?: string
 }
 
@@ -19,9 +18,10 @@ export default function MultipleChoice({
   disabled = false,
   className = '',
   allowMultiple = false,
-  showOtherOption = false,
   otherOptionLabel = 'Other (please specify)'
 }: MultipleChoiceProps) {
+  // Derive showOtherOption from options existence - if we have multiple choices, always show "Other"
+  const showOtherOption = options.length > 0
   const [selectedOptions, setSelectedOptions] = useState<string[]>([])
   const [otherValue, setOtherValue] = useState('')
     const [showOtherInput, setShowOtherInput] = useState(false)

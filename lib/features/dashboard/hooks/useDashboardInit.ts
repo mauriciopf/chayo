@@ -11,7 +11,6 @@ export interface UseDashboardInitReturn {
     content: string
     multipleChoices?: string[]
     allowMultiple?: boolean
-    showOtherOption?: boolean
   } | null
   shouldShowAuthPrompt: boolean
 }
@@ -29,7 +28,6 @@ export function useDashboardInit(
     content: string
     multipleChoices?: string[]
     allowMultiple?: boolean
-    showOtherOption?: boolean
   } | null>(null)
   const [shouldShowAuthPrompt, setShouldShowAuthPrompt] = useState(false)
 

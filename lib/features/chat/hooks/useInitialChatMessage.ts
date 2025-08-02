@@ -5,7 +5,6 @@ interface UseInitialChatMessageProps {
     content: string
     multipleChoices?: string[]
     allowMultiple?: boolean
-    showOtherOption?: boolean
   } | null | undefined
   messagesLength: number
   locale: string | null | undefined
@@ -32,8 +31,7 @@ export function useInitialChatMessage({
           content: message.content,
           timestamp: new Date(),
           multipleChoices: message.multipleChoices,
-          allowMultiple: message.allowMultiple,
-          showOtherOption: message.showOtherOption
+          allowMultiple: message.allowMultiple
         }
       ])
     }

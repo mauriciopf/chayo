@@ -169,8 +169,7 @@ export function useChat({
         content: data.aiMessage,
         timestamp: new Date(),
         multipleChoices: data.multipleChoices,
-        allowMultiple: data.allowMultiple,
-        showOtherOption: data.showOtherOption
+        allowMultiple: data.allowMultiple
       }
       
       setMessages((msgs) => [

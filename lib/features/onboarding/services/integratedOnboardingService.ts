@@ -8,7 +8,6 @@ export interface OnboardingQuestion {
   field_type: 'text' | 'multiple_choice'
   multiple_choices?: string[]
   allow_multiple?: boolean
-  show_other?: boolean
   stage: string
   order: number
 }
@@ -98,7 +97,6 @@ export class IntegratedOnboardingService {
         field_type: q.field_type,
         multiple_choices: q.multiple_choices,
         allow_multiple: q.allow_multiple,
-        show_other: q.show_other_option, // Map from database column to interface
         stage: q.stage || 'stage_1',
         order: q.order || 0
       })) || []

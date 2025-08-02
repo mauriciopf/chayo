@@ -68,7 +68,6 @@ export async function POST(req: NextRequest) {
       aiMessage: response.aiMessage,
       multipleChoices: response.multipleChoices,
       allowMultiple: response.allowMultiple,
-      showOtherOption: response.showOtherOption,
       agentChatLink
     })
     

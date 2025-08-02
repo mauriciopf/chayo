@@ -167,7 +167,6 @@ export class DashboardInitService {
     content: string
     multipleChoices?: string[]
     allowMultiple?: boolean
-    showOtherOption?: boolean
   }> {
     try {
       const isSpanish = locale === 'es'
@@ -195,8 +194,7 @@ export class DashboardInitService {
       return {
         content: data.aiMessage,
         multipleChoices: data.multipleChoices,
-        allowMultiple: data.allowMultiple,
-        showOtherOption: data.showOtherOption
+        allowMultiple: data.allowMultiple
       }
     } catch (error) {
       console.error('Error generating initial chat message:', error)

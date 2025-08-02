@@ -11,7 +11,6 @@ export interface ChatResponse {
   aiMessage: string
   multipleChoices?: string[]
   allowMultiple?: boolean
-  showOtherOption?: boolean
   setupCompleted?: boolean
 }
 
@@ -21,11 +20,188 @@ export interface ChatContext {
   locale: string
 }
 
+export type OnboardingState = 
+  | 'NOT_STARTED'      // Fresh user, no questions yet
+  | 'PROCESSING'       // Handle onboarding - check pending, process responses, generate questions
+  | 'COMPLETED'        // All onboarding done, normal chat mode
+
 export class OrganizationChatService {
   private supabaseClient: any
 
   constructor(supabaseClient?: any) {
     this.supabaseClient = supabaseClient || supabase
+  }
+
+  /**
+   * Determine the current onboarding state for clear decision making
+   */
+  private async determineOnboardingState(
+    organizationId: string, 
+    messages: ChatMessage[]
+  ): Promise<OnboardingState> {
+    // Initialize onboarding service
+    const { IntegratedOnboardingService } = await import('../../onboarding/services/integratedOnboardingService')
+    const onboardingService = new IntegratedOnboardingService()
+
+    // 1. Check completion status first (simplest check)
+    const progress = await onboardingService.getOnboardingProgress(organizationId)
+    if (progress.isCompleted) {
+      return 'COMPLETED'
+    }
+
+    // 2. Check if this is a fresh start (no questions exist and no user messages)
+    const nextQuestion = await onboardingService.getNextQuestion(organizationId)
+    if (!nextQuestion && messages.length === 0) {
+      return 'NOT_STARTED'  // Fresh user, needs first question
+    }
+
+    // 3. Everything else is processing - either has pending questions or user interactions
+    return 'PROCESSING'  // Handle pending questions, responses, and generation
+  }
+
+  /**
+   * Handle NOT_STARTED state - generate first onboarding question
+   */
+  private async handleNotStarted(context: ChatContext): Promise<ChatResponse> {
+    console.log('🏁 State: NOT_STARTED - Generating first onboarding question')
+    const aiResponse = await this.generateAIResponseWithTransaction([], context, 'onboarding')
+    return {
+      aiMessage: aiResponse.aiMessage,
+      multipleChoices: aiResponse.multipleChoices,
+      allowMultiple: aiResponse.allowMultiple,
+      setupCompleted: false
+    }
+  }
+
+  /**
+   * Handle PROCESSING state - onboarding questions with intelligent flow
+   */
+  private async handleProcessing(messages: ChatMessage[], context: ChatContext): Promise<ChatResponse> {
+    console.log('🔄 State: PROCESSING - Onboarding questions with intelligent flow')
+    
+    // Initialize onboarding service (needed for onboarding questions)
+    const { IntegratedOnboardingService } = await import('../../onboarding/services/integratedOnboardingService')
+    const onboardingService = new IntegratedOnboardingService()
+
+    // Check if there's a pending onboarding question
+    const existingQuestion = await onboardingService.getNextQuestion(context.organization.id)
+    
+    if (existingQuestion) {
+      console.log('📋 Found existing pending onboarding question')
+      
+      // Check if user sent a message (responding to the pending question)
+      const userMessages = messages.filter(m => m.role === 'user')
+      
+      if (userMessages.length > 0) {
+        console.log('💬 User responded to pending onboarding question - processing response and generating next')
+        
+        // Process the user's response to the pending question
+        const assistantMessages = messages.filter(m => m.role === 'assistant')
+        
+        if (assistantMessages.length > 0) {
+          const lastUserMessage = userMessages[userMessages.length - 1].content
+          const lastAssistantMessage = assistantMessages[assistantMessages.length - 1].content
+          
+          // Process the response
+          await onboardingService.processAIResponse(
+            context.organization.id,
+            lastAssistantMessage,
+            lastUserMessage
+          )
+        }
+
+        // Generate the next onboarding question
+        const aiResponse = await this.generateAIResponseWithTransaction(messages, context, 'onboarding')
+        
+        return {
+          aiMessage: aiResponse.aiMessage,
+          multipleChoices: aiResponse.multipleChoices,
+          allowMultiple: aiResponse.allowMultiple,
+          setupCompleted: aiResponse.aiMessage.includes('STATUS: setup_complete')
+        }
+      } else {
+        console.log('⏳ No user response yet - returning existing pending onboarding question')
+        
+        // No user message, just return the existing pending question
+        return {
+          aiMessage: existingQuestion.question_template,
+          multipleChoices: existingQuestion.multiple_choices || undefined,
+          allowMultiple: existingQuestion.allow_multiple || false,
+          setupCompleted: false
+        }
+      }
+    } else {
+      console.log('🆕 No pending onboarding question - generating new onboarding question')
+      
+      // No pending question, generate a new onboarding question
+      const aiResponse = await this.generateAIResponseWithTransaction(messages, context, 'onboarding')
+      
+      return {
+        aiMessage: aiResponse.aiMessage,
+        multipleChoices: aiResponse.multipleChoices,
+        allowMultiple: aiResponse.allowMultiple,
+        setupCompleted: aiResponse.aiMessage.includes('STATUS: setup_complete')
+      }
+    }
+  }
+
+  /**
+   * Handle COMPLETED state - business operations mode with intelligent flow
+   */
+  private async handleCompleted(messages: ChatMessage[], context: ChatContext): Promise<ChatResponse> {
+    console.log('✅ State: COMPLETED - Business operations mode with intelligent flow')
+    
+    // Use BusinessInfoService for stage-agnostic pending question management
+    const { businessInfoService } = await import('../../organizations/services/businessInfoService')
+    
+    // Check if there's any pending business question (no stage logic needed)
+    const existingQuestion = await businessInfoService.getNextPendingQuestion(context.organization.id)
+    
+    if (existingQuestion) {
+      console.log('📋 Found existing pending business question')
+      
+      // Check if user sent a message (responding to the pending question)
+      const userMessages = messages.filter(m => m.role === 'user')
+      
+      if (userMessages.length > 0) {
+        console.log('💬 User responded to pending business question - processing response and generating next')
+        
+        // For business mode, we can process the response directly
+        // TODO: Add business-specific response processing if needed
+        
+        // Generate the next business question or response
+        const aiResponse = await this.generateAIResponseWithTransaction(messages, context, 'business')
+        
+        return {
+          aiMessage: aiResponse.aiMessage,
+          multipleChoices: aiResponse.multipleChoices,
+          allowMultiple: aiResponse.allowMultiple,
+          setupCompleted: true // Always true in business mode
+        }
+      } else {
+        console.log('⏳ No user response yet - returning existing pending business question')
+        
+        // No user message, just return the existing pending question
+        return {
+          aiMessage: existingQuestion.question_template,
+          multipleChoices: existingQuestion.multiple_choices || undefined,
+          allowMultiple: existingQuestion.field_type === 'multiple_choice', // Allow multiple for business multiple choice questions
+          setupCompleted: true // Always true in business mode
+        }
+      }
+    } else {
+      console.log('🆕 No pending business question - generating business conversation')
+      
+      // No pending question, generate business-focused conversation
+      const aiResponse = await this.generateAIResponseWithTransaction(messages, context, 'business')
+      
+      return {
+        aiMessage: aiResponse.aiMessage,
+        multipleChoices: aiResponse.multipleChoices,
+        allowMultiple: aiResponse.allowMultiple,
+        setupCompleted: true // Always true in business mode
+      }
+    }
   }
   
   /**
@@ -41,6 +217,7 @@ export class OrganizationChatService {
       if (authError || !user) {
         throw new Error('Authentication required')
       }
+      
       // Get or create organization
       const organization = await this.getOrCreateOrganization(user)
       const context: ChatContext = {
@@ -49,145 +226,46 @@ export class OrganizationChatService {
         locale
       }
       
-      // Initialize integrated onboarding service
-      const { IntegratedOnboardingService } = await import('../../onboarding/services/integratedOnboardingService')
-      const onboardingService = new IntegratedOnboardingService()
+      // Determine current state FIRST without modifying anything
+      const state = await this.determineOnboardingState(organization.id, messages)
       
-      // Initialize onboarding if not already done
-      await onboardingService.initializeOnboarding(organization.id)
-      
-      // Get current onboarding progress
-      const progress = await onboardingService.getOnboardingProgress(organization.id)
-      
-      // For initial messages (empty messages array), check if onboarding is completed
-      if (messages.length === 0) {
-        console.log('🔍 Processing initial message - onboarding completed:', progress.isCompleted)
-        // If onboarding is completed, just generate a greeting
-        if (progress.isCompleted) {
-          const aiResponse = await this.generateAIResponse([], context)
-          return {
-            aiMessage: aiResponse.aiMessage,
-            multipleChoices: aiResponse.multipleChoices,
-            allowMultiple: aiResponse.allowMultiple,
-            showOtherOption: aiResponse.showOtherOption,
-            organization,
-            setupCompleted: true
-          }
-        }
-        
-        // If onboarding is not completed, check for existing pending questions first
-        const existingQuestion = await onboardingService.getNextQuestion(organization.id)
-        
-        if (existingQuestion) {
-          // Return the existing pending question instead of generating a new one
-          console.log('🔍 Returning existing pending question:', existingQuestion.question_template)
-          return {
-            aiMessage: existingQuestion.question_template,
-            multipleChoices: existingQuestion.multiple_choices || undefined,
-            allowMultiple: existingQuestion.allow_multiple || false,
-            showOtherOption: existingQuestion.show_other || false,
-            organization,
-            setupCompleted: false
-          }
-        }
-        
-        // Only generate a new question if no pending questions exist
-        console.log('🔍 No pending questions found, generating new onboarding question')
-        const aiResponse = await this.generateAIResponse([], context)
-        
-        // Question storage is now handled automatically in generateAIResponse
-        
-        return {
-          aiMessage: aiResponse.aiMessage,
-          multipleChoices: aiResponse.multipleChoices,
-          allowMultiple: aiResponse.allowMultiple,
-          showOtherOption: aiResponse.showOtherOption,
-          organization,
-          setupCompleted: progress.isCompleted
-        }
+      // THEN initialize onboarding if needed (only for NOT_STARTED state)
+      if (state === 'NOT_STARTED') {
+        const { IntegratedOnboardingService } = await import('../../onboarding/services/integratedOnboardingService')
+        const onboardingService = new IntegratedOnboardingService()
+        await onboardingService.initializeOnboarding(organization.id)
+        console.log('🏗️ Initialized onboarding for NOT_STARTED state')
       }
+      console.log(`🎯 Current onboarding state: ${state}`)
       
-      // Handle user responses to onboarding questions
-      const userMessages = messages.filter(m => m.role === 'user')
-      const assistantMessages = messages.filter(m => m.role === 'assistant')
+      // Handle each state with dedicated methods
+      let response: ChatResponse
       
-      // If this is a user response to an onboarding question (has user message and assistant message)
-      if (userMessages.length > 0 && assistantMessages.length > 0 && !progress.isCompleted) {
-        // Process the user's response to the current onboarding question
-        const lastUserMessage = userMessages[userMessages.length - 1].content
-        const lastAssistantMessage = assistantMessages[assistantMessages.length - 1].content
-        
-        // Process the response and get the next question
-        const processingResult = await onboardingService.processAIResponse(
-          organization.id,
-          lastAssistantMessage, // The question that was asked
-          lastUserMessage // The user's response
-        )
-        
-        // Generate the next question dynamically from AI
-        const aiResponse = await this.generateAIResponse(messages, context)
-        
-        // Question storage is now handled automatically in generateAIResponse
-        
-        return {
-          aiMessage: aiResponse.aiMessage,
-          multipleChoices: aiResponse.multipleChoices,
-          allowMultiple: aiResponse.allowMultiple,
-          showOtherOption: aiResponse.showOtherOption,
-          organization,
-          setupCompleted: aiResponse.aiMessage.includes('STATUS: setup_complete')
-        }
+      switch (state) {
+        case 'NOT_STARTED':
+          response = await this.handleNotStarted(context)
+          break
+          
+        case 'PROCESSING':
+          response = await this.handleProcessing(messages, context)
+          break
+          
+        case 'COMPLETED':
+          response = await this.handleCompleted(messages, context)
+          break
+          
+        default:
+          throw new Error(`Unknown onboarding state: ${state}`)
       }
-      
-      // If onboarding is completed, proceed with normal chat
-      if (progress.isCompleted) {
-        const { aiMessage, multipleChoices, allowMultiple, showOtherOption } = await this.generateAIResponse(messages, context)
-        return {
-          aiMessage,
-          multipleChoices,
-          allowMultiple,
-          showOtherOption,
-          organization,
-          setupCompleted: true
-        }
-      }
-      
-      // Get the next question to ask
-      const nextQuestion = await onboardingService.getNextQuestion(organization.id)
-      
-      if (nextQuestion) {
-        // Return the next question instead of generating a new AI response
-        return {
-          aiMessage: nextQuestion.question_template,
-          multipleChoices: nextQuestion.multiple_choices || undefined,
-          allowMultiple: nextQuestion.allow_multiple || false,
-          showOtherOption: nextQuestion.show_other || false,
-          organization,
-          setupCompleted: false
-        }
-      }
-
-      // Generate AI response only if no pending questions
-      const { aiMessage, multipleChoices, allowMultiple, showOtherOption } = await this.generateAIResponse(messages, context)
-      
-      // Process the AI response for onboarding progress
-      const lastUserMessage = messages.filter(m => m.role === 'user').pop()?.content || ''
-      const processingResult = await onboardingService.processAIResponse(
-        organization.id,
-        aiMessage,
-        lastUserMessage
-      )
       
       // Update WhatsApp trial status if mentioned
-      await this.updateWhatsAppTrialStatus(aiMessage, context)
+      if (response.aiMessage) {
+        await this.updateWhatsAppTrialStatus(response.aiMessage, context)
+      }
       
       return {
-        aiMessage,
-        multipleChoices,
-        allowMultiple,
-        showOtherOption,
-        organization,
-        setupCompleted: processingResult.isCompleted
+        ...response,
+        organization
       }
     } catch (error) {
       throw error
@@ -264,7 +342,49 @@ export class OrganizationChatService {
       throw new Error(`Failed to create organization: ${orgError?.message || 'Unknown error'}`)
     }
   }
-  public async generateAIResponse(messages: ChatMessage[], context: ChatContext): Promise<{ aiMessage: string; multipleChoices?: string[]; allowMultiple?: boolean; showOtherOption?: boolean }> {
+
+  /**
+   * Generate AI response with atomic question storage to prevent race conditions
+   */
+  private async generateAIResponseWithTransaction(
+    messages: ChatMessage[], 
+    context: ChatContext,
+    promptType: 'onboarding' | 'business' = 'onboarding'
+  ): Promise<{ aiMessage: string; multipleChoices?: string[]; allowMultiple?: boolean }> {
+    console.log(`🔄 Starting atomic AI response generation with ${promptType} prompt...`)
+    
+    try {
+      // Generate AI response with appropriate system prompt
+      const aiResponse = await this.generateAIResponse(messages, context, promptType)
+      
+      // If this generated a business question, store it immediately
+      if (aiResponse.aiMessage) {
+        try {
+          const businessQuestion = JSON.parse(aiResponse.aiMessage)
+          
+          if (businessQuestion.question_template && businessQuestion.field_name && businessQuestion.field_type) {
+            console.log('💾 Storing generated business question atomically')
+            
+            // Import and use the business info service to store the question
+            const { businessInfoService } = await import('../../organizations/services/businessInfoService')
+            await businessInfoService.storeBusinessQuestion(context.organization.id, businessQuestion)
+            
+            console.log('✅ Business question stored successfully')
+          }
+        } catch (parseError) {
+          // If it's not JSON or not a business question, that's fine - just continue
+          console.log('ℹ️ AI response is not a structured business question, continuing normally')
+        }
+      }
+      
+      return aiResponse
+    } catch (error) {
+      console.error('❌ Error in atomic AI generation:', error)
+      throw error
+    }
+  }
+
+  public async generateAIResponse(messages: ChatMessage[], context: ChatContext, promptType: 'onboarding' | 'business' = 'onboarding'): Promise<{ aiMessage: string; multipleChoices?: string[]; allowMultiple?: boolean }> {
     const apiKey = process.env.OPENAI_API_KEY
     if (!apiKey) {
       throw new Error('OpenAI API key not set')
@@ -294,11 +414,27 @@ export class OrganizationChatService {
 
         // Use YAML loader for system prompts
         const { YamlPromptLoader } = await import('./systemPrompt/YamlPromptLoader')
-        // Check if setup is completed by getting the organization's setup status
-        const { IntegratedOnboardingService } = await import('../../onboarding/services/integratedOnboardingService')
-        const onboardingService = new IntegratedOnboardingService()
-        const progress = await onboardingService.getOnboardingProgress(context.organization.id)
-        systemPrompt = await YamlPromptLoader.buildSystemPrompt(context.locale, trainingContext, progress.isCompleted, progress.currentStage)
+        
+        // Determine if setup is completed based on promptType
+        // - 'onboarding' promptType: Check actual onboarding progress
+        // - 'business' promptType: Setup is considered completed (business operations mode)
+        let isSetupCompleted: boolean
+        let currentStage: string | undefined
+        
+        if (promptType === 'business') {
+          isSetupCompleted = true
+          currentStage = undefined // Business mode doesn't have stages
+        } else {
+          // For onboarding, check actual progress
+          const { IntegratedOnboardingService } = await import('../../onboarding/services/integratedOnboardingService')
+          const onboardingService = new IntegratedOnboardingService()
+          const progress = await onboardingService.getOnboardingProgress(context.organization.id)
+          isSetupCompleted = progress.isCompleted
+          currentStage = progress.currentStage
+        }
+        
+        console.log(`🎯 Using ${promptType} system prompt - isSetupCompleted: ${isSetupCompleted}`)
+        systemPrompt = await YamlPromptLoader.buildSystemPrompt(context.locale, trainingContext, isSetupCompleted, currentStage)
       } catch (error) {
         console.warn('Failed to get enhanced system prompt, aborting chat:', error)
         return {
@@ -354,7 +490,6 @@ export class OrganizationChatService {
         let aiMessage = aiResponse
         let multipleChoices: string[] | undefined = undefined
         let allowMultiple = false
-        let showOtherOption = false
         
         try {
           // Attempt to parse the response as JSON
@@ -374,7 +509,6 @@ export class OrganizationChatService {
             if (jsonResponse.field_type === 'multiple_choice' && jsonResponse.multiple_choices) {
               multipleChoices = jsonResponse.multiple_choices
               allowMultiple = false // Default for now
-              showOtherOption = jsonResponse.multiple_choices.includes('Other')
             }
           }
         } catch (error) {
@@ -385,8 +519,7 @@ export class OrganizationChatService {
         const result = {
           aiMessage: aiMessage,
           multipleChoices: multipleChoices,
-          allowMultiple: allowMultiple,
-          showOtherOption: showOtherOption
+          allowMultiple: allowMultiple
         }
         
         // Store the question if we have a valid business question
@@ -446,7 +579,7 @@ export class OrganizationChatService {
       // Get the pending unanswered question
       const { data: pendingQuestions } = await this.supabaseClient
         .from('business_info_fields')
-        .select('id, question_template, field_name, field_type, multiple_choices, allow_multiple, show_other_option, is_answered')
+        .select('id, question_template, field_name, field_type, multiple_choices, allow_multiple, is_answered')
         .eq('organization_id', context.organization.id)
         .eq('is_answered', false)
         .order('created_at', { ascending: true })

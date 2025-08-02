@@ -59,7 +59,7 @@ export class EnhancedOrganizationSystemPromptService {
   async generateBusinessQuestions(
     currentConversation: string, 
     answeredFieldNames: string[]
-  ): Promise<{question_template: string, field_name: string, field_type: string, multiple_choices?: string[], allow_multiple?: boolean, show_other?: boolean}[]> {
+  ): Promise<{question_template: string, field_name: string, field_type: string, multiple_choices?: string[], allow_multiple?: boolean}[]> {
     // This method is now handled by the main system prompt
     return []
   }
