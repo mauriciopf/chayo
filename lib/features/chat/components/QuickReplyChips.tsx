@@ -64,7 +64,7 @@ const QuickReplyChips: React.FC<QuickReplyChipsProps> = ({
 
       {/* Dropdown Menu */}
       {isMenuOpen && onModeSwitch && (
-        <div className="absolute top-full left-0 mt-2 w-72 bg-gray-800 rounded-lg shadow-xl border border-gray-600 z-50 overflow-hidden">
+        <div className="absolute bottom-full left-0 mb-2 w-72 bg-gray-800 rounded-lg shadow-xl border border-gray-600 z-[9999] overflow-hidden backdrop-blur-sm">
           <div className="py-2">
             <div className="px-4 py-2 text-xs text-gray-400 font-medium uppercase tracking-wide border-b border-gray-700">
               Switch Chat Mode
