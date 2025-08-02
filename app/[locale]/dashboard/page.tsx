@@ -184,7 +184,7 @@ function DashboardContent() {
     switch (activeView) {
       case 'chat':
         return (
-          <div className="w-full max-w-7xl mx-auto">
+          <div className="w-full max-w-7xl mx-auto h-full flex flex-col">
             <ChatContainer
               messages={chat.messages}
               setMessages={chat.setMessages}

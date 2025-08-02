@@ -97,8 +97,8 @@ export default function ChatContainer({
       transition={{ duration: 0.3 }}
       className="flex flex-col w-full md:rounded-2xl md:border md:border-gray-200 md:shadow-lg bg-white/80 flex-1"
       style={{
-        height: isMobile ? 'calc(100dvh - 60px)' : 'calc(100vh - 2rem)', // Account for mobile header and desktop padding
-        maxHeight: isMobile ? 'calc(100dvh - 60px)' : 'calc(100vh - 2rem)',
+        height: isMobile ? 'calc(100dvh - 60px - 3rem)' : 'calc(100vh - 2rem - 3rem)', // Account for mobile header, desktop padding, and beta banner
+        maxHeight: isMobile ? 'calc(100dvh - 60px - 3rem)' : 'calc(100vh - 2rem - 3rem)',
         position: 'relative',
         overflow: 'hidden' // Prevent any overflow issues
       }}

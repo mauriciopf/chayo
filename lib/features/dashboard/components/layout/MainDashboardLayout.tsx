@@ -26,11 +26,11 @@ export default function MainDashboardLayout({
   handleManageDocsModalClose
 }: any) {
   return (
-    <div className="flex flex-col h-screen min-h-0 bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
+    <div className="flex flex-col h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
       {/* Beta Banner */}
       <BetaBanner />
       
-      <div className="flex flex-1 min-h-0">
+      <div className="flex flex-1 min-h-0 overflow-hidden">
         {/* Desktop Navigation Sidebar */}
         <DesktopNavigation
         activeView={activeView}
@@ -65,7 +65,7 @@ export default function MainDashboardLayout({
           subscription={auth.subscription}
         />
 
-        <div className={`flex-1 flex flex-col items-center w-full min-h-0 ${
+        <div className={`flex-1 flex flex-col items-center w-full min-h-0 overflow-hidden ${
           activeView === 'chat' && mobile.isMobile
             ? 'px-0 py-0' 
             : 'px-4 sm:px-6 lg:px-8 py-4 md:px-8 md:py-8'
