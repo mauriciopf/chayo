@@ -65,44 +65,41 @@ const ChatModeSelector: React.FC<ChatModeSelectorProps> = ({
       {/* Dropdown Menu */}
       {isMenuOpen && onModeSwitch && (
         <div 
-          className="absolute left-0 w-80 bg-white rounded-xl shadow-2xl border border-gray-200 z-[9999] overflow-hidden"
-          style={{
-            bottom: '100%',
-            marginBottom: '12px'
-          }}
+          className="fixed inset-0 z-[10000]"
+          onClick={() => setIsMenuOpen(false)}
         >
-          <div className="py-3">
-            <div className="px-4 py-2 text-xs text-gray-500 font-semibold uppercase tracking-wide border-b border-gray-100">
-              Switch Chat Mode
-            </div>
-            {modeItems.map((item) => (
-              <button
-                key={item.key}
-                onClick={() => handleModeSelect(item.key as ChatMode)}
-                className={`w-full px-4 py-4 text-left transition-all duration-200 flex items-start gap-3 text-sm hover:bg-gray-50 ${
-                  chatMode === item.key
-                    ? 'bg-blue-100 border border-blue-200'
-                    : ''
-                }`}
-              >
-                <span className="text-xl mt-0.5">{item.icon}</span>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className={`font-semibold ${chatMode === item.key ? 'text-blue-700' : 'text-gray-800'}`}>
-                      {item.label}
-                    </span>
-                    {chatMode === item.key && (
-                      <span className="text-xs bg-blue-500 text-white px-2 py-1 rounded-full font-medium">
-                        Active
-                      </span>
-                    )}
+          <div 
+            className="absolute left-0 w-64 bg-gray-900 rounded-lg shadow-2xl border border-gray-700 overflow-hidden"
+            style={{
+              bottom: '100%',
+              marginBottom: '8px',
+              left: '0'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="py-1">
+              {modeItems.map((item) => (
+                <button
+                  key={item.key}
+                  onClick={() => handleModeSelect(item.key as ChatMode)}
+                  className={`w-full px-4 py-3 text-left transition-all duration-150 flex items-center gap-3 text-sm ${
+                    chatMode === item.key
+                      ? 'bg-blue-600 text-white'
+                      : 'text-gray-200 hover:bg-gray-800 hover:text-white'
+                  }`}
+                >
+                  <span className="text-lg">{item.icon}</span>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium">{item.label}</span>
+                      {chatMode === item.key && (
+                        <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                      )}
+                    </div>
                   </div>
-                  <p className={`text-xs mt-1 ${chatMode === item.key ? 'text-blue-600' : 'text-gray-500'}`}>
-                    {item.description}
-                  </p>
-                </div>
-              </button>
-            ))}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       )}
