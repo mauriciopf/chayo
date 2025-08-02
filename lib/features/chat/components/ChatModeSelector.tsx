@@ -44,11 +44,6 @@ const ChatModeSelector: React.FC<ChatModeSelectorProps> = ({
 
   return (
     <div className="relative" ref={menuRef}>
-      {/* Mode Switch Info */}
-      <div className="text-xs text-gray-400 mb-2">
-        Switch between configuring your business or previewing client view
-      </div>
-      
       {/* Mode Switcher Button */}
       <button
         onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -70,12 +65,15 @@ const ChatModeSelector: React.FC<ChatModeSelectorProps> = ({
       {/* Dropdown Menu */}
       {isMenuOpen && onModeSwitch && (
         <div 
-          className="absolute left-0 w-40 bg-gray-800 rounded-md shadow-lg border border-gray-600 overflow-hidden z-[999999]"
+          className="absolute left-0 w-56 bg-gray-800 rounded-md shadow-lg border border-gray-600 overflow-hidden z-[999999]"
           style={{
             bottom: '100%',
             marginBottom: '6px'
           }}
         >
+          <div className="px-3 py-2 text-xs text-gray-400 border-b border-gray-600">
+            Switch between configuring your business or previewing client view
+          </div>
           {modeItems.map((item) => (
             <button
               key={item.key}
