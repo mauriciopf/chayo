@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslations } from 'next-intl'
 
@@ -28,6 +28,9 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
   className = ''
 }) => {
   const t = useTranslations('chat')
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const [canScrollLeft, setCanScrollLeft] = useState(false)
+  const [canScrollRight, setCanScrollRight] = useState(false)
   const [agentToolSettings, setAgentToolSettings] = useState<AgentToolSettings>({
     appointments: false,
     documents: false,
@@ -104,11 +107,90 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
     onHintSelect(hint)
   }
 
+  const checkScrollability = () => {
+    if (scrollContainerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current
+      console.log('Scroll check:', { scrollLeft, scrollWidth, clientWidth, hasOverflow: scrollWidth > clientWidth })
+      setCanScrollLeft(scrollLeft > 0)
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10) // More generous threshold
+    }
+  }
+
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: -200, behavior: 'smooth' })
+    }
+  }
+
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: 200, behavior: 'smooth' })
+    }
+  }
+
+  useEffect(() => {
+    // Add a small delay to ensure DOM is ready
+    const timer = setTimeout(() => {
+      checkScrollability()
+    }, 100)
+    
+    const handleResize = () => checkScrollability()
+    window.addEventListener('resize', handleResize)
+    
+    return () => {
+      clearTimeout(timer)
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [actionableHints])
+
+  // Additional effect to check scrollability when the ref becomes available
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      checkScrollability()
+    }
+  }, [scrollContainerRef.current])
+
   return (
-    <div className={`w-full ${className}`} style={{ overflowX: 'visible' }}>
-      {/* Modern Chips Container */}
-      <div className="relative" style={{ overflowX: 'visible' }}>
-        <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-3">
+    <div className={`w-full ${className}`}>
+      {/* Carousel Container */}
+      <div className="relative">
+        {/* Left Arrow */}
+        {(canScrollLeft || true) && (
+          <button
+            onClick={scrollLeft}
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-white shadow-lg rounded-full flex items-center justify-center hover:bg-gray-50 transition-colors"
+            style={{ transform: 'translateY(-50%) translateX(-50%)' }}
+          >
+            <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+        )}
+
+        {/* Right Arrow */}
+        {(canScrollRight || true) && (
+          <button
+            onClick={scrollRight}
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-white shadow-lg rounded-full flex items-center justify-center hover:bg-gray-50 transition-colors"
+            style={{ transform: 'translateY(-50%) translateX(50%)' }}
+          >
+            <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        )}
+
+        {/* Scrollable Container */}
+        <div 
+          ref={scrollContainerRef}
+          onScroll={checkScrollability}
+          className="flex gap-2 overflow-x-auto pb-3 px-6" 
+          style={{ 
+            scrollbarWidth: 'none', 
+            msOverflowStyle: 'none',
+            WebkitOverflowScrolling: 'touch'
+          }}
+        >
           {/* Hint Chips */}
           <AnimatePresence>
             {actionableHints.map((hint, index) => (
@@ -152,9 +234,6 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
             ))}
           </AnimatePresence>
         </div>
-
-        {/* Modern gradient fade */}
-        <div className="absolute right-0 top-0 h-full w-16 bg-gradient-to-l from-gray-50 via-gray-50/80 to-transparent pointer-events-none" />
       </div>
     </div>
   )

@@ -100,8 +100,7 @@ export default function ChatContainer({
         height: isMobile ? 'calc(100dvh - 60px - 3rem)' : 'calc(100vh - 2rem - 3rem)', // Account for mobile header, desktop padding, and beta banner
         maxHeight: isMobile ? 'calc(100dvh - 60px - 3rem)' : 'calc(100vh - 2rem - 3rem)',
         position: 'relative',
-        overflowY: 'hidden', // Prevent vertical overflow issues
-        overflowX: 'visible' // Allow horizontal scrolling for ActionableHints
+        overflow: 'hidden' // Prevent any overflow issues
       }}
     >
       {chatMode === 'business' ? (
