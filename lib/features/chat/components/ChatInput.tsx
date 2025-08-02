@@ -1,5 +1,5 @@
 import React from 'react'
-import QuickReplyChips from './QuickReplyChips'
+import ChatModeSelector from './ChatModeSelector'
 import { AuthState, Message } from '../../../shared/types'
 import { ChatContextType } from '../services/chatContextMessages'
 import { useTranslations } from 'next-intl'
@@ -95,7 +95,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             />
           </div>
           <div className="flex justify-between items-center pt-3">
-            <QuickReplyChips 
+            <ChatModeSelector 
               context={chatContext} 
               onSelect={setChatContext} 
               chatMode={chatMode}

@@ -3,14 +3,14 @@ import { ChatContextType } from '../services/chatContextMessages';
 
 type ChatMode = 'business' | 'client'
 
-interface QuickReplyChipsProps {
+interface ChatModeSelectorProps {
   context: ChatContextType;
   onSelect: (context: ChatContextType) => void;
   chatMode?: ChatMode;
   onModeSwitch?: (mode: ChatMode) => void;
 }
 
-const QuickReplyChips: React.FC<QuickReplyChipsProps> = ({ 
+const ChatModeSelector: React.FC<ChatModeSelectorProps> = ({ 
   context, 
   onSelect, 
   chatMode = 'business', 
@@ -81,7 +81,7 @@ const QuickReplyChips: React.FC<QuickReplyChipsProps> = ({
                 onClick={() => handleModeSelect(item.key as ChatMode)}
                 className={`w-full px-4 py-4 text-left transition-all duration-200 flex items-start gap-3 text-sm hover:bg-gray-50 ${
                   chatMode === item.key
-                    ? 'bg-blue-50 border-l-4 border-blue-500'
+                    ? 'bg-blue-50'
                     : ''
                 }`}
               >
@@ -120,4 +120,4 @@ const QuickReplyChips: React.FC<QuickReplyChipsProps> = ({
   );
 };
 
-export default QuickReplyChips; 
+export default ChatModeSelector; 
