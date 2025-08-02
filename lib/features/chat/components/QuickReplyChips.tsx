@@ -64,32 +64,42 @@ const QuickReplyChips: React.FC<QuickReplyChipsProps> = ({
 
       {/* Dropdown Menu */}
       {isMenuOpen && onModeSwitch && (
-        <div className="absolute bottom-full left-0 mb-2 w-72 bg-gray-800 rounded-lg shadow-xl border border-gray-600 z-[9999] overflow-hidden backdrop-blur-sm">
-          <div className="py-2">
-            <div className="px-4 py-2 text-xs text-gray-400 font-medium uppercase tracking-wide border-b border-gray-700">
+        <div 
+          className="absolute left-0 w-80 bg-white rounded-xl shadow-2xl border border-gray-200 z-[9999] overflow-hidden"
+          style={{
+            bottom: '100%',
+            marginBottom: '12px'
+          }}
+        >
+          <div className="py-3">
+            <div className="px-4 py-2 text-xs text-gray-500 font-semibold uppercase tracking-wide border-b border-gray-100">
               Switch Chat Mode
             </div>
             {modeItems.map((item) => (
               <button
                 key={item.key}
                 onClick={() => handleModeSelect(item.key as ChatMode)}
-                className={`w-full px-4 py-3 text-left transition-all duration-150 flex items-start gap-3 text-sm border-b border-gray-700 last:border-b-0 ${
+                className={`w-full px-4 py-4 text-left transition-all duration-200 flex items-start gap-3 text-sm hover:bg-gray-50 ${
                   chatMode === item.key
-                    ? 'bg-gray-700 text-white'
-                    : 'text-gray-100 hover:text-white hover:bg-gray-700'
+                    ? 'bg-blue-50 border-l-4 border-blue-500'
+                    : ''
                 }`}
               >
-                <span className="text-lg opacity-80 mt-0.5">{item.icon}</span>
+                <span className="text-xl mt-0.5">{item.icon}</span>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="font-medium">{item.label}</span>
+                    <span className={`font-semibold ${chatMode === item.key ? 'text-blue-700' : 'text-gray-800'}`}>
+                      {item.label}
+                    </span>
                     {chatMode === item.key && (
-                      <span className="text-xs bg-blue-500 text-white px-2 py-0.5 rounded-full">
+                      <span className="text-xs bg-blue-500 text-white px-2 py-1 rounded-full font-medium">
                         Active
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-gray-400 mt-1">{item.description}</p>
+                  <p className={`text-xs mt-1 ${chatMode === item.key ? 'text-blue-600' : 'text-gray-500'}`}>
+                    {item.description}
+                  </p>
                 </div>
               </button>
             ))}
