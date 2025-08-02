@@ -358,7 +358,9 @@ export class OrganizationChatService {
         
         try {
           // Attempt to parse the response as JSON
+          console.log('🔍 Raw AI response:', aiResponse)
           const jsonResponse = JSON.parse(aiResponse.trim())
+          console.log('✅ Parsed JSON:', jsonResponse)
           
           if (jsonResponse.question_template && jsonResponse.field_name && jsonResponse.field_type) {
             // This is a structured question response
@@ -370,15 +372,21 @@ export class OrganizationChatService {
             }
             
             aiMessage = jsonResponse.question_template
+            console.log('📝 Setting aiMessage to:', aiMessage)
+            
             if (jsonResponse.field_type === 'multiple_choice' && jsonResponse.multiple_choices) {
               multipleChoices = jsonResponse.multiple_choices
               allowMultiple = false // Default for now
               showOtherOption = jsonResponse.multiple_choices.includes('Other')
+              console.log('🎯 Multiple choice data:', { multipleChoices, allowMultiple, showOtherOption })
             }
+          } else {
+            console.log('⚠️ JSON missing required fields, using as regular text')
+            aiMessage = aiResponse
           }
         } catch (error) {
           // Not JSON or invalid JSON - treat as regular text response
-          console.log('AI response is not structured JSON, treating as regular text')
+          console.log('❌ AI response is not valid JSON, treating as regular text:', error)
           aiMessage = aiResponse
         }
         
@@ -388,6 +396,8 @@ export class OrganizationChatService {
           allowMultiple: allowMultiple,
           showOtherOption: showOtherOption
         }
+        
+        console.log('🚀 Final AI response result:', result)
         
         // Store the question if we have a valid business question
         if (businessQuestion) {
