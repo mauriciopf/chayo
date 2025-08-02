@@ -67,7 +67,7 @@ const ChatModeSelector: React.FC<ChatModeSelectorProps> = ({
         <>
           <div className="fixed inset-0" style={{ zIndex: 99999998 }} onClick={() => setIsMenuOpen(false)} />
           <div 
-            className="absolute left-0 w-80 rounded-md shadow-xl border border-gray-600 overflow-hidden"
+            className="absolute left-0 w-80 rounded-md border border-gray-600 overflow-hidden"
             style={{
               bottom: '100%',
               marginBottom: '6px',
@@ -88,7 +88,7 @@ const ChatModeSelector: React.FC<ChatModeSelectorProps> = ({
               <span className="text-xs mt-0.5">{item.icon}</span>
               <div className="flex-1 min-w-0">
                 <div className="font-medium text-xs whitespace-nowrap overflow-hidden text-ellipsis">{item.label}</div>
-                <div className={`text-xs mt-0.5 whitespace-nowrap overflow-hidden text-ellipsis ${chatMode === item.key ? 'text-white/80' : 'text-gray-400'}`}>
+                <div className={`text-xs mt-0.5 whitespace-nowrap overflow-hidden text-ellipsis ${chatMode === item.key ? 'text-white/80' : 'text-white'}`}>
                   {item.description}
                 </div>
               </div>
