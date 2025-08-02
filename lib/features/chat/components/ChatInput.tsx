@@ -53,7 +53,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
   return (
     <div className="bg-gray-900 px-4 py-4 flex-shrink-0" style={{ paddingBottom: isMobile ? 'max(env(safe-area-inset-bottom), 16px)' : undefined }}>
-      <div className={`mx-auto ${isMobile ? 'max-w-none' : 'max-w-4xl'}`}> 
+      <div className="w-full max-w-none"> 
         <input
           type="file"
           ref={fileInputRef}
@@ -61,7 +61,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
           onChange={handleFileChange}
           disabled={uploading}
         />
-        <div className="bg-gray-800 rounded-2xl shadow-lg border border-gray-700 p-2">
+        <div className="bg-gray-800 rounded-2xl shadow-lg border border-gray-700 p-3">
           <div className="w-full">
             <textarea
               placeholder={isOnboardingActive && currentOnboardingQuestion ? currentOnboardingQuestion : t('inputPlaceholder')}
@@ -82,24 +82,25 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 }
               }}
               ref={inputRef as any}
-              className={`w-full px-0 py-2 focus:outline-none resize-none bg-transparent text-white min-h-[2.75rem] max-h-[6rem] ${isOnboardingActive ? 'placeholder-blue-300' : 'placeholder-gray-400'}`}
+              className={`w-full px-3 py-3 focus:outline-none resize-none bg-transparent text-white font-medium min-h-[2.75rem] max-h-[6rem] leading-relaxed ${isOnboardingActive ? 'placeholder-blue-300' : 'placeholder-gray-400'}`}
+              style={{ color: '#ffffff' }}
               rows={1}
               disabled={uploading || otpLoading !== 'none'}
               onFocus={handleInputFocus}
             />
           </div>
-          <div className="flex justify-between items-center pt-1">
+          <div className="flex justify-between items-center pt-3">
             <QuickReplyChips 
               context={chatContext} 
               onSelect={setChatContext} 
               chatMode={chatMode}
               onModeSwitch={onModeSwitch}
             />
-            <div className="flex gap-1">
+            <div className="flex gap-2">
               <button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploading}
-                className={`flex-shrink-0 rounded-full bg-gray-700 text-white hover:bg-gray-600 disabled:opacity-50 transition-all duration-200 ${isMobile ? 'p-2 min-h-[2rem] min-w-[2rem]' : 'p-1.5'}`}
+                className={`flex-shrink-0 rounded-full bg-gray-700 text-white hover:bg-gray-600 focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:opacity-50 transition-all duration-200 shadow-md hover:shadow-lg ${isMobile ? 'p-3 min-h-[2.5rem] min-w-[2.5rem]' : 'p-2'}`}
                 title={t('uploadTitle')}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -115,7 +116,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                   }
                 }}
                 disabled={chatLoading || uploading || !input.trim() || otpLoading !== 'none'}
-                className={`flex-shrink-0 rounded-full bg-gray-600 text-white hover:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm ${isMobile ? 'p-2 min-h-[2rem] min-w-[2rem]' : 'p-1.5'}`}
+                className={`flex-shrink-0 rounded-full bg-blue-600 text-white hover:bg-blue-500 focus:ring-2 focus:ring-blue-400 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg ${isMobile ? 'p-3 min-h-[2.5rem] min-w-[2.5rem]' : 'p-2'}`}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />

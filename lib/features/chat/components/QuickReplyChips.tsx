@@ -47,11 +47,11 @@ const QuickReplyChips: React.FC<QuickReplyChipsProps> = ({
       {/* Mode Switcher Button */}
       <button
         onClick={() => setIsMenuOpen(!isMenuOpen)}
-        className={`px-3 py-2 rounded-lg text-white text-sm font-medium transition-colors duration-200 flex items-center gap-2 ${
+        className={`px-4 py-2 rounded-lg text-white text-sm font-medium transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md ${
           chatMode === 'business' 
-            ? 'bg-blue-600 hover:bg-blue-700' 
-            : 'bg-green-600 hover:bg-green-700'
-        }`}
+            ? 'bg-blue-600 hover:bg-blue-700 focus:ring-2 focus:ring-blue-400' 
+            : 'bg-green-600 hover:bg-green-700 focus:ring-2 focus:ring-green-400'
+        } focus:outline-none`}
       >
         <span className="text-lg">{chatMode === 'business' ? '⚙️' : '👥'}</span>
         <span className="hidden md:inline">
@@ -101,7 +101,7 @@ const QuickReplyChips: React.FC<QuickReplyChipsProps> = ({
       {chatMode === 'business' && context !== 'business_setup' && (
         <button
           onClick={() => onSelect('business_setup')}
-          className="ml-2 px-3 py-2 rounded-lg bg-gray-600 hover:bg-gray-500 text-white text-sm font-medium transition-colors duration-200"
+          className="ml-3 px-4 py-2 rounded-lg bg-gray-600 hover:bg-gray-500 text-white text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md"
         >
           Continue business setup
         </button>

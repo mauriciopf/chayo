@@ -1,9 +1,7 @@
-export type ChatContextType = 'business_setup' | 'whatsapp_setup' | 'calendar_setup' | 'video_agent_setup';
+export type ChatContextType = 'business_setup' | 'calendar_setup' | 'video_agent_setup';
 
 export function getSystemMessageForContext(context: ChatContextType): string {
   switch (context) {
-    case 'whatsapp_setup':
-      return "Let's connect your WhatsApp channel! Please follow the steps to link your WhatsApp account.";
     case 'calendar_setup':
       return "Let's add calendar booking to your agent. Please follow the steps to connect your calendar.";
     case 'video_agent_setup':
