@@ -64,7 +64,7 @@ export class OrganizationChatService {
    */
   private async handleNotStarted(context: ChatContext): Promise<ChatResponse> {
     console.log('🏁 State: NOT_STARTED - Generating first onboarding question')
-    const aiResponse = await this.generateAIResponseWithTransaction([], context, 'onboarding')
+    const aiResponse = await this.generateAndStoreAIResponse([], context, 'onboarding')
     return {
       aiMessage: aiResponse.aiMessage,
       multipleChoices: aiResponse.multipleChoices,
@@ -111,7 +111,7 @@ export class OrganizationChatService {
         }
 
         // Generate the next onboarding question
-        const aiResponse = await this.generateAIResponseWithTransaction(messages, context, 'onboarding')
+        const aiResponse = await this.generateAndStoreAIResponse(messages, context, 'onboarding')
         
         return {
           aiMessage: aiResponse.aiMessage,
@@ -134,7 +134,7 @@ export class OrganizationChatService {
       console.log('🆕 No pending onboarding question - generating new onboarding question')
       
       // No pending question, generate a new onboarding question
-      const aiResponse = await this.generateAIResponseWithTransaction(messages, context, 'onboarding')
+      const aiResponse = await this.generateAndStoreAIResponse(messages, context, 'onboarding')
       
       return {
         aiMessage: aiResponse.aiMessage,
@@ -170,7 +170,7 @@ export class OrganizationChatService {
         // TODO: Add business-specific response processing if needed
         
         // Generate the next business question or response
-        const aiResponse = await this.generateAIResponseWithTransaction(messages, context, 'business')
+        const aiResponse = await this.generateAndStoreAIResponse(messages, context, 'business')
         
         return {
           aiMessage: aiResponse.aiMessage,
@@ -193,7 +193,7 @@ export class OrganizationChatService {
       console.log('🆕 No pending business question - generating business conversation')
       
       // No pending question, generate business-focused conversation
-      const aiResponse = await this.generateAIResponseWithTransaction(messages, context, 'business')
+      const aiResponse = await this.generateAndStoreAIResponse(messages, context, 'business')
       
       return {
         aiMessage: aiResponse.aiMessage,
@@ -344,14 +344,14 @@ export class OrganizationChatService {
   }
 
   /**
-   * Generate AI response with atomic question storage to prevent race conditions
+   * Generate AI response and store any business questions atomically
    */
-  private async generateAIResponseWithTransaction(
+  private async generateAndStoreAIResponse(
     messages: ChatMessage[], 
     context: ChatContext,
     promptType: 'onboarding' | 'business' = 'onboarding'
   ): Promise<{ aiMessage: string; multipleChoices?: string[]; allowMultiple?: boolean }> {
-    console.log(`🔄 Starting atomic AI response generation with ${promptType} prompt...`)
+    console.log(`🔄 Starting AI response generation and storage with ${promptType} prompt...`)
     
     try {
       // Generate AI response with appropriate system prompt
@@ -363,13 +363,25 @@ export class OrganizationChatService {
           const businessQuestion = JSON.parse(aiResponse.aiMessage)
           
           if (businessQuestion.question_template && businessQuestion.field_name && businessQuestion.field_type) {
-            console.log('💾 Storing generated business question atomically')
+            console.log('🔍 Checking relevance of generated business question...')
             
-            // Import and use the business info service to store the question
+            // Import and use the business info service
             const { businessInfoService } = await import('../../organizations/services/businessInfoService')
-            await businessInfoService.storeBusinessQuestion(context.organization.id, businessQuestion)
             
-            console.log('✅ Business question stored successfully')
+            // Check if this is actually relevant business information (not just completion/goodbye messages)
+            const isRelevant = await businessInfoService.isBusinessRelevantInformation(
+              businessQuestion.question_template, 
+              'ai', 
+              'question_generation'
+            )
+            
+            if (isRelevant) {
+              console.log('💾 Storing relevant business question atomically')
+              await businessInfoService.storeBusinessQuestion(context.organization.id, businessQuestion)
+              console.log('✅ Business question stored successfully')
+            } else {
+              console.log('🚫 Skipping irrelevant message - not storing as business question')
+            }
           }
         } catch (parseError) {
           // If it's not JSON or not a business question, that's fine - just continue
@@ -379,7 +391,7 @@ export class OrganizationChatService {
       
       return aiResponse
     } catch (error) {
-      console.error('❌ Error in atomic AI generation:', error)
+      console.error('❌ Error in AI response generation and storage:', error)
       throw error
     }
   }
