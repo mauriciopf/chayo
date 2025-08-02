@@ -44,20 +44,25 @@ const ChatModeSelector: React.FC<ChatModeSelectorProps> = ({
 
   return (
     <div className="relative" ref={menuRef}>
+      {/* Mode Switch Info */}
+      <div className="text-xs text-gray-400 mb-2">
+        Switch between configuring your business or previewing client view
+      </div>
+      
       {/* Mode Switcher Button */}
       <button
         onClick={() => setIsMenuOpen(!isMenuOpen)}
-        className={`px-4 py-2 rounded-lg text-white text-sm font-medium transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md ${
+        className={`px-3 py-1.5 rounded-md text-white text-xs font-medium transition-colors duration-150 flex items-center gap-1.5 ${
           chatMode === 'business' 
-            ? 'bg-blue-600 hover:bg-blue-700 focus:ring-2 focus:ring-blue-400' 
-            : 'bg-green-600 hover:bg-green-700 focus:ring-2 focus:ring-green-400'
-        } focus:outline-none`}
+            ? 'bg-gray-700 hover:bg-gray-600' 
+            : 'bg-gray-700 hover:bg-gray-600'
+        }`}
       >
-        <span className="text-lg">{chatMode === 'business' ? '⚙️' : '👥'}</span>
-        <span className="hidden md:inline">
-          {chatMode === 'business' ? 'Business Mode' : 'Client Mode'}
+        <span className="text-sm">{chatMode === 'business' ? '⚙️' : '👥'}</span>
+        <span className="text-xs">
+          {chatMode === 'business' ? 'Business' : 'Client'}
         </span>
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
@@ -65,26 +70,26 @@ const ChatModeSelector: React.FC<ChatModeSelectorProps> = ({
       {/* Dropdown Menu */}
       {isMenuOpen && onModeSwitch && (
         <div 
-          className="absolute left-0 w-48 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden z-[999999]"
+          className="absolute left-0 w-40 bg-gray-800 rounded-md shadow-lg border border-gray-600 overflow-hidden z-[999999]"
           style={{
             bottom: '100%',
-            marginBottom: '8px'
+            marginBottom: '6px'
           }}
         >
           {modeItems.map((item) => (
             <button
               key={item.key}
               onClick={() => handleModeSelect(item.key as ChatMode)}
-              className={`w-full px-3 py-2.5 text-left transition-colors duration-150 flex items-center gap-2.5 text-sm border-b border-gray-100 last:border-b-0 ${
+              className={`w-full px-3 py-2 text-left transition-colors duration-100 flex items-center gap-2 text-sm ${
                 chatMode === item.key
-                  ? 'bg-blue-50 text-blue-700'
-                  : 'text-gray-700 hover:bg-gray-50'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-200 hover:bg-gray-700'
               }`}
             >
-              <span className="text-base">{item.icon}</span>
-              <span className="font-medium">{item.label}</span>
+              <span className="text-xs">{item.icon}</span>
+              <span className="font-normal text-xs">{item.key === 'business' ? 'Business' : 'Client'}</span>
               {chatMode === item.key && (
-                <div className="ml-auto w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                <div className="ml-auto w-1 h-1 bg-white rounded-full"></div>
               )}
             </button>
           ))}
