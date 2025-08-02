@@ -92,7 +92,8 @@ export default function DesktopNavigation({
   ]
 
   return (
-    <div className="hidden md:flex md:flex-col md:w-64 md:bg-white md:border-r md:border-gray-200">
+    <div className="hidden md:block md:w-64 md:bg-white md:border-r md:border-gray-200 md:flex-shrink-0">
+      <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center justify-between p-6 border-b border-gray-200">
         <div className="flex items-center space-x-3">
@@ -180,6 +181,7 @@ export default function DesktopNavigation({
           </svg>
           <span className="font-medium">Sign Out</span>
         </button>
+      </div>
       </div>
     </div>
   )
