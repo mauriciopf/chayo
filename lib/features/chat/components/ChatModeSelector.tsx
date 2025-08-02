@@ -31,8 +31,8 @@ const ChatModeSelector: React.FC<ChatModeSelectorProps> = ({
   }, []);
 
   const modeItems = [
-    { key: 'business', label: 'Business Mode', icon: '⚙️', description: 'Configure your business and chat settings' },
-    { key: 'client', label: 'Client Mode', icon: '👥', description: 'Preview how clients will see the chat' },
+    { key: 'business', label: 'Business Mode', icon: '⚙️', description: 'Configure your business' },
+    { key: 'client', label: 'Client Mode', icon: '👥', description: 'Preview client view' },
   ];
 
   const handleModeSelect = (mode: ChatMode) => {
@@ -65,7 +65,7 @@ const ChatModeSelector: React.FC<ChatModeSelectorProps> = ({
       {/* Dropdown Menu */}
       {isMenuOpen && onModeSwitch && (
         <div 
-          className="absolute left-0 w-56 bg-gray-800 rounded-md shadow-lg border border-gray-600 overflow-hidden z-[999999]"
+          className="absolute left-0 w-64 bg-gray-800 rounded-md shadow-lg border border-gray-600 overflow-hidden z-[999999]"
           style={{
             bottom: '100%',
             marginBottom: '6px'
@@ -75,7 +75,7 @@ const ChatModeSelector: React.FC<ChatModeSelectorProps> = ({
             <button
               key={item.key}
               onClick={() => handleModeSelect(item.key as ChatMode)}
-              className={`w-full px-3 py-2 text-left transition-colors duration-100 flex items-start gap-2 text-sm ${
+              className={`w-full px-4 py-3 text-left transition-colors duration-100 flex items-start gap-3 text-sm ${
                 chatMode === item.key
                   ? 'bg-blue-600 text-white'
                   : 'text-gray-200 hover:bg-gray-700'
@@ -84,7 +84,7 @@ const ChatModeSelector: React.FC<ChatModeSelectorProps> = ({
               <span className="text-xs mt-0.5">{item.icon}</span>
               <div className="flex-1">
                 <div className="font-medium text-xs">{item.label}</div>
-                <div className={`text-xs mt-0.5 ${chatMode === item.key ? 'text-white/80' : 'text-gray-400'}`}>
+                <div className={`text-xs mt-0.5 whitespace-nowrap ${chatMode === item.key ? 'text-white/80' : 'text-gray-400'}`}>
                   {item.description}
                 </div>
               </div>
