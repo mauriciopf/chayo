@@ -105,9 +105,9 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
   }
 
   return (
-    <div className={`w-full ${className}`}>
+    <div className={`w-full ${className}`} style={{ overflowX: 'visible' }}>
       {/* Modern Chips Container */}
-      <div className="relative">
+      <div className="relative" style={{ overflowX: 'visible' }}>
         <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-3">
           {/* Hint Chips */}
           <AnimatePresence>

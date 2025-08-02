@@ -177,7 +177,9 @@ export default function BusinessChatView({
         isVisible={showOnboardingProgress}
       />
 
-      <ChatActionableHints organizationId={organizationId || ''} />
+      <div style={{ overflowX: 'visible' }}>
+        <ChatActionableHints organizationId={organizationId || ''} />
+      </div>
 
       <ChatInput
         input={input}
