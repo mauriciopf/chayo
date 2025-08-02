@@ -38,37 +38,37 @@ onboarding_stages:
       - name: "Business Type"
         type: "multiple_choice"
         question: "What type of business do you run?"
-        options: ["Health Clinic", "Salon", "Restaurant", "Retail Shop", "Consultancy", "Other"]
+        options: ["Health Clinic", "Salon", "Restaurant", "Retail Shop", "Consultancy"]
         multiple: false
         field_name: "business_type"
       - name: "Services Offered"
         type: "multiple_choice"
         question: "Which services do you offer?"
-        options: ["Consultations", "Products", "Consultations + Products", "Other"]
+        options: ["Consultations", "Products", "Consultations + Products"]
         multiple: true
         field_name: "services_offered"
       - name: "Business Hours"
         type: "multiple_choice"
         question: "What are your business hours?"
-        options: ["Mon–Fri 9am–5pm", "Mon–Sat 10am–6pm", "24/7", "Other"]
+        options: ["Mon–Fri 9am–5pm", "Mon–Sat 10am–6pm", "24/7"]
         multiple: false
         field_name: "business_hours"
       - name: "Location Setup"
         type: "multiple_choice"
         question: "How is your business location set up?"
-        options: ["Single physical location", "Multiple locations", "Online only", "Other"]
+        options: ["Single physical location", "Multiple locations", "Online only"]
         multiple: false
         field_name: "location_setup"
       - name: "Contact Channels"
         type: "multiple_choice"
         question: "Which contact channels do you use?"
-        options: ["Phone", "Email", "WhatsApp", "Website Form", "Other"]
+        options: ["Phone", "Email", "WhatsApp", "Website Form"]
         multiple: true
         field_name: "contact_channels"
       - name: "Pricing Model"
         type: "multiple_choice"
         question: "How do you price your services?"
-        options: ["Fixed pricing", "Packages/Memberships", "Quote-based", "Other"]
+        options: ["Fixed pricing", "Packages/Memberships", "Quote-based"]
         multiple: false
         field_name: "pricing_model"
 
@@ -97,7 +97,7 @@ onboarding_stages:
         - "Invoicing/payment preferences"
     format_note: |
       Present each industry-specific question clearly with options as a clean list.
-      Always include "Other" as an option for flexibility.
+              Do not include "Other" options - the UI automatically provides this flexibility.
 
   stage_3:
     title: "Branding & Tone"
@@ -107,19 +107,19 @@ onboarding_stages:
       - name: "Preferred Response Style"
         type: "multiple_choice"
         question: "What is your preferred response style?"
-        options: ["Short & direct", "Friendly & conversational", "Formal & professional", "Detailed & explanatory", "Other"]
+        options: ["Short & direct", "Friendly & conversational", "Formal & professional", "Detailed & explanatory"]
         multiple: false
         field_name: "response_style"
       - name: "Tone of Voice"
         type: "multiple_choice"
         question: "What tone of voice should Chayo use?"
-        options: ["Formal", "Friendly", "Playful", "Professional", "Other"]
+        options: ["Formal", "Friendly", "Playful", "Professional"]
         multiple: false
         field_name: "tone_of_voice"
       - name: "Target Audience"
         type: "multiple_choice"
         question: "Who is your target audience?"
-        options: ["Families", "Professionals", "Students", "Seniors", "Other"]
+        options: ["Families", "Professionals", "Students", "Seniors"]
         multiple: true
         field_name: "target_audience"
 

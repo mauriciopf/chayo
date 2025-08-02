@@ -504,8 +504,34 @@ export class OrganizationChatService {
         let allowMultiple = false
         
         try {
-          // Attempt to parse the response as JSON
-          const jsonResponse = JSON.parse(aiResponse.trim())
+          // Try to extract JSON from the response, handling various formats
+          let jsonString = aiResponse.trim()
+          let conversationalText = ''
+          
+          // Remove markdown code blocks if present
+          const codeBlockMatch = jsonString.match(/```(?:json)?\s*([\s\S]*?)\s*```/)
+          if (codeBlockMatch) {
+            // Extract any text before the code block as conversational context
+            const beforeCodeBlock = jsonString.substring(0, jsonString.indexOf('```')).trim()
+            if (beforeCodeBlock) {
+              conversationalText = beforeCodeBlock
+            }
+            jsonString = codeBlockMatch[1].trim()
+          } else {
+            // Try to find JSON object boundaries if there's extra text
+            const jsonMatch = jsonString.match(/\{[\s\S]*\}/)
+            if (jsonMatch) {
+              // Extract any text before the JSON as conversational context
+              const beforeJson = jsonString.substring(0, jsonString.indexOf('{')).trim()
+              if (beforeJson) {
+                conversationalText = beforeJson
+              }
+              jsonString = jsonMatch[0]
+            }
+          }
+          
+          // Attempt to parse the extracted JSON
+          const jsonResponse = JSON.parse(jsonString)
           
           if (jsonResponse.question_template && jsonResponse.field_name && jsonResponse.field_type) {
             // This is a structured question response
@@ -516,7 +542,8 @@ export class OrganizationChatService {
               multiple_choices: jsonResponse.multiple_choices
             }
             
-            aiMessage = jsonResponse.question_template
+            // Use conversational text if available, otherwise use the question template
+            aiMessage = conversationalText || jsonResponse.question_template
             
             if (jsonResponse.field_type === 'multiple_choice' && jsonResponse.multiple_choices) {
               multipleChoices = jsonResponse.multiple_choices
@@ -525,6 +552,8 @@ export class OrganizationChatService {
           }
         } catch (error) {
           // Not JSON or invalid JSON - treat as regular text response
+          console.log('Failed to parse AI response as JSON:', error)
+          console.log('AI response was:', aiResponse)
           aiMessage = aiResponse
         }
         

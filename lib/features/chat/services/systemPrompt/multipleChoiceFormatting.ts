@@ -44,7 +44,7 @@ For text questions, return:
 - field_type must be exactly "text" or "multiple_choice"
 - multiple_choices array is required for multiple_choice type, omit for text type
 - Generate meaningful field_name based on the question content
-- Always provide "Other" option flexibility in multiple choice arrays when appropriate
+- Do not include "Other" options in multiple_choices arrays - the UI will automatically provide this option
 
 **WHEN TO USE MULTIPLE CHOICE:**
 - ✅ Gathering preferences (communication methods, appointment types, service options)
@@ -61,7 +61,7 @@ export function getMultipleChoiceParsingExample(): string {
   "question_template": "How would you like to be contacted?",
   "field_name": "contact_preference",
   "field_type": "multiple_choice",
-  "multiple_choices": ["Phone", "Email", "WhatsApp", "Text Message", "Other"]
+  "multiple_choices": ["Phone", "Email", "WhatsApp", "Text Message"]
 }`
 }
 
@@ -70,6 +70,6 @@ export function getOnboardingMultipleChoiceExample(): string {
   "question_template": "What type of business do you run?",
   "field_name": "business_type",
   "field_type": "multiple_choice", 
-  "multiple_choices": ["Health Clinic", "Salon", "Restaurant", "Professional Services", "Retail Store", "Other"]
+  "multiple_choices": ["Health Clinic", "Salon", "Restaurant", "Professional Services", "Retail Store"]
 }`
 } 

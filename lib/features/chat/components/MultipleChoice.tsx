@@ -20,7 +20,7 @@ export default function MultipleChoice({
   allowMultiple = false,
   otherOptionLabel = 'Other (please specify)'
 }: MultipleChoiceProps) {
-  // Derive showOtherOption from options existence - if we have multiple choices, always show "Other"
+  // Always show "Other" option when there are multiple choices
   const showOtherOption = options.length > 0
   const [selectedOptions, setSelectedOptions] = useState<string[]>([])
   const [otherValue, setOtherValue] = useState('')
