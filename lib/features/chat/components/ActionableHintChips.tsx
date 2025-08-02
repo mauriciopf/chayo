@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslations } from 'next-intl'
 
@@ -28,9 +28,7 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
   className = ''
 }) => {
   const t = useTranslations('chat')
-  const scrollContainerRef = useRef<HTMLDivElement>(null)
-  const [canScrollLeft, setCanScrollLeft] = useState(false)
-  const [canScrollRight, setCanScrollRight] = useState(false)
+
   const [agentToolSettings, setAgentToolSettings] = useState<AgentToolSettings>({
     appointments: false,
     documents: false,
@@ -43,35 +41,35 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
   const actionableHints: ActionableHint[] = [
     {
       id: 'schedule_appointment',
-      label: '📅 Schedule an appointment',
+      label: '📅 Schedule appointment',
       icon: '📅',
       description: 'Book a meeting, reservation, or service time slot.',
       category: 'appointments'
     },
     {
       id: 'share_document',
-      label: '📝 Share a form or document',
+      label: '📝 Share document',
       icon: '📝',
       description: 'Send intake forms, agreements, or information sheets.',
       category: 'documents'
     },
     {
       id: 'collect_payment',
-      label: '💳 Collect a payment or deposit',
+      label: '💳 Collect payment',
       icon: '💳',
       description: 'Send a payment link or confirm payment details.',
       category: 'payments'
     },
     {
       id: 'collect_intake_form',
-      label: '📋 Collect intake form',
+      label: '📋 Intake form',
       icon: '📋',
       description: 'Send custom forms to collect client information, preferences, or requirements.',
       category: 'intake_forms'
     },
     {
       id: 'answer_faqs',
-      label: '❓ Answer common questions (FAQs)',
+      label: '❓ Answer FAQ',
       icon: '❓',
       description: 'Business hours, location, pricing, policies.',
       category: 'faqs'
@@ -107,90 +105,22 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
     onHintSelect(hint)
   }
 
-  const checkScrollability = () => {
-    if (scrollContainerRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current
-      console.log('Scroll check:', { scrollLeft, scrollWidth, clientWidth, hasOverflow: scrollWidth > clientWidth })
-      setCanScrollLeft(scrollLeft > 0)
-      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10) // More generous threshold
-    }
-  }
-
-  const scrollLeft = () => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({ left: -200, behavior: 'smooth' })
-    }
-  }
-
-  const scrollRight = () => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({ left: 200, behavior: 'smooth' })
-    }
-  }
-
-  useEffect(() => {
-    // Add a small delay to ensure DOM is ready
-    const timer = setTimeout(() => {
-      checkScrollability()
-    }, 100)
-    
-    const handleResize = () => checkScrollability()
-    window.addEventListener('resize', handleResize)
-    
-    return () => {
-      clearTimeout(timer)
-      window.removeEventListener('resize', handleResize)
-    }
-  }, [actionableHints])
-
-  // Additional effect to check scrollability when the ref becomes available
-  useEffect(() => {
-    if (scrollContainerRef.current) {
-      checkScrollability()
-    }
-  }, [scrollContainerRef.current])
-
   return (
     <div className={`w-full ${className}`}>
-      {/* Carousel Container */}
-      <div className="relative">
-        {/* Left Arrow */}
-        {(canScrollLeft || true) && (
-          <button
-            onClick={scrollLeft}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-white shadow-lg rounded-full flex items-center justify-center hover:bg-gray-50 transition-colors"
-            style={{ transform: 'translateY(-50%) translateX(-50%)' }}
-          >
-            <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-        )}
-
-        {/* Right Arrow */}
-        {(canScrollRight || true) && (
-          <button
-            onClick={scrollRight}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-white shadow-lg rounded-full flex items-center justify-center hover:bg-gray-50 transition-colors"
-            style={{ transform: 'translateY(-50%) translateX(50%)' }}
-          >
-            <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        )}
-
-        {/* Scrollable Container */}
-        <div 
-          ref={scrollContainerRef}
-          onScroll={checkScrollability}
-          className="flex gap-2 overflow-x-auto pb-3 px-6" 
-          style={{ 
-            scrollbarWidth: 'none', 
-            msOverflowStyle: 'none',
-            WebkitOverflowScrolling: 'touch'
-          }}
-        >
+      {/* Simple Horizontal Scroll Container */}
+      <div 
+        className="flex gap-3 overflow-x-auto overflow-y-hidden pb-3 px-1"
+        style={{ 
+          scrollbarWidth: 'none', 
+          msOverflowStyle: 'none',
+          WebkitOverflowScrolling: 'touch'
+        }}
+      >
+        <style jsx>{`
+          div::-webkit-scrollbar {
+            display: none;
+          }
+        `}</style>
           {/* Hint Chips */}
           <AnimatePresence>
             {actionableHints.map((hint, index) => (
@@ -205,7 +135,7 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
                   ease: [0.4, 0, 0.2, 1]
                 }}
                 onClick={() => handleHintClick(hint)}
-                className={`flex-shrink-0 px-5 py-3 rounded-2xl transition-all duration-300 text-sm font-semibold group relative overflow-hidden ${
+                className={`flex-shrink-0 px-4 py-2.5 rounded-xl transition-all duration-300 text-sm font-medium group relative overflow-hidden whitespace-nowrap ${
                   agentToolSettings[hint.category]
                     ? 'bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-500 text-white shadow-lg shadow-blue-500/25 ring-2 ring-blue-200 ring-offset-2 cursor-pointer'
                     : 'bg-gray-900 border border-gray-700 text-gray-300 cursor-pointer opacity-80 hover:opacity-100 hover:bg-gray-800 hover:text-gray-200 hover:border-amber-400/60 hover:ring-1 hover:ring-amber-300/30'
@@ -217,7 +147,7 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
                   <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent" />
                 )}
                 
-                <span className="whitespace-nowrap font-medium relative z-10">
+                <span className="relative z-10">
                   {hint.label}
                 </span>
                 
@@ -234,7 +164,6 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
             ))}
           </AnimatePresence>
         </div>
-      </div>
     </div>
   )
 }
