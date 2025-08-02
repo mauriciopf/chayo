@@ -61,7 +61,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
           onChange={handleFileChange}
           disabled={uploading}
         />
-        <div className="bg-gray-800 rounded-2xl shadow-lg border border-gray-700 p-3">
+        <div className="bg-gray-800 rounded-2xl shadow-lg border border-gray-600 p-3" style={{ backgroundColor: '#1f2937' }}>
           <div className="w-full">
             <textarea
               placeholder={isOnboardingActive && currentOnboardingQuestion ? currentOnboardingQuestion : t('inputPlaceholder')}
@@ -82,8 +82,13 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 }
               }}
               ref={inputRef as any}
-              className={`w-full px-3 py-3 focus:outline-none resize-none bg-transparent text-white font-medium min-h-[2.75rem] max-h-[6rem] leading-relaxed ${isOnboardingActive ? 'placeholder-blue-300' : 'placeholder-gray-400'}`}
-              style={{ color: '#ffffff' }}
+              className={`w-full px-3 py-3 focus:outline-none resize-none font-medium min-h-[2.75rem] max-h-[6rem] leading-relaxed ${isOnboardingActive ? 'placeholder-blue-300' : 'placeholder-gray-400'}`}
+              style={{ 
+                color: '#ffffff', 
+                caretColor: '#ffffff',
+                backgroundColor: 'transparent',
+                WebkitTextFillColor: '#ffffff'
+              }}
               rows={1}
               disabled={uploading || otpLoading !== 'none'}
               onFocus={handleInputFocus}
