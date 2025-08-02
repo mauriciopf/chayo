@@ -95,14 +95,7 @@ export class OrganizationChatService {
         console.log('🔍 No pending questions found, generating new onboarding question')
         const aiResponse = await this.generateAIResponse([], context)
         
-        // Extract question from AI response and store it
-        if (aiResponse.aiMessage && !aiResponse.aiMessage.includes('STATUS: setup_complete')) {
-          await this.storeAIGeneratedQuestion(organization.id, aiResponse.aiMessage, {
-            options: aiResponse.multipleChoices || [],
-            allowMultiple: aiResponse.allowMultiple || false,
-            showOtherOption: aiResponse.showOtherOption || false
-          })
-        }
+        // Question storage is now handled automatically in generateAIResponse
         
         return {
           aiMessage: aiResponse.aiMessage,
@@ -134,14 +127,7 @@ export class OrganizationChatService {
         // Generate the next question dynamically from AI
         const aiResponse = await this.generateAIResponse(messages, context)
         
-        // Extract question from AI response and store it
-        if (aiResponse.aiMessage && !aiResponse.aiMessage.includes('STATUS: setup_complete')) {
-          await this.storeAIGeneratedQuestion(organization.id, aiResponse.aiMessage, {
-            options: aiResponse.multipleChoices || [],
-            allowMultiple: aiResponse.allowMultiple || false,
-            showOtherOption: aiResponse.showOtherOption || false
-          })
-        }
+        // Question storage is now handled automatically in generateAIResponse
         
         return {
           aiMessage: aiResponse.aiMessage,
@@ -361,25 +347,52 @@ export class OrganizationChatService {
         }
       } else {
         const data = await openaiRes.json()
-        const aiMessage = data.choices?.[0]?.message?.content || ''
+        const aiResponse = data.choices?.[0]?.message?.content || ''
         
-        // Parse multiple choice options if present
-        const multipleChoiceData = this.parseMultipleChoiceData(aiMessage)
+        // Try to parse as JSON first (structured response)
+        let businessQuestion: any = null
+        let aiMessage = aiResponse
+        let multipleChoices: string[] | undefined = undefined
+        let allowMultiple = false
+        let showOtherOption = false
         
-        // Always clean up the message to remove MULTIPLE and OTHER metadata
-        const finalAiMessage = this.extractQuestionFromMultipleChoice(aiMessage)
-        
-        const result = {
-          aiMessage: finalAiMessage,
-          multipleChoices: multipleChoiceData?.options || undefined,
-          allowMultiple: multipleChoiceData?.allowMultiple || false,
-          showOtherOption: multipleChoiceData?.showOtherOption || false
+        try {
+          // Attempt to parse the response as JSON
+          const jsonResponse = JSON.parse(aiResponse.trim())
+          
+          if (jsonResponse.question_template && jsonResponse.field_name && jsonResponse.field_type) {
+            // This is a structured question response
+            businessQuestion = {
+              question_template: jsonResponse.question_template,
+              field_name: jsonResponse.field_name,
+              field_type: jsonResponse.field_type,
+              multiple_choices: jsonResponse.multiple_choices
+            }
+            
+            aiMessage = jsonResponse.question_template
+            if (jsonResponse.field_type === 'multiple_choice' && jsonResponse.multiple_choices) {
+              multipleChoices = jsonResponse.multiple_choices
+              allowMultiple = false // Default for now
+              showOtherOption = jsonResponse.multiple_choices.includes('Other')
+            }
+          }
+        } catch (error) {
+          // Not JSON or invalid JSON - treat as regular text response
+          console.log('AI response is not structured JSON, treating as regular text')
+          aiMessage = aiResponse
         }
         
-        // Store the question if it contains a question (multiple choice or regular)
-        // Only store if this is a NEW question, not a pending one
-        if (this.containsQuestion(aiMessage)) {
-          await this.storeAIGeneratedQuestion(context.organization.id, aiMessage, multipleChoiceData)
+        const result = {
+          aiMessage: aiMessage,
+          multipleChoices: multipleChoices,
+          allowMultiple: allowMultiple,
+          showOtherOption: showOtherOption
+        }
+        
+        // Store the question if we have a valid business question
+        if (businessQuestion) {
+          const { businessInfoService } = await import('../../organizations/services/businessInfoService')
+          await businessInfoService.storeBusinessQuestion(context.organization.id, businessQuestion)
         }
         
         return result
@@ -392,153 +405,9 @@ export class OrganizationChatService {
     }
   }
 
-  /**
-   * Parse multiple choice data from AI response
-   */
-  private parseMultipleChoiceData(aiMessage: string): { options: string[]; allowMultiple: boolean; showOtherOption: boolean } | null {
-    // Check if this looks like a multiple choice response
-    const hasOptions = aiMessage.includes('OPTIONS:')
-    const hasMultiple = aiMessage.includes('MULTIPLE:')
-    const hasOther = aiMessage.includes('OTHER:')
-    
-    if (!hasOptions || !hasMultiple || !hasOther) {
-      return null
-    }
-    
-    // Try multiple regex patterns to be more robust
-    let optionsMatch = aiMessage.match(/OPTIONS:\s*(.+?)(?=\n|MULTIPLE:|OTHER:|$)/i)
-    if (!optionsMatch) {
-      // Try alternative pattern
-      optionsMatch = aiMessage.match(/OPTIONS:\s*(\[.+?\])/i)
-    }
-    if (!optionsMatch) {
-      console.warn('No options match found in:', aiMessage)
-      return null
-    }
 
-    const optionsText = optionsMatch[1].trim()
-    
-    // Parse JSON array format ONLY
-    let options: string[] = []
-    
-    try {
-      options = JSON.parse(optionsText)
-    } catch (e) {
-      return null
-    }
-    
-    if (!Array.isArray(options) || options.length < 2) {
-      return null
-    }
-    
-    // Limit to reasonable number of options
-    if (options.length > 10) {
-      return null
-    }
 
-    // Parse MULTIPLE flag
-    const multipleMatch = aiMessage.match(/MULTIPLE:\s*(true|false)/i)
-    const allowMultiple = multipleMatch ? multipleMatch[1].toLowerCase() === 'true' : false
 
-    // Parse OTHER flag
-    const otherMatch = aiMessage.match(/OTHER:\s*(true|false)/i)
-    const showOtherOption = otherMatch ? otherMatch[1].toLowerCase() === 'true' : false
-    
-    return {
-      options,
-      allowMultiple,
-      showOtherOption
-    }
-  }
-
-  /**
-   * Check if a message contains a question
-   */
-  private containsQuestion(message: string): boolean {
-    // Check for question mark or QUESTION: format
-    return message.includes('?') || message.includes('QUESTION:')
-  }
-
-  /**
-   * Store AI-generated questions in the business_info_fields table
-   */
-  private async storeAIGeneratedQuestion(organizationId: string, aiMessage: string, multipleChoiceData: { options: string[]; allowMultiple: boolean; showOtherOption: boolean } | null): Promise<void> {
-    try {
-      // Extract the question text
-      const questionText = this.extractQuestionFromMultipleChoice(aiMessage)
-      
-      // Generate a field name based on the question content
-      const fieldName = this.generateFieldNameFromQuestion(questionText)
-      
-      // Check if this question already exists
-      const { data: existingQuestion } = await this.supabaseClient
-        .from('business_info_fields')
-        .select('id')
-        .eq('organization_id', organizationId)
-        .eq('field_name', fieldName)
-        .eq('is_answered', false)
-        .single()
-      
-      if (existingQuestion) {
-        return
-      }
-      
-      await this.supabaseClient
-        .from('business_info_fields')
-        .insert({
-          organization_id: organizationId,
-          field_name: fieldName,
-          field_type: multipleChoiceData ? 'multiple_choice' : 'text', // Dynamically set type
-          is_answered: false,
-          question_template: questionText,
-          multiple_choices: multipleChoiceData?.options || null // Handle null multipleChoiceData
-        })
-    } catch (error) {
-      // Silent error handling
-    }
-  }
-
-  /**
-   * Generate a field name from a question text
-   */
-  private generateFieldNameFromQuestion(questionText: string): string {
-    // Convert question to a field name
-    const fieldName = questionText
-      .toLowerCase()
-      .replace(/[^a-z0-9\s]/g, '') // Remove special characters
-      .replace(/\s+/g, '_') // Replace spaces with underscores
-      .replace(/^(what|how|which|when|where|why|who)\s+/, '') // Remove question words
-      .substring(0, 50) // Limit length
-    
-    return fieldName || 'custom_question'
-  }
-
-  /**
-   * Extract the question part from a multiple choice response
-   */
-  private extractQuestionFromMultipleChoice(aiMessage: string): string {
-    // First try to extract the question using the QUESTION: field
-    const questionMatch = aiMessage.match(/QUESTION:\s*(.+?)(?:\n|OPTIONS:)/i)
-    if (questionMatch) {
-      return questionMatch[1].trim()
-    }
-    
-    // Fallback: remove all the multiple choice formatting and return just the question
-    let cleanedMessage = aiMessage
-      .replace(/QUESTION:\s*.+?(?=\n|OPTIONS:|$)/gi, '') // Remove QUESTION section
-      .replace(/OPTIONS:\s*.+?(?=\n|MULTIPLE:|OTHER:|$)/gi, '') // Remove OPTIONS section
-      .replace(/MULTIPLE:\s*(true|false)/gi, '') // Remove MULTIPLE flag
-      .replace(/OTHER:\s*(true|false)/gi, '') // Remove OTHER flag
-      .replace(/\n\s*\n/g, '\n') // Remove extra blank lines
-      .trim()
-    
-    // If the cleaned message is empty or just whitespace, return a default message
-    if (!cleanedMessage || cleanedMessage.length === 0) {
-      return "Please select an option:"
-    }
-    
-    return cleanedMessage
-  }
 
   private async updateWhatsAppTrialStatus(aiMessage: string, context: ChatContext): Promise<void> {
     // Check if WhatsApp trial was mentioned
@@ -630,22 +499,41 @@ export class OrganizationChatService {
           organization_name: context.organization.name
         }
       )
+      
+      // 🚀 NEW: AI-driven relevance filtering for embedding storage
       try {
+        const { businessInfoService } = await import('../../organizations/services/businessInfoService')
         const { embeddingService } = await import('../../../shared/services/embeddingService')
-        const conversationText = messages.map(m => m.content).join(' ')
         
-        // Use AI to dynamically detect if this conversation contains business information updates
-        const updateInfo = await this.extractMemoryUpdate(conversationText, context.organization.id)
+        const userMessage = messages[messages.length - 1]?.content || ''
         
-        if (updateInfo) {
-          const result = await embeddingService.updateMemory(
-            context.organization.id,
-            updateInfo,
-            'auto'
-          )
+        // Evaluate relevance of both user and AI messages
+        const [userRelevant, aiRelevant] = await Promise.all([
+          userMessage ? businessInfoService.isBusinessRelevantInformation(userMessage, 'user', 'embedding_storage') : false,
+          aiMessage ? businessInfoService.isBusinessRelevantInformation(aiMessage, 'ai', 'embedding_storage') : false
+        ])
+        
+        // Store relevant conversations for embedding/RAG
+        if (userRelevant || aiRelevant) {
+          const conversationText = messages.map(m => m.content).join(' ')
+          
+          // Use AI to dynamically detect if this conversation contains business information updates
+          const updateInfo = await this.extractMemoryUpdate(conversationText, context.organization.id)
+          
+          if (updateInfo) {
+            const result = await embeddingService.updateMemory(
+              context.organization.id,
+              updateInfo,
+              'auto'
+            )
+            console.log('📚 Stored relevant business conversation for embeddings')
+          }
+        } else {
+          console.log('⏭️ Skipped storing conversation - not business relevant')
         }
       } catch (error) {
-        // Silent error handling
+        console.warn('Error in relevance filtering for embeddings:', error)
+        // Fallback to storing everything if evaluation fails
       }
     } catch (error) {
       // Silent error handling
