@@ -71,23 +71,25 @@ const ChatModeSelector: React.FC<ChatModeSelectorProps> = ({
             marginBottom: '6px'
           }}
         >
-          <div className="px-3 py-2 text-xs text-gray-400 border-b border-gray-600">
-            Switch between configuring your business or previewing client view
-          </div>
           {modeItems.map((item) => (
             <button
               key={item.key}
               onClick={() => handleModeSelect(item.key as ChatMode)}
-              className={`w-full px-3 py-2 text-left transition-colors duration-100 flex items-center gap-2 text-sm ${
+              className={`w-full px-3 py-2 text-left transition-colors duration-100 flex items-start gap-2 text-sm ${
                 chatMode === item.key
                   ? 'bg-blue-600 text-white'
                   : 'text-gray-200 hover:bg-gray-700'
               }`}
             >
-              <span className="text-xs">{item.icon}</span>
-              <span className="font-normal text-xs">{item.key === 'business' ? 'Business' : 'Client'}</span>
+              <span className="text-xs mt-0.5">{item.icon}</span>
+              <div className="flex-1">
+                <div className="font-medium text-xs">{item.label}</div>
+                <div className={`text-xs mt-0.5 ${chatMode === item.key ? 'text-white/80' : 'text-gray-400'}`}>
+                  {item.description}
+                </div>
+              </div>
               {chatMode === item.key && (
-                <div className="ml-auto w-1 h-1 bg-white rounded-full"></div>
+                <div className="ml-auto mt-1 w-1 h-1 bg-white rounded-full"></div>
               )}
             </button>
           ))}
