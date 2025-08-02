@@ -65,31 +65,29 @@ const ChatModeSelector: React.FC<ChatModeSelectorProps> = ({
       {/* Dropdown Menu */}
       {isMenuOpen && onModeSwitch && (
         <div 
-          className="absolute bottom-full left-0 mb-2 w-64 bg-gray-900 rounded-lg shadow-2xl border border-gray-700 overflow-hidden z-[999999]"
+          className="absolute left-0 w-48 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden z-[999999]"
+          style={{
+            bottom: '100%',
+            marginBottom: '8px'
+          }}
         >
-          <div className="py-1">
-            {modeItems.map((item) => (
-              <button
-                key={item.key}
-                onClick={() => handleModeSelect(item.key as ChatMode)}
-                className={`w-full px-4 py-3 text-left transition-all duration-150 flex items-center gap-3 text-sm ${
-                  chatMode === item.key
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-200 hover:bg-gray-800 hover:text-white'
-                }`}
-              >
-                <span className="text-lg">{item.icon}</span>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium">{item.label}</span>
-                    {chatMode === item.key && (
-                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                    )}
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
+          {modeItems.map((item) => (
+            <button
+              key={item.key}
+              onClick={() => handleModeSelect(item.key as ChatMode)}
+              className={`w-full px-3 py-2.5 text-left transition-colors duration-150 flex items-center gap-2.5 text-sm border-b border-gray-100 last:border-b-0 ${
+                chatMode === item.key
+                  ? 'bg-blue-50 text-blue-700'
+                  : 'text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              <span className="text-base">{item.icon}</span>
+              <span className="font-medium">{item.label}</span>
+              {chatMode === item.key && (
+                <div className="ml-auto w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+              )}
+            </button>
+          ))}
         </div>
       )}
 
