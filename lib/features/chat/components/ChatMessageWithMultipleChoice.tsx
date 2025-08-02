@@ -29,6 +29,24 @@ export default function ChatMessageWithMultipleChoice({
   // Extract multiple choice data from raw content if not already parsed
   const extractMultipleChoiceData = (() => {
     if (!message.multipleChoices || message.multipleChoices.length === 0) {
+      // Try to parse new JSON format first
+      if (message.content.includes('"question_template"') && message.content.includes('"field_type"')) {
+        try {
+          const jsonData = JSON.parse(message.content.trim())
+          if (jsonData.question_template && jsonData.field_type === 'multiple_choice' && jsonData.multiple_choices) {
+            return {
+              question: jsonData.question_template,
+              options: jsonData.multiple_choices,
+              allowMultiple: false, // Default as per our system
+              showOtherOption: jsonData.multiple_choices.includes('Other')
+            }
+          }
+        } catch (error) {
+          console.log('Failed to parse JSON in ChatMessageWithMultipleChoice:', error)
+        }
+      }
+      
+      // Fallback to legacy format parsing
       if (message.content.includes('OPTIONS:') && message.content.includes('QUESTION:')) {
         // Extract options
         const optionsMatch = message.content.match(/OPTIONS:\s*(.+?)(?=\n|MULTIPLE:|OTHER:|$)/i)
@@ -60,6 +78,24 @@ export default function ChatMessageWithMultipleChoice({
 
   // Safeguard: Check if the content contains raw multiple choice data and clean it
   const cleanContent = (() => {
+    // If we have extracted JSON data, use the question from it
+    if (extractMultipleChoiceData && extractMultipleChoiceData.question) {
+      return extractMultipleChoiceData.question
+    }
+    
+    // If content is raw JSON, try to extract question_template
+    if (message.content.includes('"question_template"') && message.content.includes('"field_type"')) {
+      try {
+        const jsonData = JSON.parse(message.content.trim())
+        if (jsonData.question_template) {
+          return jsonData.question_template
+        }
+      } catch (error) {
+        // Fall through to other methods
+      }
+    }
+    
+    // Handle legacy format
     if (message.content.includes('OPTIONS:') || message.content.includes('QUESTION:')) {
       // Remove the raw formatting if it somehow got through
       return message.content
@@ -70,6 +106,7 @@ export default function ChatMessageWithMultipleChoice({
         .replace(/\n\s*\n/g, '\n')
         .trim() || "Please select an option:"
     }
+    
     return message.content
   })()
 

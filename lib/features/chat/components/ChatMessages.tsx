@@ -21,16 +21,15 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, chatLoading, chat
     <>
       <AnimatePresence>
         {messages.map((msg) => {
-          // Additional check: if message content contains raw multiple choice data but wasn't parsed,
-          // we should still route it to the multiple choice component
-          const hasRawMultipleChoiceData = msg.role === 'ai' && 
-            ((msg.content.includes('OPTIONS:') && msg.content.includes('MULTIPLE:')) ||
-             (msg.content.includes('QUESTION:') && msg.content.includes('OPTIONS:'))) &&
+          // Check for raw JSON that wasn't parsed (backup handling)
+          const hasRawJSONData = msg.role === 'ai' && 
+            msg.content.includes('"question_template"') && 
+            msg.content.includes('"field_type"') &&
             (!msg.multipleChoices || msg.multipleChoices.length === 0)
           
           return (
             <div key={msg.id} data-message-id={msg.id}>
-              {(msg.multipleChoices && msg.multipleChoices.length > 0) || hasRawMultipleChoiceData ? (
+              {(msg.multipleChoices && msg.multipleChoices.length > 0) || hasRawJSONData ? (
                 <ChatMessageWithMultipleChoice
                   message={msg}
                   onOptionSelect={onOptionSelect}

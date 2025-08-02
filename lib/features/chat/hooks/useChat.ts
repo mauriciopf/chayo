@@ -159,7 +159,6 @@ export function useChat({
       }
       
       const data = await res.json()
-      console.log('🎯 useChat received API data:', data)
       
       // After receiving the API response:
       // (No more selectedAgent logic)
@@ -173,8 +172,6 @@ export function useChat({
         allowMultiple: data.allowMultiple,
         showOtherOption: data.showOtherOption
       }
-      
-      console.log('💬 useChat setting AI message:', aiMessage)
       
       setMessages((msgs) => [
         ...msgs,

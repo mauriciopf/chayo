@@ -12,41 +12,35 @@ export function getMultipleChoiceFormattingInstructions(): string {
 When presenting questions, you MUST return a structured JSON response for the UI system to parse correctly:
 
 **REQUIRED JSON FORMAT:**
-You must return a valid JSON object with this exact structure:
+You must return ONLY a valid JSON object - no markdown, no code blocks, no additional text. Return this exact structure:
 
-\`\`\`json
 {
   "question_template": "Your question text here",
   "field_name": "snake_case_field_name", 
   "field_type": "text" | "multiple_choice",
-  "multiple_choices": ["Option 1", "Option 2", "Option 3"] // Only for multiple_choice type
+  "multiple_choices": ["Option 1", "Option 2", "Option 3"]
 }
-\`\`\`
 
 **EXAMPLES:**
 
-For multiple choice questions:
-\`\`\`json
+For multiple choice questions, return:
 {
   "question_template": "What type of business do you run?",
   "field_name": "business_type",
   "field_type": "multiple_choice",
   "multiple_choices": ["Health Clinic", "Salon", "Restaurant", "Retail Store"]
 }
-\`\`\`
 
-For text questions:
-\`\`\`json
+For text questions, return:
 {
   "question_template": "What is your business name?",
   "field_name": "business_name", 
   "field_type": "text"
 }
-\`\`\`
 
 **IMPORTANT RULES:**
-- Always return valid JSON - no additional text before or after
-- field_name must be snake_case (lowercase with underscores)
+- Return ONLY the JSON object - no markdown code blocks, no \`\`\`json, no additional text
+- field_name must be snake_case (lowercase with underscores)  
 - field_type must be exactly "text" or "multiple_choice"
 - multiple_choices array is required for multiple_choice type, omit for text type
 - Generate meaningful field_name based on the question content
