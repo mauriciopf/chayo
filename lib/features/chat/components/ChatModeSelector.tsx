@@ -81,7 +81,7 @@ const ChatModeSelector: React.FC<ChatModeSelectorProps> = ({
                 onClick={() => handleModeSelect(item.key as ChatMode)}
                 className={`w-full px-4 py-4 text-left transition-all duration-200 flex items-start gap-3 text-sm hover:bg-gray-50 ${
                   chatMode === item.key
-                    ? 'bg-blue-50'
+                    ? 'bg-blue-100 border border-blue-200'
                     : ''
                 }`}
               >
