@@ -157,8 +157,8 @@ Answer:`
       const allRequests = Object.entries(intentCounts)
         .map(([intent, count]) => ({
           intent,
-          count,
-          percentage: Math.round((count / totalConversations) * 100)
+          count: count as number,
+          percentage: Math.round(((count as number) / totalConversations) * 100)
         }))
         .sort((a, b) => b.count - a.count)
 
@@ -201,7 +201,7 @@ Answer:`
       }, {})
 
       const dailyCountsArray = Object.entries(dailyCounts)
-        .map(([date, count]) => ({ date, count }))
+        .map(([date, count]) => ({ date, count: count as number }))
 
       // Intent trends
       const intentCounts = data.reduce((acc: Record<string, number>, row: { intent: string }) => {
@@ -213,7 +213,7 @@ Answer:`
       const intentTrends = Object.entries(intentCounts)
         .map(([intent, count]) => ({
           intent,
-          percentage: Math.round((count / totalConversations) * 100)
+          percentage: Math.round(((count as number) / totalConversations) * 100)
         }))
         .sort((a, b) => b.percentage - a.percentage)
 
