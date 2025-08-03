@@ -27,7 +27,7 @@ import BusinessSummary from '@/lib/features/dashboard/components/overview/Busine
 import { ActiveView } from '@/lib/shared/types'
 
 // Import existing dashboard components
-import PerformanceOverview from '@/lib/features/dashboard/components/overview/PerformanceOverview'
+import SimpleInsightsDashboard from '@/lib/features/insights/components/SimpleInsightsDashboard'
 import TeamManagement from '@/lib/features/organizations/components/TeamManagement'
 import ProfileSettings from '@/lib/features/dashboard/components/agents/ProfileSettings'
 import MainDashboardLayout from '@/lib/features/dashboard/components/layout/MainDashboardLayout'
@@ -240,7 +240,13 @@ function DashboardContent() {
       case 'business-summary':
         return <BusinessSummary />
       case 'performance':
-        return <PerformanceOverview />
+        return auth.currentOrganization ? (
+          <SimpleInsightsDashboard organizationId={auth.currentOrganization.id} />
+        ) : (
+          <div className="text-center py-8">
+            <p className="text-gray-500">No organization available for insights.</p>
+          </div>
+        )
       case 'users':
         return auth.currentOrganization ? (
           <TeamManagement 

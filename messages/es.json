@@ -436,6 +436,16 @@
     "disconnected": "Desconectado",
     "manageChannels": "Gestionar Canales"
   },
+  "insights": {
+    "topCustomerRequest": "Principal Solicitud del Cliente",
+    "recommendation": "Recomendación",
+    "thisWeek": "Esta Semana",
+    "customerConversations": "conversaciones de clientes",
+    "noDataYet": "Aún no hay datos de clientes",
+    "customerRequestBreakdown": "Desglose de Solicitudes de Clientes",
+    "requests": "solicitudes",
+    "highPriority": "Alta prioridad"
+  },
   "performanceOverview": {
     "title": "Resumen de Rendimiento",
     "periods": {

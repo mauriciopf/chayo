@@ -113,6 +113,19 @@ export async function POST(request: NextRequest) {
       }
     )
 
+    // Record client insights for business intelligence
+    try {
+      const { simpleClientInsightsService } = await import('@/lib/features/insights/services/SimpleClientInsightsService')
+      await simpleClientInsightsService.recordConversation(
+        organizationId,
+        message,
+        'client'
+      )
+    } catch (error) {
+      console.warn('Failed to record client insights:', error)
+      // Don't fail the main flow if insights recording fails
+    }
+
     return NextResponse.json({
       response: assistantResponse,
       intents: validatedIntents

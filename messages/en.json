@@ -436,6 +436,16 @@
     "disconnected": "Disconnected",
     "manageChannels": "Manage Channels"
   },
+  "insights": {
+    "topCustomerRequest": "Top Customer Request",
+    "recommendation": "Recommendation",
+    "thisWeek": "This Week",
+    "customerConversations": "customer conversations",
+    "noDataYet": "No customer data yet",
+    "customerRequestBreakdown": "Customer Request Breakdown",
+    "requests": "requests",
+    "highPriority": "High priority"
+  },
   "performanceOverview": {
     "title": "Performance Overview",
     "periods": {
