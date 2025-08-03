@@ -148,7 +148,7 @@ Answer:`
       }
 
       // Calculate intent distribution
-      const intentCounts = data.reduce((acc: Record<string, number>, row) => {
+      const intentCounts = data.reduce((acc: Record<string, number>, row: { intent: string }) => {
         acc[row.intent] = (acc[row.intent] || 0) + 1
         return acc
       }, {})
@@ -194,7 +194,7 @@ Answer:`
       }
 
       // Daily counts
-      const dailyCounts = data.reduce((acc: Record<string, number>, row) => {
+      const dailyCounts = data.reduce((acc: Record<string, number>, row: { conversation_date: string }) => {
         const date = row.conversation_date
         acc[date] = (acc[date] || 0) + 1
         return acc
@@ -204,7 +204,7 @@ Answer:`
         .map(([date, count]) => ({ date, count }))
 
       // Intent trends
-      const intentCounts = data.reduce((acc: Record<string, number>, row) => {
+      const intentCounts = data.reduce((acc: Record<string, number>, row: { intent: string }) => {
         acc[row.intent] = (acc[row.intent] || 0) + 1
         return acc
       }, {})
