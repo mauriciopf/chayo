@@ -12,7 +12,7 @@ export function useVoiceRecording({
   onSendMessage
 }: UseVoiceRecordingProps) {
   // Hard-coded values for simplicity - always auto-send and auto-stop on silence
-  const silenceThreshold = 1500 // 1.5 seconds
+  const silenceThreshold = 1000 // 1 seconds
   const volumeThreshold = 0.01  // Speech detection sensitivity
   const [isRecording, setIsRecording] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
@@ -30,10 +30,72 @@ export function useVoiceRecording({
   // Use refs for current values to avoid dependency issues in monitoring loop
   const isRecordingRef = useRef(isRecording)
   const isSpeakingRef = useRef(isSpeaking)
+  const pauseRecordingRef = useRef<(() => void) | null>(null)
+  const resumeRecordingRef = useRef<(() => void) | null>(null)
   
   // Update refs when state changes
   isRecordingRef.current = isRecording
   isSpeakingRef.current = isSpeaking
+
+  // Audio transcription function
+  const transcribeAudio = useCallback(async (audioBlob: Blob) => {
+    try {
+      setIsProcessing(true)
+
+      // Determine file extension based on MIME type
+      let extension = 'webm'
+      if (audioBlob.type.includes('mp4')) {
+        extension = 'mp4'
+      } else if (audioBlob.type.includes('ogg')) {
+        extension = 'ogg'
+      } else if (audioBlob.type.includes('wav')) {
+        extension = 'wav'
+      }
+
+      console.log('Uploading audio:', { type: audioBlob.type, size: audioBlob.size, extension })
+
+      // Create FormData for upload
+      const formData = new FormData()
+      formData.append('audio', audioBlob, `recording.${extension}`)
+
+      // Send to our Whisper API endpoint
+      const response = await fetch('/api/whisper', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+        console.error('API Error:', { status: response.status, error: errorData })
+        throw new Error(errorData.error || `Transcription failed (${response.status})`)
+      }
+
+      const data = await response.json()
+      
+      if (data.text && data.text.trim()) {
+        const transcribedText = data.text.trim()
+        onTranscription(transcribedText)
+        
+        // Always auto-send (no manual stop button needed)
+        console.log('🎯 Auto-sending transcribed speech segment:', transcribedText)
+        onSendMessage(transcribedText)
+      } else {
+        onError('No speech detected. Please try speaking more clearly.')
+      }
+
+    } catch (error) {
+      console.error('Transcription error:', error)
+      if (error instanceof Error) {
+        console.error('Transcription error details:', error)
+        onError(error.message)
+      } else {
+        console.error('Unknown transcription error:', error)
+        onError('Speech recognition failed. Please try again.')
+      }
+    } finally {
+      setIsProcessing(false)
+    }
+  }, [onTranscription, onSendMessage, onError])
 
   // Voice Activity Detection - continuously monitor voice activity using refs for stability
   const detectVoiceActivity = useCallback(() => {
@@ -67,37 +129,25 @@ export function useVoiceRecording({
       setIsSpeaking(isSpeakingNow)
       
       if (isSpeakingNow) {
-        // User started speaking - clear any existing silence timer
+        // User started speaking - clear any existing silence timer and resume if paused
         console.log('🗣️ Speech detected - volume:', normalizedVolume.toFixed(3))
         if (silenceTimerRef.current) {
           clearTimeout(silenceTimerRef.current)
           silenceTimerRef.current = null
         }
+        
+        // If processing (paused), resume recording
+        if (isProcessing && isRecordingRef.current && resumeRecordingRef.current) {
+          console.log('🔄 Resuming recording after speech detection...')
+          resumeRecordingRef.current()
+        }
       } else if (wasSpeaking && !isSpeakingNow) {
-        // User stopped speaking - start silence timer
-        console.log('🤫 Speech ended - starting silence timer for', silenceThreshold, 'ms')
+        // User stopped speaking - start auto-transcription timer
+        console.log('🤫 Speech ended - starting auto-transcription timer for', silenceThreshold, 'ms')
         silenceTimerRef.current = setTimeout(() => {
-          console.log('🔇 Silence detected - auto-stopping recording...')
-          if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
-            // Update refs immediately to stop voice detection loop
-            isRecordingRef.current = false
-            isSpeakingRef.current = false
-            
-            // Clean up voice activity detection
-            if (silenceTimerRef.current) {
-              clearTimeout(silenceTimerRef.current)
-              silenceTimerRef.current = null
-            }
-            
-            if (animationFrameRef.current) {
-              cancelAnimationFrame(animationFrameRef.current)
-              animationFrameRef.current = null
-            }
-
-            mediaRecorderRef.current.stop()
-            setIsRecording(false)
-            setIsSpeaking(false)
-            setIsProcessing(true)
+          console.log('🔇 Silence detected - auto-transcribing speech segment...')
+          if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording' && pauseRecordingRef.current) {
+            pauseRecordingRef.current()
           }
         }, silenceThreshold)
       }
@@ -105,7 +155,115 @@ export function useVoiceRecording({
 
     // ALWAYS continue monitoring while recording and auto-stop is enabled
     animationFrameRef.current = requestAnimationFrame(detectVoiceActivity)
-  }, []) // No dependencies to keep function stable
+  }, [isProcessing]) // Simplified dependencies to avoid circular refs
+
+  // Process current speech segment - transcribe and auto-send without manual stop
+  const pauseRecording = useCallback(() => {
+    console.log('🎙️ Processing speech segment (auto-transcribe on silence)...')
+    
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      // Request any pending data to be emitted immediately for complete audio capture
+      try {
+        mediaRecorderRef.current.requestData()
+      } catch (error) {
+        console.log('requestData not supported, proceeding with stop')
+      }
+      
+      // Stop recording to get complete audio blob - this triggers onstop with all data
+      mediaRecorderRef.current.stop()
+      setIsProcessing(true)
+      setIsSpeaking(false)
+      
+      // Clear silence timer since we're processing
+      if (silenceTimerRef.current) {
+        clearTimeout(silenceTimerRef.current)
+        silenceTimerRef.current = null
+      }
+    }
+  }, [])
+
+  // Set ref for use in detectVoiceActivity
+  pauseRecordingRef.current = pauseRecording
+
+  // Resume recording - start new recording session for continued conversation
+  const resumeRecording = useCallback(() => {
+    console.log('▶️ Resuming recording for continued conversation...')
+    
+    if (!streamRef.current || !isRecordingRef.current) {
+      console.log('❌ Cannot resume - no stream or recording session ended')
+      return
+    }
+
+    try {
+      // Determine the best MIME type for the browser
+      let mimeType = 'audio/webm'
+      if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+        mimeType = 'audio/webm;codecs=opus'
+      } else if (MediaRecorder.isTypeSupported('audio/webm')) {
+        mimeType = 'audio/webm'
+      } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
+        mimeType = 'audio/mp4'
+      } else if (MediaRecorder.isTypeSupported('audio/ogg;codecs=opus')) {
+        mimeType = 'audio/ogg;codecs=opus'
+      }
+
+      // Create new MediaRecorder instance
+      const mediaRecorder = new MediaRecorder(streamRef.current, { mimeType })
+      mediaRecorderRef.current = mediaRecorder
+      audioChunksRef.current = []
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data)
+        }
+      }
+
+      mediaRecorder.onstop = async () => {
+        // Create audio blob from chunks - this is the most reliable way to get complete audio  
+        const audioBlob = new Blob(audioChunksRef.current, { 
+          type: mediaRecorder.mimeType 
+        })
+
+        // Only transcribe if we have meaningful audio data
+        if (audioBlob.size > 0) {
+          console.log('🎙️ Auto-transcribing initial speech segment:', { 
+            size: audioBlob.size, 
+            type: audioBlob.type 
+          })
+          
+          // Send to Whisper API for transcription and auto-send
+          await transcribeAudio(audioBlob)
+        }
+        
+        // After processing, resume recording if still in session (conversational mode)
+        if (isRecordingRef.current && !isProcessing) {
+          setTimeout(() => {
+            if (isRecordingRef.current && resumeRecordingRef.current) {
+              console.log('🔄 Auto-resuming recording for continued conversation...')
+              resumeRecordingRef.current()
+            }
+          }, 200)
+        }
+      }
+
+      mediaRecorder.onerror = (event) => {
+        console.error('MediaRecorder error:', event)
+        onError('Recording failed. Please try again.')
+      }
+
+      // Start recording with data collection every second
+      mediaRecorder.start(1000)
+      setIsProcessing(false)
+      
+      console.log('🎤 Resumed recording - ready for next speech segment')
+    } catch (error) {
+      console.error('Failed to resume recording:', error)
+      onError('Failed to resume recording. Please try again.')
+    }
+  }, [onError, transcribeAudio, isProcessing])
+
+  // Set ref for use in detectVoiceActivity
+  resumeRecordingRef.current = resumeRecording
 
   const startRecording = useCallback(async () => {
     try {
@@ -161,25 +319,31 @@ export function useVoiceRecording({
       }
 
       mediaRecorder.onstop = async () => {
-        // Stop all tracks to release microphone
-        if (streamRef.current) {
-          streamRef.current.getTracks().forEach(track => track.stop())
-          streamRef.current = null
-        }
-        
-        // Clean up audio context
-        if (audioContextRef.current) {
-          audioContextRef.current.close()
-          audioContextRef.current = null
-        }
-        
-        // Create audio blob from chunks
+        // Create audio blob from chunks - this is the most reliable way to get complete audio
         const audioBlob = new Blob(audioChunksRef.current, { 
           type: mediaRecorder.mimeType 
         })
 
-        // Send to Whisper API for transcription
-        await transcribeAudio(audioBlob)
+        // Only transcribe if we have meaningful audio data
+        if (audioBlob.size > 0) {
+          console.log('🎙️ Auto-transcribing speech segment:', { 
+            size: audioBlob.size, 
+            type: audioBlob.type 
+          })
+          
+          // Send to Whisper API for transcription and auto-send
+          await transcribeAudio(audioBlob)
+        }
+        
+        // After processing, resume recording if still in session (conversational mode)
+        if (isRecordingRef.current && !isProcessing) {
+          setTimeout(() => {
+            if (isRecordingRef.current && resumeRecordingRef.current) {
+              console.log('🔄 Auto-resuming recording for continued conversation...')
+              resumeRecordingRef.current()
+            }
+          }, 200)
+        }
       }
 
       mediaRecorder.onerror = (event) => {
@@ -195,10 +359,10 @@ export function useVoiceRecording({
       // Update refs immediately for voice detection
       isRecordingRef.current = true
 
-      // Start voice activity detection (always enabled)
-      console.log('🎤 Starting voice activity detection...', {
-        isRecording: true,
-        isRecordingRef: isRecordingRef.current
+      // Start voice activity detection for automatic transcription
+      console.log('🎤 Voice recording session started - speak naturally, automatic transcription on silence', {
+        silenceThreshold: silenceThreshold + 'ms',
+        isRecording: true
       })
       detectVoiceActivity()
 
@@ -215,10 +379,10 @@ export function useVoiceRecording({
   }, [onError, detectVoiceActivity])
 
   const stopRecording = useCallback(() => {
-    if (mediaRecorderRef.current && isRecording) {
-      console.log('🛑 Stopping recording and voice detection...')
+    if (isRecording) {
+      console.log('🛑 User manually stopping recording session...')
       
-      // Update refs immediately to stop voice detection
+      // Update refs immediately to stop voice detection and session
       isRecordingRef.current = false
       isSpeakingRef.current = false
       
@@ -233,71 +397,29 @@ export function useVoiceRecording({
         animationFrameRef.current = null
       }
 
-      mediaRecorderRef.current.stop()
+      // Stop current recording if active
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+        mediaRecorderRef.current.stop()
+      }
+      
+      // Clean up resources
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop())
+        streamRef.current = null
+      }
+      
+      if (audioContextRef.current) {
+        audioContextRef.current.close()
+        audioContextRef.current = null
+      }
+
       setIsRecording(false)
       setIsSpeaking(false)
-      setIsProcessing(true)
+      setIsProcessing(false)
     }
   }, [isRecording])
 
-  const transcribeAudio = async (audioBlob: Blob) => {
-    try {
-      setIsProcessing(true)
 
-      // Determine file extension based on MIME type
-      let extension = 'webm'
-      if (audioBlob.type.includes('mp4')) {
-        extension = 'mp4'
-      } else if (audioBlob.type.includes('ogg')) {
-        extension = 'ogg'
-      } else if (audioBlob.type.includes('wav')) {
-        extension = 'wav'
-      }
-
-      console.log('Uploading audio:', { type: audioBlob.type, size: audioBlob.size, extension })
-
-      // Create FormData for upload
-      const formData = new FormData()
-      formData.append('audio', audioBlob, `recording.${extension}`)
-
-      // Send to our Whisper API endpoint
-      const response = await fetch('/api/whisper', {
-        method: 'POST',
-        body: formData,
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
-        console.error('API Error:', { status: response.status, error: errorData })
-        throw new Error(errorData.error || `Transcription failed (${response.status})`)
-      }
-
-      const data = await response.json()
-      
-      if (data.text && data.text.trim()) {
-        const transcribedText = data.text.trim()
-        onTranscription(transcribedText)
-        
-        // Always auto-send
-        console.log('🎯 Auto-sending transcribed message:', transcribedText)
-        onSendMessage(transcribedText)
-      } else {
-        onError('No speech detected. Please try speaking more clearly.')
-      }
-
-    } catch (error) {
-      console.error('Transcription error:', error)
-      if (error instanceof Error) {
-        console.error('Transcription error details:', error)
-        onError(error.message)
-      } else {
-        console.error('Unknown transcription error:', error)
-        onError('Speech recognition failed. Please try again.')
-      }
-    } finally {
-      setIsProcessing(false)
-    }
-  }
 
   const cancelRecording = useCallback(() => {
     if (mediaRecorderRef.current && isRecording) {
@@ -343,6 +465,8 @@ export function useVoiceRecording({
     isSpeaking,
     startRecording,
     stopRecording,
+    pauseRecording,
+    resumeRecording,
     cancelRecording,
     isSupported: typeof navigator !== 'undefined' && 
                 !!navigator.mediaDevices && 
