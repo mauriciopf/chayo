@@ -1032,13 +1032,22 @@
     "loading": "AI is thinking...",
     "usingRAG": "Using document knowledge",
     "authPrompt": "Hi! I'm here to help you set up your business profile and create an AI assistant that can chat with your customers. To get started, could you tell me your first name?",
+    "voiceInput": {
+      "startRecording": "Start voice recording",
+      "stopRecording": "Stop recording",
+      "processing": "Processing speech...",
+      "microphonePermissionDenied": "Microphone permission denied. Please allow microphone access and try again.",
+      "microphoneNotFound": "No microphone found. Please check your device settings.",
+      "microphoneAccessFailed": "Failed to access microphone. Please try again.",
+      "noSpeechDetected": "No speech detected. Please try speaking more clearly.",
+      "transcriptionFailed": "Speech recognition failed. Please try again."
+    },
     "onboardingQuestion": "Setup Question",
     "contextBusinessSetup": "Business Setup",
     "contextWhatsappSetup": "WhatsApp Setup",
     "contextCalendarSetup": "Calendar Setup",
     "contextVideoAgentSetup": "Video Agent",
     "authRequired": "Authentication required",
-    "loading": "Loading...",
     "login": "Login",
     "authenticated": "Authenticated"
   },

@@ -1057,6 +1057,16 @@
     "loading": "La IA está pensando...",
     "usingRAG": "Usando conocimiento de documentos",
     "authPrompt": "¡Hola! Estoy aquí para ayudarte a configurar el perfil de tu negocio y crear un asistente de IA que pueda chatear con tus clientes. Para empezar, ¿podrías decirme tu primer nombre?",
+  "voiceInput": {
+    "startRecording": "Iniciar grabación de voz",
+    "stopRecording": "Detener grabación",
+    "processing": "Procesando voz...",
+    "microphonePermissionDenied": "Permiso de micrófono denegado. Por favor permite el acceso al micrófono e intenta de nuevo.",
+    "microphoneNotFound": "No se encontró micrófono. Por favor verifica la configuración de tu dispositivo.",
+    "microphoneAccessFailed": "Error al acceder al micrófono. Por favor intenta de nuevo.",
+    "noSpeechDetected": "No se detectó voz. Por favor habla más claramente.",
+    "transcriptionFailed": "Reconocimiento de voz falló. Por favor intenta de nuevo."
+  },
     "onboardingQuestion": "Pregunta de Configuración",
     "contextBusinessSetup": "Configuración de Negocio",
     "contextWhatsappSetup": "Configuración de WhatsApp",

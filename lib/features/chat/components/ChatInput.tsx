@@ -1,5 +1,6 @@
 import React from 'react'
 import ChatModeSelector from './ChatModeSelector'
+import VoiceInputButton from './VoiceInputButton'
 import { AuthState, Message } from '../../../shared/types'
 import { ChatContextType } from '../services/chatContextMessages'
 import { useTranslations } from 'next-intl'
@@ -102,6 +103,22 @@ const ChatInput: React.FC<ChatInputProps> = ({
               onModeSwitch={onModeSwitch}
             />
             <div className="flex gap-2">
+              <VoiceInputButton
+                onTranscription={(text) => {
+                  // Append transcribed text to current input
+                  const newInput = input ? `${input} ${text}` : text
+                  setInput(newInput)
+                  
+                  // Focus back to input and trigger resize
+                  if (inputRef.current) {
+                    inputRef.current.focus()
+                    inputRef.current.style.height = 'auto'
+                    inputRef.current.style.height = `min(${inputRef.current.scrollHeight}px, var(--max-input-height, 6rem))`
+                  }
+                }}
+                disabled={uploading || chatLoading || otpLoading !== 'none'}
+                isMobile={isMobile}
+              />
               <button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploading}
