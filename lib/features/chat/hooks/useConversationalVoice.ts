@@ -4,7 +4,7 @@ interface UseConversationalVoiceProps {
   onTranscription: (text: string) => void
   onError: (error: string) => void
   onSendMessage: (message: string) => void
-  pauseThreshold?: number // milliseconds of silence before auto-send (default: 1000ms)
+  pauseThreshold?: number // milliseconds of silence before auto-send (default: 2000ms)
   volumeThreshold?: number // minimum volume to consider as speech (default: 0.01)
 }
 
@@ -12,7 +12,7 @@ export function useConversationalVoice({
   onTranscription, 
   onError, 
   onSendMessage,
-  pauseThreshold = 1500, // 1.5 seconds of silence for better audio capture
+  pauseThreshold = 2000, // 2 seconds of silence to allow substantial audio capture
   volumeThreshold = 0.01 
 }: UseConversationalVoiceProps) {
   const [isListening, setIsListening] = useState(false)
@@ -86,7 +86,7 @@ export function useConversationalVoice({
     if (!streamRef.current) return
 
     try {
-      // Determine the best MIME type for the browser
+      // Use exact same MIME type logic as working voice input
       let mimeType = 'audio/webm'
       if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
         mimeType = 'audio/webm;codecs=opus'
@@ -97,6 +97,8 @@ export function useConversationalVoice({
       } else if (MediaRecorder.isTypeSupported('audio/ogg;codecs=opus')) {
         mimeType = 'audio/ogg;codecs=opus'
       }
+      
+      console.log('📽️ Conversational voice using MIME type:', mimeType)
 
       // Create new MediaRecorder instance
       const mediaRecorder = new MediaRecorder(streamRef.current, { mimeType })
@@ -115,12 +117,12 @@ export function useConversationalVoice({
           type: mediaRecorder.mimeType 
         })
 
-        // Only transcribe if there's meaningful audio data
-        if (audioBlob.size > 5000) { // Skip very small recordings (increased threshold)
-          console.log('🎤 Processing audio chunk:', { size: audioBlob.size, type: audioBlob.type })
+        // Only transcribe if there's substantial audio data (more lenient for conversational)
+        if (audioBlob.size > 8000) { // Require at least 8KB for meaningful audio
+          console.log('🎤 Processing substantial audio chunk:', { size: audioBlob.size, type: audioBlob.type })
           await transcribeAudio(audioBlob)
         } else {
-          console.log('🔇 Skipping small audio chunk:', { size: audioBlob.size })
+          console.log('🔇 Skipping small audio chunk:', { size: audioBlob.size, required: 8000 })
           setIsProcessing(false)
         }
       }
@@ -130,14 +132,14 @@ export function useConversationalVoice({
         onError('Recording failed. Please try again.')
       }
 
-      // Start recording with larger chunks for better audio quality
-      mediaRecorder.start(500) // Collect data every 500ms for smoother processing
+      // Start recording with same timing as working voice input
+      mediaRecorder.start(1000) // Collect data every second (same as working voice input)
 
     } catch (error) {
       console.error('Failed to start new recording session:', error)
       onError('Failed to continue recording. Please try again.')
     }
-  }, [])
+  }, [onError])
 
   const transcribeAudio = async (audioBlob: Blob) => {
     try {
@@ -151,9 +153,14 @@ export function useConversationalVoice({
         extension = 'wav'
       }
 
-      console.log('🎤 Transcribing audio:', { type: audioBlob.type, size: audioBlob.size, extension })
+      console.log('🎤 Conversational transcribing audio:', { 
+        type: audioBlob.type, 
+        size: audioBlob.size, 
+        extension,
+        chunks: audioChunksRef.current.length 
+      })
 
-      // Create FormData for upload
+      // Create FormData for upload with correct MIME type
       const formData = new FormData()
       formData.append('audio', audioBlob, `recording.${extension}`)
 
@@ -164,9 +171,19 @@ export function useConversationalVoice({
       })
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
-        console.error('Whisper API Error:', { status: response.status, error: errorData })
-        throw new Error(errorData.error || `Transcription failed (${response.status})`)
+        const errorText = await response.text()
+        console.error('🚨 Conversational Voice - Whisper API Error:', { 
+          status: response.status, 
+          statusText: response.statusText,
+          response: errorText 
+        })
+        
+        try {
+          const errorData = JSON.parse(errorText)
+          throw new Error(errorData.error?.message || `Transcription failed (${response.status})`)
+        } catch {
+          throw new Error(`Speech recognition failed (${response.status}): ${response.statusText}`)
+        }
       }
 
       const data = await response.json()
