@@ -12,13 +12,12 @@ export function useConversationalVoice({
   onTranscription, 
   onError, 
   onSendMessage,
-  pauseThreshold = 1000, // 1 second of silence
+  pauseThreshold = 1500, // 1.5 seconds of silence for better audio capture
   volumeThreshold = 0.01 
 }: UseConversationalVoiceProps) {
   const [isListening, setIsListening] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [isSpeaking, setIsSpeaking] = useState(false)
-  const [currentTranscript, setCurrentTranscript] = useState('')
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const streamRef = useRef<MediaStream | null>(null)
@@ -73,14 +72,15 @@ export function useConversationalVoice({
       mediaRecorderRef.current.stop()
       setIsProcessing(true)
       
-      // Restart recording immediately for next speech
+      // Restart recording after processing completes
       setTimeout(() => {
-        if (isListening) {
+        if (isListening && !isProcessing) {
+          console.log('🔄 Restarting recording session...')
           startNewRecordingSession()
         }
-      }, 100)
+      }, 500) // Give more time for processing
     }
-  }, [isListening])
+  }, [isListening, isProcessing])
 
   const startNewRecordingSession = useCallback(() => {
     if (!streamRef.current) return
@@ -116,9 +116,11 @@ export function useConversationalVoice({
         })
 
         // Only transcribe if there's meaningful audio data
-        if (audioBlob.size > 1000) { // Skip very small recordings
+        if (audioBlob.size > 5000) { // Skip very small recordings (increased threshold)
+          console.log('🎤 Processing audio chunk:', { size: audioBlob.size, type: audioBlob.type })
           await transcribeAudio(audioBlob)
         } else {
+          console.log('🔇 Skipping small audio chunk:', { size: audioBlob.size })
           setIsProcessing(false)
         }
       }
@@ -128,8 +130,8 @@ export function useConversationalVoice({
         onError('Recording failed. Please try again.')
       }
 
-      // Start recording
-      mediaRecorder.start(1000) // Collect data every second
+      // Start recording with larger chunks for better audio quality
+      mediaRecorder.start(500) // Collect data every 500ms for smoother processing
 
     } catch (error) {
       console.error('Failed to start new recording session:', error)
@@ -162,32 +164,23 @@ export function useConversationalVoice({
       })
 
       if (!response.ok) {
-        const errorData = await response.text()
-        console.error('Whisper API error:', errorData)
-        throw new Error(`Speech recognition failed. Please try again.`)
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+        console.error('Whisper API Error:', { status: response.status, error: errorData })
+        throw new Error(errorData.error || `Transcription failed (${response.status})`)
       }
 
       const data = await response.json()
       const transcribedText = data.text?.trim()
 
       if (transcribedText) {
-        console.log('✅ Transcribed:', transcribedText)
+        console.log('✅ Conversational transcribed:', transcribedText)
         
-        // Add to current transcript
-        const newTranscript = currentTranscript 
-          ? `${currentTranscript} ${transcribedText}` 
-          : transcribedText
-
-        setCurrentTranscript(newTranscript)
-        onTranscription(newTranscript)
-        
-        // Auto-send the complete message
-        onSendMessage(newTranscript)
-        
-        // Reset transcript for next conversation
-        setCurrentTranscript('')
+        // For conversational mode, each speech segment is a separate message
+        // Don't accumulate - send each transcription as individual message
+        onTranscription(transcribedText)
+        onSendMessage(transcribedText)
       } else {
-        console.log('🔇 No speech detected in audio')
+        console.log('🔇 No speech detected in audio chunk')
       }
 
     } catch (error) {
@@ -199,6 +192,16 @@ export function useConversationalVoice({
       }
     } finally {
       setIsProcessing(false)
+      
+      // Restart recording if still listening and not already recording
+      if (isListening && (!mediaRecorderRef.current || mediaRecorderRef.current.state === 'inactive')) {
+        setTimeout(() => {
+          if (isListening) {
+            console.log('🔄 Auto-restarting recording after transcription...')
+            startNewRecordingSession()
+          }
+        }, 200)
+      }
     }
   }
 
@@ -232,7 +235,6 @@ export function useConversationalVoice({
       dataArrayRef.current = new Uint8Array(analyser.frequencyBinCount)
 
       setIsListening(true)
-      setCurrentTranscript('')
       
       // Start first recording session
       startNewRecordingSession()
@@ -304,7 +306,6 @@ export function useConversationalVoice({
     isListening,
     isProcessing,
     isSpeaking,
-    currentTranscript,
     startListening,
     stopListening,
   }

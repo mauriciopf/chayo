@@ -20,7 +20,6 @@ export default function ConversationalVoiceButton({
     isListening,
     isProcessing,
     isSpeaking,
-    currentTranscript,
     startListening,
     stopListening,
   } = useConversationalVoice({
@@ -36,7 +35,7 @@ export default function ConversationalVoiceButton({
       console.log('Auto-sending message:', message)
       onSendMessage(message)
     },
-    pauseThreshold: 1000, // 1 second of silence before auto-send
+    pauseThreshold: 1500, // 1.5 seconds of silence before auto-send
     volumeThreshold: 0.01 // Sensitivity threshold
   })
 
@@ -144,10 +143,10 @@ export default function ConversationalVoiceButton({
         )}
       </div>
 
-      {/* Current transcript preview (optional) */}
-      {currentTranscript && isListening && (
-        <div className="max-w-xs text-xs text-gray-500 dark:text-gray-400 text-center italic">
-          "{currentTranscript.length > 60 ? currentTranscript.substring(0, 60) + '...' : currentTranscript}"
+      {/* Processing indicator */}
+      {isProcessing && (
+        <div className="text-xs text-yellow-600 dark:text-yellow-400 text-center">
+          Transcribing speech...
         </div>
       )}
 
