@@ -11,9 +11,10 @@ export function useVoiceRecording({
   onError, 
   onSendMessage
 }: UseVoiceRecordingProps) {
-  // Hard-coded values for simplicity - always auto-send and auto-stop on silence
-  const silenceThreshold = 1000 // 1 seconds
-  const volumeThreshold = 0.01  // Speech detection sensitivity
+  // Improved voice detection settings for better precision
+  const silenceThreshold = 1000 // 1 second - natural conversation flow
+  const volumeThreshold = 0.03  // Higher threshold - less sensitive to background noise  
+  const minAudioSize = 15000    // Minimum 15KB audio size to avoid processing tiny sounds
   const [isRecording, setIsRecording] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [isSpeaking, setIsSpeaking] = useState(false)
@@ -115,22 +116,29 @@ export function useVoiceRecording({
 
     analyserRef.current.getByteFrequencyData(dataArrayRef.current)
     
-    // Calculate average volume
-    const average = dataArrayRef.current.reduce((sum, value) => sum + value, 0) / dataArrayRef.current.length
-    const normalizedVolume = average / 255
+    // Improved speech detection: focus on human speech frequency range (300Hz - 3400Hz)
+    const speechRange = dataArrayRef.current.slice(8, 85) // Approximate range for human speech
+    const speechAverage = speechRange.reduce((sum, value) => sum + value, 0) / speechRange.length
+    const normalizedSpeechVolume = speechAverage / 255
+    
+    // Also check overall volume to avoid false positives from high-frequency noise
+    const overallAverage = dataArrayRef.current.reduce((sum, value) => sum + value, 0) / dataArrayRef.current.length
+    const normalizedOverallVolume = overallAverage / 255
 
     const wasSpeaking = isSpeakingRef.current
-    const isSpeakingNow = normalizedVolume > volumeThreshold
+    // Speech detected if both speech frequencies AND overall volume are above threshold
+    const isSpeakingNow = normalizedSpeechVolume > volumeThreshold && normalizedOverallVolume > (volumeThreshold * 0.5)
 
-    console.log('🔍 isSpeakingNow:', isSpeakingNow, 'volume:', normalizedVolume.toFixed(3))
+    console.log('🔍 isSpeakingNow:', isSpeakingNow, 'speech:', normalizedSpeechVolume.toFixed(3), 'overall:', normalizedOverallVolume.toFixed(3))
     console.log('🔍 wasSpeaking:', wasSpeaking)
 
     if (isSpeakingNow !== wasSpeaking) {
       setIsSpeaking(isSpeakingNow)
       
       if (isSpeakingNow) {
-        // User started speaking - clear any existing silence timer and resume if paused
-        console.log('🗣️ Speech detected - volume:', normalizedVolume.toFixed(3))
+        // User started speaking - clear silence timer and resume if needed
+        console.log('🗣️ Speech detected - speech:', normalizedSpeechVolume.toFixed(3), 'overall:', normalizedOverallVolume.toFixed(3))
+        
         if (silenceTimerRef.current) {
           clearTimeout(silenceTimerRef.current)
           silenceTimerRef.current = null
@@ -224,15 +232,23 @@ export function useVoiceRecording({
           type: mediaRecorder.mimeType 
         })
 
-        // Only transcribe if we have meaningful audio data
-        if (audioBlob.size > 0) {
-          console.log('🎙️ Auto-transcribing initial speech segment:', { 
+        // Only transcribe if we have meaningful audio data (avoid hallucinated transcriptions)
+        if (audioBlob.size >= minAudioSize) {
+          console.log('🎙️ Auto-transcribing resumed speech segment:', { 
             size: audioBlob.size, 
-            type: audioBlob.type 
+            type: audioBlob.type,
+            threshold: minAudioSize 
           })
           
           // Send to Whisper API for transcription and auto-send
           await transcribeAudio(audioBlob)
+        } else {
+          console.log('🔇 Skipping tiny resumed audio segment:', { 
+            size: audioBlob.size, 
+            required: minAudioSize,
+            reason: 'Too small - likely background noise'
+          })
+          setIsProcessing(false)
         }
         
         // After processing, resume recording if still in session (conversational mode)
@@ -324,15 +340,23 @@ export function useVoiceRecording({
           type: mediaRecorder.mimeType 
         })
 
-        // Only transcribe if we have meaningful audio data
-        if (audioBlob.size > 0) {
+        // Only transcribe if we have meaningful audio data (avoid hallucinated transcriptions)
+        if (audioBlob.size >= minAudioSize) {
           console.log('🎙️ Auto-transcribing speech segment:', { 
             size: audioBlob.size, 
-            type: audioBlob.type 
+            type: audioBlob.type,
+            threshold: minAudioSize 
           })
           
           // Send to Whisper API for transcription and auto-send
           await transcribeAudio(audioBlob)
+        } else {
+          console.log('🔇 Skipping tiny audio segment to avoid hallucination:', { 
+            size: audioBlob.size, 
+            required: minAudioSize,
+            reason: 'Too small - likely background noise'
+          })
+          setIsProcessing(false)
         }
         
         // After processing, resume recording if still in session (conversational mode)
@@ -360,8 +384,10 @@ export function useVoiceRecording({
       isRecordingRef.current = true
 
       // Start voice activity detection for automatic transcription
-      console.log('🎤 Voice recording session started - speak naturally, automatic transcription on silence', {
+      console.log('🎤 Voice recording session started - improved precision, natural conversation', {
         silenceThreshold: silenceThreshold + 'ms',
+        volumeThreshold: volumeThreshold,
+        minAudioSize: minAudioSize + ' bytes',
         isRecording: true
       })
       detectVoiceActivity()
