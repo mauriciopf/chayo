@@ -10,7 +10,7 @@ export function useVoiceRecording({
   onError
 }: UseVoiceRecordingProps) {
   // Improved voice detection settings for better precision
-  const silenceThreshold = 500 // 0.5 second - natural conversation flow
+  const silenceThreshold = 1000 // 1 second - natural conversation flow
   const volumeThreshold = 0.03  // Higher threshold - less sensitive to background noise  
   const minAudioSize = 15000    // Minimum 15KB audio size to avoid processing tiny sounds
   const [isRecording, setIsRecording] = useState(false)
