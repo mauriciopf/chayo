@@ -3,16 +3,14 @@ import { useState, useRef, useCallback } from 'react'
 interface UseVoiceRecordingProps {
   onTranscription: (text: string) => void
   onError: (error: string) => void
-  onSendMessage: (message: string) => void // Auto-send functionality (always enabled)
 }
 
 export function useVoiceRecording({ 
   onTranscription, 
-  onError, 
-  onSendMessage
+  onError
 }: UseVoiceRecordingProps) {
   // Improved voice detection settings for better precision
-  const silenceThreshold = 1000 // 1 second - natural conversation flow
+  const silenceThreshold = 500 // 0.5 second - natural conversation flow
   const volumeThreshold = 0.03  // Higher threshold - less sensitive to background noise  
   const minAudioSize = 15000    // Minimum 15KB audio size to avoid processing tiny sounds
   const [isRecording, setIsRecording] = useState(false)
@@ -38,10 +36,72 @@ export function useVoiceRecording({
   isRecordingRef.current = isRecording
   isSpeakingRef.current = isSpeaking
 
+  // Validate audio content to prevent Whisper hallucinations on silent audio
+  const validateAudioContent = useCallback(async (audioBlob: Blob): Promise<boolean> => {
+    try {
+      // For compressed audio (WebM/Opus), we can't easily read raw samples
+      // Instead, use multiple heuristics to detect meaningful content
+      
+      // 1. Size check - very small files are likely silent
+      const minMeaningfulSize = 8000 // 8KB minimum for 1 second of compressed audio
+      if (audioBlob.size < minMeaningfulSize) {
+        console.log('🔇 Audio too small - likely silent:', { size: audioBlob.size, minSize: minMeaningfulSize })
+        return false
+      }
+      
+      // 2. Basic entropy check on the audio data
+      const arrayBuffer = await audioBlob.arrayBuffer()
+      const uint8Array = new Uint8Array(arrayBuffer)
+      
+      // Calculate simple entropy - silent audio has very low entropy
+      const chunkSize = Math.max(1, Math.floor(uint8Array.length / 100)) // Sample 100 chunks
+      let totalVariation = 0
+      let lastValue = uint8Array[0] || 0
+      
+      for (let i = chunkSize; i < uint8Array.length; i += chunkSize) {
+        const currentValue = uint8Array[i]
+        totalVariation += Math.abs(currentValue - lastValue)
+        lastValue = currentValue
+      }
+      
+      const averageVariation = totalVariation / (Math.floor(uint8Array.length / chunkSize) || 1)
+      const variationThreshold = 5 // Minimum variation for meaningful audio
+      
+      // 3. Check for completely empty/zero data
+      const nonZeroBytes = uint8Array.filter(byte => byte !== 0).length
+      const nonZeroRatio = nonZeroBytes / uint8Array.length
+      const minNonZeroRatio = 0.1 // At least 10% non-zero bytes
+      
+      const hasContent = averageVariation > variationThreshold && nonZeroRatio > minNonZeroRatio
+      
+      console.log('🔍 Audio content validation:', {
+        size: audioBlob.size,
+        averageVariation: Math.round(averageVariation * 100) / 100,
+        variationThreshold,
+        nonZeroRatio: Math.round(nonZeroRatio * 1000) / 1000,
+        minNonZeroRatio,
+        hasContent
+      })
+      
+      return hasContent
+    } catch (error) {
+      console.log('⚠️ Audio validation failed, proceeding with transcription:', error)
+      return true // If validation fails, proceed anyway to avoid breaking functionality
+    }
+  }, [])
+
   // Audio transcription function
   const transcribeAudio = useCallback(async (audioBlob: Blob) => {
     try {
       setIsProcessing(true)
+
+      // Validate audio content first to prevent Whisper hallucinations
+      const hasContent = await validateAudioContent(audioBlob)
+      if (!hasContent) {
+        console.log('🔇 Skipping transcription - audio appears to be silent/empty (preventing hallucination)')
+        setIsProcessing(false)
+        return
+      }
 
       // Determine file extension based on MIME type
       let extension = 'webm'
@@ -53,7 +113,7 @@ export function useVoiceRecording({
         extension = 'wav'
       }
 
-      console.log('Uploading audio:', { type: audioBlob.type, size: audioBlob.size, extension })
+      console.log('✅ Audio validation passed - uploading to Whisper:', { type: audioBlob.type, size: audioBlob.size, extension })
 
       // Create FormData for upload
       const formData = new FormData()
@@ -75,11 +135,8 @@ export function useVoiceRecording({
       
       if (data.text && data.text.trim()) {
         const transcribedText = data.text.trim()
+        console.log('💬 Transcribed speech (placing in input):', transcribedText)
         onTranscription(transcribedText)
-        
-        // Always auto-send (no manual stop button needed)
-        console.log('🎯 Auto-sending transcribed speech segment:', transcribedText)
-        onSendMessage(transcribedText)
       } else {
         onError('No speech detected. Please try speaking more clearly.')
       }
@@ -96,7 +153,7 @@ export function useVoiceRecording({
     } finally {
       setIsProcessing(false)
     }
-  }, [onTranscription, onSendMessage, onError])
+  }, [onTranscription, onError, validateAudioContent])
 
   // Voice Activity Detection - continuously monitor voice activity using refs for stability
   const detectVoiceActivity = useCallback(() => {

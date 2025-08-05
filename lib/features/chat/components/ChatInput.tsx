@@ -103,20 +103,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
               onModeSwitch={onModeSwitch}
             />
             <div className="flex gap-2">
-              {/* Voice Input with Auto-send and Auto-stop on silence (always enabled) */}
+              {/* Voice Input with Auto-stop on silence - transcribed text appears in input for manual review */}
               <VoiceInputButton
                 onTranscription={(text) => {
-                  // Show in input briefly before auto-sending
+                  // Place transcribed text in input for manual review before sending
                   setInput(text)
-                }}
-                onSendMessage={(message) => {
-                  // Auto-send the message
-                  setInput(message)
-                  setTimeout(() => {
-                    if (authState === 'authenticated') {
-                      handleSend()
-                    }
-                  }, 100)
                 }}
                 disabled={uploading || chatLoading || otpLoading !== 'none'}
                 isMobile={isMobile}
