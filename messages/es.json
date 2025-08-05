@@ -1067,6 +1067,15 @@
     "noSpeechDetected": "No se detectó voz. Por favor habla más claramente.",
     "transcriptionFailed": "Reconocimiento de voz falló. Por favor intenta de nuevo."
   },
+  "conversationalVoice": {
+    "startListening": "Iniciar conversación",
+    "stopListening": "Detener conversación",
+    "listening": "Escuchando... habla naturalmente",
+    "speaking": "Voz detectada...",
+    "processing": "Procesando voz...",
+    "waitingForSpeech": "Esperando que hables",
+    "autoSendEnabled": "Envío automático activado - pausa para enviar mensaje"
+  },
     "onboardingQuestion": "Pregunta de Configuración",
     "contextBusinessSetup": "Configuración de Negocio",
     "contextWhatsappSetup": "Configuración de WhatsApp",

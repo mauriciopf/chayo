@@ -1,6 +1,7 @@
 import React from 'react'
 import ChatModeSelector from './ChatModeSelector'
 import VoiceInputButton from './VoiceInputButton'
+import ConversationalVoiceButton from './ConversationalVoiceButton'
 import { AuthState, Message } from '../../../shared/types'
 import { ChatContextType } from '../services/chatContextMessages'
 import { useTranslations } from 'next-intl'
@@ -103,6 +104,21 @@ const ChatInput: React.FC<ChatInputProps> = ({
               onModeSwitch={onModeSwitch}
             />
             <div className="flex gap-2">
+              {/* Conversational Voice - Auto-send on pause */}
+              <ConversationalVoiceButton
+                onSendMessage={(message) => {
+                  setInput(message)
+                  // Auto-send the message after setting it
+                  setTimeout(() => {
+                    if (authState === 'authenticated') {
+                      handleSend()
+                    }
+                  }, 100)
+                }}
+                className="flex-shrink-0"
+              />
+              
+              {/* Traditional Voice Input - Manual send */}
               <VoiceInputButton
                 onTranscription={(text) => {
                   // Append transcribed text to current input

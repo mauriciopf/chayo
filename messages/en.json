@@ -1042,6 +1042,15 @@
       "noSpeechDetected": "No speech detected. Please try speaking more clearly.",
       "transcriptionFailed": "Speech recognition failed. Please try again."
     },
+    "conversationalVoice": {
+      "startListening": "Start conversation",
+      "stopListening": "Stop conversation",
+      "listening": "Listening... speak naturally",
+      "speaking": "Speaking detected...",
+      "processing": "Processing speech...",
+      "waitingForSpeech": "Waiting for you to speak",
+      "autoSendEnabled": "Auto-send enabled - pause to send message"
+    },
     "onboardingQuestion": "Setup Question",
     "contextBusinessSetup": "Business Setup",
     "contextWhatsappSetup": "WhatsApp Setup",
