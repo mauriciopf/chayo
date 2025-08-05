@@ -50,7 +50,7 @@ function DashboardContent() {
   
   // Initialize all hooks
   const auth = useAuth()
-  const dashboardInit = useDashboardInit(locale, auth.authState, auth.user, t('authPrompt'))
+  const dashboardInit = useDashboardInit(locale, auth.authState, auth.user, t('authPrompt'), auth.loading)
 
   const mobile = useMobile(() => {})
   

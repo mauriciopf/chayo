@@ -19,7 +19,8 @@ export function useDashboardInit(
   locale: string = 'en', 
   authState: AuthState, 
   user: any,
-  authPromptMessage?: string
+  authPromptMessage?: string,
+  authLoading?: boolean
 ): UseDashboardInitReturn {
   const [initData, setInitData] = useState<DashboardInitData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -33,22 +34,85 @@ export function useDashboardInit(
 
   const initializeDashboard = async () => {
     try {
+      console.log('🚀 initializeDashboard called with:', { 
+        authState, 
+        user: user?.id, 
+        authLoading, 
+        locale 
+      })
+      
       setIsLoading(true)
       setError(null)
       setInitialMessage(null)
       setShouldShowAuthPrompt(false)
       
-      // Only initialize if user is authenticated and present
-      if (authState === 'authenticated' && user) {
+      // Only initialize if user is authenticated, present, and auth loading is complete
+      if (authState === 'authenticated' && user && !authLoading) {
+        console.log('✅ All conditions met - proceeding with dashboard initialization')
         const data = await dashboardInitService.initializeDashboard(locale)
         setInitData(data)
 
-        // Always generate the initial chat message for authenticated users
-        // This will either be an onboarding question or a proper business introduction
-        const msg = await dashboardInitService.generateInitialChatMessage(data.business, locale)
-        setInitialMessage(msg)
+        // Handle initial message generation
+        // Check if user has completed any onboarding (business_info_gathered > 0)
+        // Note: data.business will always exist due to auto-creation trigger, 
+        // so we use business_info_gathered to determine if they're actually new
+        const isNewUser = data.businessInfoFields.business_info_gathered === 0
+        
+        if (isNewUser) {
+          console.log('🆕 New user detected (business_info_gathered: 0), triggering onboarding...')
+        } else {
+          console.log(`👤 Existing user detected (business_info_gathered: ${data.businessInfoFields.business_info_gathered}), generating initial chat message`)
+        }
+        
+        // Both new and existing users use the same API - the API determines the appropriate response
+        try {
+          const response = await fetch('/api/organization-chat', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              messages: [], // Empty messages for initial chat
+              locale: locale
+            })
+          })
+          
+          if (response.ok) {
+            const apiData = await response.json()
+            console.log('📊 Organization-chat API response:', { 
+              userType: isNewUser ? 'new' : 'existing',
+              aiMessage: apiData.aiMessage?.substring(0, 100) + '...',
+              hasMultipleChoices: !!apiData.multipleChoices,
+              allowMultiple: apiData.allowMultiple 
+            })
+            setInitialMessage({
+              content: apiData.aiMessage,
+              multipleChoices: apiData.multipleChoices,
+              allowMultiple: apiData.allowMultiple
+            })
+            console.log(`✅ Successfully generated initial message for ${isNewUser ? 'new' : 'existing'} user`)
+          } else {
+            console.log('❌ Organization-chat API failed, using fallback message')
+            // Fallback message if API fails
+            setInitialMessage({
+              content: locale === 'es'
+                ? '¡Hola! Soy Chayo, tu asistente digital personalizada. Comencemos configurando tu negocio. ¿Cuál es el nombre de tu negocio?'
+                : 'Hello! I\'m Chayo, your personalized digital assistant. Let\'s start by setting up your business. What\'s the name of your business?'
+            })
+          }
+        } catch (error) {
+          console.error('❌ Failed to get initial message:', error)
+          // Fallback message
+          setInitialMessage({
+            content: locale === 'es'
+              ? '¡Hola! Soy Chayo, tu asistente digital personalizada. Comencemos configurando tu negocio. ¿Cuál es el nombre de tu negocio?'
+              : 'Hello! I\'m Chayo, your personalized digital assistant. Let\'s start by setting up your business. What\'s the name of your business?'
+          })
+        }
+        console.log('✅ Dashboard initialization complete')
         setIsLoading(false)
-      } else if (authState !== 'loading' && !user) {
+      } else if (authState !== 'loading' && !user && !authLoading) {
+        console.log('🔐 User not authenticated, showing auth prompt')
         // Only show auth prompt if not loading and no user
         setShouldShowAuthPrompt(true)
         setInitialMessage({
@@ -58,6 +122,11 @@ export function useDashboardInit(
         })
         setIsLoading(false)
       } else {
+        console.log('⏳ Conditions not met for initialization:', { 
+          authState, 
+          hasUser: !!user, 
+          authLoading 
+        })
         // Still loading
         setIsLoading(true)
       }
@@ -70,7 +139,7 @@ export function useDashboardInit(
 
   useEffect(() => {
     initializeDashboard()
-  }, [locale, authState, user])
+  }, [locale, authState, user, authLoading])
 
   const retryInit = () => {
     initializeDashboard()

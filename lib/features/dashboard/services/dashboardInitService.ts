@@ -162,50 +162,6 @@ export class DashboardInitService {
       }
     }
   }
-
-  async generateInitialChatMessage(business: any, locale: string): Promise<{
-    content: string
-    multipleChoices?: string[]
-    allowMultiple?: boolean
-  }> {
-    try {
-      const isSpanish = locale === 'es'
-      
-      // Call the organization-chat route to get the proper chat message
-      const response = await fetch('/api/organization-chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          messages: [], // Empty messages for initial chat
-          locale: locale
-        })
-      })
-
-      if (!response.ok) {
-        throw new Error(`Failed to get initial chat message: ${response.status}`)
-      }
-
-      const data = await response.json()
-      
-      // Return the AI message directly without adding a greeting
-      // The API already handles the appropriate message (greeting or onboarding question)
-      return {
-        content: data.aiMessage,
-        multipleChoices: data.multipleChoices,
-        allowMultiple: data.allowMultiple
-      }
-    } catch (error) {
-      console.error('Error generating initial chat message:', error)
-      return {
-        content: locale === 'es'
-          ? '¡Hola! Soy Chayo, tu asistente digital personalizada. Estoy aquí para aprender sobre tu negocio y ayudarte a comunicarte mejor con tus clientes. Comencemos con algunas preguntas sobre tu negocio para configurar tu asistente. ¿Cuál es el nombre de tu negocio?'
-          : 'Hello! I\'m Chayo, your personalized digital assistant. I\'m here to learn about your business and help you communicate better with your customers. Let\'s start with a few questions about your business to set up your assistant. What\'s the name of your business?'
-      }
-    }
-  }
-
 }
 
 export const dashboardInitService = new DashboardInitService() 

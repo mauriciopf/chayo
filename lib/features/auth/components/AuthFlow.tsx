@@ -312,16 +312,7 @@ export function useAuthFlow({
         
         // Success: session is automatically created and persisted by Supabase client
         // The onAuthStateChange listener will automatically update the user state
-        // Show the welcome message
-        setMessages((msgs) => [
-          ...msgs,
-          {
-            id: Date.now().toString() + '-ai',
-            role: 'ai',
-            content: `Welcome, ${pendingName}! You're now signed in. Let's get started with your business setup.`,
-            timestamp: new Date(),
-          },
-        ])
+        // Skip welcome message - go directly to onboarding for smoother UX
         setInput('')
       } catch (err) {
         setOtpError('Invalid or expired code.')
