@@ -1056,7 +1056,7 @@
     "uploadTitle": "Subir un archivo",
     "loading": "La IA está pensando...",
     "usingRAG": "Usando conocimiento de documentos",
-    "authPrompt": "¡Hola! ¿Cuál es tu nombre? (Solo el primer nombre está bien)",
+    "authPrompt": "¡Hola! Estoy aquí para ayudarte a configurar el perfil de tu negocio y crear un asistente de IA que pueda chatear con tus clientes. Para empezar, ¿podrías decirme tu primer nombre?",
     "onboardingQuestion": "Pregunta de Configuración",
     "contextBusinessSetup": "Configuración de Negocio",
     "contextWhatsappSetup": "Configuración de WhatsApp",
@@ -1068,22 +1068,32 @@
     "authenticated": "Autenticado"
   },
   "onboarding": {
-    "setupInProgress": "Configuración en Progreso",
+    "setupInProgress": "Configurando tu asistente digital",
     "questions": "preguntas",
     "complete": "completado",
     "currentQuestion": "Pregunta Actual",
-    "stage1Name": "Configuración Básica",
-    "stage2Name": "Detalles del Sector",
-    "stage3Name": "Marca y Tono",
+    "stage1Name": "Empezando",
+    "stage2Name": "Tu Negocio",
+    "stage3Name": "Toque Personal",
     "stageDefault": "Configuración",
-    "stage1Description": "Información básica del negocio",
-    "stage2Description": "Detalles específicos del sector",
-    "stage3Description": "Preferencias de comunicación",
+    "stage1Description": "Cuéntame sobre ti",
+    "stage2Description": "Comparte los detalles de tu negocio",
+    "stage3Description": "Cómo debo comunicarme",
     "stageDefaultDescription": "Configurando tu negocio",
-    "setupComplete": "¡Configuración Completa!",
-    "setupCompleteDescription": "¡Tu negocio está ahora configurado y listo para usar! Tu asistente de IA ahora puede ayudarte con las comunicaciones de clientes.",
+    "setupComplete": "🎉 ¡Todo listo!",
+    "setupCompleteDescription": "Tu asistente digital está lista para ayudar a crecer tu negocio. ¡Empecemos a conectar con tus clientes!",
     "startUsing": "Comenzar a Usar Chayo",
-    "setupCompleteNote": "Puedes continuar actualizando la información de tu negocio en cualquier momento aquí en el chat."
+    "setupCompleteNote": "Puedes actualizar los detalles de tu negocio en cualquier momento charlando conmigo.",
+    "progressSteps": {
+      "step1": "Conociéndote",
+      "step2": "Entendiendo tu negocio",
+      "step3": "Perfeccionando tu estilo"
+    },
+    "stepDescriptions": {
+      "step1": "Información básica sobre ti y tus objetivos",
+      "step2": "Detalles sobre tu negocio y servicios",
+      "step3": "Cómo quieres que me comunique con los clientes"
+    }
   },
   "agentTools": {
     "common": {

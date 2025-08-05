@@ -42,6 +42,7 @@ interface BusinessChatViewProps {
   organizationId?: string
   unlockQRCode?: () => void
   onNavigateToQR?: () => void
+  refreshOnboardingProgress?: () => void
   onModeSwitch?: (mode: ChatMode) => void
 }
 
@@ -72,6 +73,7 @@ export default function BusinessChatView({
   organizationId,
   unlockQRCode,
   onNavigateToQR,
+  refreshOnboardingProgress,
   onModeSwitch
 }: BusinessChatViewProps) {
   const t = useTranslations('chat')
@@ -91,7 +93,8 @@ export default function BusinessChatView({
     setMessages,
     sendMessage,
     unlockQRCode,
-    onNavigateToQR
+    onNavigateToQR,
+    refreshOnboardingProgress
   })
 
   return (

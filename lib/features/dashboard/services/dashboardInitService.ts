@@ -200,8 +200,8 @@ export class DashboardInitService {
       console.error('Error generating initial chat message:', error)
       return {
         content: locale === 'es'
-          ? '¡Hola! Soy Chayo, tu asistente de IA. ¿Cómo puedo ayudarte hoy?'
-          : 'Hello! I\'m Chayo, your AI assistant. How can I help you today?'
+          ? '¡Hola! Soy Chayo, tu asistente digital personalizada. Estoy aquí para aprender sobre tu negocio y ayudarte a comunicarte mejor con tus clientes. Comencemos con algunas preguntas sobre tu negocio para configurar tu asistente. ¿Cuál es el nombre de tu negocio?'
+          : 'Hello! I\'m Chayo, your personalized digital assistant. I\'m here to learn about your business and help you communicate better with your customers. Let\'s start with a few questions about your business to set up your assistant. What\'s the name of your business?'
       }
     }
   }

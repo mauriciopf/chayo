@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
       }
       
       return NextResponse.json({ 
-        error: 'Failed to send verification code. Please try again.' 
+        error: 'Failed to send verification code. Please enter a valid email.' 
       }, { status: 500 });
     }
     

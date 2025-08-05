@@ -102,7 +102,7 @@ export class OrganizationChatService {
           const lastUserMessage = userMessages[userMessages.length - 1].content
           const lastAssistantMessage = assistantMessages[assistantMessages.length - 1].content
           
-          // Process the response
+          // Process the response with backend message (includes STATUS signals)
           await onboardingService.processAIResponse(
             context.organization.id,
             lastAssistantMessage,
@@ -113,11 +113,25 @@ export class OrganizationChatService {
         // Generate the next onboarding question
         const aiResponse = await this.generateAndStoreAIResponse(messages, context, 'onboarding')
         
+        // If there's a new response with status signals, process it with the onboarding service
+        if (aiResponse.backendMessage && aiResponse.statusSignal) {
+          // Create a fake assistant message for processing
+          const processedResponse = await onboardingService.processAIResponse(
+            context.organization.id,
+            aiResponse.backendMessage, // Use backend message with STATUS signals
+            userMessages[userMessages.length - 1]?.content || ''
+          )
+        }
+        
+        // Check if setup is completed based on status signal or backend message
+        const setupCompleted = aiResponse.statusSignal === 'setup_complete' || 
+                               (aiResponse.backendMessage?.includes('STATUS: setup_complete') ?? false)
+        
         return {
-          aiMessage: aiResponse.aiMessage,
+          aiMessage: aiResponse.aiMessage, // Clean user-facing message
           multipleChoices: aiResponse.multipleChoices,
           allowMultiple: aiResponse.allowMultiple,
-          setupCompleted: aiResponse.aiMessage.includes('STATUS: setup_complete')
+          setupCompleted
         }
       } else {
         console.log('⏳ No user response yet - returning existing pending onboarding question')
@@ -136,11 +150,29 @@ export class OrganizationChatService {
       // No pending question, generate a new onboarding question
       const aiResponse = await this.generateAndStoreAIResponse(messages, context, 'onboarding')
       
+      // If there's a new response with status signals, process it with the onboarding service
+      if (aiResponse.backendMessage && aiResponse.statusSignal) {
+        // Get the last user message for processing
+        const userMessages = messages.filter(m => m.role === 'user')
+        const lastUserMessage = userMessages[userMessages.length - 1]?.content || ''
+        
+        // Process the AI response with backend message (includes STATUS signals)
+        await onboardingService.processAIResponse(
+          context.organization.id,
+          aiResponse.backendMessage,
+          lastUserMessage
+        )
+      }
+      
+      // Check if setup is completed based on status signal or backend message
+      const setupCompleted = aiResponse.statusSignal === 'setup_complete' || 
+                             (aiResponse.backendMessage?.includes('STATUS: setup_complete') ?? false)
+      
       return {
-        aiMessage: aiResponse.aiMessage,
+        aiMessage: aiResponse.aiMessage, // Clean user-facing message
         multipleChoices: aiResponse.multipleChoices,
         allowMultiple: aiResponse.allowMultiple,
-        setupCompleted: aiResponse.aiMessage.includes('STATUS: setup_complete')
+        setupCompleted
       }
     }
   }
@@ -258,9 +290,10 @@ export class OrganizationChatService {
           throw new Error(`Unknown onboarding state: ${state}`)
       }
       
-      // Update WhatsApp trial status if mentioned
-      if (response.aiMessage) {
-        await this.updateWhatsAppTrialStatus(response.aiMessage, context)
+      // Update WhatsApp trial status if mentioned (use backend message for full context)
+      const messageForAnalysis = (response as any).backendMessage || response.aiMessage
+      if (messageForAnalysis) {
+        await this.updateWhatsAppTrialStatus(messageForAnalysis, context)
       }
       
       return {
@@ -350,7 +383,7 @@ export class OrganizationChatService {
     messages: ChatMessage[], 
     context: ChatContext,
     promptType: 'onboarding' | 'business' = 'onboarding'
-  ): Promise<{ aiMessage: string; multipleChoices?: string[]; allowMultiple?: boolean }> {
+  ): Promise<{ aiMessage: string; backendMessage?: string; multipleChoices?: string[]; allowMultiple?: boolean; statusSignal?: string | null }> {
     console.log(`🔄 Starting AI response generation and storage with ${promptType} prompt...`)
     
     try {
@@ -396,7 +429,7 @@ export class OrganizationChatService {
     }
   }
 
-  public async generateAIResponse(messages: ChatMessage[], context: ChatContext, promptType: 'onboarding' | 'business' = 'onboarding'): Promise<{ aiMessage: string; multipleChoices?: string[]; allowMultiple?: boolean }> {
+  public async generateAIResponse(messages: ChatMessage[], context: ChatContext, promptType: 'onboarding' | 'business' = 'onboarding'): Promise<{ aiMessage: string; backendMessage?: string; multipleChoices?: string[]; allowMultiple?: boolean; statusSignal?: string | null }> {
     const apiKey = process.env.OPENAI_API_KEY
     if (!apiKey) {
       throw new Error('OpenAI API key not set')
@@ -497,11 +530,12 @@ export class OrganizationChatService {
         const data = await openaiRes.json()
         const aiResponse = data.choices?.[0]?.message?.content || ''
         
-        // Try to parse as JSON first (structured response)
+        // Try to parse as JSON first (structured onboarding response)
         let businessQuestion: any = null
         let aiMessage = aiResponse
         let multipleChoices: string[] | undefined = undefined
         let allowMultiple = false
+        let statusSignal: string | null = null
         
         try {
           // Try to extract JSON from the response, handling various formats
@@ -533,8 +567,28 @@ export class OrganizationChatService {
           // Attempt to parse the extracted JSON
           const jsonResponse = JSON.parse(jsonString)
           
-          if (jsonResponse.question_template && jsonResponse.field_name && jsonResponse.field_type) {
-            // This is a structured question response
+          // Check for new onboarding format with status signals
+          if (jsonResponse.message && jsonResponse.status) {
+            // This is a structured onboarding response with status signal
+            aiMessage = jsonResponse.message
+            statusSignal = jsonResponse.status
+            
+            // If it includes question data, extract it for business question storage
+            if (jsonResponse.question_template && jsonResponse.field_name && jsonResponse.field_type) {
+              businessQuestion = {
+                question_template: jsonResponse.question_template,
+                field_name: jsonResponse.field_name,
+                field_type: jsonResponse.field_type,
+                multiple_choices: jsonResponse.multiple_choices
+              }
+              
+              if (jsonResponse.field_type === 'multiple_choice' && jsonResponse.multiple_choices) {
+                multipleChoices = jsonResponse.multiple_choices
+                allowMultiple = false // Default for now
+              }
+            }
+          } else if (jsonResponse.question_template && jsonResponse.field_name && jsonResponse.field_type) {
+            // Legacy structured question response (fallback)
             businessQuestion = {
               question_template: jsonResponse.question_template,
               field_name: jsonResponse.field_name,
@@ -549,18 +603,29 @@ export class OrganizationChatService {
               multipleChoices = jsonResponse.multiple_choices
               allowMultiple = false // Default for now
             }
+          } else if (jsonResponse.message) {
+            // Simple message-only response
+            aiMessage = jsonResponse.message
           }
         } catch (error) {
           // Not JSON or invalid JSON - treat as regular text response
-          console.log('Failed to parse AI response as JSON:', error)
-          console.log('AI response was:', aiResponse)
+          // This is normal behavior when AI provides conversational responses
           aiMessage = aiResponse
         }
         
+        // If we have a status signal, append it to the message for backend processing
+        // but don't show it to the user
+        let backendMessage = aiMessage
+        if (statusSignal) {
+          backendMessage = `${aiMessage}\nSTATUS: ${statusSignal}`
+        }
+        
         const result = {
-          aiMessage: aiMessage,
+          aiMessage: aiMessage, // Clean user-facing message
+          backendMessage: backendMessage, // Message with STATUS signals for backend processing
           multipleChoices: multipleChoices,
-          allowMultiple: allowMultiple
+          allowMultiple: allowMultiple,
+          statusSignal: statusSignal
         }
         
         // Store the question if we have a valid business question

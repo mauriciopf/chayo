@@ -43,17 +43,18 @@ export function useDashboardInit(
         const data = await dashboardInitService.initializeDashboard(locale)
         setInitData(data)
 
-        // If we have a business, generate the initial chat message
-        if (data.business) {
-          const msg = await dashboardInitService.generateInitialChatMessage(data.business, locale)
-          setInitialMessage(msg)
-        }
+        // Always generate the initial chat message for authenticated users
+        // This will either be an onboarding question or a proper business introduction
+        const msg = await dashboardInitService.generateInitialChatMessage(data.business, locale)
+        setInitialMessage(msg)
         setIsLoading(false)
       } else if (authState !== 'loading' && !user) {
         // Only show auth prompt if not loading and no user
         setShouldShowAuthPrompt(true)
         setInitialMessage({
-          content: authPromptMessage || "Hi there! What's your name? (First name only is fine)"
+          content: authPromptMessage || (locale === 'es' 
+            ? "¡Hola! Soy Chayo, tu asistente digital para empresas. Para comenzar, necesito que te autentiques. ¿Cuál es tu nombre?"
+            : "Hello! I'm Chayo, your digital business assistant. To get started, I need you to authenticate. What's your name?")
         })
         setIsLoading(false)
       } else {

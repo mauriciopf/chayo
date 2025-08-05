@@ -11,6 +11,7 @@ interface UseBusinessModeChatProps {
   sendMessage: (messageContent: string) => Promise<void>
   unlockQRCode?: () => void
   onNavigateToQR?: () => void
+  refreshOnboardingProgress?: () => void
 }
 
 export function useBusinessModeChat({
@@ -18,7 +19,8 @@ export function useBusinessModeChat({
   setMessages,
   sendMessage,
   unlockQRCode,
-  onNavigateToQR
+  onNavigateToQR,
+  refreshOnboardingProgress: externalRefreshOnboardingProgress
 }: UseBusinessModeChatProps) {
   // Chat context state
   const [chatContext, setChatContext] = useState<ChatContextType>('business_setup')
@@ -27,6 +29,21 @@ export function useBusinessModeChat({
   const { progress: onboardingProgress, refreshProgress: refreshOnboardingProgress } = useOnboardingProgress(organizationId)
   const [showOnboardingProgress, setShowOnboardingProgress] = useState(false)
   const [showCompletion, setShowCompletion] = useState(false)
+  
+  // Wrapped sendMessage that refreshes onboarding progress after sending
+  const wrappedSendMessage = async (messageContent: string) => {
+    await sendMessage(messageContent)
+    
+    // Add a small delay to ensure database transaction is completed
+    // before refreshing the progress
+    setTimeout(() => {
+      if (externalRefreshOnboardingProgress) {
+        externalRefreshOnboardingProgress()
+      } else {
+        refreshOnboardingProgress()
+      }
+    }, 500) // 500ms delay
+  }
   
   // Persistent flag using localStorage
   const getCompletionModalShownKey = (orgId: string) => `onboarding_modal_shown_${orgId}`
@@ -53,14 +70,14 @@ export function useBusinessModeChat({
   }
 
   // Handler for multiple choice option selection
-  const handleMultipleChoiceSelect = (selectedOptions: string | string[]) => {
+  const handleMultipleChoiceSelect = async (selectedOptions: string | string[]) => {
     // Handle both single and multiple selections
     const finalInput = Array.isArray(selectedOptions) 
       ? selectedOptions.join(', ') 
       : selectedOptions
     
-    // Automatically send the message directly
-    sendMessage(finalInput)
+    // Automatically send the message directly with progress refresh
+    await wrappedSendMessage(finalInput)
   }
 
   // Update onboarding visibility when progress changes
@@ -99,6 +116,7 @@ export function useBusinessModeChat({
     setShowCompletion,
     setShowOnboardingProgress,
     refreshOnboardingProgress,
+    sendMessage: wrappedSendMessage,
     
     // Handlers for components
     onContinueCompletion: () => {

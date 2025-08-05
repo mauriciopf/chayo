@@ -114,13 +114,13 @@ export function useAuthFlow({
         })
         const data = await res.json()
         if (!res.ok) {
-          setOtpError(data.error || 'Failed to send OTP code.')
+          setOtpError(data.error || 'Failed to send verification code.')
           setMessages((msgs) => [
             ...msgs,
             {
               id: Date.now().toString() + '-ai',
               role: 'ai',
-              content: data.error || 'Failed to send OTP code. Please try again.',
+              content: data.error || 'Failed to send verification code. Please enter a valid email.',
               timestamp: new Date(),
             },
           ])
@@ -140,13 +140,13 @@ export function useAuthFlow({
         ])
         setResendCooldown(30) // 30s cooldown
       } catch (err) {
-        setOtpError('Failed to send OTP code.')
+        setOtpError('Failed to send verification code.')
         setMessages((msgs) => [
           ...msgs,
           {
             id: Date.now().toString() + '-ai',
             role: 'ai',
-            content: 'Failed to send OTP code. Please try again.',
+            content: 'Failed to send verification code. Please enter a valid email.',
             timestamp: new Date(),
           },
         ])
@@ -187,13 +187,13 @@ export function useAuthFlow({
           })
           const data = await res.json()
           if (!res.ok) {
-            setOtpError(data.error || 'Failed to resend OTP code.')
+            setOtpError(data.error || 'Failed to resend verification code.')
             setMessages((msgs) => [
               ...msgs,
               {
                 id: Date.now().toString() + '-ai',
                 role: 'ai',
-                content: data.error || 'Failed to resend OTP code. Please try again.',
+                content: data.error || 'Failed to resend verification code. Please enter a valid email.',
                 timestamp: new Date(),
               },
             ])
@@ -213,13 +213,13 @@ export function useAuthFlow({
           setInput('')
           return
         } catch (err) {
-          setOtpError('Failed to resend OTP code.')
+          setOtpError('Failed to resend verification code.')
           setMessages((msgs) => [
             ...msgs,
             {
               id: Date.now().toString() + '-ai',
               role: 'ai',
-              content: 'Failed to resend OTP code. Please try again.',
+              content: 'Failed to resend verification code. Please enter a valid email.',
               timestamp: new Date(),
             },
           ])
@@ -352,13 +352,13 @@ export function useAuthFlow({
       })
       const data = await res.json()
       if (!res.ok) {
-        setOtpError(data.error || 'Failed to resend OTP code.')
+        setOtpError(data.error || 'Failed to resend verification code.')
         setMessages((msgs) => [
           ...msgs,
           {
             id: Date.now().toString() + '-ai',
             role: 'ai',
-            content: data.error || 'Failed to resend OTP code. Please try again.',
+            content: data.error || 'Failed to resend verification code. Please enter a valid email.',
             timestamp: new Date(),
           },
         ])
@@ -377,13 +377,13 @@ export function useAuthFlow({
       ])
       setResendCooldown(30) // 30s cooldown
     } catch (err) {
-      setOtpError('Failed to resend OTP code.')
+      setOtpError('Failed to resend verification code.')
       setMessages((msgs) => [
         ...msgs,
         {
           id: Date.now().toString() + '-ai',
           role: 'ai',
-          content: 'Failed to resend OTP code. Please try again.',
+          content: 'Failed to resend verification code. Please enter a valid email.',
           timestamp: new Date(),
         },
       ])

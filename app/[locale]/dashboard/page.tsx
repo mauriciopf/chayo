@@ -215,6 +215,7 @@ function DashboardContent() {
                 refreshOnboardingProgress()
               }}
               onNavigateToQR={() => setActiveView('qrcode')}
+              refreshOnboardingProgress={refreshOnboardingProgress}
               agent={auth.agents[0]}
               organization={auth.currentOrganization}
               locale={locale}

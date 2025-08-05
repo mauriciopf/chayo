@@ -35,6 +35,7 @@ interface ChatContainerProps {
   organizationId?: string;
   unlockQRCode?: () => void;
   onNavigateToQR?: () => void;
+  refreshOnboardingProgress?: () => void;
   // Additional props for client mode
   agent?: Agent;
   organization?: Organization | null;
@@ -71,6 +72,7 @@ export default function ChatContainer({
   organizationId,
   unlockQRCode,
   onNavigateToQR,
+  refreshOnboardingProgress,
   agent,
   organization,
   locale = 'en',
@@ -131,6 +133,7 @@ export default function ChatContainer({
           organizationId={organizationId}
           unlockQRCode={unlockQRCode}
           onNavigateToQR={onNavigateToQR}
+          refreshOnboardingProgress={refreshOnboardingProgress}
           onModeSwitch={handleModeSwitch}
         />
       ) : (

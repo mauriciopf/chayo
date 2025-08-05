@@ -1031,7 +1031,7 @@
     "uploadTitle": "Upload a file",
     "loading": "AI is thinking...",
     "usingRAG": "Using document knowledge",
-    "authPrompt": "Hi there! What's your name? (First name only is fine)",
+    "authPrompt": "Hi! I'm here to help you set up your business profile and create an AI assistant that can chat with your customers. To get started, could you tell me your first name?",
     "onboardingQuestion": "Setup Question",
     "contextBusinessSetup": "Business Setup",
     "contextWhatsappSetup": "WhatsApp Setup",
@@ -1043,22 +1043,32 @@
     "authenticated": "Authenticated"
   },
   "onboarding": {
-    "setupInProgress": "Setup in Progress",
+    "setupInProgress": "Setting up your digital assistant",
     "questions": "questions",
     "complete": "complete",
     "currentQuestion": "Current Question",
-    "stage1Name": "Core Setup",
-    "stage2Name": "Industry Details", 
-    "stage3Name": "Branding & Tone",
+    "stage1Name": "Getting Started",
+    "stage2Name": "Your Business", 
+    "stage3Name": "Personal Touch",
     "stageDefault": "Setup",
-    "stage1Description": "Basic business information",
-    "stage2Description": "Industry-specific details",
-    "stage3Description": "Communication preferences",
+    "stage1Description": "Tell me about yourself",
+    "stage2Description": "Share your business details",
+    "stage3Description": "How should I communicate",
     "stageDefaultDescription": "Setting up your business",
-    "setupComplete": "Setup Complete!",
-    "setupCompleteDescription": "Your business is now configured and ready to go! Your AI assistant can now help you with client communications.",
+    "setupComplete": "🎉 You're all set!",
+    "setupCompleteDescription": "Your digital assistant is ready to help your business grow. Let's start connecting with your customers!",
     "startUsing": "Start Using Chayo",
-    "setupCompleteNote": "You can continue updating your business information anytime here in the chat."
+    "setupCompleteNote": "You can update your business details anytime by chatting with me.",
+    "progressSteps": {
+      "step1": "Getting to know you",
+      "step2": "Understanding your business",
+      "step3": "Perfecting your style"
+    },
+    "stepDescriptions": {
+      "step1": "Basic information about you and your goals",
+      "step2": "Details about your business and services",
+      "step3": "How you want me to communicate with customers"
+    }
   },
   "agentTools": {
     "common": {
