@@ -3,9 +3,11 @@ import { useState, useRef, useCallback } from 'react'
 interface UseVoiceRecordingProps {
   onTranscription: (text: string) => void
   onError: (error: string) => void
-}
+  onSendMessage?: (message: string) => void // Optional auto-send functionality
+  autoSend?: boolean // Whether to automatically send transcribed messages
+    }
 
-export function useVoiceRecording({ onTranscription, onError }: UseVoiceRecordingProps) {
+export function useVoiceRecording({ onTranscription, onError, onSendMessage, autoSend = false }: UseVoiceRecordingProps) {
   const [isRecording, setIsRecording] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
@@ -126,7 +128,14 @@ export function useVoiceRecording({ onTranscription, onError }: UseVoiceRecordin
       const data = await response.json()
       
       if (data.text && data.text.trim()) {
-        onTranscription(data.text.trim())
+        const transcribedText = data.text.trim()
+        onTranscription(transcribedText)
+        
+        // Auto-send if enabled
+        if (autoSend && onSendMessage) {
+          console.log('🎯 Auto-sending transcribed message:', transcribedText)
+          onSendMessage(transcribedText)
+        }
       } else {
         onError('No speech detected. Please try speaking more clearly.')
       }
