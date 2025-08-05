@@ -6,15 +6,13 @@ interface VoiceInputButtonProps {
   onTranscription: (text: string) => void
   disabled?: boolean
   isMobile?: boolean
-  autoSend?: boolean // Enable auto-send functionality
-  onSendMessage?: (message: string) => void // Callback for auto-sending
+  onSendMessage: (message: string) => void // Callback for auto-sending (always enabled)
 }
 
 const VoiceInputButton: React.FC<VoiceInputButtonProps> = ({
   onTranscription,
   disabled = false,
   isMobile = false,
-  autoSend = false,
   onSendMessage
 }) => {
   const t = useTranslations('chat.voiceInput')
@@ -23,6 +21,7 @@ const VoiceInputButton: React.FC<VoiceInputButtonProps> = ({
   const {
     isRecording,
     isProcessing,
+    isSpeaking,
     startRecording,
     stopRecording,
     cancelRecording,
@@ -37,7 +36,6 @@ const VoiceInputButton: React.FC<VoiceInputButtonProps> = ({
       // Clear error after 3 seconds
       setTimeout(() => setError(null), 3000)
     },
-    autoSend,
     onSendMessage
   })
 

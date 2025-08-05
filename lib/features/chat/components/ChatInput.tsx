@@ -103,7 +103,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
               onModeSwitch={onModeSwitch}
             />
             <div className="flex gap-2">
-              {/* Voice Input with Auto-send */}
+              {/* Voice Input with Auto-send and Auto-stop on silence (always enabled) */}
               <VoiceInputButton
                 onTranscription={(text) => {
                   // Show in input briefly before auto-sending
@@ -118,7 +118,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     }
                   }, 100)
                 }}
-                autoSend={true}
                 disabled={uploading || chatLoading || otpLoading !== 'none'}
                 isMobile={isMobile}
               />
