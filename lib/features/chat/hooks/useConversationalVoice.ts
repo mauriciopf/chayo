@@ -4,7 +4,7 @@ interface UseConversationalVoiceProps {
   onTranscription: (text: string) => void
   onError: (error: string) => void
   onSendMessage: (message: string) => void
-  pauseThreshold?: number // milliseconds of silence before auto-send (default: 2500ms)
+  pauseThreshold?: number // milliseconds of silence before auto-send (default: 1000ms)
   volumeThreshold?: number // minimum volume to consider as speech (default: 0.01)
 }
 
@@ -12,7 +12,7 @@ export function useConversationalVoice({
   onTranscription, 
   onError, 
   onSendMessage,
-  pauseThreshold = 2500, // 2.5 seconds of silence
+  pauseThreshold = 1000, // 1 second of silence
   volumeThreshold = 0.01 
 }: UseConversationalVoiceProps) {
   const [isListening, setIsListening] = useState(false)

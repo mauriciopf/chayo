@@ -8,7 +8,7 @@ The Conversational Voice feature enables natural, hands-free conversations with 
 
 ### **Natural Conversation Flow**
 - 🎯 **Continuous Listening**: No need to click start/stop buttons repeatedly
-- 🔇 **Automatic Pause Detection**: Messages auto-send after 2.5 seconds of silence
+- 🔇 **Automatic Pause Detection**: Messages auto-send after 1 second of silence
 - 🗣️ **Voice Activity Detection**: Real-time detection of when user is speaking
 - 📝 **Auto-Transcription**: Speech automatically converted to text and sent
 
@@ -67,7 +67,7 @@ const detectVoiceActivity = () => {
 ## 🎛️ Configuration
 
 ### **Default Settings**
-- **Pause Threshold**: 2500ms (2.5 seconds)
+- **Pause Threshold**: 1000ms (1 second)
 - **Volume Threshold**: 0.01 (1% of max volume)
 - **Sample Rate**: 16000 Hz (optimized for speech)
 - **Audio Processing**: Echo cancellation, noise suppression, auto gain control
@@ -75,7 +75,7 @@ const detectVoiceActivity = () => {
 ### **Customizable Options**
 ```typescript
 const conversationalVoice = useConversationalVoice({
-  pauseThreshold: 3000,    // Custom pause duration
+  pauseThreshold: 1500,    // Custom pause duration (1.5 seconds)
   volumeThreshold: 0.015,  // Custom sensitivity
   onTranscription: (text) => {},
   onError: (error) => {},
@@ -88,7 +88,7 @@ const conversationalVoice = useConversationalVoice({
 1. **Start Conversation**: Click the conversational voice button
 2. **Speak Naturally**: Talk normally, no need to hold buttons
 3. **Automatic Processing**: System detects speech and silence
-4. **Auto-Send**: Message automatically sent after pause
+4. **Auto-Send**: Message automatically sent after 1 second pause
 5. **Continue**: Keep speaking for follow-up messages
 6. **Stop**: Click button again to end conversation
 

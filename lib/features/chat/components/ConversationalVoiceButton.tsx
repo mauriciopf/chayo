@@ -36,7 +36,7 @@ export default function ConversationalVoiceButton({
       console.log('Auto-sending message:', message)
       onSendMessage(message)
     },
-    pauseThreshold: 2500, // 2.5 seconds of silence before auto-send
+    pauseThreshold: 1000, // 1 second of silence before auto-send
     volumeThreshold: 0.01 // Sensitivity threshold
   })
 
