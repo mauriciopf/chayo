@@ -531,9 +531,17 @@ export class OrganizationChatService {
           // Attempt to parse the extracted JSON
           const jsonResponse = JSON.parse(jsonString)
           
+          console.log('📋 Parsed JSON response:', {
+            hasMessage: !!jsonResponse.message,
+            hasStatus: !!jsonResponse.status,
+            hasQuestionTemplate: !!jsonResponse.question_template,
+            message: jsonResponse.message?.substring(0, 100) + '...'
+          })
+          
           // Check for new onboarding format with status signals
           if (jsonResponse.message && jsonResponse.status) {
             // This is a structured onboarding response with status signal
+            console.log('📝 Using message + status parsing path')
             aiMessage = jsonResponse.message
             statusSignal = jsonResponse.status
             
@@ -553,6 +561,7 @@ export class OrganizationChatService {
             }
           } else if (jsonResponse.question_template && jsonResponse.field_name && jsonResponse.field_type) {
             // Legacy structured question response (fallback)
+            console.log('📝 Using legacy question template parsing path')
             businessQuestion = {
               question_template: jsonResponse.question_template,
               field_name: jsonResponse.field_name,
@@ -569,11 +578,13 @@ export class OrganizationChatService {
             }
           } else if (jsonResponse.message) {
             // Simple message-only response
+            console.log('📝 Using simple message-only parsing path')
             aiMessage = jsonResponse.message
           }
         } catch (error) {
           // Not JSON or invalid JSON - treat as regular text response
           // This is normal behavior when AI provides conversational responses
+          console.log('📝 JSON parsing failed, using raw response as text:', error.message)
           aiMessage = aiResponse
         }
         
@@ -591,6 +602,13 @@ export class OrganizationChatService {
           allowMultiple: allowMultiple,
           statusSignal: statusSignal
         }
+        
+        console.log('🎯 Final result being returned:', {
+          aiMessage: aiMessage?.substring(0, 100) + '...',
+          aiMessageLength: aiMessage?.length,
+          hasMultipleChoices: !!multipleChoices,
+          statusSignal: statusSignal
+        })
         
         // Store the question if we have a valid business question
         if (businessQuestion) {
