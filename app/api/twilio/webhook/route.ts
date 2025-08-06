@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { twilioClient } from '@/lib/shared/twilio/client'
 import { getSupabaseServerClient } from "@/lib/shared/supabase/server"
-import { conversationStorageService } from '@/lib/shared/services/conversationStorageService'
+
 
 export async function POST(request: NextRequest) {
   try {
@@ -86,17 +86,18 @@ export async function POST(request: NextRequest) {
     }
 
     // Store the incoming message in conversation embeddings
-    await conversationStorageService.storeSingleMessage(
-      channel.agents.organization_id,
-      messageBody,
-      'user',
-      {
-        channel: 'whatsapp',
-        from_number: fromNumber,
-        to_number: toNumber,
-        message_sid: messageSid
-      }
-    )
+    try {
+      const { embeddingService } = await import('@/lib/shared/services/embeddingService')
+      const conversationText = `User: ${messageBody}`
+      
+      await embeddingService.processBusinessConversations(
+        channel.agents.organization_id,
+        [conversationText]
+      )
+      console.log('✅ Stored WhatsApp user message for embeddings')
+    } catch (error) {
+      console.warn('Failed to store message embeddings:', error)
+    }
 
     // Record client insights for business intelligence
     try {
@@ -149,18 +150,18 @@ export async function POST(request: NextRequest) {
         })
 
       // Store the AI response in conversation embeddings
-      await conversationStorageService.storeSingleMessage(
-        channel.agents.organization_id,
-        aiResponse,
-        'assistant',
-        {
-          channel: 'whatsapp',
-          from_number: toNumber,
-          to_number: fromNumber,
-          message_sid: twilioResponse.sid,
-          parent_message_id: savedMessage.id
-        }
-      )
+      try {
+        const { embeddingService } = await import('@/lib/shared/services/embeddingService')
+        const conversationText = `Assistant: ${aiResponse}`
+        
+        await embeddingService.processBusinessConversations(
+          channel.agents.organization_id,
+          [conversationText]
+        )
+        console.log('✅ Stored WhatsApp AI response for embeddings')
+      } catch (error) {
+        console.warn('Failed to store AI response embeddings:', error)
+      }
 
       console.log('AI response sent:', twilioResponse.sid)
       

@@ -673,140 +673,42 @@ export class OrganizationChatService {
 
   public async storeConversation(messages: ChatMessage[], aiMessage: string, context: ChatContext): Promise<void> {
     try {
-      const { conversationStorageService } = await import('../../../shared/services/conversationStorageService')
-      await conversationStorageService.storeConversationExchange(
-        context.organization.id,
-        messages[messages.length - 1]?.content || '',
-        aiMessage,
-        {
-          source: 'dashboard_chat',
-          user_id: context.user.id,
-          organization_name: context.organization.name
-        }
-      )
+      const userMessage = messages[messages.length - 1]?.content || ''
+      console.log('💾 Processing conversation storage for organization:', context.organization.id)
       
-      // 🚀 NEW: AI-driven relevance filtering for embedding storage
-      try {
-        const { businessInfoService } = await import('../../organizations/services/businessInfoService')
+      // Step 1: Check if conversation is business relevant FIRST
+      const { businessInfoService } = await import('../../organizations/services/businessInfoService')
+      
+      const [userRelevant, aiRelevant] = await Promise.all([
+        userMessage ? businessInfoService.isBusinessRelevantInformation(userMessage, 'user', 'embedding_storage') : false,
+        aiMessage ? businessInfoService.isBusinessRelevantInformation(aiMessage, 'ai', 'embedding_storage') : false
+      ])
+      
+      console.log('📊 Business relevance evaluation:', {
+        userMessage: userMessage.substring(0, 50) + '...',
+        userRelevant,
+        aiRelevant
+      })
+      
+      // Step 2: Store embeddings for relevant conversations
+      if (userRelevant || aiRelevant) {
+        console.log('📚 Storing business-relevant conversation for embeddings')
+        
+        // Simple and direct: store the conversation as embeddings
         const { embeddingService } = await import('../../../shared/services/embeddingService')
+        const conversationText = `User: ${userMessage}\nAssistant: ${aiMessage}`
         
-        const userMessage = messages[messages.length - 1]?.content || ''
-        
-        // Evaluate relevance of both user and AI messages
-        const [userRelevant, aiRelevant] = await Promise.all([
-          userMessage ? businessInfoService.isBusinessRelevantInformation(userMessage, 'user', 'embedding_storage') : false,
-          aiMessage ? businessInfoService.isBusinessRelevantInformation(aiMessage, 'ai', 'embedding_storage') : false
-        ])
-        
-        // Store relevant conversations for embedding/RAG
-        if (userRelevant || aiRelevant) {
-          const conversationText = messages.map(m => m.content).join(' ')
-          
-          // Use AI to dynamically detect if this conversation contains business information updates
-          const updateInfo = await this.extractMemoryUpdate(conversationText, context.organization.id)
-          
-          if (updateInfo) {
-            const result = await embeddingService.updateMemory(
-              context.organization.id,
-              updateInfo,
-              'auto'
-            )
-            console.log('📚 Stored relevant business conversation for embeddings')
-          }
-        } else {
-          console.log('⏭️ Skipped storing conversation - not business relevant')
-        }
-      } catch (error) {
-        console.warn('Error in relevance filtering for embeddings:', error)
-        // Fallback to storing everything if evaluation fails
+        await embeddingService.processBusinessConversations(
+          context.organization.id,
+          [conversationText]
+        )
+      } else {
+        console.log('⏭️ Skipped storing conversation - not business relevant')
       }
-    } catch (error) {
-      // Silent error handling
-    }
-  }
-
-
-  private async extractMemoryUpdate(conversationText: string, organizationId: string): Promise<any> {
-    try {
-      const { default: OpenAI } = await import('openai')
-      const openai = new OpenAI({
-        apiKey: process.env.OPENAI_API_KEY,
-      })
-
-      // Use simple memory extraction prompt
-      const extractionPrompt = `Analyze this conversation and determine if it contains any business information updates that should be stored in the AI's memory.
-
-CONVERSATION: "${conversationText}"
-
-Consider the following types of business updates:
-- Business hours, operating schedule, or availability changes
-- Location, address, or service area updates
-- Contact information (phone, email, website) changes
-- Pricing, rates, or cost updates
-- New or modified services offered
-- Policy changes (returns, refunds, appointments, etc.)
-- Business name or branding updates
-- Staff or team changes
-- Equipment or technology updates
-- Any other business-relevant information that customers should know
-
-IMPORTANT: Only extract information that is:
-1. Clearly stated as a change or update
-2. Specific and actionable
-3. Relevant to customers or business operations
-4. Not just general conversation or questions
-
-If you find a clear business update, respond with ONLY valid JSON (no markdown formatting, no backticks):
-{
-  "text": "the specific updated information in a clear, concise format",
-  "type": "knowledge",
-  "reason": "brief description of what was updated",
-  "confidence": 0.0-1.0 (how confident you are this is an actual update)
-}
-
-If no clear business update is found, respond with: null`
-
-      const response = await openai.chat.completions.create({
-        model: 'gpt-4o-mini',
-        messages: [{ role: 'user', content: extractionPrompt }],
-        temperature: 0.1,
-        max_tokens: 300
-      })
-
-      const content = response.choices[0].message.content?.trim()
       
-      if (content === 'null' || !content) {
-        return null
-      }
-
-      // Clean the content to handle markdown code blocks
-      let cleanedContent = content
-      if (content.includes('```json')) {
-        cleanedContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
-      } else if (content.includes('```')) {
-        cleanedContent = content.replace(/```\n?/g, '').trim()
-      }
-
-      try {
-        const extracted = JSON.parse(cleanedContent)
-        return {
-          text: extracted.text,
-          type: extracted.type || 'knowledge',
-          metadata: {
-            source: 'chat_memory_update',
-            organization_id: organizationId,
-            extracted_at: new Date().toISOString(),
-            confidence: extracted.confidence || 0.8
-          },
-          reason: extracted.reason,
-          confidence: extracted.confidence || 0.8
-        }
-      } catch (parseError) {
-        return null
-      }
-
     } catch (error) {
-      return null
+      console.error('❌ Error in conversation storage:', error)
+      // Don't throw to avoid breaking the chat flow
     }
   }
 } 

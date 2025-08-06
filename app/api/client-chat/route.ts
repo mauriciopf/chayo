@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseServerClient } from "@/lib/shared/supabase/server"
 import { ClientSystemPromptService } from '@/lib/features/chat/services/clientPrompt/ClientSystemPromptService'
-import { embeddingService, conversationStorageService } from '@/lib/shared/services'
+import { embeddingService } from '@/lib/shared/services'
 import { ToolIntentService } from '@/lib/features/tools/shared/services'
 
 export async function POST(request: NextRequest) {
@@ -102,16 +102,18 @@ export async function POST(request: NextRequest) {
     })
 
     // Store the conversation exchange for future reference
-    await conversationStorageService.storeConversationExchange(
-      organizationId,
-      message,
-      assistantResponse,
-      {
-        channel: 'client_chat',
-        organization_name: organization.name,
-        detected_intents: validatedIntents // Store intents for analytics
-      }
-    )
+    try {
+      const { embeddingService } = await import('@/lib/shared/services/embeddingService')
+      const conversationText = `User: ${message}\nAssistant: ${assistantResponse}`
+      
+      await embeddingService.processBusinessConversations(
+        organizationId,
+        [conversationText]
+      )
+      console.log('✅ Stored client conversation for embeddings')
+    } catch (error) {
+      console.warn('Failed to store conversation embeddings:', error)
+    }
 
     // Record client insights for business intelligence
     try {

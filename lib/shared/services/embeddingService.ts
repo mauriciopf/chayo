@@ -28,7 +28,7 @@ export class EmbeddingService {
     return this.supabaseClient
   }
 
-  async storeConversationEmbeddings(
+  private async storeConversationEmbeddings(
     organizationId: string,
     segments: ConversationSegment[]
   ): Promise<EmbeddingResult[]> {
