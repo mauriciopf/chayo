@@ -189,6 +189,8 @@ export default function BusinessChatView({
               chatError={chatError} 
               onOptionSelect={handleMultipleChoiceSelect}
               thinkingContext={getThinkingContext()}
+              onboardingProgress={onboardingProgress}
+              organizationId={organizationId}
             />
           )
         })()}
