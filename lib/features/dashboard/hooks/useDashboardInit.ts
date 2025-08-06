@@ -93,6 +93,14 @@ export function useDashboardInit(
               console.warn('⚠️ API returned empty or null aiMessage:', apiData)
             }
             
+            console.log('🔍 Setting initial message with content:', {
+              content: apiData.aiMessage?.substring(0, 100) + '...',
+              contentLength: apiData.aiMessage?.length,
+              hasContent: !!apiData.aiMessage,
+              multipleChoices: apiData.multipleChoices,
+              allowMultiple: apiData.allowMultiple
+            })
+            
             setInitialMessage({
               content: apiData.aiMessage,
               multipleChoices: apiData.multipleChoices,

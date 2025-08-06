@@ -20,7 +20,20 @@ export function useInitialChatMessage({
   const hasSetInitialMessage = useRef(false)
 
   useEffect(() => {
-    if (messagesLength === 0 && locale && message && !hasSetInitialMessage.current) {
+    console.log('🎬 useInitialChatMessage effect triggered:', {
+      messagesLength,
+      hasLocale: !!locale,
+      hasMessage: !!message,
+      messageContent: message?.content?.substring(0, 50) + '...',
+      hasSetInitialMessage: hasSetInitialMessage.current
+    })
+    
+    if (messagesLength === 0 && locale && message && message.content && !hasSetInitialMessage.current) {
+      console.log('✅ Setting initial chat message:', {
+        content: message.content.substring(0, 100) + '...',
+        hasMultipleChoices: !!message.multipleChoices
+      })
+      
       hasSetInitialMessage.current = true
       
       // Use the pre-generated message directly instead of calling the API
@@ -34,6 +47,14 @@ export function useInitialChatMessage({
           allowMultiple: message.allowMultiple
         }
       ])
+    } else {
+      console.log('❌ Skipping initial message:', {
+        messagesLength,
+        hasLocale: !!locale,
+        hasMessage: !!message,
+        hasContent: !!message?.content,
+        alreadySet: hasSetInitialMessage.current
+      })
     }
   }, [message, messagesLength, locale, setMessages])
 

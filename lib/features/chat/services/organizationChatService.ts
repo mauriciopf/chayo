@@ -535,7 +535,7 @@ export class OrganizationChatService {
             hasMessage: !!jsonResponse.message,
             hasStatus: !!jsonResponse.status,
             hasQuestionTemplate: !!jsonResponse.question_template,
-            message: jsonResponse.message?.substring(0, 100) + '...'
+            message: jsonResponse.message
           })
           
           // Check for new onboarding format with status signals
