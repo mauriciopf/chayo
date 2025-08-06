@@ -579,7 +579,7 @@ export class OrganizationChatService {
         } catch (error) {
           // Not JSON or invalid JSON - treat as regular text response
           // This is normal behavior when AI provides conversational responses
-          console.log('📝 JSON parsing failed, using raw response as text:', error.message)
+          console.log('📝 JSON parsing failed, using raw response as text:', error instanceof Error ? error.message : String(error))
           aiMessage = aiResponse
         }
         
