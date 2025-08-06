@@ -123,7 +123,14 @@ export function useChat({
       timestamp: new Date()
     }
     
-    setMessages((msgs) => [...msgs, newUserMsg])
+    // Create the updated messages array that includes the new user message
+    const updatedMessages = [...messages, newUserMsg]
+    console.log('💬 Sending message:', {
+      userMessage: messageContent,
+      totalMessagesAfter: updatedMessages.length,
+      conversationLength: updatedMessages.map(m => `${m.role}: ${m.content.substring(0, 30)}...`).join(' | ')
+    })
+    setMessages(updatedMessages)
     setInput("")
     setJustSent(true) // Set justSent to trigger scroll after DOM update
     
@@ -143,7 +150,7 @@ export function useChat({
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({
-          messages: [...messages, newUserMsg].map(({ role, content }) => ({ 
+          messages: updatedMessages.map(({ role, content }) => ({ 
             role: role === "ai" ? "assistant" : role, 
             content 
           })),
@@ -172,10 +179,20 @@ export function useChat({
         allowMultiple: data.allowMultiple
       }
       
-      setMessages((msgs) => [
-        ...msgs,
-        aiMessage
-      ])
+      console.log('🤖 Received AI response:', {
+        aiMessage: data.aiMessage?.substring(0, 50) + '...',
+        hasMultipleChoices: !!data.multipleChoices,
+        willAddToMessages: true
+      })
+      
+      setMessages((msgs) => {
+        const newMessages = [...msgs, aiMessage]
+        console.log('📝 Updated messages array:', {
+          totalMessages: newMessages.length,
+          lastMessage: newMessages[newMessages.length - 1]?.content?.substring(0, 30) + '...'
+        })
+        return newMessages
+      })
     } catch (err) {
       setChatError("Error sending message")
     } finally {

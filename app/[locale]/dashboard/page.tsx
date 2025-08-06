@@ -124,7 +124,7 @@ function DashboardContent() {
         allowMultiple: dashboardInit.initialMessage.allowMultiple
       }])
     }
-  }, [dashboardInit.initialMessage])
+  }, [dashboardInit.initialMessage?.content])
   
   // Reset initial message flag when auth state changes (user logs out/in)
   useEffect(() => {
