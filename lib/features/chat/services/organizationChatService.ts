@@ -707,22 +707,22 @@ export class OrganizationChatService {
       const userMessage = messages[messages.length - 1]?.content || ''
       console.log('💾 Processing conversation storage for organization:', context.organization.id)
       
-      // Step 1: Check if conversation is business relevant FIRST
+      // Step 1: Check if conversation exchange is business relevant
       const { businessInfoService } = await import('../../organizations/services/businessInfoService')
       
-      const [userRelevant, aiRelevant] = await Promise.all([
-        userMessage ? businessInfoService.isBusinessRelevantInformation(userMessage, 'user', 'embedding_storage') : false,
-        aiMessage ? businessInfoService.isBusinessRelevantInformation(aiMessage, 'ai', 'embedding_storage') : false
-      ])
+      const isRelevant = await businessInfoService.isBusinessRelevantInformation(
+        userMessage, 
+        aiMessage, 
+        'embedding_storage'
+      )
       
       console.log('📊 Business relevance evaluation:', {
-        userMessage: userMessage.substring(0, 50) + '...',
-        userRelevant,
-        aiRelevant
+        conversationExchange: `User: ${userMessage.substring(0, 30)}... | AI: ${aiMessage.substring(0, 30)}...`,
+        isRelevant
       })
       
       // Step 2: Store embeddings for relevant conversations
-      if (userRelevant || aiRelevant) {
+      if (isRelevant) {
         console.log('📚 Storing business-relevant conversation for embeddings')
         
         // Simple and direct: store the conversation as embeddings

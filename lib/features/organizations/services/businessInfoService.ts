@@ -95,23 +95,11 @@ export class BusinessInfoService {
   }
 
   /**
-   * Store a single business question with AI quality validation
+   * Store a single business question from AI generation
    * Always uses structured objects - no regex parsing
    */
   public async storeBusinessQuestion(organizationId: string, question: BusinessQuestion): Promise<void> {
     try {
-      // 🚀 AI-driven quality validation
-      const isRelevant = await this.isBusinessRelevantInformation(
-        `Question: "${question.question_template}" for field "${question.field_name}"`, 
-        'ai', 
-        'question_generation'
-      )
-      
-      if (!isRelevant) {
-        console.log('⚠️ Question failed quality validation:', question.question_template)
-        return
-      }
-
       // Check if this question already exists
       const { data: existingQuestion } = await supabase
         .from('business_info_fields')
@@ -311,29 +299,43 @@ export class BusinessInfoService {
   }
 
   /**
-   * Validate if information is relevant for business knowledge storage
-   * @param message - The message content to evaluate
-   * @param messageType - Whether it's from 'user' or 'ai'
+   * Validate if content is relevant for business knowledge storage
+   * @param userMessage - The user's message content (or single message for legacy usage)
+   * @param aiMessage - The AI's response message content (optional for legacy usage)
    * @param context - Optional context about the conversation purpose
    * @returns Promise<boolean> - true if relevant, false if not
    */
   async isBusinessRelevantInformation(
-    message: string,
-    messageType: 'user' | 'ai',
+    userMessage: string,
+    aiMessage?: string,
     context?: 'embedding_storage' | 'question_generation' | 'general'
   ): Promise<boolean> {
     try {
-      // Basic validation only
-      if (!message || message.trim().length === 0) {
+      // Basic validation - need at least one message with content
+      if (!userMessage || userMessage.trim().length === 0) {
         return false
       }
 
+      // Handle both conversation exchange and single message scenarios
+      let contentToAnalyze: string
+      let analysisType: string
+      
+      if (aiMessage && aiMessage.trim().length > 0) {
+        // Full conversation exchange - user + AI messages
+        contentToAnalyze = `AI: ${aiMessage}\nUser: ${userMessage}`.trim()
+        analysisType = 'conversation exchange'
+      } else {
+        // Single message (legacy usage for question generation)
+        contentToAnalyze = userMessage.trim()
+        analysisType = 'single message'
+      }
+
       // Build the system prompt
-      const basePrompt = `You are an AI business information relevance evaluator. Your role is to dynamically assess whether conversation content contains valuable business information worth storing.
+      const basePrompt = `You are an AI business information relevance evaluator. Your role is to dynamically assess whether content contains valuable business information worth storing.
 
 CRITICAL: Respond with ONLY "relevant" or "irrelevant" - no explanation, no other text.
 
-Analyze this ${messageType} message and determine if it contains business value:
+Analyze this ${analysisType} and determine if it contains business value${analysisType === 'conversation exchange' ? '. Consider the FULL CONTEXT - a simple "yes" or "no" response becomes meaningful when combined with the AI\'s question' : ''}:
 
 RELEVANT CONTENT (store this):
 - Business operations, services, policies, procedures
@@ -395,7 +397,7 @@ Priority: Maintain high-quality business knowledge base without clutter.`
         model: 'gpt-3.5-turbo', // Fast and reliable for this classification task
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: message }
+          { role: 'user', content: contentToAnalyze }
         ],
         max_tokens: 5, // Just need "relevant" or "irrelevant"
         temperature: 0, // Maximum consistency for binary classification
@@ -406,7 +408,7 @@ Priority: Maintain high-quality business knowledge base without clutter.`
       // More robust parsing - check for relevant indicators
       const isRelevant = result ? result.includes('relevant') && !result.includes('irrelevant') : true
       
-      console.log(`📊 Business relevance evaluation: "${message.substring(0, 50)}..." -> ${isRelevant ? 'RELEVANT' : 'IRRELEVANT'}`)
+      console.log(`📊 Business relevance evaluation (${analysisType}): "${contentToAnalyze.substring(0, 100)}..." -> ${isRelevant ? 'RELEVANT' : 'IRRELEVANT'}`)
       
       return isRelevant
       
