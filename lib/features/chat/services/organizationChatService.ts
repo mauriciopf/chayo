@@ -488,12 +488,7 @@ export class OrganizationChatService {
         const data = await openaiRes.json()
         const aiResponse = data.choices?.[0]?.message?.content || ''
         
-        console.log('🤖 Raw OpenAI response received:', {
-          content: aiResponse.substring(0, 200) + '...',
-          contentLength: aiResponse.length,
-          isEmpty: !aiResponse || aiResponse.trim() === ''
-        })
-        
+
         // Try to parse as JSON first (structured onboarding response)
         let businessQuestion: any = null
         let aiMessage = aiResponse

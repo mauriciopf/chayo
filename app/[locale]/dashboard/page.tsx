@@ -16,7 +16,7 @@ import { useDashboardInit } from '@/lib/features/dashboard/hooks/useDashboardIni
 import { useQRCodeLogic } from '@/lib/features/chat/hooks/useQRCodeLogic'
 import { useBillingManagement } from '@/lib/features/dashboard/hooks/useBillingManagement'
 import { useLogout } from '@/lib/features/auth/hooks/useLogout'
-import { useInitialChatMessage } from '@/lib/features/chat/hooks/useInitialChatMessage'
+
 import { useOnboardingProgress } from '@/lib/features/onboarding/hooks/useOnboardingProgress'
 import { useAuthFlow } from '@/lib/features/auth/components/AuthFlow'
 import ChatContainer from '@/lib/features/chat/components/ChatContainer'
@@ -94,13 +94,26 @@ function DashboardContent() {
   // Use logout hook
   const { handleLogout } = useLogout()
 
-  // Use single hook for initial chat message
-  useInitialChatMessage({
-    message: dashboardInit.initialMessage,
-    messagesLength: chat.messages.length,
-    locale,
-    setMessages: chat.setMessages
-  })
+  // Set initial chat message directly
+  useEffect(() => {
+    if (dashboardInit.initialMessage?.content) {
+      console.log('🎬 Setting initial message directly:', {
+        content: dashboardInit.initialMessage.content.substring(0, 100) + '...',
+        contentLength: dashboardInit.initialMessage.content.length,
+        willClearPreviousMessages: chat.messages.length > 0
+      })
+      
+      // Always set the initial message, clearing any previous messages
+      chat.setMessages([{
+        id: 'initial-' + Date.now(),
+        role: 'ai',
+        content: dashboardInit.initialMessage.content,
+        timestamp: new Date(),
+        multipleChoices: dashboardInit.initialMessage.multipleChoices,
+        allowMultiple: dashboardInit.initialMessage.allowMultiple
+      }])
+    }
+  }, [dashboardInit.initialMessage])
 
   // Use onboarding progress hook
   const { progress: onboardingProgress, refreshProgress: refreshOnboardingProgress } = useOnboardingProgress(auth.currentOrganization?.id)
