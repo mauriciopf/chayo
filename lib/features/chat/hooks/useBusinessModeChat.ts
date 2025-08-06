@@ -82,10 +82,20 @@ export function useBusinessModeChat({
 
   // Update onboarding visibility when progress changes
   useEffect(() => {
+    console.log('🔄 Onboarding progress changed:', {
+      isCompleted: onboardingProgress.isCompleted,
+      progressPercentage: onboardingProgress.progressPercentage,
+      currentStage: onboardingProgress.currentStage,
+      answeredQuestions: onboardingProgress.answeredQuestions,
+      totalQuestions: onboardingProgress.totalQuestions,
+      willShowProgress: !onboardingProgress.isCompleted
+    })
+    
     setShowOnboardingProgress(!onboardingProgress.isCompleted)
     
     // Only show completion modal once when setup is completed
     if (onboardingProgress.isCompleted && !hasShownCompletionModal && organizationId) {
+      console.log('✅ Showing onboarding completion modal')
       setShowCompletion(true)
       setHasShownCompletionModal(true)
       // Persist the flag to localStorage

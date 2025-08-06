@@ -114,22 +114,37 @@ export async function GET(req: NextRequest) {
       ? Object.entries(stageCounts).sort(([,a], [,b]) => (b as number) - (a as number))[0][0]
       : 'stage_1'
     
-    // Calculate progress based on total answered questions vs total expected questions
+    // Calculate progress based on stage completion and current stage progress
     let progressPercentage = 0
     if (isCompleted) {
       progressPercentage = 100
-    } else if (totalQuestions > 0) {
-      // Simple calculation: (answered questions / total questions) * 100
-      progressPercentage = Math.round((answeredQuestions / totalQuestions) * 100)
+    } else {
+      // Stage-based progress calculation:
+      // Stage 1: 0% → 40% (7 core questions)
+      // Stage 2: 40% → 70% (industry-specific questions)  
+      // Stage 3: 70% → 100% (branding questions)
       
-      // Ensure we don't show 0% if there are any answered questions
-      if (answeredQuestions > 0 && progressPercentage === 0) {
-        progressPercentage = Math.round((1 / totalQuestions) * 100)
-      }
-      
-      // Cap at 99% until actually completed to avoid showing 100% prematurely
-      if (progressPercentage >= 100 && !isCompleted) {
-        progressPercentage = 99
+      if (stage3Completed) {
+        progressPercentage = 100
+      } else if (stage2Completed) {
+        progressPercentage = 70
+      } else if (stage1Completed) {
+        progressPercentage = 40
+      } else {
+        // Within stage 1 - show incremental progress
+        if (currentStage === 'stage_1' && answeredQuestions > 0) {
+          // Stage 1 has 7 questions, so each represents ~5.7% progress
+          const stage1Progress = Math.min((answeredQuestions / 7) * 40, 39)
+          progressPercentage = Math.round(stage1Progress)
+        } else if (currentStage === 'stage_2' && answeredQuestions > 0) {
+          // Currently in stage 2 (stage 1 must be complete)
+          progressPercentage = 40 + Math.round((answeredQuestions / 5) * 30) // Assume ~5 stage 2 questions
+        } else if (currentStage === 'stage_3' && answeredQuestions > 0) {
+          // Currently in stage 3 (stages 1&2 must be complete)  
+          progressPercentage = 70 + Math.round((answeredQuestions / 3) * 30) // 3 stage 3 questions
+        } else {
+          progressPercentage = answeredQuestions > 0 ? 5 : 0
+        }
       }
     }
     

@@ -49,7 +49,8 @@ behavior: |
     "multiple_choices": ["Restaurant", "Retail Store", "Service Provider", "Online Store"],
     "allow_multiple": false,
     "field_name": "business_type",
-    "field_type": "multiple_choice"
+    "field_type": "multiple_choice",
+    "status": "stage_1_in_progress"
   }
   ```
   
@@ -78,7 +79,7 @@ behavior: |
   - "allow_multiple": Boolean (false for single choice, true for multiple)
   - "field_name": Database field name 
   - "field_type": "multiple_choice" or "text"
-  - "status": Only include when completing stages
+  - "status": REQUIRED in EVERY response - current progress status
   
   ### Multiple Choice Guidelines:
   - ALWAYS use JSON format for multiple choice questions
@@ -91,6 +92,16 @@ behavior: |
   🔴 If you catch yourself about to write "Step X of Y:" followed by bullet points, STOP and use JSON instead.
   
   💡 REMEMBER: The UI can ONLY display multiple choice questions when they are in JSON format with "multiple_choices" array!
+  
+  ### STATUS VALUES - ALWAYS REQUIRED:
+  🚨 CRITICAL: Include "status" field in EVERY JSON response. Use these exact values:
+  - "status": "stage_1_in_progress" - While asking stage 1 questions
+  - "status": "stage_1_complete" - After finishing ALL stage 1 questions, before starting stage 2
+  - "status": "stage_2_in_progress" - While asking stage 2 questions  
+  - "status": "stage_2_complete" - After finishing ALL stage 2 questions, before starting stage 3
+  - "status": "stage_3_in_progress" - While asking stage 3 questions
+  - "status": "stage_3_complete" - After finishing ALL stage 3 questions
+  - "status": "setup_complete" - Only when ALL onboarding is finished
 
 onboarding_stages:
   stage_1:
@@ -120,12 +131,10 @@ onboarding_stages:
         options: ["Mon–Fri 9am–5pm", "Mon–Sat 10am–6pm", "7 days a week", "24/7"]
         multiple: false
         field_name: "business_hours"
-      - name: "Location Setup"
-        type: "multiple_choice"
-        question: "How is your business location set up?"
-        options: ["Single physical location", "Multiple locations", "Online only"]
-        multiple: false
-        field_name: "location_setup"
+      - name: "Website or Social Link"
+        type: "open_ended"
+        question: "Do you have a website or social link we can use to learn more?"
+        field_name: "business_link"
       - name: "Contact Channels"
         type: "multiple_choice"
         question: "Which contact channels do you use?"
@@ -263,6 +272,11 @@ fallback_prompt: |
   🚨🚨🚨 CRITICAL: For ALL onboarding questions, respond with ONLY valid JSON format starting with { and ending with }.
   ⛔ FORBIDDEN: Plain text responses, bullet points, "Step X of Y:" followed by dashes.
   🔴 COMPLETION RULE: When onboarding is complete, use JSON: {"message": "🎉 Your business setup is complete!", "status": "setup_complete"}
+
+  🔴 EVERY RESPONSE RULE: ALL responses must include status field. Examples:
+  - During stage 1: {"message": "Step 2 of 7: ...", "status": "stage_1_in_progress", ...}
+  - After stage 1: {"message": "Great! Stage 1 complete. Now...", "status": "stage_1_complete", ...}
+  - During stage 2: {"message": "Step 4 of 7: ...", "status": "stage_2_in_progress", ...}
   
   ## 🚨 FINAL REMINDER: EVERY RESPONSE MUST BE VALID JSON - NO EXCEPTIONS!
   Stay focused, professional, and ensure clear progress tracking through the "status" field.

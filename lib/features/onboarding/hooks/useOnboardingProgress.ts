@@ -16,8 +16,12 @@ export function useOnboardingProgress(organizationId?: string) {
   const [error, setError] = useState<string | null>(null)
 
   const fetchProgress = async () => {
-    if (!organizationId) return
+    if (!organizationId) {
+      console.log('⚠️ No organizationId provided to useOnboardingProgress')
+      return
+    }
 
+    console.log('🔄 Fetching onboarding progress for organization:', organizationId)
     setLoading(true)
     setError(null)
 
@@ -25,9 +29,19 @@ export function useOnboardingProgress(organizationId?: string) {
       // Use API endpoint instead of server-side service
       const response = await fetch('/api/onboarding-status')
       if (response.ok) {
-        const { progress: progressData } = await response.json()
+        const apiData = await response.json()
+        const { progress: progressData } = apiData
         
-        setProgress({
+        console.log('📊 Onboarding API response:', {
+          rawResponse: apiData,
+          progressData,
+          totalQuestions: progressData.totalQuestions,
+          answeredQuestions: progressData.answeredQuestions,
+          progressPercentage: progressData.progressPercentage,
+          isCompleted: progressData.isCompleted
+        })
+        
+        const newProgress = {
           totalQuestions: progressData.totalQuestions,
           answeredQuestions: progressData.answeredQuestions,
           currentStage: progressData.currentStage,
@@ -37,8 +51,12 @@ export function useOnboardingProgress(organizationId?: string) {
           stage1Completed: progressData.stage1Completed,
           stage2Completed: progressData.stage2Completed,
           stage3Completed: progressData.stage3Completed
-        })
+        }
+        
+        console.log('✅ Setting new progress state:', newProgress)
+        setProgress(newProgress)
       } else {
+        console.error('❌ Onboarding API failed:', response.status, response.statusText)
         throw new Error('Failed to fetch onboarding status')
       }
     } catch (err) {

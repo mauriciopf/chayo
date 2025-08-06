@@ -25,7 +25,17 @@ interface OnboardingProgressProps {
 export default function OnboardingProgress({ progress, isVisible }: OnboardingProgressProps) {
   const t = useTranslations('onboarding')
 
+  console.log('🎨 OnboardingProgress component render:', {
+    isVisible,
+    progress,
+    progressPercentage: progress.progressPercentage,
+    isCompleted: progress.isCompleted,
+    answeredQuestions: progress.answeredQuestions,
+    totalQuestions: progress.totalQuestions
+  })
+
   if (!isVisible) {
+    console.log('👻 OnboardingProgress not visible, returning null')
     return null
   }
 

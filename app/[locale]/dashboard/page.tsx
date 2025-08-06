@@ -134,6 +134,10 @@ function DashboardContent() {
   }, [auth.authState])
 
   // Use onboarding progress hook
+  console.log('🔄 Dashboard onboarding hook setup:', {
+    organizationId: auth.currentOrganization?.id,
+    hasOrganization: !!auth.currentOrganization
+  })
   const { progress: onboardingProgress, refreshProgress: refreshOnboardingProgress } = useOnboardingProgress(auth.currentOrganization?.id)
 
   // Dashboard UI state

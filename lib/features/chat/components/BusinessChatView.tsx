@@ -175,6 +175,11 @@ export default function BusinessChatView({
       </div>
 
       {/* Onboarding Progress - moved here to be above actionable hints */}
+      {console.log('🎯 OnboardingProgress render check:', {
+        showOnboardingProgress,
+        onboardingProgress,
+        componentWillRender: showOnboardingProgress
+      })}
       <OnboardingProgress 
         progress={onboardingProgress}
         isVisible={showOnboardingProgress}
