@@ -95,15 +95,19 @@ function DashboardContent() {
   const { handleLogout } = useLogout()
 
   // Set initial chat message directly
+  const [hasSetInitialMessage, setHasSetInitialMessage] = useState(false)
+  
   useEffect(() => {
-    if (dashboardInit.initialMessage?.content) {
+    if (dashboardInit.initialMessage?.content && !hasSetInitialMessage) {
       console.log('🎬 Setting initial message directly:', {
         content: dashboardInit.initialMessage.content.substring(0, 100) + '...',
         contentLength: dashboardInit.initialMessage.content.length,
-        willClearPreviousMessages: chat.messages.length > 0
+        messageCount: chat.messages.length
       })
       
-      // Always set the initial message, clearing any previous messages
+      setHasSetInitialMessage(true)
+      
+      // Set the initial message, replacing any existing messages
       chat.setMessages([{
         id: 'initial-' + Date.now(),
         role: 'ai',
@@ -113,7 +117,14 @@ function DashboardContent() {
         allowMultiple: dashboardInit.initialMessage.allowMultiple
       }])
     }
-  }, [dashboardInit.initialMessage])
+  }, [dashboardInit.initialMessage, hasSetInitialMessage, chat.setMessages])
+  
+  // Reset initial message flag when auth state changes (user logs out/in)
+  useEffect(() => {
+    if (auth.authState !== 'authenticated') {
+      setHasSetInitialMessage(false)
+    }
+  }, [auth.authState])
 
   // Use onboarding progress hook
   const { progress: onboardingProgress, refreshProgress: refreshOnboardingProgress } = useOnboardingProgress(auth.currentOrganization?.id)
