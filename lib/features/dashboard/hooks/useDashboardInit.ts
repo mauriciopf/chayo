@@ -81,10 +81,18 @@ export function useDashboardInit(
             const apiData = await response.json()
             console.log('📊 Organization-chat API response:', { 
               userType: isNewUser ? 'new' : 'existing',
-              aiMessage: apiData.aiMessage?.substring(0, 100) + '...',
+              aiMessage: apiData.aiMessage,
+              aiMessageLength: apiData.aiMessage?.length,
               hasMultipleChoices: !!apiData.multipleChoices,
-              allowMultiple: apiData.allowMultiple 
+              allowMultiple: apiData.allowMultiple,
+              fullResponse: apiData
             })
+            
+            // Check if we actually got a message
+            if (!apiData.aiMessage || apiData.aiMessage.trim() === '') {
+              console.warn('⚠️ API returned empty or null aiMessage:', apiData)
+            }
+            
             setInitialMessage({
               content: apiData.aiMessage,
               multipleChoices: apiData.multipleChoices,

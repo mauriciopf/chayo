@@ -376,60 +376,9 @@ export class OrganizationChatService {
     }
   }
 
-  /**
-   * Generate AI response and store any business questions atomically
-   */
-  private async generateAndStoreAIResponse(
-    messages: ChatMessage[], 
-    context: ChatContext,
-    promptType: 'onboarding' | 'business' = 'onboarding'
-  ): Promise<{ aiMessage: string; backendMessage?: string; multipleChoices?: string[]; allowMultiple?: boolean; statusSignal?: string | null }> {
+  public async generateAndStoreAIResponse(messages: ChatMessage[], context: ChatContext, promptType: 'onboarding' | 'business' = 'onboarding'): Promise<{ aiMessage: string; backendMessage?: string; multipleChoices?: string[]; allowMultiple?: boolean; statusSignal?: string | null }> {
     console.log(`🔄 Starting AI response generation and storage with ${promptType} prompt...`)
     
-    try {
-      // Generate AI response with appropriate system prompt
-      const aiResponse = await this.generateAIResponse(messages, context, promptType)
-      
-      // If this generated a business question, store it immediately
-      if (aiResponse.aiMessage) {
-        try {
-          const businessQuestion = JSON.parse(aiResponse.aiMessage)
-          
-          if (businessQuestion.question_template && businessQuestion.field_name && businessQuestion.field_type) {
-            console.log('🔍 Checking relevance of generated business question...')
-            
-            // Import and use the business info service
-            const { businessInfoService } = await import('../../organizations/services/businessInfoService')
-            
-            // Check if this is actually relevant business information (not just completion/goodbye messages)
-            const isRelevant = await businessInfoService.isBusinessRelevantInformation(
-              businessQuestion.question_template, 
-              'ai', 
-              'question_generation'
-            )
-            
-            if (isRelevant) {
-              console.log('💾 Storing relevant business question atomically')
-              await businessInfoService.storeBusinessQuestion(context.organization.id, businessQuestion)
-              console.log('✅ Business question stored successfully')
-            } else {
-              console.log('🚫 Skipping irrelevant message - not storing as business question')
-            }
-          }
-        } catch (parseError) {
-          // If it's not JSON or not a business question, that's fine - just continue
-          console.log('ℹ️ AI response is not a structured business question, continuing normally')
-        }
-      }
-      
-      return aiResponse
-    } catch (error) {
-      console.error('❌ Error in AI response generation and storage:', error)
-      throw error
-    }
-  }
-
-  public async generateAIResponse(messages: ChatMessage[], context: ChatContext, promptType: 'onboarding' | 'business' = 'onboarding'): Promise<{ aiMessage: string; backendMessage?: string; multipleChoices?: string[]; allowMultiple?: boolean; statusSignal?: string | null }> {
     const apiKey = process.env.OPENAI_API_KEY
     if (!apiKey) {
       throw new Error('OpenAI API key not set')
@@ -438,9 +387,6 @@ export class OrganizationChatService {
     // Note: Pending questions are handled by validateAndUpdatePendingQuestions in processChat
     // This method should only generate new AI responses, not check for pending questions
     
-                // Get the last user message for context
-      const lastUserMessage = messages.filter(m => m.role === 'user').pop()?.content || ''
-      
       // Generate enhanced system prompt with training hints
       let systemPrompt: string
       try {
@@ -448,7 +394,6 @@ export class OrganizationChatService {
         let trainingContext = ''
         try {
           const { embeddingService } = await import('../../../shared/services/embeddingService')
-          const conversationText = messages.map(m => m.content).join(' ')
           const memory = await embeddingService.getBusinessKnowledgeSummary(context.organization.id)
           if (memory) {
             trainingContext = memory
@@ -470,11 +415,12 @@ export class OrganizationChatService {
           isSetupCompleted = true
           currentStage = undefined // Business mode doesn't have stages
         } else {
-          // For onboarding, check actual progress
+          // For onboarding, always use onboarding prompt regardless of completion status
+          // We still get the progress for currentStage context
           const { IntegratedOnboardingService } = await import('../../onboarding/services/integratedOnboardingService')
           const onboardingService = new IntegratedOnboardingService()
           const progress = await onboardingService.getOnboardingProgress(context.organization.id)
-          isSetupCompleted = progress.isCompleted
+          isSetupCompleted = false // Force onboarding prompt when promptType is 'onboarding'
           currentStage = progress.currentStage
         }
         
