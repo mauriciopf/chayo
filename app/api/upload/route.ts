@@ -74,8 +74,10 @@ export async function POST(req: NextRequest) {
       }
     }))
 
-    // Use singleton embeddingService and pass supabase as argument
-    const results = await embeddingService.storeConversationEmbeddings(org.id, segments)
+    // Use singleton embeddingService with public method
+    const conversationTexts = segments.map(segment => segment.text)
+    await embeddingService.processBusinessConversations(org.id, conversationTexts)
+    const results = segments // Return segments for count
 
     return NextResponse.json({
       message: 'File processed and embedded',
