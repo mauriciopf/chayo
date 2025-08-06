@@ -102,20 +102,6 @@ ${config.rules}
 
 ${config.dynamics}
 
-${currentStage && !isSetupCompleted ? `
----
-## 🎯 CURRENT ONBOARDING STAGE
-You are currently in: ${currentStage.toUpperCase()}
-
-STAGE PROGRESSION RULES:
-- You MUST complete all questions for the current stage before moving to the next stage
-- Only emit status signals for the CURRENT stage you're working on
-- NEVER jump to "STATUS: setup_complete" until ALL THREE STAGES are complete
-- Stage order: stage_1 → stage_2 → stage_3 → setup_complete
-- Current stage context: ${currentStage === 'stage_1' ? 'Core Setup (Universal Questions)' : currentStage === 'stage_2' ? 'Adaptive Branching (Dynamic Industry Questions)' : 'Branding & Tone'}
-` : ''}
-
----
 ## 🌍 LANGUAGE INSTRUCTIONS
 ${localeInstructions.responseLanguage}
 

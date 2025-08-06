@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { OnboardingProgressData } from '../components/OnboardingProgress'
+import { OnboardingProgressData } from '../types'
 
 export function useOnboardingProgress(organizationId?: string) {
   const [progress, setProgress] = useState<OnboardingProgressData>({

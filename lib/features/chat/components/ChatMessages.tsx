@@ -2,7 +2,9 @@ import React from 'react'
 import { AnimatePresence } from 'framer-motion'
 import ChatMessage from './ChatMessage'
 import ChatMessageWithMultipleChoice from './ChatMessageWithMultipleChoice'
+import ThinkingMessage from '../../../shared/components/ThinkingMessage'
 import { Message } from '../../../shared/types'
+import { ThinkingContext } from '../../../shared/services/ThinkingMessageService'
 import { useTranslations } from 'next-intl'
 
 interface ChatMessagesProps {
@@ -10,9 +12,10 @@ interface ChatMessagesProps {
   chatLoading: boolean
   chatError: string | null
   onOptionSelect?: (selectedOptions: string | string[]) => void
+  thinkingContext?: ThinkingContext
 }
 
-const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, chatLoading, chatError, onOptionSelect }) => {
+const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, chatLoading, chatError, onOptionSelect, thinkingContext = 'default' }) => {
     const t = useTranslations('chat')
   
 
@@ -64,7 +67,11 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, chatLoading, chat
                           <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
                           <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                         </div>
-                        <span className="text-sm text-gray-500 ml-2">{t('loading')}</span>
+                        <ThinkingMessage 
+                          context={thinkingContext} 
+                          isVisible={true}
+                          className="text-sm text-gray-500 ml-2"
+                        />
                       </div>
                     </div>
                   </div>

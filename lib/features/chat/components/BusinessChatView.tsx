@@ -8,10 +8,12 @@ import ChatMessages from './ChatMessages'
 import ChatInput from './ChatInput'
 import ChatEmptyState from './ChatEmptyState'
 import ChatActionableHints from './ChatActionableHints'
-import OnboardingProgress from '../../onboarding/components/OnboardingProgress'
+
 import OnboardingCompletion from '../../onboarding/components/OnboardingCompletion'
 import { useBusinessModeChat } from '../hooks/useBusinessModeChat'
 import { Message, AuthState } from '../../../shared/types'
+import { ThinkingContext } from '../../../shared/services/ThinkingMessageService'
+import { OnboardingProgressData } from '../../onboarding/types'
 
 type ChatMode = 'business' | 'client'
 
@@ -165,25 +167,35 @@ export default function BusinessChatView({
           </motion.div>
         )}
         
-        <ChatMessages 
-          messages={messages} 
-          chatLoading={chatLoading} 
-          chatError={chatError} 
-          onOptionSelect={handleMultipleChoiceSelect}
-        />
+        {(() => {
+          // Determine thinking context based on onboarding progress
+          const getThinkingContext = (): ThinkingContext => {
+            if (!showOnboardingProgress || onboardingProgress.isCompleted) {
+              return 'default'
+            }
+            
+            const currentStage = onboardingProgress.currentStage
+            if (currentStage === 'stage_1') return 'onboarding_stage_1'
+            if (currentStage === 'stage_2') return 'onboarding_stage_2'
+            if (currentStage === 'stage_3') return 'onboarding_stage_3'
+            
+            return 'default'
+          }
+
+          return (
+            <ChatMessages 
+              messages={messages} 
+              chatLoading={chatLoading} 
+              chatError={chatError} 
+              onOptionSelect={handleMultipleChoiceSelect}
+              thinkingContext={getThinkingContext()}
+            />
+          )
+        })()}
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Onboarding Progress - moved here to be above actionable hints */}
-      {console.log('🎯 OnboardingProgress render check:', {
-        showOnboardingProgress,
-        onboardingProgress,
-        componentWillRender: showOnboardingProgress
-      })}
-      <OnboardingProgress 
-        progress={onboardingProgress}
-        isVisible={showOnboardingProgress}
-      />
+
 
       <ChatActionableHints organizationId={organizationId || ''} />
 
