@@ -55,23 +55,7 @@ behavior: |
   ```
   
   ❌ ABSOLUTELY FORBIDDEN (Plain text with bullets):
-  ```
-  Got it: your business name is "Panchos." 
-  Step 2 of 7: What type of business do you run? 
-  - Restaurant
-  - Retail Store
-  - Service Provider
-  - Online Store
-  ```
-  
-  ❌ ALSO FORBIDDEN (Any plain text questions):
-  ```
-  Step 4 of 7: What are your restaurant's operating hours? 
-  - Breakfast (6AM-12PM)
-  - Lunch (12PM-6PM)
-  - Dinner (6PM-12AM)
-  - 24/7
-  ```
+ 
   
   ### JSON Field Requirements:
   - "message": User-facing conversational message with progress (e.g., 'Step 3 of 8')
@@ -105,99 +89,80 @@ behavior: |
 
 onboarding_stages:
   stage_1:
-    title: "Core Setup (Universal Questions)"
+    title: "Core Setup (Essential Details)"
     status_signal: "stage_1_complete"
-    description: "Collect essential core business details."
+    description: "Collect the absolute basics to personalize your onboarding flow."
     questions:
       - name: "Business Name"
         type: "open_ended"
         question: "What is your business name?"
         field_name: "business_name"
-      - name: "Business Type"
-        type: "multiple_choice"
-        question: "What type of business do you run?"
-        options: ["Health Clinic", "Salon/Spa", "Restaurant/Food Service", "Retail Shop", "Consultancy/Professional Services"]
-        multiple: false
-        field_name: "business_type"
-      - name: "Services Offered"
-        type: "multiple_choice"
-        question: "Which services do you offer?"
-        options: ["Consultations", "Products", "Consultations + Products"]
-        multiple: true
+
+      - name: "Industry & Services"
+        type: "open_ended"
+        question: "Briefly describe your industry and the main services or products you offer."
         field_name: "services_offered"
+
+  stage_2:
+    title: "Dynamic Industry Deep Dive"
+    status_signal: "stage_2_complete"
+    description: |
+      Based on the services provided in Stage 1, generate up to 10 tailored questions 
+      that gather operational details, client workflows, and service-specific nuances.
+      These questions should be dynamically created at runtime and adapt to the business’s industry.
+    guidance: |
+      Use AI to create relevant, context-aware questions.
+      
+      All generated questions must be of type multiple_choice.
+      Each question should include 3–6 clear and realistic options.
+      Avoid using "Other" — the UI will provide a fallback for this automatically.
+
+      Examples by industry:
+        - Health Clinic: appointment duration, insurance accepted, intake forms.
+        - Salon/Spa: walk-in policy, deposits, loyalty programs.
+        - Restaurant: reservations, delivery apps, dietary accommodations.
+        - Retail: return policy, inventory updates, gift cards.
+        - Consultancy: session booking tools, payment preferences, contract handling.
+
+      Ensure that all questions are phrased simply, avoid technical jargon, and allow fast answers.
+
+  stage_3:
+    title: "Business Logistics & Preferences"
+    status_signal: "stage_3_complete"
+    description: "Gather communication preferences and operational basics."
+    questions:
+      - name: "Preferred Contact Method"
+        type: "multiple_choice"
+        question: "What is your preferred contact method for customers?"
+        options: ["Phone", "Email", "WhatsApp", "Website Form"]
+        multiple: true
+        field_name: "preferred_contact"
+
+      - name: "Website or Social Link"
+        type: "open_ended"
+        question: "Do you have a website or social link we can use to learn more?"
+        field_name: "business_link"
+        optional: true
+        helper_text: "We'll use this to personalize Chayo without asking too much."
+
       - name: "Business Hours"
         type: "multiple_choice"
         question: "What are your typical business hours?"
         options: ["Mon–Fri 9am–5pm", "Mon–Sat 10am–6pm", "7 days a week", "24/7"]
         multiple: false
         field_name: "business_hours"
-      - name: "Website or Social Link"
+
+      - name: "Secondary Contact Info"
         type: "open_ended"
-        question: "Do you have a website or social link we can use to learn more?"
-        field_name: "business_link"
-      - name: "Contact Channels"
-        type: "multiple_choice"
-        question: "Which contact channels do you use?"
-        options: ["Phone", "Email", "WhatsApp", "Website Form"]
-        multiple: true
-        field_name: "contact_channels"
-      - name: "Pricing Model"
-        type: "multiple_choice"
-        question: "How do you price your services?"
-        options: ["Fixed pricing", "Packages/Memberships", "Quote-based"]
-        multiple: false
-        field_name: "pricing_model"
+        question: "Do you have an alternate phone or email for business use?"
+        field_name: "secondary_contact"
+        optional: true
 
-  stage_2:
-    title: "Adaptive Branching (Dynamic Industry Questions)"
-    status_signal: "stage_2_complete"
-    description: "Ask 3–5 industry-specific questions based on Stage 1 (business type)."
-    industry_questions:
-      health_clinic:
-        - "Appointment duration"
-        - "Insurance accepted"
-        - "Emergency contact rules"
-      salon:
-        - "Walk-in policy"
-        - "Staff selection"
-        - "Booking deposit requirements"
-      restaurant:
-        - "Reservations policy"
-        - "Delivery/takeout options"
-        - "Dietary accommodations"
-      retail:
-        - "Return/refund policy"
-        - "Inventory update frequency"
-      consultancy:
-        - "Scheduling tools"
-        - "Invoicing/payment preferences"
-    format_note: |
-      Present each industry-specific question clearly with options as a clean list.
-              Do not include "Other" options - the UI automatically provides this flexibility.
-
-  stage_3:
-    title: "Branding & Tone"
-    status_signal: "stage_3_complete"
-    description: "Define branding and messaging preferences."
-    questions:
-      - name: "Preferred Response Style"
-        type: "multiple_choice"
-        question: "What is your preferred response style?"
-        options: ["Short & direct", "Friendly & conversational", "Formal & professional", "Detailed & explanatory"]
-        multiple: false
-        field_name: "response_style"
-      - name: "Tone of Voice"
-        type: "multiple_choice"
-        question: "What tone of voice should Chayo use?"
-        options: ["Formal", "Friendly", "Playful", "Professional"]
-        multiple: false
-        field_name: "tone_of_voice"
-      - name: "Target Audience"
-        type: "multiple_choice"
-        question: "Who is your target audience?"
-        options: ["Families", "Professionals", "Students", "Seniors"]
-        multiple: true
-        field_name: "target_audience"
+      - name: "Special Instructions"
+        type: "open_ended"
+        question: "Are there any special notes or instructions you'd like us to know about your business?"
+        field_name: "special_instructions"
+        optional: true
 
 completion: |
   ## ✅ CONFIRMATION & FINAL SIGNAL
@@ -273,10 +238,7 @@ fallback_prompt: |
   ⛔ FORBIDDEN: Plain text responses, bullet points, "Step X of Y:" followed by dashes.
   🔴 COMPLETION RULE: When onboarding is complete, use JSON: {"message": "🎉 Your business setup is complete!", "status": "setup_complete"}
 
-  🔴 EVERY RESPONSE RULE: ALL responses must include status field. Examples:
-  - During stage 1: {"message": "Step 2 of 7: ...", "status": "stage_1_in_progress", ...}
-  - After stage 1: {"message": "Great! Stage 1 complete. Now...", "status": "stage_1_complete", ...}
-  - During stage 2: {"message": "Step 4 of 7: ...", "status": "stage_2_in_progress", ...}
+  🔴 EVERY RESPONSE RULE: ALL responses must include status field.
   
   ## 🚨 FINAL REMINDER: EVERY RESPONSE MUST BE VALID JSON - NO EXCEPTIONS!
   Stay focused, professional, and ensure clear progress tracking through the "status" field.
