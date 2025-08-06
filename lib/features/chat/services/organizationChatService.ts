@@ -65,6 +65,18 @@ export class OrganizationChatService {
   private async handleNotStarted(context: ChatContext): Promise<ChatResponse> {
     console.log('🏁 State: NOT_STARTED - Generating first onboarding question')
     const aiResponse = await this.generateAndStoreAIResponse([], context, 'onboarding')
+    
+    console.log('🔍 AI Response received:', {
+      aiMessage: aiResponse.aiMessage?.substring(0, 100) + '...',
+      aiMessageLength: aiResponse.aiMessage?.length,
+      hasMultipleChoices: !!aiResponse.multipleChoices,
+      allowMultiple: aiResponse.allowMultiple
+    })
+    
+    if (!aiResponse.aiMessage || aiResponse.aiMessage.trim() === '') {
+      console.error('❌ Empty aiMessage returned from generateAndStoreAIResponse!')
+    }
+    
     return {
       aiMessage: aiResponse.aiMessage,
       multipleChoices: aiResponse.multipleChoices,
@@ -475,6 +487,12 @@ export class OrganizationChatService {
       } else {
         const data = await openaiRes.json()
         const aiResponse = data.choices?.[0]?.message?.content || ''
+        
+        console.log('🤖 Raw OpenAI response received:', {
+          content: aiResponse.substring(0, 200) + '...',
+          contentLength: aiResponse.length,
+          isEmpty: !aiResponse || aiResponse.trim() === ''
+        })
         
         // Try to parse as JSON first (structured onboarding response)
         let businessQuestion: any = null
