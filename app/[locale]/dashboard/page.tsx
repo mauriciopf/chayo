@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import LoadingScreen from '@/lib/features/dashboard/components/layout/LoadingScreen'
 import AuthPromptView from '@/lib/features/auth/components/AuthPromptView'
 import { useSearchParams } from 'next/navigation'
@@ -94,18 +94,25 @@ function DashboardContent() {
   // Use logout hook
   const { handleLogout } = useLogout()
 
-  // Set initial chat message directly
-  const [hasSetInitialMessage, setHasSetInitialMessage] = useState(false)
+  // Set initial chat message directly - use ref to track if we've already set it
+  const hasSetInitialMessageRef = useRef(false)
   
   useEffect(() => {
-    if (dashboardInit.initialMessage?.content && !hasSetInitialMessage) {
+    console.log('🔄 Initial message effect triggered:', {
+      hasContent: !!dashboardInit.initialMessage?.content,
+      hasSetFlag: hasSetInitialMessageRef.current,
+      messageCount: chat.messages.length,
+      shouldSet: !!dashboardInit.initialMessage?.content && !hasSetInitialMessageRef.current
+    })
+    
+    if (dashboardInit.initialMessage?.content && !hasSetInitialMessageRef.current) {
       console.log('🎬 Setting initial message directly:', {
         content: dashboardInit.initialMessage.content.substring(0, 100) + '...',
         contentLength: dashboardInit.initialMessage.content.length,
         messageCount: chat.messages.length
       })
       
-      setHasSetInitialMessage(true)
+      hasSetInitialMessageRef.current = true
       
       // Set the initial message, replacing any existing messages
       chat.setMessages([{
@@ -117,12 +124,12 @@ function DashboardContent() {
         allowMultiple: dashboardInit.initialMessage.allowMultiple
       }])
     }
-  }, [dashboardInit.initialMessage, hasSetInitialMessage, chat.setMessages])
+  }, [dashboardInit.initialMessage])
   
   // Reset initial message flag when auth state changes (user logs out/in)
   useEffect(() => {
     if (auth.authState !== 'authenticated') {
-      setHasSetInitialMessage(false)
+      hasSetInitialMessageRef.current = false
     }
   }, [auth.authState])
 
