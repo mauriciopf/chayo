@@ -69,7 +69,7 @@ export class EnhancedOrganizationSystemPromptService {
     question: string
   ): Promise<{answered: boolean, answer?: string, confidence?: number}> {
     try {
-      const { openAIService } = await import('../../../shared/services/OpenAIService')
+      const { openAIService } = await import('@/lib/shared/services/OpenAIService')
 
       const validationPrompt = `Analyze this conversation to determine if the user answered the question.
 

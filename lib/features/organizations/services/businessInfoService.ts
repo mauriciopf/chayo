@@ -388,7 +388,7 @@ Priority: Maintain high-quality business knowledge base without clutter.`
       }
 
       // Use AI to evaluate relevance via centralized service
-      const { openAIService } = await import('../../../shared/services/OpenAIService')
+      const { openAIService } = await import('@/lib/shared/services/OpenAIService')
       
       const aiResponse = await openAIService.callChatCompletion([
         { role: 'system', content: systemPrompt },

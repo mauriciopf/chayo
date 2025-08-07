@@ -434,7 +434,7 @@ export class OrganizationChatService {
    * Make OpenAI API call using centralized service
    */
   private async callOpenAI(systemPrompt: string, messages: ChatMessage[]): Promise<string> {
-    const { openAIService } = await import('../../../shared/services/OpenAIService')
+    const { openAIService } = await import('@/lib/shared/services/OpenAIService')
     
     // Prepare messages with full conversation history
     const chatMessages = [
@@ -567,10 +567,7 @@ export class OrganizationChatService {
 
   public async generateAndStoreAIResponse(messages: ChatMessage[], context: ChatContext, promptType: 'onboarding' | 'business' = 'onboarding'): Promise<{ aiMessage: string; backendMessage?: string; multipleChoices?: string[]; allowMultiple?: boolean; statusSignal?: string | null }> {
     console.log(`🔄 Starting AI response generation and storage with ${promptType} prompt...`)
-    
-    // Note: Pending questions are handled by validateAndUpdatePendingQuestions in processChat
-    // This method should only generate new AI responses, not check for pending questions
-    
+        
     // Generate enhanced system prompt with training hints
     let systemPrompt: string
     try {
@@ -608,7 +605,8 @@ export class OrganizationChatService {
           aiMessage: aiMessage?.substring(0, 100) + '...',
           aiMessageLength: aiMessage?.length,
           hasMultipleChoices: !!multipleChoices,
-          statusSignal: statusSignal
+          statusSignal: statusSignal,
+          businessQuestion: businessQuestion,
         })
         
         // Store the question if we have a valid business question

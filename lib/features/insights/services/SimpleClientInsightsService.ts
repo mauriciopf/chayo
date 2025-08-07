@@ -36,7 +36,7 @@ export class SimpleClientInsightsService {
    */
   async extractIntent(conversationText: string): Promise<string> {
     try {
-      const { openAIService } = await import('../../../shared/services/OpenAIService')
+      const { openAIService } = await import('@/lib/shared/services/OpenAIService')
 
       const prompt = `Analyze this customer message and return ONLY ONE WORD for what they want:
 
