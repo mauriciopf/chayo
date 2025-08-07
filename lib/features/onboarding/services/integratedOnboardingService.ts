@@ -36,38 +36,56 @@ export class IntegratedOnboardingService {
   }
 
   /**
-   * Initialize onboarding for an organization
+   * Get onboarding state and initialize tracking if needed (atomic operation)
+   * This replaces the separate determineOnboardingState + initializeOnboarding flow
    */
-  async initializeOnboarding(organizationId: string): Promise<void> {
+  async getOrInitializeOnboardingState(
+    organizationId: string,
+    messages: Array<{ role: string; content: string }> = []
+  ): Promise<'NOT_STARTED' | 'PROCESSING' | 'COMPLETED'> {
     try {
-      // Check if onboarding is already initialized
-      const { data: existingQuestions, error: checkError } = await this.supabaseClient
+      console.log('🔍 Getting/initializing onboarding state for org:', organizationId)
+      
+      // 1. Check completion status first (fastest check)
+      const progress = await this.getOnboardingProgress(organizationId)
+      if (progress.isCompleted) {
+        console.log('✅ Onboarding already completed')
+        return 'COMPLETED'
+      }
+
+      // 2. Check existing questions atomically (single DB query)
+      const { data: existingQuestions, error: questionsError } = await this.supabaseClient
         .from('business_info_fields')
-        .select('*')
+        .select('id, field_name, is_answered')
         .eq('organization_id', organizationId)
       
-      if (checkError) {
-        console.error('Error checking existing questions:', checkError)
-        throw checkError
-      }
-      
-      if (existingQuestions && existingQuestions.length > 0) {
-        console.log('Onboarding already initialized with', existingQuestions.length, 'questions')
-        return // Already initialized
+      if (questionsError) {
+        console.error('Error checking existing questions:', questionsError)
+        throw questionsError
       }
 
-      // DO NOT initialize with hardcoded questions
-      // Questions will be generated dynamically by the AI based on the conversation
-      console.log('Onboarding initialized - questions will be generated dynamically by AI')
+      const questionCount = existingQuestions?.length || 0
+      console.log(`📊 Found ${questionCount} existing questions`)
 
-      // Initialize setup completion tracking
+      // 3. Ensure setup tracking exists (idempotent operation)
       await this.setupCompletionService.getOrCreateSetupCompletion(organizationId)
-      console.log('Onboarding initialized successfully')
+
+      // 4. Determine state based on current reality
+      if (questionCount === 0 && messages.length === 0) {
+        console.log('🏁 State: NOT_STARTED (no questions, no messages)')
+        return 'NOT_STARTED'
+      }
+
+      console.log('🔄 State: PROCESSING (has questions or active conversation)')
+      return 'PROCESSING'
+      
     } catch (error) {
-      console.error('Error initializing onboarding:', error)
+      console.error('Error determining onboarding state:', error)
       throw error
     }
   }
+
+
 
   /**
    * Get pending questions for an organization

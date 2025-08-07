@@ -31,32 +31,7 @@ export class OrganizationChatService {
     this.supabaseClient = supabaseClient || supabase
   }
 
-  /**
-   * Determine the current onboarding state for clear decision making
-   */
-  private async determineOnboardingState(
-    organizationId: string, 
-    messages: ChatMessage[]
-  ): Promise<OnboardingState> {
-    // Initialize onboarding service
-    const { IntegratedOnboardingService } = await import('../../onboarding/services/integratedOnboardingService')
-    const onboardingService = new IntegratedOnboardingService()
 
-    // 1. Check completion status first (simplest check)
-    const progress = await onboardingService.getOnboardingProgress(organizationId)
-    if (progress.isCompleted) {
-      return 'COMPLETED'
-    }
-
-    // 2. Check if this is a fresh start (no questions exist and no user messages)
-    const nextQuestion = await onboardingService.getNextQuestion(organizationId)
-    if (!nextQuestion && messages.length === 0) {
-      return 'NOT_STARTED'  // Fresh user, needs first question
-    }
-
-    // 3. Everything else is processing - either has pending questions or user interactions
-    return 'PROCESSING'  // Handle pending questions, responses, and generation
-  }
 
   /**
    * Handle NOT_STARTED state - generate first onboarding question
@@ -269,16 +244,10 @@ export class OrganizationChatService {
         locale
       }
       
-      // Determine current state FIRST without modifying anything
-      const state = await this.determineOnboardingState(organization.id, messages)
-      
-      // THEN initialize onboarding if needed (only for NOT_STARTED state)
-      if (state === 'NOT_STARTED') {
-        const { IntegratedOnboardingService } = await import('../../onboarding/services/integratedOnboardingService')
-        const onboardingService = new IntegratedOnboardingService()
-        await onboardingService.initializeOnboarding(organization.id)
-        console.log('🏗️ Initialized onboarding for NOT_STARTED state')
-      }
+      // Get/initialize onboarding state atomically (no race conditions)
+      const { IntegratedOnboardingService } = await import('../../onboarding/services/integratedOnboardingService')
+      const onboardingService = new IntegratedOnboardingService()
+      const state = await onboardingService.getOrInitializeOnboardingState(organization.id, messages)
       console.log(`🎯 Current onboarding state: ${state}`)
       
       // Handle each state with dedicated methods
