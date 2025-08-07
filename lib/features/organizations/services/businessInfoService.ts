@@ -35,65 +35,6 @@ export class BusinessInfoService {
     this.supabaseClient = supabaseClient || supabase
   }
 
-    /**
-   * Generate dynamic questions for business information gathering
-   */
-  async generateBusinessQuestions(organizationId: string, currentConversation: string): Promise<{question_template: string, field_name: string, field_type: string, multiple_choices?: string[]}[]> {
-    try {
-      // Get existing unanswered questions
-      const { data: unAnsweredQuestions } = await supabase
-        .from('business_info_fields')
-        .select('field_name, question_template, field_type, multiple_choices')
-        .eq('organization_id', organizationId)
-        .eq('is_answered', false)
-
-      // If we have unanswered questions, return them
-      if (unAnsweredQuestions && unAnsweredQuestions.length > 0) {
-        return unAnsweredQuestions.map(q => ({
-          question_template: q.question_template,
-          field_name: q.field_name,
-          field_type: q.field_type || 'text',
-          multiple_choices: q.multiple_choices
-        }))
-      }
-
-      // Use the EnhancedOrganizationSystemPromptService to generate questions
-      const { EnhancedOrganizationSystemPromptService } = await import('../../chat/services/systemPrompt/EnhancedOrganizationSystemPromptService')
-      const enhancedService = new EnhancedOrganizationSystemPromptService()
-      // Get all existing fields (both answered and unanswered) to prevent duplicates
-      const { data: allFields } = await supabase
-        .from('business_info_fields')
-        .select('field_name')
-        .eq('organization_id', organizationId)
-
-      const answeredFieldNames = allFields?.map(f => f.field_name) || []
-
-      // Only generate one question at a time
-      const questions = await enhancedService.generateBusinessQuestions(
-        currentConversation,
-        answeredFieldNames
-      )
-
-      // Store only the first question if any were generated
-      if (questions && questions.length > 0) {
-        const rawQuestion = questions[0] // Only take the first question
-        const singleQuestion: BusinessQuestion = {
-          question_template: rawQuestion.question_template,
-          field_name: rawQuestion.field_name,
-          field_type: rawQuestion.field_type as 'text' | 'multiple_choice',
-          multiple_choices: rawQuestion.multiple_choices
-        }
-        await this.storeBusinessQuestion(organizationId, singleQuestion)
-        return [singleQuestion] // Return as array for backward compatibility
-      }
-
-      return questions || []
-    } catch (error) {
-      console.error('Error generating business questions:', error)
-      return []
-    }
-  }
-
   /**
    * Store a single business question from AI generation
    * Always uses structured objects - no regex parsing
@@ -415,6 +356,30 @@ Priority: Maintain high-quality business knowledge base without clutter.`
     } catch (error) {
       console.error('Error getting business info summary:', error)
       return {}
+    }
+  }
+
+  /**
+   * Get answered questions for context in AI responses
+   */
+  async getAnsweredQuestions(organizationId: string): Promise<BusinessInfoField[]> {
+    try {
+      const { data: answeredQuestions, error } = await this.supabaseClient
+        .from('business_info_fields')
+        .select('field_name, question_template, field_value, is_answered')
+        .eq('organization_id', organizationId)
+        .eq('is_answered', true)
+        .order('created_at', { ascending: true })
+
+      if (error) {
+        console.error('Error fetching answered questions:', error)
+        throw error
+      }
+
+      return answeredQuestions || []
+    } catch (error) {
+      console.error('Error in getAnsweredQuestions:', error)
+      throw error
     }
   }
 }

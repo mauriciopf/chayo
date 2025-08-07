@@ -153,7 +153,7 @@ export class OrganizationChatService {
       throw error
     }
   }
-  
+
   public async getOrCreateOrganization(user: any): Promise<any> {
     // First, check if user already owns an organization
     const { data: ownedOrg, error: ownedOrgError } = await this.supabaseClient
@@ -400,16 +400,10 @@ export class OrganizationChatService {
     let enhancedMessages = messages
     if (messages.length === 0 && promptType === 'onboarding') {
       console.log('📋 Empty messages detected - adding context about previous questions')
-      
-      // Get previously answered questions to provide context
-      const { IntegratedOnboardingService } = await import('../../onboarding/services/integratedOnboardingService')
-      const onboardingService = new IntegratedOnboardingService()
-      const { data: answeredQuestions } = await this.supabaseClient
-        .from('business_info_fields')
-        .select('field_name, question_template, field_value, is_answered')
-        .eq('organization_id', context.organization.id)
-        .eq('is_answered', true)
-        .order('created_at', { ascending: true })
+  
+      // Get previously answered questions from business info service
+      const { businessInfoService } = await import('../../organizations/services/businessInfoService')
+      const answeredQuestions = await businessInfoService.getAnsweredQuestions(context.organization.id)
       
       if (answeredQuestions && answeredQuestions.length > 0) {
         // Create context message about what was already collected
@@ -458,7 +452,7 @@ export class OrganizationChatService {
           aiMessageLength: aiMessage?.length,
           hasMultipleChoices: !!multipleChoices,
           statusSignal: statusSignal,
-          businessQuestion: businessQuestion,
+          businessQuestion: businessQuestion
         })
         
         // Store the question if we have a valid business question
