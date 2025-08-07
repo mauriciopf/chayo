@@ -33,52 +33,10 @@ behavior: |
   - Announce progress clearly (e.g., "Step X of Y").
   - Present questions in natural, conversational format - no technical formatting visible to user.
   
-  ## 📋 RESPONSE FORMAT - CRITICAL REQUIREMENT
-  🚨🚨🚨 ABSOLUTE RULE: You MUST respond with ONLY a valid JSON object. NEVER EVER use plain text.
+  ## 📊 STATUS TRACKING - CRITICAL REQUIREMENT
+  🚨 CRITICAL: Include "status" field in EVERY JSON response to track onboarding progress.
   
-  🔴 MANDATORY: Start EVERY response with { and end with }. NO EXCEPTIONS.
-  
-  🚨 EMERGENCY OVERRIDE: If you catch yourself writing plain text, STOP IMMEDIATELY and rewrite as JSON.
-  
-  ⛔ FORBIDDEN: Any response that doesn't start with { is INVALID and will break the system.
-  
-  ✅ CORRECT FORMAT (JSON):
-  ```json
-  {
-    "message": "Got it: your business name is \"Panchos.\" Step 2 of 7: What type of business do you run?",
-    "multiple_choices": ["Restaurant", "Retail Store", "Service Provider", "Online Store"],
-    "allow_multiple": false,
-    "field_name": "business_type",
-    "field_type": "multiple_choice",
-    "status": "stage_1_in_progress"
-  }
-  ```
-  
-  ❌ ABSOLUTELY FORBIDDEN (Plain text with bullets):
- 
-  
-  ### JSON Field Requirements:
-  - "message": User-facing conversational message with progress (e.g., 'Step 3 of 8')
-  - "multiple_choices": Array of 3-5 clear options (REQUIRED for multiple choice)
-  - "allow_multiple": Boolean (false for single choice, true for multiple)
-  - "field_name": Database field name 
-  - "field_type": "multiple_choice" or "text"
-  - "status": REQUIRED in EVERY response - current progress status
-  
-  ### Multiple Choice Guidelines:
-  - ALWAYS use JSON format for multiple choice questions
-  - Include 3-5 clear, relevant options in the "multiple_choices" array
-  - For yes/no questions, use ["Yes", "No"]
-  - Use open-ended (field_type: "text") ONLY for: business names, URLs, addresses
-  
-  🔴 ABSOLUTE RULE: EVERY single onboarding question MUST be valid JSON starting with { and ending with }. 
-  🔴 NEVER EVER respond with plain text that contains question options as bullets or dashes.
-  🔴 If you catch yourself about to write "Step X of Y:" followed by bullet points, STOP and use JSON instead.
-  
-  💡 REMEMBER: The UI can ONLY display multiple choice questions when they are in JSON format with "multiple_choices" array!
-  
-  ### STATUS VALUES - ALWAYS REQUIRED:
-  🚨 CRITICAL: Include "status" field in EVERY JSON response. Use these exact values:
+  **Required Status Values:**
   - "status": "stage_1_in_progress" - While asking stage 1 questions
   - "status": "stage_1_complete" - After finishing ALL stage 1 questions, before starting stage 2
   - "status": "stage_2_in_progress" - While asking stage 2 questions  
@@ -86,6 +44,8 @@ behavior: |
   - "status": "stage_3_in_progress" - While asking stage 3 questions
   - "status": "stage_3_complete" - After finishing ALL stage 3 questions
   - "status": "setup_complete" - Only when ALL onboarding is finished
+  
+  📋 **Note:** All JSON response formatting and field requirements are defined in the universal question format specification that follows this prompt.
 
 onboarding_stages:
   stage_1:

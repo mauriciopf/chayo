@@ -47,10 +47,10 @@ export function isLocaleSupported(locale: string): boolean {
   return locale in LOCALE_INSTRUCTIONS
 }
 
-// Multiple choice formatting is now handled by the standalone utility
-// This function is kept for backward compatibility but should use the new utility
-export function getMultipleChoiceFormatting(locale: string): string {
-  // Import the standalone utility
-  const { getMultipleChoiceFormattingInstructions } = require('./multipleChoiceFormatting')
-  return getMultipleChoiceFormattingInstructions()
+// Question formatting is now handled by the universal question format system
+// This function is kept for backward compatibility but should use the new universal system
+export async function getMultipleChoiceFormatting(locale: string): Promise<string> {
+  // Import the universal question format loader
+  const { getUniversalQuestionFormatInstructions } = await import('./questionFormatLoader')
+  return getUniversalQuestionFormatInstructions()
 } 

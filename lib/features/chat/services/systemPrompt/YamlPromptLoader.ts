@@ -2,7 +2,7 @@ import yaml from 'js-yaml'
 import fs from 'fs'
 import path from 'path'
 import { getLocaleInstructions } from './i18nPromptUtils'
-import { getMultipleChoiceFormattingInstructions } from './multipleChoiceFormatting'
+import { getUniversalQuestionFormatInstructions } from './questionFormatLoader'
 
 export interface SystemPromptConfig {
   identity: string
@@ -90,6 +90,9 @@ export class YamlPromptLoader {
     // Use YAML language section as fallback, but prefer the generic i18n instructions
     const languageSection = config.language?.[locale as keyof typeof config.language] || config.language?.en || localeInstructions.responseLanguage
     
+    // Get the universal question format instructions
+    const questionFormatInstructions = await getUniversalQuestionFormatInstructions()
+    
     return `${config.identity}
 
 ${config.objective}
@@ -111,7 +114,7 @@ ${languageSection}
 ${trainingContext ? `## 📚 BUSINESS KNOWLEDGE
 ${trainingContext}` : ''}
 
-${getMultipleChoiceFormattingInstructions()}`
+${questionFormatInstructions}`
   }
 
   static async getFallbackPrompt(): Promise<string> {

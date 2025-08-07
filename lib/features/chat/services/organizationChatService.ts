@@ -1,6 +1,5 @@
 import { supabase } from '@/lib/shared/supabase/client'
 import { generateSlugFromName } from '@/lib/shared/utils/text'
-import { getFilledBusinessInfoFieldCount } from '../../organizations/services/businessInfoFieldService'
 
 export interface ChatMessage {
   role: 'user' | 'assistant' | 'system'
@@ -506,30 +505,36 @@ export class OrganizationChatService {
         message: jsonResponse.message
       })
       
-      // Check for new onboarding format with status signals
-      if (jsonResponse.message && jsonResponse.status) {
-        // This is a structured onboarding response with status signal
-        console.log('📝 Using message + status parsing path')
+      // Universal format parsing - all responses should have a 'message' field
+      if (jsonResponse.message) {
+        console.log('📝 Using universal format parsing path')
         aiMessage = jsonResponse.message
-        statusSignal = jsonResponse.status
         
-        // If it includes question data, extract it for business question storage
-        if (jsonResponse.question_template && jsonResponse.field_name && jsonResponse.field_type) {
+        // Extract status signal if present
+        if (jsonResponse.status) {
+          statusSignal = jsonResponse.status
+        }
+        
+        // Check if this is a structured question that needs storage
+        if (jsonResponse.field_name && jsonResponse.field_type) {
+          console.log('📋 Extracting business question data for storage')
           businessQuestion = {
-            question_template: jsonResponse.question_template,
+            question_template: jsonResponse.message, // Use message as question template
             field_name: jsonResponse.field_name,
             field_type: jsonResponse.field_type,
             multiple_choices: jsonResponse.multiple_choices
           }
           
+          // Handle multiple choice UI data
           if (jsonResponse.field_type === 'multiple_choice' && jsonResponse.multiple_choices) {
             multipleChoices = jsonResponse.multiple_choices
-            allowMultiple = false // Default for now
+            allowMultiple = jsonResponse.allow_multiple || false
           }
         }
-      } else if (jsonResponse.question_template && jsonResponse.field_name && jsonResponse.field_type) {
-        // Legacy structured question response (fallback)
-        console.log('📝 Using legacy question template parsing path')
+      } 
+      // Legacy fallback for old question_template format (backward compatibility)
+      else if (jsonResponse.question_template && jsonResponse.field_name && jsonResponse.field_type) {
+        console.log('📝 Using legacy question_template fallback path')
         businessQuestion = {
           question_template: jsonResponse.question_template,
           field_name: jsonResponse.field_name,
@@ -542,12 +547,13 @@ export class OrganizationChatService {
         
         if (jsonResponse.field_type === 'multiple_choice' && jsonResponse.multiple_choices) {
           multipleChoices = jsonResponse.multiple_choices
-          allowMultiple = false // Default for now
+          allowMultiple = jsonResponse.allow_multiple || false
         }
-      } else if (jsonResponse.message) {
-        // Simple message-only response
-        console.log('📝 Using simple message-only parsing path')
-        aiMessage = jsonResponse.message
+      } 
+      // Fallback for unknown format
+      else {
+        console.log('⚠️ Unknown JSON format, using raw message')
+        aiMessage = jsonResponse.message || jsonResponse.question_template || JSON.stringify(jsonResponse)
       }
     } catch (error) {
       // Not JSON or invalid JSON - treat as regular text response
