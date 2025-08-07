@@ -111,7 +111,7 @@ export class OrganizationChatService {
       
       // Determine if setup is completed
       const finalSetupCompleted = isOnboarding 
-        ? (['setup_complete','onboarding_complete','onboarding_completed','completed'].includes(signalLower))
+        ? (['setup_complete','onboarding_complete','onboarding_completed','completed'].includes((aiResponse.statusSignal || '').toLowerCase()))
         : setupCompleted
       
       return {
