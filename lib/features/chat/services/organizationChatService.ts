@@ -302,57 +302,52 @@ export class OrganizationChatService {
   }
 
   /**
-   * Extract just the question from a full AI message
-   * Removes introductory text and keeps only the actual question
+   * Extract just the core business question from a full AI message using AI
+   * Removes introductory text, instructions, and choice lists - keeps only the essential question
    */
-  private extractQuestionFromMessage(fullMessage: string): string {
+  private async extractQuestionFromMessage(fullMessage: string): Promise<string> {
     try {
-      // Common patterns to identify the actual question
-      const questionPatterns = [
-        /.*\?$/,  // Ends with question mark
-        /.*:$/,   // Ends with colon
-        /.*\.$/   // Ends with period
-      ]
+      console.log('🤖 Using AI to extract core question from:', fullMessage.substring(0, 100) + '...')
       
-      // Split into sentences
-      const sentences = fullMessage.split(/[.!?]+/).map(s => s.trim()).filter(s => s.length > 0)
+      const { openAIService } = await import('@/lib/shared/services/OpenAIService')
       
-      // Find the last sentence that looks like a question
-      for (let i = sentences.length - 1; i >= 0; i--) {
-        const sentence = sentences[i].trim()
-        if (sentence.includes('?')) {
-          return sentence + '?'
+      const response = await openAIService.callChatCompletion([
+        {
+          role: 'system',
+          content: `Extract only the core business question from this message.`
+        },
+        {
+          role: 'user', 
+          content: fullMessage
         }
-      }
+      ], {
+        model: 'gpt-3.5-turbo',
+        maxTokens: 100,
+        temperature: 0
+      })
       
-      // If no question mark found, look for the last meaningful sentence
-      if (sentences.length > 0) {
-        const lastSentence = sentences[sentences.length - 1].trim()
-        if (lastSentence.length > 10) { // Avoid very short fragments
-          return lastSentence + (lastSentence.endsWith('?') ? '' : '?')
-        }
-      }
+      const extractedQuestion = response.trim()
+      console.log('✅ AI extracted question:', extractedQuestion)
       
-      // Fallback: return the full message if we can't extract
-      console.log('⚠️ Could not extract question from message, using full message')
-      return fullMessage
+      return extractedQuestion
       
     } catch (error) {
-      console.error('Error extracting question from message:', error)
-      return fullMessage
+      console.error('❌ Error extracting question with AI:', error)
+      console.log('⚠️ Falling back to original message')
+      return fullMessage // Fallback to original if AI extraction fails
     }
   }
 
   /**
    * Parse AI response and extract structured data
    */
-  private parseAIResponse(aiResponse: string): {
+  private async parseAIResponse(aiResponse: string): Promise<{
     aiMessage: string;
     businessQuestion: any | null;
     multipleChoices?: string[];
     allowMultiple: boolean;
     statusSignal: string | null;
-  } {
+  }> {
     // Initialize defaults
         let businessQuestion: any = null
         let aiMessage = aiResponse
@@ -411,8 +406,8 @@ export class OrganizationChatService {
         if (jsonResponse.field_name && jsonResponse.field_type) {
           console.log('📋 Extracting business question data for storage')
           
-          // Extract just the actual question from the full AI message
-          const extractedQuestion = this.extractQuestionFromMessage(jsonResponse.message)
+          // Extract just the actual question from the full AI message using AI
+          const extractedQuestion = await this.extractQuestionFromMessage(jsonResponse.message)
           
             businessQuestion = {
             question_template: extractedQuestion, // Store only the question, not the full response
@@ -515,7 +510,7 @@ export class OrganizationChatService {
       console.log('---END AI RESPONSE---')
       
       // Parse the AI response and extract structured data
-      const parsed = this.parseAIResponse(aiResponse)
+      const parsed = await this.parseAIResponse(aiResponse)
       const { aiMessage, businessQuestion, multipleChoices, allowMultiple, statusSignal } = parsed
       
       console.log('🔍 DEBUG: Parsed components:')
