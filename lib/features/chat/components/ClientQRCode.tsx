@@ -11,7 +11,7 @@ interface ClientQRCodeProps {
   onboardingProgress?: {
     totalQuestions: number
     answeredQuestions: number
-    progressPercentage: number
+    currentStage: string
   }
 }
 
@@ -97,35 +97,21 @@ export default function ClientQRCode({ organizationSlug, isOnboardingCompleted =
           Share this QR code with your customers so they can chat directly with your personalized Chayo assistant
         </p>
 
-        {/* Progress Indicator */}
+        {/* Setup Status Indicator */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-gray-700">
-              Business Setup Progress
+              Business Setup Status
             </span>
             <span className="text-sm text-gray-500">
-              {onboardingProgress?.progressPercentage || 0}% Complete
+              {isOnboardingCompleted ? 'Complete' : `Stage ${onboardingProgress?.currentStage?.replace('stage_', '') || '1'}`}
             </span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-3">
-            <div 
-              className={`h-3 rounded-full transition-all duration-500 ${
-                isOnboardingCompleted 
-                  ? 'bg-green-500' 
-                  : (onboardingProgress?.progressPercentage || 0) >= 70 
-                    ? 'bg-yellow-500' 
-                    : 'bg-red-500'
-              }`}
-              style={{ width: `${onboardingProgress?.progressPercentage || 0}%` }}
-            />
           </div>
           <div className="mt-2 text-xs text-gray-500">
             {isOnboardingCompleted ? (
               <span className="text-green-600 font-medium">✅ QR Code is ready to share!</span>
             ) : (
-              <span>
-                Complete your business setup to unlock the QR code
-              </span>
+              <span className="text-orange-600">⚙️ Setup in progress - Stage {onboardingProgress?.currentStage?.replace('stage_', '') || '1'}</span>
             )}
           </div>
         </div>

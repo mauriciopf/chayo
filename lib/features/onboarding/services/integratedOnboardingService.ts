@@ -16,7 +16,6 @@ export interface OnboardingProgress {
   totalQuestions: number
   answeredQuestions: number
   currentStage: string
-  progressPercentage: number
   isCompleted: boolean
   pendingQuestions: OnboardingQuestion[]
   stage1Completed: boolean
@@ -33,37 +32,6 @@ export class IntegratedOnboardingService {
     this.supabaseClient = supabaseClient || supabase
     this.setupCompletionService = new SetupCompletionService(supabaseClient)
     this.businessInfoService = new BusinessInfoService(supabaseClient)
-  }
-
-  /**
-   * Get onboarding state and initialize tracking if needed (atomic operation)
-   * This replaces the separate determineOnboardingState + initializeOnboarding flow
-   */
-  async getOrInitializeOnboardingState(
-    organizationId: string,
-    messages: Array<{ role: string; content: string }> = []
-  ): Promise<'PROCESSING' | 'COMPLETED'> {
-    try {
-      console.log('🔍 Getting/initializing onboarding state for org:', organizationId)
-      
-      // 1. Check completion status first (fastest check)
-      const progress = await this.getOnboardingProgress(organizationId)
-      if (progress.isCompleted) {
-        console.log('✅ Onboarding already completed')
-        return 'COMPLETED'
-      }
-
-      // 2. Ensure setup tracking exists (idempotent operation)
-      await this.setupCompletionService.getOrCreateSetupCompletion(organizationId)
-
-      // 3. Always return PROCESSING - AI will handle context intelligently
-      console.log('🔄 State: PROCESSING (AI will generate appropriate questions based on context)')
-      return 'PROCESSING'
-      
-    } catch (error) {
-      console.error('Error determining onboarding state:', error)
-      throw error
-    }
   }
 
 
@@ -106,12 +74,12 @@ export class IntegratedOnboardingService {
   }
 
   /**
-   * Get onboarding progress
+   * Get onboarding progress (creates setup tracking if needed)
    */
   async getOnboardingProgress(organizationId: string): Promise<OnboardingProgress> {
     try {
-      // Get setup completion status
-      const setupStatus = await this.setupCompletionService.getSetupStatus(organizationId)
+      // Get/create setup completion status (idempotent)
+      const setupStatus = await this.setupCompletionService.getOrCreateSetupCompletion(organizationId)
       const isCompleted = setupStatus?.setup_status === 'completed'
 
       // Get all questions (answered and unanswered)
@@ -126,7 +94,6 @@ export class IntegratedOnboardingService {
           totalQuestions: 0,
           answeredQuestions: 0,
           currentStage: 'stage_1',
-          progressPercentage: 0,
           isCompleted: false,
           pendingQuestions: [],
           stage1Completed: false,
@@ -159,49 +126,18 @@ export class IntegratedOnboardingService {
         ? Object.entries(stageCounts).sort(([,a], [,b]) => (b as number) - (a as number))[0][0]
         : 'stage_1'
       
-      // Calculate progress based on new stage structure:
-      // Stage 1: 2 questions (0% → 20%)
-      // Stage 2: up to 10 dynamic questions (20% → 80%) 
-      // Stage 3: 5 logistics questions (80% → 100%)
-      let progressPercentage = 0
-      if (isCompleted) {
-        progressPercentage = 100
-      } else {
-        const stage1Answered = stage1Questions.filter((q: any) => q.is_answered).length
-        const stage2Answered = stage2Questions.filter((q: any) => q.is_answered).length
-        const stage3Answered = stage3Questions.filter((q: any) => q.is_answered).length
-        
-        if (stage3Completed) {
-          progressPercentage = 100
-        } else if (stage2Completed) {
-          progressPercentage = 80
-        } else if (stage1Completed) {
-          progressPercentage = 20
-        } else {
-          // Calculate incremental progress within current stage
-          if (currentStage === 'stage_1' && stage1Questions.length > 0) {
-            // Stage 1: Each question = 10% (2 questions = 20% total)
-            progressPercentage = Math.round((stage1Answered / Math.max(stage1Questions.length, 2)) * 20)
-          } else if (currentStage === 'stage_2' && stage2Questions.length > 0) {
-            // Stage 2: 20% base + up to 60% more (each question = 6%)
-            progressPercentage = 20 + Math.round((stage2Answered / Math.max(stage2Questions.length, 10)) * 60)
-          } else if (currentStage === 'stage_3' && stage3Questions.length > 0) {
-            // Stage 3: 80% base + up to 20% more (each question = 4%)
-            progressPercentage = 80 + Math.round((stage3Answered / Math.max(stage3Questions.length, 5)) * 20)
-          } else {
-            progressPercentage = answeredQuestions > 0 ? 5 : 0
-          }
-        }
-      }
+
 
       // Get pending questions
       const pendingQuestions = await this.getPendingQuestions(organizationId)
+
+      // SYNCHRONIZE: Update setup_completion.current_stage if it changed
+      await this.synchronizeStageWithSetupCompletion(organizationId, currentStage)
 
       return {
         totalQuestions,
         answeredQuestions,
         currentStage,
-        progressPercentage,
         isCompleted,
         pendingQuestions,
         stage1Completed,
@@ -214,13 +150,62 @@ export class IntegratedOnboardingService {
         totalQuestions: 0,
         answeredQuestions: 0,
         currentStage: 'stage_1',
-        progressPercentage: 0,
         isCompleted: false,
         pendingQuestions: [],
         stage1Completed: false,
         stage2Completed: false,
         stage3Completed: false
       }
+    }
+  }
+
+  /**
+   * Synchronize the dynamically calculated stage with setup_completion table
+   * This ensures setup_completion.current_stage is always up-to-date for fast page refreshes
+   */
+  private async synchronizeStageWithSetupCompletion(organizationId: string, calculatedStage: string): Promise<void> {
+    try {
+      // Get current stage from setup_completion table
+      const setupStatus = await this.setupCompletionService.getSetupStatus(organizationId)
+      
+      if (!setupStatus) {
+        console.log('⚠️ No setup completion record found for organization:', organizationId)
+        return
+      }
+
+      const storedStage = setupStatus.current_stage
+      
+      // Get current answered questions count from business_info_fields
+      const { data: answeredFields, error: answeredError } = await this.supabaseClient
+        .from('business_info_fields')
+        .select('id')
+        .eq('organization_id', organizationId)
+        .eq('is_answered', true)
+
+      const currentAnsweredCount = answeredFields?.length || 0
+      const storedAnsweredCount = setupStatus.answered_questions
+
+      // Update if either stage or answered count changed
+      const needsStageUpdate = storedStage !== calculatedStage
+      const needsCountUpdate = storedAnsweredCount !== currentAnsweredCount
+
+      if (needsStageUpdate || needsCountUpdate) {
+        console.log(`🔄 STAGE SYNC: Updating setup_completion - Stage: "${storedStage}" → "${calculatedStage}", Answered: ${storedAnsweredCount} → ${currentAnsweredCount}`)
+        
+        await this.setupCompletionService.updateProgress(
+          organizationId,
+          currentAnsweredCount, // Update to current answered count
+          calculatedStage, // Update to new calculated stage
+          setupStatus.stage_progress || {} // Keep existing stage progress
+        )
+        
+        console.log(`✅ STAGE SYNC: Successfully synchronized - Stage: "${calculatedStage}", Answered: ${currentAnsweredCount}`)
+      } else {
+        console.log(`💚 STAGE SYNC: Everything up-to-date - Stage: "${calculatedStage}", Answered: ${currentAnsweredCount}`)
+      }
+    } catch (error) {
+      console.error('❌ Error synchronizing stage with setup_completion:', error)
+      // Don't throw - this is a sync operation, not critical for main flow
     }
   }
 

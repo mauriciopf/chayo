@@ -13,7 +13,7 @@ import OnboardingCompletion from '../../onboarding/components/OnboardingCompleti
 import { useBusinessModeChat } from '../hooks/useBusinessModeChat'
 import { Message, AuthState } from '../../../shared/types'
 import { ThinkingContext } from '../../../shared/services/ThinkingMessageService'
-import { OnboardingProgressData } from '../../onboarding/types'
+import { OnboardingProgressData } from '../../../shared/services/ThinkingMessageService'
 
 type ChatMode = 'business' | 'client'
 

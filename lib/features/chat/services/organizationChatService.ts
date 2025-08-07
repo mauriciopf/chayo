@@ -132,27 +132,16 @@ export class OrganizationChatService {
         locale
       }
       
-      // Get/initialize onboarding state atomically (no race conditions)
-        const { IntegratedOnboardingService } = await import('../../onboarding/services/integratedOnboardingService')
-        const onboardingService = new IntegratedOnboardingService()
-      const state = await onboardingService.getOrInitializeOnboardingState(organization.id, messages)
-      console.log(`🎯 Current onboarding state: ${state}`)
+      // Get onboarding progress and determine chat flow
+      const { IntegratedOnboardingService } = await import('../../onboarding/services/integratedOnboardingService')
+      const onboardingService = new IntegratedOnboardingService()
+      const progress = await onboardingService.getOnboardingProgress(organization.id)
+      const isOnboarding = !progress.isCompleted
       
-      // Handle each state with dedicated methods
-      let response: ChatResponse
+      console.log(`🎯 Onboarding status: ${isOnboarding ? 'PROCESSING' : 'COMPLETED'} (Stage: ${progress.currentStage})`)
       
-      switch (state) {
-        case 'PROCESSING':
-          response = await this.handleChatFlow(messages, context, true) // isOnboarding = true
-          break
-          
-        case 'COMPLETED':
-          response = await this.handleChatFlow(messages, context, false) // isOnboarding = false
-          break
-          
-        default:
-          throw new Error(`Unknown onboarding state: ${state}`)
-      }
+      // Handle chat flow based on onboarding completion
+      const response = await this.handleChatFlow(messages, context, isOnboarding)
       
       await this.storeConversation(messages, response.aiMessage, context)
       

@@ -13,10 +13,7 @@ export type ThinkingContext =
   | 'setup_finalization'
 
 export interface OnboardingProgressData {
-  totalQuestions: number
-  answeredQuestions: number
-  currentStage: string
-  progressPercentage: number
+  currentStage: 'stage_1' | 'stage_2' | 'stage_3'
   isCompleted: boolean
   currentQuestion?: string
   stage1Completed: boolean

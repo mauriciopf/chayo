@@ -41,14 +41,13 @@ export class SetupCompletionService {
         return existing
       }
 
-      // Create new record
-      const allQuestions = await YamlPromptLoader.getAllQuestions()
+      // Create new record for dynamic onboarding
       const { data: newRecord, error: createError } = await this.supabaseClient
         .from('setup_completion')
         .insert({
           organization_id: organizationId,
           setup_status: 'in_progress',
-          total_questions: allQuestions.length,
+          total_questions: 0, // Dynamic onboarding - no fixed question count
           answered_questions: 0,
           current_stage: 'stage_1',
           stage_progress: {},
@@ -243,31 +242,4 @@ export class SetupCompletionService {
     return data
   }
 
-  /**
-   * Get setup progress percentage
-   */
-  async getProgressPercentage(organizationId: string): Promise<number> {
-    try {
-      const status = await this.getSetupStatus(organizationId)
-      if (!status) {
-        return 0
-      }
-
-      if (status.setup_status === 'completed') {
-        return 100
-      }
-
-      const allQuestions = await YamlPromptLoader.getAllQuestions()
-      const totalQuestions = allQuestions.length
-      
-      if (totalQuestions === 0) {
-        return 0
-      }
-
-      return Math.round((status.answered_questions / totalQuestions) * 100)
-    } catch (error) {
-      console.error('Error calculating progress percentage:', error)
-      return 0
-    }
-  }
 } 

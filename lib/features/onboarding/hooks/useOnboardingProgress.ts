@@ -1,12 +1,9 @@
 import { useState, useEffect } from 'react'
-import { OnboardingProgressData } from '../types'
+import { OnboardingProgressData } from '../../../shared/services/ThinkingMessageService'
 
 export function useOnboardingProgress(organizationId?: string) {
   const [progress, setProgress] = useState<OnboardingProgressData>({
-    totalQuestions: 0,
-    answeredQuestions: 0,
     currentStage: 'stage_1',
-    progressPercentage: 0,
     isCompleted: false,
     stage1Completed: false,
     stage2Completed: false,
@@ -35,17 +32,12 @@ export function useOnboardingProgress(organizationId?: string) {
         console.log('📊 Onboarding API response:', {
           rawResponse: apiData,
           progressData,
-          totalQuestions: progressData.totalQuestions,
-          answeredQuestions: progressData.answeredQuestions,
-          progressPercentage: progressData.progressPercentage,
+          currentStage: progressData.currentStage,
           isCompleted: progressData.isCompleted
         })
         
-        const newProgress = {
-          totalQuestions: progressData.totalQuestions,
-          answeredQuestions: progressData.answeredQuestions,
-          currentStage: progressData.currentStage,
-          progressPercentage: progressData.progressPercentage,
+        const newProgress: OnboardingProgressData = {
+          currentStage: progressData.currentStage || 'stage_1',
           isCompleted: progressData.isCompleted,
           currentQuestion: undefined, // API doesn't return pending questions for client safety
           stage1Completed: progressData.stage1Completed,

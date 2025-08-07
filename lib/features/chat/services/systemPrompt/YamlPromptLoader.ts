@@ -122,56 +122,5 @@ ${questionFormatInstructions}`
     return config.fallback_prompt
   }
 
-  static async getAllQuestions(): Promise<Array<{
-    stage: string
-    name: string
-    type: string
-    question: string
-    field_name: string
-    options?: string[]
-    multiple?: boolean
-    other?: boolean
-  }>> {
-    const config = await this.loadConfig()
-    const questions: Array<{
-      stage: string
-      name: string
-      type: string
-      question: string
-      field_name: string
-      options?: string[]
-      multiple?: boolean
-      other?: boolean
-    }> = []
 
-    // Stage 1 questions
-    config.onboarding_stages.stage_1.questions.forEach(q => {
-      questions.push({
-        stage: 'stage_1',
-        name: q.name,
-        type: q.type,
-        question: q.question,
-        field_name: q.field_name,
-        options: q.options,
-        multiple: q.multiple,
-        other: q.other
-      })
-    })
-
-    // Stage 3 questions
-    config.onboarding_stages.stage_3.questions.forEach(q => {
-      questions.push({
-        stage: 'stage_3',
-        name: q.name,
-        type: q.type,
-        question: q.question,
-        field_name: q.field_name,
-        options: q.options,
-        multiple: q.multiple,
-        other: q.other
-      })
-    })
-
-    return questions
-  }
 } 
