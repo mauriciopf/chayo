@@ -532,28 +532,11 @@ export class OrganizationChatService {
           }
         }
       } 
-      // Legacy fallback for old question_template format (backward compatibility)
-      else if (jsonResponse.question_template && jsonResponse.field_name && jsonResponse.field_type) {
-        console.log('📝 Using legacy question_template fallback path')
-        businessQuestion = {
-          question_template: jsonResponse.question_template,
-          field_name: jsonResponse.field_name,
-          field_type: jsonResponse.field_type,
-          multiple_choices: jsonResponse.multiple_choices
-        }
-        
-        // Use conversational text if available, otherwise use the question template
-        aiMessage = conversationalText || jsonResponse.question_template
-        
-        if (jsonResponse.field_type === 'multiple_choice' && jsonResponse.multiple_choices) {
-          multipleChoices = jsonResponse.multiple_choices
-          allowMultiple = jsonResponse.allow_multiple || false
-        }
-      } 
-      // Fallback for unknown format
+      // Invalid format - must have 'message' field
       else {
-        console.log('⚠️ Unknown JSON format, using raw message')
-        aiMessage = jsonResponse.message || jsonResponse.question_template || JSON.stringify(jsonResponse)
+        console.error('❌ Invalid JSON format: missing required "message" field')
+        console.error('📋 Received:', jsonResponse)
+        aiMessage = 'I apologize, but there was a formatting error in my response. Please try again.'
       }
     } catch (error) {
       // Not JSON or invalid JSON - treat as regular text response

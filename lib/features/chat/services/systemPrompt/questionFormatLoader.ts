@@ -137,7 +137,6 @@ export class QuestionFormatLoader {
 
   /**
    * Generate the complete formatting instructions for AI prompts
-   * This replaces the old getMultipleChoiceFormattingInstructions function
    */
   static async getFormattingInstructions(): Promise<string> {
     const config = await this.loadConfig()
@@ -302,8 +301,7 @@ ${config.formatting_rules.quality_standards.map(standard => `- ${standard}`).joi
 }
 
 /**
- * Legacy compatibility function
- * Replaces the old getMultipleChoiceFormattingInstructions
+ * Get universal question format instructions for AI prompts
  */
 export async function getUniversalQuestionFormatInstructions(): Promise<string> {
   return QuestionFormatLoader.getFormattingInstructions()
