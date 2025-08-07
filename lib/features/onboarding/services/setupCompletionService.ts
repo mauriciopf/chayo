@@ -156,41 +156,7 @@ export class SetupCompletionService {
     }
   }
 
-  /**
-   * Process STATUS signals from AI response
-   */
-  async processCompletionSignal(organizationId: string, aiMessage: string): Promise<boolean> {
-    try {
-      // Check for stage-specific completion signals
-      if (aiMessage.includes('STATUS: stage_1_complete')) {
-        await this.markStageAsCompleted(organizationId, 'stage_1')
-      }
-      
-      if (aiMessage.includes('STATUS: stage_2_complete')) {
-        await this.markStageAsCompleted(organizationId, 'stage_2')
-      }
-      
-      if (aiMessage.includes('STATUS: stage_3_complete')) {
-        await this.markStageAsCompleted(organizationId, 'stage_3')
-      }
-
-      // Check if the message contains the final completion signal
-      if (aiMessage.includes('STATUS: setup_complete')) {
-        // Extract completion data from the message
-        const completionData = this.extractCompletionData(aiMessage)
-        
-        // Mark setup as completed
-        await this.markAsCompleted(organizationId, completionData)
-        
-        return true
-      }
-
-      return false
-    } catch (error) {
-      console.error('Error processing completion signal:', error)
-      return false
-    }
-  }
+  // Legacy processor removed. Use explicit statusSignal handling upstream.
 
   /**
    * Mark a specific stage as completed

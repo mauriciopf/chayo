@@ -85,8 +85,7 @@ export function useBusinessModeChat({
     console.log('🔄 Onboarding progress changed:', {
       isCompleted: onboardingProgress.isCompleted,
       currentStage: onboardingProgress.currentStage,
-      answeredQuestions: onboardingProgress.answeredQuestions,
-      totalQuestions: onboardingProgress.totalQuestions,
+      // answeredQuestions/totalQuestions removed from progress shape
       willShowProgress: !onboardingProgress.isCompleted
     })
     
