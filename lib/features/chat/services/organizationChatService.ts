@@ -47,9 +47,9 @@ export class OrganizationChatService {
       console.log(`📋 Found existing pending ${mode.toLowerCase()} question - returning it (no new generation needed)`)
       
       // Always return the existing pending question - never generate new ones when one exists
-      return {
-        aiMessage: existingQuestion.question_template,
-        multipleChoices: existingQuestion.multiple_choices || undefined,
+        return {
+          aiMessage: existingQuestion.question_template,
+          multipleChoices: existingQuestion.multiple_choices || undefined,
         allowMultiple: existingQuestion.allow_multiple || existingQuestion.field_type === 'multiple_choice',
         setupCompleted
       }
@@ -79,10 +79,21 @@ export class OrganizationChatService {
         const { IntegratedOnboardingService } = await import('../../onboarding/services/integratedOnboardingService')
         const onboardingService = new IntegratedOnboardingService()
         
-        await onboardingService.updateOnboardingProgress(
-          context.organization.id,
-          aiResponse.aiMessage
-        )
+        // If setup_complete signal, process it directly
+        if (aiResponse.statusSignal === 'setup_complete') {
+          console.log('✅ Setup complete signal detected - marking onboarding as completed')
+          // Create a message that the service will recognize
+          const messageWithSignal = `${aiResponse.aiMessage} STATUS: setup_complete`
+          await onboardingService.updateOnboardingProgress(
+            context.organization.id,
+            messageWithSignal
+          )
+      } else {
+          await onboardingService.updateOnboardingProgress(
+            context.organization.id,
+            aiResponse.aiMessage
+          )
+        }
       }
       
       // Determine if setup is completed
@@ -122,8 +133,8 @@ export class OrganizationChatService {
       }
       
       // Get/initialize onboarding state atomically (no race conditions)
-      const { IntegratedOnboardingService } = await import('../../onboarding/services/integratedOnboardingService')
-      const onboardingService = new IntegratedOnboardingService()
+        const { IntegratedOnboardingService } = await import('../../onboarding/services/integratedOnboardingService')
+        const onboardingService = new IntegratedOnboardingService()
       const state = await onboardingService.getOrInitializeOnboardingState(organization.id, messages)
       console.log(`🎯 Current onboarding state: ${state}`)
       
@@ -142,7 +153,7 @@ export class OrganizationChatService {
         default:
           throw new Error(`Unknown onboarding state: ${state}`)
       }
-
+      
       await this.storeConversation(messages, response.aiMessage, context)
       
       return {
@@ -230,41 +241,41 @@ export class OrganizationChatService {
    * Build enhanced system prompt with training context and onboarding progress
    */
   private async buildSystemPrompt(context: ChatContext, promptType: 'onboarding' | 'business'): Promise<string> {
-    // Get training context from embedding service
-    let trainingContext = ''
-    try {
-      const { embeddingService } = await import('../../../shared/services/embeddingService')
-      const memory = await embeddingService.getBusinessKnowledgeSummary(context.organization.id)
-      if (memory) {
-        trainingContext = memory
-      }
-    } catch (error) {
-      console.warn('Failed to get training context:', error)
-    }
+        // Get training context from embedding service
+        let trainingContext = ''
+        try {
+          const { embeddingService } = await import('../../../shared/services/embeddingService')
+          const memory = await embeddingService.getBusinessKnowledgeSummary(context.organization.id)
+          if (memory) {
+            trainingContext = memory
+          }
+        } catch (error) {
+          console.warn('Failed to get training context:', error)
+        }
 
-    // Use YAML loader for system prompts
-    const { YamlPromptLoader } = await import('./systemPrompt/YamlPromptLoader')
-    
-    // Determine if setup is completed based on promptType
-    // - 'onboarding' promptType: Check actual onboarding progress
-    // - 'business' promptType: Setup is considered completed (business operations mode)
-    let isSetupCompleted: boolean
-    let currentStage: string | undefined
-    
-    if (promptType === 'business') {
-      isSetupCompleted = true
-      currentStage = undefined // Business mode doesn't have stages
-    } else {
+        // Use YAML loader for system prompts
+        const { YamlPromptLoader } = await import('./systemPrompt/YamlPromptLoader')
+        
+        // Determine if setup is completed based on promptType
+        // - 'onboarding' promptType: Check actual onboarding progress
+        // - 'business' promptType: Setup is considered completed (business operations mode)
+        let isSetupCompleted: boolean
+        let currentStage: string | undefined
+        
+        if (promptType === 'business') {
+          isSetupCompleted = true
+          currentStage = undefined // Business mode doesn't have stages
+        } else {
       // For onboarding, always use onboarding prompt regardless of completion status
       // We still get the progress for currentStage context
-      const { IntegratedOnboardingService } = await import('../../onboarding/services/integratedOnboardingService')
-      const onboardingService = new IntegratedOnboardingService()
-      const progress = await onboardingService.getOnboardingProgress(context.organization.id)
+          const { IntegratedOnboardingService } = await import('../../onboarding/services/integratedOnboardingService')
+          const onboardingService = new IntegratedOnboardingService()
+          const progress = await onboardingService.getOnboardingProgress(context.organization.id)
       isSetupCompleted = false // Force onboarding prompt when promptType is 'onboarding'
-      currentStage = progress.currentStage
-    }
-    
-    console.log(`🎯 Using ${promptType} system prompt - isSetupCompleted: ${isSetupCompleted}`)
+          currentStage = progress.currentStage
+        }
+        
+        console.log(`🎯 Using ${promptType} system prompt - isSetupCompleted: ${isSetupCompleted}`)
     return await YamlPromptLoader.buildSystemPrompt(context.locale, trainingContext, isSetupCompleted, currentStage)
   }
 
@@ -343,42 +354,42 @@ export class OrganizationChatService {
     statusSignal: string | null;
   } {
     // Initialize defaults
-    let businessQuestion: any = null
-    let aiMessage = aiResponse
-    let multipleChoices: string[] | undefined = undefined
-    let allowMultiple = false
-    let statusSignal: string | null = null
-    
-    try {
-      // Try to extract JSON from the response, handling various formats
-      let jsonString = aiResponse.trim()
-      let conversationalText = ''
-      
-      // Remove markdown code blocks if present
-      const codeBlockMatch = jsonString.match(/```(?:json)?\s*([\s\S]*?)\s*```/)
-      if (codeBlockMatch) {
-        // Extract any text before the code block as conversational context
-        const beforeCodeBlock = jsonString.substring(0, jsonString.indexOf('```')).trim()
-        if (beforeCodeBlock) {
-          conversationalText = beforeCodeBlock
-        }
-        jsonString = codeBlockMatch[1].trim()
-      } else {
-        // Try to find JSON object boundaries if there's extra text
-        const jsonMatch = jsonString.match(/\{[\s\S]*\}/)
-        if (jsonMatch) {
-          // Extract any text before the JSON as conversational context
-          const beforeJson = jsonString.substring(0, jsonString.indexOf('{')).trim()
-          if (beforeJson) {
-            conversationalText = beforeJson
+        let businessQuestion: any = null
+        let aiMessage = aiResponse
+        let multipleChoices: string[] | undefined = undefined
+        let allowMultiple = false
+        let statusSignal: string | null = null
+        
+        try {
+          // Try to extract JSON from the response, handling various formats
+          let jsonString = aiResponse.trim()
+          let conversationalText = ''
+          
+          // Remove markdown code blocks if present
+          const codeBlockMatch = jsonString.match(/```(?:json)?\s*([\s\S]*?)\s*```/)
+          if (codeBlockMatch) {
+            // Extract any text before the code block as conversational context
+            const beforeCodeBlock = jsonString.substring(0, jsonString.indexOf('```')).trim()
+            if (beforeCodeBlock) {
+              conversationalText = beforeCodeBlock
+            }
+            jsonString = codeBlockMatch[1].trim()
+          } else {
+            // Try to find JSON object boundaries if there's extra text
+            const jsonMatch = jsonString.match(/\{[\s\S]*\}/)
+            if (jsonMatch) {
+              // Extract any text before the JSON as conversational context
+              const beforeJson = jsonString.substring(0, jsonString.indexOf('{')).trim()
+              if (beforeJson) {
+                conversationalText = beforeJson
+              }
+              jsonString = jsonMatch[0]
+            }
           }
-          jsonString = jsonMatch[0]
-        }
-      }
-      
-      // Attempt to parse the extracted JSON
-      const jsonResponse = JSON.parse(jsonString)
-      
+          
+          // Attempt to parse the extracted JSON
+          const jsonResponse = JSON.parse(jsonString)
+          
       console.log('📋 Parsed JSON response:', {
         hasMessage: !!jsonResponse.message,
         hasStatus: !!jsonResponse.status,
@@ -389,11 +400,11 @@ export class OrganizationChatService {
       // Universal format parsing - all responses should have a 'message' field
       if (jsonResponse.message) {
         console.log('📝 Using universal format parsing path')
-        aiMessage = jsonResponse.message
+            aiMessage = jsonResponse.message
         
         // Extract status signal if present
         if (jsonResponse.status) {
-          statusSignal = jsonResponse.status
+            statusSignal = jsonResponse.status
         }
         
         // Check if this is a structured question that needs storage
@@ -403,16 +414,16 @@ export class OrganizationChatService {
           // Extract just the actual question from the full AI message
           const extractedQuestion = this.extractQuestionFromMessage(jsonResponse.message)
           
-          businessQuestion = {
+            businessQuestion = {
             question_template: extractedQuestion, // Store only the question, not the full response
-            field_name: jsonResponse.field_name,
-            field_type: jsonResponse.field_type,
-            multiple_choices: jsonResponse.multiple_choices
-          }
-          
+              field_name: jsonResponse.field_name,
+              field_type: jsonResponse.field_type,
+              multiple_choices: jsonResponse.multiple_choices
+            }
+            
           // Handle multiple choice UI data
-          if (jsonResponse.field_type === 'multiple_choice' && jsonResponse.multiple_choices) {
-            multipleChoices = jsonResponse.multiple_choices
+            if (jsonResponse.field_type === 'multiple_choice' && jsonResponse.multiple_choices) {
+              multipleChoices = jsonResponse.multiple_choices
             allowMultiple = jsonResponse.allow_multiple || false
           }
         }
@@ -422,13 +433,13 @@ export class OrganizationChatService {
         console.error('❌ Invalid JSON format: missing required "message" field')
         console.error('📋 Received:', jsonResponse)
         aiMessage = 'I apologize, but there was a formatting error in my response. Please try again.'
-      }
-    } catch (error) {
-      // Not JSON or invalid JSON - treat as regular text response
-      // This is normal behavior when AI provides conversational responses
+          }
+        } catch (error) {
+          // Not JSON or invalid JSON - treat as regular text response
+          // This is normal behavior when AI provides conversational responses
       console.log('📝 JSON parsing failed, using raw response as text:', error instanceof Error ? error.message : String(error))
-      aiMessage = aiResponse
-    }
+          aiMessage = aiResponse
+        }
 
     return {
       aiMessage,
@@ -513,13 +524,13 @@ export class OrganizationChatService {
       console.log('  multipleChoices:', multipleChoices)
       console.log('  allowMultiple:', allowMultiple)
       console.log('  statusSignal:', statusSignal)
-      
-      const result = {
-        aiMessage: aiMessage, // Clean user-facing message
-        multipleChoices: multipleChoices,
-        allowMultiple: allowMultiple,
-        statusSignal: statusSignal
-      }
+        
+        const result = {
+          aiMessage: aiMessage, // Clean user-facing message
+          multipleChoices: multipleChoices,
+          allowMultiple: allowMultiple,
+          statusSignal: statusSignal
+        }
         
         console.log('🎯 Final result being returned:', {
           aiMessage: aiMessage?.substring(0, 100) + '...',
@@ -600,7 +611,7 @@ export class OrganizationChatService {
       
       const isRelevant = await businessInfoService.isBusinessRelevantInformation(
         userMessage, 
-        aiMessage, 
+        aiMessage,
         'embedding_storage'
       )
       
@@ -618,13 +629,13 @@ export class OrganizationChatService {
         const conversationText = `User: ${userMessage}\nAssistant: ${aiMessage}`
         
         await embeddingService.processBusinessConversations(
-          context.organization.id,
+              context.organization.id,
           [conversationText]
-        )
-      } else {
-        console.log('⏭️ Skipped storing conversation - not business relevant')
+            )
+        } else {
+          console.log('⏭️ Skipped storing conversation - not business relevant')
       }
-      
+
     } catch (error) {
       console.error('❌ Error in conversation storage:', error)
       // Don't throw to avoid breaking the chat flow
