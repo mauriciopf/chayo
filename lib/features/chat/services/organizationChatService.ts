@@ -291,6 +291,48 @@ export class OrganizationChatService {
   }
 
   /**
+   * Extract just the question from a full AI message
+   * Removes introductory text and keeps only the actual question
+   */
+  private extractQuestionFromMessage(fullMessage: string): string {
+    try {
+      // Common patterns to identify the actual question
+      const questionPatterns = [
+        /.*\?$/,  // Ends with question mark
+        /.*:$/,   // Ends with colon
+        /.*\.$/   // Ends with period
+      ]
+      
+      // Split into sentences
+      const sentences = fullMessage.split(/[.!?]+/).map(s => s.trim()).filter(s => s.length > 0)
+      
+      // Find the last sentence that looks like a question
+      for (let i = sentences.length - 1; i >= 0; i--) {
+        const sentence = sentences[i].trim()
+        if (sentence.includes('?')) {
+          return sentence + '?'
+        }
+      }
+      
+      // If no question mark found, look for the last meaningful sentence
+      if (sentences.length > 0) {
+        const lastSentence = sentences[sentences.length - 1].trim()
+        if (lastSentence.length > 10) { // Avoid very short fragments
+          return lastSentence + (lastSentence.endsWith('?') ? '' : '?')
+        }
+      }
+      
+      // Fallback: return the full message if we can't extract
+      console.log('⚠️ Could not extract question from message, using full message')
+      return fullMessage
+      
+    } catch (error) {
+      console.error('Error extracting question from message:', error)
+      return fullMessage
+    }
+  }
+
+  /**
    * Parse AI response and extract structured data
    */
   private parseAIResponse(aiResponse: string): {
@@ -357,8 +399,12 @@ export class OrganizationChatService {
         // Check if this is a structured question that needs storage
         if (jsonResponse.field_name && jsonResponse.field_type) {
           console.log('📋 Extracting business question data for storage')
+          
+          // Extract just the actual question from the full AI message
+          const extractedQuestion = this.extractQuestionFromMessage(jsonResponse.message)
+          
           businessQuestion = {
-            question_template: jsonResponse.message, // Use message as question template
+            question_template: extractedQuestion, // Store only the question, not the full response
             field_name: jsonResponse.field_name,
             field_type: jsonResponse.field_type,
             multiple_choices: jsonResponse.multiple_choices

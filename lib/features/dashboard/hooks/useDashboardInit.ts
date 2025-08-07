@@ -112,8 +112,8 @@ export function useDashboardInit(
             // Fallback message if API fails
             setInitialMessage({
               content: locale === 'es'
-                ? '¡Hola! Soy Chayo, tu asistente digital personalizada. Comencemos configurando tu negocio. ¿Cuál es el nombre de tu negocio?'
-                : 'Hello! I\'m Chayo, your personalized digital assistant. Let\'s start by setting up your business. What\'s the name of your business?'
+                ? '¡Hola! Soy Chayo, tu asistente digital personalizada. Permíteme ayudarte a configurar tu negocio.'
+                : 'Hello! I\'m Chayo, your personalized digital assistant. Let me help you set up your business profile.'
             })
           }
         } catch (error) {
@@ -121,8 +121,8 @@ export function useDashboardInit(
           // Fallback message
           setInitialMessage({
             content: locale === 'es'
-              ? '¡Hola! Soy Chayo, tu asistente digital personalizada. Comencemos configurando tu negocio. ¿Cuál es el nombre de tu negocio?'
-              : 'Hello! I\'m Chayo, your personalized digital assistant. Let\'s start by setting up your business. What\'s the name of your business?'
+              ? '¡Hola! Soy Chayo, tu asistente digital personalizada. Permíteme ayudarte a configurar tu negocio.'
+              : 'Hello! I\'m Chayo, your personalized digital assistant. Let me help you set up your business profile.'
           })
         }
         console.log('✅ Dashboard initialization complete')
