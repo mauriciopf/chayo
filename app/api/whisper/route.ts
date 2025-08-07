@@ -53,54 +53,32 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Audio file too large (max 25MB)' }, { status: 400 })
     }
 
-    // Prepare FormData for OpenAI Whisper API
-    const whisperFormData = new FormData()
-    whisperFormData.append('file', audioFile)
-    whisperFormData.append('model', 'whisper-1')
-    // Note: language auto-detection is default, no need to specify
-    whisperFormData.append('response_format', 'json')
-
-    // Call OpenAI Whisper API
-    const whisperResponse = await fetch('https://api.openai.com/v1/audio/transcriptions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-      },
-      body: whisperFormData,
-    })
-
-    if (!whisperResponse.ok) {
-      const errorData = await whisperResponse.json().catch(() => ({ error: 'Unknown error' }))
-      console.error('Whisper API error:', {
-        status: whisperResponse.status,
-        statusText: whisperResponse.statusText,
-        error: errorData
+    // Call OpenAI Whisper API using centralized service
+    try {
+      const { openAIService } = await import('@/lib/shared/services/OpenAIService')
+      const transcriptionText = await openAIService.transcribeAudio(audioFile, {
+        model: 'whisper-1',
+        responseFormat: 'json'
       })
       
-      if (whisperResponse.status === 429) {
-        return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 })
-      } else if (whisperResponse.status === 401) {
-        return NextResponse.json({ error: 'Authentication failed with OpenAI' }, { status: 500 })
-      } else {
-        return NextResponse.json({ 
-          error: `Speech recognition failed: ${errorData.error?.message || errorData.error || 'Unknown error'}` 
-        }, { status: 500 })
+      if (!transcriptionText) {
+        return NextResponse.json({ error: 'No speech detected in audio' }, { status: 400 })
       }
-    }
 
-    const transcription = await whisperResponse.json()
+      return NextResponse.json({ 
+        text: transcriptionText.trim(),
+        language: 'unknown' // The centralized service returns just text, not the full response
+      })
+
+    } catch (error) {
+      console.error('Whisper API error:', error)
+      return NextResponse.json({ 
+        error: `Speech recognition failed: ${error instanceof Error ? error.message : 'Unknown error'}` 
+      }, { status: 500 })
+    }
     
-    if (!transcription.text) {
-      return NextResponse.json({ error: 'No speech detected in audio' }, { status: 400 })
-    }
-
-    return NextResponse.json({ 
-      text: transcription.text.trim(),
-      language: transcription.language || 'unknown'
-    })
-
   } catch (error) {
-    console.error('Whisper API error:', error)
+    console.error('Whisper route error:', error)
     return NextResponse.json({ 
       error: `Internal server error: ${error instanceof Error ? error.message : 'Unknown error'}` 
     }, { status: 500 })

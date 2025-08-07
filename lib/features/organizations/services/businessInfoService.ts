@@ -1,6 +1,5 @@
 import { supabase } from '@/lib/shared/supabase/client'
 import { generateSlugFromName } from '@/lib/shared/utils/text'
-import OpenAI from 'openai'
 
 export interface BusinessInfoField {
   id?: string
@@ -388,22 +387,19 @@ GENERAL EVALUATION: Standard business relevance assessment for data quality.
 Priority: Maintain high-quality business knowledge base without clutter.`
       }
 
-      // Use AI to evaluate relevance  
-      const client = new OpenAI({
-        apiKey: process.env.OPENAI_API_KEY
-      })
-
-      const response = await client.chat.completions.create({
+      // Use AI to evaluate relevance via centralized service
+      const { openAIService } = await import('../../../shared/services/OpenAIService')
+      
+      const aiResponse = await openAIService.callChatCompletion([
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: contentToAnalyze }
+      ], {
         model: 'gpt-3.5-turbo', // Fast and reliable for this classification task
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: contentToAnalyze }
-        ],
-        max_tokens: 5, // Just need "relevant" or "irrelevant"
+        maxTokens: 5, // Just need "relevant" or "irrelevant"
         temperature: 0, // Maximum consistency for binary classification
       })
 
-      const result = response.choices[0]?.message?.content?.toLowerCase().trim()
+      const result = aiResponse.toLowerCase().trim()
       
       // More robust parsing - check for relevant indicators
       const isRelevant = result ? result.includes('relevant') && !result.includes('irrelevant') : true

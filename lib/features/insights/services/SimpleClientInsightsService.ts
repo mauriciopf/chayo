@@ -36,10 +36,7 @@ export class SimpleClientInsightsService {
    */
   async extractIntent(conversationText: string): Promise<string> {
     try {
-      const { default: OpenAI } = await import('openai')
-      const openai = new OpenAI({
-        apiKey: process.env.OPENAI_API_KEY,
-      })
+      const { openAIService } = await import('../../../shared/services/OpenAIService')
 
       const prompt = `Analyze this customer message and return ONLY ONE WORD for what they want:
 
@@ -56,14 +53,15 @@ Rules:
 
 Answer:`
 
-      const response = await openai.chat.completions.create({
+      const aiResponse = await openAIService.callChatCompletion([
+        { role: 'user', content: prompt }
+      ], {
         model: 'gpt-4o-mini',
-        messages: [{ role: 'user', content: prompt }],
         temperature: 0.1,
-        max_tokens: 5
+        maxTokens: 5
       })
       
-      const intent = response.choices[0].message.content?.trim().toLowerCase() || 'other'
+      const intent = aiResponse.trim().toLowerCase() || 'other'
       
       // Validate response
       const validIntents = ['booking', 'pricing', 'support', 'complaint', 'other']

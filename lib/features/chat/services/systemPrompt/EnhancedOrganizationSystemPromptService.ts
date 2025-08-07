@@ -69,10 +69,7 @@ export class EnhancedOrganizationSystemPromptService {
     question: string
   ): Promise<{answered: boolean, answer?: string, confidence?: number}> {
     try {
-      const { default: OpenAI } = await import('openai')
-      const openai = new OpenAI({
-        apiKey: process.env.OPENAI_API_KEY,
-      })
+      const { openAIService } = await import('../../../shared/services/OpenAIService')
 
       const validationPrompt = `Analyze this conversation to determine if the user answered the question.
 
@@ -87,14 +84,13 @@ Respond with JSON only:
   "confidence": 0.0-1.0
 }`
 
-      const response = await openai.chat.completions.create({
+      const content = await openAIService.callChatCompletion([
+        { role: 'user', content: validationPrompt }
+      ], {
         model: 'gpt-4o-mini',
-        messages: [{ role: 'user', content: validationPrompt }],
         temperature: 0.1,
-        max_tokens: 200
+        maxTokens: 200
       })
-
-      const content = response.choices[0].message.content?.trim()
       
       if (!content) {
         return { answered: false }

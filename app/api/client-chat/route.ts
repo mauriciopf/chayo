@@ -47,38 +47,22 @@ export async function POST(request: NextRequest) {
     ]
 
     // Check if OpenAI API key is available
-    if (!process.env.OPENAI_API_KEY) {
-      console.warn('OpenAI API key not available')
-      return NextResponse.json({
-        response: 'Lo siento, el servicio de chat no está disponible en este momento. Por favor, intenta más tarde.'
-      })
-    }
-
-    // Call OpenAI
+    // Call OpenAI using centralized service
     console.log('🚀 Calling OpenAI API...')
-    const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
+    let rawResponse: string
+    try {
+      const { openAIService } = await import('@/lib/shared/services/OpenAIService')
+      rawResponse = await openAIService.callChatCompletion(openAIMessages, {
         model: 'gpt-4o-mini',
-        messages: openAIMessages,
-        max_tokens: 500,
+        maxTokens: 500,
         temperature: 0.7,
-      }),
-    })
-
-    if (!openAIResponse.ok) {
-      console.error('❌ OpenAI API error:', openAIResponse.status, await openAIResponse.text())
+      }) || 'Lo siento, no pude generar una respuesta.'
+    } catch (error) {
+      console.error('❌ OpenAI API error:', error)
       return NextResponse.json({
         response: 'Lo siento, ocurrió un error. Por favor, intenta nuevamente.'
       })
     }
-
-    const openAIData = await openAIResponse.json()
-    const rawResponse = openAIData.choices[0]?.message?.content || 'Lo siento, no pude generar una respuesta.'
 
     // Parse intents from AI response using ToolIntentService
     const { content: assistantResponse, intents } = ToolIntentService.parseIntentsFromResponse(rawResponse)
@@ -97,8 +81,7 @@ export async function POST(request: NextRequest) {
       responseLength: assistantResponse.length,
       responsePreview: assistantResponse.substring(0, 100) + (assistantResponse.length > 100 ? '...' : ''),
       detectedIntents: intents,
-      validatedIntents: validatedIntents,
-      openAIUsage: openAIData.usage
+      validatedIntents: validatedIntents
     })
 
     // Store the conversation exchange for future reference

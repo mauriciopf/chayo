@@ -100,36 +100,25 @@ EXAMPLE FORMAT:
 
 Respond with ONLY the formatted summary, no additional text.`
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+    // Use centralized OpenAI service
+    const { openAIService } = await import('@/lib/shared/services/OpenAIService')
+    
+    const aiResponse = await openAIService.callChatCompletion([
+      {
+        role: 'system',
+        content: 'You are a professional business summary formatter. Format business data into clear, readable summaries.'
       },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are a professional business summary formatter. Format business data into clear, readable summaries.'
-          },
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
-        temperature: 0.3,
-        max_tokens: 1500
-      })
+      {
+        role: 'user',
+        content: prompt
+      }
+    ], {
+      model: 'gpt-4o-mini',
+      temperature: 0.3,
+      maxTokens: 1500
     })
 
-    if (!response.ok) {
-      console.warn('OpenAI API failed, using fallback formatter')
-      return fallbackFormatter(businessConstraints)
-    }
-
-    const data = await response.json()
-    return data.choices?.[0]?.message?.content || fallbackFormatter(businessConstraints)
+    return aiResponse || fallbackFormatter(businessConstraints)
 
   } catch (error) {
     console.error('AI formatting failed:', error)

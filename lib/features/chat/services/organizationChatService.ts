@@ -388,207 +388,213 @@ export class OrganizationChatService {
     }
   }
 
+  /**
+   * Build enhanced system prompt with training context and onboarding progress
+   */
+  private async buildSystemPrompt(context: ChatContext, promptType: 'onboarding' | 'business'): Promise<string> {
+    // Get training context from embedding service
+    let trainingContext = ''
+    try {
+      const { embeddingService } = await import('../../../shared/services/embeddingService')
+      const memory = await embeddingService.getBusinessKnowledgeSummary(context.organization.id)
+      if (memory) {
+        trainingContext = memory
+      }
+    } catch (error) {
+      console.warn('Failed to get training context:', error)
+    }
+
+    // Use YAML loader for system prompts
+    const { YamlPromptLoader } = await import('./systemPrompt/YamlPromptLoader')
+    
+    // Determine if setup is completed based on promptType
+    // - 'onboarding' promptType: Check actual onboarding progress
+    // - 'business' promptType: Setup is considered completed (business operations mode)
+    let isSetupCompleted: boolean
+    let currentStage: string | undefined
+    
+    if (promptType === 'business') {
+      isSetupCompleted = true
+      currentStage = undefined // Business mode doesn't have stages
+    } else {
+      // For onboarding, always use onboarding prompt regardless of completion status
+      // We still get the progress for currentStage context
+      const { IntegratedOnboardingService } = await import('../../onboarding/services/integratedOnboardingService')
+      const onboardingService = new IntegratedOnboardingService()
+      const progress = await onboardingService.getOnboardingProgress(context.organization.id)
+      isSetupCompleted = false // Force onboarding prompt when promptType is 'onboarding'
+      currentStage = progress.currentStage
+    }
+    
+    console.log(`🎯 Using ${promptType} system prompt - isSetupCompleted: ${isSetupCompleted}`)
+    return await YamlPromptLoader.buildSystemPrompt(context.locale, trainingContext, isSetupCompleted, currentStage)
+  }
+
+  /**
+   * Make OpenAI API call using centralized service
+   */
+  private async callOpenAI(systemPrompt: string, messages: ChatMessage[]): Promise<string> {
+    const { openAIService } = await import('../../../shared/services/OpenAIService')
+    
+    // Prepare messages with full conversation history
+    const chatMessages = [
+      { role: 'system' as const, content: systemPrompt },
+      ...messages.filter(m => m.role === 'user' || m.role === 'assistant').map(m => ({
+        role: m.role as 'user' | 'assistant',
+        content: m.content
+      }))
+    ]
+
+    return await openAIService.callChatCompletion(chatMessages, {
+      model: 'gpt-4o-mini',
+      temperature: 0.9,
+      maxTokens: 1000
+    })
+  }
+
+  /**
+   * Parse AI response and extract structured data
+   */
+  private parseAIResponse(aiResponse: string): {
+    aiMessage: string;
+    businessQuestion: any | null;
+    multipleChoices?: string[];
+    allowMultiple: boolean;
+    statusSignal: string | null;
+  } {
+    // Initialize defaults
+    let businessQuestion: any = null
+    let aiMessage = aiResponse
+    let multipleChoices: string[] | undefined = undefined
+    let allowMultiple = false
+    let statusSignal: string | null = null
+    
+    try {
+      // Try to extract JSON from the response, handling various formats
+      let jsonString = aiResponse.trim()
+      let conversationalText = ''
+      
+      // Remove markdown code blocks if present
+      const codeBlockMatch = jsonString.match(/```(?:json)?\s*([\s\S]*?)\s*```/)
+      if (codeBlockMatch) {
+        // Extract any text before the code block as conversational context
+        const beforeCodeBlock = jsonString.substring(0, jsonString.indexOf('```')).trim()
+        if (beforeCodeBlock) {
+          conversationalText = beforeCodeBlock
+        }
+        jsonString = codeBlockMatch[1].trim()
+      } else {
+        // Try to find JSON object boundaries if there's extra text
+        const jsonMatch = jsonString.match(/\{[\s\S]*\}/)
+        if (jsonMatch) {
+          // Extract any text before the JSON as conversational context
+          const beforeJson = jsonString.substring(0, jsonString.indexOf('{')).trim()
+          if (beforeJson) {
+            conversationalText = beforeJson
+          }
+          jsonString = jsonMatch[0]
+        }
+      }
+      
+      // Attempt to parse the extracted JSON
+      const jsonResponse = JSON.parse(jsonString)
+      
+      console.log('📋 Parsed JSON response:', {
+        hasMessage: !!jsonResponse.message,
+        hasStatus: !!jsonResponse.status,
+        hasQuestionTemplate: !!jsonResponse.question_template,
+        message: jsonResponse.message
+      })
+      
+      // Check for new onboarding format with status signals
+      if (jsonResponse.message && jsonResponse.status) {
+        // This is a structured onboarding response with status signal
+        console.log('📝 Using message + status parsing path')
+        aiMessage = jsonResponse.message
+        statusSignal = jsonResponse.status
+        
+        // If it includes question data, extract it for business question storage
+        if (jsonResponse.question_template && jsonResponse.field_name && jsonResponse.field_type) {
+          businessQuestion = {
+            question_template: jsonResponse.question_template,
+            field_name: jsonResponse.field_name,
+            field_type: jsonResponse.field_type,
+            multiple_choices: jsonResponse.multiple_choices
+          }
+          
+          if (jsonResponse.field_type === 'multiple_choice' && jsonResponse.multiple_choices) {
+            multipleChoices = jsonResponse.multiple_choices
+            allowMultiple = false // Default for now
+          }
+        }
+      } else if (jsonResponse.question_template && jsonResponse.field_name && jsonResponse.field_type) {
+        // Legacy structured question response (fallback)
+        console.log('📝 Using legacy question template parsing path')
+        businessQuestion = {
+          question_template: jsonResponse.question_template,
+          field_name: jsonResponse.field_name,
+          field_type: jsonResponse.field_type,
+          multiple_choices: jsonResponse.multiple_choices
+        }
+        
+        // Use conversational text if available, otherwise use the question template
+        aiMessage = conversationalText || jsonResponse.question_template
+        
+        if (jsonResponse.field_type === 'multiple_choice' && jsonResponse.multiple_choices) {
+          multipleChoices = jsonResponse.multiple_choices
+          allowMultiple = false // Default for now
+        }
+      } else if (jsonResponse.message) {
+        // Simple message-only response
+        console.log('📝 Using simple message-only parsing path')
+        aiMessage = jsonResponse.message
+      }
+    } catch (error) {
+      // Not JSON or invalid JSON - treat as regular text response
+      // This is normal behavior when AI provides conversational responses
+      console.log('📝 JSON parsing failed, using raw response as text:', error instanceof Error ? error.message : String(error))
+      aiMessage = aiResponse
+    }
+
+    return {
+      aiMessage,
+      businessQuestion,
+      multipleChoices,
+      allowMultiple,
+      statusSignal
+    }
+  }
+
   public async generateAndStoreAIResponse(messages: ChatMessage[], context: ChatContext, promptType: 'onboarding' | 'business' = 'onboarding'): Promise<{ aiMessage: string; backendMessage?: string; multipleChoices?: string[]; allowMultiple?: boolean; statusSignal?: string | null }> {
     console.log(`🔄 Starting AI response generation and storage with ${promptType} prompt...`)
-    
-    const apiKey = process.env.OPENAI_API_KEY
-    if (!apiKey) {
-      throw new Error('OpenAI API key not set')
-    }
     
     // Note: Pending questions are handled by validateAndUpdatePendingQuestions in processChat
     // This method should only generate new AI responses, not check for pending questions
     
-      // Generate enhanced system prompt with training hints
-      let systemPrompt: string
-      try {
-        // Get training context from embedding service
-        let trainingContext = ''
-        try {
-          const { embeddingService } = await import('../../../shared/services/embeddingService')
-          const memory = await embeddingService.getBusinessKnowledgeSummary(context.organization.id)
-          if (memory) {
-            trainingContext = memory
-          }
-        } catch (error) {
-          console.warn('Failed to get training context:', error)
-        }
-
-        // Use YAML loader for system prompts
-        const { YamlPromptLoader } = await import('./systemPrompt/YamlPromptLoader')
-        
-        // Determine if setup is completed based on promptType
-        // - 'onboarding' promptType: Check actual onboarding progress
-        // - 'business' promptType: Setup is considered completed (business operations mode)
-        let isSetupCompleted: boolean
-        let currentStage: string | undefined
-        
-        if (promptType === 'business') {
-          isSetupCompleted = true
-          currentStage = undefined // Business mode doesn't have stages
-        } else {
-          // For onboarding, always use onboarding prompt regardless of completion status
-          // We still get the progress for currentStage context
-          const { IntegratedOnboardingService } = await import('../../onboarding/services/integratedOnboardingService')
-          const onboardingService = new IntegratedOnboardingService()
-          const progress = await onboardingService.getOnboardingProgress(context.organization.id)
-          isSetupCompleted = false // Force onboarding prompt when promptType is 'onboarding'
-          currentStage = progress.currentStage
-        }
-        
-        console.log(`🎯 Using ${promptType} system prompt - isSetupCompleted: ${isSetupCompleted}`)
-        systemPrompt = await YamlPromptLoader.buildSystemPrompt(context.locale, trainingContext, isSetupCompleted, currentStage)
-      } catch (error) {
-        console.warn('Failed to get enhanced system prompt, aborting chat:', error)
-        return {
-          aiMessage: "I'm sorry, but I couldn't retrieve your business knowledge at this time. Please try again later or contact support if the problem persists."
-        }
-      }
-      
-      // Prepare messages with full conversation history
-      const chatMessages = [
-        { role: 'system', content: systemPrompt },
-        ...messages.filter(m => m.role === 'user' || m.role === 'assistant')
-      ]
+    // Generate enhanced system prompt with training hints
+    let systemPrompt: string
     try {
-      const openaiRes = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
-          'Cache-Control': 'no-cache'
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: chatMessages,
-          temperature: 0.9,
-          max_tokens: 1000
-        })
-      })
-      if (!openaiRes.ok) {
-        const errorData = await openaiRes.json().catch(() => ({ error: 'Unknown error' }))
-        // Handle specific OpenAI errors
-        if (openaiRes.status === 429) {
-          console.error('OpenAI quota exceeded:', errorData)
-          return {
-            aiMessage: "I apologize, but I'm currently experiencing high demand and cannot process your request right now. Please try again in a few minutes, or contact support if this issue persists."
-          }
-        } else if (openaiRes.status === 401) {
-          console.error('OpenAI API key invalid:', errorData)
-          return {
-            aiMessage: "I apologize, but there's a configuration issue with my AI service. Please contact support for assistance."
-          }
-        } else {
-          console.error('OpenAI API error:', errorData)
-          return {
-            aiMessage: "I apologize, but I'm experiencing technical difficulties right now. Please try again in a moment."
-          }
-        }
-      } else {
-        const data = await openaiRes.json()
-        const aiResponse = data.choices?.[0]?.message?.content || ''
-        
-
-        // Try to parse as JSON first (structured onboarding response)
-        let businessQuestion: any = null
-        let aiMessage = aiResponse
-        let multipleChoices: string[] | undefined = undefined
-        let allowMultiple = false
-        let statusSignal: string | null = null
-        
-        try {
-          // Try to extract JSON from the response, handling various formats
-          let jsonString = aiResponse.trim()
-          let conversationalText = ''
-          
-          // Remove markdown code blocks if present
-          const codeBlockMatch = jsonString.match(/```(?:json)?\s*([\s\S]*?)\s*```/)
-          if (codeBlockMatch) {
-            // Extract any text before the code block as conversational context
-            const beforeCodeBlock = jsonString.substring(0, jsonString.indexOf('```')).trim()
-            if (beforeCodeBlock) {
-              conversationalText = beforeCodeBlock
-            }
-            jsonString = codeBlockMatch[1].trim()
-          } else {
-            // Try to find JSON object boundaries if there's extra text
-            const jsonMatch = jsonString.match(/\{[\s\S]*\}/)
-            if (jsonMatch) {
-              // Extract any text before the JSON as conversational context
-              const beforeJson = jsonString.substring(0, jsonString.indexOf('{')).trim()
-              if (beforeJson) {
-                conversationalText = beforeJson
-              }
-              jsonString = jsonMatch[0]
-            }
-          }
-          
-          // Attempt to parse the extracted JSON
-          const jsonResponse = JSON.parse(jsonString)
-          
-          console.log('📋 Parsed JSON response:', {
-            hasMessage: !!jsonResponse.message,
-            hasStatus: !!jsonResponse.status,
-            hasQuestionTemplate: !!jsonResponse.question_template,
-            message: jsonResponse.message
-          })
-          
-          // Check for new onboarding format with status signals
-          if (jsonResponse.message && jsonResponse.status) {
-            // This is a structured onboarding response with status signal
-            console.log('📝 Using message + status parsing path')
-            aiMessage = jsonResponse.message
-            statusSignal = jsonResponse.status
-            
-            // If it includes question data, extract it for business question storage
-            if (jsonResponse.question_template && jsonResponse.field_name && jsonResponse.field_type) {
-              businessQuestion = {
-                question_template: jsonResponse.question_template,
-                field_name: jsonResponse.field_name,
-                field_type: jsonResponse.field_type,
-                multiple_choices: jsonResponse.multiple_choices
-              }
-              
-              if (jsonResponse.field_type === 'multiple_choice' && jsonResponse.multiple_choices) {
-                multipleChoices = jsonResponse.multiple_choices
-                allowMultiple = false // Default for now
-              }
-            }
-          } else if (jsonResponse.question_template && jsonResponse.field_name && jsonResponse.field_type) {
-            // Legacy structured question response (fallback)
-            console.log('📝 Using legacy question template parsing path')
-            businessQuestion = {
-              question_template: jsonResponse.question_template,
-              field_name: jsonResponse.field_name,
-              field_type: jsonResponse.field_type,
-              multiple_choices: jsonResponse.multiple_choices
-            }
-            
-            // Use conversational text if available, otherwise use the question template
-            aiMessage = conversationalText || jsonResponse.question_template
-            
-            if (jsonResponse.field_type === 'multiple_choice' && jsonResponse.multiple_choices) {
-              multipleChoices = jsonResponse.multiple_choices
-              allowMultiple = false // Default for now
-            }
-          } else if (jsonResponse.message) {
-            // Simple message-only response
-            console.log('📝 Using simple message-only parsing path')
-            aiMessage = jsonResponse.message
-          }
-        } catch (error) {
-          // Not JSON or invalid JSON - treat as regular text response
-          // This is normal behavior when AI provides conversational responses
-          console.log('📝 JSON parsing failed, using raw response as text:', error instanceof Error ? error.message : String(error))
-          aiMessage = aiResponse
-        }
-        
-        // If we have a status signal, append it to the message for backend processing
-        // but don't show it to the user
-        let backendMessage = aiMessage
-        if (statusSignal) {
-          backendMessage = `${aiMessage}\nSTATUS: ${statusSignal}`
-        }
+      systemPrompt = await this.buildSystemPrompt(context, promptType)
+    } catch (error) {
+      console.warn('Failed to get enhanced system prompt, aborting chat:', error)
+      return {
+        aiMessage: "I'm sorry, but I couldn't retrieve your business knowledge at this time. Please try again later or contact support if the problem persists."
+      }
+    }
+      
+    try {
+      const aiResponse = await this.callOpenAI(systemPrompt, messages)
+      
+      // Parse the AI response and extract structured data
+      const parsed = this.parseAIResponse(aiResponse)
+      const { aiMessage, businessQuestion, multipleChoices, allowMultiple, statusSignal } = parsed
+      
+      // If we have a status signal, append it to the message for backend processing
+      // but don't show it to the user
+      let backendMessage = aiMessage
+      if (statusSignal) {
+        backendMessage = `${aiMessage}\nSTATUS: ${statusSignal}`
+      }
         
         const result = {
           aiMessage: aiMessage, // Clean user-facing message
@@ -612,11 +618,10 @@ export class OrganizationChatService {
         }
         
         return result
-      }
     } catch (error) {
-      console.error('Error calling OpenAI API:', error)
+      console.error('Error in AI response generation:', error)
       return {
-        aiMessage: "I apologize, but I'm experiencing technical difficulties right now. Please try again in a moment."
+        aiMessage: error instanceof Error ? error.message : "I apologize, but I'm experiencing technical difficulties right now. Please try again in a moment."
       }
     }
   }
