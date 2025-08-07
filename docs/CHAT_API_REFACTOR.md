@@ -14,7 +14,6 @@ The chat API has been refactored into a modular, service-oriented architecture f
 - `getOrCreateOrganization()` - Organization management
 - `getOrCreateAgent()` - Agent management
 - `generateAIResponse()` - OpenAI integration
-- `updateWhatsAppTrialStatus()` - WhatsApp trial tracking
 - `storeConversation()` - RAG conversation storage
 
 **Benefits:**

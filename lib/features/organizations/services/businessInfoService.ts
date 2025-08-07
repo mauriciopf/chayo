@@ -279,26 +279,6 @@ export class BusinessInfoService {
   }
 
   /**
-   * Get the next pending question for an organization (stage-agnostic)
-   * Used in COMPLETED state for business operations
-   */
-  async getNextPendingQuestion(organizationId: string): Promise<BusinessInfoField | null> {
-    try {
-      const pendingQuestions = await this.getPendingQuestions(organizationId)
-      
-      console.log('🔍 Business pending questions:', pendingQuestions.length)
-      if (pendingQuestions.length > 0) {
-        console.log('🔍 Next business question:', pendingQuestions[0].question_template)
-      }
-
-      return pendingQuestions[0] || null
-    } catch (error) {
-      console.error('Error getting next pending question:', error)
-      return null
-    }
-  }
-
-  /**
    * Validate if content is relevant for business knowledge storage
    * @param userMessage - The user's message content (or single message for legacy usage)
    * @param aiMessage - The AI's response message content (optional for legacy usage)

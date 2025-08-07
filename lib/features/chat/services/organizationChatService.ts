@@ -31,169 +31,70 @@ export class OrganizationChatService {
   }
 
   /**
-   * Handle PROCESSING state - onboarding questions with intelligent flow
+   * Handle chat flow for both onboarding and business modes with unified logic
    */
-  private async handleProcessing(messages: ChatMessage[], context: ChatContext): Promise<ChatResponse> {
-    console.log('🔄 State: PROCESSING - Onboarding questions with intelligent flow')
+  private async handleChatFlow(messages: ChatMessage[], context: ChatContext, isOnboarding: boolean): Promise<ChatResponse> {
+    const mode = isOnboarding ? 'ONBOARDING' : 'BUSINESS'
+    const promptType = isOnboarding ? 'onboarding' : 'business'
+    const setupCompleted = !isOnboarding
     
-    // Initialize onboarding service (needed for onboarding questions)
-    const { IntegratedOnboardingService } = await import('../../onboarding/services/integratedOnboardingService')
-    const onboardingService = new IntegratedOnboardingService()
-
-    // Check if there's a pending onboarding question
-    const { businessInfoService } = await import('../../organizations/services/businessInfoService')
-    const existingQuestion = await businessInfoService.getNextPendingQuestion(context.organization.id)
+    console.log(`🔄 State: ${mode} - Unified chat flow with intelligent question management`)
+        
+    // Check if there's a pending question
+    const existingQuestion =await this.validateAndUpdatePendingQuestions(messages, context)
     
     if (existingQuestion) {
-      console.log('📋 Found existing pending onboarding question')
+      console.log(`📋 Found existing pending ${mode.toLowerCase()} question - returning it (no new generation needed)`)
       
-      // Check if user sent a message (responding to the pending question)
-      const userMessages = messages.filter(m => m.role === 'user')
-      
-      if (userMessages.length > 0) {
-        console.log('💬 User responded to pending onboarding question - processing response and generating next')
-        
-        // Process the user's response to the pending question
-        const assistantMessages = messages.filter(m => m.role === 'assistant')
-        
-        if (assistantMessages.length > 0) {
-          const lastUserMessage = userMessages[userMessages.length - 1].content
-          const lastAssistantMessage = assistantMessages[assistantMessages.length - 1].content
-          
-                  // Update onboarding progress with backend message (includes STATUS signals)
-        await onboardingService.updateOnboardingProgress(
-          context.organization.id,
-          lastAssistantMessage
-        )
-        }
-
-        // Generate the next onboarding question
-        const aiResponse = await this.generateAndStoreAIResponse(messages, context, 'onboarding')
-        
-        // If there's a new response with status signals, update onboarding progress
-        if (aiResponse.backendMessage && aiResponse.statusSignal) {
-          // Update progress with backend message (includes STATUS signals)
-          await onboardingService.updateOnboardingProgress(
-            context.organization.id,
-            aiResponse.backendMessage // Use backend message with STATUS signals
-          )
-        }
-        
-        // Check if setup is completed based on status signal or backend message
-        const setupCompleted = aiResponse.statusSignal === 'setup_complete' || 
-                               (aiResponse.backendMessage?.includes('STATUS: setup_complete') ?? false)
-        
-        return {
-          aiMessage: aiResponse.aiMessage, // Clean user-facing message
-          multipleChoices: aiResponse.multipleChoices,
-          allowMultiple: aiResponse.allowMultiple,
-          setupCompleted
-        }
-      } else {
-        console.log('⏳ No user response yet - returning existing pending onboarding question')
-        
-        // No user message, just return the existing pending question
-        return {
-          aiMessage: existingQuestion.question_template,
-          multipleChoices: existingQuestion.multiple_choices || undefined,
-          allowMultiple: existingQuestion.allow_multiple || false,
-          setupCompleted: false
-        }
-      }
-    } else {
-      console.log('🆕 No pending onboarding question - checking if completed or generating new question')
-      
-      // 🎯 CRITICAL: Check if onboarding is actually completed
-      const progress = await onboardingService.getOnboardingProgress(context.organization.id)
-      if (progress.isCompleted) {
-        console.log('✅ Onboarding completed - transitioning to business mode')
-        return await this.handleCompleted(messages, context)
-      }
-      
-      // No pending question and not completed, generate a new onboarding question
-      const aiResponse = await this.generateAndStoreAIResponse(messages, context, 'onboarding')
-      
-      // If there's a new response with status signals, update onboarding progress
-      if (aiResponse.backendMessage && aiResponse.statusSignal) {
-        // Get the last user message for progress update
-        const userMessages = messages.filter(m => m.role === 'user')
-        const lastUserMessage = userMessages[userMessages.length - 1]?.content || ''
-        
-        // Update onboarding progress with backend message (includes STATUS signals)
-        await onboardingService.updateOnboardingProgress(
-          context.organization.id,
-          aiResponse.backendMessage
-        )
-      }
-      
-      // Check if setup is completed based on status signal or backend message
-      const setupCompleted = aiResponse.statusSignal === 'setup_complete' || 
-                             (aiResponse.backendMessage?.includes('STATUS: setup_complete') ?? false)
-      
+      // Always return the existing pending question - never generate new ones when one exists
       return {
-        aiMessage: aiResponse.aiMessage, // Clean user-facing message
-        multipleChoices: aiResponse.multipleChoices,
-        allowMultiple: aiResponse.allowMultiple,
+        aiMessage: existingQuestion.question_template,
+        multipleChoices: existingQuestion.multiple_choices || undefined,
+        allowMultiple: existingQuestion.allow_multiple || existingQuestion.field_type === 'multiple_choice',
         setupCompleted
       }
-    }
-  }
-
-  /**
-   * Handle COMPLETED state - business operations mode with intelligent flow
-   */
-  private async handleCompleted(messages: ChatMessage[], context: ChatContext): Promise<ChatResponse> {
-    console.log('✅ State: COMPLETED - Business operations mode with intelligent flow')
-    
-    // Use BusinessInfoService for stage-agnostic pending question management
-    const { businessInfoService } = await import('../../organizations/services/businessInfoService')
-    
-    // Check if there's any pending business question (no stage logic needed)
-    const existingQuestion = await businessInfoService.getNextPendingQuestion(context.organization.id)
-    
-    if (existingQuestion) {
-      console.log('📋 Found existing pending business question')
-      
-      // Check if user sent a message (responding to the pending question)
-      const userMessages = messages.filter(m => m.role === 'user')
-      
-      if (userMessages.length > 0) {
-        console.log('💬 User responded to pending business question - processing response and generating next')
+    } else {
+      // No pending question - handle based on mode
+      if (isOnboarding) {
+        console.log('🆕 No pending onboarding question - checking if completed or generating new question')
         
-        // For business mode, we can process the response directly
-        // TODO: Add business-specific response processing if needed
+        // Check if onboarding is actually completed
+        const { IntegratedOnboardingService } = await import('../../onboarding/services/integratedOnboardingService')
+        const onboardingService = new IntegratedOnboardingService()
+        const progress = await onboardingService.getOnboardingProgress(context.organization.id)
         
-        // Generate the next business question or response
-        const aiResponse = await this.generateAndStoreAIResponse(messages, context, 'business')
-        
-        return {
-          aiMessage: aiResponse.aiMessage,
-          multipleChoices: aiResponse.multipleChoices,
-          allowMultiple: aiResponse.allowMultiple,
-          setupCompleted: true // Always true in business mode
+        if (progress.isCompleted) {
+          console.log('✅ Onboarding completed - transitioning to business mode')
+          return await this.handleChatFlow(messages, context, false) // Recursive call for business mode
         }
       } else {
-        console.log('⏳ No user response yet - returning existing pending business question')
-        
-        // No user message, just return the existing pending question
-        return {
-          aiMessage: existingQuestion.question_template,
-          multipleChoices: existingQuestion.multiple_choices || undefined,
-          allowMultiple: existingQuestion.field_type === 'multiple_choice', // Allow multiple for business multiple choice questions
-          setupCompleted: true // Always true in business mode
-        }
+        console.log('🆕 No pending business question - generating business conversation')
       }
-    } else {
-      console.log('🆕 No pending business question - generating business conversation')
       
-      // No pending question, generate business-focused conversation
-      const aiResponse = await this.generateAndStoreAIResponse(messages, context, 'business')
+      // Generate new question/response
+      const aiResponse = await this.generateAndStoreAIResponse(messages, context, promptType)
+      
+      // Handle onboarding-specific progress updates
+      if (isOnboarding && aiResponse.statusSignal) {
+        const { IntegratedOnboardingService } = await import('../../onboarding/services/integratedOnboardingService')
+        const onboardingService = new IntegratedOnboardingService()
+        
+        await onboardingService.updateOnboardingProgress(
+          context.organization.id,
+          aiResponse.aiMessage
+        )
+      }
+      
+      // Determine if setup is completed
+      const finalSetupCompleted = isOnboarding 
+        ? (aiResponse.statusSignal === 'setup_complete')
+        : setupCompleted
       
       return {
         aiMessage: aiResponse.aiMessage,
         multipleChoices: aiResponse.multipleChoices,
         allowMultiple: aiResponse.allowMultiple,
-        setupCompleted: true // Always true in business mode
+        setupCompleted: finalSetupCompleted
       }
     }
   }
@@ -231,22 +132,18 @@ export class OrganizationChatService {
       
       switch (state) {
         case 'PROCESSING':
-          response = await this.handleProcessing(messages, context)
+          response = await this.handleChatFlow(messages, context, true) // isOnboarding = true
           break
           
         case 'COMPLETED':
-          response = await this.handleCompleted(messages, context)
+          response = await this.handleChatFlow(messages, context, false) // isOnboarding = false
           break
           
         default:
           throw new Error(`Unknown onboarding state: ${state}`)
       }
-      
-      // Update WhatsApp trial status if mentioned (use backend message for full context)
-      const messageForAnalysis = (response as any).backendMessage || response.aiMessage
-      if (messageForAnalysis) {
-        await this.updateWhatsAppTrialStatus(messageForAnalysis, context)
-      }
+
+      await this.storeConversation(messages, response.aiMessage, context)
       
       return {
         ...response,
@@ -256,6 +153,7 @@ export class OrganizationChatService {
       throw error
     }
   }
+  
   public async getOrCreateOrganization(user: any): Promise<any> {
     // First, check if user already owns an organization
     const { data: ownedOrg, error: ownedOrgError } = await this.supabaseClient
@@ -495,7 +393,7 @@ export class OrganizationChatService {
     }
   }
 
-  public async generateAndStoreAIResponse(messages: ChatMessage[], context: ChatContext, promptType: 'onboarding' | 'business' = 'onboarding'): Promise<{ aiMessage: string; backendMessage?: string; multipleChoices?: string[]; allowMultiple?: boolean; statusSignal?: string | null }> {
+  public async generateAndStoreAIResponse(messages: ChatMessage[], context: ChatContext, promptType: 'onboarding' | 'business' = 'onboarding'): Promise<{ aiMessage: string; multipleChoices?: string[]; allowMultiple?: boolean; statusSignal?: string | null }> {
     console.log(`🔄 Starting AI response generation and storage with ${promptType} prompt...`)
     
     // 🎯 CRITICAL FIX: When messages is empty (browser refresh), add context about previous questions
@@ -548,20 +446,12 @@ export class OrganizationChatService {
       const parsed = this.parseAIResponse(aiResponse)
       const { aiMessage, businessQuestion, multipleChoices, allowMultiple, statusSignal } = parsed
       
-      // If we have a status signal, append it to the message for backend processing
-      // but don't show it to the user
-      let backendMessage = aiMessage
-      if (statusSignal) {
-        backendMessage = `${aiMessage}\nSTATUS: ${statusSignal}`
+      const result = {
+        aiMessage: aiMessage, // Clean user-facing message
+        multipleChoices: multipleChoices,
+        allowMultiple: allowMultiple,
+        statusSignal: statusSignal
       }
-        
-        const result = {
-          aiMessage: aiMessage, // Clean user-facing message
-          backendMessage: backendMessage, // Message with STATUS signals for backend processing
-          multipleChoices: multipleChoices,
-          allowMultiple: allowMultiple,
-          statusSignal: statusSignal
-        }
         
         console.log('🎯 Final result being returned:', {
           aiMessage: aiMessage?.substring(0, 100) + '...',
@@ -586,35 +476,6 @@ export class OrganizationChatService {
     }
   }
 
-
-
-
-
-  private async updateWhatsAppTrialStatus(aiMessage: string, context: ChatContext): Promise<void> {
-    // Check if WhatsApp trial was mentioned
-    const whatsappTrialMentioned = aiMessage.toLowerCase().includes('whatsapp') && 
-                                  aiMessage.toLowerCase().includes('trial') && 
-                                  aiMessage.toLowerCase().includes('3-day')
-
-    // Update agent's business constraints if WhatsApp trial was mentioned
-    // This logic needs to be re-evaluated as agent is removed from context
-    // For now, we'll keep it as is, but it might need adjustment depending on new structure
-    // if (whatsappTrialMentioned && context.agent.business_constraints && !context.agent.business_constraints.whatsapp_trial_mentioned) {
-    //   try {
-    //     const updatedConstraints = {
-    //       ...context.agent.business_constraints,
-    //       whatsapp_trial_mentioned: true
-    //     }
-        
-    //     await this.supabase
-    //       .from('agents')
-    //       .update({ business_constraints: updatedConstraints })
-    //       .eq('id', context.agent.id)
-    //   } catch (error) {
-    //     console.warn('Failed to update agent WhatsApp trial status:', error)
-    //   }
-    // }
-  }
   /**
    * Validate and update any pending questions before generating new AI response
    * This prevents race conditions where questions might be marked as answered after the response is generated
@@ -625,13 +486,7 @@ export class OrganizationChatService {
       const businessInfoService = new (await import('../../organizations/services/businessInfoService')).BusinessInfoService()
       
       // Get the pending unanswered question
-      const { data: pendingQuestions } = await this.supabaseClient
-        .from('business_info_fields')
-        .select('id, question_template, field_name, field_type, multiple_choices, allow_multiple, is_answered')
-        .eq('organization_id', context.organization.id)
-        .eq('is_answered', false)
-        .order('created_at', { ascending: true })
-        .limit(1)
+      const pendingQuestions = await businessInfoService.getPendingQuestions(context.organization.id)
 
       if (pendingQuestions && pendingQuestions.length > 0) {
         const pendingQuestion = pendingQuestions[0]
