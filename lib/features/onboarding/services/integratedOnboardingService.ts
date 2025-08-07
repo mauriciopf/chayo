@@ -34,6 +34,22 @@ export class IntegratedOnboardingService {
     this.businessInfoService = new BusinessInfoService(supabaseClient)
   }
 
+  /** Normalize status signals coming from AI prompts */
+  private normalizeStatusSignal(signal?: string | null):
+    | 'setup_complete'
+    | 'stage_1_complete'
+    | 'stage_2_complete'
+    | 'stage_3_complete'
+    | null {
+    if (!signal) return null
+    const s = signal.toLowerCase().trim()
+    if (['setup_complete', 'onboarding_complete', 'onboarding_completed', 'completed'].includes(s)) return 'setup_complete'
+    if (['stage_1_complete', 'stage1_complete', 'stage_one_complete'].includes(s)) return 'stage_1_complete'
+    if (['stage_2_complete', 'stage2_complete', 'stage_two_complete'].includes(s)) return 'stage_2_complete'
+    if (['stage_3_complete', 'stage3_complete', 'stage_three_complete'].includes(s)) return 'stage_3_complete'
+    return null
+  }
+
 
 
   /**
@@ -213,13 +229,29 @@ export class IntegratedOnboardingService {
    * Update onboarding progress based on AI completion signals
    * SINGLE RESPONSIBILITY: Only handle progress tracking, not question management
    */
-  async updateOnboardingProgress(organizationId: string, aiMessage: string): Promise<{
+  async updateOnboardingProgress(
+    organizationId: string,
+    params: { statusSignal?: string | null; aiMessage?: string }
+  ): Promise<{
     isCompleted: boolean
     progress: OnboardingProgress
   }> {
     try {
-      // Check for completion signal in AI message
-      const isCompleted = await this.setupCompletionService.processCompletionSignal(organizationId, aiMessage)
+      const normalized = this.normalizeStatusSignal(params.statusSignal)
+
+      // Handle stage signals
+      if (normalized === 'stage_1_complete') {
+        await this.setupCompletionService.markStageAsCompleted(organizationId, 'stage_1')
+      } else if (normalized === 'stage_2_complete') {
+        await this.setupCompletionService.markStageAsCompleted(organizationId, 'stage_2')
+      } else if (normalized === 'stage_3_complete') {
+        await this.setupCompletionService.markStageAsCompleted(organizationId, 'stage_3')
+      }
+
+      // Handle full completion
+      const isCompleted = normalized === 'setup_complete'
+        ? await this.setupCompletionService.markAsCompleted(organizationId, { source: 'ai_signal' }).then(() => true)
+        : false
       
       if (isCompleted) {
         const progress = await this.getOnboardingProgress(organizationId)

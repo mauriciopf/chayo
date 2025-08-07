@@ -79,26 +79,39 @@ export class OrganizationChatService {
         const { IntegratedOnboardingService } = await import('../../onboarding/services/integratedOnboardingService')
         const onboardingService = new IntegratedOnboardingService()
         
-        // If setup_complete signal, process it directly
-        if (aiResponse.statusSignal === 'setup_complete') {
+        // Normalize completion signals coming from prompts
+        const completionSignals = new Set(['setup_complete', 'onboarding_complete', 'onboarding_completed', 'completed'])
+        const signalLower = (aiResponse.statusSignal || '').toLowerCase()
+        const isCompletionSignal = completionSignals.has(signalLower)
+
+        // If a completion signal, process it directly
+        if (isCompletionSignal) {
           console.log('✅ Setup complete signal detected - marking onboarding as completed')
-          // Create a message that the service will recognize
-          const messageWithSignal = `${aiResponse.aiMessage} STATUS: setup_complete`
           await onboardingService.updateOnboardingProgress(
             context.organization.id,
-            messageWithSignal
+            { statusSignal: 'setup_complete', aiMessage: aiResponse.aiMessage }
           )
-      } else {
+        } else {
           await onboardingService.updateOnboardingProgress(
             context.organization.id,
-            aiResponse.aiMessage
+            { statusSignal: aiResponse.statusSignal, aiMessage: aiResponse.aiMessage }
           )
+        }
+        
+        // After updating progress, re-check completion to avoid stale state until refresh
+        try {
+          const progressAfter = await onboardingService.getOnboardingProgress(context.organization.id)
+          if (progressAfter.isCompleted) {
+            console.log('🎯 Onboarding marked completed after update (no refresh required)')
+          }
+        } catch (e) {
+          console.warn('⚠️ Could not re-check onboarding progress after update:', e)
         }
       }
       
       // Determine if setup is completed
       const finalSetupCompleted = isOnboarding 
-        ? (aiResponse.statusSignal === 'setup_complete')
+        ? (['setup_complete','onboarding_complete','onboarding_completed','completed'].includes(signalLower))
         : setupCompleted
       
       return {
