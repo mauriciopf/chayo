@@ -4,15 +4,12 @@ import { useState, useEffect } from 'react'
 import QRCode from 'qrcode'
 import { motion } from 'framer-motion'
 import { AgentChannel } from '../../dashboard/services/dashboardInitService'
+import { OnboardingProgressData } from '../../../shared/services/ThinkingMessageService'
 
 interface ClientQRCodeProps {
   organizationSlug: string
   isOnboardingCompleted?: boolean
-  onboardingProgress?: {
-    totalQuestions: number
-    answeredQuestions: number
-    currentStage: string
-  }
+  onboardingProgress?: OnboardingProgressData
 }
 
 export default function ClientQRCode({ organizationSlug, isOnboardingCompleted = false, onboardingProgress }: ClientQRCodeProps) {
