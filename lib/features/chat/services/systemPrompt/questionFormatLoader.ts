@@ -114,7 +114,7 @@ export interface ContextualExamples {
  */
 export class QuestionFormatLoader {
   private static config: QuestionFormatConfig | null = null
-  private static configPath = path.join(__dirname, 'questionFormat.yaml')
+  private static configPath = path.join(process.cwd(), 'lib', 'features', 'chat', 'services', 'systemPrompt', 'questionFormat.yaml')
 
   /**
    * Load the question format configuration
