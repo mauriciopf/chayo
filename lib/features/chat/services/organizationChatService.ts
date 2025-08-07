@@ -525,6 +525,38 @@ export class OrganizationChatService {
 
   public async generateAndStoreAIResponse(messages: ChatMessage[], context: ChatContext, promptType: 'onboarding' | 'business' = 'onboarding'): Promise<{ aiMessage: string; backendMessage?: string; multipleChoices?: string[]; allowMultiple?: boolean; statusSignal?: string | null }> {
     console.log(`🔄 Starting AI response generation and storage with ${promptType} prompt...`)
+    
+    // 🎯 CRITICAL FIX: When messages is empty (browser refresh), add context about previous questions
+    let enhancedMessages = messages
+    if (messages.length === 0 && promptType === 'onboarding') {
+      console.log('📋 Empty messages detected - adding context about previous questions')
+      
+      // Get previously answered questions to provide context
+      const { IntegratedOnboardingService } = await import('../../onboarding/services/integratedOnboardingService')
+      const onboardingService = new IntegratedOnboardingService()
+      const { data: answeredQuestions } = await this.supabaseClient
+        .from('business_info_fields')
+        .select('field_name, question_template, field_value, is_answered')
+        .eq('organization_id', context.organization.id)
+        .eq('is_answered', true)
+        .order('created_at', { ascending: true })
+      
+      if (answeredQuestions && answeredQuestions.length > 0) {
+        // Create context message about what was already collected
+        const previousQuestionsContext = answeredQuestions
+          .map((q: any) => `Q: ${q.question_template}\nA: ${q.field_value}`)
+          .join('\n\n')
+        
+        enhancedMessages = [
+          {
+            role: 'system' as const,
+            content: `CONTEXT: The following onboarding questions have already been answered:\n\n${previousQuestionsContext}\n\nBased on this context, generate the next appropriate onboarding question. DO NOT repeat any of the above questions.`
+          }
+        ]
+        
+        console.log(`📋 Added context for ${answeredQuestions.length} previously answered questions`)
+      }
+    }
         
     // Generate enhanced system prompt with training hints
     let systemPrompt: string
@@ -538,7 +570,7 @@ export class OrganizationChatService {
     }
       
     try {
-      const aiResponse = await this.callOpenAI(systemPrompt, messages)
+      const aiResponse = await this.callOpenAI(systemPrompt, enhancedMessages)
       
       // Parse the AI response and extract structured data
       const parsed = this.parseAIResponse(aiResponse)
