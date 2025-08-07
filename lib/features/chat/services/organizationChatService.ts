@@ -20,7 +20,6 @@ export interface ChatContext {
 }
 
 export type OnboardingState = 
-  | 'NOT_STARTED'      // Fresh user, no questions yet
   | 'PROCESSING'       // Handle onboarding - check pending, process responses, generate questions
   | 'COMPLETED'        // All onboarding done, normal chat mode
 
@@ -29,34 +28,6 @@ export class OrganizationChatService {
 
   constructor(supabaseClient?: any) {
     this.supabaseClient = supabaseClient || supabase
-  }
-
-
-
-  /**
-   * Handle NOT_STARTED state - generate first onboarding question
-   */
-  private async handleNotStarted(context: ChatContext): Promise<ChatResponse> {
-    console.log('🏁 State: NOT_STARTED - Generating first onboarding question')
-    const aiResponse = await this.generateAndStoreAIResponse([], context, 'onboarding')
-    
-    console.log('🔍 AI Response received:', {
-      aiMessage: aiResponse.aiMessage?.substring(0, 100) + '...',
-      aiMessageLength: aiResponse.aiMessage?.length,
-      hasMultipleChoices: !!aiResponse.multipleChoices,
-      allowMultiple: aiResponse.allowMultiple
-    })
-    
-    if (!aiResponse.aiMessage || aiResponse.aiMessage.trim() === '') {
-      console.error('❌ Empty aiMessage returned from generateAndStoreAIResponse!')
-    }
-    
-    return {
-      aiMessage: aiResponse.aiMessage,
-      multipleChoices: aiResponse.multipleChoices,
-      allowMultiple: aiResponse.allowMultiple,
-      setupCompleted: false
-    }
   }
 
   /**
@@ -70,7 +41,8 @@ export class OrganizationChatService {
     const onboardingService = new IntegratedOnboardingService()
 
     // Check if there's a pending onboarding question
-    const existingQuestion = await onboardingService.getNextQuestion(context.organization.id)
+    const { businessInfoService } = await import('../../organizations/services/businessInfoService')
+    const existingQuestion = await businessInfoService.getNextPendingQuestion(context.organization.id)
     
     if (existingQuestion) {
       console.log('📋 Found existing pending onboarding question')
@@ -88,24 +60,22 @@ export class OrganizationChatService {
           const lastUserMessage = userMessages[userMessages.length - 1].content
           const lastAssistantMessage = assistantMessages[assistantMessages.length - 1].content
           
-          // Process the response with backend message (includes STATUS signals)
-          await onboardingService.processAIResponse(
-            context.organization.id,
-            lastAssistantMessage,
-            lastUserMessage
-          )
+                  // Update onboarding progress with backend message (includes STATUS signals)
+        await onboardingService.updateOnboardingProgress(
+          context.organization.id,
+          lastAssistantMessage
+        )
         }
 
         // Generate the next onboarding question
         const aiResponse = await this.generateAndStoreAIResponse(messages, context, 'onboarding')
         
-        // If there's a new response with status signals, process it with the onboarding service
+        // If there's a new response with status signals, update onboarding progress
         if (aiResponse.backendMessage && aiResponse.statusSignal) {
-          // Create a fake assistant message for processing
-          const processedResponse = await onboardingService.processAIResponse(
+          // Update progress with backend message (includes STATUS signals)
+          await onboardingService.updateOnboardingProgress(
             context.organization.id,
-            aiResponse.backendMessage, // Use backend message with STATUS signals
-            userMessages[userMessages.length - 1]?.content || ''
+            aiResponse.backendMessage // Use backend message with STATUS signals
           )
         }
         
@@ -131,22 +101,28 @@ export class OrganizationChatService {
         }
       }
     } else {
-      console.log('🆕 No pending onboarding question - generating new onboarding question')
+      console.log('🆕 No pending onboarding question - checking if completed or generating new question')
       
-      // No pending question, generate a new onboarding question
+      // 🎯 CRITICAL: Check if onboarding is actually completed
+      const progress = await onboardingService.getOnboardingProgress(context.organization.id)
+      if (progress.isCompleted) {
+        console.log('✅ Onboarding completed - transitioning to business mode')
+        return await this.handleCompleted(messages, context)
+      }
+      
+      // No pending question and not completed, generate a new onboarding question
       const aiResponse = await this.generateAndStoreAIResponse(messages, context, 'onboarding')
       
-      // If there's a new response with status signals, process it with the onboarding service
+      // If there's a new response with status signals, update onboarding progress
       if (aiResponse.backendMessage && aiResponse.statusSignal) {
-        // Get the last user message for processing
+        // Get the last user message for progress update
         const userMessages = messages.filter(m => m.role === 'user')
         const lastUserMessage = userMessages[userMessages.length - 1]?.content || ''
         
-        // Process the AI response with backend message (includes STATUS signals)
-        await onboardingService.processAIResponse(
+        // Update onboarding progress with backend message (includes STATUS signals)
+        await onboardingService.updateOnboardingProgress(
           context.organization.id,
-          aiResponse.backendMessage,
-          lastUserMessage
+          aiResponse.backendMessage
         )
       }
       
@@ -254,10 +230,6 @@ export class OrganizationChatService {
       let response: ChatResponse
       
       switch (state) {
-        case 'NOT_STARTED':
-          response = await this.handleNotStarted(context)
-          break
-          
         case 'PROCESSING':
           response = await this.handleProcessing(messages, context)
           break

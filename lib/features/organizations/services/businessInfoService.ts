@@ -10,6 +10,7 @@ export interface BusinessInfoField {
   is_answered: boolean
   question_template: string
   multiple_choices?: string[]
+  allow_multiple?: boolean
   confidence?: number
   source?: 'conversation' | 'document' | 'manual'
   created_at?: string

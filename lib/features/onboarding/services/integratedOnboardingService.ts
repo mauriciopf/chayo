@@ -42,7 +42,7 @@ export class IntegratedOnboardingService {
   async getOrInitializeOnboardingState(
     organizationId: string,
     messages: Array<{ role: string; content: string }> = []
-  ): Promise<'NOT_STARTED' | 'PROCESSING' | 'COMPLETED'> {
+  ): Promise<'PROCESSING' | 'COMPLETED'> {
     try {
       console.log('🔍 Getting/initializing onboarding state for org:', organizationId)
       
@@ -53,30 +53,11 @@ export class IntegratedOnboardingService {
         return 'COMPLETED'
       }
 
-      // 2. Check existing questions atomically (single DB query)
-      const { data: existingQuestions, error: questionsError } = await this.supabaseClient
-        .from('business_info_fields')
-        .select('id, field_name, is_answered')
-        .eq('organization_id', organizationId)
-      
-      if (questionsError) {
-        console.error('Error checking existing questions:', questionsError)
-        throw questionsError
-      }
-
-      const questionCount = existingQuestions?.length || 0
-      console.log(`📊 Found ${questionCount} existing questions`)
-
-      // 3. Ensure setup tracking exists (idempotent operation)
+      // 2. Ensure setup tracking exists (idempotent operation)
       await this.setupCompletionService.getOrCreateSetupCompletion(organizationId)
 
-      // 4. Determine state based on current reality
-      if (questionCount === 0 && messages.length === 0) {
-        console.log('🏁 State: NOT_STARTED (no questions, no messages)')
-        return 'NOT_STARTED'
-      }
-
-      console.log('🔄 State: PROCESSING (has questions or active conversation)')
+      // 3. Always return PROCESSING - AI will handle context intelligently
+      console.log('🔄 State: PROCESSING (AI will generate appropriate questions based on context)')
       return 'PROCESSING'
       
     } catch (error) {
@@ -244,15 +225,15 @@ export class IntegratedOnboardingService {
   }
 
   /**
-   * Process AI response and update progress
+   * Update onboarding progress based on AI completion signals
+   * SINGLE RESPONSIBILITY: Only handle progress tracking, not question management
    */
-  async processAIResponse(organizationId: string, aiMessage: string, userResponse: string): Promise<{
+  async updateOnboardingProgress(organizationId: string, aiMessage: string): Promise<{
     isCompleted: boolean
-    nextQuestion?: OnboardingQuestion
     progress: OnboardingProgress
   }> {
     try {
-      // Check for completion signal
+      // Check for completion signal in AI message
       const isCompleted = await this.setupCompletionService.processCompletionSignal(organizationId, aiMessage)
       
       if (isCompleted) {
@@ -263,73 +244,14 @@ export class IntegratedOnboardingService {
         }
       }
 
-      // Get current pending question
-      const pendingQuestions = await this.getPendingQuestions(organizationId)
-      const currentQuestion = pendingQuestions[0]
-
-      if (!currentQuestion) {
-        const progress = await this.getOnboardingProgress(organizationId)
-        return {
-          isCompleted: false,
-          progress
-        }
-      }
-
-      // Validate if the user answered the current question
-      const validationResult = await this.businessInfoService.validateAnswerWithAI(
-        userResponse,
-        currentQuestion.question_template
-      )
-
-      if (validationResult.answered && validationResult.answer) {
-        try {
-          // Update the question as answered
-          await this.businessInfoService.updateQuestionAsAnswered(
-            organizationId,
-            currentQuestion.field_name,
-            validationResult.answer,
-            validationResult.confidence || 0.8
-          )
-
-          // Update setup completion progress
-          const progress = await this.getOnboardingProgress(organizationId)
-          await this.setupCompletionService.updateProgress(
-            organizationId,
-            progress.answeredQuestions,
-            progress.currentStage,
-            { [currentQuestion.field_name]: validationResult.answer }
-          )
-
-          // Get next question
-          const nextQuestions = await this.getPendingQuestions(organizationId)
-          const nextQuestion = nextQuestions[0]
-
-          return {
-            isCompleted: false,
-            nextQuestion,
-            progress: await this.getOnboardingProgress(organizationId)
-          }
-        } catch (error) {
-          console.error('Error processing user response:', error)
-          // Return current progress even if update fails
-          const progress = await this.getOnboardingProgress(organizationId)
-          return {
-            isCompleted: false,
-            nextQuestion: currentQuestion,
-            progress
-          }
-        }
-      }
-
-      // Question not answered, return current progress
+      // Return current progress
       const progress = await this.getOnboardingProgress(organizationId)
       return {
         isCompleted: false,
-        nextQuestion: currentQuestion,
         progress
       }
     } catch (error) {
-      console.error('Error processing AI response:', error)
+      console.error('Error updating onboarding progress:', error)
       const progress = await this.getOnboardingProgress(organizationId)
       return {
         isCompleted: false,
@@ -338,24 +260,7 @@ export class IntegratedOnboardingService {
     }
   }
 
-  /**
-   * Get the next question to ask
-   */
-  async getNextQuestion(organizationId: string): Promise<OnboardingQuestion | null> {
-    try {
-      const pendingQuestions = await this.getPendingQuestions(organizationId)
-      
-      console.log('🔍 Pending questions:', pendingQuestions.length)
-      if (pendingQuestions.length > 0) {
-        console.log('🔍 Next question:', pendingQuestions[0].question_template)
-      }
 
-      return pendingQuestions[0] || null
-    } catch (error) {
-      console.error('Error getting next question:', error)
-      return null
-    }
-  }
 
   /**
    * Check if onboarding is completed
