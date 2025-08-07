@@ -1075,6 +1075,8 @@
     "stageDefaultDescription": "Setting up your business",
     "setupComplete": "🎉 You're all set!",
     "setupCompleteDescription": "Your digital assistant is ready to help your business grow. Let's start connecting with your customers!",
+    "completionBannerTitle": "Setup complete! ✨",
+    "completionBannerDescription": "Now that onboarding is done, let's start training your business model with real practice: I'll act as your customer and you'll reply as your business. Each response teaches your AI and makes it better at helping your customers.",
     "startUsing": "Start Using Chayo",
     "setupCompleteNote": "You can update your business details anytime by chatting with me.",
     "progressSteps": {

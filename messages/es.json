@@ -1101,6 +1101,8 @@
     "stageDefaultDescription": "Configurando tu negocio",
     "setupComplete": "🎉 ¡Todo listo!",
     "setupCompleteDescription": "Tu asistente digital está lista para ayudar a crecer tu negocio. ¡Empecemos a conectar con tus clientes!",
+    "completionBannerTitle": "¡Configuración completa! ✨",
+    "completionBannerDescription": "Ahora que terminaste la configuración, vamos a entrenar tu modelo de negocio con práctica real: yo actuaré como tu cliente y tú responderás como tu negocio. Cada respuesta entrena a tu IA y la hace mejor atendiendo a tus clientes.",
     "startUsing": "Comenzar a Usar Chayo",
     "setupCompleteNote": "Puedes actualizar los detalles de tu negocio en cualquier momento charlando conmigo.",
     "progressSteps": {

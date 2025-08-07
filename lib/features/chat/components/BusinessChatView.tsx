@@ -79,6 +79,7 @@ export default function BusinessChatView({
   onModeSwitch
 }: BusinessChatViewProps) {
   const t = useTranslations('chat')
+  const tOnboarding = useTranslations('onboarding')
 
   const {
     chatContext,
@@ -140,10 +141,10 @@ export default function BusinessChatView({
                 <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
                 <div>
                   <p className="text-sm text-green-800 font-medium">
-                    Setup Complete! ✨
+                    {tOnboarding('completionBannerTitle')}
                   </p>
                   <p className="text-xs text-green-600 mt-0.5">
-                    Your AI assistant is ready to help with client communications.
+                    {tOnboarding('completionBannerDescription')}
                   </p>
                 </div>
               </div>
