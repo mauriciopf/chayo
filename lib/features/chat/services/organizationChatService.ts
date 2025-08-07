@@ -399,7 +399,8 @@ export class OrganizationChatService {
     // 🎯 CRITICAL FIX: When messages is empty (browser refresh), add context about previous questions
     let enhancedMessages = messages
     if (messages.length === 0 && promptType === 'onboarding') {
-      console.log('📋 Empty messages detected - adding context about previous questions')
+      console.log('🔍 DEBUG: Empty messages detected - adding context about previous questions')
+      console.log('🔍 DEBUG: Original messages array:', JSON.stringify(messages, null, 2))
   
       // Get previously answered questions from business info service
       const { businessInfoService } = await import('../../organizations/services/businessInfoService')
@@ -411,15 +412,26 @@ export class OrganizationChatService {
           .map((q: any) => `Q: ${q.question_template}\nA: ${q.field_value}`)
           .join('\n\n')
         
+        const contextMessage = `CONTEXT: The following onboarding questions have already been answered:\n\n${previousQuestionsContext}\n\nBased on this context, generate the next appropriate onboarding question. DO NOT repeat any of the above questions.`
+        
         enhancedMessages = [
           {
             role: 'system' as const,
-            content: `CONTEXT: The following onboarding questions have already been answered:\n\n${previousQuestionsContext}\n\nBased on this context, generate the next appropriate onboarding question. DO NOT repeat any of the above questions.`
+            content: contextMessage
           }
         ]
         
-        console.log(`📋 Added context for ${answeredQuestions.length} previously answered questions`)
+        console.log(`✅ DEBUG: Added context for ${answeredQuestions.length} previously answered questions`)
+        console.log('📋 DEBUG: Context message created:')
+        console.log('---START CONTEXT---')
+        console.log(contextMessage)
+        console.log('---END CONTEXT---')
+        console.log('🔍 DEBUG: Enhanced messages array:', JSON.stringify(enhancedMessages, null, 2))
+      } else {
+        console.log('⚠️ DEBUG: No answered questions found - proceeding without context')
       }
+    } else {
+      console.log(`🔍 DEBUG: Not adding context - messages.length: ${messages.length}, promptType: ${promptType}`)
     }
         
     // Generate enhanced system prompt with training hints
@@ -434,11 +446,27 @@ export class OrganizationChatService {
     }
       
     try {
+      console.log('🤖 DEBUG: About to call OpenAI with:')
+      console.log('📋 System Prompt Preview:', systemPrompt.substring(0, 200) + '...')
+      console.log('📨 Messages being sent to OpenAI:', JSON.stringify(enhancedMessages, null, 2))
+      
       const aiResponse = await this.callOpenAI(systemPrompt, enhancedMessages)
+      
+      console.log('🤖 DEBUG: Raw AI response received:')
+      console.log('---START AI RESPONSE---')
+      console.log(aiResponse)
+      console.log('---END AI RESPONSE---')
       
       // Parse the AI response and extract structured data
       const parsed = this.parseAIResponse(aiResponse)
       const { aiMessage, businessQuestion, multipleChoices, allowMultiple, statusSignal } = parsed
+      
+      console.log('🔍 DEBUG: Parsed components:')
+      console.log('  aiMessage:', aiMessage)
+      console.log('  businessQuestion:', businessQuestion)
+      console.log('  multipleChoices:', multipleChoices)
+      console.log('  allowMultiple:', allowMultiple)
+      console.log('  statusSignal:', statusSignal)
       
       const result = {
         aiMessage: aiMessage, // Clean user-facing message

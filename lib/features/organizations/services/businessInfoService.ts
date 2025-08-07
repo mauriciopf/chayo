@@ -364,6 +364,8 @@ Priority: Maintain high-quality business knowledge base without clutter.`
    */
   async getAnsweredQuestions(organizationId: string): Promise<BusinessInfoField[]> {
     try {
+      console.log('🔍 DEBUG: Getting answered questions for organization:', organizationId)
+      
       const { data: answeredQuestions, error } = await this.supabaseClient
         .from('business_info_fields')
         .select('field_name, question_template, field_value, is_answered')
@@ -372,13 +374,22 @@ Priority: Maintain high-quality business knowledge base without clutter.`
         .order('created_at', { ascending: true })
 
       if (error) {
-        console.error('Error fetching answered questions:', error)
+        console.error('❌ Error fetching answered questions:', error)
         throw error
+      }
+
+      console.log(`📋 DEBUG: Found ${answeredQuestions?.length || 0} answered questions:`)
+      if (answeredQuestions && answeredQuestions.length > 0) {
+        answeredQuestions.forEach((q: any, index: number) => {
+          console.log(`  ${index + 1}. ${q.field_name}: "${q.question_template}" = "${q.field_value}"`)
+        })
+      } else {
+        console.log('  No answered questions found')
       }
 
       return answeredQuestions || []
     } catch (error) {
-      console.error('Error in getAnsweredQuestions:', error)
+      console.error('❌ Error in getAnsweredQuestions:', error)
       throw error
     }
   }
