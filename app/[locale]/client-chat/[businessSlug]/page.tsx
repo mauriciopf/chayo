@@ -73,8 +73,8 @@ async function updateOrganizationNameFromBusinessInfo(organizationId: string): P
 
 export default function ClientChatBusinessPage() {
   const params = useParams()
-  const businessSlug = params.businessSlug as string
-  const locale = params.locale as string
+  const businessSlug = (params as any)?.businessSlug as string
+  const locale = (params as any)?.locale as string
   const [agent, setAgent] = useState<Agent | null>(null)
   const [organization, setOrganization] = useState<Organization | null>(null)
   const [loading, setLoading] = useState(true)
