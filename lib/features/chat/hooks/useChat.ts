@@ -50,6 +50,7 @@ export function useChat({
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState<number | null>(null)
   const [previousLocale, setPreviousLocale] = useState<string>(locale)
+  const [currentPhase, setCurrentPhase] = useState<string | null>(null)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -145,58 +146,95 @@ export function useChat({
       // Get the current session for authentication
       const { data: { session } } = await supabase.auth.getSession()
       
-      const res = await fetch("/api/organization-chat", {
+      // Use SSE for streaming progress and final result
+      const es = new EventSource(`/api/organization-chat`, { withCredentials: true } as any)
+      // Send body via POST fallback if needed: We can’t with EventSource, so instead append payload as query
+      // To keep this minimal now, we’ll fall back to non-stream for non-SSE capable paths
+      // Simple approach: if SSE cannot carry payload, use fetch with Accept: text/event-stream
+      es.close()
+      const streamRes = await fetch('/api/organization-chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'text/event-stream'
+        },
         body: JSON.stringify({
           messages: updatedMessages.map(({ role, content }) => ({ 
-            role: role === "ai" ? "assistant" : role, 
-            content 
+            role: role === 'ai' ? 'assistant' : role,
+            content
           })),
           locale
         })
       })
-      
-      if (!res.ok) {
-        const data = await res.json()
-        setChatError(data.error || "Error sending message")
+
+      if (!streamRes.ok || !streamRes.body) {
+        try {
+          const data = await streamRes.json()
+          setChatError(data.error || 'Error sending message')
+        } catch {
+          setChatError('Error sending message')
+        }
         setChatLoading(false)
         return
       }
-      
-      const data = await res.json()
-      
-      // After receiving the API response:
-      // (No more selectedAgent logic)
-      
-      const aiMessage: Message = { 
-        id: Date.now().toString() + "-ai", 
-        role: "ai", 
-        content: data.aiMessage,
-        timestamp: new Date(),
-        multipleChoices: data.multipleChoices,
-        allowMultiple: data.allowMultiple
+
+      const reader = streamRes.body.getReader()
+      const decoder = new TextDecoder()
+      let buffer = ''
+      const processBuffer = () => {
+        const events = buffer.split('\n\n')
+        buffer = events.pop() || ''
+        for (const evt of events) {
+          const lines = evt.split('\n')
+          let eventName = 'message'
+          let dataLine = ''
+          for (const line of lines) {
+            if (line.startsWith('event: ')) eventName = line.slice(7)
+            if (line.startsWith('data: ')) dataLine += line.slice(6)
+          }
+          if (eventName === 'phase') {
+            try {
+              const data = JSON.parse(dataLine)
+              setCurrentPhase(data?.name || null)
+            } catch {}
+          } else if (eventName === 'result') {
+            try {
+              const data = JSON.parse(dataLine)
+              const aiMessage: Message = {
+                id: Date.now().toString() + '-ai',
+                role: 'ai',
+                content: data.aiMessage,
+                timestamp: new Date(),
+                multipleChoices: data.multipleChoices,
+                allowMultiple: data.allowMultiple
+              }
+              setMessages((msgs) => [...msgs, aiMessage])
+              setCurrentPhase(null)
+            } catch (e) {
+              console.error('Failed to parse result data', e)
+            }
+          } else if (eventName === 'error') {
+            try {
+              const err = JSON.parse(dataLine)
+              setChatError(err.message || 'Error')
+            } catch {
+              setChatError('Error')
+            }
+          }
+        }
       }
-      
-      console.log('🤖 Received AI response:', {
-        aiMessage: data.aiMessage?.substring(0, 50) + '...',
-        hasMultipleChoices: !!data.multipleChoices,
-        willAddToMessages: true
-      })
-      
-      setMessages((msgs) => {
-        const newMessages = [...msgs, aiMessage]
-        console.log('📝 Updated messages array:', {
-          totalMessages: newMessages.length,
-          lastMessage: newMessages[newMessages.length - 1]?.content?.substring(0, 30) + '...'
-        })
-        return newMessages
-      })
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buffer += decoder.decode(value, { stream: true })
+        processBuffer()
+      }
     } catch (err) {
       setChatError("Error sending message")
     } finally {
       setChatLoading(false)
+      setCurrentPhase(null)
     }
   }
 
@@ -281,6 +319,7 @@ export function useChat({
     setUploading,
     uploadProgress,
     setUploadProgress,
+    currentPhase,
     
     // Refs
     messagesEndRef,

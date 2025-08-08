@@ -43,6 +43,7 @@ interface ChatContainerProps {
   // Mode switching prop
   chatMode?: ChatMode;
   onModeSwitch?: (mode: ChatMode) => void;
+  currentPhase?: string | null;
 }
 
 export default function ChatContainer({
@@ -78,6 +79,7 @@ export default function ChatContainer({
   locale = 'en',
   chatMode: propChatMode,
   onModeSwitch
+  , currentPhase
 }: ChatContainerProps) {
   // Chat mode state - default to business mode, but allow override via props
   const [internalChatMode, setInternalChatMode] = useState<ChatMode>('business')
@@ -135,6 +137,7 @@ export default function ChatContainer({
           onNavigateToQR={onNavigateToQR}
           refreshOnboardingProgress={refreshOnboardingProgress}
           onModeSwitch={handleModeSwitch}
+          currentPhase={currentPhase}
         />
       ) : (
         // Client mode - requires agent and organization props

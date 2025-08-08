@@ -15,9 +15,10 @@ interface ChatMessagesProps {
   thinkingContext?: ThinkingContext
   onboardingProgress?: OnboardingProgressData
   organizationId?: string
+  currentPhase?: string | null
 }
 
-const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, chatLoading, chatError, onOptionSelect, thinkingContext = 'default', onboardingProgress, organizationId }) => {
+const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, chatLoading, chatError, onOptionSelect, thinkingContext = 'default', onboardingProgress, organizationId, currentPhase }) => {
     const t = useTranslations('chat')
   
 
@@ -75,6 +76,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, chatLoading, chat
                           className="text-sm text-gray-500 ml-2"
                           onboardingProgress={onboardingProgress}
                           organizationId={organizationId}
+                          currentPhase={currentPhase as any}
                         />
                       </div>
                     </div>

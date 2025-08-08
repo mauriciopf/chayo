@@ -33,7 +33,12 @@ export class OrganizationChatService {
   /**
    * Handle chat flow for both onboarding and business modes with unified logic
    */
-  private async handleChatFlow(messages: ChatMessage[], context: ChatContext, isOnboarding: boolean): Promise<ChatResponse> {
+  private async handleChatFlow(
+    messages: ChatMessage[],
+    context: ChatContext,
+    isOnboarding: boolean,
+    progressEmitter?: (event: string, data?: any) => void
+  ): Promise<ChatResponse> {
     const mode = isOnboarding ? 'ONBOARDING' : 'BUSINESS'
     const promptType = isOnboarding ? 'onboarding' : 'business'
     const setupCompleted = !isOnboarding
@@ -72,7 +77,7 @@ export class OrganizationChatService {
       }
       
       // Generate new question/response
-      const aiResponse = await this.generateAndStoreAIResponse(messages, context, promptType)
+      const aiResponse = await this.generateAndStoreAIResponse(messages, context, promptType, progressEmitter)
       
       // Handle onboarding-specific progress updates
       if (isOnboarding && aiResponse.statusSignal) {
@@ -128,7 +133,8 @@ export class OrganizationChatService {
    */
   async processChat(
     messages: ChatMessage[],
-    locale: string = 'en'
+    locale: string = 'en',
+    progressEmitter?: (event: string, data?: any) => void
   ): Promise<ChatResponse & { organization: any }> {
     try {
       // Get user and organization context
@@ -148,15 +154,18 @@ export class OrganizationChatService {
       // Get onboarding progress and determine chat flow
       const { IntegratedOnboardingService } = await import('../../onboarding/services/integratedOnboardingService')
       const onboardingService = new IntegratedOnboardingService()
+      progressEmitter?.('phase', { name: 'initializing' })
       const progress = await onboardingService.getOnboardingProgress(organization.id)
       const isOnboarding = !progress.isCompleted
       
       console.log(`🎯 Onboarding status: ${isOnboarding ? 'PROCESSING' : 'COMPLETED'} (Stage: ${progress.currentStage})`)
+      progressEmitter?.('phase', { name: 'checkingExistingQuestion', stage: progress.currentStage })
       
       // Handle chat flow based on onboarding completion
-      const response = await this.handleChatFlow(messages, context, isOnboarding)
+      const response = await this.handleChatFlow(messages, context, isOnboarding, progressEmitter)
       
       await this.storeConversation(messages, response.aiMessage, context)
+      progressEmitter?.('phase', { name: 'done' })
       
       return {
         ...response,
@@ -447,12 +456,18 @@ export class OrganizationChatService {
     }
   }
 
-  public async generateAndStoreAIResponse(messages: ChatMessage[], context: ChatContext, promptType: 'onboarding' | 'business' = 'onboarding'): Promise<{ aiMessage: string; multipleChoices?: string[]; allowMultiple?: boolean; statusSignal?: string | null }> {
+  public async generateAndStoreAIResponse(
+    messages: ChatMessage[],
+    context: ChatContext,
+    promptType: 'onboarding' | 'business' = 'onboarding',
+    progressEmitter?: (event: string, data?: any) => void
+  ): Promise<{ aiMessage: string; multipleChoices?: string[]; allowMultiple?: boolean; statusSignal?: string | null }> {
     console.log(`🔄 Starting AI response generation and storage with ${promptType} prompt...`)
     
     // 🎯 CRITICAL FIX: When messages is empty (browser refresh), add context about previous questions
     let enhancedMessages = messages
     if (messages.length === 0 && promptType === 'onboarding') {
+      progressEmitter?.('phase', { name: 'buildingContext' })
       console.log('🔍 DEBUG: Empty messages detected - adding context about previous questions')
       console.log('🔍 DEBUG: Original messages array:', JSON.stringify(messages, null, 2))
   
@@ -491,6 +506,7 @@ export class OrganizationChatService {
     // Generate enhanced system prompt with training hints
     let systemPrompt: string
     try {
+      progressEmitter?.('phase', { name: 'buildingPrompt', mode: promptType })
       systemPrompt = await this.buildSystemPrompt(context, promptType)
     } catch (error) {
       console.warn('Failed to get enhanced system prompt, aborting chat:', error)
@@ -504,6 +520,7 @@ export class OrganizationChatService {
       console.log('📋 System Prompt Preview:', systemPrompt.substring(0, 200) + '...')
       console.log('📨 Messages being sent to OpenAI:', JSON.stringify(enhancedMessages, null, 2))
       
+      progressEmitter?.('phase', { name: 'callingAI' })
       const aiResponse = await this.callOpenAI(systemPrompt, enhancedMessages)
       
       console.log('🤖 DEBUG: Raw AI response received:')
@@ -512,6 +529,7 @@ export class OrganizationChatService {
       console.log('---END AI RESPONSE---')
       
       // Parse the AI response and extract structured data
+      progressEmitter?.('phase', { name: 'parsingResponse' })
       const parsed = await this.parseAIResponse(aiResponse)
       const { aiMessage, businessQuestion, multipleChoices, allowMultiple, statusSignal } = parsed
       
@@ -539,6 +557,7 @@ export class OrganizationChatService {
         
         // Store the question if we have a valid business question
         if (businessQuestion) {
+          progressEmitter?.('phase', { name: 'updatingProfile', field: businessQuestion.field_name })
           const { businessInfoService } = await import('../../organizations/services/businessInfoService')
           await businessInfoService.storeBusinessQuestion(context.organization.id, businessQuestion)
         }

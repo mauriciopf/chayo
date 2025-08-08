@@ -208,6 +208,7 @@ function DashboardContent() {
             organizationId={auth.currentOrganization?.id}
             unlockQRCode={qrCodeLogic.unlockQRCode}
             onNavigateToQR={() => setActiveView('qrcode')}
+            currentPhase={chat.currentPhase}
             agent={auth.agents[0]}
             organization={auth.currentOrganization}
             locale={locale}
@@ -251,6 +252,7 @@ function DashboardContent() {
               }}
               onNavigateToQR={() => setActiveView('qrcode')}
               refreshOnboardingProgress={refreshOnboardingProgress}
+              currentPhase={chat.currentPhase}
               agent={auth.agents[0]}
               organization={auth.currentOrganization}
               locale={locale}

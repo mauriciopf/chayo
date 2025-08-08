@@ -10,6 +10,7 @@ interface ThinkingMessageProps {
   className?: string
   onboardingProgress?: OnboardingProgressData // Add onboarding data
   organizationId?: string // Add organization ID for real data
+  currentPhase?: string | null
 }
 
 export default function ThinkingMessage({ 
@@ -17,7 +18,8 @@ export default function ThinkingMessage({
   isVisible, 
   className = "text-sm text-gray-500 ml-2",
   onboardingProgress,
-  organizationId
+  organizationId,
+  currentPhase
 }: ThinkingMessageProps) {
   const [currentMessage, setCurrentMessage] = useState<string>('')
   const instanceIdRef = useRef<string>()
@@ -83,6 +85,16 @@ export default function ThinkingMessage({
       streamRef.current.updateContext(onboardingProgress)
     }
   }, [onboardingProgress])
+
+  // Update current phase to adjust messages
+  useEffect(() => {
+    if (!streamRef.current || !currentPhase) return
+    try {
+      if (typeof streamRef.current.updatePhase === 'function') {
+        streamRef.current.updatePhase(currentPhase)
+      }
+    } catch {}
+  }, [currentPhase])
 
   // Cleanup on unmount
   useEffect(() => {

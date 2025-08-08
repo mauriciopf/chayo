@@ -46,6 +46,7 @@ interface BusinessChatViewProps {
   onNavigateToQR?: () => void
   refreshOnboardingProgress?: () => void
   onModeSwitch?: (mode: ChatMode) => void
+  currentPhase?: string | null
 }
 
 export default function BusinessChatView({
@@ -192,6 +193,7 @@ export default function BusinessChatView({
               thinkingContext={getThinkingContext()}
               onboardingProgress={onboardingProgress}
               organizationId={organizationId}
+              currentPhase={currentPhase}
             />
           )
         })()}

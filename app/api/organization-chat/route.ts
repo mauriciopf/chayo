@@ -39,7 +39,46 @@ export async function POST(req: NextRequest) {
     // Sanitize messages and process chat
     const sanitizedMessages = validationService.sanitizeMessages(validatedRequest.messages)
     
-    // Process chat using the service's encapsulated logic
+    // If client requests SSE, stream progress events
+    const wantsSSE = req.headers.get('accept')?.includes('text/event-stream')
+    if (wantsSSE) {
+      const encoder = new TextEncoder()
+      const stream = new ReadableStream({
+        start: async (controller) => {
+          const emit = (event: string, data?: any) => {
+            const payload = `event: ${event}\n` + (data ? `data: ${JSON.stringify(data)}\n` : '') + '\n'
+            controller.enqueue(encoder.encode(payload))
+          }
+          try {
+            const response = await chatService.processChat(
+              sanitizedMessages,
+              validatedRequest.locale,
+              emit
+            )
+            emit('result', {
+              aiMessage: response.aiMessage,
+              multipleChoices: response.multipleChoices,
+              allowMultiple: response.allowMultiple,
+              agentChatLink: null
+            })
+            controller.close()
+          } catch (e:any) {
+            emit('error', { message: e?.message || 'Unknown error' })
+            controller.close()
+          }
+        }
+      })
+      return new Response(stream as any, {
+        headers: {
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache, no-transform',
+          Connection: 'keep-alive',
+          'X-Accel-Buffering': 'no'
+        }
+      })
+    }
+
+    // Process chat using the service's encapsulated logic (non-streaming)
     const response = await chatService.processChat(
       sanitizedMessages,
       validatedRequest.locale

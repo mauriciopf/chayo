@@ -12,6 +12,19 @@ export type ThinkingContext =
   | 'customer_workflow'
   | 'setup_finalization'
 
+export type ThinkingPhase =
+  | 'initializing'
+  | 'checkingExistingQuestion'
+  | 'buildingContext'
+  | 'buildingPrompt'
+  | 'retrievingKnowledge'
+  | 'callingAI'
+  | 'parsingResponse'
+  | 'updatingProfile'
+  | 'updatingProgress'
+  | 'switchingMode'
+  | 'done'
+
 export interface OnboardingProgressData {
   currentStage: 'stage_1' | 'stage_2' | 'stage_3'
   isCompleted: boolean
@@ -29,6 +42,7 @@ interface MessageStream {
   getCurrentIndex: () => number
   onMessageChange: (callback: (message: string, index: number, total: number) => void) => void
   updateContext: (progress: OnboardingProgressData) => void
+  updatePhase: (phase: string) => void
 }
 
 export class ThinkingMessageService {
@@ -54,176 +68,7 @@ export class ThinkingMessageService {
     }
   }
 
-  // Fetch real business info fields for intelligent context
-  private async fetchBusinessInfoFields(organizationId: string): Promise<any[]> {
-    try {
-      const response = await fetch(`/api/organizations/${organizationId}/business-info-fields`)
-      if (response.ok) {
-        const data = await response.json()
-        return data.fields || []
-      }
-    } catch (error) {
-      console.error('Error fetching business info fields:', error)
-    }
-    return []
-  }
-
-  // Generate intelligent messages based on real data like Cursor
-  private async generateIntelligentMessages(progress: OnboardingProgressData, organizationId?: string): Promise<string[]> {
-    if (progress.isCompleted) {
-      return ['🎉 Setup complete!', '✅ Your AI assistant is ready', '🚀 All systems operational']
-    }
-
-    if (!organizationId) {
-      return ['🤖 AI is thinking...', '💭 Processing your request...', '⚡ Working on it...']
-    }
-
-    try {
-      // Get real business info fields
-      const fields = await this.fetchBusinessInfoFields(organizationId)
-      
-      if (fields.length === 0) {
-        return [
-          '🧠 Analyzing your business needs...',
-          '💡 Preparing personalized questions...',
-          '📝 Setting up your profile...'
-        ]
-      }
-
-      // Find current/pending questions
-      const pendingFields = fields.filter((f: any) => !f.is_answered)
-      const answeredFields = fields.filter((f: any) => f.is_answered)
-      
-      if (pendingFields.length > 0) {
-        const currentField = pendingFields[0]
-        const fieldName = currentField.field_name || 'information'
-        
-        // Generate contextual messages based on actual field being processed
-        return this.generateFieldSpecificMessages(fieldName, currentField.question_template)
-      }
-
-      // If no pending, we're processing answers
-      if (answeredFields.length > 0) {
-        const lastField = answeredFields[answeredFields.length - 1]
-        return [
-          `✨ Processing your ${lastField.field_name}...`,
-          `🔍 Analyzing "${lastField.field_value}"...`,
-          `💡 Understanding your business better...`,
-          `📊 Updating your profile...`
-        ]
-      }
-
-    } catch (error) {
-      console.error('Error generating intelligent messages:', error)
-    }
-
-    // Fallback
-    return ['🤖 AI is thinking...', '💭 Processing...', '⚡ Working on it...']
-  }
-
-  // Generate messages based on actual field names - like Cursor's contextual intelligence
-  private generateFieldSpecificMessages(fieldName: string, questionTemplate?: string): string[] {
-    const field = fieldName.toLowerCase()
-    
-    // Business name related
-    if (field.includes('name') || field.includes('business')) {
-      return [
-        '✨ Processing your business identity...',
-        '🏷️ Understanding your brand name...',
-        '📝 Registering business information...',
-        '🔤 Analyzing business nomenclature...'
-      ]
-    }
-    
-    // Industry/type related
-    if (field.includes('industry') || field.includes('type') || field.includes('category')) {
-      return [
-        '🏢 Categorizing your business type...',
-        '📊 Understanding your industry sector...',
-        '🎯 Identifying business classification...',
-        '💼 Processing industry specifics...'
-      ]
-    }
-    
-    // Hours/schedule related
-    if (field.includes('hour') || field.includes('schedule') || field.includes('time')) {
-      return [
-        '⏰ Configuring operating hours...',
-        '📅 Setting up availability schedule...',
-        '🕐 Processing time preferences...',
-        '⏱️ Organizing business calendar...'
-      ]
-    }
-    
-    // Contact/communication related
-    if (field.includes('contact') || field.includes('phone') || field.includes('email') || field.includes('communication')) {
-      return [
-        '📞 Setting up communication channels...',
-        '💬 Configuring contact methods...',
-        '📧 Processing contact preferences...',
-        '🔗 Establishing connection protocols...'
-      ]
-    }
-    
-    // Location/address related
-    if (field.includes('location') || field.includes('address') || field.includes('city')) {
-      return [
-        '📍 Processing location details...',
-        '🗺️ Understanding your business location...',
-        '🏪 Setting up address information...',
-        '📌 Configuring geographic data...'
-      ]
-    }
-    
-    // Services related
-    if (field.includes('service') || field.includes('product') || field.includes('offer')) {
-      return [
-        '🛠️ Understanding your service offerings...',
-        '📋 Processing service descriptions...',
-        '💼 Analyzing business capabilities...',
-        '🎯 Learning value propositions...'
-      ]
-    }
-    
-    // Customer related
-    if (field.includes('customer') || field.includes('client') || field.includes('target')) {
-      return [
-        '👥 Understanding your customer base...',
-        '🎯 Analyzing target audience...',
-        '📊 Processing customer insights...',
-        '💡 Learning customer preferences...'
-      ]
-    }
-    
-    // Use question template for more context
-    if (questionTemplate) {
-      const template = questionTemplate.toLowerCase()
-      if (template.includes('describe')) {
-        return [
-          '📝 Processing your description...',
-          '💭 Understanding the details...',
-          '🔍 Analyzing your response...',
-          '📊 Building your profile...'
-        ]
-      }
-      if (template.includes('how many') || template.includes('number')) {
-        return [
-          '🔢 Processing numerical data...',
-          '📊 Analyzing quantities...',
-          '💯 Understanding scale...',
-          '📈 Computing metrics...'
-        ]
-      }
-    }
-    
-    // Generic field processing
-    return [
-      `✨ Processing ${fieldName.replace(/_/g, ' ')}...`,
-      `🔍 Analyzing your input...`,
-      `💡 Understanding the details...`,
-      `📊 Updating your profile...`
-    ]
-  }
+  // Removed field-specific and API-driven hints for simplicity
 
   private getContextualMessages(context: ThinkingContext): string[] {
     // Simple fallback messages for when real data isn't available
@@ -248,12 +93,7 @@ export class ThinkingMessageService {
     let currentIndex = 0
     
     // Initialize with default messages
-    if (onboardingProgress && organizationId) {
-      // This will be replaced with real data when start() is called
-      messages = ['🤖 AI is thinking...']
-    } else {
-      messages = this.getMessagesForContext(context)
-    }
+    messages = this.getMessagesForContext(context)
     
     // Initialize with first message
     this.currentMessages.set(instanceId, messages[0] || 'AI is thinking...')
@@ -264,18 +104,7 @@ export class ThinkingMessageService {
     const start = async () => {
       // Clear any existing interval for this instance
       this.stop(instanceId)
-      
-      // If we have onboarding progress and organization ID, fetch real intelligent messages
-      if (onboardingProgress && organizationId) {
-        try {
-          messages = await this.generateIntelligentMessages(onboardingProgress, organizationId)
-          this.messageArrays.set(instanceId, messages)
-        } catch (error) {
-          console.error('Error generating intelligent messages:', error)
-          messages = ['🤖 AI is thinking...', '💭 Processing...', '⚡ Working on it...']
-        }
-      }
-      
+      // Use whatever is already in the message array
       // Set initial message
       const initialMessage = messages[currentIndex] || 'AI is thinking...'
       this.currentMessages.set(instanceId, initialMessage)
@@ -321,10 +150,17 @@ export class ThinkingMessageService {
 
     const updateContext = async (progress: OnboardingProgressData) => {
       try {
-        // Generate new intelligent messages based on updated progress
-        const newMessages = organizationId 
-          ? await this.generateIntelligentMessages(progress, organizationId)
-          : this.getMessagesForContext('default')
+        // Simple stage-based defaults when no phase overrides are active
+        let newMessages: string[] = []
+        if (progress.isCompleted) {
+          newMessages = ['🎉 Setup complete!', '✅ Your AI assistant is ready']
+        } else {
+          const stage = progress.currentStage
+          if (stage === 'stage_1') newMessages = ['🧠 Getting the basics...', '✍️ Collecting essential details...']
+          else if (stage === 'stage_2') newMessages = ['🔎 Deep-diving into your services...', '📚 Gathering industry specifics...']
+          else if (stage === 'stage_3') newMessages = ['🔧 Finalizing preferences...', '📞 Configuring communication & logistics...']
+          else newMessages = this.getContextualMessages('default')
+        }
         
         // Update stored messages
         this.messageArrays.set(instanceId, newMessages)
@@ -349,6 +185,30 @@ export class ThinkingMessageService {
       }
     }
 
+    const updatePhase = (phase: string) => {
+      const map: Record<string, string[]> = {
+        initializing: ['🤖 Getting things ready...', '🔧 Preparing context...'],
+        checkingExistingQuestion: ['🔎 Checking pending questions...', '🧭 Looking for where we left off...'],
+        buildingContext: ['🧠 Summarizing what we already know...', '📋 Reviewing your answers...'],
+        buildingPrompt: ['✍️ Framing the next question...', '🧩 Structuring the assistant prompt...'],
+        retrievingKnowledge: ['📚 Reviewing your previous answers...', '🔎 Retrieving relevant info...'],
+        callingAI: ['🤝 Talking to the assistant...', '📡 Generating the best next step...'],
+        parsingResponse: ['🔍 Interpreting the response...', '🧪 Validating result...'],
+        updatingProfile: ['💾 Saving your business info...', '📊 Updating your profile...'],
+        updatingProgress: ['📈 Updating progress...', '🗂️ Advancing your onboarding...'],
+        switchingMode: ['🎭 Switching to role-play...', '🚀 Preparing training mode...'],
+        done: ['✅ Done', '🎉 Ready']
+      }
+      const msgs = map[phase]
+      if (msgs && msgs.length > 0) {
+        this.messageArrays.set(instanceId, msgs)
+        this.currentIndices.set(instanceId, 0)
+        const m = msgs[0]
+        this.currentMessages.set(instanceId, m)
+        this.notifyCallbacks(instanceId, m)
+      }
+    }
+
     return {
       start,
       stop,
@@ -356,7 +216,8 @@ export class ThinkingMessageService {
       getAllMessages,
       getCurrentIndex,
       onMessageChange,
-      updateContext
+      updateContext,
+      updatePhase
     }
   }
 
