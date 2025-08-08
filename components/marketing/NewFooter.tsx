@@ -12,7 +12,7 @@ export default function NewFooter() {
 
   const handleLanguageChange = (newLocale: string) => {
     // Get current path without locale prefix
-    const pathWithoutLocale = pathname.replace(/^\/[a-z]{2}/, '') || '/';
+    const pathWithoutLocale = (pathname || '').replace(/^\/[a-z]{2}/, '') || '/';
     router.push(`/${newLocale}${pathWithoutLocale}`);
   };
 

@@ -7,7 +7,7 @@ export default function ConditionalLanguageSelector() {
   const pathname = usePathname()
   
   // Don't show language selector on dashboard pages
-  const isDashboardPage = pathname.includes('/dashboard')
+  const isDashboardPage = pathname?.includes('/dashboard') ?? false
   
   if (isDashboardPage) {
     return null

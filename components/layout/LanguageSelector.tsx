@@ -19,7 +19,7 @@ export default function LanguageSelector() {
 
   const handleLanguageChange = (newLocale: string) => {
     // Remove the current locale from the pathname and add the new one
-    const pathWithoutLocale = pathname.replace(`/${locale}`, '') || '/'
+    const pathWithoutLocale = (pathname || '').replace(`/${locale}`, '') || '/'
     const newPath = `/${newLocale}${pathWithoutLocale === '/' ? '' : pathWithoutLocale}`
     
     router.push(newPath)
