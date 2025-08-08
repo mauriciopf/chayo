@@ -77,7 +77,8 @@ export default function BusinessChatView({
   unlockQRCode,
   onNavigateToQR,
   refreshOnboardingProgress,
-  onModeSwitch
+  onModeSwitch,
+  currentPhase
 }: BusinessChatViewProps) {
   const t = useTranslations('chat')
   const tOnboarding = useTranslations('onboarding')
