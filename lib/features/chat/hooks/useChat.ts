@@ -23,6 +23,7 @@ interface UseChatReturn {
   setUploading: (uploading: boolean) => void
   uploadProgress: number | null
   setUploadProgress: (progress: number | null) => void
+  currentPhase: string | null
   
   // Refs
   messagesEndRef: React.RefObject<HTMLDivElement>
