@@ -9,7 +9,7 @@ import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
 export default function BookAppointmentPage() {
-  const params = useParams()
+  const params = useParams<{ businessSlug: string; locale: string }>()
   const businessSlug = (params as any)?.businessSlug as string
   const locale = (params as any)?.locale as string
   const [organization, setOrganization] = useState<Organization | null>(null)

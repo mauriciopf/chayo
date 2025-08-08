@@ -38,9 +38,9 @@ interface SearchResponse {
 }
 
 export default function FAQsPage() {
-  const params = useParams()
+  const params = useParams<{ businessSlug: string }>()
   const router = useRouter()
-  const businessSlug = params.businessSlug as string
+  const businessSlug = (params as any)?.businessSlug as string
 
   const [faqs, setFAQs] = useState<FAQ[]>([])
   const [loading, setLoading] = useState(true)

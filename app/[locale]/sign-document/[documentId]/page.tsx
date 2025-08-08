@@ -16,8 +16,8 @@ interface DocumentData {
 }
 
 export default function SignDocumentPage() {
-  const params = useParams()
-  const documentId = params.documentId as string
+  const params = useParams<{ documentId: string }>()
+  const documentId = (params as any)?.documentId as string
   
   const [document, setDocument] = useState<DocumentData | null>(null)
   const [pdfUrl, setPdfUrl] = useState<string>('')

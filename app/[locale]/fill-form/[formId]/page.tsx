@@ -35,9 +35,9 @@ interface IntakeForm {
 }
 
 export default function FillFormPage() {
-  const params = useParams()
+  const params = useParams<{ formId: string }>()
   const router = useRouter()
-  const formId = params.formId as string
+  const formId = (params as any)?.formId as string
 
   const [form, setForm] = useState<IntakeForm | null>(null)
   const [loading, setLoading] = useState(true)

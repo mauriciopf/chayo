@@ -149,8 +149,8 @@ function DashboardContent() {
 
   // Handle URL params for plans
   useEffect(() => {
-    const showPlans = searchParams.get('showPlans')
-    const targetPlanParam = searchParams.get('targetPlan')
+    const showPlans = searchParams?.get?.('showPlans') ?? null
+    const targetPlanParam = searchParams?.get?.('targetPlan') ?? null
     
     if (showPlans === 'true' && !auth.loading && auth.user) {
       setShowPlansModal(true)
