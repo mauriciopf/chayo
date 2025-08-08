@@ -10,8 +10,8 @@ import Link from 'next/link'
 
 export default function BookAppointmentPage() {
   const params = useParams()
-  const businessSlug = params.businessSlug as string
-  const locale = params.locale as string
+  const businessSlug = (params as any)?.businessSlug as string
+  const locale = (params as any)?.locale as string
   const [organization, setOrganization] = useState<Organization | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
