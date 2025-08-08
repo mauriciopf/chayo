@@ -1078,6 +1078,7 @@
     "completionBannerTitle": "Setup complete! ✨",
     "completionBannerDescription": "Now that onboarding is done, let's start training your business model with real practice: I'll act as your customer and you'll reply as your business. Each response teaches your AI and makes it better at helping your customers.",
     "startUsing": "Start Using Chayo",
+    "startTrainingCta": "Start Training",
     "setupCompleteNote": "You can update your business details anytime by chatting with me.",
     "progressSteps": {
       "step1": "Getting to know you",

@@ -1104,6 +1104,7 @@
     "completionBannerTitle": "¡Configuración completa! ✨",
     "completionBannerDescription": "Ahora que terminaste la configuración, vamos a entrenar tu modelo de negocio con práctica real: yo actuaré como tu cliente y tú responderás como tu negocio. Cada respuesta entrena a tu IA y la hace mejor atendiendo a tus clientes.",
     "startUsing": "Comenzar a Usar Chayo",
+    "startTrainingCta": "Comenzar Entrenamiento",
     "setupCompleteNote": "Puedes actualizar los detalles de tu negocio en cualquier momento charlando conmigo.",
     "progressSteps": {
       "step1": "Conociéndote",

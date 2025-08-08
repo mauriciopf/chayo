@@ -92,7 +92,8 @@ export default function BusinessChatView({
     handleQuickReply,
     handleMultipleChoiceSelect,
     onContinueCompletion,
-    onNavigateToQR: businessNavigateToQR
+    onNavigateToQR: businessNavigateToQR,
+    refreshOnboardingProgress: refreshOnboardingProgressFromHook
   } = useBusinessModeChat({
     organizationId,
     setMessages,
@@ -101,6 +102,15 @@ export default function BusinessChatView({
     onNavigateToQR,
     refreshOnboardingProgress
   })
+
+  // React to switchingMode phase to refresh progress and flip UI immediately
+  React.useEffect(() => {
+    if (currentPhase === 'switchingMode') {
+      try {
+        refreshOnboardingProgressFromHook()
+      } catch {}
+    }
+  }, [currentPhase, refreshOnboardingProgressFromHook])
 
   return (
     <>
@@ -161,7 +171,7 @@ export default function BusinessChatView({
                 }}
                 className="inline-flex items-center px-3 py-1.5 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 transition-colors flex-shrink-0 ml-4"
               >
-                Start Using Chayo
+                {tOnboarding('startTrainingCta')}
                 <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>

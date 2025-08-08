@@ -108,6 +108,8 @@ export class OrganizationChatService {
           const progressAfter = await onboardingService.getOnboardingProgress(context.organization.id)
           if (progressAfter.isCompleted) {
             console.log('🎯 Onboarding marked completed after update (no refresh required)')
+            // Explicit phase to inform UI about mode switching
+            progressEmitter?.('phase', { name: 'switchingMode', from: 'onboarding', to: 'business' })
           }
         } catch (e) {
           console.warn('⚠️ Could not re-check onboarding progress after update:', e)
@@ -118,7 +120,20 @@ export class OrganizationChatService {
       const finalSetupCompleted = isOnboarding 
         ? (['setup_complete','onboarding_complete','onboarding_completed','completed'].includes((aiResponse.statusSignal || '').toLowerCase()))
         : setupCompleted
-      
+
+      // If onboarding just completed in this turn, switch prompts immediately and respond in business mode
+      if (isOnboarding && finalSetupCompleted) {
+        progressEmitter?.('phase', { name: 'switchingMode', from: 'onboarding', to: 'business' })
+        // Generate a business-mode response right away so the user sees training begin immediately
+        const businessResponse = await this.generateAndStoreAIResponse(messages, context, 'business', progressEmitter)
+        return {
+          aiMessage: businessResponse.aiMessage,
+          multipleChoices: businessResponse.multipleChoices,
+          allowMultiple: businessResponse.allowMultiple,
+          setupCompleted: true
+        }
+      }
+
       return {
         aiMessage: aiResponse.aiMessage,
         multipleChoices: aiResponse.multipleChoices,

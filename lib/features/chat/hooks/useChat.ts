@@ -210,6 +210,7 @@ export function useChat({
                 allowMultiple: data.allowMultiple
               }
               setMessages((msgs) => [...msgs, aiMessage])
+              // If setup just completed, we still clear phase; UI will rely on banner from completion flag
               setCurrentPhase(null)
             } catch (e) {
               console.error('Failed to parse result data', e)
