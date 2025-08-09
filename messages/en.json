@@ -1078,7 +1078,7 @@
     "completionBannerTitle": "Setup complete! ✨",
     "completionBannerDescription": "Now that onboarding is done, let's start training your business model with real practice: I'll act as your customer and you'll reply as your business. Each response teaches your AI and makes it better at helping your customers.",
     "startUsing": "Start Using Chayo",
-    "startTrainingCta": "Start Training",
+    "startTutorialCta": "Start Tutorial",
     "setupCompleteNote": "You can update your business details anytime by chatting with me.",
     "progressSteps": {
       "step1": "Getting to know you",
@@ -1220,6 +1220,83 @@
           "Location and contact info"
         ]
       }
+    }
+  },
+  "tutorial": {
+    "title": "How to Use Chayo",
+    "subtitle": "Learn everything you need to know about your AI business assistant",
+    "step": "Step",
+    "of": "of",
+    "complete": "complete",
+    "previous": "Previous",
+    "next": "Next",
+    "getStarted": "Get Started",
+    "interactiveDemo": "Interactive Demo",
+    "demoMessage1": "Hi! How can I help you with your business today?",
+    "demoMessage2": "I'd like to schedule an appointment for next week.",
+    "welcome": {
+      "title": "Welcome to Chayo",
+      "description": "Your AI business assistant that works 24/7 in both Spanish and English. Chayo helps you manage customers, schedule appointments, process payments, and grow your business.",
+      "feature1": "Available 24/7 for your customers",
+      "feature2": "Bilingual support (Spanish & English)",
+      "feature3": "Learns your business over time",
+      "feature4": "Integrates with your existing tools"
+    },
+    "chat": {
+      "title": "Smart Conversations",
+      "description": "Chayo engages with your customers naturally, understanding their needs and providing helpful responses based on your business information.",
+      "feature1": "Natural language processing",
+      "feature2": "Context-aware responses",
+      "feature3": "Personality matching your brand",
+      "feature4": "Escalation to human when needed"
+    },
+    "businessTraining": {
+      "title": "Training Your AI",
+      "description": "The more you interact with Chayo, the better it becomes at representing your business. Practice conversations help improve response quality.",
+      "feature1": "Role-play scenarios for training",
+      "feature2": "Real-time feedback and corrections",
+      "feature3": "Continuous learning from interactions",
+      "feature4": "Business knowledge expansion"
+    },
+    "tools": {
+      "title": "Business Tools",
+      "description": "Chayo comes with built-in tools to help manage different aspects of your business, from scheduling to payments.",
+      "feature1": "Appointment scheduling system",
+      "feature2": "Document management and signing",
+      "feature3": "Payment processing integration",
+      "feature4": "Customer intake forms"
+    },
+    "appointments": {
+      "title": "Appointment Management",
+      "description": "Let Chayo handle your scheduling. Customers can book appointments directly through chat, and you'll get notifications for confirmations.",
+      "feature1": "Calendar integration (Calendly, Google)",
+      "feature2": "Automatic booking confirmations",
+      "feature3": "Reminder notifications",
+      "feature4": "Rescheduling and cancellations"
+    },
+    "documents": {
+      "title": "Document Handling",
+      "description": "Upload documents that Chayo can reference, and enable customers to sign documents digitally right through the chat interface.",
+      "feature1": "Document upload and storage",
+      "feature2": "AI-powered document search",
+      "feature3": "Digital signature collection",
+      "feature4": "Automatic document delivery"
+    },
+    "payments": {
+      "title": "Payment Processing",
+      "description": "Collect payments seamlessly through multiple providers. Chayo can create payment links and guide customers through the payment process.",
+      "feature1": "Multiple payment providers (Stripe, PayPal, Square)",
+      "feature2": "Secure payment link generation",
+      "feature3": "Payment status tracking",
+      "feature4": "Automatic receipt delivery"
+    },
+    "insights": {
+      "title": "Business Insights",
+      "description": "Get valuable insights about your customer interactions, popular questions, and business performance through Chayo's analytics dashboard.",
+      "feature1": "Conversation analytics",
+      "feature2": "Customer interaction patterns",
+      "feature3": "Popular questions tracking",
+      "feature4": "Performance metrics and trends"
     }
   }
 }

@@ -1104,7 +1104,7 @@
     "completionBannerTitle": "¡Configuración completa! ✨",
     "completionBannerDescription": "Ahora que terminaste la configuración, vamos a entrenar tu modelo de negocio con práctica real: yo actuaré como tu cliente y tú responderás como tu negocio. Cada respuesta entrena a tu IA y la hace mejor atendiendo a tus clientes.",
     "startUsing": "Comenzar a Usar Chayo",
-    "startTrainingCta": "Comenzar Entrenamiento",
+    "startTutorialCta": "Comenzar Tutorial",
     "setupCompleteNote": "Puedes actualizar los detalles de tu negocio en cualquier momento charlando conmigo.",
     "progressSteps": {
       "step1": "Conociéndote",
@@ -1246,6 +1246,83 @@
           "Información de ubicación y contacto"
         ]
       }
+    }
+  },
+  "tutorial": {
+    "title": "Cómo Usar Chayo",
+    "subtitle": "Aprende todo lo que necesitas saber sobre tu asistente de negocio con IA",
+    "step": "Paso",
+    "of": "de",
+    "complete": "completo",
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "getStarted": "Comenzar",
+    "interactiveDemo": "Demo Interactiva",
+    "demoMessage1": "¡Hola! ¿Cómo puedo ayudarte con tu negocio hoy?",
+    "demoMessage2": "Me gustaría programar una cita para la próxima semana.",
+    "welcome": {
+      "title": "Bienvenido a Chayo",
+      "description": "Tu asistente de negocio con IA que trabaja 24/7 en español e inglés. Chayo te ayuda a gestionar clientes, programar citas, procesar pagos y hacer crecer tu negocio.",
+      "feature1": "Disponible 24/7 para tus clientes",
+      "feature2": "Soporte bilingüe (español e inglés)",
+      "feature3": "Aprende sobre tu negocio con el tiempo",
+      "feature4": "Se integra con tus herramientas existentes"
+    },
+    "chat": {
+      "title": "Conversaciones Inteligentes",
+      "description": "Chayo interactúa con tus clientes de manera natural, entendiendo sus necesidades y proporcionando respuestas útiles basadas en la información de tu negocio.",
+      "feature1": "Procesamiento de lenguaje natural",
+      "feature2": "Respuestas conscientes del contexto",
+      "feature3": "Personalidad que coincide con tu marca",
+      "feature4": "Escalamiento a humano cuando sea necesario"
+    },
+    "businessTraining": {
+      "title": "Entrenando tu IA",
+      "description": "Mientras más interactúas con Chayo, mejor se vuelve representando tu negocio. Las conversaciones de práctica ayudan a mejorar la calidad de las respuestas.",
+      "feature1": "Escenarios de juego de roles para entrenamiento",
+      "feature2": "Retroalimentación y correcciones en tiempo real",
+      "feature3": "Aprendizaje continuo de las interacciones",
+      "feature4": "Expansión del conocimiento del negocio"
+    },
+    "tools": {
+      "title": "Herramientas de Negocio",
+      "description": "Chayo viene con herramientas integradas para ayudar a gestionar diferentes aspectos de tu negocio, desde programación hasta pagos.",
+      "feature1": "Sistema de programación de citas",
+      "feature2": "Gestión y firma de documentos",
+      "feature3": "Integración de procesamiento de pagos",
+      "feature4": "Formularios de admisión de clientes"
+    },
+    "appointments": {
+      "title": "Gestión de Citas",
+      "description": "Deja que Chayo maneje tu programación. Los clientes pueden reservar citas directamente a través del chat, y recibirás notificaciones para confirmaciones.",
+      "feature1": "Integración de calendario (Calendly, Google)",
+      "feature2": "Confirmaciones automáticas de reservas",
+      "feature3": "Notificaciones de recordatorio",
+      "feature4": "Reprogramación y cancelaciones"
+    },
+    "documents": {
+      "title": "Manejo de Documentos",
+      "description": "Sube documentos que Chayo puede referenciar, y permite a los clientes firmar documentos digitalmente directamente a través de la interfaz de chat.",
+      "feature1": "Carga y almacenamiento de documentos",
+      "feature2": "Búsqueda de documentos con IA",
+      "feature3": "Recolección de firmas digitales",
+      "feature4": "Entrega automática de documentos"
+    },
+    "payments": {
+      "title": "Procesamiento de Pagos",
+      "description": "Recolecta pagos sin problemas a través de múltiples proveedores. Chayo puede crear enlaces de pago y guiar a los clientes a través del proceso de pago.",
+      "feature1": "Múltiples proveedores de pago (Stripe, PayPal, Square)",
+      "feature2": "Generación segura de enlaces de pago",
+      "feature3": "Seguimiento del estado de pagos",
+      "feature4": "Entrega automática de recibos"
+    },
+    "insights": {
+      "title": "Perspectivas del Negocio",
+      "description": "Obtén perspectivas valiosas sobre las interacciones con clientes, preguntas populares y rendimiento del negocio a través del panel de análisis de Chayo.",
+      "feature1": "Análisis de conversaciones",
+      "feature2": "Patrones de interacción con clientes",
+      "feature3": "Seguimiento de preguntas populares",
+      "feature4": "Métricas de rendimiento y tendencias"
     }
   }
 }
