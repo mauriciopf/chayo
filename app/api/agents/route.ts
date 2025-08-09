@@ -45,11 +45,18 @@ export async function POST(request: NextRequest) {
     // Note: If no organization exists, it will be created by the dashboard on login
     // The agent will be updated later via the setup API when organization is created
 
+    // Ensure user has an organization
+    if (!organizationId) {
+      return NextResponse.json(
+        { error: 'No organization found. Please complete your organization setup first.' },
+        { status: 400 }
+      )
+    }
+
     // Insert the agent into the database
     const { data: agent, error: insertError } = await supabase
       .from('agents')
       .insert({
-        user_id: user.id,
         name: name.trim(),
         greeting: greeting.trim(),
         tone: tone || 'professional',
@@ -92,11 +99,28 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Fetch user's agents
+    // Get user's organizations first
+    const { data: memberships, error: membershipError } = await supabase
+      .from('team_members')
+      .select('organization_id')
+      .eq('user_id', user.id)
+      .eq('status', 'active')
+
+    if (membershipError) {
+      console.error('Error fetching user organizations:', membershipError)
+      return NextResponse.json(
+        { error: 'Failed to fetch user organizations' },
+        { status: 500 }
+      )
+    }
+
+    const organizationIds = memberships?.map(m => m.organization_id) || []
+
+    // Fetch agents from user's organizations
     const { data: agents, error: fetchError } = await supabase
       .from('agents')
       .select('*')
-      .eq('user_id', user.id)
+      .in('organization_id', organizationIds)
       .order('created_at', { ascending: false })
 
     if (fetchError) {
