@@ -8,7 +8,6 @@ export interface OnboardingQuestion {
   field_type: 'text' | 'multiple_choice'
   multiple_choices?: string[]
   allow_multiple?: boolean
-  stage: string
   order: number
 }
 
@@ -59,7 +58,7 @@ export class IntegratedOnboardingService {
     try {
       const { data: pendingQuestions, error } = await this.supabaseClient
         .from('business_info_fields')
-        .select('*')
+        .select('field_name, question_template, field_type, multiple_choices, allow_multiple, order')
         .eq('organization_id', organizationId)
         .eq('is_answered', false)
         .order('order', { ascending: true })
@@ -100,7 +99,7 @@ export class IntegratedOnboardingService {
       // Get all questions (answered and unanswered)
       const { data: allQuestions, error } = await this.supabaseClient
         .from('business_info_fields')
-        .select('is_answered, stage')
+        .select('is_answered')
         .eq('organization_id', organizationId)
 
       if (error) {
