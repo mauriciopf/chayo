@@ -47,6 +47,8 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, chatLoading, chat
                   timestamp={msg.timestamp}
                   appointmentLink={msg.appointmentLink}
                   documentSigningLink={msg.documentSigningLink}
+                  isToolSuggestion={msg.isToolSuggestion}
+                  toolName={msg.toolName}
                 />
               )}
             </div>

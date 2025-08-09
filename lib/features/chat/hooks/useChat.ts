@@ -207,7 +207,10 @@ export function useChat({
                 content: data.aiMessage,
                 timestamp: new Date(),
                 multipleChoices: data.multipleChoices,
-                allowMultiple: data.allowMultiple
+                allowMultiple: data.allowMultiple,
+                // Add tool suggestion metadata if present
+                isToolSuggestion: data.suggestionMeta?.isToolSuggestion,
+                toolName: data.suggestionMeta?.toolName
               }
               setMessages((msgs) => [...msgs, aiMessage])
               // Delay clearing the phase to allow switchingMode effects to trigger

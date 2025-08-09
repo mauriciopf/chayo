@@ -14,6 +14,8 @@ interface ChatMessageProps {
   intakeFormAvailable?: boolean
   intakeFormId?: string
   intakeFormName?: string
+  isToolSuggestion?: boolean
+  toolName?: string
 }
 
 // PaymentButton component for handling different payment types
@@ -134,7 +136,7 @@ function PaymentButton({ paymentType }: { paymentType: 'dynamic' | 'manual_price
   )
 }
 
-export default function ChatMessage({ role, content, timestamp, appointmentLink, documentSigningLink, paymentAvailable, paymentType, intakeFormAvailable, intakeFormId, intakeFormName }: ChatMessageProps) {
+export default function ChatMessage({ role, content, timestamp, appointmentLink, documentSigningLink, paymentAvailable, paymentType, intakeFormAvailable, intakeFormId, intakeFormName, isToolSuggestion, toolName }: ChatMessageProps) {
   const t = useTranslations('chat')
 
   // Safeguard: Check if the content contains raw multiple choice data and clean it
@@ -185,7 +187,19 @@ export default function ChatMessage({ role, content, timestamp, appointmentLink,
 
             {/* Message Content - Mobile Optimized */}
             <div className={`flex-1 min-w-0 ${role === "user" ? "text-right" : "text-left"}`}>
-              <div className={`${role === "user" ? "inline-block max-w-[85%]" : "max-w-[85%]"} ${role === "user" ? "bg-purple-600 text-white" : "bg-white text-gray-900"} rounded-2xl px-4 py-3 shadow-sm`}>
+              <div className={`${role === "user" ? "inline-block max-w-[85%]" : "max-w-[85%]"} ${
+                role === "user" 
+                  ? "bg-purple-600 text-white" 
+                  : isToolSuggestion 
+                    ? "bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-900 border border-blue-200" 
+                    : "bg-white text-gray-900"
+              } rounded-2xl px-4 py-3 shadow-sm`}>
+                {isToolSuggestion && (
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-blue-600 text-lg">💡</span>
+                    <span className="text-xs font-medium text-blue-700 uppercase tracking-wide">Tool Suggestion</span>
+                  </div>
+                )}
                 <div className="text-base leading-relaxed whitespace-pre-wrap break-words">{cleanContent}</div>
                 
                 {/* Appointment Button - Mobile Optimized */}

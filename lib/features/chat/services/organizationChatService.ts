@@ -189,7 +189,54 @@ export class OrganizationChatService {
       console.log(`🎯 Onboarding status: ${isOnboarding ? 'PROCESSING' : 'COMPLETED'} (Stage: ${progress.currentStage})`)
       progressEmitter?.('phase', { name: 'checkingExistingQuestion', stage: progress.currentStage })
       
-      // Handle chat flow based on onboarding completion
+      // ⭐ PRIORITY: Check for tool suggestions FIRST (before generating normal response)
+      if (!isOnboarding) { // Only suggest tools for completed onboarding
+        try {
+          const { TrainingHintService } = await import('./trainingHintService')
+          
+          // Get enabled tools for this organization
+          const enabledTools = await this.getEnabledTools(organization.id)
+          
+          // Analyze conversation for tool opportunities FIRST
+          const toolSuggestion = await TrainingHintService.generateToolSuggestion(
+            messages,
+            organization.id,
+            enabledTools
+          )
+          
+          // If we have a suggestion, return it instead of generating normal response
+          if (toolSuggestion) {
+            console.log(`🔧 Tool suggestion found: ${toolSuggestion.toolName} - returning suggestion instead of normal response`)
+            
+            const suggestionResponse = {
+              aiMessage: toolSuggestion.content,
+              multipleChoices: undefined,
+              allowMultiple: undefined,
+              setupCompleted: true,
+              // Add metadata for UI styling
+              suggestionMeta: {
+                type: 'tool_suggestion',
+                toolName: toolSuggestion.toolName,
+                isToolSuggestion: true
+              }
+            }
+            
+            await this.storeConversation(messages, suggestionResponse.aiMessage, context)
+            progressEmitter?.('phase', { name: 'done' })
+            
+            return {
+              ...suggestionResponse,
+              organization
+            }
+          }
+        } catch (error) {
+          // If tool suggestion analysis fails, log error but continue with normal flow
+          console.error('🚨 Tool suggestion analysis failed, falling back to normal response:', error)
+        }
+      }
+      
+      // FALLBACK: Generate normal AI response only if no tool suggestion was found
+      console.log('💬 No tool suggestion found - generating normal AI response')
       const response = await this.handleChatFlow(messages, context, isOnboarding, progressEmitter)
       
       await this.storeConversation(messages, response.aiMessage, context)
@@ -683,6 +730,32 @@ export class OrganizationChatService {
     } catch (error) {
       console.error('❌ Error in conversation storage:', error)
       // Don't throw to avoid breaking the chat flow
+    }
+  }
+
+  /**
+   * Get enabled tools for an organization
+   */
+  private async getEnabledTools(organizationId: string): Promise<string[]> {
+    try {
+      // Get enabled agent tools for this organization
+      const { data: agentTools, error } = await this.supabaseClient
+        .from('agent_tools')
+        .select('tool_type, enabled')
+        .eq('organization_id', organizationId)
+        .eq('enabled', true)
+
+      if (error || !agentTools) {
+        console.log('📋 No enabled tools found or error:', error?.message)
+        return []
+      }
+
+      const enabledTools = agentTools.map((tool: any) => tool.tool_type)
+      console.log('🔧 Enabled tools for organization:', enabledTools)
+      return enabledTools
+    } catch (error) {
+      console.error('Error getting enabled tools:', error)
+      return []
     }
   }
 } 

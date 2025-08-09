@@ -13,6 +13,9 @@ export interface Message {
   intakeFormId?: string
   intakeFormName?: string
   faqLink?: string
+  // Tool suggestion properties
+  isToolSuggestion?: boolean
+  toolName?: string
 }
 
 export interface Agent {
