@@ -1,5 +1,4 @@
 import { supabase } from '@/lib/shared/supabase/client'
-import { generateSlugFromName } from '@/lib/shared/utils/text'
 
 export interface BusinessInfoField {
   id?: string
@@ -359,28 +358,6 @@ Priority: Maintain high-quality business knowledge base without clutter.`
       console.error('Error checking business relevance:', error)
       // Default to storing if evaluation fails to avoid data loss
       return true
-    }
-  }
-
-
-
-  /**
-   * Get business information summary for system prompt
-   */
-  async getBusinessInfoSummary(organizationId: string): Promise<any> {
-    try {
-      const answeredFields = await this.getBusinessInfo(organizationId)
-      
-      // Convert to a summary object
-      const summary: any = {}
-      for (const field of answeredFields) {
-        summary[field.field_name] = field.field_value
-      }
-
-      return summary
-    } catch (error) {
-      console.error('Error getting business info summary:', error)
-      return {}
     }
   }
 
