@@ -82,25 +82,51 @@ export class BusinessInfoService {
    */
   async validateAnswerWithAI(conversation: string, question: string): Promise<{answered: boolean, answer?: string, confidence?: number}> {
     try {
-      if (!conversation || conversation.length === 0) {
+      if (!conversation || conversation.trim().length === 0) {
         return { answered: false }
       }
 
-      // Simple validation - if there's a conversation, consider it answered
-      // Extract the last user message as the answer
-      const lines = conversation.split('\n')
-      const userMessages = lines.filter(line => line.trim().length > 0 && !line.startsWith('AI:') && !line.startsWith('Assistant:'))
-      
-      if (userMessages.length > 0) {
-        const lastUserMessage = userMessages[userMessages.length - 1].trim()
-        return { 
-          answered: true, 
-          answer: lastUserMessage,
-          confidence: 0.8
-        }
-      }
+      const { openAIService } = await import('@/lib/shared/services/OpenAIService')
 
-      return { answered: false }
+      const validationPrompt = `You are a precise validator. Determine if the user's conversation answered the question. Extract the answer succinctly.
+
+Question:
+"""
+${question}
+"""
+
+Conversation (may include both assistant and user messages):
+"""
+${conversation}
+"""
+
+Respond ONLY with valid JSON in this schema:
+{
+  "answered": true|false,
+  "answer": "short extracted answer if answered, else empty string",
+  "confidence": 0.0-1.0
+}`
+
+      const content = await openAIService.callChatCompletion([
+        { role: 'system', content: 'You validate question answering with high precision. Output JSON only. No prose.' },
+        { role: 'user', content: validationPrompt }
+      ], {
+        model: 'gpt-4o-mini',
+        temperature: 0.1,
+        maxTokens: 200
+      })
+
+      try {
+        const result = JSON.parse(content)
+        return {
+          answered: !!result.answered,
+          answer: typeof result.answer === 'string' ? result.answer : undefined,
+          confidence: typeof result.confidence === 'number' ? result.confidence : 0.5
+        }
+      } catch (parseError) {
+        console.warn('AI validation returned non-JSON; falling back:', content?.slice(0, 120))
+        return { answered: false }
+      }
     } catch (error) {
       console.error('Error validating answer with AI:', error)
       return { answered: false }
