@@ -12,7 +12,6 @@ export interface BusinessInfoField {
   multiple_choices?: string[]
   allow_multiple?: boolean
   confidence?: number
-  source?: 'conversation' | 'document' | 'manual'
   created_at?: string
   updated_at?: string
 }
