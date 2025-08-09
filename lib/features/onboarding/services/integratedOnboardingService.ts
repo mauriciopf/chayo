@@ -8,7 +8,6 @@ export interface OnboardingQuestion {
   field_type: 'text' | 'multiple_choice'
   multiple_choices?: string[]
   allow_multiple?: boolean
-  order: number
 }
 
 export interface OnboardingProgress {
@@ -58,10 +57,10 @@ export class IntegratedOnboardingService {
     try {
       const { data: pendingQuestions, error } = await this.supabaseClient
         .from('business_info_fields')
-        .select('field_name, question_template, field_type, multiple_choices, allow_multiple, order')
+        .select('field_name, question_template, field_type, multiple_choices, allow_multiple')
         .eq('organization_id', organizationId)
         .eq('is_answered', false)
-        .order('order', { ascending: true })
+        .order('created_at', { ascending: true })
 
       if (error) {
         console.error('Error fetching pending questions:', error)
@@ -78,8 +77,7 @@ export class IntegratedOnboardingService {
         question_template: q.question_template,
         field_type: q.field_type,
         multiple_choices: q.multiple_choices,
-        allow_multiple: q.allow_multiple,
-        order: q.order || 0
+        allow_multiple: q.allow_multiple
       })) || []
     } catch (error) {
       console.error('Error getting pending questions:', error)
