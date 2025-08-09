@@ -106,9 +106,16 @@ export default function BusinessChatView({
   // React to switchingMode phase to refresh progress and flip UI immediately
   React.useEffect(() => {
     if (currentPhase === 'switchingMode') {
+      console.log('🔄 switchingMode detected - refreshing onboarding progress and auth state')
       try {
         refreshOnboardingProgressFromHook()
-      } catch {}
+        // Also refresh the page to pick up newly created agents
+        setTimeout(() => {
+          window.location.reload()
+        }, 1500)
+      } catch (error) {
+        console.warn('Failed to refresh during mode switch:', error)
+      }
     }
   }, [currentPhase, refreshOnboardingProgressFromHook])
 

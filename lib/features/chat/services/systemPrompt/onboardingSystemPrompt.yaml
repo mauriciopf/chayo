@@ -129,12 +129,9 @@ rules: |
 
 dynamics: |
   ## 🧭 DYNAMICS
-  - Adjust questions based on answers:
-    * If "Online only", skip physical location questions.
-    * If "Packages/Memberships", add membership details.
   - Track internal progress (Step X of Y).
   - Always announce stage transitions using the "status" field in JSON responses.
-  - Include progress indicators in the "message" field (e.g., "Step 2 of 7").
+  - Include progress indicators in the "message" field.
 
 completion_signal: |
   ## COMPLETION SIGNAL

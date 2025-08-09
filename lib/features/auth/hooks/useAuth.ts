@@ -100,6 +100,32 @@ export function useAuth() {
           return
         }
 
+        // If no agents exist, try to create one for completed onboarding
+        if (!agents || agents.length === 0) {
+          try {
+            const { data: orgDetails } = await supabase
+              .from('organizations')
+              .select('id, slug')
+              .eq('id', org.id)
+              .single()
+
+            if (orgDetails) {
+              const { agentService } = await import('../../organizations/services/agentService')
+              const newAgent = await agentService.maybeCreateAgentChatLinkIfThresholdMet({
+                id: orgDetails.id,
+                slug: orgDetails.slug
+              })
+              if (newAgent) {
+                setAgents([newAgent.agent])
+                console.log('✅ Auto-created agent for existing user')
+                return
+              }
+            }
+          } catch (error) {
+            console.warn('⚠️ Failed to auto-create agent during auth:', error)
+          }
+        }
+
         setAgents(agents || [])
       } catch (error) {
         setAgents([])

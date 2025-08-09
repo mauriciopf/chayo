@@ -159,7 +159,7 @@ export class SetupCompletionService {
   // Legacy processor removed. Use explicit statusSignal handling upstream.
 
   /**
-   * Mark a specific stage as completed
+   * Mark a specific stage as completed and advance to next stage
    */
   async markStageAsCompleted(organizationId: string, stage: string): Promise<void> {
     try {
@@ -167,16 +167,19 @@ export class SetupCompletionService {
         updated_at: new Date().toISOString()
       }
 
-      // Set the appropriate stage completion flag
+      // Set the appropriate stage completion flag and advance current_stage
       switch (stage) {
         case 'stage_1':
           updateData.stage1_completed = true
+          updateData.current_stage = 'stage_2'
           break
         case 'stage_2':
           updateData.stage2_completed = true
+          updateData.current_stage = 'stage_3'
           break
         case 'stage_3':
           updateData.stage3_completed = true
+          // Keep current_stage as stage_3 until full completion
           break
       }
 
@@ -184,6 +187,8 @@ export class SetupCompletionService {
         .from('setup_completion')
         .update(updateData)
         .eq('organization_id', organizationId)
+        
+      console.log(`✅ Stage ${stage} marked as completed, current_stage updated to: ${updateData.current_stage || stage}`)
     } catch (error) {
       console.error(`Error marking stage ${stage} as completed:`, error)
       throw error

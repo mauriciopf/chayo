@@ -124,6 +124,19 @@ export class OrganizationChatService {
       // If onboarding just completed in this turn, switch prompts immediately and respond in business mode
       if (isOnboarding && finalSetupCompleted) {
         progressEmitter?.('phase', { name: 'switchingMode', from: 'onboarding', to: 'business' })
+        
+        // Create agent for client mode if needed
+        try {
+          const { agentService } = await import('../../organizations/services/agentService')
+          await agentService.maybeCreateAgentChatLinkIfThresholdMet({
+            id: context.organization.id,
+            slug: context.organization.slug
+          })
+          console.log('✅ Agent creation check completed for newly completed onboarding')
+        } catch (error) {
+          console.warn('⚠️ Failed to create agent during onboarding completion:', error)
+        }
+        
         // Generate a business-mode response right away so the user sees training begin immediately
         const businessResponse = await this.generateAndStoreAIResponse(messages, context, 'business', progressEmitter)
         return {

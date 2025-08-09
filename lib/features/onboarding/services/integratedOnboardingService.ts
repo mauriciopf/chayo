@@ -80,7 +80,6 @@ export class IntegratedOnboardingService {
         field_type: q.field_type,
         multiple_choices: q.multiple_choices,
         allow_multiple: q.allow_multiple,
-        stage: q.stage || 'stage_1',
         order: q.order || 0
       })) || []
     } catch (error) {
@@ -121,34 +120,17 @@ export class IntegratedOnboardingService {
       const totalQuestions = allQuestions?.length || 0
       const answeredQuestions = allQuestions?.filter((q: any) => q.is_answered).length || 0
       
-      // Calculate stage completion based on questions
-      const stage1Questions = allQuestions?.filter((q: any) => q.stage === 'stage_1') || []
-      const stage2Questions = allQuestions?.filter((q: any) => q.stage === 'stage_2') || []
-      const stage3Questions = allQuestions?.filter((q: any) => q.stage === 'stage_3') || []
-      
-      const stage1Completed = stage1Questions.length > 0 && stage1Questions.every((q: any) => q.is_answered)
-      const stage2Completed = stage2Questions.length > 0 && stage2Questions.every((q: any) => q.is_answered)
-      const stage3Completed = stage3Questions.length > 0 && stage3Questions.every((q: any) => q.is_answered)
-      
-      // Get current stage (stage with most unanswered questions)
-      const stageCounts = allQuestions?.reduce((acc: Record<string, number>, q: any) => {
-        if (!q.is_answered) {
-          acc[q.stage || 'stage_1'] = (acc[q.stage || 'stage_1'] || 0) + 1
-        }
-        return acc
-      }, {} as Record<string, number>) || {}
+      // Get stage completion status from setup_completion table (source of truth)
+      const stage1Completed = setupStatus?.stage1_completed || false
+      const stage2Completed = setupStatus?.stage2_completed || false  
+      const stage3Completed = setupStatus?.stage3_completed || false
 
-      const currentStage = Object.keys(stageCounts).length > 0 
-        ? Object.entries(stageCounts).sort(([,a], [,b]) => (b as number) - (a as number))[0][0]
-        : 'stage_1'
+      // Current stage comes from setup_completion table
+      const currentStage = setupStatus?.current_stage || 'stage_1'
       
-
 
       // Get pending questions
       const pendingQuestions = await this.getPendingQuestions(organizationId)
-
-      // SYNCHRONIZE: Update setup_completion.current_stage if it changed
-      await this.synchronizeStageWithSetupCompletion(organizationId, currentStage)
 
       return {
         totalQuestions,
