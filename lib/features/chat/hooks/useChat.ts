@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { supabase } from '@/lib/shared/supabase/client'
-import { Message, Agent, AuthState } from '@/lib/shared/types'
+import { Message, AuthState } from '@/lib/shared/types'
 
 interface UseChatProps {
   authState: AuthState
@@ -36,6 +35,7 @@ interface UseChatReturn {
   handleInputFocus: () => void
   handleSend: () => Promise<void>
   sendMessage: (messageContent: string) => Promise<void>
+  triggerSSEWithEmptyMessages: () => Promise<void>
   handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>
 }
 
@@ -57,6 +57,124 @@ export function useChat({
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const chatScrollContainerRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Reusable SSE handler
+  const handleSSERequest = async (requestBody: any, options: {
+    addUserMessage?: boolean
+    userMessage?: Message
+    logPrefix?: string
+  } = {}) => {
+    if (chatLoading) return
+    
+    setChatError(null)
+    setChatLoading(true)
+    
+    // Add user message if specified
+    if (options.addUserMessage && options.userMessage) {
+      const updatedMessages = [...messages, options.userMessage]
+      setMessages(updatedMessages)
+      setInput("")
+      setJustSent(true)
+      
+      // Close keyboard on mobile devices
+      if (inputRef.current) {
+        inputRef.current.blur()
+      }
+    }
+    
+    try {
+      console.log(`🚀 ${options.logPrefix || 'Starting SSE request'}`)
+      
+      const streamRes = await fetch('/api/organization-chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'text/event-stream'
+        },
+        body: JSON.stringify(requestBody),
+        credentials: 'include'
+      })
+
+      if (!streamRes.ok || !streamRes.body) {
+        try {
+          const data = await streamRes.json()
+          setChatError(data.error || 'Error processing request')
+        } catch {
+          setChatError('Error processing request')
+        }
+        setChatLoading(false)
+        return
+      }
+
+      const reader = streamRes.body.getReader()
+      const decoder = new TextDecoder()
+      let buffer = ''
+      
+      const processBuffer = () => {
+        const events = buffer.split('\n\n')
+        buffer = events.pop() || ''
+        for (const evt of events) {
+          const lines = evt.split('\n')
+          let eventName = 'message'
+          let dataLine = ''
+          for (const line of lines) {
+            if (line.startsWith('event: ')) eventName = line.slice(7)
+            if (line.startsWith('data: ')) dataLine += line.slice(6)
+          }
+          if (eventName === 'phase') {
+            try {
+              const data = JSON.parse(dataLine)
+              console.log('📡 SSE Phase:', data?.name)
+              setCurrentPhase(data?.name || null)
+            } catch {}
+          } else if (eventName === 'result') {
+            try {
+              const data = JSON.parse(dataLine)
+              console.log('🤖 SSE AI response received')
+              const aiMessage: Message = {
+                id: Date.now().toString() + '-ai',
+                role: 'ai',
+                content: data.aiMessage,
+                timestamp: new Date(),
+                multipleChoices: data.multipleChoices,
+                allowMultiple: data.allowMultiple,
+                // Add tool suggestion metadata if present
+                isToolSuggestion: data.suggestionMeta?.isToolSuggestion,
+                toolName: data.suggestionMeta?.toolName
+              }
+              setMessages((msgs) => [...msgs, aiMessage])
+              // Delay clearing the phase to allow switchingMode effects to trigger
+              setTimeout(() => {
+                setCurrentPhase(null)
+              }, 1000)
+            } catch (e) {
+              console.error('Failed to parse result data', e)
+            }
+          } else if (eventName === 'error') {
+            try {
+              const err = JSON.parse(dataLine)
+              setChatError(err.message || 'Error')
+            } catch {
+              setChatError('Error')
+            }
+          }
+        }
+      }
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buffer += decoder.decode(value, { stream: true })
+        processBuffer()
+      }
+    } catch (err) {
+      console.error('SSE request failed:', err)
+      setChatError('Failed to process request. Please try again.')
+    } finally {
+      setChatLoading(false)
+      setCurrentPhase(null)
+    }
+  }
 
   // Scroll functionality - only scroll to bottom for new user messages, not AI responses
   const scrollToShowUserMessage = (smooth = true) => {
@@ -115,9 +233,6 @@ export function useChat({
 
   // Send a message directly (for multiple choice responses)
   const sendMessage = async (messageContent: string) => {
-    if (chatLoading) return
-    
-    setChatError(null)
     const newUserMsg: Message = {
       id: Date.now().toString(),
       role: "user",
@@ -132,117 +247,28 @@ export function useChat({
       totalMessagesAfter: updatedMessages.length,
       conversationLength: updatedMessages.map(m => `${m.role}: ${m.content.substring(0, 30)}...`).join(' | ')
     })
-    setMessages(updatedMessages)
-    setInput("")
-    setJustSent(true) // Set justSent to trigger scroll after DOM update
     
-    // Close keyboard on mobile devices
-    if (inputRef.current) {
-      inputRef.current.blur()
-    }
-    
-    setChatLoading(true)
-    
-    try {
-      // Get the current session for authentication
-      const { data: { session } } = await supabase.auth.getSession()
-      
-      // Use SSE for streaming progress and final result
-      const es = new EventSource(`/api/organization-chat`, { withCredentials: true } as any)
-      // Send body via POST fallback if needed: We can’t with EventSource, so instead append payload as query
-      // To keep this minimal now, we’ll fall back to non-stream for non-SSE capable paths
-      // Simple approach: if SSE cannot carry payload, use fetch with Accept: text/event-stream
-      es.close()
-      const streamRes = await fetch('/api/organization-chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'text/event-stream'
-        },
-        body: JSON.stringify({
-          messages: updatedMessages.map(({ role, content }) => ({ 
-            role: role === 'ai' ? 'assistant' : role,
-            content
-          })),
-          locale
-        })
-      })
+    await handleSSERequest({
+      messages: updatedMessages.map(({ role, content }) => ({ 
+        role: role === 'ai' ? 'assistant' : role,
+        content
+      })),
+      locale
+    }, {
+      addUserMessage: true,
+      userMessage: newUserMsg,
+      logPrefix: 'Starting SSE request'
+    })
+  }
 
-      if (!streamRes.ok || !streamRes.body) {
-        try {
-          const data = await streamRes.json()
-          setChatError(data.error || 'Error sending message')
-        } catch {
-          setChatError('Error sending message')
-        }
-        setChatLoading(false)
-        return
-      }
-
-      const reader = streamRes.body.getReader()
-      const decoder = new TextDecoder()
-      let buffer = ''
-      const processBuffer = () => {
-        const events = buffer.split('\n\n')
-        buffer = events.pop() || ''
-        for (const evt of events) {
-          const lines = evt.split('\n')
-          let eventName = 'message'
-          let dataLine = ''
-          for (const line of lines) {
-            if (line.startsWith('event: ')) eventName = line.slice(7)
-            if (line.startsWith('data: ')) dataLine += line.slice(6)
-          }
-          if (eventName === 'phase') {
-            try {
-              const data = JSON.parse(dataLine)
-              setCurrentPhase(data?.name || null)
-            } catch {}
-          } else if (eventName === 'result') {
-            try {
-              const data = JSON.parse(dataLine)
-              const aiMessage: Message = {
-                id: Date.now().toString() + '-ai',
-                role: 'ai',
-                content: data.aiMessage,
-                timestamp: new Date(),
-                multipleChoices: data.multipleChoices,
-                allowMultiple: data.allowMultiple,
-                // Add tool suggestion metadata if present
-                isToolSuggestion: data.suggestionMeta?.isToolSuggestion,
-                toolName: data.suggestionMeta?.toolName
-              }
-              setMessages((msgs) => [...msgs, aiMessage])
-              // Delay clearing the phase to allow switchingMode effects to trigger
-              setTimeout(() => {
-                setCurrentPhase(null)
-              }, 1000)
-            } catch (e) {
-              console.error('Failed to parse result data', e)
-            }
-          } else if (eventName === 'error') {
-            try {
-              const err = JSON.parse(dataLine)
-              setChatError(err.message || 'Error')
-            } catch {
-              setChatError('Error')
-            }
-          }
-        }
-      }
-
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-        buffer += decoder.decode(value, { stream: true })
-        processBuffer()
-      }
-    } catch (err) {
-      setChatError("Error sending message")
-    } finally {
-      setChatLoading(false)
-      setCurrentPhase(null)
-    }
+  // Trigger SSE with empty messages array (for auth/onboarding context switching)
+  const triggerSSEWithEmptyMessages = async () => {
+    await handleSSERequest({
+      messages: [], // Empty messages array for SSE trigger
+      locale
+    }, {
+      logPrefix: 'Starting SSE request with empty messages for context switch'
+    })
   }
 
   // Handle sending messages
@@ -339,6 +365,7 @@ export function useChat({
     handleInputFocus,
     handleSend,
     sendMessage,
+    triggerSSEWithEmptyMessages,
     handleFileChange,
   }
 } 

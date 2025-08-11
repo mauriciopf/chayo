@@ -1,11 +1,9 @@
 'use client'
 
 import { useState, useEffect, useRef, Suspense } from 'react'
-import LoadingScreen from '@/lib/features/dashboard/components/layout/LoadingScreen'
 import AuthPromptView from '@/lib/features/auth/components/AuthPromptView'
 import { useSearchParams } from 'next/navigation'
 import { useTranslations, useLocale } from 'next-intl'
-import { supabase } from '@/lib/shared/supabase/client'
 
 // Import our new components and hooks
 import { useAuth } from '@/lib/features/auth/hooks/useAuth'
@@ -18,7 +16,7 @@ import { useBillingManagement } from '@/lib/features/dashboard/hooks/useBillingM
 import { useLogout } from '@/lib/features/auth/hooks/useLogout'
 
 import { useOnboardingProgress } from '@/lib/features/onboarding/hooks/useOnboardingProgress'
-import { useAuthFlow } from '@/lib/features/auth/components/AuthFlow'
+
 import ChatContainer from '@/lib/features/chat/components/ChatContainer'
 import ClientQRCode from '@/lib/features/chat/components/ClientQRCode'
 import AgentsView from '@/lib/features/dashboard/components/agents/AgentsView'
@@ -36,7 +34,7 @@ import MainDashboardLayout from '@/lib/features/dashboard/components/layout/Main
 
 export default function Dashboard() {
   return (
-    <Suspense fallback={<LoadingScreen message="Loading..." /> }>
+    <Suspense fallback={<div>Loading...</div>}>
       <PWAPrompt />
       <DashboardContent />
     </Suspense>
@@ -48,45 +46,30 @@ function DashboardContent() {
   const locale = useLocale()
   const searchParams = useSearchParams()
   
-  // Initialize all hooks
-  const auth = useAuth()
-  const dashboardInit = useDashboardInit(locale, auth.authState, auth.user, t('authPrompt'), auth.loading)
-
+  // Initialize hooks in proper order
   const mobile = useMobile(() => {})
+  const auth = useAuth()
   
-  // Initialize chat hook
   const chat = useChat({
     authState: auth.authState,
     locale
   })
 
-  // Initialize auth flow with chat state
-  const authFlow = useAuthFlow({
-    authState: auth.authState,
-    setAuthState: auth.setAuthState,
+  // Create OTP flow with chat integration
+  const otpFlow = auth.createOTPFlow({
     input: chat.input,
     setInput: chat.setInput,
     setJustSent: chat.setJustSent,
     isMobile: mobile.isMobile,
     inputRef: chat.inputRef,
-    pendingName: auth.pendingName,
-    setPendingName: auth.setPendingName,
-    pendingEmail: auth.pendingEmail,
-    setPendingEmail: auth.setPendingEmail,
-    otpLoading: auth.otpLoading,
-    setOtpLoading: auth.setOtpLoading,
-    otpError: auth.otpError,
-    setOtpError: auth.setOtpError,
-    otpSent: auth.otpSent,
-    setOtpSent: auth.setOtpSent,
-    resendCooldown: auth.resendCooldown,
-    setResendCooldown: auth.setResendCooldown,
     messages: chat.messages,
     setMessages: chat.setMessages,
   })
 
+  const dashboardInit = useDashboardInit(locale, auth.authState, auth.user, t('authPrompt'), auth.loading)
+
   // Use QR code logic hook
-  const qrCodeLogic = useQRCodeLogic({ auth, chat, dashboardInit })
+  const qrCodeLogic = useQRCodeLogic({ auth, chat, dashboardInit, currentPhase: chat.currentPhase })
 
   // Use billing management hook
   const { handleManageBilling } = useBillingManagement()
@@ -94,29 +77,37 @@ function DashboardContent() {
   // Use logout hook
   const { handleLogout } = useLogout()
 
-  // Set initial chat message directly - use ref to track if we've already set it
-  const hasSetInitialMessageRef = useRef(false)
+  // Trigger SSE events when authentication completes
+  const hasTriggeredAuthSSE = useRef(false)
   
   useEffect(() => {
-    console.log('🔄 Initial message effect triggered:', {
-      hasContent: !!dashboardInit.initialMessage?.content,
-      hasSetFlag: hasSetInitialMessageRef.current,
-      messageCount: chat.messages.length,
-      shouldSet: !!dashboardInit.initialMessage?.content && !hasSetInitialMessageRef.current
-    })
-    
-    if (dashboardInit.initialMessage?.content && !hasSetInitialMessageRef.current) {
-      console.log('🎬 Setting initial message directly:', {
-        content: dashboardInit.initialMessage.content.substring(0, 100) + '...',
-        contentLength: dashboardInit.initialMessage.content.length,
-        messageCount: chat.messages.length
-      })
+    if (auth.authState === 'authenticated' && 
+        auth.user && 
+        !dashboardInit.isLoading && 
+        !hasTriggeredAuthSSE.current) {
       
-      hasSetInitialMessageRef.current = true
+      console.log('🔐 Authentication completed - triggering SSE events for context switch')
+      hasTriggeredAuthSSE.current = true
       
-      // Set the initial message, replacing any existing messages
+      // Trigger SSE events with empty messages array (not empty string content)
+      // This allows the system to emit proper phases and switch from auth to business context
+      chat.triggerSSEWithEmptyMessages()
+    }
+  }, [auth.authState, auth.user, dashboardInit.isLoading])
+  
+  // Reset SSE trigger flag when auth state changes  
+  useEffect(() => {
+    if (auth.authState !== 'authenticated') {
+      hasTriggeredAuthSSE.current = false
+    }
+  }, [auth.authState])
+
+  // Set initial auth prompt message for non-authenticated users
+  useEffect(() => {
+    if (dashboardInit.shouldShowAuthPrompt && dashboardInit.initialMessage && chat.messages.length === 0) {
+      console.log('🔐 Setting initial auth prompt message')
       chat.setMessages([{
-        id: 'initial-' + Date.now(),
+        id: 'auth-prompt',
         role: 'ai',
         content: dashboardInit.initialMessage.content,
         timestamp: new Date(),
@@ -124,21 +115,14 @@ function DashboardContent() {
         allowMultiple: dashboardInit.initialMessage.allowMultiple
       }])
     }
-  }, [dashboardInit.initialMessage?.content])
-  
-  // Reset initial message flag when auth state changes (user logs out/in)
-  useEffect(() => {
-    if (auth.authState !== 'authenticated') {
-      hasSetInitialMessageRef.current = false
-    }
-  }, [auth.authState])
+  }, [dashboardInit.shouldShowAuthPrompt, dashboardInit.initialMessage, chat.messages.length])
 
-  // Use onboarding progress hook
+  // Use onboarding progress hook (read-only, no manual refresh needed - SSE handles updates)
   console.log('🔄 Dashboard onboarding hook setup:', {
     organizationId: auth.currentOrganization?.id,
     hasOrganization: !!auth.currentOrganization
   })
-  const { progress: onboardingProgress, refreshProgress: refreshOnboardingProgress } = useOnboardingProgress(auth.currentOrganization?.id)
+  const { progress: onboardingProgress } = useOnboardingProgress(auth.currentOrganization?.id)
 
   // Dashboard UI state
   const [activeView, setActiveView] = useState<ActiveView>(mobile.isMobile ? 'agents' : 'chat')
@@ -190,7 +174,7 @@ function DashboardContent() {
             setInput={chat.setInput}
             handleSend={chat.handleSend}
             handleInputFocus={chat.handleInputFocus}
-            handleOTPFlow={authFlow.handleOTPFlow}
+            handleOTPFlow={otpFlow.handleOTPFlow}
             messagesEndRef={chat.messagesEndRef}
             inputRef={chat.inputRef}
             sendMessage={chat.sendMessage}
@@ -231,7 +215,7 @@ function DashboardContent() {
               handleSend={chat.handleSend}
               sendMessage={chat.sendMessage}
               handleInputFocus={chat.handleInputFocus}
-              handleOTPFlow={authFlow.handleOTPFlow}
+              handleOTPFlow={otpFlow.handleOTPFlow}
               messagesEndRef={chat.messagesEndRef}
               inputRef={chat.inputRef}
               chatScrollContainerRef={chat.chatScrollContainerRef}
@@ -246,12 +230,8 @@ function DashboardContent() {
               setHasUserInteracted={mobile.setHasUserInteracted}
               isMobile={mobile.isMobile}
               organizationId={auth.currentOrganization?.id}
-              unlockQRCode={async () => {
-                await qrCodeLogic.unlockQRCode()
-                refreshOnboardingProgress()
-              }}
+              unlockQRCode={qrCodeLogic.unlockQRCode}
               onNavigateToQR={() => setActiveView('qrcode')}
-              refreshOnboardingProgress={refreshOnboardingProgress}
               currentPhase={chat.currentPhase}
               agent={auth.agents[0]}
               organization={auth.currentOrganization}
@@ -306,13 +286,6 @@ function DashboardContent() {
     }
   }
 
-  if (auth.loading || dashboardInit.isLoading) {
-    return (
-      <LoadingScreen 
-        message={auth.loading ? 'Authenticating...' : 'Loading dashboard...'}
-      />
-    )
-  }
 
   // Handle auth prompt for unauthenticated users
   if (dashboardInit.shouldShowAuthPrompt) {

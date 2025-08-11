@@ -1,5 +1,13 @@
 import { supabase } from '@/lib/shared/supabase/client'
 import { generateSlugFromName } from '@/lib/shared/utils/text'
+import { validationService } from '@/lib/shared/services'
+import { IntegratedOnboardingService } from '@/lib/features/onboarding/services/integratedOnboardingService'
+import { agentService } from '@/lib/features/organizations/services/agentService'
+import { TrainingHintService } from '@/lib/features/chat/services/trainingHintService'
+import { embeddingService } from '@/lib/shared/services/embeddingService'
+import { YamlPromptLoader } from '@/lib/features/chat/services/systemPrompt/YamlPromptLoader'
+import { openAIService } from '@/lib/shared/services/OpenAIService'
+import { businessInfoService } from '@/lib/features/organizations/services/businessInfoService'
 
 export interface ChatMessage {
   role: 'user' | 'assistant' | 'system'
@@ -64,7 +72,7 @@ export class OrganizationChatService {
         console.log('🆕 No pending onboarding question - checking if completed or generating new question')
         
         // Check if onboarding is actually completed
-        const { IntegratedOnboardingService } = await import('../../onboarding/services/integratedOnboardingService')
+    
         const onboardingService = new IntegratedOnboardingService()
         const progress = await onboardingService.getOnboardingProgress(context.organization.id)
         
@@ -81,7 +89,7 @@ export class OrganizationChatService {
       
       // Handle onboarding-specific progress updates
       if (isOnboarding && aiResponse.statusSignal) {
-        const { IntegratedOnboardingService } = await import('../../onboarding/services/integratedOnboardingService')
+    
         const onboardingService = new IntegratedOnboardingService()
         
         // Normalize completion signals coming from prompts
@@ -127,7 +135,7 @@ export class OrganizationChatService {
         
         // Create agent for client mode if needed
         try {
-          const { agentService } = await import('../../organizations/services/agentService')
+      
           await agentService.maybeCreateAgentChatLinkIfThresholdMet({
             id: context.organization.id,
             slug: context.organization.slug
@@ -180,7 +188,7 @@ export class OrganizationChatService {
       }
       
       // Get onboarding progress and determine chat flow
-      const { IntegratedOnboardingService } = await import('../../onboarding/services/integratedOnboardingService')
+  
       const onboardingService = new IntegratedOnboardingService()
       progressEmitter?.('phase', { name: 'initializing' })
       const progress = await onboardingService.getOnboardingProgress(organization.id)
@@ -192,7 +200,7 @@ export class OrganizationChatService {
       // ⭐ PRIORITY: Check for tool suggestions FIRST (before generating normal response)
       if (!isOnboarding) { // Only suggest tools for completed onboarding
         try {
-          const { TrainingHintService } = await import('./trainingHintService')
+      
           
           // Get enabled tools for this organization
           const enabledTools = await this.getEnabledTools(organization.id)
@@ -330,7 +338,7 @@ export class OrganizationChatService {
         // Get training context from embedding service
         let trainingContext = ''
         try {
-          const { embeddingService } = await import('../../../shared/services/embeddingService')
+      
           const memory = await embeddingService.getBusinessKnowledgeSummary(context.organization.id)
           if (memory) {
             trainingContext = memory
@@ -340,7 +348,7 @@ export class OrganizationChatService {
         }
 
         // Use YAML loader for system prompts
-        const { YamlPromptLoader } = await import('./systemPrompt/YamlPromptLoader')
+    
         
         // Determine if setup is completed based on promptType
         // - 'onboarding' promptType: Check actual onboarding progress
@@ -354,7 +362,7 @@ export class OrganizationChatService {
         } else {
       // For onboarding, always use onboarding prompt regardless of completion status
       // We still get the progress for currentStage context
-          const { IntegratedOnboardingService } = await import('../../onboarding/services/integratedOnboardingService')
+      
           const onboardingService = new IntegratedOnboardingService()
           const progress = await onboardingService.getOnboardingProgress(context.organization.id)
       isSetupCompleted = false // Force onboarding prompt when promptType is 'onboarding'
@@ -369,7 +377,7 @@ export class OrganizationChatService {
    * Make OpenAI API call using centralized service
    */
   private async callOpenAI(systemPrompt: string, messages: ChatMessage[]): Promise<string> {
-    const { openAIService } = await import('@/lib/shared/services/OpenAIService')
+
     
     // Prepare messages with full conversation history
     const chatMessages = [
@@ -395,7 +403,7 @@ export class OrganizationChatService {
     try {
       console.log('🤖 Using AI to extract core question from:', fullMessage.substring(0, 100) + '...')
       
-      const { openAIService } = await import('@/lib/shared/services/OpenAIService')
+  
       
       const response = await openAIService.callChatCompletion([
         {
@@ -547,7 +555,7 @@ export class OrganizationChatService {
       console.log('🔍 DEBUG: Original messages array:', JSON.stringify(messages, null, 2))
   
       // Get previously answered questions from business info service
-      const { businessInfoService } = await import('../../organizations/services/businessInfoService')
+  
       const answeredQuestions = await businessInfoService.getAnsweredQuestions(context.organization.id)
       
       if (answeredQuestions && answeredQuestions.length > 0) {
@@ -633,7 +641,7 @@ export class OrganizationChatService {
         // Store the question if we have a valid business question
         if (businessQuestion) {
           progressEmitter?.('phase', { name: 'updatingProfile', field: businessQuestion.field_name })
-          const { businessInfoService } = await import('../../organizations/services/businessInfoService')
+      
           await businessInfoService.storeBusinessQuestion(context.organization.id, businessQuestion)
         }
         
@@ -653,7 +661,7 @@ export class OrganizationChatService {
    */
   private async validateAndUpdatePendingQuestions(messages: ChatMessage[], context: ChatContext): Promise<any | null> {
     try {
-      const businessInfoService = new (await import('../../organizations/services/businessInfoService')).BusinessInfoService()
+  
       
       // Get the pending unanswered question
       const pendingQuestions = await businessInfoService.getPendingQuestions(context.organization.id)
@@ -664,7 +672,7 @@ export class OrganizationChatService {
         
         if (userMessages.trim()) {
           // Check if the pending question was answered
-          const validationResult = await businessInfoService.validateAnswerWithAI(
+          const validationResult = await validationService.validateAnswerWithAI(
             userMessages, 
             pendingQuestion.question_template
           )
@@ -698,7 +706,7 @@ export class OrganizationChatService {
       console.log('💾 Processing conversation storage for organization:', context.organization.id)
       
       // Step 1: Check if conversation exchange is business relevant
-      const { businessInfoService } = await import('../../organizations/services/businessInfoService')
+  
       
       const isRelevant = await businessInfoService.isBusinessRelevantInformation(
         userMessage, 
@@ -716,7 +724,7 @@ export class OrganizationChatService {
         console.log('📚 Storing business-relevant conversation for embeddings')
         
         // Simple and direct: store the conversation as embeddings
-        const { embeddingService } = await import('../../../shared/services/embeddingService')
+    
         const conversationText = `User: ${userMessage}\nAssistant: ${aiMessage}`
         
         await embeddingService.processBusinessConversations(

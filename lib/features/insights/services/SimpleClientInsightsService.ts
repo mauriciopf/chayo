@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/shared/supabase/client'
+import { openAIService } from '@/lib/shared/services/OpenAIService'
 
 export interface ClientInsight {
   id: string
@@ -36,7 +37,7 @@ export class SimpleClientInsightsService {
    */
   async extractIntent(conversationText: string): Promise<string> {
     try {
-      const { openAIService } = await import('@/lib/shared/services/OpenAIService')
+  
 
       const prompt = `Analyze this customer message and return ONLY ONE WORD for what they want:
 

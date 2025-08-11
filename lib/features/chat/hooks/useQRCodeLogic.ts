@@ -4,9 +4,10 @@ interface QRCodeLogicProps {
   auth: any
   chat: any
   dashboardInit: any
+  currentPhase?: string | null
 }
 
-export const useQRCodeLogic = ({ auth, chat, dashboardInit }: QRCodeLogicProps) => {
+export const useQRCodeLogic = ({ auth, chat, dashboardInit, currentPhase }: QRCodeLogicProps) => {
   const [showQRCode, setShowQRCode] = useState(false)
   const [isOnboardingCompleted, setIsOnboardingCompleted] = useState(false)
   const [qrCodeUnlocked, setQrCodeUnlocked] = useState(false)
@@ -36,6 +37,16 @@ export const useQRCodeLogic = ({ auth, chat, dashboardInit }: QRCodeLogicProps) 
   useEffect(() => {
     checkOnboardingCompletion()
   }, [auth.user, auth.currentOrganization])
+
+  // React to switchingMode phase from SSE events
+  useEffect(() => {
+    if (currentPhase === 'switchingMode') {
+      console.log('🔓 SSE switchingMode detected - unlocking QR code automatically')
+      setQrCodeUnlocked(true)
+      setIsOnboardingCompleted(true)
+      setShowQRCode(true)
+    }
+  }, [currentPhase])
 
   // Update QR code visibility when onboarding completion or unlock status changes
   useEffect(() => {

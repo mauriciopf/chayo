@@ -44,7 +44,6 @@ interface BusinessChatViewProps {
   organizationId?: string
   unlockQRCode?: () => void
   onNavigateToQR?: () => void
-  refreshOnboardingProgress?: () => void
   onModeSwitch?: (mode: ChatMode) => void
   currentPhase?: string | null
 }
@@ -76,7 +75,6 @@ export default function BusinessChatView({
   organizationId,
   unlockQRCode,
   onNavigateToQR,
-  refreshOnboardingProgress,
   onModeSwitch,
   currentPhase
 }: BusinessChatViewProps) {
@@ -93,32 +91,16 @@ export default function BusinessChatView({
     handleQuickReply,
     handleMultipleChoiceSelect,
     onContinueCompletion,
-    onNavigateToQR: businessNavigateToQR,
-    refreshOnboardingProgress: refreshOnboardingProgressFromHook
+    onNavigateToQR: businessNavigateToQR
   } = useBusinessModeChat({
     organizationId,
     setMessages,
     sendMessage,
     unlockQRCode,
-    onNavigateToQR,
-    refreshOnboardingProgress
+    onNavigateToQR
   })
 
-  // React to switchingMode phase to refresh progress and flip UI immediately
-  React.useEffect(() => {
-    if (currentPhase === 'switchingMode') {
-      console.log('🔄 switchingMode detected - refreshing onboarding progress and auth state')
-      try {
-        refreshOnboardingProgressFromHook()
-        // Also refresh the page to pick up newly created agents
-        setTimeout(() => {
-          window.location.reload()
-        }, 1500)
-      } catch (error) {
-        console.warn('Failed to refresh during mode switch:', error)
-      }
-    }
-  }, [currentPhase, refreshOnboardingProgressFromHook])
+  // Note: switchingMode phase is handled by SSE events - no manual refreshing needed
 
   return (
     <>
@@ -142,7 +124,12 @@ export default function BusinessChatView({
 
         {/* Show completion banner with tutorial button */}
         <OnboardingCompletionBanner
-          isVisible={onboardingProgress.isCompleted && hasShownCompletionModal && !showCompletion}
+          isVisible={
+            onboardingProgress.isCompleted && 
+            hasShownCompletionModal && 
+            !showCompletion &&
+            currentPhase !== 'switchingMode' // Hide during mode switching for cleaner UX
+          }
           onStartTutorial={() => setShowTutorial(true)}
         />
 

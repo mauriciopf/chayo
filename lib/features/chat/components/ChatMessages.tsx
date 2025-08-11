@@ -79,6 +79,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, chatLoading, chat
                           onboardingProgress={onboardingProgress}
                           organizationId={organizationId}
                           currentPhase={currentPhase as any}
+                          messageType={(currentPhase as any)?.messageType || 'default'}
                         />
                       </div>
                     </div>

@@ -1,7 +1,8 @@
-import { embeddingService } from '../../../../shared/services/embeddingService'
-import type { EmbeddingResult } from '../../../../shared/services/embedding/types'
-import { getLocaleInstructions } from '../systemPrompt/i18nPromptUtils'
-import { ToolIntentService } from '../../../tools/shared/services/toolIntentService'
+import { embeddingService } from '@/lib/shared/services/embeddingService'
+import type { EmbeddingResult } from '@/lib/shared/services/embedding/types'
+import { getLocaleInstructions } from '@/lib/features/chat/services/systemPrompt/i18nPromptUtils'
+import { ToolIntentService } from '@/lib/features/tools/shared/services/toolIntentService'
+import { generateEmbeddings } from '@/lib/shared/services/embedding/EmbeddingGenerator'
 
 export class ClientSystemPromptService {
   /**
@@ -13,7 +14,6 @@ export class ClientSystemPromptService {
     let relevantChunks: Array<Pick<EmbeddingResult, 'conversation_segment' | 'metadata'>> = []
     try {
       if (userQuery && userQuery.trim().length > 0) {
-        const { generateEmbeddings } = await import('../../../../shared/services/embedding/EmbeddingGenerator')
         const queryEmbedding = (await generateEmbeddings([{ text: userQuery, type: 'conversation', metadata: {} }]))[0]
         relevantChunks = await embeddingService.searchSimilarConversations(organizationId, queryEmbedding, 0.8, 5)
       } else {

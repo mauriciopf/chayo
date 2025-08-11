@@ -11,7 +11,6 @@ interface UseBusinessModeChatProps {
   sendMessage: (messageContent: string) => Promise<void>
   unlockQRCode?: () => void
   onNavigateToQR?: () => void
-  refreshOnboardingProgress?: () => void
 }
 
 export function useBusinessModeChat({
@@ -19,30 +18,20 @@ export function useBusinessModeChat({
   setMessages,
   sendMessage,
   unlockQRCode,
-  onNavigateToQR,
-  refreshOnboardingProgress: externalRefreshOnboardingProgress
+  onNavigateToQR
 }: UseBusinessModeChatProps) {
   // Chat context state
   const [chatContext, setChatContext] = useState<ChatContextType>('business_setup')
   
-  // Onboarding progress state using custom hook
-  const { progress: onboardingProgress, refreshProgress: refreshOnboardingProgress } = useOnboardingProgress(organizationId)
+  // Onboarding progress state using custom hook (read-only, SSE handles updates)
+  const { progress: onboardingProgress } = useOnboardingProgress(organizationId)
   const [showOnboardingProgress, setShowOnboardingProgress] = useState(false)
   const [showCompletion, setShowCompletion] = useState(false)
   
-  // Wrapped sendMessage that refreshes onboarding progress after sending
+  // Simple sendMessage wrapper - SSE events handle progress updates automatically
   const wrappedSendMessage = async (messageContent: string) => {
     await sendMessage(messageContent)
-    
-    // Add a small delay to ensure database transaction is completed
-    // before refreshing the progress
-    setTimeout(() => {
-      if (externalRefreshOnboardingProgress) {
-        externalRefreshOnboardingProgress()
-      } else {
-        refreshOnboardingProgress()
-      }
-    }, 500) // 500ms delay
+    // Note: Progress updates are handled by SSE events, no manual refresh needed
   }
   
   // Persistent flag using localStorage
@@ -123,7 +112,6 @@ export function useBusinessModeChat({
     setChatContext,
     setShowCompletion,
     setShowOnboardingProgress,
-    refreshOnboardingProgress,
     sendMessage: wrappedSendMessage,
     
     // Handlers for components

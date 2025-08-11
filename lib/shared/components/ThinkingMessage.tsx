@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useRef } from 'react'
 import { thinkingMessageService, ThinkingContext, OnboardingProgressData } from '../services/ThinkingMessageService'
-import { Loader2 } from 'lucide-react'
+import { Shield, Database, Settings, Zap } from 'lucide-react'
 
 interface ThinkingMessageProps {
   context: ThinkingContext
@@ -11,6 +11,7 @@ interface ThinkingMessageProps {
   onboardingProgress?: OnboardingProgressData // Add onboarding data
   organizationId?: string // Add organization ID for real data
   currentPhase?: string | null
+  messageType?: 'default' | 'auth' | 'dashboard' | 'onboarding' | 'system' // New message types
 }
 
 export default function ThinkingMessage({ 
@@ -19,7 +20,8 @@ export default function ThinkingMessage({
   className = "text-sm text-gray-500 ml-2",
   onboardingProgress,
   organizationId,
-  currentPhase
+  currentPhase,
+  messageType = 'default'
 }: ThinkingMessageProps) {
   const [currentMessage, setCurrentMessage] = useState<string>('')
   const instanceIdRef = useRef<string>()
@@ -113,8 +115,42 @@ export default function ThinkingMessage({
     return null
   }
 
+  // Get icon and styling based on message type
+  const getIconAndStyling = () => {
+    switch (messageType) {
+      case 'auth':
+        return {
+          icon: <Shield className="w-4 h-4 mr-1" />,
+          className: "text-sm text-blue-600 ml-2 flex items-center"
+        }
+      case 'dashboard':
+        return {
+          icon: <Database className="w-4 h-4 mr-1" />,
+          className: "text-sm text-purple-600 ml-2 flex items-center"
+        }
+      case 'onboarding':
+        return {
+          icon: <Settings className="w-4 h-4 mr-1" />,
+          className: "text-sm text-green-600 ml-2 flex items-center"
+        }
+      case 'system':
+        return {
+          icon: <Zap className="w-4 h-4 mr-1" />,
+          className: "text-sm text-orange-600 ml-2 flex items-center"
+        }
+      default:
+        return {
+          icon: null,
+          className: className
+        }
+    }
+  }
+
+  const { icon, className: messageClassName } = getIconAndStyling()
+
   return (
-    <span className={className}>
+    <span className={messageClassName}>
+      {icon}
       {currentMessage}
       <span className="inline-flex ml-1">
         <span className="animate-pulse">.</span>

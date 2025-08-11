@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/shared/supabase/client'
+import { openAIService } from '@/lib/shared/services/OpenAIService'
 
 export interface BusinessInfoField {
   id?: string
@@ -68,66 +69,6 @@ export class BusinessInfoService {
       console.log('✅ Successfully stored business question:', question.field_name)
     } catch (error) {
       console.error('Error storing business question:', error)
-    }
-  }
-
-
-
-
-
-  /**
-   * Check if a specific question was answered in the conversation
-   */
-  async validateAnswerWithAI(conversation: string, question: string): Promise<{answered: boolean, answer?: string, confidence?: number}> {
-    try {
-      if (!conversation || conversation.trim().length === 0) {
-        return { answered: false }
-      }
-
-      const { openAIService } = await import('@/lib/shared/services/OpenAIService')
-
-      const validationPrompt = `You are a precise validator. Determine if the user's conversation answered the question. Extract the answer succinctly.
-
-Question:
-"""
-${question}
-"""
-
-Conversation (may include both assistant and user messages):
-"""
-${conversation}
-"""
-
-Respond ONLY with valid JSON in this schema:
-{
-  "answered": true|false,
-  "answer": "short extracted answer if answered, else empty string",
-  "confidence": 0.0-1.0
-}`
-
-      const content = await openAIService.callChatCompletion([
-        { role: 'system', content: 'You validate question answering with high precision. Output JSON only. No prose.' },
-        { role: 'user', content: validationPrompt }
-      ], {
-        model: 'gpt-4o-mini',
-        temperature: 0.1,
-        maxTokens: 200
-      })
-
-      try {
-        const result = JSON.parse(content)
-        return {
-          answered: !!result.answered,
-          answer: typeof result.answer === 'string' ? result.answer : undefined,
-          confidence: typeof result.confidence === 'number' ? result.confidence : 0.5
-        }
-      } catch (parseError) {
-        console.warn('AI validation returned non-JSON; falling back:', content?.slice(0, 120))
-        return { answered: false }
-      }
-    } catch (error) {
-      console.error('Error validating answer with AI:', error)
-      return { answered: false }
     }
   }
 
@@ -334,7 +275,7 @@ Priority: Maintain high-quality business knowledge base without clutter.`
       }
 
       // Use AI to evaluate relevance via centralized service
-      const { openAIService } = await import('@/lib/shared/services/OpenAIService')
+  
       
       const aiResponse = await openAIService.callChatCompletion([
         { role: 'system', content: systemPrompt },

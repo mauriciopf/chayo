@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/shared/supabase/client'
 import type { User } from '@supabase/supabase-js'
-import { AuthState, OtpLoadingState, Agent, UserSubscription, Organization } from '@/lib/shared/types'
-import { organizationService } from '../../organizations/services/organizationService'
+import { AuthState, OtpLoadingState, Agent, UserSubscription, Organization, Message } from '@/lib/shared/types'
+import { organizationService } from '@/lib/features/organizations/services/organizationService'
+import { agentService } from '@/lib/features/organizations/services/agentService'
+import { OTPService } from '@/lib/features/auth/services/otpService'
+
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null)
@@ -21,6 +24,81 @@ export function useAuth() {
   const [organizations, setOrganizations] = useState<Organization[]>([])
   const [currentOrganization, setCurrentOrganization] = useState<Organization | null>(null)
 
+  // Function to create OTP flow with chat dependencies
+  const createOTPFlow = (chatDeps: {
+    input: string
+    setInput: (input: string) => void
+    setJustSent: (sent: boolean) => void
+    isMobile: boolean
+    inputRef: React.RefObject<HTMLTextAreaElement>
+    messages: Message[]
+    setMessages: (messages: Message[] | ((prev: Message[]) => Message[])) => void
+  }) => {
+    return {
+      handleOTPFlow: async () => {
+        if (authState === 'awaitingName') {
+          const result = OTPService.handleNameInput(chatDeps.input)
+          if (result.success) {
+            setPendingName(chatDeps.input.trim())
+            executeActions(result.actions, chatDeps)
+          }
+          return
+        }
+
+        if (authState === 'awaitingEmail') {
+          const result = await OTPService.handleEmailInput(chatDeps.input)
+          if (result.success) {
+            setPendingEmail(chatDeps.input.trim())
+          }
+          executeActions(result.actions, chatDeps)
+          return
+        }
+
+        if (authState === 'awaitingOTP') {
+          const result = await OTPService.handleOTPVerification(chatDeps.input, pendingEmail)
+          executeActions(result.actions, chatDeps)
+          return
+        }
+      },
+      handleResendOTP: async () => {
+        const result = await OTPService.handleResendOTP(pendingEmail)
+        executeActions(result.actions, chatDeps)
+      }
+    }
+  }
+
+  const executeActions = (actions: any[], chatDeps: any) => {
+    for (const action of actions) {
+      switch (action.type) {
+        case 'add_messages':
+          chatDeps.setMessages((msgs: Message[]) => [...msgs, ...action.payload])
+          chatDeps.setJustSent(true)
+          break
+        case 'set_auth_state':
+          setAuthState(action.payload)
+          break
+        case 'set_input':
+          chatDeps.setInput(action.payload)
+          break
+        case 'set_loading':
+          setOtpLoading(action.payload)
+          break
+        case 'set_error':
+          setOtpError(action.payload)
+          break
+        case 'set_cooldown':
+          setResendCooldown(action.payload)
+          setOtpSent(true)
+          break
+        case 'blur_input':
+          if (chatDeps.isMobile && chatDeps.inputRef.current) {
+            chatDeps.inputRef.current.blur()
+          }
+          break
+      }
+    }
+  }
+
 
   // Ensure user has organization
   const ensureUserHasOrganization = async (user: User) => {
@@ -30,10 +108,6 @@ export function useAuth() {
       console.error('Error ensuring user has organization:', error)
     }
   }
-
-
-
-
 
   // Resend cooldown timer
   useEffect(() => {
@@ -110,7 +184,7 @@ export function useAuth() {
               .single()
 
             if (orgDetails) {
-              const { agentService } = await import('../../organizations/services/agentService')
+      
               const newAgent = await agentService.maybeCreateAgentChatLinkIfThresholdMet({
                 id: orgDetails.id,
                 slug: orgDetails.slug
@@ -313,5 +387,8 @@ export function useAuth() {
     
     // Methods
     ensureUserHasOrganization,
+    
+    // OTP Flow factory
+    createOTPFlow,
   }
 } 

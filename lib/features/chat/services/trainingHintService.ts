@@ -1,3 +1,6 @@
+import { supabase } from '@/lib/shared/supabase/client'
+import { OpenAIService } from '@/lib/shared/services/OpenAIService'
+
 export interface TrainingHint {
   label: string
   description: string
@@ -194,7 +197,7 @@ No specific training focus selected. Continue with general business information 
   private static async getBusinessContext(organizationId: string): Promise<string> {
     try {
       // Get business info fields (both answered and with values)
-      const { supabase } = await import('@/lib/shared/supabase/client')
+  
       const { data: businessInfo } = await supabase
         .from('business_info_fields')
         .select('field_name, field_value')
@@ -239,7 +242,7 @@ No specific training focus selected. Continue with general business information 
       ]
 
       // Use the existing OpenAI service
-      const { OpenAIService } = await import('@/lib/shared/services/OpenAIService')
+  
       const openAIService = OpenAIService.getInstance()
 
       console.log('🤖 Calling AI for tool suggestion analysis')

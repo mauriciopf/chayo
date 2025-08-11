@@ -1051,6 +1051,12 @@
       "waitingForSpeech": "Waiting for you to speak",
       "autoSendEnabled": "Auto-send enabled - pause to send message"
     },
+    "switchingMode": {
+      "setupCompleted": "🎉 Setup completed! Transitioning to business mode...",
+      "configuringAssistant": "⚙️ Configuring your business assistant...",
+      "trainingMode": "🔄 Training mode is starting...",
+      "gettingReady": "✨ Getting ready to help with your business..."
+    },
     "onboardingQuestion": "Setup Question",
     "contextBusinessSetup": "Business Setup",
     "contextWhatsappSetup": "WhatsApp Setup",

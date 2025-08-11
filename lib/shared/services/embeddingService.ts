@@ -4,8 +4,7 @@ import { insertEmbeddings } from './embedding/EmbeddingStore'
 import { searchSimilarConversations } from './embedding/VectorSearch'
 import { updateMemory as memoryManagerUpdateMemory } from './embedding/MemoryManager'
 import { supabase } from '@/lib/shared/supabase/client'
-// OpenAI client will be initialized when needed
-// This avoids issues with server-side vs client-side execution
+import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
 
 export class EmbeddingService {
   private supabaseClient: any
@@ -18,7 +17,6 @@ export class EmbeddingService {
     // Check if we're in a server-side context (API route)
     if (typeof window === 'undefined') {
       try {
-        const { getSupabaseServerClient } = await import('@/lib/shared/supabase/server')
         return getSupabaseServerClient()
       } catch (error) {
         console.warn('Failed to load server client, falling back to provided client')

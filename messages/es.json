@@ -1076,6 +1076,12 @@
     "waitingForSpeech": "Esperando que hables",
     "autoSendEnabled": "Envío automático activado - pausa para enviar mensaje"
   },
+  "switchingMode": {
+    "setupCompleted": "🎉 ¡Configuración completada! Cambiando al modo de negocio...",
+    "configuringAssistant": "⚙️ Configurando tu asistente de negocio...",
+    "trainingMode": "🔄 El modo de entrenamiento está comenzando...",
+    "gettingReady": "✨ Preparándose para ayudar con tu negocio..."
+  },
     "onboardingQuestion": "Pregunta de Configuración",
     "contextBusinessSetup": "Configuración de Negocio",
     "contextWhatsappSetup": "Configuración de WhatsApp",

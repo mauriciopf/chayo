@@ -185,7 +185,24 @@ export class ThinkingMessageService {
       }
     }
 
-    const updatePhase = (phase: string) => {
+    const updatePhase = (phase: string | any) => {
+      // Support both string phase and object with custom message
+      let phaseData: any = phase
+      let phaseName: string = phase
+      
+      if (typeof phase === 'object' && phase !== null) {
+        phaseName = phase.name || 'default'
+        // If custom message is provided, use it directly
+        if (phase.message) {
+          const customMessage = phase.message
+          this.messageArrays.set(instanceId, [customMessage])
+          this.currentIndices.set(instanceId, 0)
+          this.currentMessages.set(instanceId, customMessage)
+          this.notifyCallbacks(instanceId, customMessage)
+          return
+        }
+      }
+      
       const map: Record<string, string[]> = {
         initializing: ['🤖 Getting things ready...', '🔧 Preparing context...'],
         checkingExistingQuestion: ['🔎 Checking pending questions...', '🧭 Looking for where we left off...'],
@@ -196,10 +213,17 @@ export class ThinkingMessageService {
         parsingResponse: ['🔍 Interpreting the response...', '🧪 Validating result...'],
         updatingProfile: ['💾 Saving your business info...', '📊 Updating your profile...'],
         updatingProgress: ['📈 Updating progress...', '🗂️ Advancing your onboarding...'],
-        switchingMode: ['🎭 Switching to role-play...', '🚀 Preparing training mode...'],
+        switchingMode: [
+          '🎉 Setup completed! Transitioning to business mode...',
+          '⚙️ Configuring your business assistant...',
+          '🔄 Training mode is starting...',
+          '✨ Getting ready to help with your business...'
+        ],
+        'auth-check': ['🔐 Verifying authentication...', '🛡️ Checking credentials...'],
+        'dashboard-loading': ['📊 Loading your business data...', '🏢 Initializing dashboard...'],
         done: ['✅ Done', '🎉 Ready']
       }
-      const msgs = map[phase]
+      const msgs = map[phaseName]
       if (msgs && msgs.length > 0) {
         this.messageArrays.set(instanceId, msgs)
         this.currentIndices.set(instanceId, 0)
