@@ -3,7 +3,7 @@ import { generateSlugFromName } from '@/lib/shared/utils/text'
 import { validationService } from '@/lib/shared/services'
 import { IntegratedOnboardingService } from '@/lib/features/onboarding/services/integratedOnboardingService'
 import { agentService } from '@/lib/features/organizations/services/agentService'
-import { TrainingHintService } from '@/lib/features/chat/services/trainingHintService'
+import { ToolIntentService } from '@/lib/features/tools/shared/services'
 import { embeddingService } from '@/lib/shared/services/embeddingService'
 import { YamlPromptLoader } from '@/lib/features/chat/services/systemPrompt/YamlPromptLoader'
 import { openAIService } from '@/lib/shared/services/OpenAIService'
@@ -206,7 +206,7 @@ export class OrganizationChatService {
           const enabledTools = await this.getEnabledTools(organization.id)
           
           // Analyze conversation for tool opportunities FIRST
-          const toolSuggestion = await TrainingHintService.generateToolSuggestion(
+          const toolSuggestion = await ToolIntentService.generateToolSuggestion(
             messages,
             organization.id,
             enabledTools
@@ -370,7 +370,7 @@ export class OrganizationChatService {
         }
         
         console.log(`🎯 Using ${promptType} system prompt - isSetupCompleted: ${isSetupCompleted}`)
-    return await YamlPromptLoader.buildSystemPrompt(context.locale, trainingContext, isSetupCompleted, currentStage)
+    return await YamlPromptLoader.buildSystemPrompt(context.locale, trainingContext, isSetupCompleted)
   }
 
   /**

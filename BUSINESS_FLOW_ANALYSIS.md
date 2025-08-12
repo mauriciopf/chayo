@@ -92,7 +92,7 @@ The system uses `organizationChatService.determineOnboardingState()` to classify
 // In organizationChatService.generateAndStoreAIResponse()
 const promptType = (type === 'business') ? 'business' : 'onboarding'
 const isSetupCompleted = (promptType === 'business') ? true : false
-const systemPrompt = await YamlPromptLoader.buildSystemPrompt(locale, trainingContext, isSetupCompleted, currentStage)
+const systemPrompt = await YamlPromptLoader.buildSystemPrompt(locale)
 ```
 
 ### System Prompt Files

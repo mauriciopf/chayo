@@ -10,13 +10,11 @@ The system prompt generation has been split into focused, single-responsibility 
 
 ```mermaid
 graph TD
-    A[Chat Container] --> B[Training Hint Service]
     A --> C[Enhanced System Prompt Service]
     C --> D[System Prompt Service]
     C --> B
     C --> E[RAG Context]
     
-    B --> F[Training Hint Messages]
     D --> G[Base Business Prompt]
     E --> H[Document/Conversation Context]
     
@@ -26,25 +24,6 @@ graph TD
 ```
 
 ## 📁 Services
-
-### 1. `TrainingHintService`
-**Purpose**: Manages training hint logic and system message creation
-**Location**: `lib/services/trainingHintService.ts`
-
-```typescript
-// Extract training hints from chat messages
-const hintContext = TrainingHintService.extractFromMessages(messages)
-
-// Create system messages for UI
-const focusMessage = TrainingHintService.createFocusMessage(hint)
-const clearMessage = TrainingHintService.createClearFocusMessage()
-```
-
-**Responsibilities**:
-- ✅ Parse training hint messages from chat
-- ✅ Generate system prompt additions for hints
-- ✅ Create standardized hint system messages
-- ✅ Handle hint state (active/cleared)
 
 ### 2. `EnhancedSystemPromptService`
 **Purpose**: Orchestrates complete system prompt generation
@@ -98,18 +77,6 @@ const result = await enhancedService.generateEnhancedPrompt(
   locale
 )
 
-// Use result.finalPrompt for OpenAI
-// Use result.metadata for debugging
-```
-
-### 3. **Training Hint Processing** (Internal)
-```typescript
-// enhancedSystemPromptService.ts
-const trainingHintContext = TrainingHintService.extractFromMessages(messages)
-const basePrompt = await systemPromptService.getDynamicSystemPrompt(...)
-const finalPrompt = basePrompt + trainingHintContext.systemPromptAddition
-```
-
 ## 🎯 Benefits
 
 ### **For Developers**:
@@ -147,26 +114,15 @@ console.log(result.metadata)
 
 ### Testing Individual Components
 ```typescript
-// Test training hint extraction independently
-const hintContext = TrainingHintService.extractFromMessages(testMessages)
-expect(hintContext.hasActiveHint).toBe(true)
-expect(hintContext.hint.label).toBe('Sales Optimization')
-```
+
 
 ## 🏷️ Key Interfaces
 
-```typescript
-interface TrainingHintContext {
-  hint: TrainingHint | null
-  systemPromptAddition: string
-  hasActiveHint: boolean
-}
 
 interface SystemPromptResult {
   finalPrompt: string
   metadata: {
     basePromptLength: number
-    trainingHintContext: TrainingHintContext
     hasDocumentContext: boolean
     hasConversationContext: boolean
     systemPromptLength: number

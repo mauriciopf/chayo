@@ -1,5 +1,4 @@
-import { OrganizationSystemPromptService } from './OrganizationSystemPromptService'
-import { TrainingHintService, type TrainingHintContext } from '../trainingHintService'
+import { ToolIntentService } from '@/lib/features/tools/shared/services'
 import { YamlPromptLoader } from './YamlPromptLoader'
 
 export interface SystemPromptResult {
@@ -8,24 +7,18 @@ export interface SystemPromptResult {
 }
 
 /**
- * Enhanced system prompt service that combines base system prompts with training hints
+ * Enhanced system prompt service for base system prompts
  */
 export class EnhancedOrganizationSystemPromptService {
   
   constructor() {}
 
   async generateEnhancedPrompt(
-    organizationId: string,
-    messages: any[],
-    userQuery: string,
     locale: string = 'en'
   ): Promise<{ systemContent: string }> {
     try {
-      // Get training hints for enhanced context
-      const trainingHintContext = TrainingHintService.extractFromMessages(messages)
-      
       // Build the enhanced system prompt using YAML configuration
-      const systemContent = await this.buildSystemPrompt(trainingHintContext, locale)
+      const systemContent = await this.buildSystemPrompt(locale)
       
       return {
         systemContent
@@ -39,17 +32,8 @@ export class EnhancedOrganizationSystemPromptService {
     }
   }
 
-  private async buildSystemPrompt(trainingHintContext: TrainingHintContext, locale: string): Promise<string> {
-    // Build training context string
-    let trainingContext = ''
-    if (trainingHintContext.systemPromptAddition) {
-      trainingContext += trainingHintContext.systemPromptAddition
-    }
-    if (trainingHintContext.hasActiveHint && trainingHintContext.hint) {
-      trainingContext += `\nActive training focus: ${trainingHintContext.hint.label} - ${trainingHintContext.hint.description}`
-    }
-    
+  private async buildSystemPrompt(locale: string): Promise<string> {
     // Use YAML loader to build the system prompt
-    return await YamlPromptLoader.buildSystemPrompt(locale, trainingContext)
+    return await YamlPromptLoader.buildSystemPrompt(locale)
   }
 } 

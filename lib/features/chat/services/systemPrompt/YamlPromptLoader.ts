@@ -97,6 +97,9 @@ export class YamlPromptLoader {
 
 ${config.objective}
 
+${!isSetupCompleted ? `## 📚 ONBOARDING CURRENT STAGE
+${currentStage}` : ''}
+
 ${config.behavior}
 
 ${config.refinement_mode || ''}
