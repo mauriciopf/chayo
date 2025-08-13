@@ -52,7 +52,8 @@ function DashboardContent() {
   
   const chat = useChat({
     authState: auth.authState,
-    locale
+    locale,
+    organizationId: auth.currentOrganization?.id
   })
 
   // Create OTP flow with chat integration

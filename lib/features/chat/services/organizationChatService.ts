@@ -8,6 +8,7 @@ import { embeddingService } from '@/lib/shared/services/embeddingService'
 import { YamlPromptLoader } from '@/lib/features/chat/services/systemPrompt/YamlPromptLoader'
 import { openAIService } from '@/lib/shared/services/OpenAIService'
 import { businessInfoService } from '@/lib/features/organizations/services/businessInfoService'
+import { scrapingService } from '@/lib/shared/services/scrapingService'
 import { 
   OnboardingQuestionSchema, 
   OnboardingStatusSchema,
@@ -32,6 +33,7 @@ export interface ChatResponse {
   aiMessage: string
   multipleChoices?: string[]
   allowMultiple?: boolean
+  statusSignal?: string
   setupCompleted?: boolean
 }
 
@@ -42,6 +44,7 @@ export interface ChatContext {
 }
 
 export type OnboardingState = 
+  | 'WEBSITE_SCRAPING' // Extract business info from website URL
   | 'PROCESSING'       // Handle onboarding - check pending, process responses, generate questions
   | 'COMPLETED'        // All onboarding done, normal chat mode
 
@@ -115,6 +118,16 @@ export class OrganizationChatService {
         if (progress.isCompleted) {
           console.log('✅ [FLOW] Onboarding completed - transitioning to business mode')
           return await this.handleChatFlow(messages, context, false) // Recursive call for business mode
+        }
+
+        // 🌐 NEW: Check if this is a brand new organization that should start with website scraping
+        const shouldOfferWebsiteScraping = await this.shouldOfferWebsiteScraping(context.organization.id, messages)
+        if (shouldOfferWebsiteScraping) {
+          console.log('🌐 [FLOW] Brand new organization - offering website scraping option')
+          return {
+            aiMessage: "Welcome! I'm Chayo, your AI business assistant. 🎉\n\nTo get started quickly, I can extract information from your business website to personalize your experience and speed up the setup process.\n\nDo you have a business website you'd like me to analyze? If you do, I'll provide you with a simple way to share it with me. If not, no worries - I'll guide you through our standard setup questions.",
+            statusSignal: 'website_scraping_offered'
+          }
         }
       } else {
         console.log('💼 [FLOW] Business mode - generating business conversation')
@@ -969,4 +982,112 @@ export class OrganizationChatService {
       return []
     }
   }
+
+  /**
+   * Check if we should offer website scraping to a new organization
+   */
+  private async shouldOfferWebsiteScraping(organizationId: string, messages: ChatMessage[]): Promise<boolean> {
+    try {
+      // Check the organization's website scraping state
+      const { data: organization } = await this.supabaseClient
+        .from('organizations')
+        .select('website_scraping_state')
+        .eq('id', organizationId)
+        .single()
+
+      if (!organization) {
+        console.log('🌐 [SCRAPING] Organization not found')
+        return false
+      }
+
+      const scrapingState = organization.website_scraping_state
+
+      // Only offer if we haven't offered before (state is null)
+      if (scrapingState === null) {
+        // Additional check: only offer if this is early in the conversation
+        const userMessages = messages.filter(m => m.role === 'user')
+        if (userMessages.length <= 1) { // Allow up to 1 user message
+          console.log('🌐 [SCRAPING] Offering website scraping to new organization')
+          
+          // Update state to 'offered' so we don't ask again
+          await this.supabaseClient
+            .from('organizations')
+            .update({ website_scraping_state: 'offered' })
+            .eq('id', organizationId)
+          
+          return true
+        }
+      }
+
+      console.log('🌐 [SCRAPING] Not offering website scraping - state:', scrapingState, 'messages:', messages.filter(m => m.role === 'user').length)
+      return false
+
+    } catch (error) {
+      console.error('❌ [SCRAPING] Error checking website scraping conditions:', error)
+      return false
+    }
+  }
+
+  // Note: detectUrlInMessage method removed - using explicit frontend URL input instead
+
+  /**
+   * Handle website scraping and business info extraction
+   */
+  async handleWebsiteScraping(
+    url: string, 
+    organizationId: string,
+    progressEmitter?: (phase: string, data?: any) => void
+  ): Promise<{
+    success: boolean;
+    hasEnoughInfo: boolean;
+    businessInfo?: any;
+    rawContent?: string;
+    error?: string;
+  }> {
+    try {
+      console.log('🌐 [SCRAPING] Starting website scraping for:', url);
+      progressEmitter?.('phase', { name: 'scrapingWebsite', url });
+
+      // Step 1: Scrape and extract business information
+      const scrapingResult = await scrapingService.scrapeAndExtractBusinessInfo(url);
+
+      if (!scrapingResult.success) {
+        console.log('❌ [SCRAPING] Website scraping failed:', scrapingResult.error);
+        return {
+          success: false,
+          hasEnoughInfo: false,
+          error: scrapingResult.error
+        };
+      }
+
+      const hasEnoughInfo = !!scrapingResult.businessInfo;
+      console.log('📊 [SCRAPING] Extraction result:', { hasEnoughInfo, contentLength: scrapingResult.rawContent?.length });
+
+      if (hasEnoughInfo && scrapingResult.rawContent) {
+        progressEmitter?.('phase', { name: 'storingBusinessInfo' });
+        
+        // Step 2: Store the extracted business information in embeddings
+        const businessInfoContent = `Business Information extracted from website (${url}):\n\n${scrapingResult.rawContent}`;
+        await embeddingService.processBusinessConversations(organizationId, [businessInfoContent]);
+        console.log('✅ [SCRAPING] Business information stored in embeddings');
+      }
+
+      return {
+        success: true,
+        hasEnoughInfo,
+        businessInfo: scrapingResult.businessInfo,
+        rawContent: scrapingResult.rawContent
+      };
+
+    } catch (error) {
+      console.error('❌ [SCRAPING] Website scraping error:', error);
+      return {
+        success: false,
+        hasEnoughInfo: false,
+        error: error instanceof Error ? error.message : 'Unknown scraping error'
+      };
+    }
+  }
+
+
 } 

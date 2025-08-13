@@ -4,6 +4,7 @@ import { Message, AuthState } from '@/lib/shared/types'
 interface UseChatProps {
   authState: AuthState
   locale: string
+  organizationId?: string
 }
 
 interface UseChatReturn {
@@ -41,7 +42,8 @@ interface UseChatReturn {
 
 export function useChat({
   authState,
-  locale
+  locale,
+  organizationId
 }: UseChatProps): UseChatReturn {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
@@ -52,6 +54,14 @@ export function useChat({
   const [uploadProgress, setUploadProgress] = useState<number | null>(null)
   const [previousLocale, setPreviousLocale] = useState<string>(locale)
   const [currentPhase, setCurrentPhase] = useState<string | null>(null)
+
+  // Simple URL detection helper
+  const detectUrlInMessage = (content: string): string | null => {
+    // More robust URL regex that handles common edge cases
+    const urlRegex = /https?:\/\/(?:[-\w.])+(?:\:[0-9]+)?(?:\/[^\s]*)?/i
+    const match = content.match(urlRegex)
+    return match ? match[0].replace(/[.,;!?]+$/, '') : null // Remove trailing punctuation
+  }
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -143,6 +153,21 @@ export function useChat({
                 toolName: data.suggestionMeta?.toolName
               }
               setMessages((msgs) => [...msgs, aiMessage])
+              
+              // 🌐 Handle statusSignal for website scraping (only for authenticated users)
+              if (data.statusSignal === 'website_scraping_offered' && authState === 'authenticated') {
+                console.log('🌐 Website scraping offered to authenticated user - sending follow-up message')
+                
+                // Add a follow-up message asking for the website URL
+                const followUpMessage: Message = {
+                  id: Date.now().toString() + '-followup',
+                  role: 'ai',
+                  content: "Please share your business website URL (e.g., https://yourbusiness.com) and I'll extract the information to speed up your setup. If you don't have a website, just type 'skip' and I'll guide you through our standard questions.",
+                  timestamp: new Date(),
+                }
+                setMessages((msgs) => [...msgs, followUpMessage])
+              }
+              
               // Delay clearing the phase to allow switchingMode effects to trigger
               setTimeout(() => {
                 setCurrentPhase(null)
@@ -204,6 +229,8 @@ export function useChat({
     }
   }, [justSent])
 
+
+
   // Detect locale changes and notify AI
   useEffect(() => {
     if (previousLocale !== locale && messages.length > 0) {
@@ -231,6 +258,114 @@ export function useChat({
     // Input is already correctly positioned with flexbox layout
   }
 
+
+
+  // Helper function to handle website scraping
+  const handleWebsiteScraping = async (url: string, userMessage: Message) => {
+    // Declare thinking message outside try block for error handling access
+    const thinkingMessage: Message = {
+      id: Date.now().toString() + '-thinking',
+      role: 'ai',
+      content: '🌐 Analyzing your website...',
+      timestamp: new Date(),
+    }
+    
+    try {
+      console.log('🌐 Detected URL, calling website scraping API:', url)
+      
+      // Add user message first
+      setMessages((msgs) => [...msgs, userMessage])
+      setInput("")
+      setJustSent(true)
+      setChatLoading(true)
+      
+      // Get organization ID from props
+      if (!organizationId) {
+        throw new Error('Organization ID not found')
+      }
+      
+      // Add thinking message
+      setMessages((msgs) => [...msgs, thinkingMessage])
+      
+      // Update thinking message to show processing
+      setTimeout(() => {
+        setMessages((msgs) => msgs.map(m => 
+          m.id === thinkingMessage.id 
+            ? { ...m, content: '🔍 Extracting business information...' }
+            : m
+        ))
+      }, 2000)
+      
+      // Call website scraping API
+      const response = await fetch('/api/website-scraping', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          url: url,
+          organizationId: organizationId
+        }),
+        credentials: 'include'
+      })
+      
+      const result = await response.json()
+      
+      // Remove thinking message and add result
+      setMessages((msgs) => msgs.filter(m => m.id === thinkingMessage.id))
+      
+      const resultMessage: Message = {
+        id: Date.now().toString() + '-scraping-result',
+        role: 'ai',
+        content: result.success 
+          ? result.message 
+          : `I couldn't analyze your website: ${result.error}. Let's continue with our standard setup questions.`,
+        timestamp: new Date(),
+      }
+      setMessages((msgs) => [...msgs, resultMessage])
+      
+      // If scraping was successful, continue with normal chat flow
+      if (result.success) {
+        // Trigger normal chat flow to continue onboarding
+        await handleSSERequest({
+          messages: [...messages, userMessage].map(({ role, content }) => ({ 
+            role: role === 'ai' ? 'assistant' : role,
+            content
+          })),
+          locale
+        }, {
+          addUserMessage: false, // Already added
+          logPrefix: 'Continuing after website scraping'
+        })
+      }
+      
+    } catch (error) {
+      console.error('❌ Website scraping failed:', error)
+      // Remove specific thinking message, not all thinking messages
+      setMessages((msgs) => msgs.filter(m => m.id !== thinkingMessage.id))
+      
+      // Provide more specific error messages
+      let errorContent = "I couldn't analyze your website. Let's continue with our standard setup questions."
+      if (error instanceof Error) {
+        if (error.message.includes('timeout')) {
+          errorContent = "Your website took too long to load. Let's continue with our standard setup questions."
+        } else if (error.message.includes('Organization ID not found')) {
+          errorContent = "There was an authentication issue. Please refresh and try again."
+        }
+      }
+      
+      const errorMessage: Message = {
+        id: Date.now().toString() + '-scraping-error',
+        role: 'ai',
+        content: errorContent,
+        timestamp: new Date(),
+      }
+      setMessages((msgs) => [...msgs, errorMessage])
+    } finally {
+      setChatLoading(false)
+    }
+  }
+
   // Send a message directly (for multiple choice responses)
   const sendMessage = async (messageContent: string) => {
     const newUserMsg: Message = {
@@ -238,6 +373,54 @@ export function useChat({
       role: "user",
       content: messageContent,
       timestamp: new Date()
+    }
+    
+    // 🌐 Check if user wants to skip website scraping
+    if ((messageContent.toLowerCase().includes('skip') || messageContent.toLowerCase().includes('no')) && authState === 'authenticated' && organizationId) {
+      console.log('🌐 User chose to skip website scraping')
+      
+      // Call skip API
+      try {
+        await fetch('/api/website-scraping/skip', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            organizationId: organizationId
+          }),
+          credentials: 'include'
+        })
+      } catch (error) {
+        console.error('❌ Failed to skip website scraping:', error)
+      }
+      
+      // Add user message and continue with normal flow
+      setMessages((msgs) => [...msgs, newUserMsg])
+      setInput("")
+      setJustSent(true)
+      
+      // Continue with normal chat flow
+      const updatedMessages = [...messages, newUserMsg]
+      await handleSSERequest({
+        messages: updatedMessages.map(({ role, content }) => ({ 
+          role: role === 'ai' ? 'assistant' : role,
+          content
+        })),
+        locale
+      }, {
+        addUserMessage: false, // Already added
+        logPrefix: 'Continuing after skipping website scraping'
+      })
+      return
+    }
+    
+    // 🌐 Check if message contains a URL for website scraping (only for authenticated users)
+    const detectedUrl = detectUrlInMessage(messageContent)
+    if (detectedUrl && authState === 'authenticated') {
+      console.log('🌐 URL detected in authenticated user message, handling website scraping')
+      await handleWebsiteScraping(detectedUrl, newUserMsg)
+      return
     }
     
     // Create the updated messages array that includes the new user message
