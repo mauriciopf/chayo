@@ -40,17 +40,17 @@ export class BusinessInfoService {
    */
   public async storeBusinessQuestion(organizationId: string, question: BusinessQuestion): Promise<void> {
     try {
-      // Check if this question already exists
+      // Check if this exact question already exists
       const { data: existingQuestion } = await supabase
         .from('business_info_fields')
         .select('id')
         .eq('organization_id', organizationId)
-        .eq('field_name', question.field_name)
+        .eq('question_template', question.question_template)
         .eq('is_answered', false)
         .single()
       
       if (existingQuestion) {
-        console.log('📝 Question already exists:', question.field_name)
+        console.log('📝 [BUSINESS_INFO] Question already exists:', question.question_template.substring(0, 50) + '...')
         return
       }
 
@@ -66,7 +66,7 @@ export class BusinessInfoService {
           multiple_choices: question.multiple_choices || null
         })
       
-      console.log('✅ Successfully stored business question:', question.field_name)
+      console.log('✅ [BUSINESS_INFO] Successfully stored business question:', question.field_name)
     } catch (error) {
       console.error('Error storing business question:', error)
     }
@@ -82,6 +82,13 @@ export class BusinessInfoService {
     confidence: number
   ): Promise<void> {
     try {
+      console.log('💾 [BUSINESS_INFO] Updating question as answered:', {
+        organizationId,
+        fieldName,
+        answer,
+        confidence
+      })
+      
       const { error } = await this.supabaseClient
         .from('business_info_fields')
         .update({
@@ -94,13 +101,15 @@ export class BusinessInfoService {
         .eq('field_name', fieldName)
 
       if (error) {
-        console.error('Error updating question as answered:', error)
+        console.error('❌ [BUSINESS_INFO] Error updating question as answered:', error)
         throw error
       }
 
+      console.log(`✅ [BUSINESS_INFO] Question marked as answered: ${fieldName} = "${answer}" (confidence: ${confidence})`)
+
       // Special handling: Update organization name when business_name is answered
       if (fieldName === 'business_name' && answer && answer.trim().length > 0) {
-        console.log('📝 Updating organization name to:', answer.trim())
+        console.log('📝 [BUSINESS_INFO] Updating organization name to:', answer.trim())
         await this.updateOrganizationName(organizationId, answer.trim())
       }
     } catch (error) {
@@ -165,6 +174,8 @@ export class BusinessInfoService {
    */
   async getPendingQuestions(organizationId: string): Promise<BusinessInfoField[]> {
     try {
+      console.log('📋 [BUSINESS_INFO] Getting pending questions for org:', organizationId)
+      
       const { data: fields, error } = await this.supabaseClient
         .from('business_info_fields')
         .select('*')
@@ -173,13 +184,20 @@ export class BusinessInfoService {
         .order('created_at', { ascending: true })
 
       if (error) {
-        console.error('Error getting pending questions:', error)
+        console.error('❌ [BUSINESS_INFO] Error getting pending questions:', error)
         return []
+      }
+
+      console.log('📊 [BUSINESS_INFO] Raw pending questions from DB:', fields?.length || 0)
+      if (fields && fields.length > 0) {
+        console.log('📝 [BUSINESS_INFO] Sample pending question:', JSON.stringify(fields[0], null, 2))
+      } else {
+        console.log('✅ [BUSINESS_INFO] No pending questions found')
       }
 
       return fields || []
     } catch (error) {
-      console.error('Error getting pending questions:', error)
+      console.error('❌ [BUSINESS_INFO] Error in getPendingQuestions:', error)
       return []
     }
   }

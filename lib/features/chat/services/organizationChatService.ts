@@ -51,13 +51,30 @@ export class OrganizationChatService {
     const promptType = isOnboarding ? 'onboarding' : 'business'
     const setupCompleted = !isOnboarding
     
-    console.log(`🔄 State: ${mode} - Unified chat flow with intelligent question management`)
+    console.log(`🔄 [FLOW] State: ${mode} - Unified chat flow with intelligent question management`)
+    console.log(`📝 [FLOW] Messages to process:`, {
+      count: messages.length,
+      userMessages: messages.filter(m => m.role === 'user').length,
+      assistantMessages: messages.filter(m => m.role === 'assistant').length
+    })
         
     // Check if there's a pending question
-    const existingQuestion =await this.validateAndUpdatePendingQuestions(messages, context)
+    console.log('🔍 [FLOW] Checking for pending questions')
+    const existingQuestion = await this.validateAndUpdatePendingQuestions(messages, context)
+    console.log('📋 [FLOW] Pending question check result:', {
+      hasPendingQuestion: !!existingQuestion,
+      questionFieldName: existingQuestion?.field_name,
+      questionTemplate: existingQuestion?.question_template?.substring(0, 50) + '...'
+    })
     
     if (existingQuestion) {
-      console.log(`📋 Found existing pending ${mode.toLowerCase()} question - returning it (no new generation needed)`)
+      console.log(`📋 [FLOW] Found existing pending ${mode.toLowerCase()} question - returning it (no new generation needed)`)
+      console.log(`🔄 [FLOW] Returning existing question:`, {
+        fieldName: existingQuestion.field_name,
+        fieldType: existingQuestion.field_type,
+        hasMultipleChoices: !!existingQuestion.multiple_choices,
+        allowMultiple: existingQuestion.allow_multiple
+      })
       
       // Always return the existing pending question - never generate new ones when one exists
         return {
@@ -68,24 +85,36 @@ export class OrganizationChatService {
       }
     } else {
       // No pending question - handle based on mode
+      console.log(`🆕 [FLOW] No pending ${mode.toLowerCase()} question found`)
+      
       if (isOnboarding) {
-        console.log('🆕 No pending onboarding question - checking if completed or generating new question')
+        console.log('🔍 [FLOW] Onboarding mode - checking if actually completed or generating new question')
         
         // Check if onboarding is actually completed
-    
         const onboardingService = new IntegratedOnboardingService()
         const progress = await onboardingService.getOnboardingProgress(context.organization.id)
+        console.log('📊 [FLOW] Re-checking onboarding progress:', {
+          isCompleted: progress.isCompleted,
+          currentStage: progress.currentStage
+        })
         
         if (progress.isCompleted) {
-          console.log('✅ Onboarding completed - transitioning to business mode')
+          console.log('✅ [FLOW] Onboarding completed - transitioning to business mode')
           return await this.handleChatFlow(messages, context, false) // Recursive call for business mode
         }
       } else {
-        console.log('🆕 No pending business question - generating business conversation')
+        console.log('💼 [FLOW] Business mode - generating business conversation')
       }
       
       // Generate new question/response
+      console.log(`🤖 [FLOW] Generating new AI response (${promptType} mode)`)
       const aiResponse = await this.generateAndStoreAIResponse(messages, context, promptType, progressEmitter)
+      console.log('✅ [FLOW] AI response generated:', {
+        hasAiMessage: !!aiResponse.aiMessage,
+        statusSignal: aiResponse.statusSignal,
+        hasMultipleChoices: !!aiResponse.multipleChoices,
+        allowMultiple: aiResponse.allowMultiple
+      })
       
       // Handle onboarding-specific progress updates
       if (isOnboarding && aiResponse.statusSignal) {
@@ -173,44 +202,69 @@ export class OrganizationChatService {
     progressEmitter?: (event: string, data?: any) => void
   ): Promise<ChatResponse & { organization: any }> {
     try {
+      console.log('🎯 [SERVICE] processChat started:', {
+        messagesCount: messages.length,
+        locale,
+        hasProgressEmitter: !!progressEmitter,
+        messageTypes: messages.map(m => m.role)
+      })
+      
       // Get user and organization context
+      console.log('👤 [SERVICE] Getting current user')
       const { data: { user }, error: authError } = await this.supabaseClient.auth.getUser()
       if (authError || !user) {
+        console.log('❌ [SERVICE] Authentication failed:', authError?.message)
         throw new Error('Authentication required')
       }
+      console.log('✅ [SERVICE] User authenticated:', user.id)
       
       // Get or create organization
+      console.log('🏢 [SERVICE] Getting or creating organization')
       const organization = await this.getOrCreateOrganization(user)
+      console.log('✅ [SERVICE] Organization ready:', organization.id)
       const context: ChatContext = {
         user,
         organization,
         locale
       }
+      console.log('📋 [SERVICE] Context created for organization:', organization.id)
       
       // Get onboarding progress and determine chat flow
-  
+      console.log('🔍 [SERVICE] Checking onboarding status')
       const onboardingService = new IntegratedOnboardingService()
       progressEmitter?.('phase', { name: 'initializing' })
       const progress = await onboardingService.getOnboardingProgress(organization.id)
       const isOnboarding = !progress.isCompleted
+      console.log('📊 [SERVICE] Onboarding status:', {
+        isCompleted: progress.isCompleted,
+        isOnboarding,
+        currentStage: progress.currentStage
+      })
       
       console.log(`🎯 Onboarding status: ${isOnboarding ? 'PROCESSING' : 'COMPLETED'} (Stage: ${progress.currentStage})`)
       progressEmitter?.('phase', { name: 'checkingExistingQuestion', stage: progress.currentStage })
       
       // ⭐ PRIORITY: Check for tool suggestions FIRST (before generating normal response)
       if (!isOnboarding) { // Only suggest tools for completed onboarding
+        console.log('🔧 [SERVICE] Checking for tool suggestions (post-onboarding)')
         try {
-      
           
           // Get enabled tools for this organization
+          console.log('🛠️ [SERVICE] Getting enabled tools')
           const enabledTools = await this.getEnabledTools(organization.id)
+          console.log('✅ [SERVICE] Enabled tools retrieved:', enabledTools)
           
           // Analyze conversation for tool opportunities FIRST
+          console.log('🤖 [SERVICE] Analyzing conversation for tool suggestions')
           const toolSuggestion = await ToolIntentService.generateToolSuggestion(
             messages,
             organization.id,
             enabledTools
           )
+          console.log('🔍 [SERVICE] Tool suggestion analysis result:', {
+            hasSuggestion: !!toolSuggestion,
+            toolName: toolSuggestion?.toolName
+          })
           
           // If we have a suggestion, return it instead of generating normal response
           if (toolSuggestion) {
@@ -239,17 +293,29 @@ export class OrganizationChatService {
           }
         } catch (error) {
           // If tool suggestion analysis fails, log error but continue with normal flow
-          console.error('🚨 Tool suggestion analysis failed, falling back to normal response:', error)
+          console.error('🚨 [SERVICE] Tool suggestion analysis failed, falling back to normal response:', error)
         }
+      } else {
+        console.log('⏭️ [SERVICE] Skipping tool suggestions - still in onboarding mode')
       }
       
       // FALLBACK: Generate normal AI response only if no tool suggestion was found
-      console.log('💬 No tool suggestion found - generating normal AI response')
+      console.log('💬 [SERVICE] No tool suggestion found - generating normal AI response')
       const response = await this.handleChatFlow(messages, context, isOnboarding, progressEmitter)
+      console.log('✅ [SERVICE] handleChatFlow completed:', {
+        hasAiMessage: !!response.aiMessage,
+        hasMultipleChoices: !!response.multipleChoices,
+        allowMultiple: response.allowMultiple,
+        setupCompleted: response.setupCompleted
+      })
       
+      console.log('💾 [SERVICE] Storing conversation')
       await this.storeConversation(messages, response.aiMessage, context)
+      console.log('✅ [SERVICE] Conversation stored')
+      
       progressEmitter?.('phase', { name: 'done' })
       
+      console.log('🎉 [SERVICE] processChat completed successfully')
       return {
         ...response,
         organization
@@ -395,6 +461,8 @@ export class OrganizationChatService {
     })
   }
 
+
+
   /**
    * Extract just the core business question from a full AI message using AI
    * Removes introductory text, instructions, and choice lists - keeps only the essential question
@@ -496,25 +564,23 @@ export class OrganizationChatService {
             statusSignal = jsonResponse.status
         }
         
-        // Check if this is a structured question that needs storage
-        if (jsonResponse.field_name && jsonResponse.field_type) {
-          console.log('📋 Extracting business question data for storage')
-          
-          // Extract just the actual question from the full AI message using AI
-          const extractedQuestion = await this.extractQuestionFromMessage(jsonResponse.message)
-          
-            businessQuestion = {
-            question_template: extractedQuestion, // Store only the question, not the full response
-              field_name: jsonResponse.field_name,
-              field_type: jsonResponse.field_type,
-              multiple_choices: jsonResponse.multiple_choices
-            }
-            
-          // Handle multiple choice UI data
-            if (jsonResponse.field_type === 'multiple_choice' && jsonResponse.multiple_choices) {
-              multipleChoices = jsonResponse.multiple_choices
-            allowMultiple = jsonResponse.allow_multiple || false
-          }
+        // 🎯 FLEXIBLE STORAGE: Store ANY onboarding question, regardless of structure
+        
+        // Extract just the actual question from the full AI message using AI
+        const extractedQuestion = await this.extractQuestionFromMessage(jsonResponse.message)
+        
+        // Create business question with simple defaults
+        businessQuestion = {
+          question_template: extractedQuestion,
+          field_name: jsonResponse.field_name || 'other',
+          field_type: jsonResponse.field_type || 'text',
+          multiple_choices: jsonResponse.multiple_choices || null
+        }
+        
+        // Handle multiple choice UI data
+        if (jsonResponse.field_type === 'multiple_choice' && jsonResponse.multiple_choices) {
+          multipleChoices = jsonResponse.multiple_choices
+          allowMultiple = jsonResponse.allow_multiple || false
         }
       } 
       // Invalid format - must have 'message' field
@@ -525,9 +591,19 @@ export class OrganizationChatService {
           }
         } catch (error) {
           // Not JSON or invalid JSON - treat as regular text response
-          // This is normal behavior when AI provides conversational responses
-      console.log('📝 JSON parsing failed, using raw response as text:', error instanceof Error ? error.message : String(error))
+          // 🎯 FLEXIBLE STORAGE: Even for plain text, try to store if it looks like an onboarding question
+          console.log('📝 JSON parsing failed, using raw response as text:', error instanceof Error ? error.message : String(error))
           aiMessage = aiResponse
+          
+          // 🔍 For plain text responses, always store as business question
+          const extractedQuestion = await this.extractQuestionFromMessage(aiResponse)
+          
+          businessQuestion = {
+            question_template: extractedQuestion,
+            field_name: 'other',
+            field_type: 'text',
+            multiple_choices: null
+          }
         }
 
     return {
@@ -661,23 +737,52 @@ export class OrganizationChatService {
    */
   private async validateAndUpdatePendingQuestions(messages: ChatMessage[], context: ChatContext): Promise<any | null> {
     try {
-  
+      console.log('🔍 [VALIDATE] Starting pending question validation for org:', context.organization.id)
       
       // Get the pending unanswered question
+      console.log('📋 [VALIDATE] Fetching pending questions from database')
       const pendingQuestions = await businessInfoService.getPendingQuestions(context.organization.id)
+      console.log('📊 [VALIDATE] Pending questions result:', {
+        count: pendingQuestions?.length || 0,
+        questions: pendingQuestions?.map(q => ({ 
+          fieldName: q.field_name, 
+          fieldType: q.field_type,
+          isAnswered: q.is_answered 
+        })) || []
+      })
 
       if (pendingQuestions && pendingQuestions.length > 0) {
         const pendingQuestion = pendingQuestions[0]
+        console.log('📝 [VALIDATE] Processing first pending question:', {
+          fieldName: pendingQuestion.field_name,
+          questionTemplate: pendingQuestion.question_template,
+          fieldType: pendingQuestion.field_type
+        })
+        
         const userMessages = messages.filter(m => m.role === 'user').map(m => m.content).join(' ')
+        console.log('💬 [VALIDATE] User messages to validate:', {
+          messageCount: messages.filter(m => m.role === 'user').length,
+          combinedLength: userMessages.length,
+          content: userMessages.substring(0, 200) + (userMessages.length > 200 ? '...' : '')
+        })
         
         if (userMessages.trim()) {
           // Check if the pending question was answered
+          console.log('🤖 [VALIDATE] Calling AI validation service')
           const validationResult = await validationService.validateAnswerWithAI(
             userMessages, 
             pendingQuestion.question_template
           )
+          console.log('📊 [VALIDATE] AI validation result:', validationResult)
           
           if (validationResult.answered && validationResult.answer && validationResult.confidence) {
+            console.log('✅ [VALIDATE] Question was answered! Updating database')
+            console.log('💾 [VALIDATE] Updating question as answered:', {
+              fieldName: pendingQuestion.field_name,
+              answer: validationResult.answer,
+              confidence: validationResult.confidence
+            })
+            
             // Update the question as answered
             await businessInfoService.updateQuestionAsAnswered(
               context.organization.id,
@@ -685,17 +790,34 @@ export class OrganizationChatService {
               validationResult.answer,
               validationResult.confidence
             )
+            console.log('✅ [VALIDATE] Question marked as answered in database')
+            
             // Question was answered, return null
             return null
+          } else {
+            console.log('❌ [VALIDATE] Question was NOT answered:', {
+              answered: validationResult.answered,
+              hasAnswer: !!validationResult.answer,
+              confidence: validationResult.confidence,
+              reason: !validationResult.answered ? 'AI says not answered' : 
+                      !validationResult.answer ? 'No answer extracted' :
+                      !validationResult.confidence ? 'No confidence score' : 'Unknown'
+            })
           }
+        } else {
+          console.log('⚠️ [VALIDATE] No user messages to validate (empty or whitespace)')
         }
         
         // Question wasn't answered, return the pending question
+        console.log('🔄 [VALIDATE] Returning pending question (not answered)')
         return pendingQuestion
+      } else {
+        console.log('✅ [VALIDATE] No pending questions found')
       }
       
       return null
     } catch (error) {
+      console.error('❌ [VALIDATE] Error in validateAndUpdatePendingQuestions:', error)
       return null
     }
   }
