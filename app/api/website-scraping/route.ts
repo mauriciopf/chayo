@@ -3,6 +3,8 @@ import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
 import { OrganizationChatService } from '@/lib/features/chat/services/organizationChatService'
 import { cookies } from 'next/headers'
 
+export const runtime = 'nodejs' // IMPORTANT: not "edge" - required for Playwright
+
 export async function POST(request: NextRequest) {
   const supabase = getSupabaseServerClient()
   let organizationId: string | undefined

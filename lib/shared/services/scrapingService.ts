@@ -1,4 +1,5 @@
-import { chromium } from 'playwright';
+import { chromium as playwrightChromium } from 'playwright-core';
+import chromium from '@sparticuz/chromium';
 import { openAIService } from './OpenAIService';
 import { BusinessInfoExtraction, BusinessInfoExtractionSchema } from '@/lib/shared/schemas/websiteScrapingSchemas';
 
@@ -11,51 +12,49 @@ export interface WebsiteScrapingResult {
 
 export class ScrapingService {
   /**
-   * Render a website using Puppeteer and extract HTML content
+   * Render a website using Playwright and extract HTML content
    */
   async renderWebsite(url: string): Promise<{ success: boolean; html?: string; error?: string }> {
-    let browser: any = null;
+    let browser = null;
     try {
       console.log('🌐 Starting website scraping for:', url);
       
-      browser = await chromium.launch({
-        headless: true,
-        args: [
-          '--no-sandbox',
-          '--disable-setuid-sandbox',
-          '--disable-dev-shm-usage',
-          '--disable-extensions',
-          '--disable-gpu'
-        ]
+      // Get Chromium executable path for serverless environment
+      const executablePath = await chromium.executablePath();
+      
+      // Launch browser with serverless-optimized configuration
+      browser = await playwrightChromium.launch({
+        args: chromium.args,
+        headless: chromium.headless === true,
+        executablePath,
+        env: { ...process.env, PLAYWRIGHT_DISABLE_HARDWARE_ACCELERATION: "1" }
+      });
+
+      // Create context with realistic user agent
+      const context = await browser.newContext({
+        userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36"
       });
       
-      const page = await browser.newPage();
+      const page = await context.newPage();
       
-      // Set viewport and user agent to avoid bot detection
-      await page.setViewportSize({ width: 1366, height: 768 });
-      await page.setExtraHTTPHeaders({
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-      });
-      
-      // Playwright's built-in timeout handling - will throw TimeoutError if exceeded
+      // Navigate with 5-second timeout - if it can't load quickly, continue with onboarding
       await page.goto(url, { 
         waitUntil: "networkidle", 
-        timeout: 5000 // 5 seconds timeout - if it can't load quickly, continue with onboarding
+        timeout: 5000 
       });
       
-      // Optional: small extra wait for late JS animations
-      await new Promise(resolve => setTimeout(resolve, 500));
-
       const html = await page.content();
+      console.log('✅ Successfully scraped website, HTML length:', html.length);
       
-      console.log('✅ Website scraped successfully, HTML length:', html.length);
-      return { success: true, html };
-      
+      return {
+        success: true,
+        html
+      };
     } catch (error) {
       console.error('❌ Website scraping failed:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown scraping error' 
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error occurred'
       };
     } finally {
       if (browser) {
