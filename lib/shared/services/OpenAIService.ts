@@ -41,12 +41,14 @@ export class OpenAIService {
       model?: string
       temperature?: number
       maxTokens?: number
+      responseFormat?: any // For structured outputs
     } = {}
   ): Promise<string> {
     const {
       model = 'gpt-4o-mini',
       temperature = 0.9,
-      maxTokens = 1000
+      maxTokens = 1000,
+      responseFormat
     } = options
 
     try {
@@ -55,7 +57,8 @@ export class OpenAIService {
         messages,
         temperature,
         max_tokens: maxTokens,
-        stream: false // Explicitly set to false to ensure we get a non-stream response
+        stream: false, // Explicitly set to false to ensure we get a non-stream response
+        ...(responseFormat && { response_format: responseFormat })
       })
 
       // Type assertion to handle the union type properly
@@ -79,7 +82,61 @@ export class OpenAIService {
     }
   }
 
+  /**
+   * Make a structured chat completion request using OpenAI's Structured Outputs
+   * @param messages - Array of chat messages
+   * @param schema - JSON schema for structured output
+   * @param options - Optional configuration for the request
+   * @returns Parsed structured response
+   */
+  public async callStructuredCompletion<T>(
+    messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>,
+    schema: any,
+    options: {
+      model?: string
+      temperature?: number
+      maxTokens?: number
+    } = {}
+  ): Promise<T> {
+    const {
+      model = 'gpt-4o-mini',
+      temperature = 0.7,
+      maxTokens = 1000
+    } = options
 
+    try {
+      const response = await this.client.chat.completions.create({
+        model,
+        messages,
+        temperature,
+        max_tokens: maxTokens,
+        stream: false,
+        response_format: schema
+      })
+
+      // Type assertion to handle the union type properly
+      const chatCompletion = response as OpenAI.Chat.ChatCompletion
+      const content = chatCompletion.choices[0]?.message?.content || '{}'
+      
+      // Parse and return the structured response
+      return JSON.parse(content) as T
+    } catch (error: any) {
+      // Handle specific OpenAI errors with user-friendly messages
+      if (error?.status === 429) {
+        console.error('OpenAI quota exceeded:', error)
+        throw new Error("I apologize, but I'm currently experiencing high demand and cannot process your request right now. Please try again in a few minutes, or contact support if this issue persists.")
+      } else if (error?.status === 401) {
+        console.error('OpenAI API key invalid:', error)
+        throw new Error("I apologize, but there's a configuration issue with my AI service. Please contact support for assistance.")
+      } else if (error?.status === 400) {
+        console.error('OpenAI bad request:', error)
+        throw new Error("I apologize, but there was an issue with your request. Please try rephrasing your message.")
+      } else {
+        console.error('OpenAI API error:', error)
+        throw new Error("I apologize, but I'm experiencing technical difficulties right now. Please try again in a moment.")
+      }
+    }
+  }
 
   /**
    * Generate embeddings for text content

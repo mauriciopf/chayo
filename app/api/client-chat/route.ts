@@ -3,6 +3,7 @@ import { getSupabaseServerClient } from "@/lib/shared/supabase/server"
 import { ClientSystemPromptService } from '@/lib/features/chat/services/clientPrompt/ClientSystemPromptService'
 import { embeddingService } from '@/lib/shared/services'
 import { ToolIntentService } from '@/lib/features/tools/shared/services'
+import { ToolIntentResponse, ToolIntentResponseSchema } from '@/lib/shared/schemas/toolIntentSchemas'
 
 export async function POST(request: NextRequest) {
   try {
@@ -46,28 +47,7 @@ export async function POST(request: NextRequest) {
       { role: 'user', content: message }
     ]
 
-    // Check if OpenAI API key is available
-    // Call OpenAI using centralized service
-    console.log('🚀 Calling OpenAI API...')
-    let rawResponse: string
-    try {
-      const { openAIService } = await import('@/lib/shared/services/OpenAIService')
-      rawResponse = await openAIService.callChatCompletion(openAIMessages, {
-        model: 'gpt-4o-mini',
-        maxTokens: 500,
-        temperature: 0.7,
-      }) || 'Lo siento, no pude generar una respuesta.'
-    } catch (error) {
-      console.error('❌ OpenAI API error:', error)
-      return NextResponse.json({
-        response: 'Lo siento, ocurrió un error. Por favor, intenta nuevamente.'
-      })
-    }
-
-    // Parse intents from AI response using ToolIntentService
-    const { content: assistantResponse, intents } = ToolIntentService.parseIntentsFromResponse(rawResponse)
-
-    // Get enabled tools to validate intents
+    // Get enabled tools first to determine if we need structured outputs
     const { data: enabledToolsData } = await supabase
       .from('agent_tools')
       .select('tool_type')
@@ -75,6 +55,48 @@ export async function POST(request: NextRequest) {
       .eq('enabled', true)
 
     const enabledTools = enabledToolsData?.map((tool: any) => tool.tool_type) || []
+    const hasEnabledTools = enabledTools.length > 0
+
+    // Call OpenAI using centralized service
+    console.log('🚀 Calling OpenAI API...')
+    let assistantResponse: string
+    let intents: string[] = []
+    
+    try {
+      const { openAIService } = await import('@/lib/shared/services/OpenAIService')
+      
+      if (hasEnabledTools) {
+        // 🎯 STRUCTURED OUTPUTS: Use ToolIntentResponseSchema when tools are enabled
+        console.log('🎯 Using structured outputs for tool intent detection')
+        const structuredResponse = await openAIService.callStructuredCompletion<ToolIntentResponse>(
+          openAIMessages, 
+          ToolIntentResponseSchema, 
+          {
+            model: 'gpt-4o-mini',
+            maxTokens: 500,
+            temperature: 0.7,
+          }
+        )
+        assistantResponse = structuredResponse.response
+        intents = structuredResponse.intents
+      } else {
+        // No tools enabled, use regular completion
+        const rawResponse = await openAIService.callChatCompletion(openAIMessages, {
+          model: 'gpt-4o-mini',
+          maxTokens: 500,
+          temperature: 0.7,
+        }) || 'Lo siento, no pude generar una respuesta.'
+        assistantResponse = rawResponse
+        intents = []
+      }
+    } catch (error) {
+      console.error('❌ OpenAI API error:', error)
+      return NextResponse.json({
+        response: 'Lo siento, ocurrió un error. Por favor, intenta nuevamente.'
+      })
+    }
+
+    // Validate intents against enabled tools
     const validatedIntents = ToolIntentService.validateIntents(intents, enabledTools)
 
     console.log('✅ Client chat response generated successfully:', {

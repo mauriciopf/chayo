@@ -8,6 +8,20 @@ import { embeddingService } from '@/lib/shared/services/embeddingService'
 import { YamlPromptLoader } from '@/lib/features/chat/services/systemPrompt/YamlPromptLoader'
 import { openAIService } from '@/lib/shared/services/OpenAIService'
 import { businessInfoService } from '@/lib/features/organizations/services/businessInfoService'
+import { 
+  OnboardingQuestionSchema, 
+  OnboardingStatusSchema,
+  OnboardingQuestionResponse,
+  OnboardingStatusResponse,
+  CustomerSimulationResponse 
+} from '@/lib/shared/schemas/onboardingSchemas'
+import {
+  BusinessConversationalSchema,
+  BusinessQuestionSchema,
+  BusinessConversationalResponse,
+  BusinessQuestionResponse,
+  BusinessConversationResponse
+} from '@/lib/shared/schemas/businessConversationSchemas'
 
 export interface ChatMessage {
   role: 'user' | 'assistant' | 'system'
@@ -440,11 +454,36 @@ export class OrganizationChatService {
   }
 
   /**
-   * Make OpenAI API call using centralized service
+   * Make structured OpenAI API call using Structured Outputs
+   */
+  private async callStructuredOpenAI<T>(
+    systemPrompt: string, 
+    messages: ChatMessage[], 
+    schema: any,
+    promptType: 'onboarding' | 'business'
+  ): Promise<T> {
+    // Prepare messages with full conversation history
+    const chatMessages = [
+      { role: 'system' as const, content: systemPrompt },
+      ...messages.filter(m => m.role === 'user' || m.role === 'assistant').map(m => ({
+        role: m.role as 'user' | 'assistant',
+        content: m.content
+      }))
+    ]
+
+    console.log(`🎯 [STRUCTURED] Using structured outputs for ${promptType} mode`)
+    return await openAIService.callStructuredCompletion<T>(chatMessages, schema, {
+      model: 'gpt-4o-mini',
+      temperature: 0.7, // Lower temperature for more consistent structured output
+      maxTokens: 1000
+    })
+  }
+
+  /**
+   * Legacy OpenAI API call (kept for backward compatibility)
+   * @deprecated Use callStructuredOpenAI instead
    */
   private async callOpenAI(systemPrompt: string, messages: ChatMessage[]): Promise<string> {
-
-    
     // Prepare messages with full conversation history
     const chatMessages = [
       { role: 'system' as const, content: systemPrompt },
@@ -502,6 +541,8 @@ export class OrganizationChatService {
 
   /**
    * Parse AI response and extract structured data
+   * @deprecated This method is no longer used with Structured Outputs. 
+   * Structured responses are now handled directly via OpenAI's JSON Schema feature.
    */
   private async parseAIResponse(aiResponse: string): Promise<{
     aiMessage: string;
@@ -680,17 +721,57 @@ export class OrganizationChatService {
       console.log('📨 Messages being sent to OpenAI:', JSON.stringify(enhancedMessages, null, 2))
       
       progressEmitter?.('phase', { name: 'callingAI' })
-      const aiResponse = await this.callOpenAI(systemPrompt, enhancedMessages)
       
-      console.log('🤖 DEBUG: Raw AI response received:')
-      console.log('---START AI RESPONSE---')
-      console.log(aiResponse)
-      console.log('---END AI RESPONSE---')
+      // 🎯 STRUCTURED OUTPUTS: Use appropriate schema based on prompt type
+      let structuredResponse: OnboardingQuestionResponse | BusinessConversationResponse
       
-      // Parse the AI response and extract structured data
-      progressEmitter?.('phase', { name: 'parsingResponse' })
-      const parsed = await this.parseAIResponse(aiResponse)
-      const { aiMessage, businessQuestion, multipleChoices, allowMultiple, statusSignal } = parsed
+      if (promptType === 'onboarding') {
+        console.log('🎯 [STRUCTURED] Using OnboardingQuestionSchema for structured output')
+        structuredResponse = await this.callStructuredOpenAI<OnboardingQuestionResponse>(
+          systemPrompt, 
+          enhancedMessages, 
+          OnboardingQuestionSchema,
+          promptType
+        )
+      } else {
+        // For business conversations, use BusinessQuestionSchema if collecting info, otherwise BusinessConversationalSchema
+        // For now, default to BusinessQuestionSchema - we can make this smarter later
+        console.log('🎯 [STRUCTURED] Using BusinessQuestionSchema for structured output')
+        structuredResponse = await this.callStructuredOpenAI<BusinessQuestionResponse>(
+          systemPrompt, 
+          enhancedMessages, 
+          BusinessQuestionSchema,
+          promptType
+        )
+      }
+      
+      console.log('✅ [STRUCTURED] Structured response received:', structuredResponse)
+      
+      // Extract data from structured response (no parsing needed!)
+      const aiMessage = structuredResponse.message
+      const statusSignal = 'status' in structuredResponse ? structuredResponse.status : null
+      
+      // Handle question-specific fields for both onboarding and business conversations
+      let businessQuestion = null
+      let multipleChoices = undefined
+      let allowMultiple = false
+      
+      // Extract business question data from structured response
+      if ('field_name' in structuredResponse && 'field_type' in structuredResponse) {
+        const questionResp = structuredResponse as OnboardingQuestionResponse | BusinessQuestionResponse
+        
+        businessQuestion = {
+          question_template: questionResp.question_template,
+          field_name: questionResp.field_name,
+          field_type: questionResp.field_type,
+          multiple_choices: questionResp.multiple_choices || null
+        }
+        
+        if (questionResp.field_type === 'multiple_choice' && questionResp.multiple_choices) {
+          multipleChoices = questionResp.multiple_choices
+          allowMultiple = questionResp.allow_multiple || false
+        }
+      }
       
       console.log('🔍 DEBUG: Parsed components:')
       console.log('  aiMessage:', aiMessage)

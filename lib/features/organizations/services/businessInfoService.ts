@@ -23,8 +23,8 @@ export interface BusinessInfoField {
 export interface BusinessQuestion {
   question_template: string
   field_name: string
-  field_type: 'text' | 'multiple_choice'
-  multiple_choices?: string[]
+  field_type: 'text' | 'multiple_choice' | 'boolean' | 'number'
+  multiple_choices?: string[] | null
 }
 
 export class BusinessInfoService {

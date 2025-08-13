@@ -1,4 +1,5 @@
 import { openAIService } from '@/lib/shared/services/OpenAIService'
+import { ValidationResponse, ValidationResponseSchema } from '@/lib/shared/schemas/validationSchemas'
 
 export interface ChatRequest {
   messages: Array<{
@@ -139,32 +140,25 @@ Conversation (may include both assistant and user messages):
 ${conversation}
 """
 
-Respond ONLY with valid JSON in this schema:
-{
-  "answered": true|false,
-  "answer": "short extracted answer if answered, else empty string",
-  "confidence": 0.0-1.0
-}`
+Analyze the conversation and determine:
+1. Whether the question was clearly answered
+2. What the extracted answer is (if answered)
+3. Your confidence level in this assessment`
 
-      const content = await openAIService.callChatCompletion([
-        { role: 'system', content: 'You validate question answering with high precision. Output JSON only. No prose.' },
+      // 🎯 STRUCTURED OUTPUTS: Use ValidationResponseSchema for guaranteed JSON structure
+      const result = await openAIService.callStructuredCompletion<ValidationResponse>([
+        { role: 'system', content: 'You validate question answering with high precision. Focus on accuracy and provide clear confidence assessments.' },
         { role: 'user', content: validationPrompt }
-      ], {
+      ], ValidationResponseSchema, {
         model: 'gpt-4o-mini',
         temperature: 0.1,
         maxTokens: 200
       })
 
-      try {
-        const result = JSON.parse(content)
-        return {
-          answered: !!result.answered,
-          answer: typeof result.answer === 'string' ? result.answer : undefined,
-          confidence: typeof result.confidence === 'number' ? result.confidence : 0.5
-        }
-      } catch (parseError) {
-        console.warn('AI validation returned non-JSON; falling back:', content?.slice(0, 120))
-        return { answered: false }
+      return {
+        answered: result.answered,
+        answer: result.answer,
+        confidence: result.confidence || 0.5
       }
     } catch (error) {
       console.error('Error validating answer with AI:', error)

@@ -128,7 +128,7 @@ ${intentInstructions}
 - Always be professional, helpful, and focused on this business.
 - If the user asks about something not related to this business, politely redirect them to business topics.
 - Use the business name (${businessName}) when appropriate to reinforce the business identity.
-- When tools are available, use the JSON response format with proper intent detection as instructed above.
+- When tools are available, use proper intent detection as instructed above.
 `
 
     return prompt

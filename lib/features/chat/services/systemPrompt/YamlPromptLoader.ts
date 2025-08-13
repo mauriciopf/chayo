@@ -2,7 +2,7 @@ import yaml from 'js-yaml'
 import fs from 'fs'
 import path from 'path'
 import { getLocaleInstructions } from './i18nPromptUtils'
-import { getUniversalQuestionFormatInstructions } from './questionFormatLoader'
+// Note: getUniversalQuestionFormatInstructions removed - using OpenAI Structured Outputs instead
 
 export interface SystemPromptConfig {
   identity: string
@@ -90,8 +90,8 @@ export class YamlPromptLoader {
     // Use YAML language section as fallback, but prefer the generic i18n instructions
     const languageSection = config.language?.[locale as keyof typeof config.language] || config.language?.en || localeInstructions.responseLanguage
     
-    // Get the universal question format instructions
-    const questionFormatInstructions = await getUniversalQuestionFormatInstructions()
+    // 🎯 STRUCTURED OUTPUTS: No longer need complex JSON formatting instructions
+    // OpenAI's response_format parameter guarantees proper JSON structure
     
     return `${config.identity}
 
@@ -117,7 +117,8 @@ ${languageSection}
 ${trainingContext ? `## 📚 BUSINESS KNOWLEDGE
 ${trainingContext}` : ''}
 
-${questionFormatInstructions}`
+## 🎯 RESPONSE FORMAT
+Response structure is automatically enforced via OpenAI Structured Outputs. Focus on providing helpful, accurate content.`
   }
 
   static async getFallbackPrompt(): Promise<string> {

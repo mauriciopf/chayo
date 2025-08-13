@@ -102,19 +102,12 @@ You must analyze each user message and detect if they need specific tools. When 
 
 ${intentInstructions}
 
-RESPONSE FORMAT:
-Always respond with a JSON structure like this:
-{
-  "response": "Your helpful response to the user",
-  "intents": ["tool_name"] // Array of detected intents (can be empty, single, or multiple)
-}
-
-IMPORTANT:
-- Only include intents that clearly match the user's request
+RESPONSE REQUIREMENTS:
+- Provide a helpful, natural response to the user
+- Detect any tool intents that clearly match the user's request
 - Multiple intents are allowed if the user asks for multiple things
 - If no intents match, return an empty intents array
-- Always provide a helpful response regardless of intents detected
-- The response should be natural and conversational
+- Always be conversational and helpful regardless of intents detected
 `
   }
 
