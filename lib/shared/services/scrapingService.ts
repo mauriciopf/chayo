@@ -1,4 +1,4 @@
-import puppeteer from "puppeteer";
+import { chromium } from 'playwright';
 import { openAIService } from './OpenAIService';
 import { BusinessInfoExtraction, BusinessInfoExtractionSchema } from '@/lib/shared/schemas/websiteScrapingSchemas';
 
@@ -18,12 +18,12 @@ export class ScrapingService {
     try {
       console.log('🌐 Starting website scraping for:', url);
       
-      browser = await puppeteer.launch({ 
+      browser = await chromium.launch({
         headless: true,
         args: [
-          '--no-sandbox', 
+          '--no-sandbox',
           '--disable-setuid-sandbox',
-          '--disable-dev-shm-usage', // Overcome limited resource problems
+          '--disable-dev-shm-usage',
           '--disable-extensions',
           '--disable-gpu'
         ]
@@ -32,12 +32,14 @@ export class ScrapingService {
       const page = await browser.newPage();
       
       // Set viewport and user agent to avoid bot detection
-      await page.setViewport({ width: 1366, height: 768 });
-      await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
+      await page.setViewportSize({ width: 1366, height: 768 });
+      await page.setExtraHTTPHeaders({
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+      });
       
-      // Puppeteer's built-in timeout handling - will throw TimeoutError if exceeded
+      // Playwright's built-in timeout handling - will throw TimeoutError if exceeded
       await page.goto(url, { 
-        waitUntil: "networkidle0", 
+        waitUntil: "networkidle", 
         timeout: 5000 // 5 seconds timeout - if it can't load quickly, continue with onboarding
       });
       

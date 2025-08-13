@@ -8,7 +8,7 @@ import { embeddingService } from '@/lib/shared/services/embeddingService'
 import { YamlPromptLoader } from '@/lib/features/chat/services/systemPrompt/YamlPromptLoader'
 import { openAIService } from '@/lib/shared/services/OpenAIService'
 import { businessInfoService } from '@/lib/features/organizations/services/businessInfoService'
-import { scrapingService } from '@/lib/shared/services/scrapingService'
+// Dynamic import for server-only scraping service
 import { 
   OnboardingQuestionSchema, 
   OnboardingStatusSchema,
@@ -1048,7 +1048,8 @@ export class OrganizationChatService {
       console.log('🌐 [SCRAPING] Starting website scraping for:', url);
       progressEmitter?.('phase', { name: 'scrapingWebsite', url });
 
-      // Step 1: Scrape and extract business information
+      // Step 1: Scrape and extract business information (dynamic import for server-only)
+      const { scrapingService } = await import('@/lib/shared/services/scrapingService');
       const scrapingResult = await scrapingService.scrapeAndExtractBusinessInfo(url);
 
       if (!scrapingResult.success) {

@@ -1,27 +1,21 @@
-/** @type {import('next').NextConfig} */
 const createNextIntlPlugin = require('next-intl/plugin');
- 
 const withNextIntl = createNextIntlPlugin('./i18n.ts');
 
-const withPWA = require('next-pwa');
-const runtimeCaching = require('next-pwa/cache');
-
+/** @type {import('next').NextConfig} */
 const nextConfig = {
-  images: {
-    unoptimized: true,
+  experimental: {
+    serverComponentsExternalPackages: ['playwright']
   },
-  // For Vercel deployment
-  trailingSlash: false,
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      // Don't bundle playwright for client-side
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        'playwright': false,
+      }
+    }
+    return config
+  }
 }
 
-module.exports = withNextIntl(withPWA({
-  pwa: {
-    dest: 'public',
-    register: true,
-    skipWaiting: true,
-    disable: process.env.NODE_ENV === 'development',
-    runtimeCaching,
-    manifest: '/manifest.json',
-  },
-  // ...existing Next.js config
-}));
+module.exports = withNextIntl(nextConfig)

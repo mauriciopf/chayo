@@ -266,7 +266,7 @@ export default function SignDocumentPage() {
       
       // Submit signed document
       const formData = new FormData()
-      formData.append('signedPdf', new Blob([signedPdfBytes], { type: 'application/pdf' }))
+      formData.append('signedPdf', new Blob([new Uint8Array(signedPdfBytes)], { type: 'application/pdf' }))
       formData.append('signerName', signerName)
       formData.append('signerEmail', signerEmail)
       if (anonymousUser?.id) {
