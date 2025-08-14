@@ -47,14 +47,16 @@ export const OnboardingQuestionSchema = {
           items: {
             type: "string"
           },
-          description: "Array of choices for multiple choice questions"
+          description: "Array of choices for multiple choice questions. Use empty array for non-multiple-choice fields.",
+          default: []
         },
         allow_multiple: {
           type: "boolean",
-          description: "Whether multiple choices can be selected"
+          description: "Whether multiple choices can be selected. Set to false for non-multiple-choice fields.",
+          default: false
         }
       },
-      required: ["message", "status", "field_name", "field_type", "question_template"],
+      required: ["message", "status", "field_name", "field_type", "question_template", "multiple_choices", "allow_multiple"],
       additionalProperties: false
     }
   }
@@ -127,8 +129,8 @@ export interface OnboardingQuestionResponse {
   field_name: string
   field_type: "text" | "multiple_choice" | "boolean" | "number"
   question_template: string
-  multiple_choices?: string[]
-  allow_multiple?: boolean
+  multiple_choices: string[]
+  allow_multiple: boolean
 }
 
 export interface OnboardingStatusResponse {
