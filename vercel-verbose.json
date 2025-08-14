@@ -5,6 +5,6 @@
       "maxDuration": 30
     }
   },
-  "installCommand": "pnpm install",
+  "installCommand": "pnpm install --reporter=verbose",
   "buildCommand": "pnpm run build"
 }
