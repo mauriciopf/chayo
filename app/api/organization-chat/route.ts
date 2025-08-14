@@ -29,7 +29,8 @@ export async function POST(req: NextRequest) {
     
     console.log('✅ [API] User authenticated:', user.id)
     
-    // Create services with server-side client
+    // Dynamic import to prevent build-time evaluation of Playwright dependencies
+    const { OrganizationChatService } = await import('@/lib/features/chat/services/organizationChatService')
     const chatService = new OrganizationChatService(supabase)
     console.log('✅ [API] OrganizationChatService created')
     

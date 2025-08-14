@@ -59,7 +59,8 @@ export async function POST(request: NextRequest) {
 
     console.log('🌐 [API] Starting website scraping for:', url)
 
-    // Initialize the chat service
+    // Dynamic import to prevent build-time evaluation of Playwright dependencies
+    const { OrganizationChatService } = await import('@/lib/features/chat/services/organizationChatService')
     const chatService = new OrganizationChatService(supabase)
 
     // Perform website scraping and business info extraction

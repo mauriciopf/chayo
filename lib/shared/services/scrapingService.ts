@@ -1,5 +1,3 @@
-import { chromium as playwrightChromium } from 'playwright-core';
-import chromium from '@sparticuz/chromium';
 import { openAIService } from './OpenAIService';
 import { BusinessInfoExtraction, BusinessInfoExtractionSchema } from '@/lib/shared/schemas/websiteScrapingSchemas';
 
@@ -19,13 +17,19 @@ export class ScrapingService {
     try {
       console.log('🌐 Starting website scraping for:', url);
       
+      // Lazy import Playwright + Chromium only when called (request-time)
+      const [{ chromium: playwrightChromium }, chromium] = await Promise.all([
+        import("playwright-core"),
+        import("@sparticuz/chromium"),
+      ]);
+      
       // Get Chromium executable path for serverless environment
-      const executablePath = await chromium.executablePath();
+      const executablePath = await chromium.default.executablePath();
       
       // Launch browser with serverless-optimized configuration
       browser = await playwrightChromium.launch({
-        args: chromium.args,
-        headless: chromium.headless === true,
+        args: chromium.default.args,
+        headless: chromium.default.headless === true,
         executablePath,
         env: { ...process.env, PLAYWRIGHT_DISABLE_HARDWARE_ACCELERATION: "1" }
       });
