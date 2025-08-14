@@ -8,7 +8,7 @@ export interface WebsiteScrapingResult {
   error?: string;
 }
 
-export class ScrapingService {
+class ScrapingService {
   /**
    * Render a website using Playwright and extract HTML content
    */
@@ -190,5 +190,5 @@ Instructions:
   }
 }
 
-// Export singleton instance
-export const scrapingService = new ScrapingService();
+// Export class only - instantiate in API handlers to avoid build-time evaluation
+export { ScrapingService };

@@ -1049,7 +1049,8 @@ export class OrganizationChatService {
       progressEmitter?.('phase', { name: 'scrapingWebsite', url });
 
       // Step 1: Scrape and extract business information (dynamic import for server-only)
-      const { scrapingService } = await import('@/lib/shared/services/scrapingService');
+      const { ScrapingService } = await import('@/lib/shared/services/scrapingService');
+      const scrapingService = new ScrapingService();
       const scrapingResult = await scrapingService.scrapeAndExtractBusinessInfo(url);
 
       if (!scrapingResult.success) {
