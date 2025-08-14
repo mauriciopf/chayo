@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
       .from('organizations')
       .select('*')
       .eq('id', organizationId)
-      .eq('user_id', user.id)
+      .eq('owner_id', user.id)
       .single()
 
     if (orgError || !organization) {
