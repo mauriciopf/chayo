@@ -19,6 +19,12 @@ NEXT_PUBLIC_STRIPE_PRICE_ID_PRO=price_your_pro_plan_id
 NEXT_PUBLIC_STRIPE_PRICE_ID_PREMIUM=price_your_premium_plan_id
 ```
 
+## For Website Scraping (Required):
+```
+BROWSERLESS_TOKEN=your_browserless_io_token
+BROWSERLESS_URL=https://chrome.browserless.io
+```
+
 ## Optional:
 ```
 ELEVENLABS_API_KEY=your_elevenlabs_api_key

@@ -10,45 +10,49 @@ export interface WebsiteScrapingResult {
 
 class ScrapingService {
   /**
-   * Render a website using Playwright and extract HTML content
+   * Render a website using Browserless.io external service
    */
   async renderWebsite(url: string): Promise<{ success: boolean; html?: string; error?: string }> {
-    let browser = null;
     try {
-      console.log('🌐 Starting website scraping for:', url);
+      console.log('🌐 Starting website scraping via Browserless.io for:', url);
       
-      // Lazy import Playwright + Chromium only when called (request-time)
-      const [{ chromium: playwrightChromium }, chromium] = await Promise.all([
-        import("playwright-core"),
-        import("@sparticuz/chromium"),
-      ]);
-      
-      // Get Chromium executable path for serverless environment
-      const executablePath = await chromium.default.executablePath();
-      
-      // Launch browser with serverless-optimized configuration
-      browser = await playwrightChromium.launch({
-        args: chromium.default.args,
-        headless: chromium.default.headless === true,
-        executablePath,
-        env: { ...process.env, PLAYWRIGHT_DISABLE_HARDWARE_ACCELERATION: "1" }
+      const browserlessToken = process.env.BROWSERLESS_TOKEN;
+      if (!browserlessToken) {
+        throw new Error('BROWSERLESS_TOKEN environment variable not configured');
+      }
+
+      const browserlessUrl = process.env.BROWSERLESS_URL || 'https://chrome.browserless.io';
+
+      // Use Browserless.io content API
+      const response = await fetch(`${browserlessUrl}/content?token=${browserlessToken}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          url: url,
+          options: {
+            waitUntil: 'networkidle0',
+            timeout: 10000, // 10 second timeout
+          },
+          gotoOptions: {
+            waitUntil: 'networkidle0'
+          }
+        })
       });
 
-      // Create context with realistic user agent
-      const context = await browser.newContext({
-        userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36"
-      });
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Browserless API error: ${response.status} - ${errorText}`);
+      }
+
+      const html = await response.text();
       
-      const page = await context.newPage();
-      
-      // Navigate with 5-second timeout - if it can't load quickly, continue with onboarding
-      await page.goto(url, { 
-        waitUntil: "networkidle", 
-        timeout: 5000 
-      });
-      
-      const html = await page.content();
-      console.log('✅ Successfully scraped website, HTML length:', html.length);
+      if (!html || html.trim().length === 0) {
+        throw new Error('Received empty HTML content from Browserless');
+      }
+
+      console.log('✅ Successfully scraped website via Browserless.io, HTML length:', html.length);
       
       return {
         success: true,
@@ -60,10 +64,6 @@ class ScrapingService {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error occurred'
       };
-    } finally {
-      if (browser) {
-        await browser.close();
-      }
     }
   }
 

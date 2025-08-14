@@ -3,7 +3,7 @@ import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
 import { OrganizationChatService } from '@/lib/features/chat/services/organizationChatService'
 import { cookies } from 'next/headers'
 
-export const runtime = 'nodejs' // IMPORTANT: not "edge" - required for Playwright
+export const runtime = 'nodejs' // Use Node.js runtime for external API calls
 
 export async function POST(request: NextRequest) {
   const supabase = getSupabaseServerClient()
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
 
     console.log('🌐 [API] Starting website scraping for:', url)
 
-    // Dynamic import to prevent build-time evaluation of Playwright dependencies
+    // Dynamic import to prevent build-time evaluation of service dependencies
     const { OrganizationChatService } = await import('@/lib/features/chat/services/organizationChatService')
     const chatService = new OrganizationChatService(supabase)
 

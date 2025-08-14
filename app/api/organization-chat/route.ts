@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
     
     console.log('✅ [API] User authenticated:', user.id)
     
-    // Dynamic import to prevent build-time evaluation of Playwright dependencies
+    // Dynamic import to prevent build-time evaluation of service dependencies
     const { OrganizationChatService } = await import('@/lib/features/chat/services/organizationChatService')
     const chatService = new OrganizationChatService(supabase)
     console.log('✅ [API] OrganizationChatService created')
