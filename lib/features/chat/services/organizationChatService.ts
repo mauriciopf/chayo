@@ -918,42 +918,50 @@ export class OrganizationChatService {
 
   public async storeConversation(messages: ChatMessage[], aiMessage: string, context: ChatContext): Promise<void> {
     try {
-      const userMessage = messages[messages.length - 1]?.content || ''
       console.log('💾 Processing conversation storage for organization:', context.organization.id)
       
-      // Step 1: Check if conversation exchange is business relevant
-  
-      
-      const isRelevant = await businessInfoService.isBusinessRelevantInformation(
-        userMessage, 
-        aiMessage,
-        'embedding_storage'
-      )
-      
-      console.log('📊 Business relevance evaluation:', {
-        conversationExchange: `User: ${userMessage.substring(0, 30)}... | AI: ${aiMessage.substring(0, 30)}...`,
-        isRelevant
-      })
-      
-      // Step 2: Store embeddings for relevant conversations
-      if (isRelevant) {
-        console.log('📚 Storing business-relevant conversation for embeddings')
+      // Look for the previous AI question and current user response pair
+      if (messages.length >= 2) {
+        const currentUserMessage = messages[messages.length - 1]?.content || ''
+        const previousAiMessage = messages[messages.length - 2]?.content || ''
         
-        // Simple and direct: store the conversation as embeddings
-    
-        const conversationText = `User: ${userMessage}\nAssistant: ${aiMessage}`
-        
-        await embeddingService.processBusinessConversations(
+        // If we have a previous AI message and current user response, store that pair
+        if (messages[messages.length - 2]?.role === 'assistant' && messages[messages.length - 1]?.role === 'user') {
+          console.log('📝 Found complete Q&A pair to store')
+          
+          const isRelevant = await businessInfoService.isBusinessRelevantInformation(
+            currentUserMessage, 
+            previousAiMessage,
+            'embedding_storage'
+          )
+          
+          console.log('📊 Business relevance evaluation:', {
+            conversationExchange: `AI: ${previousAiMessage.substring(0, 30)}... | User: ${currentUserMessage.substring(0, 30)}...`,
+            isRelevant
+          })
+          
+          if (isRelevant) {
+            console.log('📚 Storing business-relevant Q&A pair for embeddings')
+            
+            const conversationText = `Assistant: ${previousAiMessage}\nUser: ${currentUserMessage}`
+            
+            await embeddingService.processBusinessConversations(
               context.organization.id,
-          [conversationText]
+              [conversationText]
             )
+          } else {
+            console.log('⏭️ Skipped storing conversation - not business relevant')
+          }
         } else {
-          console.log('⏭️ Skipped storing conversation - not business relevant')
+          console.log('⏭️ No complete Q&A pair found, skipping storage')
+        }
+      } else {
+        console.log('⏭️ Not enough messages for Q&A pair, skipping storage')
       }
-
+      
+      console.log('✅ [SERVICE] Conversation stored')
     } catch (error) {
-      console.error('❌ Error in conversation storage:', error)
-      // Don't throw to avoid breaking the chat flow
+      console.error('❌ Error storing conversation:', error)
     }
   }
 

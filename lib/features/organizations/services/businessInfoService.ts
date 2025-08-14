@@ -239,7 +239,7 @@ export class BusinessInfoService {
 
 CRITICAL: Respond with ONLY "relevant" or "irrelevant" - no explanation, no other text.
 
-Analyze this ${analysisType} and determine if it contains business value${analysisType === 'conversation exchange' ? '. Consider the FULL CONTEXT - a simple "yes" or "no" response becomes meaningful when combined with the AI\'s question' : ''}:
+Analyze this ${analysisType} and determine if it contains business value${analysisType === 'conversation exchange' ? '. Consider the FULL CONTEXT - a simple "yes" or "no" response becomes meaningful when combined with the AI\'s question. IMPORTANT: If the AI is asking business setup questions (like "What is the name of your business?"), this is ALWAYS relevant regardless of the user\'s response length' : ''}:
 
 RELEVANT CONTENT (store this):
 - Business operations, services, policies, procedures
@@ -253,6 +253,9 @@ RELEVANT CONTENT (store this):
 - Business goals, strategies, competitive advantages
 - Regulatory, legal, or compliance information
 - Training materials or process documentation
+- Onboarding conversations where AI asks business setup questions
+- Business information collection during initial setup
+- Any exchange where AI is gathering business details
 
 IRRELEVANT CONTENT (do not store):
 - Casual conversation with no business context
