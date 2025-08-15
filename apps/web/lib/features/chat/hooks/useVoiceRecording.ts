@@ -23,7 +23,7 @@ export function useVoiceRecording({
   const audioContextRef = useRef<AudioContext | null>(null)
   const analyserRef = useRef<AnalyserNode | null>(null)
   const silenceTimerRef = useRef<NodeJS.Timeout | null>(null)
-  const dataArrayRef = useRef<Uint8Array<ArrayBuffer> | null>(null)
+  const dataArrayRef = useRef<Uint8Array | null>(null)
   const animationFrameRef = useRef<number | null>(null)
   
   // Use refs for current values to avoid dependency issues in monitoring loop
@@ -365,7 +365,7 @@ export function useVoiceRecording({
       audioContextRef.current = audioContext
       analyserRef.current = analyser
       const buffer = new ArrayBuffer(analyser.frequencyBinCount)
-      dataArrayRef.current = new Uint8Array(buffer) as Uint8Array<ArrayBuffer>
+      dataArrayRef.current = new Uint8Array(buffer)
 
       // Determine the best MIME type for the browser
       let mimeType = 'audio/webm'

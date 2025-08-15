@@ -1,56 +1,24 @@
 {
-  "name": "chayo-ai-site",
-  "version": "1.0.0",
+  "name": "chayo-monorepo",
   "private": true,
+  "packageManager": "pnpm@10.14.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "next dev",
-    "dev:debug": "NODE_OPTIONS='--inspect' next dev",
-    "dev:debug-brk": "NODE_OPTIONS='--inspect-brk' next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
-  "dependencies": {
-    "@stripe/stripe-js": "^7.4.0",
-    "@supabase/auth-helpers-nextjs": "^0.10.0",
-    "@supabase/auth-helpers-react": "^0.5.0",
-    "@supabase/auth-ui-react": "^0.4.7",
-    "@supabase/auth-ui-shared": "^0.1.8",
-    "@supabase/ssr": "^0.6.1",
-    "@supabase/supabase-js": "^2.50.3",
-    "@types/qrcode": "^1.5.5",
-    "clsx": "^2.1.1",
-    "dotenv": "^17.2.0",
-    "formiojs": "^4.21.7",
-    "framer-motion": "^10.12.16",
-    "lucide-react": "^0.525.0",
-    "next": "14.1.0",
-    "next-intl": "^4.3.4",
-    "next-pwa": "^5.6.0",
-    "openai": "^5.9.2",
-    "pdf-lib": "^1.17.1",
-    "pdf-parse": "^1.1.1",
-    "qrcode": "^1.5.4",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-formio": "^4.3.0",
-    "react-helmet": "^6.1.0",
-    "stripe": "^18.3.0",
-    "tailwind-merge": "^3.3.1",
-    "twilio": "^5.7.3"
+    "dev:web": "pnpm --filter web dev",
+    "dev:mobile": "pnpm --filter mobile start",
+    "build:web": "pnpm --filter web build",
+    "build:mobile": "pnpm --filter mobile build",
+    "update:mobile:dev": "pnpm --filter mobile update:dev",
+    "update:mobile:preview": "pnpm --filter mobile update:preview",
+    "update:mobile:prod": "pnpm --filter mobile update:prod",
+    "lint": "pnpm --recursive lint",
+    "clean": "pnpm --recursive clean"
   },
   "devDependencies": {
-    "@types/js-yaml": "^4.0.9",
     "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
-    "@types/react-helmet": "^6.1.11",
-    "autoprefixer": "^10.4.14",
-    "eslint": "^8",
-    "eslint-config-next": "14.1.0",
-    "postcss": "^8.4.24",
-    "tailwindcss": "^3.3.2",
     "typescript": "^5"
-  },
-  "packageManager": "pnpm@10.14.0+sha512.ad27a79641b49c3e481a16a805baa71817a04bbe06a38d17e60e2eaee83f6a146c6a688125f5792e48dd5ba30e7da52a5cda4c3992b9ccf333f9ce223af84748"
+  }
 }

@@ -1,0 +1,47 @@
+import { ToolType, ToolUrlConfig } from './types';
+
+/**
+ * Generate tool URLs based on organization slug and web base URL
+ */
+export class ToolUrlGenerator {
+  constructor(
+    private webBaseUrl: string,
+    private organizationSlug: string
+  ) {}
+
+  /**
+   * Get URL for a specific tool
+   */
+  getToolUrl(tool: ToolType): string {
+    const urls: ToolUrlConfig = {
+      appointments: `${this.webBaseUrl}/book-appointment/${this.organizationSlug}`,
+      payments: `${this.webBaseUrl}/client-chat/${this.organizationSlug}?tool=payments`,
+      documents: `${this.webBaseUrl}/client-chat/${this.organizationSlug}?tool=documents`, 
+      faqs: `${this.webBaseUrl}/faqs/${this.organizationSlug}`,
+      whatsapp: `${this.webBaseUrl}/client-chat/${this.organizationSlug}?tool=whatsapp`,
+    };
+
+    return urls[tool];
+  }
+
+  /**
+   * Get all tool URLs
+   */
+  getAllToolUrls(): ToolUrlConfig {
+    return {
+      appointments: this.getToolUrl('appointments'),
+      payments: this.getToolUrl('payments'),
+      documents: this.getToolUrl('documents'),
+      faqs: this.getToolUrl('faqs'),
+      whatsapp: this.getToolUrl('whatsapp'),
+    };
+  }
+
+  /**
+   * Add mobile optimization parameters to URL
+   */
+  getMobileOptimizedUrl(url: string): string {
+    const separator = url.includes('?') ? '&' : '?';
+    return `${url}${separator}mobile=true&hideNav=true`;
+  }
+}
