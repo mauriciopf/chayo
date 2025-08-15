@@ -172,6 +172,7 @@ export function useVoiceRecording({
     }
 
     if (!dataArrayRef.current) return
+    // @ts-ignore - Web Audio API type issue with Uint8Array generics
     analyserRef.current.getByteFrequencyData(dataArrayRef.current)
     
     // Improved speech detection: focus on human speech frequency range (300Hz - 3400Hz)
@@ -364,8 +365,7 @@ export function useVoiceRecording({
       
       audioContextRef.current = audioContext
       analyserRef.current = analyser
-      const buffer = new ArrayBuffer(analyser.frequencyBinCount)
-      dataArrayRef.current = new Uint8Array(buffer)
+      dataArrayRef.current = new Uint8Array(analyser.frequencyBinCount)
 
       // Determine the best MIME type for the browser
       let mimeType = 'audio/webm'
