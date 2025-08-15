@@ -1,5 +1,6 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Text, View, ActivityIndicator, StyleSheet } from 'react-native';
 import { NavigationConfigGenerator } from '@chayo/config';
@@ -11,6 +12,7 @@ import { DocumentsScreen } from '../screens/DocumentsScreen';
 import { FAQsScreen } from '../screens/FAQsScreen';
 import { WhatsAppScreen } from '../screens/WhatsAppScreen';
 
+const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 // Icon mapping for tab icons (you can replace with actual icons later)
@@ -58,30 +60,18 @@ const ErrorScreen = ({ error }: { error: string }) => (
   </View>
 );
 
-export const AppNavigator = () => {
-  const { config, urlGenerator, loading, error } = useAppConfig();
+// Create a proper component for the error screen to avoid inline functions
+const ErrorScreenWrapper = () => {
+  const { error } = useAppConfig();
+  return <ErrorScreen error={error || 'Configuration not available'} />;
+};
 
-  if (loading) {
-    return (
-      <NavigationContainer>
-        <Tab.Navigator screenOptions={{ headerShown: false }}>
-          <Tab.Screen name="Loading" component={LoadingScreen} />
-        </Tab.Navigator>
-      </NavigationContainer>
-    );
-  }
+// Main Tab Navigator Component
+const MainTabNavigator = () => {
+  const { config, urlGenerator } = useAppConfig();
 
-  if (error || !config || !urlGenerator) {
-    return (
-      <NavigationContainer>
-        <Tab.Navigator screenOptions={{ headerShown: false }}>
-          <Tab.Screen 
-            name="Error" 
-            component={() => <ErrorScreen error={error || 'Configuration not available'} />}
-          />
-        </Tab.Navigator>
-      </NavigationContainer>
-    );
+  if (!config || !urlGenerator) {
+    return <ErrorScreenWrapper />;
   }
 
   // Generate navigation configuration
@@ -89,46 +79,62 @@ export const AppNavigator = () => {
   const tabs = navigationGenerator.getEnabledTabs();
 
   return (
-    <NavigationContainer>
-      <Tab.Navigator
-        screenOptions={{
-          headerShown: false,
-          tabBarActiveTintColor: config.theme.primaryColor,
-          tabBarInactiveTintColor: '#8E8E93',
-          tabBarStyle: {
-            backgroundColor: '#FFFFFF',
-            borderTopColor: '#E0E0E0',
-            borderTopWidth: 1,
-          },
-        }}
-      >
-        {tabs.map((tab) => {
-          let ScreenComponent;
-          
-          if (tab.component === 'native-chat') {
-            ScreenComponent = ChatScreen;
-          } else {
-            // For WebView screens, get the specific tool screen
-            ScreenComponent = getToolScreen(tab.name) || View;
-          }
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: config.theme.primaryColor,
+        tabBarInactiveTintColor: '#8E8E93',
+        tabBarStyle: {
+          backgroundColor: '#FFFFFF',
+          borderTopColor: '#E0E0E0',
+          borderTopWidth: 1,
+        },
+      }}
+    >
+      {tabs.map((tab) => {
+        let ScreenComponent;
+        
+        if (tab.component === 'native-chat') {
+          ScreenComponent = ChatScreen;
+        } else {
+          // For WebView screens, get the specific tool screen
+          ScreenComponent = getToolScreen(tab.name) || View;
+        }
 
-          return (
-            <Tab.Screen
-              key={tab.name}
-              name={tab.name}
-              component={ScreenComponent}
-              options={{
-                tabBarLabel: tab.label,
-                tabBarIcon: ({ focused, color, size }) => (
-                  <Text style={{ fontSize: size, color }}>
-                    {getTabIcon(tab.icon)}
-                  </Text>
-                ),
-              }}
-            />
-          );
-        })}
-      </Tab.Navigator>
+        return (
+          <Tab.Screen
+            key={tab.name}
+            name={tab.name}
+            component={ScreenComponent}
+            options={{
+              tabBarLabel: tab.label,
+              tabBarIcon: ({ focused, color, size }) => (
+                <Text style={{ fontSize: size, color }}>
+                  {getTabIcon(tab.icon)}
+                </Text>
+              ),
+            }}
+          />
+        );
+      })}
+    </Tab.Navigator>
+  );
+};
+
+export const AppNavigator = () => {
+  const { loading, error } = useAppConfig();
+
+  return (
+    <NavigationContainer>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        {loading ? (
+          <Stack.Screen name="Loading" component={LoadingScreen} />
+        ) : error ? (
+          <Stack.Screen name="Error" component={ErrorScreenWrapper} />
+        ) : (
+          <Stack.Screen name="Main" component={MainTabNavigator} />
+        )}
+      </Stack.Navigator>
     </NavigationContainer>
   );
 };
