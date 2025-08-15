@@ -14,7 +14,14 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from 'react-native';
-import * as Updates from 'expo-updates';
+// Conditional import for expo-updates (only available in Expo-managed workflow)
+let Updates: any = null;
+try {
+  Updates = require('expo-updates');
+} catch (error) {
+  // expo-updates not available in React Native CLI
+  console.log('expo-updates not available, OTA updates disabled');
+}
 import { AppConfigProvider } from './src/context/AppConfigContext';
 import AppNavigator from './src/navigation/AppNavigator';
 
@@ -30,24 +37,24 @@ function App(): React.JSX.Element {
   useEffect(() => {
     async function initializeApp() {
       try {
-        // Check for updates in production
-        if (!__DEV__) {
+        // Check for updates in production (only if Updates is available)
+        if (!__DEV__ && Updates) {
           const update = await Updates.checkForUpdateAsync();
           if (update.isAvailable) {
             setIsUpdateAvailable(true);
             Alert.alert(
-              'Actualización Disponible',
-              'Una nueva versión de la app está disponible. ¿Te gustaría actualizar ahora?',
+              'Update Available',
+              'A new version of the app is available. Would you like to update now?',
               [
-                { text: 'Más tarde', style: 'cancel' },
+                { text: 'Later', style: 'cancel' },
                 { 
-                  text: 'Actualizar', 
+                  text: 'Update', 
                   onPress: async () => {
                     try {
                       await Updates.fetchUpdateAsync();
                       await Updates.reloadAsync();
                     } catch (error) {
-                      Alert.alert('Error de Actualización', 'Por favor intenta más tarde.');
+                      Alert.alert('Update Failed', 'Please try again later.');
                     }
                   }
                 }
@@ -69,7 +76,9 @@ function App(): React.JSX.Element {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#007AFF" />
-        <Text style={styles.loadingText}>Iniciando Chayo...</Text>
+        <Text style={styles.loadingText}>
+          {isUpdateAvailable ? 'Updating app...' : 'Loading Chayo...'}
+        </Text>
       </View>
     );
   }
