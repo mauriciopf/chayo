@@ -6,11 +6,11 @@ import {
   TouchableOpacity,
   FlatList,
   StyleSheet,
-  KeyboardAvoidingView,
   Platform,
   SafeAreaView,
   ActivityIndicator,
   Alert,
+  KeyboardAvoidingView,
 } from 'react-native';
 import { useAppConfig } from '../hooks/useAppConfig';
 
@@ -28,6 +28,7 @@ export const ChatScreen: React.FC = () => {
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const flatListRef = useRef<FlatList>(null);
+  const textInputRef = useRef<TextInput>(null);
 
   // Welcome message
   useEffect(() => {
@@ -41,6 +42,15 @@ export const ChatScreen: React.FC = () => {
       setMessages([welcomeMessage]);
     }
   }, [config]);
+
+  // Auto-focus input when screen loads and keep keyboard open
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      textInputRef.current?.focus();
+    }, 500); // Small delay to ensure screen is fully loaded
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const sendMessage = async () => {
     if (!inputText.trim() || !config) return;
@@ -63,6 +73,11 @@ export const ChatScreen: React.FC = () => {
     setMessages(prev => [...prev, userMessage, loadingMessage]);
     setInputText('');
     setIsTyping(true);
+    
+    // Keep input focused after sending message
+    setTimeout(() => {
+      textInputRef.current?.focus();
+    }, 100);
 
     try {
       const response = await fetch(`${config.apiBaseUrl}/api/client-chat`, {
@@ -123,6 +138,10 @@ export const ChatScreen: React.FC = () => {
       );
     } finally {
       setIsTyping(false);
+      // Refocus input after response or error
+      setTimeout(() => {
+        textInputRef.current?.focus();
+      }, 100);
     }
   };
 
@@ -187,10 +206,9 @@ export const ChatScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView
-        style={styles.keyboardAvoidingView}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+      <KeyboardAvoidingView 
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <FlatList
           ref={flatListRef}
@@ -201,10 +219,12 @@ export const ChatScreen: React.FC = () => {
           contentContainerStyle={styles.messagesContainer}
           showsVerticalScrollIndicator={false}
           onContentSizeChange={scrollToBottom}
+          keyboardShouldPersistTaps="handled"
         />
 
         <View style={styles.inputContainer}>
           <TextInput
+            ref={textInputRef}
             style={styles.textInput}
             value={inputText}
             onChangeText={setInputText}
@@ -213,6 +233,10 @@ export const ChatScreen: React.FC = () => {
             multiline
             maxLength={1000}
             editable={!isTyping}
+            keyboardAppearance="dark"
+            blurOnSubmit={false}
+            returnKeyType="send"
+            onSubmitEditing={sendMessage}
           />
           <TouchableOpacity
             style={[
@@ -247,15 +271,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#FFFFFF',
   },
-  keyboardAvoidingView: {
-    flex: 1,
-  },
   messagesList: {
     flex: 1,
   },
   messagesContainer: {
     padding: 20,
-    paddingBottom: 8,
+    paddingBottom: 20,
   },
   messageContainer: {
     marginVertical: 8,
@@ -320,7 +341,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#1C1C1E',
     borderTopWidth: 1,
     borderTopColor: '#3A3A3C',
-    paddingBottom: Platform.OS === 'ios' ? 34 : 16, // Extra padding for iPhone home indicator
+    paddingBottom: Platform.OS === 'ios' ? 34 : 16,
   },
   textInput: {
     flex: 1,
