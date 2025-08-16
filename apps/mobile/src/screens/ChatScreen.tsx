@@ -34,7 +34,7 @@ export const ChatScreen: React.FC = () => {
     if (config) {
       const welcomeMessage: Message = {
         id: 'welcome',
-        text: `¡Hola! Soy el asistente de ${config.businessName}. ¿En qué puedo ayudarte hoy?`,
+        text: `¡Hola! Soy el asistente de ${config.appName}. ¿En qué puedo ayudarte hoy?`,
         isUser: false,
         timestamp: new Date(),
       };
@@ -132,7 +132,7 @@ export const ChatScreen: React.FC = () => {
         <View style={[styles.messageContainer, styles.assistantMessageContainer]}>
           <View style={[styles.messageBubble, styles.assistantBubble]}>
             <View style={styles.typingIndicator}>
-              <ActivityIndicator size="small" color="#666" />
+              <ActivityIndicator size="small" color="#8E8E93" />
               <Text style={styles.typingText}>Escribiendo...</Text>
             </View>
           </View>
@@ -179,7 +179,7 @@ export const ChatScreen: React.FC = () => {
   if (!config) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
+        <ActivityIndicator size="large" color="#0A84FF" />
         <Text style={styles.loadingText}>Cargando chat...</Text>
       </SafeAreaView>
     );
@@ -209,7 +209,7 @@ export const ChatScreen: React.FC = () => {
             value={inputText}
             onChangeText={setInputText}
             placeholder="Escribe tu mensaje..."
-            placeholderTextColor="#999"
+            placeholderTextColor="#8E8E93"
             multiline
             maxLength={1000}
             editable={!isTyping}
@@ -222,7 +222,7 @@ export const ChatScreen: React.FC = () => {
             onPress={sendMessage}
             disabled={!inputText.trim() || isTyping}
           >
-            <Text style={styles.sendButtonText}>Enviar</Text>
+            <Text style={styles.sendButtonText}>↑</Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -231,20 +231,21 @@ export const ChatScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+  // 🎨 ChatGPT-style Dark Theme
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#1C1C1E', // Dark background like ChatGPT
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#1C1C1E',
   },
   loadingText: {
     marginTop: 12,
     fontSize: 16,
-    color: '#666',
+    color: '#FFFFFF',
   },
   keyboardAvoidingView: {
     flex: 1,
@@ -253,12 +254,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   messagesContainer: {
-    padding: 16,
+    padding: 20,
     paddingBottom: 8,
   },
   messageContainer: {
-    marginVertical: 4,
-    maxWidth: '80%',
+    marginVertical: 8,
+    maxWidth: '85%',
   },
   userMessageContainer: {
     alignSelf: 'flex-end',
@@ -267,28 +268,39 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   messageBubble: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 20,
+    paddingHorizontal: 18,
+    paddingVertical: 14,
+    borderRadius: 18,
     maxWidth: '100%',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
   },
   userBubble: {
-    backgroundColor: '#007AFF',
-    borderBottomRightRadius: 8,
+    backgroundColor: '#0A84FF', // iOS blue, more vibrant
+    borderBottomRightRadius: 6,
   },
   assistantBubble: {
-    backgroundColor: '#F0F0F0',
-    borderBottomLeftRadius: 8,
+    backgroundColor: '#2C2C2E', // Dark gray like ChatGPT
+    borderBottomLeftRadius: 6,
+    borderWidth: 1,
+    borderColor: '#3A3A3C',
   },
   messageText: {
     fontSize: 16,
-    lineHeight: 22,
+    lineHeight: 24,
+    fontWeight: '400',
   },
   userMessageText: {
     color: '#FFFFFF',
   },
   assistantMessageText: {
-    color: '#000000',
+    color: '#FFFFFF', // White text on dark background
   },
   typingIndicator: {
     flexDirection: 'row',
@@ -297,44 +309,57 @@ const styles = StyleSheet.create({
   typingText: {
     marginLeft: 8,
     fontSize: 14,
-    color: '#666',
+    color: '#8E8E93',
     fontStyle: 'italic',
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'flex-end',
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: '#FFFFFF',
+    paddingVertical: 16,
+    backgroundColor: '#1C1C1E',
     borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
+    borderTopColor: '#3A3A3C',
+    paddingBottom: Platform.OS === 'ios' ? 34 : 16, // Extra padding for iPhone home indicator
   },
   textInput: {
     flex: 1,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    borderWidth: 1.5,
+    borderColor: '#3A3A3C',
+    borderRadius: 22,
+    paddingHorizontal: 18,
+    paddingVertical: 14,
     fontSize: 16,
-    maxHeight: 100,
+    maxHeight: 120,
     marginRight: 12,
-    backgroundColor: '#F8F8F8',
+    backgroundColor: '#2C2C2E',
+    color: '#FFFFFF',
+    textAlignVertical: 'top',
   },
   sendButton: {
-    backgroundColor: '#007AFF',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 20,
+    backgroundColor: '#0A84FF',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: '#0A84FF',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 4,
   },
   sendButtonDisabled: {
-    backgroundColor: '#CCCCCC',
+    backgroundColor: '#3A3A3C',
+    shadowOpacity: 0,
+    elevation: 0,
   },
   sendButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '600',
   },
 });

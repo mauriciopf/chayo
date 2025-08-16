@@ -2,7 +2,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text, View, ActivityIndicator, StyleSheet } from 'react-native';
+import { Text, View, ActivityIndicator, StyleSheet, Platform } from 'react-native';
 import { NavigationConfigGenerator } from '@chayo/config';
 import { useAppConfig } from '../hooks/useAppConfig';
 import { ChatScreen } from '../screens/ChatScreen';
@@ -92,9 +92,17 @@ const MainTabNavigator = () => {
         tabBarActiveTintColor: config.theme.primaryColor,
         tabBarInactiveTintColor: '#8E8E93',
         tabBarStyle: {
-          backgroundColor: '#FFFFFF',
-          borderTopColor: '#E0E0E0',
+          backgroundColor: '#1C1C1E', // Dark background to match ChatGPT theme
+          borderTopColor: '#3A3A3C', // Subtle dark border
           borderTopWidth: 1,
+          paddingBottom: Platform.OS === 'ios' ? 34 : 8, // Extra padding for iPhone home indicator
+          paddingTop: 8,
+          height: Platform.OS === 'ios' ? 88 : 60, // Proper height for dark theme
+        },
+        tabBarLabelStyle: {
+          fontSize: 10,
+          fontWeight: '500',
+          marginTop: -2,
         },
       }}
     >
