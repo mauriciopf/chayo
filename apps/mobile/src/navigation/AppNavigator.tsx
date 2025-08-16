@@ -28,6 +28,13 @@ const getTabIcon = (iconName: string) => {
   return iconMap[iconName] || '📱';
 };
 
+// Fallback screen component for unknown tools
+const FallbackScreen = () => (
+  <View style={styles.centerContainer}>
+    <Text style={styles.loadingText}>Tool not implemented yet</Text>
+  </View>
+);
+
 // Tool-specific screen mapping
 const getToolScreen = (toolName: string) => {
   const screenMap = {
@@ -98,7 +105,7 @@ const MainTabNavigator = () => {
           ScreenComponent = ChatScreen;
         } else {
           // For WebView screens, get the specific tool screen
-          ScreenComponent = getToolScreen(tab.name) || View;
+          ScreenComponent = getToolScreen(tab.name) || FallbackScreen;
         }
 
         return (

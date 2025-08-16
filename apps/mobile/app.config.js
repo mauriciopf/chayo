@@ -1,41 +1,16 @@
+// Expo Updates configuration for React Native CLI (bare workflow)
+// This is NOT an Expo managed workflow - we're using RN CLI with Expo Updates only
+
 export default {
   expo: {
     name: "Chayo Mobile",
-    slug: "chayo-mobile",
+    slug: "chayo-mobile", 
     version: "1.0.0",
-    orientation: "portrait",
-    icon: "./assets/icon.png",
-    userInterfaceStyle: "light",
-    splash: {
-      image: "./assets/splash.png",
-      resizeMode: "contain",
-      backgroundColor: "#ffffff"
-    },
-    assetBundlePatterns: [
-      "**/*"
-    ],
-    ios: {
-      supportsTablet: true,
-      bundleIdentifier: "com.chayo.mobile"
-    },
-    android: {
-      adaptiveIcon: {
-        foregroundImage: "./assets/adaptive-icon.png",
-        backgroundColor: "#ffffff"
-      },
-      package: "com.chayo.mobile"
-    },
-    web: {
-      favicon: "./assets/favicon.png"
-    },
-    plugins: [
-      "expo-updates"
-    ],
-    updates: {
-      url: "https://u.expo.dev/[your-project-id]"
-    },
     runtimeVersion: {
       policy: "appVersion"
+    },
+    updates: {
+      url: "https://u.expo.dev/[your-project-id]"
     },
     extra: {
       eas: {
@@ -43,4 +18,4 @@ export default {
       }
     }
   }
-}
+};
