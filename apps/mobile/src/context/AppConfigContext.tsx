@@ -4,8 +4,8 @@ import { UseAppConfigReturn } from '../hooks/useAppConfig';
 
 // Configuration constants
 const CONFIG = {
-  WEB_BASE_URL: 'https://chayo-ai-site.vercel.app',
-  API_BASE_URL: 'https://chayo-ai-site.vercel.app',
+  WEB_BASE_URL: 'https://chayo.vercel.app',
+  API_BASE_URL: 'https://chayo.vercel.app',
 };
 
 export const AppConfigContext = createContext<UseAppConfigReturn | null>(null);
@@ -60,12 +60,19 @@ export const AppConfigProvider: React.FC<AppConfigProviderProps> = ({
       // Provide a fallback config for development
       const fallbackConfig: AppConfig = {
         organizationSlug: organizationSlug || 'demo-business',
+        organizationId: 'demo-org-id',
+        businessName: 'Demo Business',
         appName: 'Chayo AI',
         theme: {
           primaryColor: '#007AFF',
+          secondaryColor: '#5856D6',
+          backgroundColor: '#FFFFFF',
+          textColor: '#000000',
           logoUrl: 'https://via.placeholder.com/150x50/007AFF/FFFFFF?text=Chayo',
         },
-        enabledTools: ['appointments', 'payments', 'documents', 'faqs', 'whatsapp'],
+        enabledTools: ['appointments', 'payments', 'documents', 'faqs'],
+        webBaseUrl: CONFIG.WEB_BASE_URL,
+        apiBaseUrl: CONFIG.API_BASE_URL,
       };
       
       setConfig(fallbackConfig);
