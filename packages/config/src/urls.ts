@@ -18,7 +18,6 @@ export class ToolUrlGenerator {
       payments: `${this.webBaseUrl}/client-chat/${this.organizationSlug}?tool=payments`,
       documents: `${this.webBaseUrl}/client-chat/${this.organizationSlug}?tool=documents`, 
       faqs: `${this.webBaseUrl}/faqs/${this.organizationSlug}`,
-      whatsapp: `${this.webBaseUrl}/client-chat/${this.organizationSlug}?tool=whatsapp`,
     };
 
     return urls[tool];
@@ -33,7 +32,6 @@ export class ToolUrlGenerator {
       payments: this.getToolUrl('payments'),
       documents: this.getToolUrl('documents'),
       faqs: this.getToolUrl('faqs'),
-      whatsapp: this.getToolUrl('whatsapp'),
     };
   }
 

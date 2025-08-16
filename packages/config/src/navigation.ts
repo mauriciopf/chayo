@@ -51,12 +51,6 @@ export class NavigationConfigGenerator {
         icon: 'help-circle',
         component: 'webview',
       },
-      whatsapp: {
-        name: 'WhatsApp',
-        label: 'WhatsApp',
-        icon: 'message-square',
-        component: 'webview',
-      },
     };
 
     // Add enabled tool tabs

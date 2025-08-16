@@ -10,22 +10,21 @@ import { AppointmentsScreen } from '../screens/AppointmentsScreen';
 import { PaymentsScreen } from '../screens/PaymentsScreen';
 import { DocumentsScreen } from '../screens/DocumentsScreen';
 import { FAQsScreen } from '../screens/FAQsScreen';
-import { WhatsAppScreen } from '../screens/WhatsAppScreen';
+import Icon from 'react-native-vector-icons/Feather';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-// Icon mapping for tab icons (you can replace with actual icons later)
-const getTabIcon = (iconName: string) => {
+// Icon mapping for tab icons - Feather outline icons
+const getTabIconName = (iconName: string) => {
   const iconMap: Record<string, string> = {
-    'message-circle': '💬',
-    'calendar': '📅',
-    'credit-card': '💳',
-    'file-text': '📄',
-    'help-circle': '❓',
-    'message-square': '📱',
+    'message-circle': 'message-circle', // Chat bubble outline
+    'calendar': 'calendar', // Calendar outline
+    'credit-card': 'credit-card', // Credit card outline
+    'file-text': 'file-text', // Document outline
+    'help-circle': 'help-circle', // Help circle outline
   };
-  return iconMap[iconName] || '📱';
+  return iconMap[iconName] || 'message-circle';
 };
 
 // Fallback screen component for unknown tools
@@ -42,7 +41,6 @@ const getToolScreen = (toolName: string) => {
     'Payments': PaymentsScreen,
     'Documents': DocumentsScreen,
     'FAQs': FAQsScreen,
-    'WhatsApp': WhatsAppScreen,
   };
   return screenMap[toolName as keyof typeof screenMap];
 };
@@ -89,8 +87,8 @@ const MainTabNavigator = () => {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: config.theme.primaryColor,
-        tabBarInactiveTintColor: '#8E8E93',
+        tabBarActiveTintColor: '#FFFFFF', // White for active icons
+        tabBarInactiveTintColor: '#FFFFFF', // White for inactive icons (contour style)
         tabBarStyle: {
           backgroundColor: '#1C1C1E', // Dark background to match ChatGPT theme
           borderTopColor: '#3A3A3C', // Subtle dark border
@@ -124,9 +122,11 @@ const MainTabNavigator = () => {
             options={{
               tabBarLabel: tab.label,
               tabBarIcon: ({ focused, color, size }) => (
-                <Text style={{ fontSize: size, color }}>
-                  {getTabIcon(tab.icon)}
-                </Text>
+                <Icon
+                  name={getTabIconName(tab.icon)}
+                  size={size}
+                  color={color}
+                />
               ),
             }}
           />

@@ -4,4 +4,3 @@ export { AppointmentsScreen } from './AppointmentsScreen';
 export { PaymentsScreen } from './PaymentsScreen';
 export { DocumentsScreen } from './DocumentsScreen';
 export { FAQsScreen } from './FAQsScreen';
-export { WhatsAppScreen } from './WhatsAppScreen';

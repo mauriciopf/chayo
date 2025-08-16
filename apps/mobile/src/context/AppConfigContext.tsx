@@ -4,12 +4,8 @@ import { UseAppConfigReturn } from '../hooks/useAppConfig';
 
 // Configuration constants
 const CONFIG = {
-  WEB_BASE_URL: __DEV__ 
-    ? 'http://localhost:3000' 
-    : 'https://chayo-ai-site.vercel.app',
-  API_BASE_URL: __DEV__ 
-    ? 'http://localhost:3000' 
-    : 'https://chayo-ai-site.vercel.app',
+  WEB_BASE_URL: 'https://chayo-ai-site.vercel.app',
+  API_BASE_URL: 'https://chayo-ai-site.vercel.app',
 };
 
 export const AppConfigContext = createContext<UseAppConfigReturn | null>(null);
