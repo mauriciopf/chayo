@@ -1,3 +1,19 @@
 {
-  "extends": "@react-native/typescript-config/tsconfig.json"
+  "extends": "@react-native/typescript-config/tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "outDir": "./dist"
+  },
+  "include": [
+    "src/**/*",
+    "App.tsx",
+    "index.js",
+    "app.config.js"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "ios",
+    "android"
+  ]
 }

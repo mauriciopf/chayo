@@ -14,9 +14,13 @@ dist
 .vscode
 .DS_Store
 
-# Next.js
+# Next.js - prevent Next.js from running in root
 .next/
 out/
+pages/
+next-env.d.ts
+tsconfig.json
+*.tsbuildinfo
 
 # Editor directories and files
 .vscode/*

@@ -1,20 +1,69 @@
-// Expo Updates configuration for React Native CLI (bare workflow)
-// This is NOT an Expo managed workflow - we're using RN CLI with Expo Updates only
-
 export default {
   expo: {
-    name: "Chayo Mobile",
-    slug: "chayo-mobile", 
+    name: "Chayo",
+    slug: "chayo-mobile",
     version: "1.0.0",
+    orientation: "portrait",
+    icon: "./assets/icon.png",
+    userInterfaceStyle: "automatic",
+    splash: {
+      image: "./assets/splash.png",
+      resizeMode: "contain",
+      backgroundColor: "#1C1C1E"
+    },
+    assetBundlePatterns: [
+      "**/*"
+    ],
+    ios: {
+      supportsTablet: true,
+      bundleIdentifier: "com.chayo.mobile",
+      buildNumber: "1",
+      infoPlist: {
+        NSAppTransportSecurity: {
+          NSAllowsArbitraryLoads: true,
+          NSExceptionDomains: {
+            "chayo.vercel.app": {
+              NSExceptionAllowsInsecureHTTPLoads: true,
+              NSExceptionMinimumTLSVersion: "TLSv1.0",
+              NSExceptionRequiresForwardSecrecy: false
+            }
+          }
+        },
+        UIAppFonts: [
+          "Feather.ttf",
+          "Ionicons.ttf", 
+          "MaterialIcons.ttf"
+        ]
+      }
+    },
+    android: {
+      adaptiveIcon: {
+        foregroundImage: "./assets/adaptive-icon.png",
+        backgroundColor: "#1C1C1E"
+      },
+      package: "com.chayo.mobile",
+      versionCode: 1
+    },
+    web: {
+      favicon: "./assets/favicon.png"
+    },
+    plugins: [
+      [
+        "expo-updates",
+        {
+          username: "chayo-ai"
+        }
+      ]
+    ],
+    updates: {
+      url: "https://u.expo.dev/YOUR_PROJECT_ID"
+    },
     runtimeVersion: {
       policy: "appVersion"
     },
-    updates: {
-      url: "https://u.expo.dev/[your-project-id]"
-    },
     extra: {
       eas: {
-        projectId: "[your-project-id]"
+        projectId: "YOUR_PROJECT_ID"
       }
     }
   }

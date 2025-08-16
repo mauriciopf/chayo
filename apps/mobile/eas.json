@@ -1,22 +1,46 @@
 {
-  "cli": {
-    "version": ">= 12.0.0"
+  "cli": { 
+    "version": ">= 10.0.0" 
   },
   "build": {
-    "development": {
-      "developmentClient": true,
-      "distribution": "internal"
+    "development": { 
+      "developmentClient": true, 
+      "ios": {
+        "simulator": true
+      }, 
+      "android": {
+        "buildType": "apk"
+      }
     },
-    "preview": {
-      "distribution": "internal",
-      "channel": "preview"
+    "preview": { 
+      "ios": {
+        "simulator": false,
+        "distribution": "adhoc"
+      }, 
+      "android": {
+        "buildType": "apk"
+      }
     },
-    "production": {
-      "channel": "production"
+    "production": { 
+      "ios": {
+        "simulator": false,
+        "distribution": "store"
+      }, 
+      "android": {
+        "buildType": "aab"
+      }
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ios": { 
+        "ascAppId": "REPLACE_WITH_APP_STORE_CONNECT_ID"
+      },
+      "android": { 
+        "track": "internal", 
+        "serviceAccountKeyPath": "./play-sa.json" 
+      }
+    }
   },
   "update": {
     "development": {
