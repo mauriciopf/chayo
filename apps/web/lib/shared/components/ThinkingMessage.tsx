@@ -24,7 +24,7 @@ export default function ThinkingMessage({
   messageType = 'default'
 }: ThinkingMessageProps) {
   const [currentMessage, setCurrentMessage] = useState<string>('')
-  const instanceIdRef = useRef<string>()
+  const instanceIdRef = useRef<string | undefined>(undefined)
   const streamRef = useRef<any>(null)
 
   // Generate unique instance ID

@@ -422,7 +422,7 @@ export default function FillFormPage() {
               // Form.io form rendering
               <div className="space-y-6">
                 <FormioForm
-                  src=""
+                  src={undefined as any}
                   form={form.formio_definition}
                   onSubmit={handleFormioSubmit}
                   options={{

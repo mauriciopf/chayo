@@ -8,7 +8,7 @@ interface AnimatedCounterProps {
 
 export default function AnimatedCounter({ value, duration = 1.5, className = "" }: AnimatedCounterProps) {
   const [count, setCount] = useState(0);
-  const ref = useRef<number>();
+  const ref = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     let start = 0;

@@ -611,7 +611,7 @@ export default function IntakeFormsToolConfig({ organizationId, isEnabled, onSet
             <h4 className="text-md font-medium mb-4">Vista Previa del Formulario</h4>
             {formDefinition && (
               <Form 
-                src=""
+                src={undefined as any}
                 form={formDefinition}
                 onSubmit={(submission: any) => {
                   console.log('Preview submission:', submission)
