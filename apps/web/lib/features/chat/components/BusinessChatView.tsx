@@ -28,10 +28,10 @@ interface BusinessChatViewProps {
   sendMessage: (messageContent: string) => Promise<void>
   handleInputFocus: () => void
   handleOTPFlow: () => Promise<void>
-  messagesEndRef: React.RefObject<HTMLDivElement>
-  inputRef: React.RefObject<HTMLTextAreaElement>
-  chatScrollContainerRef: React.RefObject<HTMLDivElement>
-  fileInputRef: React.RefObject<HTMLInputElement>
+  messagesEndRef: React.RefObject<HTMLDivElement | null>
+  inputRef: React.RefObject<HTMLTextAreaElement | null>
+  chatScrollContainerRef: React.RefObject<HTMLDivElement | null>
+  fileInputRef: React.RefObject<HTMLInputElement | null>
   handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void
   uploading: boolean
   uploadProgress: number | null
@@ -106,7 +106,7 @@ export default function BusinessChatView({
     <>
       <div
         className="flex-1 overflow-y-auto px-1 md:px-6 md:py-4"
-        ref={chatScrollContainerRef}
+        ref={chatScrollContainerRef as React.RefObject<HTMLDivElement>}
         onClick={() => { if (isMobile && !hasUserInteracted) setHasUserInteracted(true); }}
         style={{ 
           scrollPaddingBottom: '20vh',
@@ -167,7 +167,7 @@ export default function BusinessChatView({
             />
           )
         })()}
-        <div ref={messagesEndRef} />
+        <div ref={messagesEndRef as React.RefObject<HTMLDivElement>} />
       </div>
 
 

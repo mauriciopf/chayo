@@ -13,8 +13,8 @@ interface ChatInputProps {
   handleSend: () => void
   handleInputFocus: () => void
   handleOTPFlow: () => Promise<void>
-  inputRef: React.RefObject<HTMLTextAreaElement>
-  fileInputRef: React.RefObject<HTMLInputElement>
+  inputRef: React.RefObject<HTMLTextAreaElement | null>
+  fileInputRef: React.RefObject<HTMLInputElement | null>
   handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void
   uploading: boolean
   otpLoading: string
@@ -57,7 +57,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
       <div className="w-full max-w-none"> 
         <input
           type="file"
-          ref={fileInputRef}
+          ref={fileInputRef as React.RefObject<HTMLInputElement>}
           style={{ display: 'none' }}
           onChange={handleFileChange}
           disabled={uploading}
@@ -82,7 +82,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                   }
                 }
               }}
-              ref={inputRef as any}
+              ref={inputRef as React.RefObject<HTMLTextAreaElement>}
               className={`w-full px-3 py-3 focus:outline-none resize-none font-medium min-h-[2.75rem] max-h-[6rem] leading-relaxed ${isOnboardingActive ? 'placeholder-blue-300' : 'placeholder-gray-400'}`}
               style={{ 
                 color: '#ffffff', 

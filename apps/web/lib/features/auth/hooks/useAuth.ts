@@ -30,7 +30,7 @@ export function useAuth() {
     setInput: (input: string) => void
     setJustSent: (sent: boolean) => void
     isMobile: boolean
-    inputRef: React.RefObject<HTMLTextAreaElement>
+    inputRef: React.RefObject<HTMLTextAreaElement | null>
     messages: Message[]
     setMessages: (messages: Message[] | ((prev: Message[]) => Message[])) => void
   }) => {

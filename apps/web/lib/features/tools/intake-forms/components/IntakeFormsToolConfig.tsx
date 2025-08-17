@@ -7,7 +7,7 @@ import { supabase } from '@/lib/shared/supabase/client'
 import dynamic from 'next/dynamic'
 
 // Dynamic import for Form component (for preview)
-const Form = dynamic(() => import('react-formio').then(mod => mod.Form), {
+const Form = dynamic(() => import('@formio/react').then(mod => mod.Form), {
   ssr: false,
   loading: () => <div className="flex items-center justify-center p-4"><Loader2 className="w-6 h-6 animate-spin" /><span className="ml-2">Cargando...</span></div>
 })
@@ -611,6 +611,7 @@ export default function IntakeFormsToolConfig({ organizationId, isEnabled, onSet
             <h4 className="text-md font-medium mb-4">Vista Previa del Formulario</h4>
             {formDefinition && (
               <Form 
+                src=""
                 form={formDefinition}
                 onSubmit={(submission: any) => {
                   console.log('Preview submission:', submission)

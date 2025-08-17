@@ -19,10 +19,10 @@ interface ChatContainerProps {
   sendMessage: (messageContent: string) => Promise<void>;
   handleInputFocus: () => void;
   handleOTPFlow: () => Promise<void>;
-  messagesEndRef: React.RefObject<HTMLDivElement>;
-  inputRef: React.RefObject<HTMLTextAreaElement>;
-  chatScrollContainerRef: React.RefObject<HTMLDivElement>;
-  fileInputRef: React.RefObject<HTMLInputElement>;
+  messagesEndRef: React.RefObject<HTMLDivElement | null>;
+  inputRef: React.RefObject<HTMLTextAreaElement | null>;
+  chatScrollContainerRef: React.RefObject<HTMLDivElement | null>;
+  fileInputRef: React.RefObject<HTMLInputElement | null>;
   handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   uploading: boolean;
   uploadProgress: number | null;

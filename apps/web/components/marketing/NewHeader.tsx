@@ -14,7 +14,7 @@ export default function NewHeader() {
   const router = useRouter();
   const t = useTranslations();
   const locale = useLocale();
-  const [showPwaPrompt, setShowPwaPrompt] = useState(false);
+
 
   // Simple mobile detection (if not imported)
   const isMobile = typeof window !== 'undefined' && (/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 768);
@@ -60,7 +60,7 @@ export default function NewHeader() {
     await supabase.auth.signOut();
   };
 
-  // PWA install prompt handler
+
   const handleFreeTrialClick = () => {
     router.push(`/${locale}/dashboard`);
   };
@@ -317,16 +317,7 @@ export default function NewHeader() {
           </motion.div>
         </motion.div>
       </div>
-      {/* PWA install prompt modal/alert */}
-      {showPwaPrompt && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-xl shadow-xl p-6 max-w-sm w-full text-center">
-            <h2 className="text-xl font-bold mb-2">Install Chayo AI</h2>
-            <p className="mb-4">For the best experience, install Chayo AI as a PWA from your browser menu.<br/>Tap <b>Share</b> &rarr; <b>Add to Home Screen</b> on iOS, or <b>Install App</b> on Android.</p>
-            <button onClick={() => setShowPwaPrompt(false)} className="mt-2 px-4 py-2 bg-purple-600 text-white rounded-lg font-semibold">Close</button>
-          </div>
-        </div>
-      )}
+
     </motion.header>
   );
 }

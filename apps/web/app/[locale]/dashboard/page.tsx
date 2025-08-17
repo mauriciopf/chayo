@@ -20,7 +20,7 @@ import { useOnboardingProgress } from '@/lib/features/onboarding/hooks/useOnboar
 import ChatContainer from '@/lib/features/chat/components/ChatContainer'
 import ClientQRCode from '@/lib/features/chat/components/ClientQRCode'
 import AgentsView from '@/lib/features/dashboard/components/agents/AgentsView'
-import PWAPrompt from '@/lib/features/dashboard/components/layout/PWAPrompt'
+
 import BusinessSummary from '@/lib/features/dashboard/components/overview/BusinessSummary'
 import { ActiveView } from '@/lib/shared/types'
 
@@ -35,7 +35,7 @@ import MainDashboardLayout from '@/lib/features/dashboard/components/layout/Main
 export default function Dashboard() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <PWAPrompt />
+      
       <DashboardContent />
     </Suspense>
   )

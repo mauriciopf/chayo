@@ -7,7 +7,7 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import dynamic from 'next/dynamic'
 
 // Dynamically import Form.io components to avoid SSR issues
-const FormioForm = dynamic(() => import('react-formio').then(mod => mod.Form), {
+const FormioForm = dynamic(() => import('@formio/react').then(mod => mod.Form), {
   ssr: false,
   loading: () => <div className="flex items-center justify-center p-4"><Loader2 className="w-6 h-6 animate-spin" /></div>
 })
@@ -422,12 +422,12 @@ export default function FillFormPage() {
               // Form.io form rendering
               <div className="space-y-6">
                 <FormioForm
+                  src=""
                   form={form.formio_definition}
                   onSubmit={handleFormioSubmit}
                   options={{
                     readOnly: false,
-                    noAlerts: false,
-                    submitMessage: 'Enviando...'
+                    noAlerts: false
                   }}
                 />
                 {submitting && (

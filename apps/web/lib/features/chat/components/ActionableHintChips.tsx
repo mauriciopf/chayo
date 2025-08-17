@@ -109,18 +109,20 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
     <div className={`w-full ${className}`}>
       {/* Simple Horizontal Scroll Container */}
       <div 
-        className="flex gap-3 overflow-x-auto overflow-y-hidden pb-3 px-1"
+        className="flex gap-3 overflow-x-auto overflow-y-hidden pb-3 px-1 scroll-container"
         style={{ 
           scrollbarWidth: 'none', 
           msOverflowStyle: 'none',
           WebkitOverflowScrolling: 'touch'
         }}
       >
-        <style jsx>{`
-          div::-webkit-scrollbar {
-            display: none;
-          }
-        `}</style>
+        <style dangerouslySetInnerHTML={{
+          __html: `
+            .scroll-container::-webkit-scrollbar {
+              display: none;
+            }
+          `
+        }} />
           {/* Hint Chips */}
           <AnimatePresence>
             {actionableHints.map((hint, index) => (

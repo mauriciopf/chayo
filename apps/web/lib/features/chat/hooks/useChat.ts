@@ -26,10 +26,10 @@ interface UseChatReturn {
   currentPhase: string | null
   
   // Refs
-  messagesEndRef: React.RefObject<HTMLDivElement>
-  inputRef: React.RefObject<HTMLTextAreaElement>
-  chatScrollContainerRef: React.RefObject<HTMLDivElement>
-  fileInputRef: React.RefObject<HTMLInputElement>
+  messagesEndRef: React.RefObject<HTMLDivElement | null>
+  inputRef: React.RefObject<HTMLTextAreaElement | null>
+  chatScrollContainerRef: React.RefObject<HTMLDivElement | null>
+  fileInputRef: React.RefObject<HTMLInputElement | null>
   
   // Methods
   scrollToShowUserMessage: (smooth?: boolean) => void
@@ -63,10 +63,10 @@ export function useChat({
     return match ? match[0].replace(/[.,;!?]+$/, '') : null // Remove trailing punctuation
   }
 
-  const messagesEndRef = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLTextAreaElement>(null)
-  const chatScrollContainerRef = useRef<HTMLDivElement>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const messagesEndRef = useRef<HTMLDivElement | null>(null)
+  const inputRef = useRef<HTMLTextAreaElement | null>(null)
+  const chatScrollContainerRef = useRef<HTMLDivElement | null>(null)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
 
   // Reusable SSE handler
   const handleSSERequest = async (requestBody: any, options: {

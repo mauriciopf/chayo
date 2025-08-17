@@ -3,7 +3,7 @@
     "lib": [
       "dom",
       "dom.iterable",
-      "es6"
+      "es2020"
     ],
     "allowJs": true,
     "skipLibCheck": true,
@@ -11,7 +11,7 @@
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
-    "moduleResolution": "bundler",
+    "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
@@ -44,18 +44,12 @@
       "@/lib/services/toolIntentService": ["./lib/features/tools/shared/services/toolIntentService"],
       "@/lib/services/agentToolConstraints": ["./lib/features/tools/shared/services/agentToolConstraints"]
     },
-    "target": "ES2017"
+    "target": "ES2020"
   },
   "include": [
     "next-env.d.ts",
-    "app/**/*.ts",
-    "app/**/*.tsx",
-    "components/**/*.ts", 
-    "components/**/*.tsx",
-    "lib/**/*.ts",
-    "lib/**/*.tsx",
-    "middleware.ts",
-    "i18n.ts",
+    "**/*.ts",
+    "**/*.tsx",
     ".next/types/**/*.ts"
   ],
   "exclude": [
