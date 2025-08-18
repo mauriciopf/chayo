@@ -3,11 +3,12 @@ import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id: organizationId } = await params;
   try {
     const supabase = getSupabaseServerClient()
-    const organizationId = params.id
+
 
     // Get active agent tools (public endpoint - no auth required for client chat)
     const { data, error } = await supabase

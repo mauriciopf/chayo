@@ -1,4 +1,49 @@
 {
+  "mobile-branding": {
+    "title": "Marca de la App Móvil",
+    "description": "Personaliza la apariencia de tu app móvil con colores y logo",
+    "save": "Guardar Cambios",
+    "saving": "Guardando...",
+    "reset": "Restablecer Valores",
+    "logo": {
+      "title": "Logo de la App",
+      "dragAndDrop": "Arrastra y suelta tu logo aquí",
+      "dropHere": "Suelta tu logo aquí",
+      "selectFile": "Seleccionar Archivo",
+      "uploading": "Subiendo...",
+      "supportedFormats": "PNG, JPG, SVG hasta 5MB",
+      "invalidFileType": "Por favor selecciona un archivo de imagen válido (PNG, JPG, SVG)",
+      "fileTooLarge": "El archivo debe ser menor a 5MB",
+      "guidelines": {
+        "title": "Guías para el Logo",
+        "size": "Tamaño recomendado: 512x512px o mayor",
+        "format": "Usa PNG con fondo transparente para mejores resultados",
+        "background": "Evita logos con fondos blancos",
+        "quality": "Usa imágenes de alta resolución para una visualización nítida"
+      }
+    },
+    "colors": {
+      "title": "Colores de la App",
+      "primary": "Color Primario",
+      "primaryDescription": "Color principal de marca usado para botones y elementos destacados",
+      "secondary": "Color Secundario",
+      "secondaryDescription": "Usado para barras de pestañas y elementos secundarios",
+      "background": "Color de Fondo",
+      "backgroundDescription": "Color de fondo principal de la app",
+      "text": "Color de Texto",
+      "textDescription": "Color de texto principal en toda la app"
+    },
+    "preview": {
+      "title": "Vista Previa Móvil",
+      "description": "Ve cómo se verá tu marca en dispositivos móviles",
+      "inputPlaceholder": "Escribe tu mensaje...",
+      "sampleMessages": {
+        "welcome": "¡Bienvenido! ¿Cómo puedo ayudarte hoy?",
+        "userQuestion": "Necesito ayuda con mi cita",
+        "response": "Estaré encantada de ayudarte con tu cita. Déjame revisar tus opciones disponibles."
+      }
+    }
+  },
   "footer": {
     "brand": "Chayo",
     "tagline": "Tu comadre digital, 24/7",

@@ -6,10 +6,10 @@ import { useRouter } from 'next/navigation'
 import CalendlyEmbed from '@/lib/features/dashboard/components/providers/CalendlyEmbed'
 
 interface CalendlyAppointmentPageProps {
-  params: {
+  params: Promise<{
     businessSlug: string
     locale: string
-  }
+  }>
 }
 
 interface OrganizationData {
@@ -25,7 +25,8 @@ interface AppointmentSettings {
 }
 
 export default function CalendlyAppointmentPage({ params }: CalendlyAppointmentPageProps) {
-  const { businessSlug, locale } = params
+  const [businessSlug, setBusinessSlug] = useState<string>('')
+  const [locale, setLocale] = useState<string>('')
   const router = useRouter()
   const [organization, setOrganization] = useState<OrganizationData | null>(null)
   const [appointmentSettings, setAppointmentSettings] = useState<AppointmentSettings | null>(null)
@@ -33,7 +34,16 @@ export default function CalendlyAppointmentPage({ params }: CalendlyAppointmentP
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchOrganizationAndSettings()
+    params.then(({ businessSlug: slug, locale: loc }) => {
+      setBusinessSlug(slug)
+      setLocale(loc)
+    })
+  }, [params])
+
+  useEffect(() => {
+    if (businessSlug) {
+      fetchOrganizationAndSettings()
+    }
   }, [businessSlug])
 
   const fetchOrganizationAndSettings = async () => {

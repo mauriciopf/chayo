@@ -19,7 +19,7 @@ export class ConfigLoader {
     try {
       // Fetch organization config from API
       const response = await fetch(
-        `${this.options.apiBaseUrl}/api/organizations/${organizationSlug}/mobile-config`
+        `${this.options.apiBaseUrl}/api/app-config/${organizationSlug}`
       );
 
       if (!response.ok) {
@@ -84,8 +84,9 @@ export class ConfigLoader {
         throw new Error(`Failed to load tools: ${response.statusText}`);
       }
 
-      const { enabledTools } = await response.json();
-      return enabledTools as ToolType[];
+      const toolsData = await response.json();
+      // Convert the object of enabled tools to an array
+      return Object.keys(toolsData).filter(key => toolsData[key] === true) as ToolType[];
     } catch (error) {
       console.error('Error loading enabled tools:', error);
       return [];

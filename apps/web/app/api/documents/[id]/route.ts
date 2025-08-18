@@ -3,8 +3,9 @@ import { getSupabaseServerClient } from "@/lib/shared/supabase/server"
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     const supabase = getSupabaseServerClient()
     // Authentication using server supabase client
@@ -15,7 +16,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const documentId = params.id
+    const documentId = id
 
     // Get document details to verify ownership and get storage path
     const { data: document, error: fetchError } = await supabase

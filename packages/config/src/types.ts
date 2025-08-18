@@ -5,7 +5,8 @@ export const AVAILABLE_TOOLS = [
   'appointments',
   'payments', 
   'documents',
-  'faqs'
+  'faqs',
+  'mobile-branding'
 ] as const;
 
 export type ToolType = typeof AVAILABLE_TOOLS[number];
@@ -48,6 +49,7 @@ export interface ToolUrlConfig {
   payments: string;
   documents: string;
   faqs: string;
+  'mobile-branding': string;
 }
 
 // Navigation tab configuration

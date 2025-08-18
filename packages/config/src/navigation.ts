@@ -51,6 +51,12 @@ export class NavigationConfigGenerator {
         icon: 'help-circle',
         component: 'webview',
       },
+      'mobile-branding': {
+        name: 'Mobile Branding',
+        label: 'Branding',
+        icon: 'smartphone',
+        component: 'webview',
+      },
     };
 
     // Add enabled tool tabs

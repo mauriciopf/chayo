@@ -18,6 +18,7 @@ export class ToolUrlGenerator {
       payments: `${this.webBaseUrl}/client-chat/${this.organizationSlug}?tool=payments`,
       documents: `${this.webBaseUrl}/client-chat/${this.organizationSlug}?tool=documents`, 
       faqs: `${this.webBaseUrl}/faqs/${this.organizationSlug}`,
+      'mobile-branding': `${this.webBaseUrl}/dashboard/mobile-branding`,
     };
 
     return urls[tool];
@@ -32,6 +33,7 @@ export class ToolUrlGenerator {
       payments: this.getToolUrl('payments'),
       documents: this.getToolUrl('documents'),
       faqs: this.getToolUrl('faqs'),
+      'mobile-branding': this.getToolUrl('mobile-branding'),
     };
   }
 

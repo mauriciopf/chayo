@@ -1,4 +1,49 @@
 {
+  "mobile-branding": {
+    "title": "Mobile App Branding",
+    "description": "Customize your mobile app's appearance with colors and logo",
+    "save": "Save Changes",
+    "saving": "Saving...",
+    "reset": "Reset to Defaults",
+    "logo": {
+      "title": "App Logo",
+      "dragAndDrop": "Drag and drop your logo here",
+      "dropHere": "Drop your logo here",
+      "selectFile": "Select File",
+      "uploading": "Uploading...",
+      "supportedFormats": "PNG, JPG, SVG up to 5MB",
+      "invalidFileType": "Please select a valid image file (PNG, JPG, SVG)",
+      "fileTooLarge": "File size must be less than 5MB",
+      "guidelines": {
+        "title": "Logo Guidelines",
+        "size": "Recommended size: 512x512px or larger",
+        "format": "Use PNG with transparent background for best results",
+        "background": "Avoid logos with white backgrounds",
+        "quality": "Use high-resolution images for crisp display"
+      }
+    },
+    "colors": {
+      "title": "App Colors",
+      "primary": "Primary Color",
+      "primaryDescription": "Main brand color used for buttons and highlights",
+      "secondary": "Secondary Color",
+      "secondaryDescription": "Used for tab bars and secondary elements",
+      "background": "Background Color",
+      "backgroundDescription": "Main background color of the app",
+      "text": "Text Color",
+      "textDescription": "Primary text color throughout the app"
+    },
+    "preview": {
+      "title": "Mobile Preview",
+      "description": "See how your branding will look on mobile devices",
+      "inputPlaceholder": "Type your message...",
+      "sampleMessages": {
+        "welcome": "Welcome! How can I help you today?",
+        "userQuestion": "I need help with my appointment",
+        "response": "I'd be happy to help you with your appointment. Let me check your available options."
+      }
+    }
+  },
   "footer": {
     "brand": "Chayo",
     "tagline": "Tu comadre digital, 24/7",

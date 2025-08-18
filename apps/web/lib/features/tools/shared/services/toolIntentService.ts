@@ -18,6 +18,7 @@ export interface ToolIntentDefinitions {
   documents: ToolIntent
   intake_forms: ToolIntent
   faqs: ToolIntent
+  'mobile-branding': ToolIntent
 }
 
 export class ToolIntentService {
@@ -50,6 +51,12 @@ export class ToolIntentService {
       intent: "If the user asks general questions, needs help understanding services, wants frequently asked information, or requires general assistance, return intent 'faqs'. This includes general inquiries and common questions.",
       triggerWords: ["help", "question", "faq", "information", "explain", "what", "how", "why", "general"],
       description: "Frequently asked questions and general help"
+    },
+    
+    'mobile-branding': {
+      intent: "If the user wants to customize their mobile app appearance, change colors, upload logos, modify branding, or configure the white-label mobile app settings, return intent 'mobile-branding'. This includes app customization and branding requests.",
+      triggerWords: ["branding", "customize", "colors", "logo", "theme", "appearance", "mobile app", "white label", "brand"],
+      description: "Mobile app branding and customization"
     }
   }
 
