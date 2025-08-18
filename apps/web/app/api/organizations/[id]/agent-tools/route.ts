@@ -4,11 +4,11 @@ import { AgentToolConstraintsService } from '@/lib/features/tools/shared/service
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id: organizationId } = await params;
   try {
     const supabase = getSupabaseServerClient()
-    const organizationId = params.id
 
     // Get agent tools using the database function
     const { data, error } = await supabase
@@ -26,7 +26,8 @@ export async function GET(
       documents: false,
       payments: false,
       intake_forms: false,
-      faqs: false
+      faqs: false,
+      'mobile-branding': false
     })
   } catch (error) {
     console.error('Agent tools GET error:', error)
@@ -36,15 +37,15 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id: organizationId } = await params;
   try {
     const supabase = getSupabaseServerClient()
-    const organizationId = params.id
     const { toolType, enabled } = await request.json()
 
     // Validate tool type
-    const validToolTypes = ['appointments', 'documents', 'payments', 'intake_forms', 'faqs']
+    const validToolTypes = ['appointments', 'documents', 'payments', 'intake_forms', 'faqs', 'mobile-branding']
     if (!validToolTypes.includes(toolType)) {
       return NextResponse.json({ error: 'Invalid tool type' }, { status: 400 })
     }

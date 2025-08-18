@@ -1296,6 +1296,16 @@
           "Detalles de precios y políticas",
           "Información de ubicación y contacto"
         ]
+      },
+      "mobileBranding": {
+        "title": "Marca de Aplicación Móvil",
+        "description": "Personaliza la apariencia de tu aplicación móvil con colores, logo y marca.",
+        "features": [
+          "Temas de colores personalizados y marca",
+          "Carga y gestión de logo",
+          "Vista previa móvil en tiempo real",
+          "Apariencia profesional de la aplicación"
+        ]
       }
     }
   },

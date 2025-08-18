@@ -4,11 +4,11 @@ import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
 // GET: Public access to active FAQs for client chat (by organization slug)
 export async function GET(
   request: NextRequest,
-  { params }: { params: { orgSlug: string } }
+  { params }: { params: Promise<{ orgSlug: string }> }
 ) {
+  const { orgSlug } = await params;
   try {
     const supabase = getSupabaseServerClient()
-    const orgSlug = params.orgSlug
     const { searchParams } = new URL(request.url)
     const searchQuery = searchParams.get('search')
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ThemeConfig, ThemeConfigSchema } from '../../../../../packages/config/src/types';
+import { ThemeConfig, ThemeConfigSchema } from '@/lib/shared/types/configTypes';
 import { useUser } from '@/lib/shared/hooks/useUser';
 
 const DEFAULT_CONFIG: ThemeConfig = {
@@ -12,25 +12,27 @@ const DEFAULT_CONFIG: ThemeConfig = {
   logoUrl: undefined,
 };
 
-export function useMobileBranding() {
+export function useMobileBranding(organizationId?: string) {
   const { user } = useUser();
   const [config, setConfig] = useState<ThemeConfig>(DEFAULT_CONFIG);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  const effectiveOrgId = organizationId || user?.organizationId;
+
   // Load current configuration
   useEffect(() => {
     loadConfig();
-  }, [user]);
+  }, [effectiveOrgId]);
 
   const loadConfig = async () => {
-    if (!user?.organizationId) {
+    if (!effectiveOrgId) {
       setLoading(false);
       return;
     }
 
     try {
-      const response = await fetch(`/api/organizations/${user.organizationId}/mobile-config`);
+      const response = await fetch(`/api/organizations/${effectiveOrgId}/mobile-config`);
       if (response.ok) {
         const data = await response.json();
         const validatedConfig = ThemeConfigSchema.parse(data);
@@ -48,11 +50,11 @@ export function useMobileBranding() {
   };
 
   const saveConfig = async (newConfig: ThemeConfig) => {
-    if (!user?.organizationId) return;
+    if (!effectiveOrgId) return;
 
     setSaving(true);
     try {
-      const response = await fetch(`/api/organizations/${user.organizationId}/mobile-config`, {
+      const response = await fetch(`/api/organizations/${effectiveOrgId}/mobile-config`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -91,7 +93,7 @@ export function useMobileBranding() {
       const formData = new FormData();
       formData.append('logo', file);
 
-      const response = await fetch(`/api/organizations/${user.organizationId}/mobile-config/logo`, {
+      const response = await fetch(`/api/organizations/${effectiveOrgId}/mobile-config/logo`, {
         method: 'POST',
         body: formData,
       });

@@ -3,7 +3,7 @@ import MobileHeader from '../navigation/MobileHeader'
 import MobileNavigation from '../navigation/MobileNavigation'
 import SubscriptionPlans from '../overview/SubscriptionPlans'
 import ManageDocumentsModal from '../../../tools/documents/components/ManageDocumentsModal'
-import BetaBanner from '../../../../../components/layout/BetaBanner'
+import BetaBanner from '@/components/layout/BetaBanner'
 import React from 'react'
 
 export default function MainDashboardLayout({

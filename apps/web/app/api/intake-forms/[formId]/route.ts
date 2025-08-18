@@ -4,11 +4,11 @@ import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
 // GET: Fetch a specific intake form for public viewing (clients)
 export async function GET(
   request: NextRequest,
-  { params }: { params: { formId: string } }
+  { params }: { params: Promise<{ formId: string }> }
 ) {
+  const { formId } = await params;
   try {
     const supabase = getSupabaseServerClient()
-    const formId = params.formId
 
     // Fetch the form with organization details
     const { data: form, error } = await supabase

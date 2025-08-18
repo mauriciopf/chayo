@@ -8,9 +8,19 @@ import { ColorPicker } from './ColorPicker';
 import { LogoUpload } from './LogoUpload';
 import { MobilePreview } from './MobilePreview';
 import { useMobileBranding } from '../hooks/useMobileBranding';
-import { ThemeConfig } from '../../../../../../packages/config/src/types';
+import { ThemeConfig } from '@/lib/shared/types/configTypes';
 
-export function MobileBrandingConfig() {
+interface MobileBrandingConfigProps {
+  organizationId: string
+  isEnabled: boolean
+  onSettingsChange?: () => void
+}
+
+export function MobileBrandingConfig({ 
+  organizationId, 
+  isEnabled, 
+  onSettingsChange 
+}: MobileBrandingConfigProps) {
   const t = useTranslations('mobile-branding');
   const {
     config,
@@ -20,7 +30,7 @@ export function MobileBrandingConfig() {
     saveConfig,
     resetToDefaults,
     uploadLogo
-  } = useMobileBranding();
+  } = useMobileBranding(organizationId);
 
   const [localConfig, setLocalConfig] = useState<ThemeConfig>(config);
   const [hasChanges, setHasChanges] = useState(false);
@@ -52,6 +62,16 @@ export function MobileBrandingConfig() {
       handleConfigChange({ logoUrl });
     }
   };
+
+  if (!isEnabled) {
+    return (
+      <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+        <p className="text-amber-800 text-sm">
+          Enable the Mobile Branding tool above to customize your app's appearance.
+        </p>
+      </div>
+    );
+  }
 
   if (loading) {
     return (

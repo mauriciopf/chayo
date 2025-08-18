@@ -11,6 +11,7 @@ import DocumentToolConfig from '../../tools/documents/components/DocumentToolCon
 import PaymentToolConfig from '../../tools/payments/components/PaymentToolConfig'
 import IntakeFormsToolConfig from '../../tools/intake-forms/components/IntakeFormsToolConfig'
 import FAQToolConfig from '../../tools/faqs/components/FAQToolConfig'
+import { MobileBrandingConfig } from '../../tools/mobile-branding/components/MobileBrandingConfig'
 
 interface ActionableHintShareModalProps {
   isOpen: boolean
@@ -46,7 +47,8 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
     documents: false,
     payments: false,
     intake_forms: false,
-    faqs: false
+    faqs: false,
+    'mobile-branding': false
   })
   const [toolConstraints, setToolConstraints] = useState<{ [key: string]: ToolConstraint }>({})
   const [loading, setLoading] = useState(false)
@@ -197,6 +199,17 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
             t('modal.faqs.features.1'),
             t('modal.faqs.features.2'),
             t('modal.faqs.features.3')
+          ]
+        }
+      case 'mobile-branding':
+        return {
+          title: t('modal.mobileBranding.title'),
+          description: t('modal.mobileBranding.description'),
+          features: [
+            t('modal.mobileBranding.features.0'),
+            t('modal.mobileBranding.features.1'),
+            t('modal.mobileBranding.features.2'),
+            t('modal.mobileBranding.features.3')
           ]
         }
       default:
@@ -371,7 +384,15 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
                 />
               )}
 
-              {!isCurrentToolEnabled && !['appointments', 'documents', 'payments', 'intake_forms', 'faqs'].includes(hint?.category || '') && (
+              {hint?.category === 'mobile-branding' && (
+                <MobileBrandingConfig 
+                  organizationId={organizationId}
+                  isEnabled={isCurrentToolEnabled}
+                  onSettingsChange={onSettingsChange}
+                />
+              )}
+
+              {!isCurrentToolEnabled && !['appointments', 'documents', 'payments', 'intake_forms', 'faqs', 'mobile-branding'].includes(hint?.category || '') && (
                 <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
                   <p className="text-amber-800 text-sm">
                     Enable this agent tool above to make it available to your clients.

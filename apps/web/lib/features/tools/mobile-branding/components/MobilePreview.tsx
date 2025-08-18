@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import { MessageCircle, Calendar, CreditCard, FileText, HelpCircle, Smartphone } from 'lucide-react';
-import { ThemeConfig } from '../../../../../../packages/config/src/types';
+import { ThemeConfig } from '@/lib/shared/types/configTypes';
 
 interface MobilePreviewProps {
   config: ThemeConfig;

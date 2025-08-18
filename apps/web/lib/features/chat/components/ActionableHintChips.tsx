@@ -9,7 +9,7 @@ export type ActionableHint = {
   label: string
   icon: string
   description: string
-  category: 'appointments' | 'documents' | 'payments' | 'intake_forms' | 'faqs'
+  category: 'appointments' | 'documents' | 'payments' | 'intake_forms' | 'faqs' | 'mobile-branding'
 }
 
 interface ActionableHintChipsProps {
@@ -30,6 +30,7 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
   const t = useTranslations('chat')
 
   const [agentToolSettings, setAgentToolSettings] = useState<AgentToolSettings>({
+    'mobile-branding': false,
     appointments: false,
     documents: false,
     payments: false,
@@ -39,6 +40,13 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
 
   // Define the actionable hints
   const actionableHints: ActionableHint[] = [
+    {
+      id: 'mobile_branding',
+      label: '📱 Mobile branding',
+      icon: '📱',
+      description: 'Customize mobile app colors, logo, and branding.',
+      category: 'mobile-branding'
+    },
     {
       id: 'schedule_appointment',
       label: '📅 Schedule appointment',

@@ -1270,6 +1270,16 @@
           "Pricing and policy details",
           "Location and contact info"
         ]
+      },
+      "mobileBranding": {
+        "title": "Mobile App Branding",
+        "description": "Customize your mobile app's appearance with colors, logo, and branding.",
+        "features": [
+          "Custom color themes and branding",
+          "Logo upload and management",
+          "Real-time mobile preview",
+          "Professional app appearance"
+        ]
       }
     }
   },

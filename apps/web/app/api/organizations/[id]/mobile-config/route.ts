@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServerClient } from '@/lib/shared/supabase/server';
-import { ThemeConfigSchema } from '../../../../../../packages/config/src/types';
+import { ThemeConfigSchema } from '@/lib/shared/types/configTypes';
 
 export async function GET(
   request: NextRequest,
