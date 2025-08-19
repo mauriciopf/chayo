@@ -8,8 +8,8 @@
 // TypeScript interface for validation responses
 export interface ValidationResponse {
   answered: boolean
-  answer?: string
-  confidence?: number
+  answer: string | null
+  confidence: number | null
 }
 
 // OpenAI Structured Output Schema for validation
@@ -22,22 +22,19 @@ export const ValidationResponseSchema = {
       type: "object",
       properties: {
         answered: { 
-          type: "boolean",
-          description: "Whether the question was answered in the conversation"
+          type: "boolean"
         },
         answer: { 
-          type: "string",
-          description: "The extracted answer if the question was answered"
+          type: ["string", "null"]
         },
         confidence: { 
-          type: "number",
+          type: ["number", "null"],
           minimum: 0.0,
-          maximum: 1.0,
-          description: "Confidence level in the validation result"
-        },
+          maximum: 1.0
+        }
       },
-      required: ["answered"],
-      additionalProperties: false,
-    },
-  },
+      required: ["answered", "answer", "confidence"],
+      additionalProperties: false
+    }
+  }
 } as const
