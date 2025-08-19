@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
 
     // Update message status in database if needed
     if (messageSid) {
-      const supabase = getSupabaseServerClient()
+      const supabase = await getSupabaseServerClient();
       // Authentication using server supabase client
       
       await supabase

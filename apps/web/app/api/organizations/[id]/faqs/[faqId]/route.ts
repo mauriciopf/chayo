@@ -4,10 +4,10 @@ import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
 // GET: Fetch a specific FAQ tool
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string; faqId: string } }
+  { params }: { params: Promise<{ id: string; faqId: string  }> }
 ) {
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     const { id: orgId, faqId } = params
 
     const { data: faq, error } = await supabase
@@ -32,10 +32,10 @@ export async function GET(
 // PUT: Update a specific FAQ tool
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string; faqId: string } }
+  { params }: { params: Promise<{ id: string; faqId: string  }> }
 ) {
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     const { id: orgId, faqId } = params
     const body = await request.json()
 
@@ -78,10 +78,10 @@ export async function PUT(
 // DELETE: Delete a specific FAQ tool
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string; faqId: string } }
+  { params }: { params: Promise<{ id: string; faqId: string  }> }
 ) {
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     const { id: orgId, faqId } = params
 
     const { error } = await supabase

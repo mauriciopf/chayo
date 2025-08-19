@@ -4,7 +4,7 @@ import { SimpleClientInsightsService } from '@/lib/features/insights/services/Si
 
 export async function POST(req: NextRequest) {
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     
     // Check authentication
     const { data: { user }, error: authError } = await supabase.auth.getUser()

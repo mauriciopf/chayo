@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get Supabase client
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     // Authentication using server supabase client
 
     // Find the agent channel configuration for this number

@@ -4,11 +4,11 @@ import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
 // GET - Fetch appointments for organization (authenticated)
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string  }> }
 ) {
   try {
-    const supabase = getSupabaseServerClient()
-    const organizationId = params.id
+    const supabase = await getSupabaseServerClient();
+    const { id: organizationId } = await params;
     
     // Get the current user
     const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -111,11 +111,11 @@ export async function GET(
 // PATCH - Update appointment status (authenticated)
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string  }> }
 ) {
   try {
-    const supabase = getSupabaseServerClient()
-    const organizationId = params.id
+    const supabase = await getSupabaseServerClient();
+    const { id: organizationId } = await params;
     
     // Get the current user
     const { data: { user }, error: authError } = await supabase.auth.getUser()

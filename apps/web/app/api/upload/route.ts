@@ -8,7 +8,7 @@ export const runtime = 'nodejs' // must be nodejs for file processing
 
 export async function POST(req: NextRequest) {
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     const formData = await req.formData()
     const file = formData.get('file') as File | null
     if (!file) {

@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
     console.log('🚀 [API] Organization Chat - Request started')
     
     // Create server-side Supabase client
-    const supabase = getSupabaseServerClient();
+    const supabase = await getSupabaseServerClient();
     console.log('✅ [API] Supabase client created')
     
     // Check authentication

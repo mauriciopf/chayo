@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic'
 // GET - Handle Square OAuth callback
 export async function GET(request: NextRequest) {
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     const { searchParams } = new URL(request.url)
     
     const code = searchParams.get('code')

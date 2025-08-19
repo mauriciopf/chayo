@@ -6,7 +6,7 @@ import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
 export async function GET(req: NextRequest) {
   try {
     // Create server-side Supabase client
-    const supabase = getSupabaseServerClient();
+    const supabase = await getSupabaseServerClient();
     
     // Check authentication
     const { data: { user }, error: authError } = await supabase.auth.getUser()

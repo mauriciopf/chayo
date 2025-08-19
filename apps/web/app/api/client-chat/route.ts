@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     
     // Verify organization exists
     const { data: organization, error: orgError } = await supabase

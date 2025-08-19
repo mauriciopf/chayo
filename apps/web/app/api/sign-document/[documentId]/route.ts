@@ -3,11 +3,11 @@ import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { documentId: string } }
+  { params }: { params: Promise<{ documentId: string  }> }
 ) {
   try {
-    const supabase = getSupabaseServerClient()
-    const documentId = params.documentId
+    const supabase = await getSupabaseServerClient();
+    const { documentId: documentId } = await params;
 
     // Get document metadata with organization info (no auth required for signing)
     const { data: document, error } = await supabase

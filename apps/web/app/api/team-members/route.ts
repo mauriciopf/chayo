@@ -3,7 +3,7 @@ import { getSupabaseServerClient } from "@/lib/shared/supabase/server"
 
 export async function GET(req: NextRequest) {
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     // Authentication using server supabase client
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     // Authentication using server supabase client
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
@@ -97,7 +97,7 @@ export async function POST(req: NextRequest) {
 
 export async function PUT(req: NextRequest) {
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     // Authentication using server supabase client
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
@@ -161,7 +161,7 @@ export async function PUT(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     // Authentication using server supabase client
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 

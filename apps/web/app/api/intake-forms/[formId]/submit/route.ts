@@ -4,11 +4,11 @@ import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
 // POST: Submit a response to an intake form (public endpoint for clients)
 export async function POST(
   request: NextRequest,
-  { params }: { params: { formId: string } }
+  { params }: { params: Promise<{ formId: string  }> }
 ) {
   try {
-    const supabase = getSupabaseServerClient()
-    const formId = params.formId
+    const supabase = await getSupabaseServerClient();
+    const { formId: formId } = await params;
     const { responses, clientName, clientEmail, anonymousUserId } = await request.json()
 
     if (!responses || typeof responses !== 'object') {

@@ -8,7 +8,7 @@ export async function GET(
 ) {
   const { orgSlug } = await params;
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     const { searchParams } = new URL(request.url)
     const searchQuery = searchParams.get('search')
 

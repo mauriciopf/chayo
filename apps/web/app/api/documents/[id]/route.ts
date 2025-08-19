@@ -7,7 +7,7 @@ export async function DELETE(
 ) {
   const { id } = await params;
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     // Authentication using server supabase client
     
     // Check if user is authenticated

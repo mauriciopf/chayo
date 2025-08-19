@@ -7,7 +7,7 @@ export async function searchSimilarConversations(
   matchThreshold: number = 0.8,
   matchCount: number = 5
 ): Promise<EmbeddingResult[]> {
-  const supabase = getSupabaseServerClient()
+  const supabase = await getSupabaseServerClient()
   
   console.log('🔍 Searching conversations for organization:', organizationId)
   

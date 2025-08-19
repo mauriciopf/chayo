@@ -8,7 +8,7 @@ export async function GET(
 ) {
   const { formId } = await params;
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
 
     // Fetch the form with organization details
     const { data: form, error } = await supabase

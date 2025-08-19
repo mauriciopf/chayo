@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     // Get the current user
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     
@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     // Get the current user
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     

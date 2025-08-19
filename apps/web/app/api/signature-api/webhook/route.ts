@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing envelope_id' }, { status: 400 })
     }
 
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
 
     // Find the ceremony in our database
     const { data: ceremony, error: fetchError } = await supabase

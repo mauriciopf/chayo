@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
 
     // Verify state parameter
     const stateData = JSON.parse(Buffer.from(state, 'base64url').toString())

@@ -7,7 +7,7 @@ export async function GET(
 ) {
   const { id: organizationId } = await params;
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
 
 
     // Get active agent tools (public endpoint - no auth required for client chat)

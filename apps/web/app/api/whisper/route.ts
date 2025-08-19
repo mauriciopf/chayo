@@ -4,7 +4,7 @@ import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
 export async function POST(req: NextRequest) {
   try {
     // Check authentication
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     
     if (authError || !user) {

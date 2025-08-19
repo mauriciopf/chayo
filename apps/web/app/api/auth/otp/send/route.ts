@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Valid email required' }, { status: 400 });
     }
 
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     // Authentication using server supabase client;
     
     // Send OTP via Supabase Auth 

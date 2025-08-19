@@ -4,10 +4,10 @@ import { embeddingService } from '@/lib/shared/services/embeddingService'
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string  }> }
 ) {
   try {
-    const organizationId = params.id
+    const { id: organizationId } = await params;
     const { conversations, format = 'json', updateSystemPrompt = true } = await request.json()
 
     if (!conversations || !Array.isArray(conversations)) {
@@ -18,7 +18,7 @@ export async function POST(
     }
 
     // Get user from auth
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     // Authentication using server supabase client
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     
@@ -75,16 +75,16 @@ export async function POST(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string  }> }
 ) {
   try {
-    const organizationId = params.id
+    const { id: organizationId } = await params;
     const { searchParams } = new URL(request.url)
     const query = searchParams.get('query')
     const limit = parseInt(searchParams.get('limit') || '10')
 
     // Get user from auth
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     // Authentication using server supabase client
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     
@@ -163,13 +163,13 @@ export async function GET(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string  }> }
 ) {
   try {
-    const organizationId = params.id
+    const { id: organizationId } = await params;
 
     // Get user from auth
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     // Authentication using server supabase client
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     
@@ -216,10 +216,10 @@ export async function DELETE(
 // PATCH - Update memory with conflict resolution
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string  }> }
 ) {
   try {
-    const organizationId = params.id
+    const { id: organizationId } = await params;
     const { 
       memoryUpdate, 
       conflictStrategy = 'auto' 
@@ -233,7 +233,7 @@ export async function PATCH(
     }
 
     // Get user from auth
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     // Authentication using server supabase client
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     

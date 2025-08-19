@@ -4,11 +4,11 @@ import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
 // GET: Fetch form responses for an organization
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string  }> }
 ) {
   try {
-    const supabase = getSupabaseServerClient()
-    const organizationId = params.id
+    const supabase = await getSupabaseServerClient();
+    const { id: organizationId } = await params;
     const { searchParams } = new URL(request.url)
     const formId = searchParams.get('formId') // Optional filter by specific form
 

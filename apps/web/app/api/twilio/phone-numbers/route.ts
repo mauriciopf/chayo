@@ -4,7 +4,7 @@ import { twilioClient, TWILIO_CONFIG } from '@/lib/shared/twilio/client'
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     const { searchParams } = new URL(request.url)
     const countryCode = searchParams.get('countryCode') || 'US'
     
@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     const { phoneNumber } = await request.json()
     
     if (!phoneNumber) {

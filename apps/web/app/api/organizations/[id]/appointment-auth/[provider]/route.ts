@@ -17,12 +17,12 @@ const OAUTH_CONFIGS = {
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string; provider: string } }
+  { params }: { params: Promise<{ id: string; provider: string  }> }
 ) {
   try {
-    const supabase = getSupabaseServerClient()
-    const organizationId = params.id
-    const provider = params.provider
+    const supabase = await getSupabaseServerClient();
+    const { id: organizationId } = await params;
+    const { provider: provider } = await params;
 
     // Get the current user
     const { data: { user }, error: authError } = await supabase.auth.getUser()

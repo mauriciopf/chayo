@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     
     // Get the authenticated user
     const { data: { user }, error: authError } = await supabase.auth.getUser()

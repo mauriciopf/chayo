@@ -4,7 +4,7 @@ import { twilioClient } from '@/lib/shared/twilio/client'
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     // Authentication using server supabase client
     
     // Get user from auth
@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     const { action, trialId } = await request.json()
 
     if (!action || !trialId) {

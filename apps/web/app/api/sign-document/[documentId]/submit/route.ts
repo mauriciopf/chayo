@@ -3,11 +3,11 @@ import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { documentId: string } }
+  { params }: { params: Promise<{ documentId: string  }> }
 ) {
   try {
-    const supabase = getSupabaseServerClient()
-    const documentId = params.documentId
+    const supabase = await getSupabaseServerClient();
+    const { documentId: documentId } = await params;
 
     // Get document metadata (documents are always active now, no status check)
     const { data: document, error: docError } = await supabase

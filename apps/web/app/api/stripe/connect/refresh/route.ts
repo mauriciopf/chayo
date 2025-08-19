@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(new URL('/dashboard?error=missing_organization', request.url))
     }
 
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     
     // Get the current user
     const { data: { user }, error: authError } = await supabase.auth.getUser()

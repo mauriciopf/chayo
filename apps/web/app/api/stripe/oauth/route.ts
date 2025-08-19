@@ -8,7 +8,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 // POST - Initialize Stripe Connect Onboarding flow
 export async function POST(request: NextRequest) {
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     
     // Get the current user
     const { data: { user }, error: authError } = await supabase.auth.getUser()

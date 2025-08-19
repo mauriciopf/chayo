@@ -4,11 +4,11 @@ import { AgentToolConstraintsService } from '@/lib/features/tools/shared/service
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = getSupabaseServerClient()
-    const organizationId = params.id
+    const { id: organizationId } = await params;
+    const supabase = await getSupabaseServerClient()
     const { searchParams } = new URL(request.url)
     const toolType = searchParams.get('toolType')
 

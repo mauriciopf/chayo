@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Create admin client (bypassing RLS)
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     // Authentication using server supabase client
 
     // Find expired trials that haven't been processed yet

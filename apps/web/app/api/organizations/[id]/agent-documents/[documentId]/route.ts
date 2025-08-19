@@ -4,10 +4,10 @@ import { getUserOrganizations } from '@/lib/features/organizations/services/orga
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string; documentId: string } }
+  { params }: { params: Promise<{ id: string; documentId: string  }> }
 ) {
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     
     // Check if user is authenticated
     const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -15,8 +15,8 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const organizationId = params.id
-    const documentId = params.documentId
+    const { id: organizationId } = await params;
+    const { documentId: documentId } = await params;
 
     // Verify organization access
     const orgs = await getUserOrganizations(user.id)
@@ -81,10 +81,10 @@ export async function DELETE(
 // GET endpoint to retrieve a specific document's details
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string; documentId: string } }
+  { params }: { params: Promise<{ id: string; documentId: string  }> }
 ) {
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     
     // Check if user is authenticated
     const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -92,8 +92,8 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const organizationId = params.id
-    const documentId = params.documentId
+    const { id: organizationId } = await params;
+    const { documentId: documentId } = await params;
 
     // Verify organization access
     const orgs = await getUserOrganizations(user.id)

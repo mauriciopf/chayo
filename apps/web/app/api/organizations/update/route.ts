@@ -4,7 +4,7 @@ import { generateSlugFromName } from '@/lib/shared/utils/text'
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     const { organizationId, name } = await request.json()
     if (!organizationId || !name) {
       return NextResponse.json({ error: 'Organization ID and name are required' }, { status: 400 })

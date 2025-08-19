@@ -37,10 +37,10 @@ async function uploadPdfToStorage(file: File, organizationId: string, supabase: 
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string  }> }
 ) {
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     
     // Check if user is authenticated
     const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -48,7 +48,7 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const organizationId = params.id
+    const { id: organizationId } = await params;
     const formData = await request.formData()
     const file = formData.get('file') as File
 
@@ -145,10 +145,10 @@ export async function POST(
 // GET endpoint to list documents for an organization
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string  }> }
 ) {
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     
     // Check if user is authenticated
     const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -156,7 +156,7 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const organizationId = params.id
+    const { id: organizationId } = await params;
 
     // Verify organization access
     const orgs = await getUserOrganizations(user.id)

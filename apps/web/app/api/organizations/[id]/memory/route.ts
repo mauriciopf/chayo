@@ -5,11 +5,11 @@ import { embeddingService } from '@/lib/shared/services/embeddingService'
 // 🔍 GET - Get memory conflicts and analysis
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string  }> }
 ) {
   try {
-    const supabase = getSupabaseServerClient()
-    const organizationId = params.id
+    const supabase = await getSupabaseServerClient();
+    const { id: organizationId } = await params;
     const { searchParams } = new URL(request.url)
     const action = searchParams.get('action') // 'conflicts' or 'summary'
     const threshold = parseFloat(searchParams.get('threshold') || '0.85')
@@ -78,11 +78,11 @@ export async function GET(
 // 🗑️ DELETE - Delete specific memory
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string  }> }
 ) {
   try {
-    const supabase = getSupabaseServerClient()
-    const organizationId = params.id
+    const supabase = await getSupabaseServerClient();
+    const { id: organizationId } = await params;
     const { memoryId } = await request.json()
 
     if (!memoryId) {

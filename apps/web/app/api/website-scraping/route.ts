@@ -6,7 +6,7 @@ import { cookies } from 'next/headers'
 export const runtime = 'nodejs' // Use Node.js runtime for external API calls
 
 export async function POST(request: NextRequest) {
-  const supabase = getSupabaseServerClient()
+  const supabase = await getSupabaseServerClient();
   let organizationId: string | undefined
   
   try {

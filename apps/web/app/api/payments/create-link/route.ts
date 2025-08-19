@@ -4,7 +4,7 @@ import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
 // POST - Create payment link
 export async function POST(request: NextRequest) {
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     
     const {
       organizationId,

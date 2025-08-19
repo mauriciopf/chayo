@@ -4,11 +4,11 @@ import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
 // GET - List payment providers for organization
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string  }> }
 ) {
   try {
-    const supabase = getSupabaseServerClient()
-    const organizationId = params.id
+    const supabase = await getSupabaseServerClient();
+    const { id: organizationId } = await params;
 
     // Get the current user and verify access
     const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -51,11 +51,11 @@ export async function GET(
 // POST - Create new payment provider (used during OAuth flow)
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string  }> }
 ) {
   try {
-    const supabase = getSupabaseServerClient()
-    const organizationId = params.id
+    const supabase = await getSupabaseServerClient();
+    const { id: organizationId } = await params;
 
     // Get the current user and verify access
     const { data: { user }, error: authError } = await supabase.auth.getUser()

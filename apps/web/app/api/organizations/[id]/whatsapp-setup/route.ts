@@ -4,11 +4,11 @@ import { twilioClient, TWILIO_CONFIG } from '@/lib/shared/twilio/client'
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string  }> }
 ) {
   try {
-    const supabase = getSupabaseServerClient()
-    const organizationId = params.id
+    const supabase = await getSupabaseServerClient();
+    const { id: organizationId } = await params;
     const { phoneNumber, countryCode, greeting, isNewNumber = true } = await request.json()
 
     // Get user from auth

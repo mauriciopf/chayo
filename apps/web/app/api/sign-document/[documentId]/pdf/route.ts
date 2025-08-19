@@ -3,11 +3,11 @@ import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { documentId: string } }
+  { params }: { params: Promise<{ documentId: string  }> }
 ) {
   try {
-    const supabase = getSupabaseServerClient()
-    const documentId = params.documentId
+    const supabase = await getSupabaseServerClient();
+    const { documentId: documentId } = await params;
 
     // Get document metadata
     const { data: document, error: docError } = await supabase

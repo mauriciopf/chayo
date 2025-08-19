@@ -7,7 +7,7 @@ import { twilioClient, TWILIO_CONFIG } from '@/lib/shared/twilio/client'
 // Comprehensive test endpoint for WhatsApp integration
 export async function GET(request: NextRequest) {
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     // Authentication using server supabase client
     
     // Check authentication

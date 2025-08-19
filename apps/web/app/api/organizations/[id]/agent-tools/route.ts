@@ -8,7 +8,7 @@ export async function GET(
 ) {
   const { id: organizationId } = await params;
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient()
 
     // Get agent tools using the database function
     const { data, error } = await supabase
@@ -41,7 +41,7 @@ export async function POST(
 ) {
   const { id: organizationId } = await params;
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient()
     const { toolType, enabled } = await request.json()
 
     // Validate tool type

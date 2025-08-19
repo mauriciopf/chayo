@@ -4,7 +4,7 @@ import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
 // POST - Initialize Square OAuth flow
 export async function POST(request: NextRequest) {
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     
     // Get the current user
     const { data: { user }, error: authError } = await supabase.auth.getUser()

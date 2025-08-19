@@ -17,7 +17,7 @@ export class EmbeddingService {
     // Check if we're in a server-side context (API route)
     if (typeof window === 'undefined') {
       try {
-        return getSupabaseServerClient()
+        return await getSupabaseServerClient()
       } catch (error) {
         console.warn('Failed to load server client, falling back to provided client')
         return this.supabaseClient

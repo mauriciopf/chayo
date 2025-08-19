@@ -4,10 +4,10 @@ import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
 // GET - Get specific payment provider
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string; providerId: string } }
+  { params }: { params: Promise<{ id: string; providerId: string  }> }
 ) {
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     const { id: organizationId, providerId } = params
 
     // Get the current user and verify access
@@ -50,10 +50,10 @@ export async function GET(
 // PATCH - Update payment provider settings
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string; providerId: string } }
+  { params }: { params: Promise<{ id: string; providerId: string  }> }
 ) {
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     const { id: organizationId, providerId } = params
 
     // Get the current user and verify access
@@ -171,10 +171,10 @@ export async function PATCH(
 // DELETE - Remove payment provider
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string; providerId: string } }
+  { params }: { params: Promise<{ id: string; providerId: string  }> }
 ) {
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     const { id: organizationId, providerId } = params
 
     // Get the current user and verify access

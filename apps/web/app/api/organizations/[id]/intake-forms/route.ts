@@ -4,11 +4,11 @@ import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
 // GET: Fetch all intake forms for an organization
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string  }> }
 ) {
   try {
-    const supabase = getSupabaseServerClient()
-    const organizationId = params.id
+    const supabase = await getSupabaseServerClient();
+    const { id: organizationId } = await params;
 
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
@@ -50,11 +50,11 @@ export async function GET(
 // POST: Create a new intake form
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string  }> }
 ) {
   try {
-    const supabase = getSupabaseServerClient()
-    const organizationId = params.id
+    const supabase = await getSupabaseServerClient();
+    const { id: organizationId } = await params;
     const { name, description, formio_definition } = await request.json()
 
     if (!name) {

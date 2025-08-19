@@ -3,7 +3,7 @@ import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
 
 export async function GET(req: NextRequest) {
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     const { searchParams } = new URL(req.url)
     const slug = searchParams.get('slug')
 
@@ -59,7 +59,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {

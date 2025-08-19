@@ -14,7 +14,7 @@ interface WhatsAppSetupRequest {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     const { 
       phoneNumber, 
       countryCode, 

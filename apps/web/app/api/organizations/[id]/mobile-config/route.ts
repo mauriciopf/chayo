@@ -8,7 +8,7 @@ export async function GET(
 ) {
   const { id: organizationId } = await params;
   try {
-    const supabase = getSupabaseServerClient();
+    const supabase = await getSupabaseServerClient();
 
 
     // Get current user
@@ -62,7 +62,7 @@ export async function POST(
 ) {
   const { id: organizationId } = await params;
   try {
-    const supabase = getSupabaseServerClient();
+    const supabase = await getSupabaseServerClient();
 
 
     // Get current user

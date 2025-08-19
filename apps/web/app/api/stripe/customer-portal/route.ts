@@ -6,7 +6,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
 export async function POST(req: NextRequest) {
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     // Create Supabase client and get user
     // Authentication using server supabase client
     const { data: { user }, error: authError } = await supabase.auth.getUser()

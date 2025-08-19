@@ -8,7 +8,7 @@ export async function GET(
 ) {
   const { slug: organizationSlug } = await params;
   try {
-    const supabase = getSupabaseServerClient();
+    const supabase = await getSupabaseServerClient();
 
 
     // Get organization by slug

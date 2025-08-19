@@ -4,12 +4,12 @@ import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
 // PUT: Update an existing intake form
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string; formId: string } }
+  { params }: { params: Promise<{ id: string; formId: string  }> }
 ) {
   try {
-    const supabase = getSupabaseServerClient()
-    const organizationId = params.id
-    const formId = params.formId
+    const supabase = await getSupabaseServerClient();
+    const { id: organizationId } = await params;
+    const { formId: formId } = await params;
     const { name, description, formio_definition } = await request.json()
 
     if (!name) {
@@ -72,12 +72,12 @@ export async function PUT(
 // PATCH: Update specific properties of a form (like is_active status)
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string; formId: string } }
+  { params }: { params: Promise<{ id: string; formId: string  }> }
 ) {
   try {
-    const supabase = getSupabaseServerClient()
-    const organizationId = params.id
-    const formId = params.formId
+    const supabase = await getSupabaseServerClient();
+    const { id: organizationId } = await params;
+    const { formId: formId } = await params;
     const { is_active } = await request.json()
 
     if (typeof is_active !== 'boolean') {
@@ -133,12 +133,12 @@ export async function PATCH(
 // DELETE: Delete an intake form
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string; formId: string } }
+  { params }: { params: Promise<{ id: string; formId: string  }> }
 ) {
   try {
-    const supabase = getSupabaseServerClient()
-    const organizationId = params.id
-    const formId = params.formId
+    const supabase = await getSupabaseServerClient();
+    const { id: organizationId } = await params;
+    const { formId: formId } = await params;
 
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) {

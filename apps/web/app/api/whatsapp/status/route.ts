@@ -5,7 +5,7 @@ import { getSupabaseServerClient } from "@/lib/shared/supabase/server"
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient();
     const agentId = request.nextUrl.searchParams.get('agentId')
 
     if (!agentId) {
