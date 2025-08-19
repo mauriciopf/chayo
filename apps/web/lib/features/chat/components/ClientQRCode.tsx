@@ -101,14 +101,14 @@ export default function ClientQRCode({ organizationSlug, isOnboardingCompleted =
               Business Setup Status
             </span>
             <span className="text-sm text-gray-500">
-              {isOnboardingCompleted ? 'Complete' : `Stage ${onboardingProgress?.currentStage?.replace('stage_', '') || '1'}`}
+              {isOnboardingCompleted ? 'Complete' : 'In Progress'}
             </span>
           </div>
           <div className="mt-2 text-xs text-gray-500">
             {isOnboardingCompleted ? (
               <span className="text-green-600 font-medium">✅ QR Code is ready to share!</span>
             ) : (
-              <span className="text-orange-600">⚙️ Setup in progress - Stage {onboardingProgress?.currentStage?.replace('stage_', '') || '1'}</span>
+              <span className="text-orange-600">⚙️ Setup in progress</span>
             )}
           </div>
         </div>

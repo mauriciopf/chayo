@@ -1,7 +1,5 @@
 export type ThinkingContext = 
-  | 'onboarding_stage_1' 
-  | 'onboarding_stage_2' 
-  | 'onboarding_stage_3' 
+  | 'onboarding_in_progress'
   | 'default'
   | 'business_name'
   | 'business_type' 
@@ -26,12 +24,10 @@ export type ThinkingPhase =
   | 'done'
 
 export interface OnboardingProgressData {
-  currentStage: 'stage_1' | 'stage_2' | 'stage_3'
   isCompleted: boolean
+  totalQuestions: number
+  answeredQuestions: number
   currentQuestion?: string
-  stage1Completed: boolean
-  stage2Completed: boolean
-  stage3Completed: boolean
 }
 
 interface MessageStream {

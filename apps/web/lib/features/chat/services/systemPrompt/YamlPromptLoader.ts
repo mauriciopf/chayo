@@ -81,7 +81,7 @@ export class YamlPromptLoader {
   }
 
 
-  static async buildSystemPrompt(locale: string = 'en', trainingContext?: string, isSetupCompleted?: boolean, currentStage?: string): Promise<string> {
+  static async buildSystemPrompt(locale: string = 'en', trainingContext?: string, isSetupCompleted?: boolean): Promise<string> {
     const config = await this.loadConfig(isSetupCompleted)
     
     // Get simplified language instructions
@@ -96,9 +96,6 @@ export class YamlPromptLoader {
     return `${config.identity}
 
 ${config.objective}
-
-${!isSetupCompleted ? `## 📚 ONBOARDING CURRENT STAGE
-${currentStage}` : ''}
 
 ${config.behavior}
 

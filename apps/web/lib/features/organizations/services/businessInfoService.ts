@@ -357,6 +357,53 @@ Priority: Maintain high-quality business knowledge base without clutter.`
       throw error
     }
   }
+
+  /**
+   * Store the detected business industry
+   */
+  async storeBusinessIndustry(organizationId: string, industry: string): Promise<void> {
+    try {
+      console.log('🏢 [BUSINESS_INFO] Storing business industry:', { organizationId, industry })
+      
+      const { error } = await this.supabaseClient
+        .from('organizations')
+        .update({ business_industry: industry })
+        .eq('id', organizationId)
+      
+      if (error) {
+        console.error('❌ Error storing business industry:', error)
+        throw error
+      }
+      
+      console.log('✅ [BUSINESS_INFO] Successfully stored business industry:', industry)
+    } catch (error) {
+      console.error('❌ Error in storeBusinessIndustry:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Get the stored business industry
+   */
+  async getBusinessIndustry(organizationId: string): Promise<string | null> {
+    try {
+      const { data, error } = await this.supabaseClient
+        .from('organizations')
+        .select('business_industry')
+        .eq('id', organizationId)
+        .single()
+      
+      if (error) {
+        console.error('❌ Error getting business industry:', error)
+        return null
+      }
+      
+      return data?.business_industry || null
+    } catch (error) {
+      console.error('❌ Error in getBusinessIndustry:', error)
+      return null
+    }
+  }
 }
 
 // Export singleton instance

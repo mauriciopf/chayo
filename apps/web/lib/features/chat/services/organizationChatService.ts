@@ -112,7 +112,8 @@ export class OrganizationChatService {
         const progress = await onboardingService.getOnboardingProgress(context.organization.id)
         console.log('📊 [FLOW] Re-checking onboarding progress:', {
           isCompleted: progress.isCompleted,
-          currentStage: progress.currentStage
+          totalQuestions: progress.totalQuestions,
+          answeredQuestions: progress.answeredQuestions
         })
         
         if (progress.isCompleted) {
@@ -265,11 +266,11 @@ export class OrganizationChatService {
       console.log('📊 [SERVICE] Onboarding status:', {
         isCompleted: progress.isCompleted,
         isOnboarding,
-        currentStage: progress.currentStage
+        totalQuestions: progress.totalQuestions
       })
       
-      console.log(`🎯 Onboarding status: ${isOnboarding ? 'PROCESSING' : 'COMPLETED'} (Stage: ${progress.currentStage})`)
-      progressEmitter?.('phase', { name: 'checkingExistingQuestion', stage: progress.currentStage })
+      console.log(`🎯 Onboarding status: ${isOnboarding ? 'PROCESSING' : 'COMPLETED'}`)
+      progressEmitter?.('phase', { name: 'checkingExistingQuestion' })
       
       // ⭐ PRIORITY: Check for tool suggestions FIRST (before generating normal response)
       if (!isOnboarding) { // Only suggest tools for completed onboarding
@@ -447,19 +448,15 @@ export class OrganizationChatService {
         // - 'onboarding' promptType: Check actual onboarding progress
         // - 'business' promptType: Setup is considered completed (business operations mode)
         let isSetupCompleted: boolean
-        let currentStage: string | undefined
         
         if (promptType === 'business') {
           isSetupCompleted = true
-          currentStage = undefined // Business mode doesn't have stages
+          // Business mode - no additional setup needed
         } else {
-      // For onboarding, always use onboarding prompt regardless of completion status
-      // We still get the progress for currentStage context
-      
+          // For onboarding, always use onboarding prompt regardless of completion status
           const onboardingService = new IntegratedOnboardingService()
           const progress = await onboardingService.getOnboardingProgress(context.organization.id)
-      isSetupCompleted = false // Force onboarding prompt when promptType is 'onboarding'
-          currentStage = progress.currentStage
+          isSetupCompleted = false // Force onboarding prompt when promptType is 'onboarding'
         }
         
         console.log(`🎯 Using ${promptType} system prompt - isSetupCompleted: ${isSetupCompleted}`)
@@ -813,6 +810,10 @@ export class OrganizationChatService {
           progressEmitter?.('phase', { name: 'updatingProfile', field: businessQuestion.field_name })
       
           await businessInfoService.storeBusinessQuestion(context.organization.id, businessQuestion)
+          
+          // After storing the question, check if the user's messages already answered it
+          console.log('🔍 [FLOW] Checking if newly stored question was already answered in conversation')
+          await this.validateAndUpdatePendingQuestions(messages, context)
         }
         
         return result

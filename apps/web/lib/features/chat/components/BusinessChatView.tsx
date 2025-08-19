@@ -146,12 +146,8 @@ export default function BusinessChatView({
               return 'default'
             }
             
-            const currentStage = onboardingProgress.currentStage
-            if (currentStage === 'stage_1') return 'onboarding_stage_1'
-            if (currentStage === 'stage_2') return 'onboarding_stage_2'
-            if (currentStage === 'stage_3') return 'onboarding_stage_3'
-            
-            return 'default'
+            // Simplified: just show onboarding progress without specific stages
+            return 'onboarding_in_progress'
           }
 
           return (

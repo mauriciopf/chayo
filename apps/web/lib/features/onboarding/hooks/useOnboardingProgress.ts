@@ -3,11 +3,9 @@ import { OnboardingProgressData } from '../../../shared/services/ThinkingMessage
 
 export function useOnboardingProgress(organizationId?: string) {
   const [progress, setProgress] = useState<OnboardingProgressData>({
-    currentStage: 'stage_1',
     isCompleted: false,
-    stage1Completed: false,
-    stage2Completed: false,
-    stage3Completed: false
+    totalQuestions: 0,
+    answeredQuestions: 0
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -32,17 +30,16 @@ export function useOnboardingProgress(organizationId?: string) {
         console.log('📊 Onboarding API response:', {
           rawResponse: apiData,
           progressData,
-          currentStage: progressData.currentStage,
-          isCompleted: progressData.isCompleted
+          isCompleted: progressData.isCompleted,
+          totalQuestions: progressData.totalQuestions,
+          answeredQuestions: progressData.answeredQuestions
         })
         
         const newProgress: OnboardingProgressData = {
-          currentStage: progressData.currentStage || 'stage_1',
           isCompleted: progressData.isCompleted,
-          currentQuestion: undefined, // API doesn't return pending questions for client safety
-          stage1Completed: progressData.stage1Completed,
-          stage2Completed: progressData.stage2Completed,
-          stage3Completed: progressData.stage3Completed
+          totalQuestions: progressData.totalQuestions || 0,
+          answeredQuestions: progressData.answeredQuestions || 0,
+          currentQuestion: undefined // API doesn't return pending questions for client safety
         }
         
         console.log('✅ Setting new progress state:', newProgress)

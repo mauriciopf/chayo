@@ -19,15 +19,10 @@ export const OnboardingQuestionSchema = {
         status: {
           type: "string",
           enum: [
-            "stage_1_in_progress",
-            "stage_1_complete", 
-            "stage_2_in_progress",
-            "stage_2_complete",
-            "stage_3_in_progress", 
-            "stage_3_complete",
+            "onboarding_in_progress",
             "setup_complete"
           ],
-          description: "Current onboarding stage status"
+          description: "Current onboarding status"
         },
         field_name: {
           type: "string",
@@ -78,9 +73,6 @@ export const OnboardingStatusSchema = {
         status: {
           type: "string", 
           enum: [
-            "stage_1_complete",
-            "stage_2_complete", 
-            "stage_3_complete",
             "setup_complete"
           ],
           description: "Completion status signal"
@@ -125,7 +117,7 @@ export const BusinessResponseSchema = {
 // Type definitions for TypeScript
 export interface OnboardingQuestionResponse {
   message: string
-  status: "stage_1_in_progress" | "stage_1_complete" | "stage_2_in_progress" | "stage_2_complete" | "stage_3_in_progress" | "stage_3_complete" | "setup_complete"
+  status: "onboarding_in_progress" | "setup_complete"
   field_name: string
   field_type: "text" | "multiple_choice" | "boolean" | "number"
   question_template: string
@@ -135,7 +127,7 @@ export interface OnboardingQuestionResponse {
 
 export interface OnboardingStatusResponse {
   message: string
-  status: "stage_1_complete" | "stage_2_complete" | "stage_3_complete" | "setup_complete"
+  status: "setup_complete"
 }
 
 export interface CustomerSimulationResponse {
