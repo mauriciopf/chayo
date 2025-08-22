@@ -26,6 +26,9 @@ importers:
       '@expo/config-plugins':
         specifier: ^10.1.2
         version: 10.1.2
+      '@react-native-async-storage/async-storage':
+        specifier: ^2.1.0
+        version: 2.2.0(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.0(typescript@5.0.4))(@types/react@19.1.10)(react@19.0.0))
       '@react-navigation/bottom-tabs':
         specifier: ^7.4.6
         version: 7.4.6(@react-navigation/native@7.1.17(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.0(typescript@5.0.4))(@types/react@19.1.10)(react@19.0.0))(react@19.0.0))(react-native-safe-area-context@5.6.0(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.0(typescript@5.0.4))(@types/react@19.1.10)(react@19.0.0))(react@19.0.0))(react-native-screens@4.14.1(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.0(typescript@5.0.4))(@types/react@19.1.10)(react@19.0.0))(react@19.0.0))(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.0(typescript@5.0.4))(@types/react@19.1.10)(react@19.0.0))(react@19.0.0)
@@ -59,6 +62,9 @@ importers:
       react-native-screens:
         specifier: ^4.14.1
         version: 4.14.1(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.0(typescript@5.0.4))(@types/react@19.1.10)(react@19.0.0))(react@19.0.0)
+      react-native-sse:
+        specifier: ^1.2.1
+        version: 1.2.1
       react-native-vector-icons:
         specifier: ^10.3.0
         version: 10.3.0
@@ -1496,6 +1502,11 @@ packages:
 
   '@popperjs/core@2.11.8':
     resolution: {integrity: sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==}
+
+  '@react-native-async-storage/async-storage@2.2.0':
+    resolution: {integrity: sha512-gvRvjR5JAaUZF8tv2Kcq/Gbt3JHwbKFYfmb445rhOj6NUMx3qPLixmDx5pZAyb9at1bYvJ4/eTUipU5aki45xw==}
+    peerDependencies:
+      react-native: ^0.0.0-0 || >=0.65 <1.0
 
   '@react-native-community/cli-clean@20.0.0':
     resolution: {integrity: sha512-YmdNRcT+Dp8lC7CfxSDIfPMbVPEXVFzBH62VZNbYGxjyakqAvoQUFTYPgM2AyFusAr4wDFbDOsEv88gCDwR3ig==}
@@ -3982,6 +3993,10 @@ packages:
     resolution: {integrity: sha512-Fd4gABb+ycGAmKou8eMftCupSir5lRxqf4aD/vd0cD2qc4HL07OjCeuHMr8Ro4CoMaeCKDB0/ECBOVWjTwUvPQ==}
     engines: {node: '>=8'}
 
+  is-plain-obj@2.1.0:
+    resolution: {integrity: sha512-YWnfyRwxL/+SsrWYfOpUtz5b3YD+nyfkHvjbcanzk8zgyO4ASD67uVMRt8k5bM4lLMDnXfriRhOpemw+NfT1eA==}
+    engines: {node: '>=8'}
+
   is-plain-object@2.0.4:
     resolution: {integrity: sha512-h5PpgXkWitc38BBMYawTYMWJHFZJVnBquFE57xFpjB8pJFiF6gZ+bU+WyI/yqXiFR5mdLsgYNaPe8uao6Uv9Og==}
     engines: {node: '>=0.10.0'}
@@ -4576,6 +4591,10 @@ packages:
 
   memoize-one@5.2.1:
     resolution: {integrity: sha512-zYiwtZUcYyXKo/np96AGZAckk+FWWsUdJ3cHGGmld7+AhvcWmQyGCYUh1hc4Q/pkOhb65dQR/pqCyK0cOaHz4Q==}
+
+  merge-options@3.0.4:
+    resolution: {integrity: sha512-2Sug1+knBjkaMsMgf1ctR1Ujx+Ayku4EdJN4Z+C2+JzoeF7A3OZ9KM2GY0CpQS51NR61LTurMJrRKPhSs3ZRTQ==}
+    engines: {node: '>=10'}
 
   merge-stream@2.0.0:
     resolution: {integrity: sha512-abv/qOcuPfk3URPfDzmZU1LKmuw8kT+0nIHvKrKgFrwifol/doWcdA4ZqsWQ8ENrFKkd67Mfpo/LovbIUsbt3w==}
@@ -5330,6 +5349,9 @@ packages:
     peerDependencies:
       react: '*'
       react-native: '*'
+
+  react-native-sse@1.2.1:
+    resolution: {integrity: sha512-zejanlScF+IB9tYnbdry0MT34qjBXbiV/E72qGz33W/tX1bx8MXsbB4lxiuPETc9v/008vYZ60yjIstW22VlVg==}
 
   react-native-vector-icons@10.3.0:
     resolution: {integrity: sha512-IFQ0RE57819hOUdFvgK4FowM5aMXg7C7XKsuGLevqXkkIJatc3QopN0wYrb2IrzUgmdpfP+QVIbI3S6h7M0btw==}
@@ -8182,6 +8204,11 @@ snapshots:
     optional: true
 
   '@popperjs/core@2.11.8': {}
+
+  '@react-native-async-storage/async-storage@2.2.0(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.0(typescript@5.0.4))(@types/react@19.1.10)(react@19.0.0))':
+    dependencies:
+      merge-options: 3.0.4
+      react-native: 0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.0(typescript@5.0.4))(@types/react@19.1.10)(react@19.0.0)
 
   '@react-native-community/cli-clean@20.0.0':
     dependencies:
@@ -11272,6 +11299,8 @@ snapshots:
 
   is-path-inside@3.0.3: {}
 
+  is-plain-obj@2.1.0: {}
+
   is-plain-object@2.0.4:
     dependencies:
       isobject: 3.0.1
@@ -12042,6 +12071,10 @@ snapshots:
   media-typer@0.3.0: {}
 
   memoize-one@5.2.1: {}
+
+  merge-options@3.0.4:
+    dependencies:
+      is-plain-obj: 2.1.0
 
   merge-stream@2.0.0: {}
 
@@ -12885,6 +12918,8 @@ snapshots:
       react-native: 0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.0(typescript@5.0.4))(@types/react@19.1.10)(react@19.0.0)
       react-native-is-edge-to-edge: 1.2.1(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.0(typescript@5.0.4))(@types/react@19.1.10)(react@19.0.0))(react@19.0.0)
       warn-once: 0.1.1
+
+  react-native-sse@1.2.1: {}
 
   react-native-vector-icons@10.3.0:
     dependencies:

@@ -13,13 +13,17 @@ export const AppConfigContext = createContext<UseAppConfigReturn | null>(null);
 interface AppConfigProviderProps {
   children: ReactNode;
   organizationSlug?: string;
+  organizationId?: string;
   userEmail?: string;
+  storedConfig?: AppConfig;
 }
 
 export const AppConfigProvider: React.FC<AppConfigProviderProps> = ({
   children,
   organizationSlug,
+  organizationId,
   userEmail,
+  storedConfig,
 }) => {
   const [config, setConfig] = useState<AppConfig | null>(null);
   const [urlGenerator, setUrlGenerator] = useState<ToolUrlGenerator | null>(null);
@@ -38,14 +42,17 @@ export const AppConfigProvider: React.FC<AppConfigProviderProps> = ({
 
       let loadedConfig: AppConfig;
 
-      if (organizationSlug) {
+      if (storedConfig) {
+        // Use stored config (from onboarding flow)
+        loadedConfig = storedConfig;
+      } else if (organizationSlug) {
         // Load by organization slug (QR code flow)
         loadedConfig = await configLoader.loadConfigBySlug(organizationSlug);
       } else if (userEmail) {
         // Load by email (login flow)
         loadedConfig = await configLoader.loadConfigByEmail(userEmail);
       } else {
-        throw new Error('Either organizationSlug or userEmail must be provided');
+        throw new Error('Either storedConfig, organizationSlug, or userEmail must be provided');
       }
 
       setConfig(loadedConfig);
@@ -96,10 +103,10 @@ export const AppConfigProvider: React.FC<AppConfigProviderProps> = ({
   };
 
   useEffect(() => {
-    if (organizationSlug || userEmail) {
+    if (storedConfig || organizationSlug || userEmail) {
       loadConfig();
     }
-  }, [organizationSlug, userEmail]);
+  }, [storedConfig, organizationSlug, userEmail]);
 
   const value: UseAppConfigReturn = {
     config,
