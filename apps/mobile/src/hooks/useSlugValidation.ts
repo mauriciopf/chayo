@@ -26,9 +26,14 @@ export const useSlugValidation = (organizationId?: string): UseSlugValidationRet
   const [isValidating, setIsValidating] = useState(false);
   const { connect: connectSSE, disconnect: disconnectSSE } = useSSEProgress(organizationId);
 
-  const validateBusinessSlug = async (slug: string): Promise<SlugValidationResult> => {
+  const validateBusinessCode = async (code: string, isMobileCode: boolean): Promise<SlugValidationResult> => {
     try {
-      const response = await fetch(`https://chayo.vercel.app/api/app-config/${slug}`);
+      // Use different API endpoints based on code type
+      const apiUrl = isMobileCode
+        ? `https://chayo.vercel.app/api/app-config/mobile-code/${code}`
+        : `https://chayo.vercel.app/api/app-config/${code}`;
+
+      const response = await fetch(apiUrl);
 
       if (response.ok) {
         const data = await response.json();
@@ -39,9 +44,12 @@ export const useSlugValidation = (organizationId?: string): UseSlugValidationRet
           fullConfig: data,
         };
       } else if (response.status === 404) {
+        const errorMessage = isMobileCode
+          ? 'No encontré un negocio con ese código de 6 dígitos. ¿Podrías verificarlo?'
+          : 'No encontré un negocio con ese código. ¿Podrías verificarlo?';
         return {
           isValid: false,
-          error: 'No encontré un negocio con ese código. ¿Podrías verificarlo?',
+          error: errorMessage,
         };
       } else {
         return {
@@ -86,8 +94,11 @@ export const useSlugValidation = (organizationId?: string): UseSlugValidationRet
 
       // Step 2: Business validation with API
       messageStream.updatePhase('validatingSlug');
-      const businessSlug = slugDetection.businessSlug || message.trim();
-      const validationResult = await validateBusinessSlug(businessSlug);
+
+      // Determine which code type and value to use
+      const isMobileCode = !!slugDetection.mobileAppCode;
+      const codeToValidate = slugDetection.mobileAppCode || slugDetection.businessSlug || message.trim();
+      const validationResult = await validateBusinessCode(codeToValidate, isMobileCode);
 
       // Step 3: Load full config if validation successful
       if (validationResult.isValid && validationResult.fullConfig) {
@@ -104,7 +115,7 @@ export const useSlugValidation = (organizationId?: string): UseSlugValidationRet
       setIsValidating(false);
       return {
         isBusinessSlug: true,
-        businessSlug,
+        businessSlug: codeToValidate,
         validationResult,
       };
 

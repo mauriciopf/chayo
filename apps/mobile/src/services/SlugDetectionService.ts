@@ -3,6 +3,7 @@ interface SlugDetectionResult {
   confidence: number;
   suggestedResponse?: string;
   businessSlug?: string; // The cleaned business slug if detected
+  mobileAppCode?: string; // The 6-digit mobile app code if detected
 }
 
 export class SlugDetectionService {
@@ -23,20 +24,22 @@ export class SlugDetectionService {
           messages: [
             {
               role: 'system',
-              content: `You are a business slug detector. Determine if a user's message is a business code/slug or conversational.
+              content: `You are a business code detector. Determine if a user's message is a business code or conversational.
 
-BUSINESS SLUGS: Short alphanumeric strings (3-30 chars), may contain hyphens/underscores. Examples: "abc123", "my-business", "health-clinic". Usually standalone, no spaces.
+BUSINESS CODES can be:
+1. 6-DIGIT CODES: Exactly 6 digits like "123456", "000123", "987654"
+2. BUSINESS SLUGS: Short alphanumeric strings (3-30 chars), may contain hyphens/underscores. Examples: "abc123", "my-business", "health-clinic"
 
 CONVERSATIONAL: Questions, greetings, explanations, sentences with spaces.
 
-Respond ONLY with: "SLUG" or "CONVERSATION"
+Respond ONLY with: "6DIGIT", "SLUG", or "CONVERSATION"
 
-Be conservative - if unsure, respond "CONVERSATION".`
+Be conservative - if unsure, respond "CONVERSATION".`,
             },
             {
               role: 'user',
-              content: `User was asked for their business code. They said: "${message}"`
-            }
+              content: `User was asked for their business code. They said: "${message}"`,
+            },
           ],
           temperature: 0.3,
           max_tokens: 200,
@@ -46,22 +49,28 @@ Be conservative - if unsure, respond "CONVERSATION".`
       if (response.ok) {
         const data = await response.json();
         const content = data.choices[0]?.message?.content?.trim();
-        
-        if (content === 'SLUG') {
+
+        if (content === '6DIGIT') {
+          return {
+            isBusinessSlug: true,
+            confidence: 0.95,
+            mobileAppCode: message.trim(), // Return as mobile app code
+          };
+        } else if (content === 'SLUG') {
           return {
             isBusinessSlug: true,
             confidence: 0.9,
-            businessSlug: message.trim().toLowerCase(), // Return the message itself as the slug
+            businessSlug: message.trim().toLowerCase(), // Return as business slug
           };
         } else {
           return {
             isBusinessSlug: false,
             confidence: 0.8,
-            suggestedResponse: 'Por favor, escribe el código de tu negocio. Suele ser una combinación de letras y números.',
+            suggestedResponse: 'Por favor, escribe tu código de negocio (6 dígitos) o nombre del negocio.',
           };
         }
       }
-      
+
       // Fallback if AI fails
       return this.fallbackDetection(message);
     } catch (error) {
@@ -76,24 +85,33 @@ Be conservative - if unsure, respond "CONVERSATION".`
    */
   private static fallbackDetection(message: string): SlugDetectionResult {
     const trimmedMessage = message.trim();
-    
-    // Basic pattern matching as fallback
-    const looksLikeSlug = /^[a-zA-Z0-9_-]{3,30}$/.test(trimmedMessage) && 
-                         !/^[0-9]+$/.test(trimmedMessage) && // Not just numbers
+
+    // Check for 6-digit mobile app code first (highest priority)
+    if (/^\d{6}$/.test(trimmedMessage)) {
+      return {
+        isBusinessSlug: true,
+        confidence: 0.95,
+        mobileAppCode: trimmedMessage,
+      };
+    }
+
+    // Check for business slug pattern
+    const looksLikeSlug = /^[a-zA-Z0-9_-]{3,30}$/.test(trimmedMessage) &&
+                         !/^[0-9]{1,5}$|^[0-9]{7,}$/.test(trimmedMessage) && // Not 1-5 digits or 7+ digits
                          !/(hola|hello|hi|que|what|como|how|ayuda|help)/i.test(trimmedMessage);
 
     if (looksLikeSlug) {
       return {
         isBusinessSlug: true,
         confidence: 0.7,
-        businessSlug: trimmedMessage.toLowerCase(), // Return the message itself as the slug
+        businessSlug: trimmedMessage.toLowerCase(),
       };
     }
 
     return {
       isBusinessSlug: false,
       confidence: 0.8,
-      suggestedResponse: 'Por favor, escribe el código de tu negocio. Suele ser una combinación de letras y números.',
+      suggestedResponse: 'Por favor, escribe tu código de negocio (6 dígitos) o nombre del negocio.',
     };
   }
 }

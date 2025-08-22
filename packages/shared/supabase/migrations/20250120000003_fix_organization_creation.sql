@@ -10,10 +10,14 @@ CREATE OR REPLACE FUNCTION create_organization_with_owner(
 RETURNS UUID AS $$
 DECLARE
   new_org_id UUID;
+  new_mobile_code VARCHAR(6);
 BEGIN
+  -- Generate unique mobile app code
+  new_mobile_code := generate_unique_mobile_app_code();
+  
   -- Create the organization
-  INSERT INTO organizations (name, slug, owner_id)
-  VALUES (org_name, org_slug, owner_id)
+  INSERT INTO organizations (name, slug, owner_id, mobile_app_code)
+  VALUES (org_name, org_slug, owner_id, new_mobile_code)
   RETURNING id INTO new_org_id;
   
   -- Add the user as an active owner in team_members

@@ -245,7 +245,7 @@ export const OnboardingChatScreen: React.FC<OnboardingChatScreenProps> = ({
 
   const isInputDisabled = currentStep === 'validating' || currentStep === 'success' || isValidating;
   const placeholder = currentStep === 'awaiting_code'
-    ? 'Escribe el código de tu negocio...'
+    ? 'Escribe tu código de 6 dígitos...'
     : 'Escribe tu mensaje...';
 
   return (
@@ -297,6 +297,7 @@ export const OnboardingChatScreen: React.FC<OnboardingChatScreenProps> = ({
             keyboardAppearance="dark"
             blurOnSubmit={false}
             returnKeyType="send"
+            keyboardType={currentStep === 'awaiting_code' ? 'numeric' : 'default'}
             onSubmitEditing={sendMessage}
             autoCapitalize="none"
             autoCorrect={false}
