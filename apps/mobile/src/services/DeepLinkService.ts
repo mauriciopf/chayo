@@ -1,4 +1,5 @@
 import { Linking } from 'react-native';
+import { StorageService } from './StorageService';
 
 export interface DeepLinkData {
   organizationSlug?: string;
@@ -12,17 +13,17 @@ export class DeepLinkService {
   static parseDeepLink(url: string): DeepLinkData | null {
     try {
       const parsedUrl = new URL(url);
-      
+
       // Handle mobile app deep link formats:
       // chayo://business/acme-dental (native deep link)
       // https://chayo.vercel.app/mobile/acme-dental (universal link for mobile app)
-      
+
       const result: DeepLinkData = {};
-      
+
       if (parsedUrl.protocol === 'chayo:') {
         // Custom scheme: chayo://business/slug
         const pathParts = parsedUrl.pathname.split('/').filter(Boolean);
-        
+
         if (pathParts[0] === 'business' && pathParts[1]) {
           result.organizationSlug = pathParts[1];
           result.action = 'business';
@@ -30,16 +31,36 @@ export class DeepLinkService {
       } else if (parsedUrl.hostname === 'chayo.vercel.app' && parsedUrl.pathname.startsWith('/mobile/')) {
         // Mobile-specific universal link: https://chayo.vercel.app/mobile/slug
         const pathParts = parsedUrl.pathname.split('/').filter(Boolean);
-        
+
         if (pathParts[0] === 'mobile' && pathParts[1]) {
           result.organizationSlug = pathParts[1];
           result.action = 'mobile';
         }
       }
-      
+
       return Object.keys(result).length > 0 ? result : null;
     } catch (error) {
       console.error('Error parsing deep link:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Convert organization slug to organization ID using API
+   */
+  static async getOrganizationIdFromSlug(slug: string): Promise<string | null> {
+    try {
+      // Use the app-config endpoint to get organization data
+      const response = await fetch(`https://chayo.vercel.app/api/app-config/${slug}`);
+
+      if (response.ok) {
+        const data = await response.json();
+        return data.organizationId || null;
+      }
+
+      return null;
+    } catch (error) {
+      console.error('Error converting slug to organization ID:', error);
       return null;
     }
   }
@@ -49,17 +70,24 @@ export class DeepLinkService {
    */
   static async handleDeepLink(
     url: string,
-    onSlugDetected: (slug: string) => void
+    onOrganizationIdDetected: (organizationId: string) => void
   ): Promise<boolean> {
     const linkData = this.parseDeepLink(url);
-    
+
     if (!linkData) {
       return false;
     }
 
     if (linkData.organizationSlug) {
-      onSlugDetected(linkData.organizationSlug);
-      return true;
+      // Convert slug to organizationId
+      const organizationId = await this.getOrganizationIdFromSlug(linkData.organizationSlug);
+
+      if (organizationId) {
+        // Store organizationId in local storage
+        await StorageService.setOrganizationId(organizationId);
+        onOrganizationIdDetected(organizationId);
+        return true;
+      }
     }
 
     return false;
@@ -69,10 +97,10 @@ export class DeepLinkService {
    * Set up deep link listener
    */
   static setupDeepLinkListener(
-    onSlugDetected: (slug: string) => void
+    onOrganizationIdDetected: (organizationId: string) => void
   ): () => void {
     const handleUrl = (event: { url: string }) => {
-      this.handleDeepLink(event.url, onSlugDetected);
+      this.handleDeepLink(event.url, onOrganizationIdDetected);
     };
 
     // Listen for incoming links when app is already open
@@ -81,7 +109,7 @@ export class DeepLinkService {
     // Check if app was opened with a deep link
     Linking.getInitialURL().then((url) => {
       if (url) {
-        this.handleDeepLink(url, onSlugDetected);
+        this.handleDeepLink(url, onOrganizationIdDetected);
       }
     });
 

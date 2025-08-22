@@ -67,7 +67,16 @@ function App(): React.JSX.Element {
           }
         }
 
-        // Load stored organization ID
+        // Set up deep link handling (takes precedence over stored data)
+        cleanupDeepLinks = DeepLinkService.setupDeepLinkListener(
+          async (orgId: string) => {
+            // Organization ID detected from deep link and already stored
+            setOrganizationId(orgId);
+            setShowSlugEntry(false);
+          }
+        );
+
+        // Check stored organization ID (will be overridden if deep link is processed)
         const storedOrgId = await StorageService.getOrganizationId();
 
         if (storedOrgId) {
@@ -76,15 +85,6 @@ function App(): React.JSX.Element {
           // No stored organization ID, show onboarding
           setShowSlugEntry(true);
         }
-
-        // Set up deep link handling
-        cleanupDeepLinks = DeepLinkService.setupDeepLinkListener(
-          async (_slug: string) => {
-            // Handle organization slug from deep link - need to fetch organizationId
-            // For now, we'll let the onboarding flow handle this
-            setShowSlugEntry(true);
-          }
-        );
 
       } catch (error) {
         console.log('Error during app initialization:', error);
