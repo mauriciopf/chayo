@@ -51,11 +51,7 @@ export async function GET(req: NextRequest) {
       progress: {
         totalQuestions: progress.totalQuestions,
         answeredQuestions: progress.answeredQuestions,
-        currentStage: progress.currentStage,
-        isCompleted: progress.isCompleted,
-        stage1Completed: progress.stage1Completed,
-        stage2Completed: progress.stage2Completed,
-        stage3Completed: progress.stage3Completed
+        isCompleted: progress.isCompleted
       }
     })
     

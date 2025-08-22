@@ -151,11 +151,13 @@ export class ThinkingMessageService {
         if (progress.isCompleted) {
           newMessages = ['🎉 Setup complete!', '✅ Your AI assistant is ready']
         } else {
-          const stage = progress.currentStage
-          if (stage === 'stage_1') newMessages = ['🧠 Getting the basics...', '✍️ Collecting essential details...']
-          else if (stage === 'stage_2') newMessages = ['🔎 Deep-diving into your services...', '📚 Gathering industry specifics...']
-          else if (stage === 'stage_3') newMessages = ['🔧 Finalizing preferences...', '📞 Configuring communication & logistics...']
-          else newMessages = this.getContextualMessages('default')
+          // Show general onboarding messages since we removed stages
+          newMessages = [
+            '🧠 Learning about your business...',
+            '💬 Generating personalized questions...',
+            '📋 Building your profile...',
+            '⚙️ Setting up your assistant...'
+          ]
         }
         
         // Update stored messages

@@ -8,7 +8,7 @@ export async function GET(
 ) {
   try {
     const supabase = await getSupabaseServerClient();
-    const { id: orgId, faqId } = params
+    const { id: orgId, faqId } = await params
 
     const { data: faq, error } = await supabase
       .from('faqs_tool')
@@ -36,7 +36,7 @@ export async function PUT(
 ) {
   try {
     const supabase = await getSupabaseServerClient();
-    const { id: orgId, faqId } = params
+    const { id: orgId, faqId } = await params
     const body = await request.json()
 
     const { name, description, faq_items, is_active } = body
@@ -82,7 +82,7 @@ export async function DELETE(
 ) {
   try {
     const supabase = await getSupabaseServerClient();
-    const { id: orgId, faqId } = params
+    const { id: orgId, faqId } = await params
 
     const { error } = await supabase
       .from('faqs_tool')

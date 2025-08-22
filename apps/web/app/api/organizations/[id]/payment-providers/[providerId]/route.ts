@@ -8,7 +8,7 @@ export async function GET(
 ) {
   try {
     const supabase = await getSupabaseServerClient();
-    const { id: organizationId, providerId } = params
+    const { id: organizationId, providerId } = await params
 
     // Get the current user and verify access
     const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -54,7 +54,7 @@ export async function PATCH(
 ) {
   try {
     const supabase = await getSupabaseServerClient();
-    const { id: organizationId, providerId } = params
+    const { id: organizationId, providerId } = await params
 
     // Get the current user and verify access
     const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -175,7 +175,7 @@ export async function DELETE(
 ) {
   try {
     const supabase = await getSupabaseServerClient();
-    const { id: organizationId, providerId } = params
+    const { id: organizationId, providerId } = await params
 
     // Get the current user and verify access
     const { data: { user }, error: authError } = await supabase.auth.getUser()

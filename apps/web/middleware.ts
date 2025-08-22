@@ -13,7 +13,7 @@ const intlMiddleware = createIntlMiddleware({
 export async function middleware(request: NextRequest) {
   // Run i18n middleware first
   const intlResponse = intlMiddleware(request);
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
