@@ -96,7 +96,6 @@ export const useSlugValidation = (organizationId?: string): UseSlugValidationRet
         // Step 4: Save data
         messageStream.updatePhase('savingData');
         await StorageService.setOrganizationId(validationResult.organizationId!);
-        await StorageService.setAppConfig(validationResult.fullConfig);
 
         messageStream.updatePhase('done');
       }

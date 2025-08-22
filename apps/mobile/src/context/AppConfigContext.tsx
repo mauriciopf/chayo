@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { AppConfig, ConfigLoader, ToolUrlGenerator } from '@chayo/config';
 import { UseAppConfigReturn } from '../hooks/useAppConfig';
 
@@ -15,7 +15,6 @@ interface AppConfigProviderProps {
   organizationSlug?: string;
   organizationId?: string;
   userEmail?: string;
-  storedConfig?: AppConfig;
 }
 
 export const AppConfigProvider: React.FC<AppConfigProviderProps> = ({
@@ -23,28 +22,27 @@ export const AppConfigProvider: React.FC<AppConfigProviderProps> = ({
   organizationSlug,
   organizationId,
   userEmail,
-  storedConfig,
 }) => {
   const [config, setConfig] = useState<AppConfig | null>(null);
   const [urlGenerator, setUrlGenerator] = useState<ToolUrlGenerator | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const configLoader = new ConfigLoader({
+  const configLoader = React.useMemo(() => new ConfigLoader({
     webBaseUrl: CONFIG.WEB_BASE_URL,
     apiBaseUrl: CONFIG.API_BASE_URL,
-  });
+  }), []);
 
-  const loadConfig = async () => {
+  const loadConfig = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
       let loadedConfig: AppConfig;
 
-      if (storedConfig) {
-        // Use stored config (from onboarding flow)
-        loadedConfig = storedConfig;
+      if (organizationId) {
+        // Load by organization ID (most common - from stored data)
+        loadedConfig = await configLoader.loadConfigById(organizationId);
       } else if (organizationSlug) {
         // Load by organization slug (QR code flow)
         loadedConfig = await configLoader.loadConfigBySlug(organizationSlug);
@@ -52,18 +50,18 @@ export const AppConfigProvider: React.FC<AppConfigProviderProps> = ({
         // Load by email (login flow)
         loadedConfig = await configLoader.loadConfigByEmail(userEmail);
       } else {
-        throw new Error('Either storedConfig, organizationSlug, or userEmail must be provided');
+        throw new Error('Either organizationId, organizationSlug, or userEmail must be provided');
       }
 
       setConfig(loadedConfig);
-      
+
       // Create URL generator
       const generator = configLoader.createUrlGenerator(loadedConfig.organizationSlug);
       setUrlGenerator(generator);
 
     } catch (err) {
       console.warn('Config loading failed, using fallback config:', err);
-      
+
       // Provide a fallback config for development
       const fallbackConfig: AppConfig = {
         organizationSlug: organizationSlug || 'demo-business',
@@ -81,13 +79,13 @@ export const AppConfigProvider: React.FC<AppConfigProviderProps> = ({
         webBaseUrl: CONFIG.WEB_BASE_URL,
         apiBaseUrl: CONFIG.API_BASE_URL,
       };
-      
+
       setConfig(fallbackConfig);
-      
+
       // Create URL generator with fallback config
       const generator = configLoader.createUrlGenerator(fallbackConfig.organizationSlug);
       setUrlGenerator(generator);
-      
+
       // Don't set error in development, just warn
       if (!__DEV__) {
         const errorMessage = err instanceof Error ? err.message : 'Failed to load configuration';
@@ -96,17 +94,17 @@ export const AppConfigProvider: React.FC<AppConfigProviderProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [organizationId, organizationSlug, userEmail, configLoader]);
 
   const refetch = async () => {
     await loadConfig();
   };
 
   useEffect(() => {
-    if (storedConfig || organizationSlug || userEmail) {
+    if (organizationId || organizationSlug || userEmail) {
       loadConfig();
     }
-  }, [storedConfig, organizationSlug, userEmail]);
+  }, [organizationId, organizationSlug, userEmail, loadConfig]);
 
   const value: UseAppConfigReturn = {
     config,

@@ -3,7 +3,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const STORAGE_KEYS = {
   ORGANIZATION_ID: '@chayo:organization_id',
   USER_EMAIL: '@chayo:user_email',
-  APP_CONFIG: '@chayo:app_config',
 } as const;
 
 export class StorageService {
@@ -79,30 +78,7 @@ export class StorageService {
     }
   }
 
-  /**
-   * Store app config cache
-   */
-  static async setAppConfig(config: any): Promise<void> {
-    try {
-      await AsyncStorage.setItem(STORAGE_KEYS.APP_CONFIG, JSON.stringify(config));
-    } catch (error) {
-      console.error('Error storing app config:', error);
-      throw error;
-    }
-  }
 
-  /**
-   * Get cached app config
-   */
-  static async getAppConfig(): Promise<any | null> {
-    try {
-      const configString = await AsyncStorage.getItem(STORAGE_KEYS.APP_CONFIG);
-      return configString ? JSON.parse(configString) : null;
-    } catch (error) {
-      console.error('Error retrieving app config:', error);
-      return null;
-    }
-  }
 
   /**
    * Clear all stored data
@@ -112,7 +88,6 @@ export class StorageService {
       await AsyncStorage.multiRemove([
         STORAGE_KEYS.ORGANIZATION_ID,
         STORAGE_KEYS.USER_EMAIL,
-        STORAGE_KEYS.APP_CONFIG,
       ]);
     } catch (error) {
       console.error('Error clearing all storage:', error);

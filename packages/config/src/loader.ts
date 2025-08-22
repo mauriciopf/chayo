@@ -72,6 +72,35 @@ export class ConfigLoader {
   }
 
   /**
+   * Load configuration for an organization by ID
+   */
+  async loadConfigById(organizationId: string): Promise<AppConfig> {
+    try {
+      // First, get organization slug from ID
+      const response = await fetch(
+        `${this.options.apiBaseUrl}/api/organizations/lookup-by-id`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ organizationId }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to lookup organization: ${response.statusText}`);
+      }
+
+      const { organizationSlug } = await response.json();
+      
+      // Then load config by slug
+      return this.loadConfigBySlug(organizationSlug);
+    } catch (error) {
+      console.error('Error loading config by ID:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Get enabled tools from API
    */
   async getEnabledTools(organizationId: string): Promise<ToolType[]> {

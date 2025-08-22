@@ -32,7 +32,6 @@ function App(): React.JSX.Element {
   const [isUpdateAvailable, setIsUpdateAvailable] = useState(false);
   const [appReady, setAppReady] = useState(false);
   const [organizationId, setOrganizationId] = useState<string | null>(null);
-  const [appConfig, setAppConfig] = useState<any | null>(null);
 
   const [showSlugEntry, setShowSlugEntry] = useState(false);
 
@@ -68,21 +67,19 @@ function App(): React.JSX.Element {
           }
         }
 
-        // Load stored credentials and config
+        // Load stored organization ID
         const storedOrgId = await StorageService.getOrganizationId();
-        const storedConfig = await StorageService.getAppConfig();
 
-        if (storedOrgId && storedConfig) {
+        if (storedOrgId) {
           setOrganizationId(storedOrgId);
-          setAppConfig(storedConfig);
         } else {
-          // No stored organization ID or config, show onboarding
+          // No stored organization ID, show onboarding
           setShowSlugEntry(true);
         }
 
         // Set up deep link handling
         cleanupDeepLinks = DeepLinkService.setupDeepLinkListener(
-          async (slug: string) => {
+          async (_slug: string) => {
             // Handle organization slug from deep link - need to fetch organizationId
             // For now, we'll let the onboarding flow handle this
             setShowSlugEntry(true);
@@ -109,12 +106,9 @@ function App(): React.JSX.Element {
   }, []);
 
   // Handle organization ID from onboarding chat
-  const handleSlugValidated = async (organizationId: string) => {
+  const handleSlugValidated = async (orgId: string) => {
     try {
-      // Reload the stored config after validation
-      const storedConfig = await StorageService.getAppConfig();
-      setOrganizationId(organizationId);
-      setAppConfig(storedConfig);
+      setOrganizationId(orgId);
       setShowSlugEntry(false);
     } catch (error) {
       console.error('Error handling validated organization:', error);
@@ -147,10 +141,7 @@ function App(): React.JSX.Element {
   return (
     <>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-      <AppConfigProvider
-        storedConfig={appConfig}
-        organizationId={organizationId || undefined}
-      >
+      <AppConfigProvider organizationId={organizationId || undefined}>
         <AppNavigator />
       </AppConfigProvider>
     </>
