@@ -237,6 +237,7 @@ export function useAuth() {
               id,
               name,
               slug,
+              mobile_app_code,
               owner_id,
               created_at
             )

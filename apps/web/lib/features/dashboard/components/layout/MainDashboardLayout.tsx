@@ -40,6 +40,7 @@ export default function MainDashboardLayout({
         user={auth.user}
         subscription={auth.subscription}
         businessName={auth.currentOrganization?.name || ''}
+        mobileAppCode={auth.currentOrganization?.mobile_app_code || '000000'}
       />
 
       {/* Main Content Area */}
