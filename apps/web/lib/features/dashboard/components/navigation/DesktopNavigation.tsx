@@ -11,7 +11,7 @@ interface DesktopNavigationProps {
   user: any
   subscription: any
   businessName: string
-  mobileAppCode: string
+  mobileAppCode: string | null
 }
 
 export default function DesktopNavigation({
@@ -27,6 +27,8 @@ export default function DesktopNavigation({
   const t = useTranslations('dashboard')
 
   const copyMobileCode = async () => {
+    if (!mobileAppCode) return
+    
     try {
       await navigator.clipboard.writeText(mobileAppCode)
       // You could add a toast notification here
@@ -147,26 +149,28 @@ export default function DesktopNavigation({
             >
               {businessName}
             </span>
-            {/* Mobile App Code */}
-            <div className="mt-2 flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2 border border-gray-200">
-              <div className="flex flex-col">
-                <span className="text-xs font-medium text-gray-600 uppercase tracking-wide">
-                  Mobile Code
-                </span>
-                <span className="text-lg font-mono font-bold text-gray-900 tracking-wider">
-                  {mobileAppCode}
-                </span>
+            {/* Mobile App Code - only show if available */}
+            {mobileAppCode && (
+              <div className="mt-2 flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2 border border-gray-200">
+                <div className="flex flex-col">
+                  <span className="text-xs font-medium text-gray-600 uppercase tracking-wide">
+                    Mobile Code
+                  </span>
+                  <span className="text-lg font-mono font-bold text-gray-900 tracking-wider">
+                    {mobileAppCode}
+                  </span>
+                </div>
+                <button
+                  onClick={copyMobileCode}
+                  className="ml-2 p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded transition-colors"
+                  title="Copy mobile code"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                </button>
               </div>
-              <button
-                onClick={copyMobileCode}
-                className="ml-2 p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded transition-colors"
-                title="Copy mobile code"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-              </button>
-            </div>
+            )}
           </div>
         )}
       </div>
