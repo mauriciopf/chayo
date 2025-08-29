@@ -72,38 +72,32 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Name and slug are required' }, { status: 400 })
     }
 
-    // Create organization
-    const { data: organization, error: orgError } = await supabase
-      .from('organizations')
-      .insert({
-        name,
-        slug,
+    // Create organization using the function that generates mobile_app_code
+    const { data: newOrgId, error: orgError } = await supabase
+      .rpc('create_organization_with_owner', {
+        org_name: name,
+        org_slug: slug,
         owner_id: user.id
       })
-      .select()
-      .single()
-
+    
     if (orgError) {
       console.error('Error creating organization:', orgError)
       return NextResponse.json({ error: 'Failed to create organization' }, { status: 500 })
     }
 
-    // Add user as owner in team_members
-    const { error: memberError } = await supabase
-      .from('team_members')
-      .insert({
-        organization_id: organization.id,
-        user_id: user.id,
-        role: 'owner',
-        status: 'active'
-      })
+    // Fetch the created organization
+    const { data: organization, error: fetchError } = await supabase
+      .from('organizations')
+      .select()
+      .eq('id', newOrgId)
+      .single()
 
-    if (memberError) {
-      console.error('Error adding team member:', memberError)
-      // Clean up organization if team member creation fails
-      await supabase.from('organizations').delete().eq('id', organization.id)
-      return NextResponse.json({ error: 'Failed to create organization' }, { status: 500 })
+    if (fetchError || !organization) {
+      console.error('Error fetching created organization:', fetchError)
+      return NextResponse.json({ error: 'Failed to fetch created organization' }, { status: 500 })
     }
+
+    // Team member is already created by create_organization_with_owner function
 
     return NextResponse.json({ organization })
   } catch (error) {
