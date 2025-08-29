@@ -27,12 +27,14 @@ import AppNavigator from './src/navigation/AppNavigator';
 import { OnboardingChatScreen } from './src/screens/OnboardingChatScreen';
 import { StorageService } from './src/services/StorageService';
 import { DeepLinkService } from './src/services/DeepLinkService';
+import { demoModeService } from './src/services/DemoModeService';
+import { WelcomeModal } from './src/components';
 
 function App(): React.JSX.Element {
   const [isUpdateAvailable, setIsUpdateAvailable] = useState(false);
   const [appReady, setAppReady] = useState(false);
   const [organizationId, setOrganizationId] = useState<string | null>(null);
-
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [showSlugEntry, setShowSlugEntry] = useState(false);
 
   // Check for OTA updates and load stored credentials on app start
@@ -67,29 +69,49 @@ function App(): React.JSX.Element {
           }
         }
 
-        // Set up deep link handling (takes precedence over stored data)
+        // Set up deep link handling (takes precedence over everything)
         cleanupDeepLinks = DeepLinkService.setupDeepLinkListener(
           async (orgId: string) => {
-            // Organization ID detected from deep link and already stored
-            setOrganizationId(orgId);
-            setShowSlugEntry(false);
+            try {
+              // Deep link detected - this completely overrides demo mode and welcome modal
+              console.log('Deep link detected, switching to real organization:', orgId);
+              await demoModeService.setRealOrganization(orgId);
+              setOrganizationId(orgId);
+              setShowWelcomeModal(false);
+              setShowSlugEntry(false);
+            } catch (error) {
+              console.error('Error handling deep link:', error);
+              // If deep link fails, fall back to normal flow
+              setShowSlugEntry(true);
+              setShowWelcomeModal(false);
+            }
           }
         );
 
-        // Check stored organization ID (will be overridden if deep link is processed)
+        // Check stored organization ID first
         const storedOrgId = await StorageService.getOrganizationId();
 
         if (storedOrgId) {
+          // User already has an organization - load it directly
           setOrganizationId(storedOrgId);
         } else {
-          // No stored organization ID, show onboarding
-          setShowSlugEntry(true);
+          // No organization stored - check if we should show welcome
+          const shouldShowWelcome = await demoModeService.shouldShowWelcome();
+
+          if (shouldShowWelcome) {
+            // First time user - show welcome modal
+            setShowWelcomeModal(true);
+          } else {
+            // User has seen welcome but no org stored - show onboarding
+            setShowSlugEntry(true);
+          }
         }
 
       } catch (error) {
-        console.log('Error during app initialization:', error);
-        // If there's an error loading stored data, show slug entry
+        console.error('Error during app initialization:', error);
+        // If there's an error loading stored data, show slug entry as fallback
         setShowSlugEntry(true);
+        setShowWelcomeModal(false);
       } finally {
         setAppReady(true);
       }
@@ -105,9 +127,49 @@ function App(): React.JSX.Element {
     };
   }, []);
 
+  // Handle demo mode selection from welcome modal
+  const handleTryDemo = async () => {
+    try {
+      console.log('User selected demo mode');
+      await demoModeService.enableDemoMode();
+      const demoState = await demoModeService.getDemoModeState();
+      setOrganizationId(demoState.organizationId);
+      setShowWelcomeModal(false);
+      console.log('Demo mode enabled successfully');
+    } catch (error) {
+      console.error('Error enabling demo mode:', error);
+      Alert.alert(
+        'Error',
+        'Could not start demo mode. Please try entering your business code instead.',
+        [
+          { text: 'OK', onPress: () => {
+            setShowWelcomeModal(false);
+            setShowSlugEntry(true);
+          }},
+        ]
+      );
+    }
+  };
+
+  // Handle enter code selection from welcome modal
+  const handleEnterCode = async () => {
+    try {
+      console.log('User selected enter business code');
+      await demoModeService.markWelcomeAsSeen();
+      setShowWelcomeModal(false);
+      setShowSlugEntry(true);
+    } catch (error) {
+      console.error('Error handling enter code:', error);
+      // Even if marking as seen fails, still proceed to slug entry
+      setShowWelcomeModal(false);
+      setShowSlugEntry(true);
+    }
+  };
+
   // Handle organization ID from onboarding chat
   const handleSlugValidated = async (orgId: string) => {
     try {
+      await demoModeService.setRealOrganization(orgId);
       setOrganizationId(orgId);
       setShowSlugEntry(false);
     } catch (error) {
@@ -144,6 +206,13 @@ function App(): React.JSX.Element {
       <AppConfigProvider organizationId={organizationId || undefined}>
         <AppNavigator />
       </AppConfigProvider>
+
+      {/* Welcome Modal */}
+      <WelcomeModal
+        visible={showWelcomeModal}
+        onTryDemo={handleTryDemo}
+        onEnterCode={handleEnterCode}
+      />
     </>
   );
 }
