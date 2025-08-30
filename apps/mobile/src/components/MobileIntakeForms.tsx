@@ -7,6 +7,7 @@ import {
   StyleSheet,
   ActivityIndicator,
   Alert,
+  SafeAreaView,
 } from 'react-native';
 import { IntakeForm } from '@chayo/formio';
 import { intakeFormService } from '../services/IntakeFormService';
@@ -47,6 +48,13 @@ export const MobileIntakeForms: React.FC<MobileIntakeFormsProps> = ({ organizati
     loadForms();
   }, [organizationSlug]);
 
+  // Auto-select the form if there's only one
+  useEffect(() => {
+    if (forms.length === 1 && !selectedFormId) {
+      setSelectedFormId(forms[0].id);
+    }
+  }, [forms, selectedFormId]);
+
   const loadForms = async () => {
     try {
       setLoading(true);
@@ -70,6 +78,10 @@ export const MobileIntakeForms: React.FC<MobileIntakeFormsProps> = ({ organizati
     setSelectedFormId(null);
   };
 
+  const getBackButtonText = () => {
+    return forms.length === 1 ? null : '‹ Back to Forms';
+  };
+
   const handleSubmissionComplete = (success: boolean, message: string) => {
     if (success) {
       // Go back to list after successful submission
@@ -82,43 +94,47 @@ export const MobileIntakeForms: React.FC<MobileIntakeFormsProps> = ({ organizati
   // If a form is selected, show the form component
   if (selectedFormId) {
     return (
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
         <TouchableOpacity style={styles.backButton} onPress={handleBackToList}>
-          <Text style={styles.backButtonText}>‹ Back to Forms</Text>
+          <Text style={styles.backButtonText}>{getBackButtonText()}</Text>
         </TouchableOpacity>
         <MobileIntakeForm
           formId={selectedFormId}
           onSubmissionComplete={handleSubmissionComplete}
         />
-      </View>
+      </SafeAreaView>
     );
   }
 
   // Show loading state
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
-        <Text style={styles.loadingText}>Loading intake forms...</Text>
-      </View>
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#007AFF" />
+          <Text style={styles.loadingText}>Loading intake forms...</Text>
+        </View>
+      </SafeAreaView>
     );
   }
 
   // Show empty state
   if (forms.length === 0) {
     return (
-      <View style={styles.emptyContainer}>
-        <Text style={styles.emptyTitle}>No Forms Available</Text>
-        <Text style={styles.emptyMessage}>
-          There are currently no active intake forms for this organization.
-        </Text>
-      </View>
+      <SafeAreaView style={styles.container}>
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyTitle}>No Forms Available</Text>
+          <Text style={styles.emptyMessage}>
+            There are currently no active intake forms for this organization.
+          </Text>
+        </View>
+      </SafeAreaView>
     );
   }
 
   // Show forms list
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Intake Forms</Text>
         <Text style={styles.headerSubtitle}>
@@ -138,7 +154,7 @@ export const MobileIntakeForms: React.FC<MobileIntakeFormsProps> = ({ organizati
         contentContainerStyle={styles.listContainer}
         showsVerticalScrollIndicator={false}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 
