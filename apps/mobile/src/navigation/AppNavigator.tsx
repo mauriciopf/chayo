@@ -10,6 +10,7 @@ import { AppointmentsScreen } from '../screens/AppointmentsScreen';
 import { PaymentsScreen } from '../screens/PaymentsScreen';
 import { DocumentsScreen } from '../screens/DocumentsScreen';
 import { FAQsScreen } from '../screens/FAQsScreen';
+import { IntakeFormsScreen } from '../screens/IntakeFormsScreen';
 import Icon from 'react-native-vector-icons/Feather';
 
 const Stack = createNativeStackNavigator();
@@ -23,6 +24,7 @@ const getTabIconName = (iconName: string) => {
     'credit-card': 'credit-card', // Credit card outline
     'file-text': 'file-text', // Document outline
     'help-circle': 'help-circle', // Help circle outline
+    'clipboard': 'clipboard', // Intake forms clipboard
   };
   return iconMap[iconName] || 'message-circle';
 };
@@ -41,6 +43,7 @@ const getToolScreen = (toolName: string) => {
     'Payments': PaymentsScreen,
     'Documents': DocumentsScreen,
     'FAQs': FAQsScreen,
+    'Intake Forms': IntakeFormsScreen,
   };
   return screenMap[toolName as keyof typeof screenMap];
 };

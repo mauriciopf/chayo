@@ -20,6 +20,9 @@ importers:
       '@chayo/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@chayo/formio':
+        specifier: workspace:*
+        version: link:../../packages/formio
       '@expo/cli':
         specifier: ^0.24.20
         version: 0.24.20
@@ -29,6 +32,12 @@ importers:
       '@react-native-async-storage/async-storage':
         specifier: ^2.1.0
         version: 2.2.0(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.0(typescript@5.0.4))(@types/react@19.1.10)(react@19.0.0))
+      '@react-native-community/datetimepicker':
+        specifier: ^8.2.0
+        version: 8.4.4(expo@53.0.20(@babel/core@7.28.3)(react-native-webview@13.15.0(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.0(typescript@5.0.4))(@types/react@19.1.10)(react@19.0.0))(react@19.0.0))(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.0(typescript@5.0.4))(@types/react@19.1.10)(react@19.0.0))(react@19.0.0))(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.0(typescript@5.0.4))(@types/react@19.1.10)(react@19.0.0))(react@19.0.0)
+      '@react-native-picker/picker':
+        specifier: ^2.9.0
+        version: 2.11.1(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.0(typescript@5.0.4))(@types/react@19.1.10)(react@19.0.0))(react@19.0.0)
       '@react-navigation/bottom-tabs':
         specifier: ^7.4.6
         version: 7.4.6(@react-navigation/native@7.1.17(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.0(typescript@5.0.4))(@types/react@19.1.10)(react@19.0.0))(react@19.0.0))(react-native-safe-area-context@5.6.0(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.0(typescript@5.0.4))(@types/react@19.1.10)(react@19.0.0))(react@19.0.0))(react-native-screens@4.14.1(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.0(typescript@5.0.4))(@types/react@19.1.10)(react@19.0.0))(react@19.0.0))(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.0(typescript@5.0.4))(@types/react@19.1.10)(react@19.0.0))(react@19.0.0)
@@ -129,6 +138,12 @@ importers:
 
   apps/web:
     dependencies:
+      '@chayo/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@chayo/formio':
+        specifier: workspace:*
+        version: link:../../packages/formio
       '@formio/react':
         specifier: ^6.1.0
         version: 6.1.0(@formio/core@2.5.0)(@formio/js@5.2.0(@popperjs/core@2.11.8))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -254,6 +269,16 @@ importers:
       '@types/node':
         specifier: ^20
         version: 20.19.10
+      typescript:
+        specifier: ^5
+        version: 5.0.4
+
+  packages/formio:
+    dependencies:
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
+    devDependencies:
       typescript:
         specifier: ^5
         version: 5.0.4
@@ -1545,6 +1570,25 @@ packages:
     resolution: {integrity: sha512-/cMnGl5V1rqnbElY1Fvga1vfw0d3bnqiJLx2+2oh7l9ulnXfVRWb5tU2kgBqiMxuDOKA+DQoifC9q/tvkj5K2w==}
     engines: {node: '>=18'}
     hasBin: true
+
+  '@react-native-community/datetimepicker@8.4.4':
+    resolution: {integrity: sha512-bc4ZixEHxZC9/qf5gbdYvIJiLZ5CLmEsC3j+Yhe1D1KC/3QhaIfGDVdUcid0PdlSoGOSEq4VlB93AWyetEyBSQ==}
+    peerDependencies:
+      expo: '>=52.0.0'
+      react: '*'
+      react-native: '*'
+      react-native-windows: '*'
+    peerDependenciesMeta:
+      expo:
+        optional: true
+      react-native-windows:
+        optional: true
+
+  '@react-native-picker/picker@2.11.1':
+    resolution: {integrity: sha512-ThklnkK4fV3yynnIIRBkxxjxR4IFbdMNJVF6tlLdOJ/zEFUEFUEdXY0KmH0iYzMwY8W4/InWsLiA7AkpAbnexA==}
+    peerDependencies:
+      react: '*'
+      react-native: '*'
 
   '@react-native/assets-registry@0.78.3':
     resolution: {integrity: sha512-gQGoxEq7CuY/LjnHjORrNnJzUkx0YH7r/U1bvdznaaZ4CLcRFa1nKZEmZMv0h9moVqzr7GUbphJzS+RwqoGYIg==}
@@ -8339,6 +8383,19 @@ snapshots:
       - typescript
       - utf-8-validate
 
+  '@react-native-community/datetimepicker@8.4.4(expo@53.0.20(@babel/core@7.28.3)(react-native-webview@13.15.0(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.0(typescript@5.0.4))(@types/react@19.1.10)(react@19.0.0))(react@19.0.0))(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.0(typescript@5.0.4))(@types/react@19.1.10)(react@19.0.0))(react@19.0.0))(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.0(typescript@5.0.4))(@types/react@19.1.10)(react@19.0.0))(react@19.0.0)':
+    dependencies:
+      invariant: 2.2.4
+      react: 19.0.0
+      react-native: 0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.0(typescript@5.0.4))(@types/react@19.1.10)(react@19.0.0)
+    optionalDependencies:
+      expo: 53.0.20(@babel/core@7.28.3)(react-native-webview@13.15.0(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.0(typescript@5.0.4))(@types/react@19.1.10)(react@19.0.0))(react@19.0.0))(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.0(typescript@5.0.4))(@types/react@19.1.10)(react@19.0.0))(react@19.0.0)
+
+  '@react-native-picker/picker@2.11.1(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.0(typescript@5.0.4))(@types/react@19.1.10)(react@19.0.0))(react@19.0.0)':
+    dependencies:
+      react: 19.0.0
+      react-native: 0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.0(typescript@5.0.4))(@types/react@19.1.10)(react@19.0.0)
+
   '@react-native/assets-registry@0.78.3': {}
 
   '@react-native/babel-plugin-codegen@0.78.3(@babel/preset-env@7.28.3(@babel/core@7.28.3))':
@@ -8588,7 +8645,9 @@ snapshots:
     transitivePeerDependencies:
       - '@babel/core'
       - '@babel/preset-env'
+      - bufferutil
       - supports-color
+      - utf-8-validate
 
   '@react-native/normalize-colors@0.78.3': {}
 
@@ -10349,7 +10408,7 @@ snapshots:
       eslint: 8.57.1
       eslint-import-resolver-node: 0.3.9
       eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0(eslint@8.57.1))(eslint@8.57.1)
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.0.4))(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.0.4))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(eslint@8.57.1))(eslint@8.57.1))(eslint@8.57.1)
       eslint-plugin-jsx-a11y: 6.10.2(eslint@8.57.1)
       eslint-plugin-react: 7.37.5(eslint@8.57.1)
       eslint-plugin-react-hooks: 5.0.0-canary-7118f5dd7-20230705(eslint@8.57.1)
@@ -10383,7 +10442,7 @@ snapshots:
       tinyglobby: 0.2.14
       unrs-resolver: 1.11.1
     optionalDependencies:
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.0.4))(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.0.4))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(eslint@8.57.1))(eslint@8.57.1))(eslint@8.57.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -10411,7 +10470,7 @@ snapshots:
       lodash: 4.17.21
       string-natural-compare: 3.0.1
 
-  eslint-plugin-import@2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.0.4))(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1):
+  eslint-plugin-import@2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.0.4))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(eslint@8.57.1))(eslint@8.57.1))(eslint@8.57.1):
     dependencies:
       '@rtsao/scc': 1.1.0
       array-includes: 3.1.9

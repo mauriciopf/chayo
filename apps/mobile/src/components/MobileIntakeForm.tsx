@@ -1,0 +1,642 @@
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+  Alert,
+  ActivityIndicator,
+  Switch,
+  Platform,
+} from 'react-native';
+import { Picker } from '@react-native-picker/picker';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import {
+  IntakeForm,
+  FormioComponent,
+  FormioFormDefinition,
+  FormioSubmission,
+  FORMIO_FIELD_TYPES,
+  validateFormSubmission,
+  getFormDefaultValues,
+  getFieldOptions,
+  shouldShowComponent,
+  getVisibleComponents,
+  isTextField,
+  isEmailField,
+  isNumberField,
+  isPhoneNumberField,
+  isTextAreaField,
+  isSelectField,
+  isRadioField,
+  isCheckboxField,
+  isSelectBoxesField,
+  isDateTimeField,
+} from '@chayo/formio';
+import { intakeFormService } from '../services/IntakeFormService';
+
+interface MobileIntakeFormProps {
+  formId: string;
+  onSubmissionComplete?: (success: boolean, message: string) => void;
+  onFormLoad?: (form: IntakeForm) => void;
+}
+
+interface FieldComponentProps {
+  component: FormioComponent;
+  value: any;
+  onChange: (value: any) => void;
+  error?: string;
+}
+
+// Individual field components
+const TextFieldComponent: React.FC<FieldComponentProps> = ({ component, value, onChange, error }) => {
+  const keyboardType = isEmailField(component) 
+    ? 'email-address' 
+    : isNumberField(component) 
+    ? 'numeric'
+    : isPhoneNumberField(component)
+    ? 'phone-pad'
+    : 'default';
+
+  return (
+    <View style={styles.fieldContainer}>
+      <Text style={styles.fieldLabel}>
+        {component.label}
+        {component.validate?.required && <Text style={styles.required}> *</Text>}
+      </Text>
+      {component.description && (
+        <Text style={styles.fieldDescription}>{component.description}</Text>
+      )}
+      <TextInput
+        style={[styles.textInput, error && styles.inputError]}
+        value={value || ''}
+        onChangeText={onChange}
+        placeholder={component.placeholder}
+        keyboardType={keyboardType}
+        multiline={isTextAreaField(component)}
+        numberOfLines={isTextAreaField(component) ? 4 : 1}
+        secureTextEntry={isTextField(component) && (component as any).inputType === 'password'}
+        autoCapitalize={isEmailField(component) ? 'none' : 'sentences'}
+        autoCorrect={!isEmailField(component)}
+      />
+      {error && <Text style={styles.errorText}>{error}</Text>}
+    </View>
+  );
+};
+
+const SelectFieldComponent: React.FC<FieldComponentProps> = ({ component, value, onChange, error }) => {
+  const options = getFieldOptions(component);
+  const [showPicker, setShowPicker] = useState(false);
+
+  return (
+    <View style={styles.fieldContainer}>
+      <Text style={styles.fieldLabel}>
+        {component.label}
+        {component.validate?.required && <Text style={styles.required}> *</Text>}
+      </Text>
+      {component.description && (
+        <Text style={styles.fieldDescription}>{component.description}</Text>
+      )}
+      
+      <TouchableOpacity
+        style={[styles.selectButton, error && styles.inputError]}
+        onPress={() => setShowPicker(true)}
+      >
+        <Text style={[styles.selectButtonText, !value && styles.placeholder]}>
+          {value ? options.find(opt => opt.value === value)?.label || value : component.placeholder || 'Select an option'}
+        </Text>
+      </TouchableOpacity>
+
+      {showPicker && (
+        <View style={styles.pickerContainer}>
+          <View style={styles.pickerHeader}>
+            <TouchableOpacity onPress={() => setShowPicker(false)}>
+              <Text style={styles.pickerCancel}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setShowPicker(false)}>
+              <Text style={styles.pickerDone}>Done</Text>
+            </TouchableOpacity>
+          </View>
+          <Picker
+            selectedValue={value}
+            onValueChange={(itemValue) => {
+              onChange(itemValue);
+            }}
+          >
+            <Picker.Item label="Select an option" value="" />
+            {options.map((option) => (
+              <Picker.Item
+                key={option.value}
+                label={option.label}
+                value={option.value}
+              />
+            ))}
+          </Picker>
+        </View>
+      )}
+      
+      {error && <Text style={styles.errorText}>{error}</Text>}
+    </View>
+  );
+};
+
+const RadioFieldComponent: React.FC<FieldComponentProps> = ({ component, value, onChange, error }) => {
+  const options = getFieldOptions(component);
+
+  return (
+    <View style={styles.fieldContainer}>
+      <Text style={styles.fieldLabel}>
+        {component.label}
+        {component.validate?.required && <Text style={styles.required}> *</Text>}
+      </Text>
+      {component.description && (
+        <Text style={styles.fieldDescription}>{component.description}</Text>
+      )}
+      
+      {options.map((option) => (
+        <TouchableOpacity
+          key={option.value}
+          style={styles.radioOption}
+          onPress={() => onChange(option.value)}
+        >
+          <View style={styles.radioCircle}>
+            {value === option.value && <View style={styles.radioSelected} />}
+          </View>
+          <Text style={styles.radioLabel}>{option.label}</Text>
+        </TouchableOpacity>
+      ))}
+      
+      {error && <Text style={styles.errorText}>{error}</Text>}
+    </View>
+  );
+};
+
+const CheckboxFieldComponent: React.FC<FieldComponentProps> = ({ component, value, onChange, error }) => {
+  return (
+    <View style={styles.fieldContainer}>
+      <TouchableOpacity
+        style={styles.checkboxContainer}
+        onPress={() => onChange(!value)}
+      >
+        <View style={[styles.checkbox, value && styles.checkboxChecked]}>
+          {value && <Text style={styles.checkmark}>✓</Text>}
+        </View>
+        <Text style={styles.checkboxLabel}>
+          {component.label}
+          {component.validate?.required && <Text style={styles.required}> *</Text>}
+        </Text>
+      </TouchableOpacity>
+      {component.description && (
+        <Text style={styles.fieldDescription}>{component.description}</Text>
+      )}
+      {error && <Text style={styles.errorText}>{error}</Text>}
+    </View>
+  );
+};
+
+const DateTimeFieldComponent: React.FC<FieldComponentProps> = ({ component, value, onChange, error }) => {
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const dateValue = value ? new Date(value) : new Date();
+
+  const handleDateChange = (event: any, selectedDate?: Date) => {
+    setShowDatePicker(Platform.OS === 'ios');
+    if (selectedDate) {
+      onChange(selectedDate.toISOString());
+    }
+  };
+
+  return (
+    <View style={styles.fieldContainer}>
+      <Text style={styles.fieldLabel}>
+        {component.label}
+        {component.validate?.required && <Text style={styles.required}> *</Text>}
+      </Text>
+      {component.description && (
+        <Text style={styles.fieldDescription}>{component.description}</Text>
+      )}
+      
+      <TouchableOpacity
+        style={[styles.selectButton, error && styles.inputError]}
+        onPress={() => setShowDatePicker(true)}
+      >
+        <Text style={[styles.selectButtonText, !value && styles.placeholder]}>
+          {value ? dateValue.toLocaleDateString() : component.placeholder || 'Select date'}
+        </Text>
+      </TouchableOpacity>
+
+      {showDatePicker && (
+        <DateTimePicker
+          value={dateValue}
+          mode="date"
+          display="default"
+          onChange={handleDateChange}
+        />
+      )}
+      
+      {error && <Text style={styles.errorText}>{error}</Text>}
+    </View>
+  );
+};
+
+// Main form component
+export const MobileIntakeForm: React.FC<MobileIntakeFormProps> = ({
+  formId,
+  onSubmissionComplete,
+  onFormLoad,
+}) => {
+  const [form, setForm] = useState<IntakeForm | null>(null);
+  const [formData, setFormData] = useState<{ [key: string]: any }>({});
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [anonymousUserId] = useState(() => intakeFormService.generateAnonymousUserId());
+
+  useEffect(() => {
+    loadForm();
+  }, [formId]);
+
+  const loadForm = async () => {
+    try {
+      setLoading(true);
+      const loadedForm = await intakeFormService.getForm(formId);
+      setForm(loadedForm);
+      
+      // Initialize form data with default values
+      if (loadedForm.formio_definition) {
+        const defaultValues = getFormDefaultValues(loadedForm.formio_definition);
+        setFormData(defaultValues);
+      }
+      
+      onFormLoad?.(loadedForm);
+    } catch (error) {
+      Alert.alert('Error', error instanceof Error ? error.message : 'Failed to load form');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFieldChange = (fieldKey: string, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      [fieldKey]: value
+    }));
+    
+    // Clear field error when user starts typing
+    if (errors[fieldKey]) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[fieldKey];
+        return newErrors;
+      });
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!form?.formio_definition) return;
+
+    try {
+      setSubmitting(true);
+      setErrors({});
+
+      // Validate form
+      const validation = validateFormSubmission(form.formio_definition, { data: formData });
+      
+      if (!validation.isValid) {
+        const fieldErrors: { [key: string]: string } = {};
+        validation.errors.forEach(error => {
+          // Try to match error to field (simple approach)
+          const component = form.formio_definition?.components.find(comp => 
+            error.includes(comp.label)
+          );
+          if (component) {
+            fieldErrors[component.key] = error;
+          }
+        });
+        setErrors(fieldErrors);
+        Alert.alert('Validation Error', validation.errors.join('\n'));
+        return;
+      }
+
+      // Submit form
+      const result = await intakeFormService.submitForm(
+        formId,
+        { data: formData },
+        { anonymousUserId }
+      );
+
+      Alert.alert('Success', result.message);
+      onSubmissionComplete?.(true, result.message);
+      
+      // Reset form
+      if (form.formio_definition) {
+        const defaultValues = getFormDefaultValues(form.formio_definition);
+        setFormData(defaultValues);
+      }
+      
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to submit form';
+      Alert.alert('Error', errorMessage);
+      onSubmissionComplete?.(false, errorMessage);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const renderField = (component: FormioComponent) => {
+    if (!shouldShowComponent(component, formData)) {
+      return null;
+    }
+
+    const value = formData[component.key];
+    const error = errors[component.key];
+    const fieldProps = {
+      component,
+      value,
+      onChange: (newValue: any) => handleFieldChange(component.key, newValue),
+      error,
+    };
+
+    switch (component.type) {
+      case FORMIO_FIELD_TYPES.TEXTFIELD:
+      case FORMIO_FIELD_TYPES.EMAIL:
+      case FORMIO_FIELD_TYPES.NUMBER:
+      case FORMIO_FIELD_TYPES.PHONE_NUMBER:
+      case FORMIO_FIELD_TYPES.TEXTAREA:
+        return <TextFieldComponent key={component.key} {...fieldProps} />;
+
+      case FORMIO_FIELD_TYPES.SELECT:
+        return <SelectFieldComponent key={component.key} {...fieldProps} />;
+
+      case FORMIO_FIELD_TYPES.RADIO:
+        return <RadioFieldComponent key={component.key} {...fieldProps} />;
+
+      case FORMIO_FIELD_TYPES.CHECKBOX:
+        return <CheckboxFieldComponent key={component.key} {...fieldProps} />;
+
+      case FORMIO_FIELD_TYPES.DATETIME:
+        return <DateTimeFieldComponent key={component.key} {...fieldProps} />;
+
+      case FORMIO_FIELD_TYPES.BUTTON:
+        // Skip buttons - we'll render our own submit button
+        return null;
+
+      default:
+        // Fallback to text input for unknown types
+        return <TextFieldComponent key={component.key} {...fieldProps} />;
+    }
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#007AFF" />
+        <Text style={styles.loadingText}>Loading form...</Text>
+      </View>
+    );
+  }
+
+  if (!form) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorTitle}>Form Not Found</Text>
+        <Text style={styles.errorMessage}>The requested form could not be loaded.</Text>
+      </View>
+    );
+  }
+
+  const visibleComponents = form.formio_definition 
+    ? getVisibleComponents(form.formio_definition, formData)
+    : [];
+
+  return (
+    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+      <View style={styles.header}>
+        <Text style={styles.formTitle}>{form.name}</Text>
+        {form.description && (
+          <Text style={styles.formDescription}>{form.description}</Text>
+        )}
+      </View>
+
+      <View style={styles.formFields}>
+        {visibleComponents.map(component => renderField(component))}
+      </View>
+
+      <TouchableOpacity
+        style={[styles.submitButton, submitting && styles.submitButtonDisabled]}
+        onPress={handleSubmit}
+        disabled={submitting}
+      >
+        {submitting ? (
+          <ActivityIndicator color="#FFFFFF" />
+        ) : (
+          <Text style={styles.submitButtonText}>Submit Form</Text>
+        )}
+      </TouchableOpacity>
+    </ScrollView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F8F9FA',
+  },
+  contentContainer: {
+    padding: 16,
+    paddingBottom: 32,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F8F9FA',
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#666',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F8F9FA',
+    padding: 32,
+  },
+  errorTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#DC3545',
+    marginBottom: 8,
+  },
+  errorMessage: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+  },
+  header: {
+    marginBottom: 24,
+  },
+  formTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#1A1A1A',
+    marginBottom: 8,
+  },
+  formDescription: {
+    fontSize: 16,
+    color: '#666',
+    lineHeight: 22,
+  },
+  formFields: {
+    marginBottom: 24,
+  },
+  fieldContainer: {
+    marginBottom: 20,
+  },
+  fieldLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1A1A1A',
+    marginBottom: 8,
+  },
+  required: {
+    color: '#DC3545',
+  },
+  fieldDescription: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 8,
+    lineHeight: 18,
+  },
+  textInput: {
+    borderWidth: 1,
+    borderColor: '#DDD',
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    backgroundColor: '#FFFFFF',
+    minHeight: 48,
+  },
+  inputError: {
+    borderColor: '#DC3545',
+  },
+  selectButton: {
+    borderWidth: 1,
+    borderColor: '#DDD',
+    borderRadius: 8,
+    padding: 12,
+    backgroundColor: '#FFFFFF',
+    minHeight: 48,
+    justifyContent: 'center',
+  },
+  selectButtonText: {
+    fontSize: 16,
+    color: '#1A1A1A',
+  },
+  placeholder: {
+    color: '#999',
+  },
+  pickerContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 1,
+    borderTopColor: '#DDD',
+    zIndex: 1000,
+  },
+  pickerHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#DDD',
+  },
+  pickerCancel: {
+    fontSize: 16,
+    color: '#666',
+  },
+  pickerDone: {
+    fontSize: 16,
+    color: '#007AFF',
+    fontWeight: '600',
+  },
+  radioOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  radioCircle: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#007AFF',
+    marginRight: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  radioSelected: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#007AFF',
+  },
+  radioLabel: {
+    fontSize: 16,
+    color: '#1A1A1A',
+  },
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderWidth: 2,
+    borderColor: '#007AFF',
+    borderRadius: 4,
+    marginRight: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  checkboxChecked: {
+    backgroundColor: '#007AFF',
+  },
+  checkmark: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  checkboxLabel: {
+    fontSize: 16,
+    color: '#1A1A1A',
+    flex: 1,
+  },
+  submitButton: {
+    backgroundColor: '#007AFF',
+    borderRadius: 8,
+    padding: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 48,
+  },
+  submitButtonDisabled: {
+    backgroundColor: '#999',
+  },
+  submitButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  errorText: {
+    color: '#DC3545',
+    fontSize: 14,
+    marginTop: 4,
+  },
+});

@@ -5,3 +5,4 @@ export { ThinkingMessageService, thinkingMessageService } from './ThinkingMessag
 export { default as DemoModeService, demoModeService } from './DemoModeService';
 export { default as AppointmentService, appointmentService } from './AppointmentService';
 export { default as FAQService, faqService } from './FAQService';
+export { IntakeFormService, intakeFormService } from './IntakeFormService';
