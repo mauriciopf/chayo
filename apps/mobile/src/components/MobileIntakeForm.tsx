@@ -441,7 +441,7 @@ export const MobileIntakeForm: React.FC<MobileIntakeFormProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#1C1C1E',
   },
   contentContainer: {
     padding: 16,
@@ -451,29 +451,30 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#1C1C1E',
   },
   loadingText: {
     marginTop: 16,
     fontSize: 16,
-    color: '#666',
+    color: '#FFFFFF',
   },
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#1C1C1E',
     padding: 32,
   },
   errorTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#DC3545',
+    color: '#FF453A',
     marginBottom: 8,
   },
   errorMessage: {
     fontSize: 16,
-    color: '#666',
+    color: '#FFFFFF',
+    opacity: 0.8,
     textAlign: 'center',
   },
   header: {
@@ -482,12 +483,13 @@ const styles = StyleSheet.create({
   formTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#1A1A1A',
+    color: '#FFFFFF',
     marginBottom: 8,
   },
   formDescription: {
     fontSize: 16,
-    color: '#666',
+    color: '#FFFFFF',
+    opacity: 0.8,
     lineHeight: 22,
   },
   formFields: {
@@ -499,54 +501,55 @@ const styles = StyleSheet.create({
   fieldLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1A1A1A',
+    color: '#FFFFFF',
     marginBottom: 8,
   },
   required: {
-    color: '#DC3545',
+    color: '#FF453A',
   },
   fieldDescription: {
     fontSize: 14,
-    color: '#666',
+    color: '#FFFFFF',
+    opacity: 0.8,
     marginBottom: 8,
     lineHeight: 18,
   },
   textInput: {
     borderWidth: 1,
-    borderColor: '#DDD',
+    borderColor: '#3A3A3C',
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#2C2C2E',
     minHeight: 48,
   },
   inputError: {
-    borderColor: '#DC3545',
+    borderColor: '#FF453A',
   },
   selectButton: {
     borderWidth: 1,
-    borderColor: '#DDD',
+    borderColor: '#3A3A3C',
     borderRadius: 8,
     padding: 12,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#2C2C2E',
     minHeight: 48,
     justifyContent: 'center',
   },
   selectButtonText: {
     fontSize: 16,
-    color: '#1A1A1A',
+    color: '#FFFFFF',
   },
   placeholder: {
-    color: '#999',
+    color: '#8E8E93',
   },
   pickerContainer: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#2C2C2E',
     borderTopWidth: 1,
-    borderTopColor: '#DDD',
+    borderTopColor: '#3A3A3C',
     zIndex: 1000,
   },
   pickerHeader: {
@@ -559,11 +562,12 @@ const styles = StyleSheet.create({
   },
   pickerCancel: {
     fontSize: 16,
-    color: '#666',
+    color: '#FFFFFF',
+    opacity: 0.8,
   },
   pickerDone: {
     fontSize: 16,
-    color: '#007AFF',
+    color: '#0A84FF',
     fontWeight: '600',
   },
   radioOption: {
@@ -576,7 +580,7 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: 10,
     borderWidth: 2,
-    borderColor: '#007AFF',
+    borderColor: '#0A84FF',
     marginRight: 12,
     alignItems: 'center',
     justifyContent: 'center',
@@ -585,11 +589,11 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: '#007AFF',
+    backgroundColor: '#0A84FF',
   },
   radioLabel: {
     fontSize: 16,
-    color: '#1A1A1A',
+    color: '#FFFFFF',
   },
   checkboxContainer: {
     flexDirection: 'row',
@@ -599,14 +603,14 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderWidth: 2,
-    borderColor: '#007AFF',
+    borderColor: '#0A84FF',
     borderRadius: 4,
     marginRight: 12,
     alignItems: 'center',
     justifyContent: 'center',
   },
   checkboxChecked: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#0A84FF',
   },
   checkmark: {
     color: '#FFFFFF',
@@ -615,11 +619,11 @@ const styles = StyleSheet.create({
   },
   checkboxLabel: {
     fontSize: 16,
-    color: '#1A1A1A',
+    color: '#FFFFFF',
     flex: 1,
   },
   submitButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#0A84FF',
     borderRadius: 8,
     padding: 16,
     alignItems: 'center',
@@ -627,7 +631,7 @@ const styles = StyleSheet.create({
     minHeight: 48,
   },
   submitButtonDisabled: {
-    backgroundColor: '#999',
+    backgroundColor: '#3A3A3C',
   },
   submitButtonText: {
     color: '#FFFFFF',
@@ -635,7 +639,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   errorText: {
-    color: '#DC3545',
+    color: '#FF453A',
     fontSize: 14,
     marginTop: 4,
   },

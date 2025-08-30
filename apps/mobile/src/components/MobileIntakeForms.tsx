@@ -161,37 +161,38 @@ export const MobileIntakeForms: React.FC<MobileIntakeFormsProps> = ({ organizati
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#1C1C1E',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#1C1C1E',
   },
   loadingText: {
     marginTop: 16,
     fontSize: 16,
-    color: '#666',
+    color: '#FFFFFF',
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#1C1C1E',
     padding: 32,
   },
   emptyTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#1A1A1A',
+    color: '#FFFFFF',
     marginBottom: 8,
   },
   emptyMessage: {
     fontSize: 16,
-    color: '#666',
+    color: '#FFFFFF',
     textAlign: 'center',
     lineHeight: 22,
+    opacity: 0.8,
   },
   header: {
     padding: 20,
@@ -200,32 +201,27 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#1A1A1A',
+    color: '#FFFFFF',
     marginBottom: 4,
   },
   headerSubtitle: {
     fontSize: 16,
-    color: '#666',
+    color: '#FFFFFF',
+    opacity: 0.8,
   },
   listContainer: {
     paddingHorizontal: 16,
     paddingBottom: 20,
   },
   formItem: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#2C2C2E',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
+    borderWidth: 1,
+    borderColor: '#3A3A3C',
   },
   formContent: {
     flex: 1,
@@ -233,23 +229,24 @@ const styles = StyleSheet.create({
   formTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#1A1A1A',
+    color: '#FFFFFF',
     marginBottom: 4,
   },
   formDescription: {
     fontSize: 14,
-    color: '#666',
+    color: '#FFFFFF',
+    opacity: 0.8,
     lineHeight: 18,
     marginBottom: 8,
   },
   formStatus: {
     fontSize: 12,
     fontWeight: '500',
-    color: '#28A745',
+    color: '#30D158',
   },
   chevron: {
     fontSize: 24,
-    color: '#CCC',
+    color: '#8E8E93',
     marginLeft: 8,
   },
   backButton: {
@@ -258,7 +255,7 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     fontSize: 16,
-    color: '#007AFF',
+    color: '#0A84FF',
     fontWeight: '500',
   },
 });

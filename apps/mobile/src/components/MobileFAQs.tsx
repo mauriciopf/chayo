@@ -172,24 +172,25 @@ const MobileFAQs: React.FC<MobileFAQsProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#1C1C1E',
   },
   header: {
-    backgroundColor: '#fff',
+    backgroundColor: '#1C1C1E',
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#e9ecef',
+    borderBottomColor: '#3A3A3C',
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1a1a1a',
+    color: '#FFFFFF',
     marginBottom: 4,
   },
   headerSubtitle: {
     fontSize: 16,
-    color: '#6c757d',
+    color: '#FFFFFF',
+    opacity: 0.8,
   },
 
   content: {
@@ -202,7 +203,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 16,
-    color: '#6c757d',
+    color: '#FFFFFF',
     marginTop: 12,
   },
   errorContainer: {
@@ -213,12 +214,12 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 16,
-    color: '#dc3545',
+    color: '#FF453A',
     textAlign: 'center',
     marginBottom: 20,
   },
   retryButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#0A84FF',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
@@ -226,7 +227,7 @@ const styles = StyleSheet.create({
   retryButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#fff',
+    color: '#FFFFFF',
   },
   emptyContainer: {
     flex: 1,
@@ -238,13 +239,14 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#6c757d',
+    color: '#FFFFFF',
     textAlign: 'center',
     marginBottom: 8,
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#adb5bd',
+    color: '#FFFFFF',
+    opacity: 0.6,
     textAlign: 'center',
   },
 
@@ -252,28 +254,29 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   categoryHeader: {
-    backgroundColor: '#fff',
+    backgroundColor: '#2C2C2E',
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#e9ecef',
+    borderBottomColor: '#3A3A3C',
   },
   categoryTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1a1a1a',
+    color: '#FFFFFF',
     marginBottom: 4,
   },
   categoryDescription: {
     fontSize: 14,
-    color: '#6c757d',
+    color: '#FFFFFF',
+    opacity: 0.8,
   },
   faqList: {
-    backgroundColor: '#fff',
+    backgroundColor: '#1C1C1E',
   },
   faqItem: {
     borderBottomWidth: 1,
-    borderBottomColor: '#f1f3f4',
+    borderBottomColor: '#3A3A3C',
   },
   questionContainer: {
     paddingHorizontal: 20,
@@ -288,7 +291,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     fontWeight: '600',
-    color: '#1a1a1a',
+    color: '#FFFFFF',
     marginRight: 12,
   },
   iconContainer: {
@@ -299,7 +302,7 @@ const styles = StyleSheet.create({
   },
   expandIcon: {
     fontSize: 12,
-    color: '#6c757d',
+    color: '#8E8E93',
     transform: [{ rotate: '0deg' }],
   },
   expandIconRotated: {
@@ -309,12 +312,13 @@ const styles = StyleSheet.create({
   answerContainer: {
     paddingHorizontal: 20,
     paddingBottom: 16,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#2C2C2E',
   },
   answerText: {
     fontSize: 15,
     lineHeight: 22,
-    color: '#495057',
+    color: '#FFFFFF',
+    opacity: 0.9,
   },
 });
 
