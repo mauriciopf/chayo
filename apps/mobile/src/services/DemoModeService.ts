@@ -7,26 +7,30 @@ export const SAMPLE_ORGANIZATION_ID = '46e30a6b-ea87-4279-b068-33a941b24983';
 const STORAGE_KEYS = {
   ORGANIZATION_ID: '@chayo:organization_id', // Same as StorageService
   IS_DEMO_MODE: '@chayo:is_demo_mode',
-  HAS_SEEN_WELCOME: '@chayo:has_seen_welcome',
 } as const;
 
 export interface DemoModeState {
   organizationId: string | null;
   isDemoMode: boolean;
-  hasSeenWelcome: boolean;
 }
 
 class DemoModeService {
   /**
    * Check if the app should show the welcome modal
+   * Simple logic: Show welcome if no organization OR if in demo mode
    */
   async shouldShowWelcome(): Promise<boolean> {
     try {
-      const hasSeenWelcome = await AsyncStorage.getItem(STORAGE_KEYS.HAS_SEEN_WELCOME);
       const organizationId = await AsyncStorage.getItem(STORAGE_KEYS.ORGANIZATION_ID);
-      
-      // Show welcome if user hasn't seen it and doesn't have an organization
-      return !hasSeenWelcome && !organizationId;
+      const isDemoMode = await AsyncStorage.getItem(STORAGE_KEYS.IS_DEMO_MODE);
+
+      // No organization = show welcome
+      if (!organizationId) {
+        return true;
+      }
+
+      // Has organization but in demo mode = show welcome (allow switching)
+      return isDemoMode === 'true';
     } catch (error) {
       console.error('Error checking welcome status:', error);
       return true; // Default to showing welcome on error
@@ -41,7 +45,6 @@ class DemoModeService {
       await Promise.all([
         AsyncStorage.setItem(STORAGE_KEYS.ORGANIZATION_ID, SAMPLE_ORGANIZATION_ID),
         AsyncStorage.setItem(STORAGE_KEYS.IS_DEMO_MODE, 'true'),
-        AsyncStorage.setItem(STORAGE_KEYS.HAS_SEEN_WELCOME, 'true'),
       ]);
       console.log('Demo mode enabled with sample organization:', SAMPLE_ORGANIZATION_ID);
     } catch (error) {
@@ -59,7 +62,6 @@ class DemoModeService {
       await Promise.all([
         AsyncStorage.setItem(STORAGE_KEYS.ORGANIZATION_ID, organizationId),
         AsyncStorage.setItem(STORAGE_KEYS.IS_DEMO_MODE, 'false'),
-        AsyncStorage.setItem(STORAGE_KEYS.HAS_SEEN_WELCOME, 'true'),
       ]);
       console.log('Real organization set, demo mode disabled:', organizationId);
     } catch (error) {
@@ -76,7 +78,6 @@ class DemoModeService {
       await Promise.all([
         AsyncStorage.removeItem(STORAGE_KEYS.ORGANIZATION_ID),
         AsyncStorage.removeItem(STORAGE_KEYS.IS_DEMO_MODE),
-        AsyncStorage.removeItem(STORAGE_KEYS.HAS_SEEN_WELCOME),
       ]);
       console.log('Demo mode data reset');
     } catch (error) {
@@ -90,23 +91,20 @@ class DemoModeService {
    */
   async getDemoModeState(): Promise<DemoModeState> {
     try {
-      const [organizationId, isDemoMode, hasSeenWelcome] = await Promise.all([
+      const [organizationId, isDemoMode] = await Promise.all([
         AsyncStorage.getItem(STORAGE_KEYS.ORGANIZATION_ID),
         AsyncStorage.getItem(STORAGE_KEYS.IS_DEMO_MODE),
-        AsyncStorage.getItem(STORAGE_KEYS.HAS_SEEN_WELCOME),
       ]);
 
       return {
         organizationId,
         isDemoMode: isDemoMode === 'true',
-        hasSeenWelcome: hasSeenWelcome === 'true',
       };
     } catch (error) {
       console.error('Error getting demo mode state:', error);
       return {
         organizationId: null,
         isDemoMode: false,
-        hasSeenWelcome: false,
       };
     }
   }
@@ -126,17 +124,6 @@ class DemoModeService {
 
 
 
-  /**
-   * Mark welcome as seen without setting organization
-   */
-  async markWelcomeAsSeen(): Promise<void> {
-    try {
-      await AsyncStorage.setItem(STORAGE_KEYS.HAS_SEEN_WELCOME, 'true');
-    } catch (error) {
-      console.error('Error marking welcome as seen:', error);
-      throw error;
-    }
-  }
 }
 
 // Export singleton instance

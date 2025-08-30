@@ -37,6 +37,7 @@ function App(): React.JSX.Element {
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [showSlugEntry, setShowSlugEntry] = useState(false);
 
+
   // Check for OTA updates and load stored credentials on app start
   useEffect(() => {
     let cleanupDeepLinks: (() => void) | null = null;
@@ -88,12 +89,18 @@ function App(): React.JSX.Element {
           }
         );
 
-        // Check stored organization ID first
+        // Check stored organization ID
         const storedOrgId = await StorageService.getOrganizationId();
 
         if (storedOrgId) {
           // User already has an organization - load it directly
           setOrganizationId(storedOrgId);
+
+          // Check if we should still show welcome (for demo users)
+          const shouldShowWelcome = await demoModeService.shouldShowWelcome();
+          if (shouldShowWelcome) {
+            setShowWelcomeModal(true);
+          }
         } else {
           // No organization stored - check if we should show welcome
           const shouldShowWelcome = await demoModeService.shouldShowWelcome();
@@ -152,18 +159,10 @@ function App(): React.JSX.Element {
   };
 
   // Handle enter code selection from welcome modal
-  const handleEnterCode = async () => {
-    try {
-      console.log('User selected enter business code');
-      await demoModeService.markWelcomeAsSeen();
-      setShowWelcomeModal(false);
-      setShowSlugEntry(true);
-    } catch (error) {
-      console.error('Error handling enter code:', error);
-      // Even if marking as seen fails, still proceed to slug entry
-      setShowWelcomeModal(false);
-      setShowSlugEntry(true);
-    }
+  const handleEnterCode = () => {
+    console.log('User selected enter business code');
+    setShowWelcomeModal(false);
+    setShowSlugEntry(true);
   };
 
   // Handle organization ID from onboarding chat
