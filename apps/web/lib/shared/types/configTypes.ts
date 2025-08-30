@@ -6,6 +6,7 @@ export const AVAILABLE_TOOLS = [
   'payments', 
   'documents',
   'faqs',
+  'intake_forms',
   'mobile-branding'
 ] as const;
 
@@ -49,6 +50,7 @@ export interface ToolUrlConfig {
   payments: string;
   documents: string;
   faqs: string;
+  intake_forms: string;
   'mobile-branding': string;
 }
 

@@ -51,6 +51,12 @@ export class NavigationConfigGenerator {
         icon: 'help-circle',
         component: 'webview',
       },
+      intake_forms: {
+        name: 'Intake Forms',
+        label: 'Forms',
+        icon: 'clipboard',
+        component: 'webview',
+      },
       'mobile-branding': {
         name: 'Mobile Branding',
         label: 'Branding',

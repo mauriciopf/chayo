@@ -18,6 +18,7 @@ export class ToolUrlGenerator {
       payments: `${this.webBaseUrl}/client-chat/${this.organizationSlug}?tool=payments`,
       documents: `${this.webBaseUrl}/client-chat/${this.organizationSlug}?tool=documents`, 
       faqs: `${this.webBaseUrl}/faqs/${this.organizationSlug}`,
+      intake_forms: `${this.webBaseUrl}/client-chat/${this.organizationSlug}?tool=intake_forms`,
       'mobile-branding': `${this.webBaseUrl}/dashboard/mobile-branding`,
     };
 
@@ -33,6 +34,7 @@ export class ToolUrlGenerator {
       payments: this.getToolUrl('payments'),
       documents: this.getToolUrl('documents'),
       faqs: this.getToolUrl('faqs'),
+      intake_forms: this.getToolUrl('intake_forms'),
       'mobile-branding': this.getToolUrl('mobile-branding'),
     };
   }

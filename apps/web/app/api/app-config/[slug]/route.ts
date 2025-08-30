@@ -10,7 +10,6 @@ export async function GET(
   try {
     const supabase = await getSupabaseServerClient();
 
-
     // Get organization by slug
     const { data: organization, error: orgError } = await supabase
       .from('organizations')
