@@ -1,22 +1,19 @@
 import React from 'react';
-import { WebViewScreen } from '../components/WebViewScreen';
+import { MobileFAQs } from '../components';
 import { useAppConfig } from '../hooks/useAppConfig';
 
 export const FAQsScreen: React.FC = () => {
-  const { config, urlGenerator } = useAppConfig();
+  const { config } = useAppConfig();
 
-  if (!config || !urlGenerator) {
+  if (!config) {
     return null; // Or loading component
   }
 
-  const faqsUrl = urlGenerator.getMobileOptimizedUrl(
-    urlGenerator.getToolUrl('faqs')
-  );
-
   return (
-    <WebViewScreen
-      url={faqsUrl}
-      title="Help & FAQs"
+    <MobileFAQs
+      organizationSlug={config.organizationSlug || ''}
+      businessName={config.organizationName || 'Our Business'}
+      baseUrl={config.baseUrl}
     />
   );
 };

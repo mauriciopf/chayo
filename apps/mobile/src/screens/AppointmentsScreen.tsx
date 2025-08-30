@@ -1,22 +1,83 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { WebViewScreen } from '../components/WebViewScreen';
+import { MobileAppointmentCalendar } from '../components';
 import { useAppConfig } from '../hooks/useAppConfig';
+import { appointmentService } from '../services';
 
 export const AppointmentsScreen: React.FC = () => {
   const { config, urlGenerator } = useAppConfig();
+  const [useNativeCalendar, setUseNativeCalendar] = useState<boolean | null>(null);
+  const [webViewUrl, setWebViewUrl] = useState<string>('');
 
-  if (!config || !urlGenerator) {
-    return null; // Or loading component
+  useEffect(() => {
+    const determineCalendarType = async () => {
+      if (!config?.organizationId) {
+        setUseNativeCalendar(true); // Default to native
+        return;
+      }
+
+      try {
+        // Get appointment settings for this organization
+        const settings = await appointmentService.getAppointmentSettings(config.organizationId);
+        
+        // Determine if we should use native calendar or WebView
+        const shouldUseNative = appointmentService.shouldUseNativeCalendar(settings);
+        setUseNativeCalendar(shouldUseNative);
+
+        if (!shouldUseNative && settings && config.organizationSlug) {
+          // Set WebView URL for external providers
+          const url = appointmentService.getWebViewUrl(settings, config.organizationSlug);
+          setWebViewUrl(url);
+        }
+      } catch (error) {
+        console.error('Error determining calendar type:', error);
+        // Fallback to native calendar on error
+        setUseNativeCalendar(true);
+      }
+    };
+
+    determineCalendarType();
+  }, [config]);
+
+  // Show loading while determining calendar type
+  if (useNativeCalendar === null) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#007AFF" />
+      </View>
+    );
   }
 
-  const appointmentsUrl = urlGenerator.getMobileOptimizedUrl(
+  // Show native calendar for Chayo appointments
+  if (useNativeCalendar) {
+    return (
+      <MobileAppointmentCalendar
+        organizationId={config?.organizationId || ''}
+        businessName={config?.organizationName || 'Our Business'}
+        baseUrl={config?.baseUrl}
+      />
+    );
+  }
+
+  // Show WebView for external calendar providers
+  const fallbackUrl = urlGenerator?.getMobileOptimizedUrl(
     urlGenerator.getToolUrl('appointments')
-  );
+  ) || '';
 
   return (
     <WebViewScreen
-      url={appointmentsUrl}
+      url={webViewUrl || fallbackUrl}
       title="Book Appointment"
     />
   );
 };
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f8f9fa',
+  },
+});

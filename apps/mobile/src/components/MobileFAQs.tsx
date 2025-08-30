@@ -1,0 +1,321 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+  SafeAreaView,
+} from 'react-native';
+
+interface FAQItem {
+  id: string;
+  question: string;
+  answer: string;
+  order: number;
+}
+
+interface FAQ {
+  id: string;
+  name: string;
+  description: string;
+  faq_items: FAQItem[];
+  updated_at: string;
+}
+
+interface MobileFAQsProps {
+  organizationSlug: string;
+  businessName?: string;
+  baseUrl?: string;
+}
+
+const MobileFAQs: React.FC<MobileFAQsProps> = ({
+  organizationSlug,
+  businessName = 'Our Business',
+  baseUrl = 'https://chayo.ai',
+}) => {
+  const [faqs, setFAQs] = useState<FAQ[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+
+  const fetchFAQs = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${baseUrl}/api/faqs/${organizationSlug}`);
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch FAQs');
+      }
+
+      const data = await response.json();
+      setFAQs(data.faqs || []);
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching FAQs:', err);
+      setError('Failed to load FAQs. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }, [baseUrl, organizationSlug]);
+
+  // Fetch FAQs on component mount
+  useEffect(() => {
+    fetchFAQs();
+  }, [fetchFAQs]);
+
+  const toggleItem = (itemId: string) => {
+    const newExpanded = new Set(expandedItems);
+    if (newExpanded.has(itemId)) {
+      newExpanded.delete(itemId);
+    } else {
+      newExpanded.add(itemId);
+    }
+    setExpandedItems(newExpanded);
+  };
+
+  const renderFAQItem = (item: FAQItem) => {
+    const isExpanded = expandedItems.has(item.id);
+
+    return (
+      <View key={item.id} style={styles.faqItem}>
+        <TouchableOpacity
+          style={styles.questionContainer}
+          onPress={() => toggleItem(item.id)}
+          activeOpacity={0.7}
+        >
+          <View style={styles.questionHeader}>
+            <Text style={styles.questionText}>{item.question}</Text>
+            <View style={styles.iconContainer}>
+              <Text style={[styles.expandIcon, isExpanded && styles.expandIconRotated]}>
+                ▼
+              </Text>
+            </View>
+          </View>
+        </TouchableOpacity>
+
+        {isExpanded && (
+          <View style={styles.answerContainer}>
+            <Text style={styles.answerText}>{item.answer}</Text>
+          </View>
+        )}
+      </View>
+    );
+  };
+
+  const renderFAQCategory = (faq: FAQ) => (
+    <View key={faq.id} style={styles.faqCategory}>
+      <View style={styles.categoryHeader}>
+        <Text style={styles.categoryTitle}>{faq.name}</Text>
+        {faq.description && (
+          <Text style={styles.categoryDescription}>{faq.description}</Text>
+        )}
+      </View>
+
+      <View style={styles.faqList}>
+        {faq.faq_items
+          .sort((a, b) => a.order - b.order)
+          .map((item) => renderFAQItem(item))}
+      </View>
+    </View>
+  );
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#007AFF" />
+          <Text style={styles.loadingText}>Loading FAQs...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (error) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>{error}</Text>
+          <TouchableOpacity style={styles.retryButton} onPress={fetchFAQs}>
+            <Text style={styles.retryButtonText}>Retry</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Help & FAQs</Text>
+        <Text style={styles.headerSubtitle}>{businessName}</Text>
+      </View>
+
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        {faqs.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>No FAQs available</Text>
+            <Text style={styles.emptySubtext}>
+              Check back later for helpful information
+            </Text>
+          </View>
+        ) : (
+          faqs.map((faq) => renderFAQCategory(faq))
+        )}
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f8f9fa',
+  },
+  header: {
+    backgroundColor: '#fff',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e9ecef',
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#1a1a1a',
+    marginBottom: 4,
+  },
+  headerSubtitle: {
+    fontSize: 16,
+    color: '#6c757d',
+  },
+
+  content: {
+    flex: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#6c757d',
+    marginTop: 12,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 40,
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#dc3545',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  retryButton: {
+    backgroundColor: '#007AFF',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  retryButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 40,
+    paddingVertical: 60,
+  },
+  emptyText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#6c757d',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  emptySubtext: {
+    fontSize: 14,
+    color: '#adb5bd',
+    textAlign: 'center',
+  },
+
+  faqCategory: {
+    marginBottom: 24,
+  },
+  categoryHeader: {
+    backgroundColor: '#fff',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e9ecef',
+  },
+  categoryTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1a1a1a',
+    marginBottom: 4,
+  },
+  categoryDescription: {
+    fontSize: 14,
+    color: '#6c757d',
+  },
+  faqList: {
+    backgroundColor: '#fff',
+  },
+  faqItem: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#f1f3f4',
+  },
+  questionContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+  },
+  questionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  questionText: {
+    flex: 1,
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1a1a1a',
+    marginRight: 12,
+  },
+  iconContainer: {
+    width: 24,
+    height: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  expandIcon: {
+    fontSize: 12,
+    color: '#6c757d',
+    transform: [{ rotate: '0deg' }],
+  },
+  expandIconRotated: {
+    transform: [{ rotate: '180deg' }],
+  },
+
+  answerContainer: {
+    paddingHorizontal: 20,
+    paddingBottom: 16,
+    backgroundColor: '#f8f9fa',
+  },
+  answerText: {
+    fontSize: 15,
+    lineHeight: 22,
+    color: '#495057',
+  },
+});
+
+export default MobileFAQs;
