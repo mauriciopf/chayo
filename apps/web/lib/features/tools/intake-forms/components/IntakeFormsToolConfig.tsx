@@ -130,7 +130,9 @@ function SimpleFormBuilder({ formDefinition, onChange, onFieldClick }: SimpleFor
       label: field.label || '',
       placeholder: field.placeholder || '',
       required: field.validate?.required || false,
-      options: field.values ? field.values.map((v: any) => v.label || v) : ['']
+      options: field.values && Array.isArray(field.values) 
+        ? field.values.map((v: any) => v.label || v) 
+        : ['']
     })
   }
 

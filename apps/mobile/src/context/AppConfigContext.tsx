@@ -60,37 +60,9 @@ export const AppConfigProvider: React.FC<AppConfigProviderProps> = ({
       setUrlGenerator(generator);
 
     } catch (err) {
-      console.warn('Config loading failed, using fallback config:', err);
-
-      // Provide a fallback config for development
-      const fallbackConfig: AppConfig = {
-        organizationSlug: organizationSlug || 'demo-business',
-        organizationId: 'demo-org-id',
-        businessName: 'Demo Business',
-        appName: 'Chayo AI',
-        theme: {
-          primaryColor: '#007AFF',
-          secondaryColor: '#5856D6',
-          backgroundColor: '#FFFFFF',
-          textColor: '#000000',
-          logoUrl: 'https://via.placeholder.com/150x50/007AFF/FFFFFF?text=Chayo',
-        },
-        enabledTools: ['appointments', 'payments', 'documents', 'faqs'],
-        webBaseUrl: CONFIG.WEB_BASE_URL,
-        apiBaseUrl: CONFIG.API_BASE_URL,
-      };
-
-      setConfig(fallbackConfig);
-
-      // Create URL generator with fallback config
-      const generator = configLoader.createUrlGenerator(fallbackConfig.organizationSlug);
-      setUrlGenerator(generator);
-
-      // Don't set error in development, just warn
-      if (!__DEV__) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to load configuration';
-        setError(errorMessage);
-      }
+      console.error('Config loading failed:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load configuration';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

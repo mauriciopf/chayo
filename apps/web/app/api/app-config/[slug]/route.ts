@@ -71,25 +71,7 @@ export async function GET(
     return NextResponse.json(validatedConfig);
   } catch (error) {
     console.error('Error fetching app config:', error);
-    
-    // Return fallback configuration for development
-    const fallbackConfig = {
-      organizationSlug,
-      organizationId: 'fallback-org-id',
-      businessName: 'Demo Business',
-      appName: 'Chayo',
-      theme: {
-        primaryColor: '#007AFF',
-        secondaryColor: '#5856D6',
-        backgroundColor: '#FFFFFF',
-        textColor: '#000000',
-      },
-      enabledTools: ['appointments', 'payments', 'documents', 'faqs'],
-      webBaseUrl: process.env.NEXT_PUBLIC_SITE_URL || 'https://chayo.vercel.app',
-      apiBaseUrl: process.env.NEXT_PUBLIC_SITE_URL || 'https://chayo.vercel.app',
-    };
-
-    return NextResponse.json(fallbackConfig);
+    return NextResponse.json({ error: 'Failed to fetch app configuration' }, { status: 500 });
   }
 }
 
