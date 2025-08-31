@@ -90,7 +90,7 @@ export class AgentToolConstraintsService {
     try {
       // Check if organization has at least one document uploaded
       const { data: documents, error } = await supabase
-        .from('business_documents')
+        .from('agent_document_tool')
         .select('id')
         .eq('organization_id', organizationId)
         .limit(1)
