@@ -9,7 +9,6 @@ interface BusinessDocument {
   file_path: string
   file_size: number
   mime_type: string
-  status: string
   signed_file_path?: string
   business_owner_email: string
   created_at: string
@@ -203,7 +202,7 @@ export default function DocumentToolConfig({
                       {document.file_name}
                     </p>
                     <p className="text-xs text-gray-500">
-                      Status: {document.status} • {new Date(document.created_at).toLocaleDateString()}
+                      {new Date(document.created_at).toLocaleDateString()}
                     </p>
                     <p className="text-xs text-gray-400 truncate">
                       Signing URL: {document.signing_url}
@@ -211,13 +210,6 @@ export default function DocumentToolConfig({
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                    document.status === 'signed' ? 'bg-green-100 text-green-800' :
-                    document.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-gray-100 text-gray-800'
-                  }`}>
-                    {document.status}
-                  </span>
                   <button
                     onClick={() => handleDeleteDocument(document.id)}
                     className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 rounded"

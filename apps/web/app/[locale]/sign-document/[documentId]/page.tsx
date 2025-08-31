@@ -10,7 +10,6 @@ interface DocumentData {
   file_name: string
   file_path: string
   file_size: number
-  status: string
   organization_id: string
   organization_slug?: string
 }

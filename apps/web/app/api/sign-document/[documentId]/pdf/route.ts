@@ -23,13 +23,8 @@ export async function GET(
       )
     }
 
-    // Only allow access to pending documents for signing
-    if (document.status !== 'pending') {
-      return NextResponse.json(
-        { error: 'Document is not available for signing' }, 
-        { status: 403 }
-      )
-    }
+    // Document exists and is available for signing
+    // No status check needed - documents are always available for signing
 
     // Download file from Supabase storage
     const { data: fileData, error: storageError } = await supabase.storage

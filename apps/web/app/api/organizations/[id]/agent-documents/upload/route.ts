@@ -104,7 +104,6 @@ export async function POST(
         file_name: uploadResult.fileName,
         file_size: uploadResult.fileSize,
         mime_type: uploadResult.mimeType,
-        status: 'pending',
         business_owner_email: businessOwnerEmail,
         created_by: user.id
       })
@@ -126,7 +125,6 @@ export async function POST(
         id: document.id,
         file_name: document.file_name,
         file_size: document.file_size,
-        status: document.status,
         created_at: document.created_at,
         // Generate signing URL for client chat
         signing_url: `/en/sign-document/${document.id}`

@@ -33,7 +33,6 @@ export async function GET(
         id: document.id,
         file_name: document.file_name,
         file_size: document.file_size,
-        status: document.status,
         organization_id: document.organization_id,
         organization_slug: document.organizations?.slug
       }
