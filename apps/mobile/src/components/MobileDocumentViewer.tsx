@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,8 @@ import {
   Platform,
 } from 'react-native';
 import Pdf from 'react-native-pdf';
+import { WebView } from 'react-native-webview';
+import RNBlobUtil from 'react-native-blob-util';
 import { documentService, DocumentData, SignatureData } from '../services/DocumentService';
 
 interface MobileDocumentViewerProps {
@@ -35,7 +37,11 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
   
   // PDF viewing state
   const [pdfUrl, setPdfUrl] = useState<string>('');
+  const [pdfPath, setPdfPath] = useState<string>(''); // Local file path
   const [showSigningForm, setShowSigningForm] = useState(false);
+  
+  // PDF fallback state
+  const [useWebViewFallback, setUseWebViewFallback] = useState(false);
   
   // Signing form data
   const [signerName, setSignerName] = useState('');
@@ -44,11 +50,7 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
   // PDF processing
   const [pdfBytes, setPdfBytes] = useState<ArrayBuffer | null>(null);
 
-  useEffect(() => {
-    loadDocument();
-  }, [documentId]);
-
-  const loadDocument = async () => {
+  const loadDocument = useCallback(async () => {
     try {
       setLoading(true);
       setError('');
@@ -57,21 +59,43 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
       const docData = await documentService.getDocument(documentId);
       setDocument(docData);
       
-      // Set PDF URL for viewing
-      const url = documentService.getPdfUrl(documentId);
-      setPdfUrl(url);
+      // Get PDF URL for both native PDF viewer and WebView fallback
+      const remotePdfUrl = documentService.getPdfUrl(documentId);
+      setPdfUrl(remotePdfUrl);
+
+      // Download PDF to local file for react-native-pdf
+      const tempPath = `${RNBlobUtil.fs.dirs.CacheDir}/temp_document_${documentId}.pdf`;
       
-      // Pre-download PDF bytes for signing
+      // Download PDF directly to file system
+      await RNBlobUtil.config({
+        path: tempPath,
+        overwrite: true,
+      }).fetch('GET', remotePdfUrl);
+      
+      // Set local file path for react-native-pdf (use file:// URI)
+      const fileUri = `file://${tempPath}`;
+      setPdfPath(fileUri);
+      
+      // Also download bytes for signing (separate from display)
       const bytes = await documentService.downloadPdfBytes(documentId);
       setPdfBytes(bytes);
       
-    } catch (error: any) {
-      console.error('Error loading document:', error);
-      setError(error.message || 'Failed to load document');
+    } catch (err: any) {
+      console.error('Error loading document:', err);
+      setError(err.message || 'Failed to load document');
     } finally {
       setLoading(false);
     }
-  };
+  }, [documentId]);
+
+  useEffect(() => {
+    loadDocument();
+  }, [loadDocument]);
+
+  const handlePdfError = useCallback((error: any) => {
+    console.error('PDF Error:', error);
+    setUseWebViewFallback(true);
+  }, []);
 
   const handleSignDocument = () => {
     setShowSigningForm(true);
@@ -103,7 +127,7 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
       );
 
       // Submit to API
-      const result = await documentService.submitSignedDocument(
+      await documentService.submitSignedDocument(
         documentId,
         signedPdfBytes,
         signatureData
@@ -122,9 +146,9 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
         ]
       );
 
-    } catch (error: any) {
-      console.error('Error signing document:', error);
-      const errorMessage = error.message || 'Failed to sign document';
+    } catch (signingError: any) {
+      console.error('Error signing document:', signingError);
+      const errorMessage = signingError.message || 'Failed to sign document';
       Alert.alert('Error', errorMessage);
       onSigningComplete?.(false, errorMessage);
     } finally {
@@ -248,27 +272,44 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
       </View>
 
       <View style={styles.pdfContainer}>
-        {pdfUrl ? (
+        {useWebViewFallback ? (
+          <WebView
+            source={{ uri: pdfUrl }}
+            style={styles.webview}
+            onError={(syntheticEvent) => {
+              const { nativeEvent } = syntheticEvent;
+              console.error('WebView Error:', nativeEvent);
+              setError('Failed to load document');
+            }}
+            startInLoadingState={true}
+            renderLoading={() => (
+              <View style={styles.webviewLoading}>
+                <ActivityIndicator size="large" color="#0A84FF" />
+                <Text style={styles.webviewLoadingText}>Loading document...</Text>
+              </View>
+            )}
+          />
+        ) : pdfPath ? (
           <Pdf
-            source={{ uri: pdfUrl, cache: true }}
+            source={{ uri: pdfPath, cache: false }}
             style={styles.pdf}
             onLoadComplete={(numberOfPages) => {
               console.log(`PDF loaded with ${numberOfPages} pages`);
             }}
-            onPageChanged={(page, numberOfPages) => {
-              console.log(`Current page: ${page}/${numberOfPages}`);
-            }}
-            onError={(error) => {
-              console.error('PDF Error:', error);
-              setError('Failed to load PDF');
-            }}
-            onPressLink={(uri) => {
-              console.log('Link pressed:', uri);
-            }}
+            onError={handlePdfError}
           />
         ) : (
           <View style={styles.pdfPlaceholder}>
+            <ActivityIndicator size="large" color="#0A84FF" />
             <Text style={styles.pdfPlaceholderText}>Loading PDF...</Text>
+          </View>
+        )}
+        
+        {useWebViewFallback && (
+          <View style={styles.fallbackNotice}>
+            <Text style={styles.fallbackNoticeText}>
+              📱 Using web viewer for better compatibility
+            </Text>
           </View>
         )}
       </View>
@@ -365,12 +406,44 @@ const styles = StyleSheet.create({
   pdfContainer: {
     flex: 1,
     margin: 16,
-    borderRadius: 12,
-    overflow: 'hidden',
     backgroundColor: '#2C2C2E',
   },
   pdf: {
     flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  webview: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  webviewLoading: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#1C1C1E',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  webviewLoadingText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    marginTop: 12,
+  },
+  fallbackNotice: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+  },
+  fallbackNoticeText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    opacity: 0.8,
   },
   pdfPlaceholder: {
     flex: 1,

@@ -91,6 +91,21 @@ export class DocumentService {
   }
 
   /**
+   * Sanitize text to remove characters that can't be encoded in PDF
+   */
+  private sanitizeTextForPdf(text: string): string {
+    return text
+      // Remove narrow no-break space (0x202f) and other problematic Unicode characters
+      .replace(/[\u202f\u2060\u200b\u200c\u200d]/g, ' ')
+      // Replace other common problematic characters
+      .replace(/[""]/g, '"')
+      .replace(/['']/g, "'")
+      .replace(/[–—]/g, '-')
+      // Remove any remaining non-ASCII characters that might cause issues
+      .replace(/[^\x20-\x7E]/g, '');
+  }
+
+  /**
    * Process PDF with pdf-lib (fill forms, add signatures)
    */
   async processPdf(
@@ -115,7 +130,8 @@ export class DocumentService {
           if (formData[fieldName]) {
             try {
               if (field.constructor.name === 'PDFTextField') {
-                (field as any).setText(formData[fieldName]);
+                const sanitizedValue = this.sanitizeTextForPdf(formData[fieldName]);
+                (field as any).setText(sanitizedValue);
               } else if (field.constructor.name === 'PDFCheckBox') {
                 if (formData[fieldName].toLowerCase() === 'true') {
                   (field as any).check();
@@ -136,7 +152,11 @@ export class DocumentService {
       // Add signature at bottom of first page
       const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
-      firstPage.drawText(`Digitally signed by: ${signatureData.signerName}`, {
+      // Sanitize signature data to prevent encoding errors
+      const sanitizedName = this.sanitizeTextForPdf(signatureData.signerName);
+      const sanitizedEmail = this.sanitizeTextForPdf(signatureData.signerEmail);
+
+      firstPage.drawText(`Digitally signed by: ${sanitizedName}`, {
         x: 50,
         y: 50,
         size: 10,
@@ -144,7 +164,7 @@ export class DocumentService {
         color: rgb(0, 0, 0),
       });
 
-      firstPage.drawText(`Email: ${signatureData.signerEmail}`, {
+      firstPage.drawText(`Email: ${sanitizedEmail}`, {
         x: 50,
         y: 35,
         size: 8,

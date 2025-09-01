@@ -1,16 +1,17 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import {
   View,
+  Text,
   StyleSheet,
   Alert,
 } from 'react-native';
 import { MobileDocumentViewer } from '../components/MobileDocumentViewer';
 import MobileDocuments from '../components/MobileDocuments';
-import { AppConfigContext } from '../context/AppConfigContext';
+import { useAppConfig } from '../hooks/useAppConfig';
 import { DocumentData } from '../services/DocumentService';
 
 export const DocumentsScreen: React.FC = () => {
-  const { appConfig } = useContext(AppConfigContext);
+  const { config } = useAppConfig();
   const [selectedDocument, setSelectedDocument] = useState<DocumentData | null>(null);
   const [totalDocuments, setTotalDocuments] = useState<number>(0);
 
@@ -42,8 +43,8 @@ export const DocumentsScreen: React.FC = () => {
     }
   };
 
-  if (!appConfig?.organizationSlug) {
-    return <View style={styles.container} />;
+  if (!config) {
+    return null; // Or loading component
   }
 
   if (selectedDocument) {
@@ -62,7 +63,7 @@ export const DocumentsScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <MobileDocuments
-        organizationSlug={appConfig.organizationSlug}
+        organizationSlug={config.organizationSlug || ''}
         onDocumentSelect={handleDocumentSelect}
         onDocumentsLoaded={handleDocumentsLoaded}
       />

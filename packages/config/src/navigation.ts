@@ -31,7 +31,7 @@ export class NavigationConfigGenerator {
         name: 'Appointments',
         label: 'Book',
         icon: 'calendar',
-        component: 'webview',
+        component: 'native',
       },
       payments: {
         name: 'Payments', 
@@ -41,21 +41,21 @@ export class NavigationConfigGenerator {
       },
       documents: {
         name: 'Documents',
-        label: 'Forms',
+        label: 'Documents',
         icon: 'file-text',
-        component: 'webview',
+        component: 'native',
       },
       faqs: {
         name: 'FAQs',
         label: 'Help',
         icon: 'help-circle',
-        component: 'webview',
+        component: 'native',
       },
       intake_forms: {
         name: 'Intake Forms',
         label: 'Forms',
         icon: 'clipboard',
-        component: 'webview',
+        component: 'native',
       },
       'mobile-branding': {
         name: 'Mobile Branding',

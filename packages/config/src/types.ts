@@ -59,7 +59,7 @@ export interface TabConfig {
   name: string;
   label: string;
   icon: string;
-  component: 'native-chat' | 'webview';
+  component: 'native-chat' | 'native' | 'webview';
   url?: string;
   enabled: boolean;
 }
