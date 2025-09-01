@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -84,10 +84,20 @@ const ErrorScreenWrapper = () => {
   return <ErrorScreen error={error || 'Configuration not available'} />;
 };
 
+// Tab Icon Component
+const TabIcon: React.FC<{ iconName: string; color: string; size: number }> = ({ iconName, color, size }) => (
+  <Icon name={iconName} size={size} color={color} />
+);
+
 // Main Tab Navigator Component
 const MainTabNavigator = () => {
   const { config, urlGenerator } = useAppConfig();
-  const { theme, themedStyles } = useThemedStyles();
+  const { theme } = useThemedStyles();
+
+  // Create tab icon renderer
+  const renderTabIcon = useCallback((iconName: string) => ({ focused: _focused, color, size }: any) => (
+    <TabIcon iconName={iconName} color={color} size={size} />
+  ), []);
 
   if (!config || !urlGenerator) {
     return <ErrorScreenWrapper />;
@@ -120,7 +130,7 @@ const MainTabNavigator = () => {
     >
       {tabs.map((tab) => {
         let ScreenComponent;
-        
+
         if (tab.component === 'native-chat') {
           ScreenComponent = ChatScreen;
         } else {
@@ -135,13 +145,7 @@ const MainTabNavigator = () => {
             component={ScreenComponent}
             options={{
               tabBarLabel: tab.label,
-              tabBarIcon: ({ focused, color, size }) => (
-                <Icon
-                  name={getTabIconName(tab.icon)}
-                  size={size}
-                  color={color}
-                />
-              ),
+              tabBarIcon: renderTabIcon(getTabIconName(tab.icon)),
             }}
           />
         );

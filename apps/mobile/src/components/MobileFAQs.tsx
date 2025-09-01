@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   SafeAreaView,
 } from 'react-native';
+import { useThemedStyles } from '../context/ThemeContext';
 
 interface FAQItem {
   id: string;
@@ -35,6 +36,7 @@ const MobileFAQs: React.FC<MobileFAQsProps> = ({
   businessName = 'Our Business',
   baseUrl = 'https://chayo.ai',
 }) => {
+  const { theme, themedStyles } = useThemedStyles();
   const [faqs, setFAQs] = useState<FAQ[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -79,16 +81,16 @@ const MobileFAQs: React.FC<MobileFAQsProps> = ({
     const isExpanded = expandedItems.has(item.id);
 
     return (
-      <View key={item.id} style={styles.faqItem}>
+      <View key={item.id} style={[styles.faqItem, { backgroundColor: theme.surfaceColor, borderColor: theme.borderColor }]}>
         <TouchableOpacity
           style={styles.questionContainer}
           onPress={() => toggleItem(item.id)}
           activeOpacity={0.7}
         >
           <View style={styles.questionHeader}>
-            <Text style={styles.questionText}>{item.question}</Text>
+            <Text style={[styles.questionText, themedStyles.primaryText]}>{item.question}</Text>
             <View style={styles.iconContainer}>
-              <Text style={[styles.expandIcon, isExpanded && styles.expandIconRotated]}>
+              <Text style={[styles.expandIcon, { color: theme.primaryColor }, isExpanded && styles.expandIconRotated]}>
                 ▼
               </Text>
             </View>
@@ -96,8 +98,8 @@ const MobileFAQs: React.FC<MobileFAQsProps> = ({
         </TouchableOpacity>
 
         {isExpanded && (
-          <View style={styles.answerContainer}>
-            <Text style={styles.answerText}>{item.answer}</Text>
+          <View style={[styles.answerContainer, { borderTopColor: theme.borderColor }]}>
+            <Text style={[styles.answerText, themedStyles.secondaryText]}>{item.answer}</Text>
           </View>
         )}
       </View>
@@ -107,9 +109,9 @@ const MobileFAQs: React.FC<MobileFAQsProps> = ({
   const renderFAQCategory = (faq: FAQ) => (
     <View key={faq.id} style={styles.faqCategory}>
       <View style={styles.categoryHeader}>
-        <Text style={styles.categoryTitle}>{faq.name}</Text>
+        <Text style={[styles.categoryTitle, themedStyles.primaryText]}>{faq.name}</Text>
         {faq.description && (
-          <Text style={styles.categoryDescription}>{faq.description}</Text>
+          <Text style={[styles.categoryDescription, themedStyles.secondaryText]}>{faq.description}</Text>
         )}
       </View>
 
@@ -123,10 +125,10 @@ const MobileFAQs: React.FC<MobileFAQsProps> = ({
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, themedStyles.container]}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#007AFF" />
-          <Text style={styles.loadingText}>Loading FAQs...</Text>
+          <ActivityIndicator size="large" color={theme.primaryColor} />
+          <Text style={[styles.loadingText, themedStyles.primaryText]}>Loading FAQs...</Text>
         </View>
       </SafeAreaView>
     );
@@ -134,10 +136,10 @@ const MobileFAQs: React.FC<MobileFAQsProps> = ({
 
   if (error) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, themedStyles.container]}>
         <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{error}</Text>
-          <TouchableOpacity style={styles.retryButton} onPress={fetchFAQs}>
+          <Text style={[styles.errorText, { color: theme.errorColor }]}>{error}</Text>
+          <TouchableOpacity style={[styles.retryButton, { backgroundColor: theme.primaryColor }]} onPress={fetchFAQs}>
             <Text style={styles.retryButtonText}>Retry</Text>
           </TouchableOpacity>
         </View>
@@ -146,18 +148,18 @@ const MobileFAQs: React.FC<MobileFAQsProps> = ({
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, themedStyles.container]}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Help & FAQs</Text>
-        <Text style={styles.headerSubtitle}>{businessName}</Text>
+        <Text style={[styles.headerTitle, themedStyles.primaryText]}>Help & FAQs</Text>
+        <Text style={[styles.headerSubtitle, themedStyles.secondaryText]}>{businessName}</Text>
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {faqs.length === 0 ? (
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>No FAQs available</Text>
-            <Text style={styles.emptySubtext}>
+            <Text style={[styles.emptyText, themedStyles.primaryText]}>No FAQs available</Text>
+            <Text style={[styles.emptySubtext, themedStyles.secondaryText]}>
               Check back later for helpful information
             </Text>
           </View>

@@ -16,6 +16,7 @@ import Pdf from 'react-native-pdf';
 import { WebView } from 'react-native-webview';
 import RNBlobUtil from 'react-native-blob-util';
 import { documentService, DocumentData, SignatureData } from '../services/DocumentService';
+import { useThemedStyles } from '../context/ThemeContext';
 
 interface MobileDocumentViewerProps {
   documentId: string;
@@ -30,23 +31,24 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
   backButtonText = '‹ Back',
   onSigningComplete,
 }) => {
+  const { theme, themedStyles } = useThemedStyles();
   const [document, setDocument] = useState<DocumentData | null>(null);
   const [loading, setLoading] = useState(true);
   const [signing, setSigning] = useState(false);
   const [error, setError] = useState<string>('');
-  
+
   // PDF viewing state
   const [pdfUrl, setPdfUrl] = useState<string>('');
   const [pdfPath, setPdfPath] = useState<string>(''); // Local file path
   const [showSigningForm, setShowSigningForm] = useState(false);
-  
+
   // PDF fallback state
   const [useWebViewFallback, setUseWebViewFallback] = useState(false);
-  
+
   // Signing form data
   const [signerName, setSignerName] = useState('');
   const [signerEmail, setSignerEmail] = useState('');
-  
+
   // PDF processing
   const [pdfBytes, setPdfBytes] = useState<ArrayBuffer | null>(null);
 
@@ -54,32 +56,32 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
     try {
       setLoading(true);
       setError('');
-      
+
       // Fetch document metadata
       const docData = await documentService.getDocument(documentId);
       setDocument(docData);
-      
+
       // Get PDF URL for both native PDF viewer and WebView fallback
       const remotePdfUrl = documentService.getPdfUrl(documentId);
       setPdfUrl(remotePdfUrl);
 
       // Download PDF to local file for react-native-pdf
       const tempPath = `${RNBlobUtil.fs.dirs.CacheDir}/temp_document_${documentId}.pdf`;
-      
+
       // Download PDF directly to file system
       await RNBlobUtil.config({
         path: tempPath,
         overwrite: true,
       }).fetch('GET', remotePdfUrl);
-      
+
       // Set local file path for react-native-pdf (use file:// URI)
       const fileUri = `file://${tempPath}`;
       setPdfPath(fileUri);
-      
+
       // Also download bytes for signing (separate from display)
       const bytes = await documentService.downloadPdfBytes(documentId);
       setPdfBytes(bytes);
-      
+
     } catch (err: any) {
       console.error('Error loading document:', err);
       setError(err.message || 'Failed to load document');
@@ -92,8 +94,8 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
     loadDocument();
   }, [loadDocument]);
 
-  const handlePdfError = useCallback((error: any) => {
-    console.error('PDF Error:', error);
+  const handlePdfError = useCallback((err: any) => {
+    console.error('PDF Error:', err);
     setUseWebViewFallback(true);
   }, []);
 
@@ -114,7 +116,7 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
 
     try {
       setSigning(true);
-      
+
       const signatureData: SignatureData = {
         signerName: signerName.trim(),
         signerEmail: signerEmail.trim(),
@@ -164,10 +166,10 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, themedStyles.container]}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#0A84FF" />
-          <Text style={styles.loadingText}>Loading document...</Text>
+          <ActivityIndicator size="large" color={theme.primaryColor} />
+          <Text style={[styles.loadingText, themedStyles.primaryText]}>Loading document...</Text>
         </View>
       </SafeAreaView>
     );
@@ -175,11 +177,11 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
 
   if (error) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, themedStyles.container]}>
         <View style={styles.errorContainer}>
-          <Text style={styles.errorTitle}>Error Loading Document</Text>
-          <Text style={styles.errorMessage}>{error}</Text>
-          <TouchableOpacity style={styles.retryButton} onPress={loadDocument}>
+          <Text style={[styles.errorTitle, { color: theme.errorColor }]}>Error Loading Document</Text>
+          <Text style={[styles.errorMessage, themedStyles.secondaryText]}>{error}</Text>
+          <TouchableOpacity style={[styles.retryButton, { backgroundColor: theme.primaryColor }]} onPress={loadDocument}>
             <Text style={styles.retryButtonText}>Retry</Text>
           </TouchableOpacity>
         </View>
@@ -189,9 +191,9 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
 
   if (showSigningForm) {
     return (
-      <SafeAreaView style={styles.container}>
-        <KeyboardAvoidingView 
-          style={styles.container} 
+      <SafeAreaView style={[styles.container, themedStyles.container]}>
+        <KeyboardAvoidingView
+          style={styles.container}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
           <ScrollView style={styles.formContainer}>
@@ -228,16 +230,16 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
               </View>
 
               <View style={styles.buttonGroup}>
-                <TouchableOpacity 
-                  style={styles.cancelButton} 
+                <TouchableOpacity
+                  style={styles.cancelButton}
                   onPress={handleCancelSigning}
                   disabled={signing}
                 >
                   <Text style={styles.cancelButtonText}>Cancel</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity 
-                  style={[styles.signButton, signing && styles.signButtonDisabled]} 
+                <TouchableOpacity
+                  style={[styles.signButton, signing && styles.signButtonDisabled]}
                   onPress={handleSubmitSignature}
                   disabled={signing}
                 >
@@ -256,19 +258,19 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, themedStyles.container]}>
       <View style={styles.header}>
         <View style={styles.headerTop}>
           {onBack && backButtonText && (
-            <TouchableOpacity style={styles.backButton} onPress={onBack}>
-              <Text style={styles.backButtonText}>{backButtonText}</Text>
+            <TouchableOpacity style={[styles.backButton, { backgroundColor: theme.surfaceColor }]} onPress={onBack}>
+              <Text style={[styles.backButtonText, { color: theme.primaryColor }]}>{backButtonText}</Text>
             </TouchableOpacity>
           )}
           <View style={styles.headerTitleContainer}>
-            <Text style={styles.headerTitle}>Document</Text>
+            <Text style={[styles.headerTitle, themedStyles.primaryText]}>Document</Text>
           </View>
         </View>
-        <Text style={styles.headerSubtitle}>{document?.file_name}</Text>
+        <Text style={[styles.headerSubtitle, themedStyles.secondaryText]}>{document?.file_name}</Text>
       </View>
 
       <View style={styles.pdfContainer}>
@@ -304,7 +306,7 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
             <Text style={styles.pdfPlaceholderText}>Loading PDF...</Text>
           </View>
         )}
-        
+
         {useWebViewFallback && (
           <View style={styles.fallbackNotice}>
             <Text style={styles.fallbackNoticeText}>
@@ -315,8 +317,8 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
       </View>
 
       <View style={styles.footer}>
-        <TouchableOpacity 
-          style={styles.signDocumentButton} 
+        <TouchableOpacity
+          style={styles.signDocumentButton}
           onPress={handleSignDocument}
           disabled={signing}
         >

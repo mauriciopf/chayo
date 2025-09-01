@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import {
   SafeAreaView,
   Dimensions,
 } from 'react-native';
+import { useThemedStyles } from '../context/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
@@ -34,6 +35,7 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
   businessName = 'Our Business',
   baseUrl = 'https://chayo.ai',
 }) => {
+  const { theme, themedStyles } = useThemedStyles();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
@@ -53,7 +55,7 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
   const timeSlots = [
     '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
     '12:00', '12:30', '13:00', '13:30', '14:00', '14:30',
-    '15:00', '15:30', '16:00', '16:30', '17:00'
+    '15:00', '15:30', '16:00', '16:30', '17:00',
   ];
 
   // Get days in current month
@@ -66,17 +68,17 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
     const startingDayOfWeek = firstDay.getDay();
 
     const days = [];
-    
+
     // Add empty cells for days before the first day of the month
     for (let i = 0; i < startingDayOfWeek; i++) {
       days.push(null);
     }
-    
+
     // Add all days of the month
     for (let day = 1; day <= daysInMonth; day++) {
       days.push(new Date(year, month, day));
     }
-    
+
     return days;
   };
 
@@ -100,8 +102,10 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
   };
 
   const handleDateSelect = (date: Date) => {
-    if (!isDateAvailable(date)) return;
-    
+    if (!isDateAvailable(date)) {
+      return;
+    }
+
     setSelectedDate(date);
     setShowTimeSlots(true);
     setAppointmentDetails(prev => ({
@@ -205,7 +209,7 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
 
   const monthNames = [
     'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
+    'July', 'August', 'September', 'October', 'November', 'December',
   ];
 
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -322,22 +326,22 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
           <Text style={styles.headerTitle}>Select Time</Text>
         </View>
 
-        <View style={styles.selectedDateCard}>
-          <Text style={styles.selectedDateText}>
+        <View style={[styles.selectedDateCard, { backgroundColor: theme.surfaceColor, borderColor: theme.borderColor }]}>
+          <Text style={[styles.selectedDateText, { color: theme.textColor }]}>
             📅 {selectedDate ? formatDate(selectedDate) : ''}
           </Text>
         </View>
 
         <ScrollView style={styles.timeSlotsContainer}>
-          <Text style={styles.sectionTitle}>Available Times</Text>
+          <Text style={[styles.sectionTitle, { color: theme.textColor }]}>Available Times</Text>
           <View style={styles.timeSlotGrid}>
             {timeSlots.map((time) => (
               <TouchableOpacity
                 key={time}
-                style={styles.timeSlot}
+                style={[styles.timeSlot, { backgroundColor: theme.surfaceColor, borderColor: theme.borderColor }]}
                 onPress={() => handleTimeSelect(time)}
               >
-                <Text style={styles.timeSlotText}>{time}</Text>
+                <Text style={[styles.timeSlotText, { color: theme.textColor }]}>{time}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -347,34 +351,34 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, themedStyles.container]}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Book with {businessName}</Text>
+        <Text style={[styles.headerTitle, themedStyles.primaryText]}>Book with {businessName}</Text>
       </View>
 
       <View style={styles.calendarHeader}>
         <TouchableOpacity
-          style={styles.navButton}
+          style={[styles.navButton, { backgroundColor: theme.surfaceColor }]}
           onPress={() => navigateMonth('prev')}
         >
-          <Text style={styles.navButtonText}>‹</Text>
+          <Text style={[styles.navButtonText, { color: theme.primaryColor }]}>‹</Text>
         </TouchableOpacity>
-        
-        <Text style={styles.monthYear}>
+
+        <Text style={[styles.monthYear, themedStyles.primaryText]}>
           {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
         </Text>
-        
+
         <TouchableOpacity
-          style={styles.navButton}
+          style={[styles.navButton, { backgroundColor: theme.surfaceColor }]}
           onPress={() => navigateMonth('next')}
         >
-          <Text style={styles.navButtonText}>›</Text>
+          <Text style={[styles.navButtonText, { color: theme.primaryColor }]}>›</Text>
         </TouchableOpacity>
       </View>
 
       <View style={styles.dayNamesRow}>
         {dayNames.map((day) => (
-          <Text key={day} style={styles.dayName}>
+          <Text key={day} style={[styles.dayName, themedStyles.secondaryText]}>
             {day}
           </Text>
         ))}
@@ -388,7 +392,8 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
               styles.dayCell,
               !date && styles.emptyDay,
               date && !isDateAvailable(date) && styles.unavailableDay,
-              date && selectedDate && date.toDateString() === selectedDate.toDateString() && styles.selectedDay,
+              date && selectedDate && date.toDateString() === selectedDate.toDateString() &&
+                { ...styles.selectedDay, backgroundColor: theme.primaryColor },
             ]}
             onPress={() => date && handleDateSelect(date)}
             disabled={!date || !isDateAvailable(date)}
@@ -396,9 +401,10 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
             {date && (
               <Text
                 style={[
-                  styles.dayText,
-                  !isDateAvailable(date) && styles.unavailableDayText,
-                  selectedDate && date.toDateString() === selectedDate.toDateString() && styles.selectedDayText,
+                  { ...styles.dayText, color: theme.textColor },
+                  !isDateAvailable(date) && { color: theme.placeholderColor },
+                  selectedDate && date.toDateString() === selectedDate.toDateString() &&
+                    { ...styles.selectedDayText, color: theme.backgroundColor },
                 ]}
               >
                 {date.getDate()}

@@ -12,6 +12,8 @@ import {
 import { IntakeForm } from '@chayo/formio';
 import { intakeFormService } from '../services/IntakeFormService';
 import { MobileIntakeForm } from './MobileIntakeForm';
+import { useThemedStyles } from '../context/ThemeContext';
+import { useCallback } from 'react';
 
 interface MobileIntakeFormsProps {
   organizationSlug: string;
@@ -20,42 +22,34 @@ interface MobileIntakeFormsProps {
 interface FormListItemProps {
   form: IntakeForm;
   onPress: () => void;
+  theme: any;
+  themedStyles: any;
 }
 
-const FormListItem: React.FC<FormListItemProps> = ({ form, onPress }) => (
-  <TouchableOpacity style={styles.formItem} onPress={onPress}>
+const FormListItem: React.FC<FormListItemProps> = ({ form, onPress, theme, themedStyles }) => (
+  <TouchableOpacity style={[styles.formItem, { backgroundColor: theme.surfaceColor, borderColor: theme.borderColor }]} onPress={onPress}>
     <View style={styles.formContent}>
-      <Text style={styles.formTitle}>{form.name}</Text>
+      <Text style={[styles.formTitle, themedStyles.primaryText]}>{form.name}</Text>
       {form.description && (
-        <Text style={styles.formDescription} numberOfLines={2}>
+        <Text style={[styles.formDescription, themedStyles.secondaryText]} numberOfLines={2}>
           {form.description}
         </Text>
       )}
-      <Text style={styles.formStatus}>
+      <Text style={[styles.formStatus, { color: form.is_active ? theme.successColor : theme.errorColor }]}>
         {form.is_active ? '✅ Active' : '❌ Inactive'}
       </Text>
     </View>
-    <Text style={styles.chevron}>›</Text>
+    <Text style={[styles.chevron, { color: theme.primaryColor }]}>›</Text>
   </TouchableOpacity>
 );
 
 export const MobileIntakeForms: React.FC<MobileIntakeFormsProps> = ({ organizationSlug }) => {
+  const { theme, themedStyles } = useThemedStyles();
   const [forms, setForms] = useState<IntakeForm[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedFormId, setSelectedFormId] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadForms();
-  }, [organizationSlug]);
-
-  // Auto-select the form if there's only one
-  useEffect(() => {
-    if (forms.length === 1 && !selectedFormId) {
-      setSelectedFormId(forms[0].id);
-    }
-  }, [forms, selectedFormId]);
-
-  const loadForms = async () => {
+  const loadForms = useCallback(async () => {
     try {
       setLoading(true);
       const loadedForms = await intakeFormService.getOrganizationForms(organizationSlug);
@@ -68,7 +62,18 @@ export const MobileIntakeForms: React.FC<MobileIntakeFormsProps> = ({ organizati
     } finally {
       setLoading(false);
     }
-  };
+  }, [organizationSlug]);
+
+  useEffect(() => {
+    loadForms();
+  }, [loadForms]);
+
+  // Auto-select the form if there's only one
+  useEffect(() => {
+    if (forms.length === 1 && !selectedFormId) {
+      setSelectedFormId(forms[0].id);
+    }
+  }, [forms, selectedFormId]);
 
   const handleFormPress = (formId: string) => {
     setSelectedFormId(formId);
@@ -82,7 +87,7 @@ export const MobileIntakeForms: React.FC<MobileIntakeFormsProps> = ({ organizati
     return forms.length === 1 ? null : '‹ Back to Forms';
   };
 
-  const handleSubmissionComplete = (success: boolean, message: string) => {
+  const handleSubmissionComplete = (success: boolean, _message: string) => {
     if (success) {
       // Go back to list after successful submission
       setTimeout(() => {
@@ -94,9 +99,9 @@ export const MobileIntakeForms: React.FC<MobileIntakeFormsProps> = ({ organizati
   // If a form is selected, show the form component
   if (selectedFormId) {
     return (
-      <SafeAreaView style={styles.container}>
-        <TouchableOpacity style={styles.backButton} onPress={handleBackToList}>
-          <Text style={styles.backButtonText}>{getBackButtonText()}</Text>
+      <SafeAreaView style={[styles.container, themedStyles.container]}>
+        <TouchableOpacity style={[styles.backButton, { backgroundColor: theme.surfaceColor, borderColor: theme.borderColor }]} onPress={handleBackToList}>
+          <Text style={[styles.backButtonText, { color: theme.primaryColor }]}>{getBackButtonText()}</Text>
         </TouchableOpacity>
         <MobileIntakeForm
           formId={selectedFormId}
@@ -109,10 +114,10 @@ export const MobileIntakeForms: React.FC<MobileIntakeFormsProps> = ({ organizati
   // Show loading state
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, themedStyles.container]}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#007AFF" />
-          <Text style={styles.loadingText}>Loading intake forms...</Text>
+          <ActivityIndicator size="large" color={theme.primaryColor} />
+          <Text style={[styles.loadingText, themedStyles.primaryText]}>Loading intake forms...</Text>
         </View>
       </SafeAreaView>
     );
@@ -121,10 +126,10 @@ export const MobileIntakeForms: React.FC<MobileIntakeFormsProps> = ({ organizati
   // Show empty state
   if (forms.length === 0) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, themedStyles.container]}>
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyTitle}>No Forms Available</Text>
-          <Text style={styles.emptyMessage}>
+          <Text style={[styles.emptyTitle, themedStyles.primaryText]}>No Forms Available</Text>
+          <Text style={[styles.emptyMessage, themedStyles.secondaryText]}>
             There are currently no active intake forms for this organization.
           </Text>
         </View>
@@ -134,10 +139,10 @@ export const MobileIntakeForms: React.FC<MobileIntakeFormsProps> = ({ organizati
 
   // Show forms list
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, themedStyles.container]}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Intake Forms</Text>
-        <Text style={styles.headerSubtitle}>
+        <Text style={[styles.headerTitle, themedStyles.primaryText]}>Intake Forms</Text>
+        <Text style={[styles.headerSubtitle, themedStyles.secondaryText]}>
           Select a form to fill out
         </Text>
       </View>
@@ -149,6 +154,8 @@ export const MobileIntakeForms: React.FC<MobileIntakeFormsProps> = ({ organizati
           <FormListItem
             form={item}
             onPress={() => handleFormPress(item.id)}
+            theme={theme}
+            themedStyles={themedStyles}
           />
         )}
         contentContainerStyle={styles.listContainer}

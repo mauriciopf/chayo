@@ -98,17 +98,7 @@ export const useThemeContext = (): ThemeContextType => {
   return context;
 };
 
-// HOC to inject theme into components
-export function withTheme<P extends object>(
-  Component: React.ComponentType<P & { theme: ThemeColors; themedStyles: ThemeContextType['styles'] }>
-): React.FC<P> {
-  return function ThemedComponent(props: P) {
-    const { theme, styles } = useThemeContext();
-    return <Component {...props} theme={theme} themedStyles={styles} />;
-  };
-}
-
-// Hook-based approach (alternative to HOC)
+// Hook-based approach for accessing theme
 export const useThemedStyles = () => {
   const { theme, styles } = useThemeContext();
   return { theme, themedStyles: styles };

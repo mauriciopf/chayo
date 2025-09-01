@@ -8,7 +8,7 @@ import {
   StyleSheet,
   Alert,
   ActivityIndicator,
-  Switch,
+
   Platform,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
@@ -16,8 +16,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import {
   IntakeForm,
   FormioComponent,
-  FormioFormDefinition,
-  FormioSubmission,
+
   FORMIO_FIELD_TYPES,
   validateFormSubmission,
   getFormDefaultValues,
@@ -29,13 +28,11 @@ import {
   isNumberField,
   isPhoneNumberField,
   isTextAreaField,
-  isSelectField,
-  isRadioField,
-  isCheckboxField,
-  isSelectBoxesField,
-  isDateTimeField,
+
 } from '@chayo/formio';
 import { intakeFormService } from '../services/IntakeFormService';
+import { useThemedStyles } from '../context/ThemeContext';
+import { useCallback } from 'react';
 
 interface MobileIntakeFormProps {
   formId: string;
@@ -52,9 +49,9 @@ interface FieldComponentProps {
 
 // Individual field components
 const TextFieldComponent: React.FC<FieldComponentProps> = ({ component, value, onChange, error }) => {
-  const keyboardType = isEmailField(component) 
-    ? 'email-address' 
-    : isNumberField(component) 
+  const keyboardType = isEmailField(component)
+    ? 'email-address'
+    : isNumberField(component)
     ? 'numeric'
     : isPhoneNumberField(component)
     ? 'phone-pad'
@@ -99,7 +96,7 @@ const SelectFieldComponent: React.FC<FieldComponentProps> = ({ component, value,
       {component.description && (
         <Text style={styles.fieldDescription}>{component.description}</Text>
       )}
-      
+
       <TouchableOpacity
         style={[styles.selectButton, error && styles.inputError]}
         onPress={() => setShowPicker(true)}
@@ -136,7 +133,7 @@ const SelectFieldComponent: React.FC<FieldComponentProps> = ({ component, value,
           </Picker>
         </View>
       )}
-      
+
       {error && <Text style={styles.errorText}>{error}</Text>}
     </View>
   );
@@ -154,7 +151,7 @@ const RadioFieldComponent: React.FC<FieldComponentProps> = ({ component, value, 
       {component.description && (
         <Text style={styles.fieldDescription}>{component.description}</Text>
       )}
-      
+
       {options.map((option) => (
         <TouchableOpacity
           key={option.value}
@@ -167,7 +164,7 @@ const RadioFieldComponent: React.FC<FieldComponentProps> = ({ component, value, 
           <Text style={styles.radioLabel}>{option.label}</Text>
         </TouchableOpacity>
       ))}
-      
+
       {error && <Text style={styles.errorText}>{error}</Text>}
     </View>
   );
@@ -216,7 +213,7 @@ const DateTimeFieldComponent: React.FC<FieldComponentProps> = ({ component, valu
       {component.description && (
         <Text style={styles.fieldDescription}>{component.description}</Text>
       )}
-      
+
       <TouchableOpacity
         style={[styles.selectButton, error && styles.inputError]}
         onPress={() => setShowDatePicker(true)}
@@ -234,7 +231,7 @@ const DateTimeFieldComponent: React.FC<FieldComponentProps> = ({ component, valu
           onChange={handleDateChange}
         />
       )}
-      
+
       {error && <Text style={styles.errorText}>{error}</Text>}
     </View>
   );
@@ -246,6 +243,7 @@ export const MobileIntakeForm: React.FC<MobileIntakeFormProps> = ({
   onSubmissionComplete,
   onFormLoad,
 }) => {
+  const { theme, themedStyles } = useThemedStyles();
   const [form, setForm] = useState<IntakeForm | null>(null);
   const [formData, setFormData] = useState<{ [key: string]: any }>({});
   const [loading, setLoading] = useState(true);
@@ -253,36 +251,36 @@ export const MobileIntakeForm: React.FC<MobileIntakeFormProps> = ({
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [anonymousUserId] = useState(() => intakeFormService.generateAnonymousUserId());
 
-  useEffect(() => {
-    loadForm();
-  }, [formId]);
-
-  const loadForm = async () => {
+  const loadForm = useCallback(async () => {
     try {
       setLoading(true);
       const loadedForm = await intakeFormService.getForm(formId);
       setForm(loadedForm);
-      
+
       // Initialize form data with default values
       if (loadedForm.formio_definition) {
         const defaultValues = getFormDefaultValues(loadedForm.formio_definition);
         setFormData(defaultValues);
       }
-      
+
       onFormLoad?.(loadedForm);
     } catch (error) {
       Alert.alert('Error', error instanceof Error ? error.message : 'Failed to load form');
     } finally {
       setLoading(false);
     }
-  };
+  }, [formId, onFormLoad]);
+
+  useEffect(() => {
+    loadForm();
+  }, [loadForm]);
 
   const handleFieldChange = (fieldKey: string, value: any) => {
     setFormData(prev => ({
       ...prev,
-      [fieldKey]: value
+      [fieldKey]: value,
     }));
-    
+
     // Clear field error when user starts typing
     if (errors[fieldKey]) {
       setErrors(prev => {
@@ -294,7 +292,9 @@ export const MobileIntakeForm: React.FC<MobileIntakeFormProps> = ({
   };
 
   const handleSubmit = async () => {
-    if (!form?.formio_definition) return;
+    if (!form?.formio_definition) {
+      return;
+    }
 
     try {
       setSubmitting(true);
@@ -302,12 +302,12 @@ export const MobileIntakeForm: React.FC<MobileIntakeFormProps> = ({
 
       // Validate form
       const validation = validateFormSubmission(form.formio_definition, { data: formData });
-      
+
       if (!validation.isValid) {
         const fieldErrors: { [key: string]: string } = {};
         validation.errors.forEach(error => {
           // Try to match error to field (simple approach)
-          const component = form.formio_definition?.components.find(comp => 
+          const component = form.formio_definition?.components.find(comp =>
             error.includes(comp.label)
           );
           if (component) {
@@ -328,13 +328,13 @@ export const MobileIntakeForm: React.FC<MobileIntakeFormProps> = ({
 
       Alert.alert('Success', result.message);
       onSubmissionComplete?.(true, result.message);
-      
+
       // Reset form
       if (form.formio_definition) {
         const defaultValues = getFormDefaultValues(form.formio_definition);
         setFormData(defaultValues);
       }
-      
+
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to submit form';
       Alert.alert('Error', errorMessage);
@@ -390,32 +390,32 @@ export const MobileIntakeForm: React.FC<MobileIntakeFormProps> = ({
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
-        <Text style={styles.loadingText}>Loading form...</Text>
+      <View style={[styles.loadingContainer, themedStyles.container]}>
+        <ActivityIndicator size="large" color={theme.primaryColor} />
+        <Text style={[styles.loadingText, themedStyles.primaryText]}>Loading form...</Text>
       </View>
     );
   }
 
   if (!form) {
     return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorTitle}>Form Not Found</Text>
-        <Text style={styles.errorMessage}>The requested form could not be loaded.</Text>
+      <View style={[styles.errorContainer, themedStyles.container]}>
+        <Text style={[styles.errorTitle, { color: theme.errorColor }]}>Form Not Found</Text>
+        <Text style={[styles.errorMessage, themedStyles.secondaryText]}>The requested form could not be loaded.</Text>
       </View>
     );
   }
 
-  const visibleComponents = form.formio_definition 
+  const visibleComponents = form.formio_definition
     ? getVisibleComponents(form.formio_definition, formData)
     : [];
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+    <ScrollView style={[styles.container, themedStyles.container]} contentContainerStyle={styles.contentContainer}>
       <View style={styles.header}>
-        <Text style={styles.formTitle}>{form.name}</Text>
+        <Text style={[styles.formTitle, themedStyles.primaryText]}>{form.name}</Text>
         {form.description && (
-          <Text style={styles.formDescription}>{form.description}</Text>
+          <Text style={[styles.formDescription, themedStyles.secondaryText]}>{form.description}</Text>
         )}
       </View>
 
@@ -424,14 +424,18 @@ export const MobileIntakeForm: React.FC<MobileIntakeFormProps> = ({
       </View>
 
       <TouchableOpacity
-        style={[styles.submitButton, submitting && styles.submitButtonDisabled]}
+        style={[
+          styles.submitButton,
+          { backgroundColor: submitting ? theme.borderColor : theme.primaryColor },
+          submitting && styles.submitButtonDisabled,
+        ]}
         onPress={handleSubmit}
         disabled={submitting}
       >
         {submitting ? (
-          <ActivityIndicator color="#FFFFFF" />
+          <ActivityIndicator color={theme.textColor} />
         ) : (
-          <Text style={styles.submitButtonText}>Submit Form</Text>
+          <Text style={[styles.submitButtonText, { color: theme.textColor }]}>Submit Form</Text>
         )}
       </TouchableOpacity>
     </ScrollView>

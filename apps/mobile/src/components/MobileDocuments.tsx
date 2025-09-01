@@ -10,6 +10,7 @@ import {
   Alert,
 } from 'react-native';
 import { DocumentService, DocumentData } from '../services/DocumentService';
+import { useThemedStyles } from '../context/ThemeContext';
 
 interface MobileDocumentsProps {
   organizationSlug: string;
@@ -22,6 +23,7 @@ const MobileDocuments: React.FC<MobileDocumentsProps> = ({
   onDocumentSelect,
   onDocumentsLoaded,
 }) => {
+  const { theme, themedStyles } = useThemedStyles();
   const [documents, setDocuments] = useState<DocumentData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -75,32 +77,32 @@ const MobileDocuments: React.FC<MobileDocumentsProps> = ({
 
   const renderDocumentItem = ({ item }: { item: DocumentData }) => (
     <TouchableOpacity
-      style={styles.documentItem}
+      style={[styles.documentItem, { backgroundColor: theme.surfaceColor, borderColor: theme.borderColor }]}
       onPress={() => onDocumentSelect(item)}
     >
       <View style={styles.documentIcon}>
         <Text style={styles.documentIconText}>📄</Text>
       </View>
       <View style={styles.documentInfo}>
-        <Text style={styles.documentName} numberOfLines={2}>
+        <Text style={[styles.documentName, themedStyles.primaryText]} numberOfLines={2}>
           {item.file_name}
         </Text>
-        <Text style={styles.documentMeta}>
+        <Text style={[styles.documentMeta, themedStyles.secondaryText]}>
           {formatFileSize(item.file_size)} • {formatDate(item.created_at)}
         </Text>
       </View>
       <View style={styles.arrowIcon}>
-        <Text style={styles.arrowText}>›</Text>
+        <Text style={[styles.arrowText, { color: theme.primaryColor }]}>›</Text>
       </View>
     </TouchableOpacity>
   );
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, themedStyles.container]}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#0A84FF" />
-          <Text style={styles.loadingText}>Loading documents...</Text>
+          <ActivityIndicator size="large" color={theme.primaryColor} />
+          <Text style={[styles.loadingText, themedStyles.primaryText]}>Loading documents...</Text>
         </View>
       </SafeAreaView>
     );
@@ -108,12 +110,12 @@ const MobileDocuments: React.FC<MobileDocumentsProps> = ({
 
   if (error) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, themedStyles.container]}>
         <View style={styles.errorContainer}>
           <Text style={styles.errorIcon}>📄</Text>
-          <Text style={styles.errorTitle}>Unable to Load Documents</Text>
-          <Text style={styles.errorMessage}>{error}</Text>
-          <TouchableOpacity style={styles.retryButton} onPress={fetchDocuments}>
+          <Text style={[styles.errorTitle, themedStyles.primaryText]}>Unable to Load Documents</Text>
+          <Text style={[styles.errorMessage, themedStyles.secondaryText]}>{error}</Text>
+          <TouchableOpacity style={[styles.retryButton, { backgroundColor: theme.primaryColor }]} onPress={fetchDocuments}>
             <Text style={styles.retryButtonText}>Try Again</Text>
           </TouchableOpacity>
         </View>
@@ -123,11 +125,11 @@ const MobileDocuments: React.FC<MobileDocumentsProps> = ({
 
   if (documents.length === 0) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, themedStyles.container]}>
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyIcon}>📄</Text>
-          <Text style={styles.emptyTitle}>No Documents Available</Text>
-          <Text style={styles.emptyMessage}>
+          <Text style={[styles.emptyTitle, themedStyles.primaryText]}>No Documents Available</Text>
+          <Text style={[styles.emptyMessage, themedStyles.secondaryText]}>
             There are no documents available for signing at this time.
           </Text>
         </View>
@@ -136,10 +138,10 @@ const MobileDocuments: React.FC<MobileDocumentsProps> = ({
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, themedStyles.container]}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Documents to Sign</Text>
-        <Text style={styles.headerSubtitle}>
+        <Text style={[styles.headerTitle, themedStyles.primaryText]}>Documents to Sign</Text>
+        <Text style={[styles.headerSubtitle, themedStyles.secondaryText]}>
           {documents.length} document{documents.length !== 1 ? 's' : ''} available
         </Text>
       </View>
