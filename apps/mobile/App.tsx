@@ -180,7 +180,8 @@ function App(): React.JSX.Element {
   if (!appReady) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
+        <StatusBar barStyle="light-content" backgroundColor="#1C1C1E" />
+        <ActivityIndicator size="large" color="#0A84FF" />
         <Text style={styles.loadingText}>
           {isUpdateAvailable ? 'Updating app...' : 'Loading Chayo...'}
         </Text>
@@ -201,7 +202,7 @@ function App(): React.JSX.Element {
   // Show main app with organization config
   return (
     <>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+      <StatusBar barStyle="light-content" backgroundColor="#1C1C1E" />
       <AppConfigProvider organizationId={organizationId || undefined}>
         <AppNavigator />
       </AppConfigProvider>
@@ -221,12 +222,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#1C1C1E',
   },
   loadingText: {
     marginTop: 12,
     fontSize: 16,
-    color: '#666',
+    color: '#FFFFFF',
   },
 });
 

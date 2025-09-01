@@ -32,7 +32,7 @@ const getTabIconName = (iconName: string) => {
 // Fallback screen component for unknown tools
 const FallbackScreen = () => (
   <View style={styles.centerContainer}>
-    <Text style={styles.loadingText}>Tool not implemented yet</Text>
+    <Text style={styles.errorText}>Tool not implemented yet</Text>
   </View>
 );
 
@@ -50,9 +50,9 @@ const getToolScreen = (toolName: string) => {
 
 const LoadingScreen = () => (
   <View style={styles.centerContainer}>
-    <ActivityIndicator size="large" color="#007AFF" />
+    <ActivityIndicator size="large" color="#0A84FF" />
     <Text style={styles.loadingText}>
-      Cargando configuración...
+      Loading configuration...
     </Text>
   </View>
 );
@@ -60,7 +60,7 @@ const LoadingScreen = () => (
 const ErrorScreen = ({ error }: { error: string }) => (
   <View style={styles.centerContainer}>
     <Text style={styles.errorTitle}>
-      Error de Configuración
+      Configuration Error
     </Text>
     <Text style={styles.errorText}>
       {error}
@@ -165,24 +165,25 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#1C1C1E',
     padding: 20,
   },
   loadingText: {
     marginTop: 12,
     fontSize: 16,
-    color: '#666',
+    color: '#FFFFFF',
   },
   errorTitle: {
     fontSize: 18,
-    color: '#FF3B30',
+    color: '#FF453A',
     textAlign: 'center',
     marginBottom: 12,
     fontWeight: '600',
   },
   errorText: {
     fontSize: 14,
-    color: '#666',
+    color: '#FFFFFF',
+    opacity: 0.8,
     textAlign: 'center',
   },
 });

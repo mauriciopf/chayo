@@ -85,13 +85,13 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 20,
   },
   modalContainer: {
-    backgroundColor: 'white',
+    backgroundColor: '#2C2C2E',
     borderRadius: 20,
     padding: 24,
     width: width * 0.9,
@@ -112,12 +112,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#1a1a1a',
+    color: '#FFFFFF',
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
+    color: '#FFFFFF',
+    opacity: 0.8,
     textAlign: 'center',
     lineHeight: 22,
   },
@@ -128,12 +129,12 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
   demoButton: {
-    backgroundColor: '#f8f4ff',
+    backgroundColor: '#3A3A3C',
     borderColor: '#8b5cf6',
   },
   codeButton: {
-    backgroundColor: '#f0f9ff',
-    borderColor: '#0ea5e9',
+    backgroundColor: '#3A3A3C',
+    borderColor: '#0A84FF',
   },
   optionContent: {
     flexDirection: 'row',
@@ -149,17 +150,19 @@ const styles = StyleSheet.create({
   optionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#1a1a1a',
+    color: '#FFFFFF',
     marginBottom: 4,
   },
   optionDescription: {
     fontSize: 14,
-    color: '#666',
+    color: '#FFFFFF',
+    opacity: 0.8,
     lineHeight: 20,
   },
   footer: {
     fontSize: 12,
-    color: '#999',
+    color: '#FFFFFF',
+    opacity: 0.6,
     textAlign: 'center',
     marginTop: 16,
     lineHeight: 16,
