@@ -8,3 +8,4 @@ export { MobileIntakeForm } from './MobileIntakeForm';
 export { MobileIntakeForms } from './MobileIntakeForms';
 export { MobileDocumentViewer } from './MobileDocumentViewer';
 export { default as MobileDocuments } from './MobileDocuments';
+export * from './ThemedComponents';

@@ -33,6 +33,9 @@ export class AgentToolConstraintsService {
       case 'faqs':
         return this.checkFAQConstraints(organizationId, supabase)
       
+      case 'mobile-branding':
+        return this.checkMobileBrandingConstraints(organizationId, supabase)
+      
       default:
         return { canEnable: true }
     }
@@ -269,5 +272,14 @@ export class AgentToolConstraintsService {
         reason: 'Error checking FAQ configuration'
       }
     }
+  }
+
+  private static async checkMobileBrandingConstraints(
+    organizationId: string, 
+    supabase: any
+  ): Promise<ToolConstraintResult> {
+    // Mobile branding doesn't require any specific configuration
+    // It can always be enabled as it just allows customizing app appearance
+    return { canEnable: true }
   }
 }

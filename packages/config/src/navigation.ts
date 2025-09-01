@@ -57,12 +57,7 @@ export class NavigationConfigGenerator {
         icon: 'clipboard',
         component: 'native',
       },
-      'mobile-branding': {
-        name: 'Mobile Branding',
-        label: 'Branding',
-        icon: 'smartphone',
-        component: 'webview',
-      },
+      // Note: mobile-branding is excluded as it's a backend configuration tool, not a user-facing tab
     };
 
     // Add enabled tool tabs

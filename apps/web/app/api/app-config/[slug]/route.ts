@@ -37,28 +37,37 @@ export async function GET(
       });
     }
 
-    // Get mobile branding configuration
-    const { data: brandingConfig } = await supabase
-      .from('organization_app_configs')
-      .select('theme_config')
-      .eq('organization_id', organization.id)
-      .single();
-
     // Build app configuration
     const webBaseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://chayo.vercel.app';
     const apiBaseUrl = webBaseUrl;
+
+    // Only use custom theme if mobile-branding tool is enabled
+    let themeConfig = {
+      primaryColor: '#0A84FF',
+      secondaryColor: '#FF453A',
+      backgroundColor: '#1C1C1E',
+      textColor: '#FFFFFF',
+    };
+
+    if (enabledTools.includes('mobile-branding')) {
+      // Get mobile branding configuration only if tool is enabled
+      const { data: brandingConfig } = await supabase
+        .from('organization_app_configs')
+        .select('theme_config')
+        .eq('organization_id', organization.id)
+        .single();
+      
+      if (brandingConfig?.theme_config) {
+        themeConfig = brandingConfig.theme_config;
+      }
+    }
 
     const appConfig = {
       organizationSlug: organization.slug,
       organizationId: organization.id,
       businessName: organization.name,
       appName: 'Chayo', // Default for free tier
-      theme: brandingConfig?.theme_config || {
-        primaryColor: '#007AFF',
-        secondaryColor: '#5856D6',
-        backgroundColor: '#FFFFFF',
-        textColor: '#000000',
-      },
+      theme: themeConfig,
       enabledTools,
       webBaseUrl,
       apiBaseUrl,

@@ -19,10 +19,11 @@ export async function GET(
 
     // Verify user has access to this organization
     const { data: membership } = await supabase
-      .from('organization_members')
+      .from('team_members')
       .select('role')
       .eq('organization_id', organizationId)
       .eq('user_id', user.id)
+      .eq('status', 'active')
       .single();
 
     if (!membership) {
@@ -73,10 +74,11 @@ export async function POST(
 
     // Verify user has access to this organization
     const { data: membership } = await supabase
-      .from('organization_members')
+      .from('team_members')
       .select('role')
       .eq('organization_id', organizationId)
       .eq('user_id', user.id)
+      .eq('status', 'active')
       .single();
 
     if (!membership) {

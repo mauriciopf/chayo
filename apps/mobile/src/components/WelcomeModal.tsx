@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Dimensions,
 } from 'react-native';
+import { useThemedStyles } from '../context/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
@@ -21,6 +22,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
   onTryDemo,
   onEnterCode,
 }) => {
+  const { theme, themedStyles } = useThemedStyles();
   return (
     <Modal
       visible={visible}
@@ -29,26 +31,26 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
       statusBarTranslucent={true}
     >
       <View style={styles.overlay}>
-        <View style={styles.modalContainer}>
+        <View style={[styles.modalContainer, themedStyles.surface]}>
           {/* Header */}
           <View style={styles.header}>
-            <Text style={styles.title}>Welcome to Chayo</Text>
-            <Text style={styles.subtitle}>
+            <Text style={[styles.title, themedStyles.primaryText]}>Welcome to Chayo</Text>
+            <Text style={[styles.subtitle, themedStyles.secondaryText]}>
               Discover how Chayo can transform your business
             </Text>
           </View>
 
           {/* Demo Option */}
           <TouchableOpacity
-            style={[styles.optionButton, styles.demoButton]}
+            style={[styles.optionButton, { backgroundColor: theme.surfaceColor, borderColor: theme.primaryColor }]}
             onPress={onTryDemo}
             activeOpacity={0.8}
           >
             <View style={styles.optionContent}>
               <Text style={styles.optionIcon}>🎯</Text>
               <View style={styles.optionText}>
-                <Text style={styles.optionTitle}>Try Demo</Text>
-                <Text style={styles.optionDescription}>
+                <Text style={[styles.optionTitle, themedStyles.primaryText]}>Try Demo</Text>
+                <Text style={[styles.optionDescription, themedStyles.secondaryText]}>
                   See Chayo in action with sample business data
                 </Text>
               </View>
@@ -57,15 +59,15 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
 
           {/* Enter Code Option */}
           <TouchableOpacity
-            style={[styles.optionButton, styles.codeButton]}
+            style={[styles.optionButton, { backgroundColor: theme.surfaceColor, borderColor: theme.secondaryColor }]}
             onPress={onEnterCode}
             activeOpacity={0.8}
           >
             <View style={styles.optionContent}>
               <Text style={styles.optionIcon}>📱</Text>
               <View style={styles.optionText}>
-                <Text style={styles.optionTitle}>Enter Business Code</Text>
-                <Text style={styles.optionDescription}>
+                <Text style={[styles.optionTitle, themedStyles.primaryText]}>Enter Business Code</Text>
+                <Text style={[styles.optionDescription, themedStyles.secondaryText]}>
                   Connect to your business with a 6-digit code
                 </Text>
               </View>
@@ -73,7 +75,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
           </TouchableOpacity>
 
           {/* Footer */}
-          <Text style={styles.footer}>
+          <Text style={[styles.footer, themedStyles.secondaryText]}>
             You can always switch between demo and your business later
           </Text>
         </View>
@@ -91,7 +93,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   modalContainer: {
-    backgroundColor: '#2C2C2E',
     borderRadius: 20,
     padding: 24,
     width: width * 0.9,
@@ -112,12 +113,10 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#FFFFFF',
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: '#FFFFFF',
     opacity: 0.8,
     textAlign: 'center',
     lineHeight: 22,

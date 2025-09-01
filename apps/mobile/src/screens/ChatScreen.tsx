@@ -13,6 +13,7 @@ import {
   KeyboardAvoidingView,
 } from 'react-native';
 import { useAppConfig } from '../hooks/useAppConfig';
+import { useThemedStyles } from '../context/ThemeContext';
 
 interface Message {
   id: string;
@@ -24,6 +25,7 @@ interface Message {
 
 export const ChatScreen: React.FC = () => {
   const { config } = useAppConfig();
+  const { theme, themedStyles } = useThemedStyles();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -149,10 +151,10 @@ export const ChatScreen: React.FC = () => {
     if (item.isLoading) {
       return (
         <View style={[styles.messageContainer, styles.assistantMessageContainer]}>
-          <View style={[styles.messageBubble, styles.assistantBubble]}>
+          <View style={[styles.messageBubble, styles.assistantBubble, { backgroundColor: theme.surfaceColor, borderColor: theme.borderColor }]}>
             <View style={styles.typingIndicator}>
-              <ActivityIndicator size="small" color="#8E8E93" />
-              <Text style={styles.typingText}>Escribiendo...</Text>
+              <ActivityIndicator size="small" color={theme.placeholderColor} />
+              <Text style={[styles.typingText, { color: theme.placeholderColor }]}>Escribiendo...</Text>
             </View>
           </View>
         </View>
@@ -169,12 +171,15 @@ export const ChatScreen: React.FC = () => {
         <View
           style={[
             styles.messageBubble,
-            item.isUser ? styles.userBubble : styles.assistantBubble,
+            item.isUser 
+              ? [styles.userBubble, { backgroundColor: theme.primaryColor }]
+              : [styles.assistantBubble, { backgroundColor: theme.surfaceColor, borderColor: theme.borderColor }],
           ]}
         >
           <Text
             style={[
               styles.messageText,
+              { color: theme.textColor },
               item.isUser ? styles.userMessageText : styles.assistantMessageText,
             ]}
           >
@@ -197,15 +202,15 @@ export const ChatScreen: React.FC = () => {
 
   if (!config) {
     return (
-      <SafeAreaView style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0A84FF" />
-        <Text style={styles.loadingText}>Cargando chat...</Text>
+      <SafeAreaView style={[styles.loadingContainer, themedStyles.container]}>
+        <ActivityIndicator size="large" color={theme.primaryColor} />
+        <Text style={[styles.loadingText, themedStyles.primaryText]}>Cargando chat...</Text>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, themedStyles.container]}>
       <KeyboardAvoidingView 
         style={styles.container}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -222,14 +227,14 @@ export const ChatScreen: React.FC = () => {
           keyboardShouldPersistTaps="handled"
         />
 
-        <View style={styles.inputContainer}>
+        <View style={[styles.inputContainer, { backgroundColor: theme.backgroundColor, borderTopColor: theme.borderColor }]}>
           <TextInput
             ref={textInputRef}
-            style={styles.textInput}
+            style={[styles.textInput, { backgroundColor: theme.surfaceColor, color: theme.textColor, borderColor: theme.borderColor }]}
             value={inputText}
             onChangeText={setInputText}
             placeholder="Escribe tu mensaje..."
-            placeholderTextColor="#8E8E93"
+            placeholderTextColor={theme.placeholderColor}
             multiline
             maxLength={1000}
             editable={!isTyping}
@@ -241,6 +246,7 @@ export const ChatScreen: React.FC = () => {
           <TouchableOpacity
             style={[
               styles.sendButton,
+              { backgroundColor: inputText.trim() ? theme.primaryColor : theme.borderColor },
               (!inputText.trim() || isTyping) && styles.sendButtonDisabled,
             ]}
             onPress={sendMessage}
@@ -258,18 +264,15 @@ const styles = StyleSheet.create({
   // 🎨 ChatGPT-style Dark Theme
   container: {
     flex: 1,
-    backgroundColor: '#1C1C1E', // Dark background like ChatGPT
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#1C1C1E',
   },
   loadingText: {
     marginTop: 12,
     fontSize: 16,
-    color: '#FFFFFF',
   },
   messagesList: {
     flex: 1,
@@ -303,14 +306,11 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   userBubble: {
-    backgroundColor: '#0A84FF', // iOS blue, more vibrant
     borderBottomRightRadius: 6,
   },
   assistantBubble: {
-    backgroundColor: '#2C2C2E', // Dark gray like ChatGPT
     borderBottomLeftRadius: 6,
     borderWidth: 1,
-    borderColor: '#3A3A3C',
   },
   messageText: {
     fontSize: 16,
@@ -318,10 +318,10 @@ const styles = StyleSheet.create({
     fontWeight: '400',
   },
   userMessageText: {
-    color: '#FFFFFF',
+    color: '#FFFFFF', // Always white on user bubbles for contrast
   },
   assistantMessageText: {
-    color: '#FFFFFF', // White text on dark background
+    // Color will be set dynamically
   },
   typingIndicator: {
     flexDirection: 'row',
@@ -330,7 +330,6 @@ const styles = StyleSheet.create({
   typingText: {
     marginLeft: 8,
     fontSize: 14,
-    color: '#8E8E93',
     fontStyle: 'italic',
   },
   inputContainer: {
@@ -338,33 +337,27 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#1C1C1E',
     borderTopWidth: 1,
-    borderTopColor: '#3A3A3C',
     paddingBottom: Platform.OS === 'ios' ? 34 : 16,
   },
   textInput: {
     flex: 1,
     borderWidth: 1.5,
-    borderColor: '#3A3A3C',
     borderRadius: 22,
     paddingHorizontal: 18,
     paddingVertical: 14,
     fontSize: 16,
     maxHeight: 120,
     marginRight: 12,
-    backgroundColor: '#2C2C2E',
-    color: '#FFFFFF',
     textAlignVertical: 'top',
   },
   sendButton: {
-    backgroundColor: '#0A84FF',
     width: 44,
     height: 44,
     borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#0A84FF',
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
@@ -374,7 +367,6 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   sendButtonDisabled: {
-    backgroundColor: '#3A3A3C',
     shadowOpacity: 0,
     elevation: 0,
   },

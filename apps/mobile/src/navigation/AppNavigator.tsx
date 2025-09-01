@@ -5,6 +5,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Text, View, ActivityIndicator, StyleSheet, Platform } from 'react-native';
 import { NavigationConfigGenerator } from '@chayo/config';
 import { useAppConfig } from '../hooks/useAppConfig';
+import { useThemedStyles } from '../context/ThemeContext';
 import { ChatScreen } from '../screens/ChatScreen';
 import { AppointmentsScreen } from '../screens/AppointmentsScreen';
 import { PaymentsScreen } from '../screens/PaymentsScreen';
@@ -30,11 +31,14 @@ const getTabIconName = (iconName: string) => {
 };
 
 // Fallback screen component for unknown tools
-const FallbackScreen = () => (
-  <View style={styles.centerContainer}>
-    <Text style={styles.errorText}>Tool not implemented yet</Text>
-  </View>
-);
+const FallbackScreen = () => {
+  const { themedStyles } = useThemedStyles();
+  return (
+    <View style={[styles.centerContainer, themedStyles.container]}>
+      <Text style={[styles.errorText, themedStyles.secondaryText]}>Tool not implemented yet</Text>
+    </View>
+  );
+};
 
 // Tool-specific screen mapping
 const getToolScreen = (toolName: string) => {
@@ -48,25 +52,31 @@ const getToolScreen = (toolName: string) => {
   return screenMap[toolName as keyof typeof screenMap];
 };
 
-const LoadingScreen = () => (
-  <View style={styles.centerContainer}>
-    <ActivityIndicator size="large" color="#0A84FF" />
-    <Text style={styles.loadingText}>
-      Loading configuration...
-    </Text>
-  </View>
-);
+const LoadingScreen = () => {
+  const { theme, themedStyles } = useThemedStyles();
+  return (
+    <View style={[styles.centerContainer, themedStyles.container]}>
+      <ActivityIndicator size="large" color={theme.primaryColor} />
+      <Text style={[styles.loadingText, themedStyles.primaryText]}>
+        Loading configuration...
+      </Text>
+    </View>
+  );
+};
 
-const ErrorScreen = ({ error }: { error: string }) => (
-  <View style={styles.centerContainer}>
-    <Text style={styles.errorTitle}>
-      Configuration Error
-    </Text>
-    <Text style={styles.errorText}>
-      {error}
-    </Text>
-  </View>
-);
+const ErrorScreen = ({ error }: { error: string }) => {
+  const { theme, themedStyles } = useThemedStyles();
+  return (
+    <View style={[styles.centerContainer, themedStyles.container]}>
+      <Text style={[styles.errorTitle, { color: theme.errorColor }]}>
+        Configuration Error
+      </Text>
+      <Text style={[styles.errorText, themedStyles.secondaryText]}>
+        {error}
+      </Text>
+    </View>
+  );
+};
 
 // Create a proper component for the error screen to avoid inline functions
 const ErrorScreenWrapper = () => {
@@ -77,6 +87,7 @@ const ErrorScreenWrapper = () => {
 // Main Tab Navigator Component
 const MainTabNavigator = () => {
   const { config, urlGenerator } = useAppConfig();
+  const { theme, themedStyles } = useThemedStyles();
 
   if (!config || !urlGenerator) {
     return <ErrorScreenWrapper />;
@@ -90,15 +101,15 @@ const MainTabNavigator = () => {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#FFFFFF', // White for active icons
-        tabBarInactiveTintColor: '#FFFFFF', // White for inactive icons (contour style)
+        tabBarActiveTintColor: theme.primaryColor,
+        tabBarInactiveTintColor: theme.textColor,
         tabBarStyle: {
-          backgroundColor: '#1C1C1E', // Dark background to match ChatGPT theme
-          borderTopColor: '#3A3A3C', // Subtle dark border
+          backgroundColor: theme.surfaceColor,
+          borderTopColor: theme.borderColor,
           borderTopWidth: 1,
-          paddingBottom: Platform.OS === 'ios' ? 34 : 8, // Extra padding for iPhone home indicator
+          paddingBottom: Platform.OS === 'ios' ? 34 : 8,
           paddingTop: 8,
-          height: Platform.OS === 'ios' ? 88 : 60, // Proper height for dark theme
+          height: Platform.OS === 'ios' ? 88 : 60,
         },
         tabBarLabelStyle: {
           fontSize: 10,
@@ -165,24 +176,20 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#1C1C1E',
     padding: 20,
   },
   loadingText: {
     marginTop: 12,
     fontSize: 16,
-    color: '#FFFFFF',
   },
   errorTitle: {
     fontSize: 18,
-    color: '#FF453A',
     textAlign: 'center',
     marginBottom: 12,
     fontWeight: '600',
   },
   errorText: {
     fontSize: 14,
-    color: '#FFFFFF',
     opacity: 0.8,
     textAlign: 'center',
   },
