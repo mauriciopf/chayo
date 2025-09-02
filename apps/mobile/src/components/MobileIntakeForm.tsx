@@ -49,6 +49,7 @@ interface FieldComponentProps {
 
 // Individual field components
 const TextFieldComponent: React.FC<FieldComponentProps> = ({ component, value, onChange, error }) => {
+  const { theme, themedStyles } = useThemedStyles();
   const keyboardType = isEmailField(component)
     ? 'email-address'
     : isNumberField(component)
@@ -59,18 +60,27 @@ const TextFieldComponent: React.FC<FieldComponentProps> = ({ component, value, o
 
   return (
     <View style={styles.fieldContainer}>
-      <Text style={styles.fieldLabel}>
+      <Text style={[styles.fieldLabel, themedStyles.primaryText]}>
         {component.label}
-        {component.validate?.required && <Text style={styles.required}> *</Text>}
+        {component.validate?.required && <Text style={[styles.required, { color: theme.errorColor }]}> *</Text>}
       </Text>
       {component.description && (
-        <Text style={styles.fieldDescription}>{component.description}</Text>
+        <Text style={[styles.fieldDescription, themedStyles.secondaryText]}>{component.description}</Text>
       )}
       <TextInput
-        style={[styles.textInput, error && styles.inputError]}
+        style={[
+          styles.textInput,
+          {
+            backgroundColor: theme.surfaceColor,
+            color: theme.textColor,
+            borderColor: theme.borderColor,
+          },
+          error && { borderColor: theme.errorColor },
+        ]}
         value={value || ''}
         onChangeText={onChange}
         placeholder={component.placeholder}
+        placeholderTextColor={theme.placeholderColor}
         keyboardType={keyboardType}
         multiline={isTextAreaField(component)}
         numberOfLines={isTextAreaField(component) ? 4 : 1}
@@ -78,30 +88,38 @@ const TextFieldComponent: React.FC<FieldComponentProps> = ({ component, value, o
         autoCapitalize={isEmailField(component) ? 'none' : 'sentences'}
         autoCorrect={!isEmailField(component)}
       />
-      {error && <Text style={styles.errorText}>{error}</Text>}
+      {error && <Text style={[styles.errorText, { color: theme.errorColor }]}>{error}</Text>}
     </View>
   );
 };
 
 const SelectFieldComponent: React.FC<FieldComponentProps> = ({ component, value, onChange, error }) => {
+  const { theme, themedStyles } = useThemedStyles();
   const options = getFieldOptions(component);
   const [showPicker, setShowPicker] = useState(false);
 
   return (
     <View style={styles.fieldContainer}>
-      <Text style={styles.fieldLabel}>
+      <Text style={[styles.fieldLabel, themedStyles.primaryText]}>
         {component.label}
-        {component.validate?.required && <Text style={styles.required}> *</Text>}
+        {component.validate?.required && <Text style={[styles.required, { color: theme.errorColor }]}> *</Text>}
       </Text>
       {component.description && (
-        <Text style={styles.fieldDescription}>{component.description}</Text>
+        <Text style={[styles.fieldDescription, themedStyles.secondaryText]}>{component.description}</Text>
       )}
 
       <TouchableOpacity
-        style={[styles.selectButton, error && styles.inputError]}
+        style={[
+          styles.selectButton,
+          {
+            backgroundColor: theme.surfaceColor,
+            borderColor: theme.borderColor,
+          },
+          error && { borderColor: theme.errorColor },
+        ]}
         onPress={() => setShowPicker(true)}
       >
-        <Text style={[styles.selectButtonText, !value && styles.placeholder]}>
+        <Text style={[styles.selectButtonText, { color: value ? theme.textColor : theme.placeholderColor }]}>
           {value ? options.find(opt => opt.value === value)?.label || value : component.placeholder || 'Select an option'}
         </Text>
       </TouchableOpacity>
@@ -140,16 +158,17 @@ const SelectFieldComponent: React.FC<FieldComponentProps> = ({ component, value,
 };
 
 const RadioFieldComponent: React.FC<FieldComponentProps> = ({ component, value, onChange, error }) => {
+  const { theme, themedStyles } = useThemedStyles();
   const options = getFieldOptions(component);
 
   return (
     <View style={styles.fieldContainer}>
-      <Text style={styles.fieldLabel}>
+      <Text style={[styles.fieldLabel, themedStyles.primaryText]}>
         {component.label}
-        {component.validate?.required && <Text style={styles.required}> *</Text>}
+        {component.validate?.required && <Text style={[styles.required, { color: theme.errorColor }]}> *</Text>}
       </Text>
       {component.description && (
-        <Text style={styles.fieldDescription}>{component.description}</Text>
+        <Text style={[styles.fieldDescription, themedStyles.secondaryText]}>{component.description}</Text>
       )}
 
       {options.map((option) => (
@@ -158,42 +177,48 @@ const RadioFieldComponent: React.FC<FieldComponentProps> = ({ component, value, 
           style={styles.radioOption}
           onPress={() => onChange(option.value)}
         >
-          <View style={styles.radioCircle}>
-            {value === option.value && <View style={styles.radioSelected} />}
+          <View style={[styles.radioCircle, { borderColor: theme.borderColor }]}>
+            {value === option.value && <View style={[styles.radioSelected, { backgroundColor: theme.primaryColor }]} />}
           </View>
-          <Text style={styles.radioLabel}>{option.label}</Text>
+          <Text style={[styles.radioLabel, themedStyles.primaryText]}>{option.label}</Text>
         </TouchableOpacity>
       ))}
 
-      {error && <Text style={styles.errorText}>{error}</Text>}
+      {error && <Text style={[styles.errorText, { color: theme.errorColor }]}>{error}</Text>}
     </View>
   );
 };
 
 const CheckboxFieldComponent: React.FC<FieldComponentProps> = ({ component, value, onChange, error }) => {
+  const { theme, themedStyles } = useThemedStyles();
   return (
     <View style={styles.fieldContainer}>
       <TouchableOpacity
         style={styles.checkboxContainer}
         onPress={() => onChange(!value)}
       >
-        <View style={[styles.checkbox, value && styles.checkboxChecked]}>
-          {value && <Text style={styles.checkmark}>✓</Text>}
+        <View style={[
+          styles.checkbox,
+          { borderColor: theme.borderColor },
+          value && { backgroundColor: theme.primaryColor },
+        ]}>
+          {value && <Text style={[styles.checkmark, { color: theme.backgroundColor }]}>✓</Text>}
         </View>
-        <Text style={styles.checkboxLabel}>
+        <Text style={[styles.checkboxLabel, themedStyles.primaryText]}>
           {component.label}
-          {component.validate?.required && <Text style={styles.required}> *</Text>}
+          {component.validate?.required && <Text style={[styles.required, { color: theme.errorColor }]}> *</Text>}
         </Text>
       </TouchableOpacity>
       {component.description && (
-        <Text style={styles.fieldDescription}>{component.description}</Text>
+        <Text style={[styles.fieldDescription, themedStyles.secondaryText]}>{component.description}</Text>
       )}
-      {error && <Text style={styles.errorText}>{error}</Text>}
+      {error && <Text style={[styles.errorText, { color: theme.errorColor }]}>{error}</Text>}
     </View>
   );
 };
 
 const DateTimeFieldComponent: React.FC<FieldComponentProps> = ({ component, value, onChange, error }) => {
+  const { theme, themedStyles } = useThemedStyles();
   const [showDatePicker, setShowDatePicker] = useState(false);
   const dateValue = value ? new Date(value) : new Date();
 
@@ -206,19 +231,26 @@ const DateTimeFieldComponent: React.FC<FieldComponentProps> = ({ component, valu
 
   return (
     <View style={styles.fieldContainer}>
-      <Text style={styles.fieldLabel}>
+      <Text style={[styles.fieldLabel, themedStyles.primaryText]}>
         {component.label}
-        {component.validate?.required && <Text style={styles.required}> *</Text>}
+        {component.validate?.required && <Text style={[styles.required, { color: theme.errorColor }]}> *</Text>}
       </Text>
       {component.description && (
-        <Text style={styles.fieldDescription}>{component.description}</Text>
+        <Text style={[styles.fieldDescription, themedStyles.secondaryText]}>{component.description}</Text>
       )}
 
       <TouchableOpacity
-        style={[styles.selectButton, error && styles.inputError]}
+        style={[
+          styles.selectButton,
+          {
+            backgroundColor: theme.surfaceColor,
+            borderColor: theme.borderColor,
+          },
+          error && { borderColor: theme.errorColor },
+        ]}
         onPress={() => setShowDatePicker(true)}
       >
-        <Text style={[styles.selectButtonText, !value && styles.placeholder]}>
+        <Text style={[styles.selectButtonText, { color: value ? theme.textColor : theme.placeholderColor }]}>
           {value ? dateValue.toLocaleDateString() : component.placeholder || 'Select date'}
         </Text>
       </TouchableOpacity>
