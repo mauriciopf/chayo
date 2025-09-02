@@ -35,6 +35,7 @@ export function MobileBrandingConfig({
   const [localConfig, setLocalConfig] = useState<ThemeConfig>(config);
   const [hasChanges, setHasChanges] = useState(false);
   const [showManualColors, setShowManualColors] = useState(false);
+  const [aiSuggestion, setAiSuggestion] = useState<Partial<ThemeConfig> | null>(null);
 
   useEffect(() => {
     setLocalConfig(config);
@@ -57,6 +58,11 @@ export function MobileBrandingConfig({
 
   const handleToggleManualMode = () => {
     setShowManualColors(true);
+    setAiSuggestion(null); // Clear AI suggestion when switching to manual mode
+  };
+
+  const handleAISuggestionChange = (suggestion: Partial<ThemeConfig>) => {
+    setAiSuggestion(suggestion);
   };
 
   const handleSave = async () => {
@@ -135,6 +141,7 @@ export function MobileBrandingConfig({
               currentColors={localConfig}
               onApplySuggestion={handleAISuggestionApply}
               onToggleManualMode={handleToggleManualMode}
+              onSuggestionChange={handleAISuggestionChange}
             />
           )}
 
@@ -222,7 +229,13 @@ export function MobileBrandingConfig({
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <MobilePreview config={localConfig} />
+            <MobilePreview 
+              config={
+                !showManualColors && aiSuggestion 
+                  ? { ...localConfig, ...aiSuggestion }
+                  : localConfig
+              } 
+            />
           </motion.div>
         </div>
       </div>

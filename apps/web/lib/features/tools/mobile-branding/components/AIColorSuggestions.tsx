@@ -11,6 +11,7 @@ interface AIColorSuggestionsProps {
   currentColors: ThemeConfig;
   onApplySuggestion: (colors: Partial<ThemeConfig>) => void;
   onToggleManualMode: () => void;
+  onSuggestionChange?: (colors: Partial<ThemeConfig>) => void;
   className?: string;
 }
 
@@ -18,6 +19,7 @@ export function AIColorSuggestions({
   currentColors, 
   onApplySuggestion, 
   onToggleManualMode,
+  onSuggestionChange,
   className = '' 
 }: AIColorSuggestionsProps) {
   const t = useTranslations('mobile-branding');
@@ -45,10 +47,24 @@ export function AIColorSuggestions({
         changedField,
       });
       setSuggestion(newSuggestion);
+      
+      // Notify parent component about the new suggestion for preview
+      if (onSuggestionChange) {
+        onSuggestionChange({
+          primaryColor: newSuggestion.primaryColor,
+          secondaryColor: newSuggestion.secondaryColor,
+          backgroundColor: newSuggestion.backgroundColor,
+          textColor: newSuggestion.textColor,
+        });
+      }
     } catch (error) {
       console.error('Failed to generate color suggestions:', error);
       setHasError(true);
       setSuggestion(null);
+      // Clear the preview when there's an error
+      if (onSuggestionChange) {
+        onSuggestionChange({});
+      }
     } finally {
       setLoading(false);
     }
