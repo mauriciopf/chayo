@@ -42,6 +42,16 @@
         "userQuestion": "I need help with my appointment",
         "response": "I'd be happy to help you with your appointment. Let me check your available options."
       }
+    },
+    "ai": {
+      "title": "AI Color Harmony",
+      "description": "Smart suggestions based on color theory",
+      "generating": "Generating suggestions...",
+      "apply": "Apply These Colors",
+      "applied": "Applied & Saved!",
+      "refresh": "Refresh suggestions",
+      "manualMode": "I prefer to choose my own colors",
+      "backToAI": "← Back to AI Suggestions"
     }
   },
   "footer": {

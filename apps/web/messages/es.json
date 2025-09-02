@@ -42,6 +42,16 @@
         "userQuestion": "Necesito ayuda con mi cita",
         "response": "Estaré encantada de ayudarte con tu cita. Déjame revisar tus opciones disponibles."
       }
+    },
+    "ai": {
+      "title": "Armonía de Colores IA",
+      "description": "Sugerencias inteligentes basadas en teoría del color",
+      "generating": "Generando sugerencias...",
+      "apply": "Aplicar Estos Colores",
+      "applied": "¡Aplicado y Guardado!",
+      "refresh": "Actualizar sugerencias",
+      "manualMode": "Prefiero elegir mis propios colores",
+      "backToAI": "← Volver a Sugerencias IA"
     }
   },
   "footer": {
