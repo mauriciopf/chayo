@@ -108,14 +108,14 @@ const MobileFAQs: React.FC<MobileFAQsProps> = ({
 
   const renderFAQCategory = (faq: FAQ) => (
     <View key={faq.id} style={styles.faqCategory}>
-      <View style={styles.categoryHeader}>
+      <View style={[styles.categoryHeader, { backgroundColor: theme.surfaceColor }]}>
         <Text style={[styles.categoryTitle, themedStyles.primaryText]}>{faq.name}</Text>
         {faq.description && (
           <Text style={[styles.categoryDescription, themedStyles.secondaryText]}>{faq.description}</Text>
         )}
       </View>
 
-      <View style={styles.faqList}>
+      <View style={[styles.faqList, { backgroundColor: theme.backgroundColor }]}>
         {faq.faq_items
           .sort((a, b) => a.order - b.order)
           .map((item) => renderFAQItem(item))}
@@ -126,7 +126,7 @@ const MobileFAQs: React.FC<MobileFAQsProps> = ({
   if (loading) {
     return (
       <SafeAreaView style={[styles.container, themedStyles.container]}>
-        <View style={styles.loadingContainer}>
+        <View style={[styles.loadingContainer, { backgroundColor: theme.backgroundColor }]}>
           <ActivityIndicator size="large" color={theme.primaryColor} />
           <Text style={[styles.loadingText, themedStyles.primaryText]}>Loading FAQs...</Text>
         </View>
@@ -137,10 +137,10 @@ const MobileFAQs: React.FC<MobileFAQsProps> = ({
   if (error) {
     return (
       <SafeAreaView style={[styles.container, themedStyles.container]}>
-        <View style={styles.errorContainer}>
+        <View style={[styles.errorContainer, { backgroundColor: theme.backgroundColor }]}>
           <Text style={[styles.errorText, { color: theme.errorColor }]}>{error}</Text>
           <TouchableOpacity style={[styles.retryButton, { backgroundColor: theme.primaryColor }]} onPress={fetchFAQs}>
-            <Text style={styles.retryButtonText}>Retry</Text>
+            <Text style={[styles.retryButtonText, { color: theme.backgroundColor }]}>Retry</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -150,14 +150,14 @@ const MobileFAQs: React.FC<MobileFAQsProps> = ({
   return (
     <SafeAreaView style={[styles.container, themedStyles.container]}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: theme.backgroundColor, borderBottomColor: theme.borderColor }]}>
         <Text style={[styles.headerTitle, themedStyles.primaryText]}>Help & FAQs</Text>
         <Text style={[styles.headerSubtitle, themedStyles.secondaryText]}>{businessName}</Text>
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView style={[styles.content, { backgroundColor: theme.backgroundColor }]} showsVerticalScrollIndicator={false}>
         {faqs.length === 0 ? (
-          <View style={styles.emptyContainer}>
+          <View style={[styles.emptyContainer, { backgroundColor: theme.backgroundColor }]}>
             <Text style={[styles.emptyText, themedStyles.primaryText]}>No FAQs available</Text>
             <Text style={[styles.emptySubtext, themedStyles.secondaryText]}>
               Check back later for helpful information
