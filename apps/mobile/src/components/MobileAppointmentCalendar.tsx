@@ -338,10 +338,19 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
             {timeSlots.map((time) => (
               <TouchableOpacity
                 key={time}
-                style={[styles.timeSlot, { backgroundColor: theme.surfaceColor, borderColor: theme.borderColor }]}
+                style={[
+                  styles.timeSlot,
+                  {
+                    backgroundColor: selectedTime === time ? theme.primaryColor : theme.surfaceColor,
+                    borderColor: selectedTime === time ? theme.primaryColor : theme.borderColor,
+                  },
+                ]}
                 onPress={() => handleTimeSelect(time)}
               >
-                <Text style={[styles.timeSlotText, { color: theme.textColor }]}>{time}</Text>
+                <Text style={[
+                  styles.timeSlotText,
+                  { color: selectedTime === time ? theme.backgroundColor : theme.textColor },
+                ]}>{time}</Text>
               </TouchableOpacity>
             ))}
           </View>
