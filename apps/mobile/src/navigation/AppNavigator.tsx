@@ -111,12 +111,12 @@ const MainTabNavigator = () => {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: theme.primaryColor,
-        tabBarInactiveTintColor: theme.textColor,
+        tabBarActiveTintColor: '#FFFFFF', // Always white for active icons
+        tabBarInactiveTintColor: 'rgba(255, 255, 255, 0.6)', // White with opacity for inactive
         tabBarStyle: {
-          backgroundColor: theme.surfaceColor,
-          borderTopColor: theme.borderColor,
-          borderTopWidth: 1,
+          backgroundColor: theme.secondaryColor, // Use secondary color for tab bar
+          borderTopColor: 'transparent', // Remove border for cleaner look
+          borderTopWidth: 0,
           paddingBottom: Platform.OS === 'ios' ? 34 : 8,
           paddingTop: 8,
           height: Platform.OS === 'ios' ? 88 : 60,
@@ -125,6 +125,7 @@ const MainTabNavigator = () => {
           fontSize: 10,
           fontWeight: '500',
           marginTop: -2,
+          color: '#FFFFFF', // Ensure labels are always white
         },
       }}
     >
