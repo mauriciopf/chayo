@@ -216,80 +216,80 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
 
   if (showBookingForm) {
     return (
-      <SafeAreaView style={styles.container}>
-        <ScrollView style={styles.formContainer}>
-          <View style={styles.header}>
+      <SafeAreaView style={[styles.container, themedStyles.container]}>
+        <ScrollView style={[styles.formContainer, { backgroundColor: theme.backgroundColor }]}>
+          <View style={[styles.header, { backgroundColor: theme.backgroundColor }]}>
             <TouchableOpacity
               style={styles.backButton}
               onPress={() => setShowBookingForm(false)}
             >
-              <Text style={styles.backButtonText}>← Back</Text>
+              <Text style={[styles.backButtonText, { color: theme.primaryColor }]}>← Back</Text>
             </TouchableOpacity>
-            <Text style={styles.headerTitle}>Book Appointment</Text>
+            <Text style={[styles.headerTitle, themedStyles.primaryText]}>Book Appointment</Text>
           </View>
 
-          <View style={styles.selectedDateTimeCard}>
-            <Text style={styles.selectedDateText}>
+          <View style={[styles.selectedDateTimeCard, { backgroundColor: theme.primaryColor, borderColor: theme.primaryColor }]}>
+            <Text style={[styles.selectedDateText, { color: theme.backgroundColor }]}>
               📅 {selectedDate ? formatDate(selectedDate) : ''}
             </Text>
-            <Text style={styles.selectedTimeText}>
+            <Text style={[styles.selectedTimeText, { color: theme.backgroundColor }]}>
               🕐 {selectedTime}
             </Text>
           </View>
 
-          <View style={styles.form}>
+          <View style={[styles.form, { backgroundColor: theme.backgroundColor }]}>
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Name *</Text>
+              <Text style={[styles.label, themedStyles.primaryText]}>Name *</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, { backgroundColor: theme.surfaceColor, color: theme.textColor, borderColor: theme.borderColor }]}
                 value={appointmentDetails.name}
                 onChangeText={(text) =>
                   setAppointmentDetails(prev => ({ ...prev, name: text }))
                 }
                 placeholder="Enter your full name"
-                placeholderTextColor="#999"
+                placeholderTextColor={theme.placeholderColor}
               />
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Email *</Text>
+              <Text style={[styles.label, themedStyles.primaryText]}>Email *</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, { backgroundColor: theme.surfaceColor, color: theme.textColor, borderColor: theme.borderColor }]}
                 value={appointmentDetails.email}
                 onChangeText={(text) =>
                   setAppointmentDetails(prev => ({ ...prev, email: text }))
                 }
                 placeholder="Enter your email address"
-                placeholderTextColor="#999"
+                placeholderTextColor={theme.placeholderColor}
                 keyboardType="email-address"
                 autoCapitalize="none"
               />
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Phone *</Text>
+              <Text style={[styles.label, themedStyles.primaryText]}>Phone *</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, { backgroundColor: theme.surfaceColor, color: theme.textColor, borderColor: theme.borderColor }]}
                 value={appointmentDetails.phone}
                 onChangeText={(text) =>
                   setAppointmentDetails(prev => ({ ...prev, phone: text }))
                 }
                 placeholder="Enter your phone number"
-                placeholderTextColor="#999"
+                placeholderTextColor={theme.placeholderColor}
                 keyboardType="phone-pad"
               />
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Notes (Optional)</Text>
+              <Text style={[styles.label, themedStyles.primaryText]}>Notes (Optional)</Text>
               <TextInput
-                style={[styles.input, styles.textArea]}
+                style={[styles.input, styles.textArea, { backgroundColor: theme.surfaceColor, color: theme.textColor, borderColor: theme.borderColor }]}
                 value={appointmentDetails.notes}
                 onChangeText={(text) =>
                   setAppointmentDetails(prev => ({ ...prev, notes: text }))
                 }
                 placeholder="Any additional information or special requests..."
-                placeholderTextColor="#999"
+                placeholderTextColor={theme.placeholderColor}
                 multiline
                 numberOfLines={4}
                 textAlignVertical="top"
@@ -297,14 +297,14 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
             </View>
 
             <TouchableOpacity
-              style={[styles.bookButton, isLoading && styles.bookButtonDisabled]}
+              style={[styles.bookButton, { backgroundColor: theme.primaryColor }, isLoading && styles.bookButtonDisabled]}
               onPress={handleBookingSubmit}
               disabled={isLoading}
             >
               {isLoading ? (
-                <ActivityIndicator color="#fff" />
+                <ActivityIndicator color={theme.backgroundColor} />
               ) : (
-                <Text style={styles.bookButtonText}>Book Appointment</Text>
+                <Text style={[styles.bookButtonText, { color: theme.backgroundColor }]}>Book Appointment</Text>
               )}
             </TouchableOpacity>
           </View>
@@ -315,15 +315,15 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
 
   if (showTimeSlots) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
+      <SafeAreaView style={[styles.container, themedStyles.container]}>
+        <View style={[styles.header, { backgroundColor: theme.backgroundColor }]}>
           <TouchableOpacity
             style={styles.backButton}
             onPress={() => setShowTimeSlots(false)}
           >
-            <Text style={styles.backButtonText}>← Back</Text>
+            <Text style={[styles.backButtonText, { color: theme.primaryColor }]}>← Back</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Select Time</Text>
+          <Text style={[styles.headerTitle, themedStyles.primaryText]}>Select Time</Text>
         </View>
 
         <View style={[styles.selectedDateCard, { backgroundColor: theme.surfaceColor, borderColor: theme.borderColor }]}>
@@ -332,7 +332,7 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
           </Text>
         </View>
 
-        <ScrollView style={styles.timeSlotsContainer}>
+        <ScrollView style={[styles.timeSlotsContainer, { backgroundColor: theme.backgroundColor }]}>
           <Text style={[styles.sectionTitle, { color: theme.textColor }]}>Available Times</Text>
           <View style={styles.timeSlotGrid}>
             {timeSlots.map((time) => (
@@ -352,13 +352,13 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
 
   return (
     <SafeAreaView style={[styles.container, themedStyles.container]}>
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: theme.backgroundColor }]}>
         <Text style={[styles.headerTitle, themedStyles.primaryText]}>Book with {businessName}</Text>
       </View>
 
-      <View style={styles.calendarHeader}>
+      <View style={[styles.calendarHeader, { backgroundColor: theme.surfaceColor }]}>
         <TouchableOpacity
-          style={[styles.navButton, { backgroundColor: theme.surfaceColor }]}
+          style={[styles.navButton, { backgroundColor: theme.backgroundColor }]}
           onPress={() => navigateMonth('prev')}
         >
           <Text style={[styles.navButtonText, { color: theme.primaryColor }]}>‹</Text>
@@ -369,14 +369,14 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
         </Text>
 
         <TouchableOpacity
-          style={[styles.navButton, { backgroundColor: theme.surfaceColor }]}
+          style={[styles.navButton, { backgroundColor: theme.backgroundColor }]}
           onPress={() => navigateMonth('next')}
         >
           <Text style={[styles.navButtonText, { color: theme.primaryColor }]}>›</Text>
         </TouchableOpacity>
       </View>
 
-      <View style={styles.dayNamesRow}>
+      <View style={[styles.dayNamesRow, { backgroundColor: theme.surfaceColor }]}>
         {dayNames.map((day) => (
           <Text key={day} style={[styles.dayName, themedStyles.secondaryText]}>
             {day}
@@ -384,7 +384,7 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
         ))}
       </View>
 
-      <View style={styles.calendar}>
+      <View style={[styles.calendar, { backgroundColor: theme.backgroundColor }]}>
         {getDaysInMonth(currentDate).map((date, index) => (
           <TouchableOpacity
             key={index}
@@ -414,8 +414,8 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
         ))}
       </View>
 
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>
+      <View style={[styles.footer, { backgroundColor: theme.surfaceColor }]}>
+        <Text style={[styles.footerText, themedStyles.secondaryText]}>
           Select a date to view available appointment times
         </Text>
       </View>
