@@ -98,7 +98,7 @@ const MobileFAQs: React.FC<MobileFAQsProps> = ({
         </TouchableOpacity>
 
         {isExpanded && (
-          <View style={[styles.answerContainer, { borderTopColor: theme.borderColor }]}>
+          <View style={[styles.answerContainer, { borderTopColor: theme.borderColor, backgroundColor: theme.backgroundColor }]}>
             <Text style={[styles.answerText, themedStyles.secondaryText]}>{item.answer}</Text>
           </View>
         )}
