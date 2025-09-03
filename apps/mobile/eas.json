@@ -15,7 +15,7 @@
     "preview": { 
       "ios": {
         "simulator": false,
-        "distribution": "adhoc"
+        "distribution": "internal"
       }, 
       "android": {
         "buildType": "apk"
@@ -27,30 +27,19 @@
         "distribution": "store"
       }, 
       "android": {
-        "buildType": "aab"
+        "buildType": "app-bundle"
       }
     }
   },
   "submit": {
     "production": {
       "ios": { 
-        "ascAppId": "REPLACE_WITH_APP_STORE_CONNECT_ID"
+        "ascAppId": "6751903645"
       },
       "android": { 
         "track": "internal", 
         "serviceAccountKeyPath": "./play-sa.json" 
       }
-    }
-  },
-  "update": {
-    "development": {
-      "channel": "development"
-    },
-    "preview": {
-      "channel": "preview"
-    },
-    "production": {
-      "channel": "production"
     }
   }
 }
