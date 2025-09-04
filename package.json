@@ -11,6 +11,7 @@
     "dev:mobile": "pnpm --filter mobile start",
     "build:web": "pnpm --filter web build",
     "build:mobile": "pnpm --filter mobile build",
+    "build:packages": "pnpm --filter '@chayo/*' build",
     "update:mobile:dev": "pnpm --filter mobile update:dev",
     "update:mobile:preview": "pnpm --filter mobile update:preview",
     "update:mobile:prod": "pnpm --filter mobile update:prod",

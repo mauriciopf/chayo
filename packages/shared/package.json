@@ -2,11 +2,15 @@
   "name": "@chayo/shared",
   "version": "1.0.0",
   "private": true,
-  "main": "index.ts",
-  "types": "index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "react-native": "index.ts",
+  "source": "index.ts",
+  "files": ["*.ts", "*/index.ts", "dist"],
   "scripts": {
     "build": "tsc",
-    "dev": "tsc --watch"
+    "dev": "tsc --watch",
+    "prepack": "pnpm build"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.50.3",

@@ -26,7 +26,7 @@ export class NavigationConfigGenerator {
     ];
 
     // Add tool-based tabs
-    const toolConfigs: Record<ToolType, Omit<TabConfig, 'enabled' | 'url'>> = {
+    const toolConfigs: Partial<Record<ToolType, Omit<TabConfig, 'enabled' | 'url'>>> = {
       appointments: {
         name: 'Appointments',
         label: 'Book',

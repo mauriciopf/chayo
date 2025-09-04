@@ -4,37 +4,19 @@ export default {
     slug: "chayo-mobile",
     version: "1.0.0",
     orientation: "portrait",
-    icon: "./assets/icon.png",
+    icon: "./assets/chayo_logo.png",
     userInterfaceStyle: "automatic",
     splash: {
-      image: "./assets/splash.png",
-      resizeMode: "contain",
       backgroundColor: "#1C1C1E"
     },
     assetBundlePatterns: [
       "**/*"
     ],
     ios: {
-      supportsTablet: true,
+      supportsTablet: false,
       bundleIdentifier: "com.chayo.mobile",
       buildNumber: "1",
-      infoPlist: {
-        NSAppTransportSecurity: {
-          NSAllowsArbitraryLoads: true,
-          NSExceptionDomains: {
-            "chayo.vercel.app": {
-              NSExceptionAllowsInsecureHTTPLoads: true,
-              NSExceptionMinimumTLSVersion: "TLSv1.0",
-              NSExceptionRequiresForwardSecrecy: false
-            }
-          }
-        },
-        UIAppFonts: [
-          "Feather.ttf",
-          "Ionicons.ttf", 
-          "MaterialIcons.ttf"
-        ]
-      }
+      infoPlist: {}
     },
     android: {
       adaptiveIcon: {
@@ -47,23 +29,14 @@ export default {
     web: {
       favicon: "./assets/favicon.png"
     },
-    plugins: [
-      [
-        "expo-updates",
-        {
-          username: "chayo-ai"
-        }
-      ]
-    ],
+    plugins: ["expo-updates"],
     updates: {
-      url: "https://u.expo.dev/YOUR_PROJECT_ID"
+      url: "https://u.expo.dev/4ec6342b-7cd8-45e0-9ce1-2c1da5e1b694"
     },
-    runtimeVersion: {
-      policy: "appVersion"
-    },
+    runtimeVersion: "1.0.0",
     extra: {
       eas: {
-        projectId: "YOUR_PROJECT_ID"
+        projectId: "4ec6342b-7cd8-45e0-9ce1-2c1da5e1b694"
       }
     }
   }
