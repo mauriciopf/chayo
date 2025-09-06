@@ -20,6 +20,7 @@
     "@chayo/formio": "workspace:*",
     "@expo/cli": "^0.24.20",
     "@expo/config-plugins": "^10.1.2",
+    "@expo/metro-config": "^0.20.17",
     "@react-native-async-storage/async-storage": "^2.1.0",
     "@react-native-community/datetimepicker": "^8.2.0",
     "@react-native-picker/picker": "^2.9.0",

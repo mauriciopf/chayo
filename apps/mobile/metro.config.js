@@ -1,4 +1,4 @@
-const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
+const {getDefaultConfig} = require('@expo/metro-config');
 const path = require('path');
 
 /**
@@ -21,7 +21,7 @@ const config = {
     ],
     disableHierarchicalLookup: false,
     platforms: ['ios', 'android', 'native'],
-    resolverMainFields: ['react-native', 'source', 'browser', 'main'],
+    resolverMainFields: ['react-native', 'main', 'browser'],
     resolveRequest: (context, moduleName, platform) => {
       // Custom resolver for @chayo/* packages to use source files
       if (moduleName.startsWith('@chayo/')) {
@@ -65,4 +65,18 @@ const config = {
   },
 };
 
-module.exports = mergeConfig(getDefaultConfig(projectRoot), config);
+const defaultConfig = getDefaultConfig(projectRoot);
+module.exports = {
+  ...defaultConfig,
+  ...config,
+  // Explicitly set projectRoot to ensure Metro uses the mobile app directory
+  projectRoot: projectRoot,
+  resolver: {
+    ...defaultConfig.resolver,
+    ...config.resolver,
+  },
+  transformer: {
+    ...defaultConfig.transformer,
+    ...config.transformer,
+  },
+};
