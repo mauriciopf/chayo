@@ -170,24 +170,37 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
       className="space-y-8"
     >
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+        <h2 
+          className="text-2xl font-bold mb-2"
+          style={{ color: 'var(--text-primary)' }}
+        >
           {t('title')}
         </h2>
-        <p className="text-gray-600">
+        <p style={{ color: 'var(--text-secondary)' }}>
           {t('description')}
         </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Profile Information */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+        <div 
+          className="rounded-lg shadow p-6"
+          style={{ backgroundColor: 'var(--bg-secondary)' }}
+        >
+          <h3 
+            className="text-lg font-semibold mb-4"
+            style={{ color: 'var(--text-primary)' }}
+          >
             {t('profileInformation')}
           </h3>
           
           <form onSubmit={updateProfile} className="space-y-4">
             <div>
-              <label htmlFor="displayName" className="block text-sm font-medium text-gray-700 mb-1">
+              <label 
+                htmlFor="displayName" 
+                className="block text-sm font-medium mb-1"
+                style={{ color: 'var(--text-primary)' }}
+              >
                 {t('displayName')}
               </label>
               <input
@@ -280,8 +293,14 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
         </div>
 
         {/* Password Settings */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+        <div 
+          className="rounded-lg shadow p-6"
+          style={{ backgroundColor: 'var(--bg-secondary)' }}
+        >
+          <h3 
+            className="text-lg font-semibold mb-4"
+            style={{ color: 'var(--text-primary)' }}
+          >
             {t('changePassword')}
           </h3>
           
