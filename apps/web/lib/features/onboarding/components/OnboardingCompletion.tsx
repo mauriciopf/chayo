@@ -32,7 +32,8 @@ export default function OnboardingCompletion({ isVisible, onContinue, onNavigate
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+        className="fixed inset-0 flex items-center justify-center z-50 p-4"
+        style={{ backgroundColor: 'var(--bg-primary)' }}
         onClick={handleStartUsing} // Allow clicking outside to close
       >
         {/* Modal Content */}
@@ -41,7 +42,8 @@ export default function OnboardingCompletion({ isVisible, onContinue, onNavigate
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ type: "spring", damping: 25, stiffness: 300 }}
-          className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden"
+          className="rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden"
+          style={{ backgroundColor: 'var(--bg-secondary)' }}
           onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside modal
         >
           {/* Header with Celebration Background */}

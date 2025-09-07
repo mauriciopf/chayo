@@ -12,9 +12,9 @@ export default function TrainingSection() {
   const t = useTranslations('training');
 
   const trainingSteps = [
-    { icon: "📂", text: "Dragging health documents" },
-    { icon: "🌐", text: "Pasting health website links" },
-    { icon: "📝", text: "Adding health preferences" }
+    { icon: "📂", text: "Dragging business documents" },
+    { icon: "🌐", text: "Pasting business website links" },
+    { icon: "📝", text: "Adding business preferences" }
   ];
 
   useEffect(() => {
@@ -27,7 +27,11 @@ export default function TrainingSection() {
   }, [isInView]);
 
   return (
-    <div ref={ref} className="py-20 bg-gradient-to-br from-blue-50 to-indigo-50">
+    <div 
+      ref={ref} 
+      className="py-20"
+      style={{ background: 'var(--marketing-hero-bg)' }}
+    >
       <div className="max-w-7xl mx-auto px-4">
         
         {/* Section Header */}
@@ -37,10 +41,16 @@ export default function TrainingSection() {
           transition={{ duration: 0.8 }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
+          <h2 
+            className="text-4xl lg:text-5xl font-bold mb-4"
+            style={{ color: 'var(--text-primary)' }}
+          >
             {t('title')}
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p 
+            className="text-xl max-w-3xl mx-auto"
+            style={{ color: 'var(--text-secondary)' }}
+          >
             {t('subtitle')}
           </p>
         </motion.div>
@@ -63,27 +73,38 @@ export default function TrainingSection() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={isInView ? { opacity: 1, y: 0 } : {}}
                   transition={{ delay: 0.5 + index * 0.3 }}
-                  className={`border-2 border-dashed rounded-lg p-6 transition-all duration-500 ${
-                    currentStep === index 
-                      ? 'border-blue-500 bg-blue-50' 
-                      : 'border-gray-300 bg-gray-50'
-                  }`}
+                  className="border-2 border-dashed rounded-lg p-6 transition-all duration-500"
+                  style={{
+                    borderColor: currentStep === index 
+                      ? 'var(--marketing-accent-primary)' 
+                      : 'var(--border-primary)',
+                    backgroundColor: currentStep === index 
+                      ? 'var(--marketing-card-hover)' 
+                      : 'var(--marketing-card-bg)'
+                  }}
                 >
                   <div className="text-center">
                     <div className="text-3xl mb-3">{step.icon}</div>
-                    <p className="text-lg text-gray-700 font-medium">{step.text}</p>
+                    <p 
+                      className="text-lg font-medium"
+                      style={{ color: 'var(--text-primary)' }}
+                    >{step.text}</p>
                     {currentStep === index && (
                       <motion.div
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         className="mt-3"
                       >
-                        <div className="w-full bg-blue-200 rounded-full h-2">
+                        <div 
+                          className="w-full rounded-full h-2"
+                          style={{ backgroundColor: 'var(--border-primary)' }}
+                        >
                           <motion.div
                             initial={{ width: 0 }}
                             animate={{ width: "100%" }}
                             transition={{ duration: 2.5 }}
-                            className="bg-blue-500 h-2 rounded-full"
+                            className="h-2 rounded-full"
+                            style={{ backgroundColor: 'var(--marketing-accent-primary)' }}
                           ></motion.div>
                         </div>
                       </motion.div>
@@ -104,7 +125,10 @@ export default function TrainingSection() {
           >
             
             {/* Chat Conversation */}
-            <div className="bg-white rounded-2xl shadow-xl p-6 space-y-4">
+            <div 
+              className="rounded-2xl shadow-xl p-6 space-y-4"
+              style={{ backgroundColor: 'var(--marketing-card-bg)' }}
+            >
               
               {/* User Message */}
               <motion.div 
@@ -113,8 +137,14 @@ export default function TrainingSection() {
                 transition={{ delay: 0.8 }}
                 className="flex justify-end"
               >
-                <div className="bg-blue-500 text-white rounded-lg px-4 py-3 max-w-xs">
-                  Here's my health information and preferences.
+                <div 
+                  className="rounded-lg px-4 py-3 max-w-xs"
+                  style={{ 
+                    backgroundColor: 'var(--marketing-accent-primary)',
+                    color: 'var(--text-primary)'
+                  }}
+                >
+                  Here's my business information and preferences.
                 </div>
               </motion.div>
 
@@ -125,8 +155,15 @@ export default function TrainingSection() {
                 transition={{ delay: 1.5 }}
                 className="flex justify-start"
               >
-                <div className="bg-gradient-to-r from-blue-100 to-indigo-100 rounded-lg px-4 py-3 max-w-xs border border-blue-200">
-                  Got it! I'm already learning. 🧠 I'll support you like I've been your wellness partner for years.
+                <div 
+                  className="rounded-lg px-4 py-3 max-w-xs border"
+                  style={{ 
+                    background: 'var(--marketing-gradient-card)',
+                    borderColor: 'var(--border-primary)',
+                    color: 'var(--text-primary)'
+                  }}
+                >
+                  Got it! I'm already learning. 🧠 I'll support you like I've been your business partner for years.
                 </div>
               </motion.div>
 
@@ -139,12 +176,15 @@ export default function TrainingSection() {
               transition={{ delay: 2 }}
               className="space-y-4"
             >
-              <h3 className="text-2xl font-bold text-gray-900">What Chayo learns:</h3>
+              <h3 
+                className="text-2xl font-bold"
+                style={{ color: 'var(--text-primary)' }}
+              >What Chayo learns:</h3>
               <div className="grid grid-cols-1 gap-3">
                 {[
-                  { icon: "📋", text: "Your health history & preferences" },
-                  { icon: "🎯", text: "Your wellness goals & style" },
-                  { icon: "❓", text: "Common health questions" },
+                  { icon: "📋", text: "Your business history & preferences" },
+                  { icon: "🎯", text: "Your business goals & style" },
+                  { icon: "❓", text: "Common business questions" },
                   { icon: "📞", text: "Your appointment preferences" }
                 ].map((item, index) => (
                   <motion.div
@@ -152,10 +192,17 @@ export default function TrainingSection() {
                     initial={{ opacity: 0, x: -20 }}
                     animate={isInView ? { opacity: 1, x: 0 } : {}}
                     transition={{ delay: 2.2 + index * 0.1 }}
-                    className="flex items-center space-x-3 bg-white rounded-lg p-3 shadow-sm border"
+                    className="flex items-center space-x-3 rounded-lg p-3 shadow-sm border"
+                    style={{ 
+                      backgroundColor: 'var(--marketing-card-bg)',
+                      borderColor: 'var(--border-primary)'
+                    }}
                   >
                     <span className="text-xl">{item.icon}</span>
-                    <span className="font-medium text-gray-700">{item.text}</span>
+                    <span 
+                      className="font-medium"
+                      style={{ color: 'var(--text-primary)' }}
+                    >{item.text}</span>
                   </motion.div>
                 ))}
               </div>
@@ -168,11 +215,20 @@ export default function TrainingSection() {
               transition={{ delay: 2.5 }}
               className="text-center"
             >
-              <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-2 rounded-full text-sm font-medium">
+              <div 
+                className="inline-flex items-center space-x-2 px-4 py-2 rounded-full text-sm font-medium"
+                style={{ 
+                  background: 'var(--marketing-gradient-button)',
+                  color: 'var(--text-primary)'
+                }}
+              >
                 <span>⚡</span>
                 <span>Powered by ChatGPT</span>
               </div>
-              <p className="text-sm text-gray-500 mt-2">Learns your health needs instantly</p>
+              <p 
+                className="text-sm mt-2"
+                style={{ color: 'var(--text-secondary)' }}
+              >Learns your business needs instantly</p>
             </motion.div>
 
           </motion.div>

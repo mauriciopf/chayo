@@ -208,16 +208,22 @@ export default function SubscriptionPlans({ currentSubscription, onClose, onSubs
         {/* Recommendation Message */}
         {targetPlan && (
           <div className="px-6 pb-4">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div 
+              className="border rounded-lg p-4"
+              style={{ 
+                backgroundColor: 'var(--bg-white)',
+                borderColor: 'var(--border-primary)'
+              }}
+            >
               <div className="flex items-center">
-                <svg className="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 mr-2" style={{ color: 'var(--text-muted)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <div>
-                  <p className="font-medium text-blue-900">
+                  <p className="font-medium" style={{ color: 'var(--text-primary)' }}>
                     {targetPlan.charAt(0).toUpperCase() + targetPlan.slice(1)} Plan Recommended
                   </p>
-                  <p className="text-sm text-blue-700">
+                  <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
                     This plan includes access to the channel integration you selected. Upgrade now to unlock this feature!
                   </p>
                 </div>
@@ -235,12 +241,20 @@ export default function SubscriptionPlans({ currentSubscription, onClose, onSubs
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
             className={`relative bg-white rounded-3xl shadow-xl overflow-hidden ${
-              plan.popular && plan.available ? 'ring-4 ring-purple-200 scale-105' : ''
-            } ${
-              targetPlan === plan.id ? 'ring-4 ring-blue-400 bg-blue-50' : ''
+              plan.popular && plan.available ? 'ring-4 scale-105' : ''
             } ${
               !plan.available ? 'opacity-75' : ''
             }`}
+            style={{
+              ...(plan.popular && plan.available && { 
+                ringColor: 'var(--border-focus)' 
+              }),
+              ...(targetPlan === plan.id && { 
+                backgroundColor: 'var(--bg-white)',
+                ringWidth: '4px',
+                ringColor: 'var(--accent-primary)'
+              })
+            }}
           >
             {plan.popular && plan.available && (
               <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
@@ -260,7 +274,7 @@ export default function SubscriptionPlans({ currentSubscription, onClose, onSubs
             
             {targetPlan === plan.id && !plan.popular && plan.available && (
               <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-sm font-bold px-4 py-1 rounded-full">
+                <div className="bg-gradient-to-r from-zinc-600 to-zinc-700 text-white text-sm font-bold px-4 py-1 rounded-full">
                   Recommended for You!
                 </div>
               </div>
@@ -348,7 +362,11 @@ export default function SubscriptionPlans({ currentSubscription, onClose, onSubs
           </p>
           <button
             onClick={handleManageSubscription}
-            className="inline-flex items-center space-x-2 text-blue-600 hover:text-blue-500 font-medium"
+            className="inline-flex items-center space-x-2 font-medium"
+            style={{ 
+              color: 'var(--text-muted)',
+              ':hover': { color: 'var(--text-secondary)' }
+            }}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />

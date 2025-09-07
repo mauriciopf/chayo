@@ -48,12 +48,15 @@ export default function ClientChatView({
   }, [messages])
 
   return (
-    <div className={`flex flex-col h-full w-full ${className}`}>
+    <div className={`flex flex-col h-full w-full ${className}`} style={{ backgroundColor: 'var(--bg-primary)' }}>
       {/* Messages Area - Full Screen Mobile */}
       <div 
         ref={chatScrollContainerRef}
         className="flex-1 overflow-y-auto"
-        style={{ scrollBehavior: 'smooth' }}
+        style={{ 
+          backgroundColor: 'var(--bg-primary)',
+          scrollBehavior: 'smooth' 
+        }}
       >
         <AnimatePresence>
           {messages.map((message, index) => (

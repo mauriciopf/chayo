@@ -24,8 +24,8 @@ export default function HowItWorksSection() {
       description: t('steps.step1.description'),
       icon: "🎭",
       details: t.raw('steps.step1.details'),
-      gradient: "from-purple-500 to-pink-500",
-      color: "purple"
+      gradient: "var(--marketing-gradient-card)",
+      color: "gray"
     },
     {
       number: "02", 
@@ -33,8 +33,8 @@ export default function HowItWorksSection() {
       description: t('steps.step2.description'),
       icon: "🧠",
       details: t.raw('steps.step2.details'),
-      gradient: "from-blue-500 to-cyan-500",
-      color: "blue"
+      gradient: "var(--marketing-gradient-button)",
+      color: "gray"
     },
     {
       number: "03",
@@ -42,8 +42,8 @@ export default function HowItWorksSection() {
       description: t('steps.step3.description'),
       icon: "🔗",
       details: t.raw('steps.step3.details'),
-      gradient: "from-green-500 to-emerald-500",
-      color: "green"
+      gradient: "var(--marketing-gradient-subtle)",
+      color: "gray"
     },
     {
       number: "04",
@@ -51,13 +51,17 @@ export default function HowItWorksSection() {
       description: t('steps.step4.description'),
       icon: "🚀",
       details: t.raw('steps.step4.details'),
-      gradient: "from-orange-500 to-red-500", 
-      color: "orange"
+      gradient: "var(--marketing-gradient-card)",
+      color: "gray"
     }
   ];
 
   return (
-    <div ref={ref} className="py-20 bg-gradient-to-br from-white to-gray-50">
+    <div 
+      ref={ref} 
+      className="py-20"
+      style={{ background: 'var(--marketing-hero-bg)' }}
+    >
       <div className="max-w-7xl mx-auto px-4">
         
         {/* Section Header */}
@@ -70,19 +74,35 @@ export default function HowItWorksSection() {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={isInView ? { opacity: 1, scale: 1 } : {}}
-            className="inline-flex items-center gap-2 bg-purple-100 border border-purple-200 rounded-full px-6 py-2 mb-6"
+            className="inline-flex items-center gap-2 rounded-full px-6 py-2 mb-6 border"
+            style={{ 
+              backgroundColor: 'var(--marketing-card-bg)',
+              borderColor: 'var(--border-primary)'
+            }}
           >
-            <span className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></span>
-            <span className="text-sm font-medium text-purple-700">{t('sectionTitle')}</span>
+            <span 
+              className="w-2 h-2 rounded-full animate-pulse"
+              style={{ backgroundColor: 'var(--marketing-accent-primary)' }}
+            ></span>
+            <span 
+              className="text-sm font-medium"
+              style={{ color: 'var(--text-primary)' }}
+            >{t('sectionTitle')}</span>
           </motion.div>
 
-          <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
+          <h2 
+            className="text-4xl lg:text-5xl font-bold mb-4"
+            style={{ color: 'var(--text-primary)' }}
+          >
             {t('heroTitle')}{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600">
+            <span style={{ color: 'var(--text-primary)' }}>
               {t('heroHighlight')}
             </span>
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p 
+            className="text-xl max-w-3xl mx-auto"
+            style={{ color: 'var(--text-secondary)' }}
+          >
             {t('subHeader')}
           </p>
         </motion.div>
@@ -103,12 +123,24 @@ export default function HowItWorksSection() {
                 
                 {/* Step Number */}
                 <div className="flex items-center space-x-4">
-                  <div className={`w-16 h-16 bg-gradient-to-r ${step.gradient} rounded-full flex items-center justify-center text-white font-bold text-xl`}>
+                  <div 
+                    className="w-16 h-16 rounded-full flex items-center justify-center font-bold text-xl"
+                    style={{ 
+                      background: step.gradient,
+                      color: 'var(--text-primary)'
+                    }}
+                  >
                     {step.number}
                   </div>
                   <div>
-                    <h3 className="text-3xl font-bold text-gray-900">{step.title}</h3>
-                    <p className="text-gray-600 text-lg">{step.description}</p>
+                    <h3 
+                      className="text-3xl font-bold"
+                      style={{ color: 'var(--text-primary)' }}
+                    >{step.title}</h3>
+                    <p 
+                      className="text-lg"
+                      style={{ color: 'var(--text-secondary)' }}
+                    >{step.description}</p>
                   </div>
                 </div>
 
@@ -122,12 +154,17 @@ export default function HowItWorksSection() {
                       transition={{ delay: 0.5 + index * 0.2 + idx * 0.1 }}
                       className="flex items-center space-x-3"
                     >
-                      <div className={`w-6 h-6 bg-gradient-to-r ${step.gradient} rounded-full flex items-center justify-center flex-shrink-0`}>
+                      <div 
+                        className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
+                        style={{ background: step.gradient }}
+                      >
                         <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                         </svg>
                       </div>
-                      <span className="text-gray-700">{detail}</span>
+                      <span 
+                        style={{ color: 'var(--text-secondary)' }}
+                      >{detail}</span>
                     </motion.div>
                   ))}
                 </div>
@@ -137,7 +174,11 @@ export default function HowItWorksSection() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={handleCTAClick}
-                  className={`bg-gradient-to-r ${step.gradient} text-white px-8 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300`}
+                  className="px-8 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                  style={{ 
+                    background: step.gradient,
+                    color: 'var(--text-primary)'
+                  }}
                 >
                   {t('cta')}
                 </motion.button>
@@ -178,7 +219,7 @@ export default function HowItWorksSection() {
                       repeat: Infinity,
                       ease: "easeInOut"
                     }}
-                    className="absolute -top-4 -right-4 w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center"
+                    className="absolute -top-4 -right-4 w-12 h-12 style={{ backgroundColor: 'var(--marketing-card-bg)' }}/20 backdrop-blur-sm rounded-full flex items-center justify-center"
                   >
                     <span className="text-white text-xl">✨</span>
                   </motion.div>
@@ -194,7 +235,7 @@ export default function HowItWorksSection() {
                       ease: "easeInOut",
                       delay: 1
                     }}
-                    className="absolute -bottom-4 -left-4 w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center"
+                    className="absolute -bottom-4 -left-4 w-16 h-16 style={{ backgroundColor: 'var(--marketing-card-bg)' }}/20 backdrop-blur-sm rounded-full flex items-center justify-center"
                   >
                     <span className="text-white text-2xl">⚡</span>
                   </motion.div>

@@ -63,33 +63,43 @@ export function ColorPicker({ label, value, onChange, description }: ColorPicker
 
   return (
     <div className="space-y-2">
-      <label className="block text-sm font-medium text-gray-700">
+      <label className="block text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
         {label}
       </label>
       
       {description && (
-        <p className="text-xs text-gray-500">{description}</p>
+        <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{description}</p>
       )}
 
       <div className="relative" ref={dropdownRef}>
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className="w-full flex items-center justify-between p-3 border border-gray-300 rounded-lg bg-white hover:border-gray-400 transition-colors"
+          className="w-full flex items-center justify-between p-3 border rounded-lg transition-colors"
+          style={{ 
+            backgroundColor: 'var(--bg-secondary)',
+            borderColor: 'var(--border-primary)'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--border-focus)'}
+          onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-primary)'}
         >
           <div className="flex items-center gap-3">
             <div
-              className="w-6 h-6 rounded-md border border-gray-200 shadow-sm"
-              style={{ backgroundColor: value }}
+              className="w-6 h-6 rounded-md border shadow-sm"
+              style={{ 
+                backgroundColor: value,
+                borderColor: 'var(--border-secondary)'
+              }}
             />
-            <span className="text-sm font-mono text-gray-700">
+            <span className="text-sm font-mono" style={{ color: 'var(--text-secondary)' }}>
               {value.toUpperCase()}
             </span>
           </div>
           <ChevronDown 
-            className={`h-4 w-4 text-gray-400 transition-transform ${
+            className={`h-4 w-4 transition-transform ${
               isOpen ? 'rotate-180' : ''
-            }`} 
+            }`}
+            style={{ color: 'var(--text-muted)' }} 
           />
         </button>
 
@@ -100,11 +110,15 @@ export function ColorPicker({ label, value, onChange, description }: ColorPicker
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
-              className="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg p-4"
+              className="absolute z-50 w-full mt-2 border rounded-lg shadow-lg p-4"
+              style={{ 
+                backgroundColor: 'var(--bg-secondary)',
+                borderColor: 'var(--border-primary)'
+              }}
             >
               {/* Custom Color Input */}
               <div className="mb-4">
-                <label className="block text-xs font-medium text-gray-600 mb-2">
+                <label className="block text-xs font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
                   Custom Color
                 </label>
                 <div className="flex items-center gap-2">
@@ -112,21 +126,27 @@ export function ColorPicker({ label, value, onChange, description }: ColorPicker
                     type="color"
                     value={customColor}
                     onChange={(e) => handleCustomColorChange(e.target.value)}
-                    className="w-10 h-8 rounded border border-gray-300 cursor-pointer"
+                    className="w-10 h-8 rounded border cursor-pointer"
+                    style={{ borderColor: 'var(--border-primary)' }}
                   />
                   <input
                     type="text"
                     value={customColor}
                     onChange={(e) => handleCustomColorChange(e.target.value)}
                     placeholder="#000000"
-                    className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded font-mono"
+                    className="flex-1 px-2 py-1 text-sm border rounded font-mono"
+                    style={{ 
+                      borderColor: 'var(--border-primary)',
+                      backgroundColor: 'var(--bg-tertiary)',
+                      color: 'var(--text-primary)'
+                    }}
                   />
                 </div>
               </div>
 
               {/* Preset Colors */}
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-2">
+                <label className="block text-xs font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
                   Preset Colors
                 </label>
                 <div className="grid grid-cols-8 gap-2">
@@ -137,10 +157,24 @@ export function ColorPicker({ label, value, onChange, description }: ColorPicker
                       onClick={() => handleColorSelect(color)}
                       className={`w-8 h-8 rounded-md border-2 transition-all hover:scale-110 ${
                         value === color 
-                          ? 'border-blue-500 ring-2 ring-blue-200' 
-                          : 'border-gray-200 hover:border-gray-300'
+                          ? 'ring-2' 
+                          : ''
                       }`}
-                      style={{ backgroundColor: color }}
+                      style={{
+                        backgroundColor: color,
+                        borderColor: value === color ? 'var(--accent-primary)' : 'var(--border-secondary)',
+                        ringColor: value === color ? 'var(--border-focus)' : 'transparent'
+                      }}
+                      onMouseEnter={(e) => {
+                        if (value !== color) {
+                          e.currentTarget.style.borderColor = 'var(--border-focus)'
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (value !== color) {
+                          e.currentTarget.style.borderColor = 'var(--border-secondary)'
+                        }
+                      }}
                       title={color}
                     />
                   ))}

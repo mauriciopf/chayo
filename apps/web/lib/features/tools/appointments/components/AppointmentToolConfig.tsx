@@ -234,7 +234,16 @@ export default function AppointmentToolConfig({
         <h4 className="font-medium text-gray-900 mb-3">Choose your booking service:</h4>
         <div className="space-y-3">
           {providers.map((provider) => (
-            <label key={provider.id} className="flex items-start gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+            <label 
+              key={provider.id} 
+              className="flex items-start gap-3 p-3 border rounded-lg cursor-pointer transition-colors"
+              style={{ 
+                borderColor: 'var(--border-primary)',
+                backgroundColor: 'transparent'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+            >
               <input
                 type="radio"
                 name="provider"

@@ -145,11 +145,16 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
                   ease: [0.4, 0, 0.2, 1]
                 }}
                 onClick={() => handleHintClick(hint)}
-                className={`flex-shrink-0 px-4 py-2.5 rounded-xl transition-all duration-300 text-sm font-medium group relative overflow-hidden whitespace-nowrap ${
+                className={`flex-shrink-0 px-4 py-2.5 rounded-xl transition-all duration-300 text-sm font-medium group relative overflow-hidden whitespace-nowrap cursor-pointer border ${
                   agentToolSettings[hint.category]
-                    ? 'bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-500 text-white shadow-lg shadow-blue-500/25 ring-2 ring-blue-200 ring-offset-2 cursor-pointer'
-                    : 'bg-gray-900 border border-gray-700 text-gray-300 cursor-pointer opacity-80 hover:opacity-100 hover:bg-gray-800 hover:text-gray-200 hover:border-amber-400/60 hover:ring-1 hover:ring-amber-300/30'
+                    ? 'shadow-lg ring-1'
+                    : 'opacity-75 hover:opacity-100 hover:ring-1'
                 }`}
+                style={{
+                  backgroundColor: agentToolSettings[hint.category] ? 'var(--accent-primary)' : 'var(--bg-tertiary)',
+                  color: 'var(--text-primary)',
+                  borderColor: agentToolSettings[hint.category] ? 'var(--border-focus)' : 'var(--border-secondary)'
+                }}
                 title={hint.description}
               >
                 {/* Subtle background pattern for enabled state */}
@@ -167,7 +172,11 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
                     initial={{ scale: 0, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ delay: 0.1, type: "spring", stiffness: 500 }}
-                    className="absolute -top-1 -right-1 w-3 h-3 bg-white rounded-full shadow-sm ring-2 ring-blue-500"
+                    className="absolute -top-1 -right-1 w-3 h-3 rounded-full shadow-sm ring-2"
+                    style={{ 
+                      backgroundColor: 'var(--text-primary)',
+                      ringColor: 'var(--border-focus)'
+                    }}
                   />
                 )}
               </motion.button>

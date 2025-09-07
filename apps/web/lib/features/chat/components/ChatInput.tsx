@@ -53,7 +53,13 @@ const ChatInput: React.FC<ChatInputProps> = ({
   const t = useTranslations('chat')
 
   return (
-    <div className="bg-gray-900 px-4 py-4 flex-shrink-0" style={{ paddingBottom: isMobile ? 'max(env(safe-area-inset-bottom), 16px)' : undefined }}>
+    <div 
+      className="px-4 py-4 flex-shrink-0" 
+      style={{ 
+        backgroundColor: 'var(--bg-primary)',
+        paddingBottom: isMobile ? 'max(env(safe-area-inset-bottom), 16px)' : undefined 
+      }}
+    >
       <div className="w-full max-w-none"> 
         <input
           type="file"
@@ -62,7 +68,13 @@ const ChatInput: React.FC<ChatInputProps> = ({
           onChange={handleFileChange}
           disabled={uploading}
         />
-        <div className="bg-gray-800 rounded-2xl shadow-lg border border-gray-600 p-3" style={{ backgroundColor: '#1f2937' }}>
+        <div 
+          className="rounded-2xl shadow-lg border p-3" 
+          style={{ 
+            backgroundColor: 'var(--bg-secondary)',
+            borderColor: 'var(--border-primary)'
+          }}
+        >
           <div className="w-full">
             <textarea
               placeholder={isOnboardingActive && currentOnboardingQuestion ? currentOnboardingQuestion : t('inputPlaceholder')}
@@ -115,7 +127,14 @@ const ChatInput: React.FC<ChatInputProps> = ({
               <button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploading}
-                className={`flex-shrink-0 rounded-full bg-gray-700 text-white hover:bg-gray-600 focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:opacity-50 transition-all duration-200 shadow-md hover:shadow-lg ${isMobile ? 'p-3 min-h-[2.5rem] min-w-[2.5rem]' : 'p-2'}`}
+                className={`flex-shrink-0 rounded-full focus:ring-2 focus:outline-none disabled:opacity-50 transition-all duration-200 shadow-md hover:shadow-lg ${isMobile ? 'p-3 min-h-[2.5rem] min-w-[2.5rem]' : 'p-2'}`}
+                style={{
+                  backgroundColor: 'var(--bg-tertiary)',
+                  color: 'var(--text-primary)',
+                  ringColor: 'var(--border-focus)'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)'}
                 title={t('uploadTitle')}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -140,7 +159,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             </div>
           </div>
           {uploading && (
-            <div className="flex items-center space-x-2 mt-2 text-sm text-gray-400">
+            <div className="flex items-center space-x-2 mt-2 text-sm" style={{ color: 'var(--text-muted)' }}>
               <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>

@@ -43,7 +43,10 @@ export default function NewHero({ onStartCall }: NewHeroProps) {
   }, [currentStep]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 flex items-center justify-center px-4 py-20">
+    <div 
+      className="min-h-screen flex items-center justify-center px-4 py-20"
+      style={{ background: 'var(--marketing-hero-bg)' }}
+    >
       <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
         
         {/* Left Side - Phone Mockup */}
@@ -56,11 +59,23 @@ export default function NewHero({ onStartCall }: NewHeroProps) {
           <div className="relative">
             {/* Phone Frame */}
             <div className="w-80 h-[640px] bg-black rounded-[3rem] p-2 shadow-2xl">
-              <div className="w-full h-full bg-white rounded-[2.5rem] overflow-hidden">
+              <div 
+                className="w-full h-full rounded-[2.5rem] overflow-hidden"
+                style={{ backgroundColor: 'var(--bg-primary)' }}
+              >
                 
                 {/* Phone Header */}
-                <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-4 flex items-center">
-                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center mr-3">
+                <div 
+                  className="p-4 flex items-center"
+                  style={{ 
+                    background: 'var(--marketing-gradient-card)',
+                    color: 'var(--text-primary)'
+                  }}
+                >
+                  <div 
+                    className="w-10 h-10 rounded-full flex items-center justify-center mr-3"
+                    style={{ backgroundColor: 'var(--marketing-card-alt)' }}
+                  >
                     <span className="text-2xl">🤖</span>
                   </div>
                   <div>
@@ -71,7 +86,10 @@ export default function NewHero({ onStartCall }: NewHeroProps) {
                 </div>
 
                 {/* Chat Area */}
-                <div className="p-4 space-y-4 h-full overflow-y-auto bg-gray-50">
+                <div 
+                  className="p-4 space-y-4 h-full overflow-y-auto"
+                  style={{ backgroundColor: 'var(--bg-secondary)' }}
+                >
                   
                   {/* User Message */}
                   <motion.div 
@@ -80,7 +98,13 @@ export default function NewHero({ onStartCall }: NewHeroProps) {
                     transition={{ delay: 0.5 }}
                     className="flex justify-end"
                   >
-                    <div className="bg-blue-500 text-white rounded-lg px-4 py-2 max-w-xs">
+                    <div 
+                      className="rounded-lg px-4 py-2 max-w-xs"
+                      style={{ 
+                        backgroundColor: 'var(--marketing-accent-primary)',
+                        color: 'var(--text-primary)'
+                      }}
+                    >
                       {t('conversationExample.userMessage')}
                     </div>
                   </motion.div>
@@ -92,7 +116,14 @@ export default function NewHero({ onStartCall }: NewHeroProps) {
                     transition={{ delay: 1.5 }}
                     className="flex justify-start"
                   >
-                    <div className="bg-white border rounded-lg px-4 py-2 max-w-xs shadow-sm">
+                    <div 
+                      className="border rounded-lg px-4 py-2 max-w-xs shadow-sm"
+                      style={{ 
+                        backgroundColor: 'var(--bg-tertiary)',
+                        borderColor: 'var(--border-primary)',
+                        color: 'var(--text-primary)'
+                      }}
+                    >
                       {t('conversationExample.chayoResponse')}
                     </div>
                   </motion.div>
@@ -124,11 +155,26 @@ export default function NewHero({ onStartCall }: NewHeroProps) {
                     transition={{ delay: 4.5 }}
                     className="flex justify-start"
                   >
-                    <div className="bg-white border rounded-lg px-4 py-2 shadow-sm">
+                    <div 
+                      className="border rounded-lg px-4 py-2 shadow-sm"
+                      style={{ 
+                        backgroundColor: 'var(--bg-tertiary)',
+                        borderColor: 'var(--border-primary)'
+                      }}
+                    >
                       <div className="flex space-x-1">
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                        <div 
+                          className="w-2 h-2 rounded-full animate-bounce"
+                          style={{ backgroundColor: 'var(--text-muted)' }}
+                        ></div>
+                        <div 
+                          className="w-2 h-2 rounded-full animate-bounce"
+                          style={{ backgroundColor: 'var(--text-muted)', animationDelay: '0.1s' }}
+                        ></div>
+                        <div 
+                          className="w-2 h-2 rounded-full animate-bounce"
+                          style={{ backgroundColor: 'var(--text-muted)', animationDelay: '0.2s' }}
+                        ></div>
                       </div>
                     </div>
                   </motion.div>
@@ -153,7 +199,8 @@ export default function NewHero({ onStartCall }: NewHeroProps) {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight"
+              className="text-5xl lg:text-6xl font-bold leading-tight"
+              style={{ color: 'var(--text-primary)' }}
             >
               {t('headline')}
             </motion.h1>
@@ -162,7 +209,8 @@ export default function NewHero({ onStartCall }: NewHeroProps) {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7 }}
-              className="text-xl text-gray-600 leading-relaxed"
+              className="text-xl leading-relaxed"
+              style={{ color: 'var(--text-secondary)' }}
             >
               {t('subheadline')}
             </motion.p>
@@ -179,7 +227,11 @@ export default function NewHero({ onStartCall }: NewHeroProps) {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleStartWithChayo}
-              className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+              className="px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+              style={{ 
+                background: 'var(--marketing-gradient-button)',
+                color: 'var(--text-primary)'
+              }}
             >
               🔵 {t('ctaPrimary')}
             </motion.button>
@@ -188,7 +240,19 @@ export default function NewHero({ onStartCall }: NewHeroProps) {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleStartWithChayo}
-              className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-full text-lg font-semibold hover:border-purple-600 hover:text-purple-600 transition-all duration-300"
+              className="border-2 px-8 py-4 rounded-full text-lg font-semibold transition-all duration-300"
+              style={{ 
+                borderColor: 'var(--border-primary)',
+                color: 'var(--text-primary)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = 'var(--marketing-accent-primary)'
+                e.currentTarget.style.color = 'var(--marketing-accent-primary)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'var(--border-primary)'
+                e.currentTarget.style.color = 'var(--text-primary)'
+              }}
             >
               ⚪️ {t('ctaSecondary')}
             </motion.button>
@@ -199,7 +263,8 @@ export default function NewHero({ onStartCall }: NewHeroProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1.1 }}
-            className="flex items-center space-x-6 text-sm text-gray-500"
+            className="flex items-center space-x-6 text-sm"
+            style={{ color: 'var(--text-muted)' }}
           >
             <div className="flex items-center space-x-2">
               <span>⚡</span>

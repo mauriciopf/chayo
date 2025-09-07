@@ -31,7 +31,7 @@ export default function ExamplesSection() {
         { type: "customer", message: t('businesses.food_truck.conversations.1.user') },
         { type: "chayo", message: t('businesses.food_truck.conversations.1.chayo') }
       ],
-      gradient: "from-orange-400 to-red-400",
+      gradient: "var(--marketing-gradient-card)",
       emoji: "🌮"
     },
     {
@@ -53,7 +53,7 @@ export default function ExamplesSection() {
         { type: "customer", message: t('businesses.beauty_salon.conversations.1.user') },
         { type: "chayo", message: t('businesses.beauty_salon.conversations.1.chayo') }
       ],
-      gradient: "from-pink-400 to-purple-400",
+      gradient: "var(--marketing-gradient-button)",
       emoji: "💇"
     },
     {
@@ -75,13 +75,20 @@ export default function ExamplesSection() {
         { type: "customer", message: t('businesses.construction.conversations.1.user') },
         { type: "chayo", message: t('businesses.construction.conversations.1.chayo') }
       ],
-      gradient: "from-yellow-400 to-orange-400",
+      gradient: "var(--marketing-gradient-subtle)",
       emoji: "🔨"
     }
   ];
 
   return (
-    <div ref={ref} className="py-20 bg-gradient-to-br from-gray-50 to-slate-100 text-gray-900">
+    <div 
+      ref={ref} 
+      className="py-20"
+      style={{ 
+        background: 'var(--marketing-hero-bg)',
+        color: 'var(--text-primary)'
+      }}
+    >
       <div className="max-w-7xl mx-auto px-4">
         
         {/* Section Header */}
@@ -94,16 +101,32 @@ export default function ExamplesSection() {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={isInView ? { opacity: 1, scale: 1 } : {}}
-            className="inline-flex items-center gap-2 bg-purple-100 border border-purple-200 rounded-full px-6 py-2 mb-6"
+            className="inline-flex items-center gap-2 border rounded-full px-6 py-2 mb-6"
+            style={{ 
+              backgroundColor: 'var(--marketing-card-bg)',
+              borderColor: 'var(--marketing-accent-primary)'
+            }}
           >
-            <span className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></span>
-            <span className="text-sm font-medium text-purple-700">{t('sectionTitle')}</span>
+            <span 
+              className="w-2 h-2 rounded-full animate-pulse"
+              style={{ backgroundColor: 'var(--marketing-accent-primary)' }}
+            ></span>
+            <span 
+              className="text-sm font-medium"
+              style={{ color: 'var(--text-primary)' }}
+            >{t('sectionTitle')}</span>
           </motion.div>
 
-          <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
+          <h2 
+            className="text-4xl lg:text-5xl font-bold mb-4"
+            style={{ color: 'var(--text-primary)' }}
+          >
             {t('subheader')}
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p 
+            className="text-xl max-w-3xl mx-auto"
+            style={{ color: 'var(--text-secondary)' }}
+          >
             See how Chayo transforms business support across different industries
           </p>
         </motion.div>
@@ -115,7 +138,13 @@ export default function ExamplesSection() {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="flex justify-center mb-12"
         >
-          <div className="flex space-x-4 bg-white p-2 rounded-2xl shadow-lg border border-gray-200">
+          <div 
+            className="flex space-x-4 p-2 rounded-2xl shadow-lg border"
+            style={{ 
+              backgroundColor: 'var(--marketing-card-bg)',
+              borderColor: 'var(--border-primary)'
+            }}
+          >
             {examples.map((example, index) => (
               <motion.button
                 key={index}
@@ -124,9 +153,23 @@ export default function ExamplesSection() {
                 onClick={() => setSelectedExample(index)}
                 className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
                   selectedExample === index 
-                    ? `bg-gradient-to-r ${example.gradient} text-white shadow-lg` 
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                    ? 'shadow-lg' 
+                    : 'hover:bg-gray-100'
                 }`}
+                style={{
+                  background: selectedExample === index ? example.gradient : 'transparent',
+                  color: selectedExample === index ? 'var(--text-primary)' : 'var(--text-secondary)'
+                }}
+                onMouseEnter={(e) => {
+                  if (selectedExample !== index) {
+                    e.currentTarget.style.color = 'var(--text-primary)'
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (selectedExample !== index) {
+                    e.currentTarget.style.color = 'var(--text-secondary)'
+                  }
+                }}
               >
                 <span className="mr-2">{example.emoji}</span>
                 {example.business}
@@ -163,19 +206,43 @@ export default function ExamplesSection() {
 
             {/* Before/After */}
             <div className="grid md:grid-cols-2 gap-6">
-              <div className="bg-red-50 border border-red-200 p-6 rounded-2xl">
-                <h4 className="text-red-600 font-bold mb-3 flex items-center">
+              <div 
+                className="border p-6 rounded-2xl"
+                style={{ 
+                  backgroundColor: 'var(--marketing-card-bg)',
+                  borderColor: 'var(--border-primary)'
+                }}
+              >
+                <h4 
+                  className="font-bold mb-3 flex items-center"
+                  style={{ color: 'var(--text-primary)' }}
+                >
                   <span className="mr-2">😰</span> ANTES
                 </h4>
-                <div className="text-sm text-gray-700 whitespace-pre-line">
+                <div 
+                  className="text-sm whitespace-pre-line"
+                  style={{ color: 'var(--text-secondary)' }}
+                >
                   {examples[selectedExample].beforeAfter.before}
                 </div>
               </div>
-              <div className="bg-green-50 border border-green-200 p-6 rounded-2xl">
-                <h4 className="text-green-600 font-bold mb-3 flex items-center">
+              <div 
+                className="border p-6 rounded-2xl"
+                style={{ 
+                  backgroundColor: 'var(--marketing-card-bg)',
+                  borderColor: 'var(--border-primary)'
+                }}
+              >
+                <h4 
+                  className="font-bold mb-3 flex items-center"
+                  style={{ color: 'var(--text-primary)' }}
+                >
                   <span className="mr-2">🚀</span> DESPUÉS
                 </h4>
-                <div className="text-sm text-gray-700 whitespace-pre-line">
+                <div 
+                  className="text-sm whitespace-pre-line"
+                  style={{ color: 'var(--text-secondary)' }}
+                >
                   {examples[selectedExample].beforeAfter.after}
                 </div>
               </div>
@@ -184,9 +251,22 @@ export default function ExamplesSection() {
             {/* Metrics */}
             <div className="grid grid-cols-3 gap-4">
               {Object.entries(examples[selectedExample].metrics).map(([key, value], index) => (
-                <div key={index} className="bg-gray-100 border border-gray-200 p-4 rounded-xl text-center">
-                  <div className="text-2xl font-bold text-purple-600">{value}</div>
-                  <div className="text-sm text-gray-600 capitalize">{key.replace(/([A-Z])/g, ' $1')}</div>
+                <div 
+                  key={index} 
+                  className="border p-4 rounded-xl text-center"
+                  style={{ 
+                    backgroundColor: 'var(--marketing-card-bg)',
+                    borderColor: 'var(--border-primary)'
+                  }}
+                >
+                  <div 
+                    className="text-2xl font-bold"
+                    style={{ color: 'var(--text-primary)' }}
+                  >{value}</div>
+                  <div 
+                    className="text-sm capitalize"
+                    style={{ color: 'var(--text-secondary)' }}
+                  >{key.replace(/([A-Z])/g, ' $1')}</div>
                 </div>
               ))}
             </div>
@@ -194,8 +274,17 @@ export default function ExamplesSection() {
           </div>
 
           {/* Right Side - Conversation */}
-          <div className="bg-white border border-gray-200 rounded-3xl p-8 shadow-lg">
-            <h4 className="text-xl font-bold mb-6 flex items-center text-gray-900">
+          <div 
+            className="border rounded-3xl p-8 shadow-lg"
+            style={{ 
+              backgroundColor: 'var(--marketing-card-bg)',
+              borderColor: 'var(--border-primary)'
+            }}
+          >
+            <h4 
+              className="text-xl font-bold mb-6 flex items-center"
+              style={{ color: 'var(--text-primary)' }}
+            >
               <span className="mr-3">💬</span>
               Conversación Real con Chayo
             </h4>
@@ -209,11 +298,15 @@ export default function ExamplesSection() {
                   transition={{ delay: index * 0.3 }}
                   className={`flex ${msg.type === 'customer' ? 'justify-end' : 'justify-start'}`}
                 >
-                  <div className={`max-w-xs px-4 py-3 rounded-2xl ${
-                    msg.type === 'customer' 
-                      ? 'bg-blue-600 text-white' 
-                      : `bg-gradient-to-r ${examples[selectedExample].gradient} text-white`
-                  }`}>
+                  <div 
+                    className="max-w-xs px-4 py-3 rounded-2xl"
+                    style={{
+                      background: msg.type === 'customer' 
+                        ? 'var(--marketing-accent-primary)' 
+                        : examples[selectedExample].gradient,
+                      color: 'var(--text-primary)'
+                    }}
+                  >
                     <div className="text-sm font-medium mb-1">
                       {msg.type === 'customer' ? 'Cliente' : 'Chayo'}
                     </div>
@@ -230,11 +323,23 @@ export default function ExamplesSection() {
               transition={{ delay: 2 }}
               className="flex justify-start mt-4"
             >
-              <div className={`bg-gradient-to-r ${examples[selectedExample].gradient} px-4 py-3 rounded-2xl`}>
+              <div 
+                className="px-4 py-3 rounded-2xl"
+                style={{ background: 'var(--marketing-gradient-card)' }}
+              >
                 <div className="flex space-x-1">
-                  <div className="w-2 h-2 bg-white rounded-full animate-bounce"></div>
-                  <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                  <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                  <div 
+                    className="w-2 h-2 rounded-full animate-bounce"
+                    style={{ backgroundColor: 'var(--text-muted)' }}
+                  ></div>
+                  <div 
+                    className="w-2 h-2 rounded-full animate-bounce"
+                    style={{ backgroundColor: 'var(--text-muted)', animationDelay: '0.1s' }}
+                  ></div>
+                  <div 
+                    className="w-2 h-2 rounded-full animate-bounce"
+                    style={{ backgroundColor: 'var(--text-muted)', animationDelay: '0.2s' }}
+                  ></div>
                 </div>
               </div>
             </motion.div>

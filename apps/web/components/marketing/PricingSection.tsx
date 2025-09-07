@@ -61,7 +61,11 @@ export default function PricingSection({ onStartCall }: PricingSectionProps) {
   ];
 
   return (
-    <div ref={ref} className="py-20 bg-gradient-to-br from-gray-50 to-white">
+    <div 
+      ref={ref} 
+      className="py-20"
+      style={{ background: 'var(--marketing-hero-bg)' }}
+    >
       <div className="max-w-7xl mx-auto px-4">
         
         {/* Section Header */}
@@ -74,16 +78,32 @@ export default function PricingSection({ onStartCall }: PricingSectionProps) {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={isInView ? { opacity: 1, scale: 1 } : {}}
-            className="inline-flex items-center gap-2 bg-purple-100 border border-purple-200 rounded-full px-6 py-2 mb-6"
+            className="inline-flex items-center gap-2 border rounded-full px-6 py-2 mb-6"
+            style={{ 
+              backgroundColor: 'var(--marketing-card-bg)',
+              borderColor: 'var(--marketing-accent-primary)'
+            }}
           >
-            <span className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></span>
-            <span className="text-sm font-medium text-purple-700">{t('sectionTitle')}</span>
+            <span 
+              className="w-2 h-2 rounded-full animate-pulse"
+              style={{ backgroundColor: 'var(--marketing-accent-primary)' }}
+            ></span>
+            <span 
+              className="text-sm font-medium"
+              style={{ color: 'var(--text-primary)' }}
+            >{t('sectionTitle')}</span>
           </motion.div>
 
-          <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
+          <h2 
+            className="text-4xl lg:text-5xl font-bold mb-4"
+            style={{ color: 'var(--text-primary)' }}
+          >
             {t('subheader')}
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p 
+            className="text-xl max-w-3xl mx-auto"
+            style={{ color: 'var(--text-secondary)' }}
+          >
             {t('subheader')}
           </p>
         </motion.div>
@@ -107,34 +127,68 @@ export default function PricingSection({ onStartCall }: PricingSectionProps) {
                   transition={{ delay: 0.5 + index * 0.1 }}
                   className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10"
                 >
-                  <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-bold px-4 py-1 rounded-full shadow-lg">
+                  <div 
+                    className="text-sm font-bold px-4 py-1 rounded-full shadow-lg"
+                    style={{ 
+                      background: 'var(--marketing-gradient-button)',
+                      color: 'var(--text-primary)'
+                    }}
+                  >
                     {t('plans.professional.popular')}
                   </div>
                 </motion.div>
               )}
 
               {/* Card */}
-              <div className={`relative h-full bg-white rounded-3xl border-2 ${tier.borderColor} p-8 shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:scale-105`}>
+              <div 
+                className="relative h-full rounded-3xl border-2 p-8 shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:scale-105"
+                style={{ 
+                  backgroundColor: 'var(--marketing-card-bg)',
+                  borderColor: tier.popular ? 'var(--marketing-accent-primary)' : 'var(--border-primary)'
+                }}
+              >
                 
                 {/* Background Gradient */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${tier.bgGradient} rounded-3xl opacity-50`}></div>
+                <div 
+                  className="absolute inset-0 rounded-3xl opacity-10"
+                  style={{ 
+                    background: tier.popular ? 'var(--marketing-gradient-subtle)' : 'var(--marketing-gradient-card)'
+                  }}
+                ></div>
                 
                 <div className="relative z-10">
                   
                   {/* Header */}
                   <div className="text-center mb-6">
-                    <div className={`inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r ${tier.gradient} rounded-full mb-4 text-2xl`}>
+                    <div 
+                      className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 text-2xl"
+                      style={{ 
+                        background: tier.popular ? 'var(--marketing-gradient-button)' : 'var(--marketing-gradient-card)'
+                      }}
+                    >
                       {tier.icon}
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2">{tier.name}</h3>
-                    <p className="text-gray-600 text-sm leading-relaxed">{tier.description}</p>
+                    <h3 
+                      className="text-2xl font-bold mb-2"
+                      style={{ color: 'var(--text-primary)' }}
+                    >{tier.name}</h3>
+                    <p 
+                      className="text-sm leading-relaxed"
+                      style={{ color: 'var(--text-secondary)' }}
+                    >{tier.description}</p>
                   </div>
 
                   {/* Price */}
                   <div className="text-center mb-8">
                     <div className="flex items-baseline justify-center">
-                      <span className="text-5xl font-bold text-gray-900">{tier.price}</span>
-                      <span className="text-gray-600 ml-2">{tier.period}</span>
+                      <span 
+                        className="text-5xl font-bold"
+                        style={{ color: 'var(--text-primary)' }}
+                      >{tier.price}</span>
+                      <span 
+                        className="ml-2"
+                        style={{ color: 'var(--text-secondary)' }}
+                      >{tier.period}</span>
                     </div>
                   </div>
 
@@ -148,12 +202,20 @@ export default function PricingSection({ onStartCall }: PricingSectionProps) {
                         transition={{ delay: 0.6 + index * 0.1 + idx * 0.05 }}
                         className="flex items-start space-x-3"
                       >
-                        <div className={`w-5 h-5 rounded-full bg-gradient-to-r ${tier.gradient} flex items-center justify-center mt-0.5 flex-shrink-0`}>
+                        <div 
+                          className="w-5 h-5 rounded-full flex items-center justify-center mt-0.5 flex-shrink-0"
+                          style={{ 
+                            background: tier.popular ? 'var(--marketing-gradient-button)' : 'var(--marketing-gradient-card)'
+                          }}
+                        >
                           <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                           </svg>
                         </div>
-                        <span className="text-sm text-gray-700 leading-tight">{feature}</span>
+                        <span 
+                          className="text-sm leading-tight"
+                          style={{ color: 'var(--text-secondary)' }}
+                        >{feature}</span>
                       </motion.li>
                     ))}
                   </ul>
@@ -163,7 +225,10 @@ export default function PricingSection({ onStartCall }: PricingSectionProps) {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={handleSolicitaDemo}
-                    className={`w-full py-4 rounded-xl font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-r ${tier.gradient}`}
+                    className="w-full py-4 rounded-xl font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-300"
+                    style={{ 
+                      background: 'var(--marketing-gradient-button)'
+                    }}
                   >
                     🔵 {tier.name === t('plans.basic.name') ? t('plans.basic.cta') : tier.name === t('plans.professional.name') ? t('plans.professional.cta') : t('plans.premium.cta')}
                   </motion.button>

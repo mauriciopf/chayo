@@ -26,7 +26,7 @@ export default function AuthPromptView({
   handleManageDocsModalClose
 }: any) {
   return (
-    <div className="flex h-screen min-h-0 bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
+    <div className="flex h-screen min-h-0" style={{ backgroundColor: 'var(--bg-primary)' }}>
       {/* Desktop Navigation Sidebar */}
       <DesktopNavigation
         activeView={activeView}

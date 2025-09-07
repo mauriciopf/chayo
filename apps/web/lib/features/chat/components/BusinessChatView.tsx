@@ -109,6 +109,7 @@ export default function BusinessChatView({
         ref={chatScrollContainerRef as React.RefObject<HTMLDivElement>}
         onClick={() => { if (isMobile && !hasUserInteracted) setHasUserInteracted(true); }}
         style={{ 
+          backgroundColor: 'var(--bg-primary)',
           scrollPaddingBottom: '20vh',
           scrollSnapType: 'none'
         }}

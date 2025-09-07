@@ -189,9 +189,18 @@ export default function ClientChatBusinessPage() {
     )
   }
   return (
-    <div className="h-full bg-white flex flex-col">
+    <div 
+      className="h-full flex flex-col"
+      style={{ backgroundColor: 'var(--bg-primary)' }}
+    >
       {/* Mobile Header - Compact */}
-      <div className="bg-white border-b border-gray-200 px-4 py-3 flex-shrink-0">
+      <div 
+        className="border-b px-4 py-3 flex-shrink-0"
+        style={{ 
+          backgroundColor: 'var(--bg-secondary)',
+          borderColor: 'var(--border-primary)'
+        }}
+      >
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center">
             <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">

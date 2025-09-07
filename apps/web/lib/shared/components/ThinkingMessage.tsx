@@ -17,7 +17,7 @@ interface ThinkingMessageProps {
 export default function ThinkingMessage({ 
   context, 
   isVisible, 
-  className = "text-sm text-gray-500 ml-2",
+  className = "text-sm text-zinc-400 ml-2",
   onboardingProgress,
   organizationId,
   currentPhase,
@@ -121,22 +121,22 @@ export default function ThinkingMessage({
       case 'auth':
         return {
           icon: <Shield className="w-4 h-4 mr-1" />,
-          className: "text-sm text-blue-600 ml-2 flex items-center"
+          className: "text-sm text-zinc-300 ml-2 flex items-center"
         }
       case 'dashboard':
         return {
           icon: <Database className="w-4 h-4 mr-1" />,
-          className: "text-sm text-purple-600 ml-2 flex items-center"
+          className: "text-sm text-zinc-300 ml-2 flex items-center"
         }
       case 'onboarding':
         return {
           icon: <Settings className="w-4 h-4 mr-1" />,
-          className: "text-sm text-green-600 ml-2 flex items-center"
+          className: "text-sm text-zinc-300 ml-2 flex items-center"
         }
       case 'system':
         return {
           icon: <Zap className="w-4 h-4 mr-1" />,
-          className: "text-sm text-orange-600 ml-2 flex items-center"
+          className: "text-sm text-zinc-300 ml-2 flex items-center"
         }
       default:
         return {

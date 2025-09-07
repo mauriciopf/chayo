@@ -97,15 +97,40 @@ export default function MultipleChoice({
             whileTap={{ scale: disabled ? 1 : 0.99 }}
             onClick={() => handleOptionClick(option)}
             disabled={disabled}
-            className={`
-              w-full text-left px-3 py-2 rounded-lg border transition-all duration-200 text-sm
-              ${disabled 
-                ? 'bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed' 
+            className={`w-full text-left px-3 py-2 rounded-lg border transition-all duration-200 text-sm ${
+              disabled 
+                ? 'cursor-not-allowed' 
                 : isOptionSelected(option)
-                ? 'bg-blue-50 border-blue-300 text-blue-700 shadow-sm'
-                : 'bg-white border-gray-200 text-gray-700 hover:border-blue-200 hover:bg-blue-50 cursor-pointer'
+                ? 'shadow-sm'
+                : 'cursor-pointer'
+            }`}
+            style={{
+              backgroundColor: disabled 
+                ? 'var(--bg-hover)' 
+                : isOptionSelected(option)
+                ? 'var(--bg-tertiary)'
+                : 'var(--bg-secondary)',
+              borderColor: disabled
+                ? 'var(--border-secondary)'
+                : isOptionSelected(option)
+                ? 'var(--accent-primary)'
+                : 'var(--border-primary)',
+              color: disabled
+                ? 'var(--text-disabled)'
+                : 'var(--text-primary)'
+            }}
+            onMouseEnter={(e) => {
+              if (!disabled && !isOptionSelected(option)) {
+                e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)'
+                e.currentTarget.style.borderColor = 'var(--accent-primary)'
               }
-            `}
+            }}
+            onMouseLeave={(e) => {
+              if (!disabled && !isOptionSelected(option)) {
+                e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'
+                e.currentTarget.style.borderColor = 'var(--border-primary)'
+              }
+            }}
           >
             <div className="flex items-center justify-between">
               <span className="font-medium">{option}</span>
@@ -136,15 +161,40 @@ export default function MultipleChoice({
             whileTap={{ scale: disabled ? 1 : 0.99 }}
             onClick={() => handleOptionClick(otherOptionLabel)}
             disabled={disabled}
-            className={`
-              w-full text-left px-3 py-2 rounded-lg border transition-all duration-200 text-sm
-              ${disabled 
-                ? 'bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed' 
+            className={`w-full text-left px-3 py-2 rounded-lg border transition-all duration-200 text-sm ${
+              disabled 
+                ? 'cursor-not-allowed' 
                 : showOtherInput
-                ? 'bg-blue-50 border-blue-300 text-blue-700 shadow-sm'
-                : 'bg-white border-gray-200 text-gray-700 hover:border-blue-200 hover:bg-blue-50 cursor-pointer'
+                ? 'shadow-sm'
+                : 'cursor-pointer'
+            }`}
+            style={{
+              backgroundColor: disabled 
+                ? 'var(--bg-hover)' 
+                : showOtherInput
+                ? 'var(--bg-tertiary)'
+                : 'var(--bg-secondary)',
+              borderColor: disabled
+                ? 'var(--border-secondary)'
+                : showOtherInput
+                ? 'var(--accent-primary)'
+                : 'var(--border-primary)',
+              color: disabled
+                ? 'var(--text-disabled)'
+                : 'var(--text-primary)'
+            }}
+            onMouseEnter={(e) => {
+              if (!disabled && !showOtherInput) {
+                e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)'
+                e.currentTarget.style.borderColor = 'var(--accent-primary)'
               }
-            `}
+            }}
+            onMouseLeave={(e) => {
+              if (!disabled && !showOtherInput) {
+                e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'
+                e.currentTarget.style.borderColor = 'var(--border-primary)'
+              }
+            }}
           >
             <div className="flex items-center justify-between">
               <span className="font-medium">{otherOptionLabel}</span>
@@ -187,13 +237,37 @@ export default function MultipleChoice({
             <button
               onClick={handleOtherSubmit}
               disabled={!otherValue.trim()}
-              className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors text-sm"
+              className="px-3 py-2 rounded-lg transition-colors text-sm disabled:cursor-not-allowed"
+              style={{ 
+                backgroundColor: 'var(--accent-primary)',
+                color: 'var(--text-primary)'
+              }}
+              onMouseEnter={(e) => {
+                if (!e.currentTarget.disabled) {
+                  e.currentTarget.style.backgroundColor = 'var(--bg-hover)'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!e.currentTarget.disabled) {
+                  e.currentTarget.style.backgroundColor = 'var(--accent-primary)'
+                }
+              }}
             >
               Add
             </button>
             <button
               onClick={handleOtherCancel}
-              className="px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm"
+              className="px-3 py-2 rounded-lg transition-colors text-sm"
+              style={{ 
+                backgroundColor: 'var(--bg-tertiary)',
+                color: 'var(--text-secondary)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--bg-hover)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)'
+              }}
             >
               Cancel
             </button>

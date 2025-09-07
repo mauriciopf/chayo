@@ -17,7 +17,11 @@ export default function SimpleInsightsDashboard({ organizationId }: SimpleInsigh
         <div className="w-full max-w-6xl">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white p-6 rounded-lg shadow animate-pulse">
+              <div 
+                key={i} 
+                className="p-6 rounded-lg shadow animate-pulse"
+                style={{ backgroundColor: 'var(--bg-secondary)' }}
+              >
                 <div className="h-4 bg-gray-200 rounded mb-4"></div>
                 <div className="h-8 bg-gray-200 rounded mb-2"></div>
                 <div className="h-4 bg-gray-200 rounded"></div>

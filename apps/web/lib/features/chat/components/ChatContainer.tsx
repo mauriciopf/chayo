@@ -97,8 +97,10 @@ export default function ChatContainer({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="flex flex-col w-full md:rounded-2xl md:border md:border-gray-200 md:shadow-lg bg-white/80 flex-1"
+      className="flex flex-col w-full md:rounded-2xl md:border md:shadow-lg flex-1"
       style={{
+        backgroundColor: 'var(--bg-secondary)',
+        borderColor: 'var(--border-primary)',
         height: isMobile ? 'calc(100dvh - 60px - 3rem)' : 'calc(100vh - 2rem - 3rem)', // Account for mobile header, desktop padding, and beta banner
         maxHeight: isMobile ? 'calc(100dvh - 60px - 3rem)' : 'calc(100vh - 2rem - 3rem)',
         position: 'relative',
@@ -147,15 +149,15 @@ export default function ChatContainer({
             onModeSwitch={handleModeSwitch}
           />
         ) : (
-          <div className="flex-1 flex items-center justify-center text-gray-500 p-8">
+          <div className="flex-1 flex items-center justify-center p-8" style={{ color: 'var(--text-secondary)' }}>
             <div className="text-center max-w-md">
               <div className="mb-4">
-                <svg className="w-16 h-16 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-16 h-16 mx-auto" style={{ color: 'var(--text-muted)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2m0 0H7a2 2 0 01-2-2V10a2 2 0 012-2h2m8 0V6a2 2 0 00-2-2H9a2 2 0 00-2 2v2m8 0V4a2 2 0 00-2-2H9a2 2 0 00-2 2v4" />
                 </svg>
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Client Mode Setup Required</h3>
-              <p className="text-sm text-gray-600 mb-4">
+              <h3 className="text-lg font-medium mb-2" style={{ color: 'var(--text-primary)' }}>Client Mode Setup Required</h3>
+              <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>
                 {!organization 
                   ? "To use client mode, please set up your business first. This creates your organization and AI agent that clients can interact with."
                   : "Your business is set up, but your AI agent is still being created. Please complete your business onboarding to activate client mode."
@@ -172,7 +174,7 @@ export default function ChatContainer({
                   {!organization ? "Start Business Setup" : "Continue Business Setup"}
                 </button>
                 {organization && (
-                  <p className="text-xs text-gray-500 mt-2">
+                  <p className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>
                     Once you complete the onboarding questions, your AI agent will be automatically created and ready for client interactions.
                   </p>
                 )}

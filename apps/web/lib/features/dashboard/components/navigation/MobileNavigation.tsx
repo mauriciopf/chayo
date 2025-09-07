@@ -133,17 +133,22 @@ export default function MobileNavigation({
                   </span>
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900 text-sm">
+                  <p className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>
                     {user?.email || 'User'}
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
                     {subscription?.plan_name || 'Free'} Plan
                   </p>
                 </div>
               </div>
               <button
                 onClick={onClose}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
+                className="transition-colors"
+                style={{ 
+                  color: 'var(--text-muted)'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
+                onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -157,13 +162,28 @@ export default function MobileNavigation({
                 <button
                   key={item.id}
                   onClick={() => handleMenuItemClick(item.id)}
-                  className={`w-full flex items-center space-x-3 px-6 py-3 text-left hover:bg-gray-50 transition-colors ${
+                  className={`w-full flex items-center space-x-3 px-6 py-3 text-left transition-colors ${
                     activeView === item.id 
-                      ? 'bg-orange-50 text-orange-600 border-r-2 border-orange-600' 
-                      : 'text-gray-700'
+                      ? 'border-r-2' 
+                      : ''
                   }`}
+                  style={{
+                    backgroundColor: activeView === item.id ? 'var(--bg-hover)' : 'transparent',
+                    color: activeView === item.id ? 'var(--accent-primary)' : 'var(--text-secondary)',
+                    borderColor: activeView === item.id ? 'var(--accent-primary)' : 'transparent'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (activeView !== item.id) {
+                      e.currentTarget.style.backgroundColor = 'var(--bg-hover)'
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (activeView !== item.id) {
+                      e.currentTarget.style.backgroundColor = 'transparent'
+                    }
+                  }}
                 >
-                  <span className={activeView === item.id ? 'text-orange-600' : 'text-gray-400'}>
+                  <span style={{ color: activeView === item.id ? 'var(--accent-primary)' : 'var(--text-muted)' }}>
                     {item.icon}
                   </span>
                   <span className="font-medium">{item.label}</span>
@@ -178,9 +198,12 @@ export default function MobileNavigation({
                   onManageBilling()
                   onClose()
                 }}
-                className="w-full flex items-center space-x-3 px-6 py-3 text-left hover:bg-gray-50 transition-colors"
+                className="w-full flex items-center space-x-3 px-6 py-3 text-left transition-colors"
+                style={{ color: 'var(--text-secondary)' }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               >
-                <span className="text-gray-400">
+                <span style={{ color: 'var(--text-muted)' }}>
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                   </svg>
@@ -205,15 +228,21 @@ export default function MobileNavigation({
             </div>
 
             {/* Footer */}
-            <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 bg-gray-50">
+            <div 
+              className="absolute bottom-0 left-0 right-0 p-4 border-t"
+              style={{ 
+                backgroundColor: 'var(--bg-hover)',
+                borderColor: 'var(--border-secondary)'
+              }}
+            >
               <div className="text-center">
                 <div className="flex items-center justify-center gap-2 mb-1">
-                  <p className="text-xs text-gray-500">Chayo Dashboard</p>
+                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Chayo Dashboard</p>
                   <span className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
                     BETA
                   </span>
                 </div>
-                <p className="text-xs text-gray-400">Free until Dec 31, 2025</p>
+                <p className="text-xs" style={{ color: 'var(--text-disabled)' }}>Free until Dec 31, 2025</p>
               </div>
             </div>
           </motion.div>

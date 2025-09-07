@@ -70,11 +70,15 @@ export default function NewHeader() {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
-      className={`bg-white/95 backdrop-blur-xl shadow-lg border-b border-gray-100 transition-all duration-500 ${
+      className={`backdrop-blur-xl shadow-lg border-b transition-all duration-500 ${
         isScrolled 
           ? 'shadow-xl' 
           : 'shadow-lg'
       }`}
+      style={{ 
+        backgroundColor: 'var(--bg-primary)',
+        borderColor: 'var(--border-primary)'
+      }}
     >
       <div className="max-w-7xl mx-auto px-4 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
@@ -91,13 +95,14 @@ export default function NewHeader() {
                 className="text-3xl lg:text-4xl font-black tracking-tight"
                 whileHover={{ scale: 1.02 }}
               >
-                <span className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 bg-clip-text text-transparent">
+                <span style={{ color: 'var(--text-primary)' }}>
                   Chayo
                 </span>
                 
                 {/* Animated dot */}
                 <motion.span
-                  className="inline-block w-2 h-2 lg:w-2.5 lg:h-2.5 bg-gradient-to-r from-pink-500 to-orange-400 rounded-full ml-1"
+                  className="inline-block w-2 h-2 lg:w-2.5 lg:h-2.5 rounded-full ml-1"
+                  style={{ backgroundColor: 'var(--marketing-accent-primary)' }}
                   animate={{ 
                     scale: [1, 1.3, 1],
                     opacity: [0.7, 1, 0.7]
@@ -112,7 +117,8 @@ export default function NewHeader() {
               
               {/* Subtitle */}
               <motion.p 
-                className="text-xs lg:text-sm text-gray-500 font-medium -mt-1 tracking-wide"
+                className="text-xs lg:text-sm font-medium -mt-1 tracking-wide"
+                style={{ color: 'var(--text-secondary)' }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3 }}
@@ -151,7 +157,16 @@ export default function NewHeader() {
                 onClick={() => scrollToSection(item.id)}
                 whileHover={{ y: -2, scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="relative px-4 py-2 hover:text-purple-600 font-medium transition-all duration-300 rounded-xl hover:bg-purple-50 group"
+                className="relative px-4 py-2 font-medium transition-all duration-300 rounded-xl group"
+                style={{ color: 'var(--text-secondary)' }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = 'var(--accent-primary)'
+                  e.currentTarget.style.backgroundColor = 'var(--bg-hover)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = 'var(--text-secondary)'
+                  e.currentTarget.style.backgroundColor = 'transparent'
+                }}
               >
                 <span className="flex items-center space-x-2">
                   <span className="text-sm group-hover:scale-110 transition-transform duration-300">{item.icon}</span>
@@ -180,7 +195,16 @@ export default function NewHeader() {
                   onClick={() => router.push(`/${locale}/dashboard`)}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="px-4 py-2 hover:text-purple-600 font-medium transition-all duration-300 rounded-xl hover:bg-gray-50"
+                  className="px-4 py-2 font-medium transition-all duration-300 rounded-xl"
+                  style={{ color: 'var(--text-secondary)' }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = 'var(--accent-primary)'
+                    e.currentTarget.style.backgroundColor = 'var(--bg-hover)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = 'var(--text-secondary)'
+                    e.currentTarget.style.backgroundColor = 'transparent'
+                  }}
                 >
                   {t('navigation.dashboard')}
                 </motion.button>
@@ -189,7 +213,16 @@ export default function NewHeader() {
                   onClick={handleSignOut}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="px-4 py-2 hover:text-red-600 font-medium transition-all duration-300 rounded-xl hover:bg-gray-50"
+                  className="px-4 py-2 font-medium transition-all duration-300 rounded-xl"
+                  style={{ color: 'var(--text-secondary)' }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = 'var(--accent-danger)'
+                    e.currentTarget.style.backgroundColor = 'var(--bg-hover)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = 'var(--text-secondary)'
+                    e.currentTarget.style.backgroundColor = 'transparent'
+                  }}
                 >
                   {t('navigation.signOut')}
                 </motion.button>
@@ -201,7 +234,16 @@ export default function NewHeader() {
                   onClick={() => router.push(`/${locale}/dashboard`)}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="px-4 py-2 hover:text-purple-600 font-medium transition-all duration-300 rounded-xl hover:bg-gray-50"
+                  className="px-4 py-2 font-medium transition-all duration-300 rounded-xl"
+                  style={{ color: 'var(--text-secondary)' }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = 'var(--accent-primary)'
+                    e.currentTarget.style.backgroundColor = 'var(--bg-hover)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = 'var(--text-secondary)'
+                    e.currentTarget.style.backgroundColor = 'transparent'
+                  }}
                 >
                   {t('navigation.signIn')}
                 </motion.button>
@@ -270,13 +312,18 @@ export default function NewHeader() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[65]"
+              className="fixed inset-0 backdrop-blur-sm z-[65]"
+              style={{ backgroundColor: 'var(--bg-primary)' }}
               onClick={() => setIsMenuOpen(false)}
             />
           )}
           
           <motion.div 
-            className="py-6 space-y-4 border-t border-gray-100 bg-white/98 backdrop-blur-xl rounded-b-2xl shadow-2xl relative z-[70] border-l border-r border-b border-gray-200/50"
+            className="py-6 space-y-4 border-t backdrop-blur-xl rounded-b-2xl shadow-2xl relative z-[70] border-l border-r border-b"
+            style={{ 
+              backgroundColor: 'var(--bg-secondary)',
+              borderColor: 'var(--border-primary)'
+            }}
             initial={{ y: -20 }}
             animate={{ y: isMenuOpen ? 0 : -20 }}
             transition={{ duration: 0.3 }}
@@ -291,7 +338,16 @@ export default function NewHeader() {
                 onClick={() => scrollToSection(item.id)}
                 whileHover={{ x: 5 }}
                 whileTap={{ scale: 0.98 }}
-                className="flex items-center space-x-3 w-full px-4 py-3 text-left hover:text-purple-600 hover:bg-purple-50 font-medium transition-all duration-300 rounded-xl"
+                className="flex items-center space-x-3 w-full px-4 py-3 text-left font-medium transition-all duration-300 rounded-xl"
+                style={{ color: 'var(--text-secondary)' }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = 'var(--accent-primary)'
+                  e.currentTarget.style.backgroundColor = 'var(--bg-hover)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = 'var(--text-secondary)'
+                  e.currentTarget.style.backgroundColor = 'transparent'
+                }}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1 }}

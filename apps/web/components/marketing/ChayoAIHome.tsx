@@ -8,8 +8,7 @@ import NewHeader from "./NewHeader";
 import NewHero from "./NewHero";
 import VibeSection from "./VibeSection";
 import TrainingSection from "./TrainingSection";
-import MarketingSection from "./MarketingSection";
-import LaunchSection from "./LaunchSection";
+import SimpleChayoSection from "./SimpleChayoSection";
 import HowItWorksSection from "./HowItWorksSection";
 import ExamplesSection from "./ExamplesSection";
 import PricingSection from "./PricingSection";
@@ -49,7 +48,13 @@ export default function ChayoAIHome({ darkMode: parentDarkMode }: ChayoAIHomePro
   }, []);
 
   return (
-    <div className="bg-white text-gray-900 transition-colors duration-700">
+    <div 
+      className="transition-colors duration-700"
+      style={{ 
+        backgroundColor: 'var(--bg-primary)',
+        color: 'var(--text-primary)'
+      }}
+    >
       {/* Beta Banner */}
       <BetaBanner />
       
@@ -72,27 +77,22 @@ export default function ChayoAIHome({ darkMode: parentDarkMode }: ChayoAIHomePro
           <TrainingSection />
         </section>
 
-        {/* Section 3 - Chayo Marketing on Autopilot */}
-        <section id="marketing">
-          <MarketingSection />
+        {/* Section 3 - What is Chayo */}
+        <section id="chayo">
+          <SimpleChayoSection />
         </section>
 
-        {/* Section 4 - Launch and Let Chayo Handle the Grind */}
-        <section id="launch">
-          <LaunchSection onStartCall={handleStartCall} />
-        </section>
-
-        {/* Section 5 - How it Works */}
+        {/* Section 4 - How it Works */}
         <section id="how">
           <HowItWorksSection />
         </section>
 
-        {/* Section 6 - Examples */}
+        {/* Section 5 - Examples */}
         <section id="examples">
           <ExamplesSection />
         </section>
 
-        {/* Section 7 - Pricing */}
+        {/* Section 6 - Pricing */}
         <section id="pricing">
           <PricingSection onStartCall={handleStartCall} />
         </section>
@@ -106,7 +106,8 @@ export default function ChayoAIHome({ darkMode: parentDarkMode }: ChayoAIHomePro
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 flex items-center justify-center z-50 p-4"
+          style={{ backgroundColor: 'var(--bg-primary)' }}
           onClick={() => setShowStartACall(false)}
         >
           <motion.div

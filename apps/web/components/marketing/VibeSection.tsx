@@ -11,7 +11,11 @@ export default function VibeSection() {
   const t = useTranslations('vibe');
 
   return (
-    <div ref={ref} className="py-20 bg-gradient-to-br from-green-50 to-emerald-50">
+    <div 
+      ref={ref} 
+      className="py-20"
+      style={{ background: 'var(--marketing-hero-bg)' }}
+    >
       <div className="max-w-7xl mx-auto px-4">
         
         {/* Section Header */}
@@ -21,10 +25,16 @@ export default function VibeSection() {
           transition={{ duration: 0.8 }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
+          <h2 
+            className="text-4xl lg:text-5xl font-bold mb-4"
+            style={{ color: 'var(--text-primary)' }}
+          >
             {t('title')}
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p 
+            className="text-xl max-w-3xl mx-auto"
+            style={{ color: 'var(--text-secondary)' }}
+          >
             {t('subtitle')}
           </p>
         </motion.div>
@@ -40,7 +50,10 @@ export default function VibeSection() {
           >
             
             {/* Chat Conversation */}
-            <div className="bg-white rounded-2xl shadow-xl p-6 space-y-4">
+            <div 
+              className="rounded-2xl shadow-xl p-6 space-y-4"
+              style={{ backgroundColor: 'var(--marketing-card-bg)' }}
+            >
               
               {/* User Message */}
               <motion.div 
@@ -49,7 +62,10 @@ export default function VibeSection() {
                 transition={{ delay: 0.5 }}
                 className="flex justify-end"
               >
-                <div className="bg-blue-500 text-white rounded-lg px-4 py-3 max-w-xs">
+                <div 
+                  className="text-white rounded-lg px-4 py-3 max-w-xs"
+                  style={{ backgroundColor: 'var(--marketing-accent-primary)' }}
+                >
                   Chayo, can you help me with my health and book appointments?
                 </div>
               </motion.div>
@@ -61,7 +77,14 @@ export default function VibeSection() {
                 transition={{ delay: 1 }}
                 className="flex justify-start"
               >
-                <div className="bg-gradient-to-r from-green-100 to-emerald-100 rounded-lg px-4 py-3 max-w-xs border border-green-200">
+                <div 
+                  className="rounded-lg px-4 py-3 max-w-xs border"
+                  style={{ 
+                    background: 'var(--marketing-gradient-card)',
+                    borderColor: 'var(--marketing-accent-primary)',
+                    color: 'var(--text-primary)'
+                  }}
+                >
                   Absolutely! Name me, pick my tone, and tell me what you need. 🏥
                 </div>
               </motion.div>
@@ -73,7 +96,14 @@ export default function VibeSection() {
                 transition={{ delay: 1.5 }}
                 className="flex justify-start"
               >
-                <div className="bg-gradient-to-r from-green-100 to-emerald-100 rounded-lg px-4 py-3 max-w-xs border border-green-200">
+                <div 
+                  className="rounded-lg px-4 py-3 max-w-xs border"
+                  style={{ 
+                    background: 'var(--marketing-gradient-card)',
+                    borderColor: 'var(--marketing-accent-primary)',
+                    color: 'var(--text-primary)'
+                  }}
+                >
                   I'll become your digital health companion — caring, supportive, and never tired.
                 </div>
               </motion.div>
@@ -87,7 +117,10 @@ export default function VibeSection() {
               transition={{ delay: 2 }}
               className="text-center"
             >
-              <p className="text-lg text-gray-600 italic">
+              <p 
+                className="text-lg italic"
+                style={{ color: 'var(--text-secondary)' }}
+              >
                 "She learns your health needs instantly and supports you like she's been your wellness partner for years."
               </p>
             </motion.div>
@@ -103,13 +136,22 @@ export default function VibeSection() {
           >
             
             {/* Config Panel */}
-            <div className="bg-white rounded-2xl shadow-xl p-8">
+            <div 
+              className="rounded-2xl shadow-xl p-8"
+              style={{ backgroundColor: 'var(--marketing-card-bg)' }}
+            >
               
-              <h3 className="text-2xl font-bold text-gray-900 mb-6">Health Assistant Setup</h3>
+              <h3 
+                className="text-2xl font-bold mb-6"
+                style={{ color: 'var(--text-primary)' }}
+              >Health Assistant Setup</h3>
               
               {/* Name Field */}
               <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label 
+                  className="block text-sm font-medium mb-2"
+                  style={{ color: 'var(--text-primary)' }}
+                >
                   Health Assistant Name
                 </label>
                 <div className="relative">
@@ -117,7 +159,12 @@ export default function VibeSection() {
                     type="text" 
                     value="Chayo" 
                     readOnly
-                    className="w-full px-4 py-3 border-2 border-green-200 rounded-lg bg-green-50 text-gray-900 font-medium"
+                    className="w-full px-4 py-3 border-2 rounded-lg font-medium"
+                    style={{ 
+                      borderColor: 'var(--border-primary)',
+                      backgroundColor: 'var(--marketing-card-bg)',
+                      color: 'var(--text-primary)'
+                    }}
                   />
                   <span className="absolute right-3 top-3 text-green-500">✨</span>
                 </div>
@@ -125,28 +172,52 @@ export default function VibeSection() {
 
               {/* Tone Selection */}
               <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label 
+                  className="block text-sm font-medium mb-2"
+                  style={{ color: 'var(--text-primary)' }}
+                >
                   Personality & Tone
                 </label>
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="border-2 border-green-500 bg-green-50 rounded-lg p-3 text-center">
-                    <span className="text-sm font-medium text-green-700">Friendly & Professional</span>
+                  <div 
+                    className="border-2 rounded-lg p-3 text-center"
+                    style={{ 
+                      borderColor: 'var(--marketing-accent-primary)',
+                      backgroundColor: 'var(--marketing-card-bg)'
+                    }}
+                  >
+                    <span 
+                      className="text-sm font-medium"
+                      style={{ color: 'var(--text-primary)' }}
+                    >Friendly & Professional</span>
                   </div>
                   <div className="border border-gray-200 rounded-lg p-3 text-center">
-                    <span className="text-sm text-gray-500">Casual & Fun</span>
+                    <span 
+                      className="text-sm"
+                      style={{ color: 'var(--text-secondary)' }}
+                    >Casual & Fun</span>
                   </div>
                   <div className="border border-gray-200 rounded-lg p-3 text-center">
-                    <span className="text-sm text-gray-500">Formal & Expert</span>
+                    <span 
+                      className="text-sm"
+                      style={{ color: 'var(--text-secondary)' }}
+                    >Formal & Expert</span>
                   </div>
                   <div className="border border-gray-200 rounded-lg p-3 text-center">
-                    <span className="text-sm text-gray-500">Custom Tone</span>
+                    <span 
+                      className="text-sm"
+                      style={{ color: 'var(--text-secondary)' }}
+                    >Custom Tone</span>
                   </div>
                 </div>
               </div>
 
               {/* Goals Checklist */}
               <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label 
+                  className="block text-sm font-medium mb-2"
+                  style={{ color: 'var(--text-primary)' }}
+                >
                   What should Chayo help you with?
                 </label>
                 <div className="space-y-3">
@@ -157,12 +228,24 @@ export default function VibeSection() {
                     { text: "Provide health reminders", checked: false }
                   ].map((goal, index) => (
                     <div key={index} className="flex items-center space-x-3">
-                      <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                        goal.checked ? 'bg-green-500 border-green-500' : 'border-gray-300'
-                      }`}>
-                        {goal.checked && <span className="text-white text-xs">✓</span>}
+                      <div 
+                        className="w-5 h-5 rounded border-2 flex items-center justify-center"
+                        style={{
+                          backgroundColor: goal.checked ? 'var(--marketing-accent-primary)' : 'transparent',
+                          borderColor: goal.checked ? 'var(--marketing-accent-primary)' : 'var(--border-primary)'
+                        }}
+                      >
+                        {goal.checked && <span 
+                          className="text-xs"
+                          style={{ color: 'var(--text-primary)' }}
+                        >✓</span>}
                       </div>
-                      <span className={`text-sm ${goal.checked ? 'text-gray-900' : 'text-gray-500'}`}>
+                      <span 
+                        className="text-sm"
+                        style={{ 
+                          color: goal.checked ? 'var(--text-primary)' : 'var(--text-secondary)' 
+                        }}
+                      >
                         {goal.text}
                       </span>
                     </div>

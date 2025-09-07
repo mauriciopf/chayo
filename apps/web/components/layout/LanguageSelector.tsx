@@ -29,20 +29,31 @@ export default function LanguageSelector() {
   return (
     <>
       {/* Mobile Language Selector */}
-      <div className="md:hidden bg-white/95 backdrop-blur-md border-b border-gray-200/50 px-4 py-2">
+      <div 
+        className="md:hidden backdrop-blur-md border-b px-4 py-2"
+        style={{ 
+          backgroundColor: 'var(--bg-secondary)',
+          borderColor: 'var(--border-secondary)'
+        }}
+      >
         <div className="flex justify-between items-center">
-          <div className="text-sm font-medium text-gray-700">
+          <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
             Language / Idioma
           </div>
           <div className="relative">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="flex items-center space-x-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 text-sm"
+              className="flex items-center space-x-2 border rounded-lg px-3 py-1.5 text-sm"
+              style={{ 
+                backgroundColor: 'var(--bg-tertiary)',
+                borderColor: 'var(--border-primary)'
+              }}
             >
               <span className="text-base">{currentLanguage.flag}</span>
-              <span className="font-medium text-gray-700">{currentLanguage.code.toUpperCase()}</span>
+              <span className="font-medium" style={{ color: 'var(--text-primary)' }}>{currentLanguage.code.toUpperCase()}</span>
               <svg 
-                className={`w-3 h-3 text-gray-500 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+                className={`w-3 h-3 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+                style={{ color: 'var(--text-muted)' }}
                 fill="none" 
                 stroke="currentColor" 
                 viewBox="0 0 24 24"
@@ -52,14 +63,32 @@ export default function LanguageSelector() {
             </button>
 
             {isOpen && (
-              <div className="absolute top-full right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl min-w-[110px] overflow-hidden">
+              <div 
+                className="absolute top-full right-0 mt-1 border rounded-lg shadow-xl min-w-[110px] overflow-hidden"
+                style={{ 
+                  backgroundColor: 'var(--bg-secondary)',
+                  borderColor: 'var(--border-primary)'
+                }}
+              >
                 {languages.map((language) => (
                   <button
                     key={language.code}
                     onClick={() => handleLanguageChange(language.code)}
-                    className={`w-full flex items-center space-x-2 px-3 py-2 text-left hover:bg-gray-50 transition-colors duration-200 text-sm ${
-                      language.code === locale ? 'bg-purple-50 text-purple-700' : 'text-gray-700'
-                    }`}
+                    className="w-full flex items-center space-x-2 px-3 py-2 text-left transition-colors duration-200 text-sm"
+                    style={{
+                      backgroundColor: language.code === locale ? 'var(--bg-hover)' : 'transparent',
+                      color: language.code === locale ? 'var(--accent-primary)' : 'var(--text-secondary)'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (language.code !== locale) {
+                        e.currentTarget.style.backgroundColor = 'var(--bg-hover)'
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (language.code !== locale) {
+                        e.currentTarget.style.backgroundColor = 'transparent'
+                      }
+                    }}
                   >
                     <span className="text-base">{language.flag}</span>
                     <span className="font-medium">{language.name}</span>
@@ -76,12 +105,19 @@ export default function LanguageSelector() {
         <div className="relative">
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="flex items-center space-x-2 bg-white/90 backdrop-blur-md border border-gray-200 rounded-lg px-3 py-2 shadow-lg hover:bg-white transition-all duration-200"
+            className="flex items-center space-x-2 backdrop-blur-md border rounded-lg px-3 py-2 shadow-lg transition-all duration-200"
+            style={{ 
+              backgroundColor: 'var(--bg-secondary)',
+              borderColor: 'var(--border-primary)'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'}
           >
             <span className="text-lg">{currentLanguage.flag}</span>
-            <span className="text-sm font-medium text-gray-700">{currentLanguage.code.toUpperCase()}</span>
+            <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{currentLanguage.code.toUpperCase()}</span>
             <svg 
-              className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+              className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+              style={{ color: 'var(--text-muted)' }}
               fill="none" 
               stroke="currentColor" 
               viewBox="0 0 24 24"
@@ -91,14 +127,32 @@ export default function LanguageSelector() {
           </button>
 
           {isOpen && (
-            <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl min-w-[130px] overflow-hidden">
+            <div 
+              className="absolute top-full right-0 mt-2 border rounded-lg shadow-xl min-w-[130px] overflow-hidden"
+              style={{ 
+                backgroundColor: 'var(--bg-secondary)',
+                borderColor: 'var(--border-primary)'
+              }}
+            >
               {languages.map((language) => (
                 <button
                   key={language.code}
                   onClick={() => handleLanguageChange(language.code)}
-                  className={`w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors duration-200 ${
-                    language.code === locale ? 'bg-purple-50 text-purple-700' : 'text-gray-700'
-                  }`}
+                  className="w-full flex items-center space-x-3 px-4 py-3 text-left transition-colors duration-200"
+                  style={{
+                    backgroundColor: language.code === locale ? 'var(--bg-hover)' : 'transparent',
+                    color: language.code === locale ? 'var(--accent-primary)' : 'var(--text-secondary)'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (language.code !== locale) {
+                      e.currentTarget.style.backgroundColor = 'var(--bg-hover)'
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (language.code !== locale) {
+                      e.currentTarget.style.backgroundColor = 'transparent'
+                    }
+                  }}
                 >
                   <span className="text-lg">{language.flag}</span>
                   <span className="text-sm font-medium">{language.name}</span>

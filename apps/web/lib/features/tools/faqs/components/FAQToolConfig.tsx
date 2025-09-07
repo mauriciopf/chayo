@@ -44,7 +44,13 @@ function FAQPreview({ faqName, faqItems }: FAQPreviewProps) {
   }
 
   return (
-    <div className="border border-gray-200 rounded-lg bg-white shadow-sm">
+    <div 
+      className="border rounded-lg shadow-sm"
+      style={{ 
+        backgroundColor: 'var(--bg-secondary)',
+        borderColor: 'var(--border-primary)'
+      }}
+    >
       {/* Header */}
       <div className="bg-gradient-to-r from-purple-600 to-purple-700 text-white p-6 rounded-t-lg">
         <div className="flex items-center gap-3 mb-2">

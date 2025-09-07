@@ -56,7 +56,7 @@
   },
   "footer": {
     "brand": "Chayo",
-    "tagline": "Tu comadre digital, 24/7",
+    "tagline": "La App TODO-Negocio, 24/7",
     "description": "Tu comadre digital de IA que nunca duerme. Inteligente, confiable y siempre lista para ayudarte a hacer crecer tu negocio.",
     "language": "Idioma:",
     "quickLinks": "Enlaces Rápidos",
@@ -93,7 +93,7 @@
   },
   "howItWorks": {
     "sectionTitle": "Cómo Funciona",
-    "heroTitle": "Conoce a Chayo, tu comadre digital que",
+    "heroTitle": "Conoce a Chayo, la App TODO-Negocio que",
     "heroHighlight": "Nunca Duerme",
     "subHeader": "Transforma tu viaje de negocios con IA que entiende tus necesidades de negocio",
     "steps": {
@@ -323,7 +323,7 @@
     "signIn": "Iniciar Sesión",
     "signOut": "Cerrar Sesión",
     "dashboard": "Hub Empresarial",
-    "tagline": "Tu comadre digital ✨"
+    "tagline": "La App TODO-Negocio ✨"
   },
   "auth": {
     "signIn": "Iniciar Sesión",

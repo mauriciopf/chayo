@@ -108,17 +108,17 @@ export default function DesktopNavigation({
   ]
 
   return (
-    <div className="hidden md:block md:w-64 md:bg-white md:border-r md:border-gray-200 md:flex-shrink-0">
+    <div className="hidden md:block md:w-64 md:flex-shrink-0" style={{ backgroundColor: 'var(--bg-secondary)', borderRight: '1px solid var(--border-primary)' }}>
       <div className="flex flex-col h-full overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between p-6 border-b border-gray-200">
+      <div className="flex items-center justify-between p-6" style={{ borderBottom: '1px solid var(--border-primary)' }}>
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'var(--accent-primary)' }}>
             <span className="text-white font-bold text-sm">C</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="font-semibold text-gray-900">Chayo</span>
-            <span className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+            <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>Chayo</span>
+            <span className="text-white text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: 'var(--accent-primary)' }}>
               BETA
             </span>
           </div>
@@ -128,18 +128,18 @@ export default function DesktopNavigation({
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto">
         {/* User Profile */}
-        <div className="p-6 border-b border-gray-200">
+        <div className="p-6" style={{ borderBottom: '1px solid var(--border-primary)' }}>
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+          <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'var(--accent-primary)' }}>
             <span className="text-white font-semibold text-sm">
               {user?.user_metadata?.name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
             </span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-900 truncate">
+            <p className="text-sm font-medium truncate" style={{ color: 'var(--text-primary)' }}>
               {user?.user_metadata?.name || 'User'}
             </p>
-            <p className="text-xs text-gray-500 truncate">
+            <p className="text-xs truncate" style={{ color: 'var(--text-muted)' }}>
               {subscription?.plan_name || 'Free Plan'}
             </p>
           </div>
@@ -148,32 +148,42 @@ export default function DesktopNavigation({
         {businessName && (
           <div className="mt-4 mb-2">
             <span
-              className="block max-w-full font-bold text-gray-900 text-base tracking-wide truncate"
-              style={{ letterSpacing: '0.02em' }}
+              className="block max-w-full font-bold text-base tracking-wide truncate"
+              style={{ letterSpacing: '0.02em', color: 'var(--text-primary)' }}
               title={businessName}
             >
               {businessName}
             </span>
             {/* Mobile App Code - only show if available */}
             {mobileAppCode && (
-              <div className="mt-2 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg px-3 py-3 border border-blue-200">
+              <div className="mt-2 rounded-lg px-3 py-3" style={{ backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-primary)' }}>
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center space-x-2">
-                    <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--accent-primary)' }}>
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
                     </svg>
-                    <span className="text-xs font-medium text-blue-700 uppercase tracking-wide">
+                    <span className="text-xs font-medium uppercase tracking-wide" style={{ color: 'var(--accent-primary)' }}>
                       Mobile Access Code
                     </span>
                   </div>
                   <button
                     onClick={copyMobileCode}
-                    className={`p-1.5 rounded transition-all duration-200 ${
-                      copied 
-                        ? 'text-green-600 bg-green-100' 
-                        : 'text-blue-500 hover:text-blue-700 hover:bg-blue-100'
-                    }`}
+                    className="p-1.5 rounded transition-all duration-200"
+                    style={{ 
+                      color: copied ? 'var(--accent-secondary)' : 'var(--accent-primary)',
+                      backgroundColor: copied ? 'rgba(16, 185, 129, 0.1)' : 'rgba(14, 165, 233, 0.1)'
+                    }}
                     title={copied ? "Copied!" : "Copy mobile code"}
+                    onMouseEnter={(e) => {
+                      if (!copied) {
+                        e.currentTarget.style.backgroundColor = 'rgba(14, 165, 233, 0.2)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!copied) {
+                        e.currentTarget.style.backgroundColor = 'rgba(14, 165, 233, 0.1)';
+                      }
+                    }}
                   >
                     {copied ? (
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -188,7 +198,7 @@ export default function DesktopNavigation({
                 </div>
                 
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-2xl font-mono font-bold text-gray-900 tracking-wider">
+                  <span className="text-2xl font-mono font-bold tracking-wider" style={{ color: 'var(--text-primary)' }}>
                     {mobileAppCode}
                   </span>
                 </div>
@@ -198,7 +208,14 @@ export default function DesktopNavigation({
                     href="https://apps.apple.com/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center space-x-1 text-blue-600 hover:text-blue-800 hover:underline transition-colors cursor-pointer"
+                    className="flex items-center space-x-1 hover:underline transition-colors cursor-pointer"
+                    style={{ color: 'var(--accent-primary)' }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = 'var(--text-secondary)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = 'var(--accent-primary)';
+                    }}
                   >
                     <svg className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
@@ -207,7 +224,7 @@ export default function DesktopNavigation({
                       Download Chayo mobile app
                     </span>
                     <svg className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                     </svg>
                   </a>
                 </div>
@@ -223,13 +240,26 @@ export default function DesktopNavigation({
           <button
             key={item.id}
             onClick={() => onViewChange(item.id)}
-            className={`w-full flex items-center space-x-3 px-4 py-3 text-left rounded-lg transition-colors ${
-              activeView === item.id
-                ? 'bg-purple-50 text-purple-700 border border-purple-200'
-                : 'hover:bg-gray-50'
-            }`}
+            className="w-full flex items-center space-x-3 px-4 py-3 text-left rounded-lg transition-all duration-200"
+            style={{
+              backgroundColor: activeView === item.id ? 'var(--bg-active)' : 'transparent',
+              border: activeView === item.id ? '1px solid var(--border-focus)' : '1px solid transparent',
+              color: activeView === item.id ? 'var(--accent-primary)' : 'var(--text-secondary)'
+            }}
+            onMouseEnter={(e) => {
+              if (activeView !== item.id) {
+                e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
+                e.currentTarget.style.color = 'var(--text-primary)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (activeView !== item.id) {
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.color = 'var(--text-secondary)';
+              }
+            }}
           >
-            <span className={activeView === item.id ? 'text-purple-600' : 'text-gray-500'}>
+            <span style={{ color: activeView === item.id ? 'var(--accent-primary)' : 'var(--text-muted)' }}>
               {item.icon}
             </span>
             <span className="font-medium">{item.label}</span>
@@ -239,12 +269,21 @@ export default function DesktopNavigation({
       </div>
 
       {/* Bottom Actions */}
-      <div className="p-4 border-t border-gray-200 space-y-2">
+      <div className="p-4 space-y-2" style={{ borderTop: '1px solid var(--border-primary)' }}>
         <button
           onClick={onManageBilling}
-          className="w-full flex items-center space-x-3 px-4 py-3 text-left rounded-lg hover:bg-gray-50 transition-colors"
+          className="w-full flex items-center space-x-3 px-4 py-3 text-left rounded-lg transition-all duration-200"
+          style={{ color: 'var(--text-secondary)' }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
+            e.currentTarget.style.color = 'var(--text-primary)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'transparent';
+            e.currentTarget.style.color = 'var(--text-secondary)';
+          }}
         >
-          <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--text-muted)' }}>
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
           </svg>
           <span className="font-medium">{t('navigation.billingPlans')}</span>
@@ -252,9 +291,18 @@ export default function DesktopNavigation({
         
         <button
           onClick={onLogout}
-          className="w-full flex items-center space-x-3 px-4 py-3 text-left rounded-lg hover:bg-gray-50 transition-colors"
+          className="w-full flex items-center space-x-3 px-4 py-3 text-left rounded-lg transition-all duration-200"
+          style={{ color: 'var(--text-secondary)' }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
+            e.currentTarget.style.color = 'var(--accent-danger)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'transparent';
+            e.currentTarget.style.color = 'var(--text-secondary)';
+          }}
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--text-muted)' }}>
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
           </svg>
           <span className="font-medium">Sign Out</span>

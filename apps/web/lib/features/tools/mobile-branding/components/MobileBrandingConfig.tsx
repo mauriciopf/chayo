@@ -102,14 +102,17 @@ export function MobileBrandingConfig({
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 bg-blue-100 rounded-lg">
-            <Smartphone className="h-6 w-6 text-blue-600" />
+          <div 
+            className="p-2 rounded-lg"
+            style={{ backgroundColor: 'var(--bg-tertiary)' }}
+          >
+            <Smartphone className="h-6 w-6" style={{ color: 'var(--accent-primary)' }} />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
               {t('title')}
             </h1>
-            <p className="text-gray-600">
+            <p style={{ color: 'var(--text-secondary)' }}>
               {t('description')}
             </p>
           </div>
@@ -123,7 +126,13 @@ export function MobileBrandingConfig({
               whileTap={{ scale: 0.98 }}
               onClick={handleSave}
               disabled={!hasChanges || saving}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-700 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              style={{ 
+                backgroundColor: 'var(--accent-primary)',
+                color: 'var(--text-primary)'
+              }}
+              onMouseEnter={(e) => !saving && !(!hasChanges) && (e.currentTarget.style.backgroundColor = 'var(--bg-hover)')}
+              onMouseLeave={(e) => !saving && !(!hasChanges) && (e.currentTarget.style.backgroundColor = 'var(--accent-primary)')}
             >
               <Save className="h-4 w-4" />
               {saving ? t('saving') : t('save')}
@@ -150,11 +159,15 @@ export function MobileBrandingConfig({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-white rounded-xl border border-gray-200 p-6"
+            className="rounded-xl border p-6"
+            style={{ 
+              backgroundColor: 'var(--bg-secondary)',
+              borderColor: 'var(--border-primary)'
+            }}
           >
             <div className="flex items-center gap-3 mb-4">
-              <Upload className="h-5 w-5 text-gray-600" />
-              <h2 className="text-lg font-semibold text-gray-900">
+              <Upload className="h-5 w-5" style={{ color: 'var(--text-muted)' }} />
+              <h2 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
                 {t('logo.title')}
               </h2>
             </div>
@@ -170,12 +183,16 @@ export function MobileBrandingConfig({
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-xl border border-gray-200 p-6"
+              className="rounded-xl border p-6"
+            style={{ 
+              backgroundColor: 'var(--bg-secondary)',
+              borderColor: 'var(--border-primary)'
+            }}
             >
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
-                  <Palette className="h-5 w-5 text-gray-600" />
-                  <h2 className="text-lg font-semibold text-gray-900">
+                  <Palette className="h-5 w-5" style={{ color: 'var(--text-muted)' }} />
+                  <h2 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
                     {t('colors.title')}
                   </h2>
                 </div>

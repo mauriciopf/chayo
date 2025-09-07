@@ -28,7 +28,13 @@ const ChatActionableHints: React.FC<ChatActionableHintsProps> = ({ organizationI
 
   return (
     <>
-      <div className="px-4 py-3 bg-gradient-to-r from-gray-50 to-white border-t border-gray-200 flex-shrink-0">
+      <div 
+        className="px-4 py-3 border-t flex-shrink-0"
+        style={{ 
+          backgroundColor: 'var(--bg-secondary)',
+          borderColor: 'var(--border-primary)'
+        }}
+      >
         <div className="mx-auto max-w-4xl w-full">
           <ActionableHintChips
             key={refreshKey}

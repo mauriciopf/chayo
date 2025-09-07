@@ -88,13 +88,13 @@ function PaymentButton({ paymentType }: { paymentType: 'dynamic' | 'manual_price
     <div className="mt-3">
       {paymentType === 'dynamic' && showAmountInput && !loading && (
         <div className="mb-3">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-zinc-200 mb-2">
             Ingresa el monto a pagar:
           </label>
           <div className="flex gap-2">
             <div className="flex-1">
               <div className="flex">
-                <span className="inline-flex items-center px-3 py-2 border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm rounded-l-md">
+                <span className="inline-flex items-center px-3 py-2 border border-r-0 border-zinc-600/40 bg-zinc-700/70 text-zinc-300 text-sm rounded-l-md backdrop-blur-sm">
                   $
                 </span>
                 <input
@@ -104,7 +104,7 @@ function PaymentButton({ paymentType }: { paymentType: 'dynamic' | 'manual_price
                   placeholder="0.00"
                   step="0.01"
                   min="0"
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-r-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[44px]"
+                  className="flex-1 px-3 py-2 border border-zinc-600/40 bg-zinc-700/70 text-zinc-100 rounded-r-md focus:outline-none focus:ring-2 focus:ring-indigo-500 min-h-[44px] placeholder-zinc-400 backdrop-blur-sm"
                 />
               </div>
             </div>
@@ -156,7 +156,7 @@ export default function ChatMessage({ role, content, timestamp, appointmentLink,
   if (role === "system") {
     return (
       <div className="flex justify-center my-4">
-        <div className="bg-gray-100 text-gray-600 text-xs px-3 py-1 rounded-full">
+        <div className="bg-zinc-700/60 text-zinc-300 text-xs px-3 py-1 rounded-full backdrop-blur-sm">
           {content}
         </div>
       </div>
@@ -164,7 +164,7 @@ export default function ChatMessage({ role, content, timestamp, appointmentLink,
   }
 
   return (
-    <div className={`py-4 ${role === "user" ? "bg-white" : "bg-gray-50"}`}>
+    <div className="py-4" style={{ backgroundColor: role === "user" ? 'var(--bg-secondary)' : 'var(--bg-primary)' }}>
       <div className="w-full px-4">
         <div className={`flex ${role === "user" ? "justify-end" : "justify-start"}`}>
           <div className={`flex ${role === "user" ? "flex-row-reverse" : "flex-row"} items-start gap-3 w-full max-w-full`}>
@@ -187,17 +187,22 @@ export default function ChatMessage({ role, content, timestamp, appointmentLink,
 
             {/* Message Content - Mobile Optimized */}
             <div className={`flex-1 min-w-0 ${role === "user" ? "text-right" : "text-left"}`}>
-              <div className={`${role === "user" ? "inline-block max-w-[85%]" : "max-w-[85%]"} ${
-                role === "user" 
-                  ? "bg-purple-600 text-white" 
-                  : isToolSuggestion 
-                    ? "bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-900 border border-blue-200" 
-                    : "bg-white text-gray-900"
-              } rounded-2xl px-4 py-3 shadow-sm`}>
+              <div 
+                className={`${role === "user" ? "inline-block max-w-[85%]" : "max-w-[85%]"} rounded-2xl px-4 py-3 shadow-sm`}
+                style={{
+                  backgroundColor: role === "user" 
+                    ? 'var(--accent-primary)' 
+                    : isToolSuggestion 
+                      ? 'var(--bg-tertiary)' 
+                      : 'var(--bg-tertiary)',
+                  color: 'var(--text-primary)',
+                  borderColor: 'var(--border-secondary)',
+                  borderWidth: role !== "user" ? '1px' : '0'
+                }}>
                 {isToolSuggestion && (
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-blue-600 text-lg">💡</span>
-                    <span className="text-xs font-medium text-blue-700 uppercase tracking-wide">Tool Suggestion</span>
+                    <span className="text-lg">💡</span>
+                    <span className="text-xs font-medium uppercase tracking-wide" style={{ color: 'var(--text-secondary)' }}>Tool Suggestion</span>
                   </div>
                 )}
                 <div className="text-base leading-relaxed whitespace-pre-wrap break-words">{cleanContent}</div>
@@ -247,9 +252,9 @@ export default function ChatMessage({ role, content, timestamp, appointmentLink,
                 )}
               </div>
               {timestamp && (
-                <div className={`text-xs text-gray-500 mt-2 px-1 ${
+                <div className={`text-xs mt-2 px-1 ${
                   role === "user" ? "text-right" : "text-left"
-                }`}>
+                }`} style={{ color: 'var(--text-muted)' }}>
                   {formatTime(timestamp)}
                 </div>
               )}
