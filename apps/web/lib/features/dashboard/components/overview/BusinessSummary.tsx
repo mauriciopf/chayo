@@ -54,19 +54,73 @@ export default function BusinessSummary() {
 
   if (loading) {
     return (
-      <div className="h-full flex items-center justify-center bg-gradient-to-br from-purple-50 to-pink-50">
+      <div className="w-full max-w-7xl mx-auto p-6 space-y-6">
+        {/* Clean Header - Same as main design */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="text-center"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-8"
         >
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-            className="w-12 h-12 border-3 border-purple-400 border-t-transparent rounded-full mx-auto mb-4"
-          />
-          <h3 className="text-lg font-semibold text-gray-800 mb-2">Loading Business Intelligence</h3>
-          <p className="text-gray-600">Analyzing your business data...</p>
+          <div className="flex items-center justify-center mb-4">
+            <div 
+              className="w-16 h-16 rounded-2xl flex items-center justify-center mr-4"
+              style={{ backgroundColor: 'var(--accent-primary)' }}
+            >
+              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+              </svg>
+            </div>
+            <div className="text-left">
+              <h1 
+                className="text-4xl font-bold mb-2"
+                style={{ color: 'var(--text-primary)' }}
+              >
+                Chayo's Brain
+              </h1>
+              <p 
+                className="text-xl"
+                style={{ color: 'var(--text-secondary)' }}
+              >
+                See everything Chayo knows about your business - all the information she has learned from your conversations
+              </p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Loading Content Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-2xl p-12 shadow-xl border flex items-center justify-center"
+          style={{ 
+            backgroundColor: 'var(--bg-secondary)',
+            borderColor: 'var(--border-primary)',
+            minHeight: '400px'
+          }}
+        >
+          <div className="text-center">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+              className="w-16 h-16 border-4 border-t-transparent rounded-full mx-auto mb-6"
+              style={{
+                borderColor: 'var(--accent-primary)',
+                borderTopColor: 'transparent'
+              }}
+            />
+            <h3 
+              className="text-2xl font-bold mb-3"
+              style={{ color: 'var(--text-primary)' }}
+            >
+              Loading Business Intelligence
+            </h3>
+            <p 
+              className="text-lg"
+              style={{ color: 'var(--text-secondary)' }}
+            >
+              Analyzing your business data...
+            </p>
+          </div>
         </motion.div>
       </div>
     )
@@ -74,55 +128,91 @@ export default function BusinessSummary() {
 
   if (error) {
     return (
-      <div className="h-full p-6 flex items-center justify-center">
+      <div className="w-full max-w-7xl mx-auto p-6 space-y-6">
+        {/* Clean Header - Same as main design */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-8"
+        >
+          <div className="flex items-center justify-center mb-4">
+            <div 
+              className="w-16 h-16 rounded-2xl flex items-center justify-center mr-4"
+              style={{ backgroundColor: 'var(--accent-primary)' }}
+            >
+              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+              </svg>
+            </div>
+            <div className="text-left">
+              <h1 
+                className="text-4xl font-bold mb-2"
+                style={{ color: 'var(--text-primary)' }}
+              >
+                Chayo's Brain
+              </h1>
+              <p 
+                className="text-xl"
+                style={{ color: 'var(--text-secondary)' }}
+              >
+                See everything Chayo knows about your business - all the information she has learned from your conversations
+              </p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Error Content Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="max-w-md w-full"
+          className="rounded-2xl p-12 shadow-xl border flex items-center justify-center"
+          style={{ 
+            backgroundColor: 'var(--bg-secondary)',
+            borderColor: 'var(--border-primary)',
+            minHeight: '400px'
+          }}
         >
-          <div 
-            className="border rounded-xl p-8 shadow-lg"
-            style={{ 
-              backgroundColor: 'var(--bg-secondary)',
-              borderColor: 'var(--border-primary)'
-            }}
-          >
-            <div className="text-center">
-              <div 
-                className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
-                style={{ backgroundColor: 'var(--bg-tertiary)' }}
+          <div className="text-center max-w-md">
+            <div 
+              className="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6"
+              style={{ backgroundColor: 'var(--bg-tertiary)' }}
+            >
+              <svg 
+                className="w-10 h-10" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+                style={{ color: '#ef4444' }}
               >
-                <svg 
-                  className="w-8 h-8" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                  style={{ color: 'var(--text-secondary)' }}
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h3 
-                className="text-xl font-semibold mb-2"
-                style={{ color: 'var(--text-primary)' }}
-              >Unable to Load Summary</h3>
-              <p 
-                className="mb-6"
-                style={{ color: 'var(--text-secondary)' }}
-              >{error}</p>
-              <button
-                onClick={fetchBusinessSummary}
-                className="w-full px-6 py-3 rounded-lg transition-all duration-200 font-medium"
-                style={{ 
-                  backgroundColor: 'var(--accent-primary)',
-                  color: 'var(--text-primary)'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--accent-primary)'}
-              >
-                Try Again
-              </button>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
             </div>
+            <h3 
+              className="text-2xl font-bold mb-3"
+              style={{ color: 'var(--text-primary)' }}
+            >
+              Unable to Load Summary
+            </h3>
+            <p 
+              className="text-lg mb-8"
+              style={{ color: 'var(--text-secondary)' }}
+            >
+              {error}
+            </p>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={fetchBusinessSummary}
+              className="px-8 py-3 rounded-xl transition-all duration-200 font-medium"
+              style={{ 
+                backgroundColor: 'var(--accent-primary)',
+                color: 'var(--text-primary)'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--accent-primary)'}
+            >
+              Try Again
+            </motion.button>
           </div>
         </motion.div>
       </div>
@@ -130,164 +220,169 @@ export default function BusinessSummary() {
   }
 
   return (
-    <div 
-      className="flex flex-col w-full max-w-6xl mx-auto h-[calc(100vh-12rem)]"
-      style={{ backgroundColor: 'var(--bg-primary)' }}
-    >
-      {/* Fixed Header */}
+    <div className="w-full max-w-7xl mx-auto p-6 space-y-6">
+      {/* Clean Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex-shrink-0 px-6 py-6 border-b shadow-sm rounded-t-2xl"
-        style={{ 
-          backgroundColor: 'var(--bg-secondary)',
-          borderColor: 'var(--border-primary)'
-        }}
+        className="text-center mb-8"
       >
-        <div className="flex items-center justify-between">
-          <div>
+        <div className="flex items-center justify-center mb-4">
+          <div 
+            className="w-16 h-16 rounded-2xl flex items-center justify-center mr-4"
+            style={{ backgroundColor: 'var(--accent-primary)' }}
+          >
+            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+            </svg>
+          </div>
+          <div className="text-left">
             <h1 
-              className="text-3xl font-bold mb-2"
+              className="text-4xl font-bold mb-2"
               style={{ color: 'var(--text-primary)' }}
             >
-              {t('businessSummary.title')}
+              Chayo's Brain
             </h1>
             <p 
-              className="text-lg"
+              className="text-xl"
               style={{ color: 'var(--text-secondary)' }}
             >
-              {t('businessSummary.description')}
+              See everything Chayo knows about your business - all the information she has learned from your conversations
             </p>
           </div>
-          <div className="flex items-center space-x-3">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={fetchBusinessSummary}
-              className="px-4 py-2 rounded-lg transition-all duration-200 font-medium flex items-center space-x-2"
-              style={{ 
-                backgroundColor: 'var(--bg-tertiary)',
-                color: 'var(--text-primary)'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)'}
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-              <span>Refresh</span>
-            </motion.button>
-          </div>
         </div>
+        
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={fetchBusinessSummary}
+          className="px-6 py-3 rounded-xl transition-all duration-200 font-medium flex items-center space-x-2 mx-auto"
+          style={{ 
+            backgroundColor: 'var(--accent-primary)',
+            color: 'var(--text-primary)'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--accent-primary)'}
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          <span>Refresh</span>
+        </motion.button>
       </motion.div>
 
-      {/* Main Summary Card - Scrollable */}
+      {/* Main Content Card */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex-1 shadow-lg border overflow-hidden flex flex-col rounded-b-2xl"
+        className="rounded-2xl p-8 shadow-xl border"
         style={{ 
           backgroundColor: 'var(--bg-secondary)',
           borderColor: 'var(--border-primary)'
         }}
       >
         {summaryData?.summary ? (
-          <>
-            {/* Card Header */}
-            <div 
-              className="flex-shrink-0 p-6 border-b"
-              style={{ borderColor: 'var(--border-primary)' }}
-            >
+          <div className="space-y-6">
+            {/* Section Header */}
+            <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <div 
-                  className="w-10 h-10 rounded-lg flex items-center justify-center"
+                  className="w-12 h-12 rounded-xl flex items-center justify-center mr-4"
                   style={{ backgroundColor: 'var(--accent-primary)' }}
                 >
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <div className="ml-4">
+                <div>
                   <h2 
-                    className="text-xl font-semibold"
+                    className="text-2xl font-bold"
                     style={{ color: 'var(--text-primary)' }}
                   >
                     {showRawData ? 'Raw Business Data' : 'Business Intelligence Summary'}
                   </h2>
-                  <p style={{ color: 'var(--text-secondary)' }}>
+                  <p 
+                    className="text-lg"
+                    style={{ color: 'var(--text-secondary)' }}
+                  >
                     {showRawData ? 'Technical data structure' : 'Everything Chayo knows about your business'}
                   </p>
                 </div>
               </div>
+              
+              {summaryData?.rawData && (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setShowRawData(!showRawData)}
+                  className="flex items-center space-x-2 px-4 py-2 rounded-xl font-medium transition-colors"
+                  style={{ 
+                    backgroundColor: 'var(--bg-tertiary)',
+                    color: 'var(--text-primary)'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)'}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={showRawData ? "M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" : "M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"} />
+                  </svg>
+                  <span>{showRawData ? 'Show Summary' : 'Show Raw Data'}</span>
+                </motion.button>
+              )}
             </div>
 
-            {/* Scrollable Content - Either Summary or Raw Data */}
-            <div className="flex-1 overflow-auto">
-              <div className="p-6">
-                {showRawData ? (
-                  // Raw Data View
-                  <pre 
-                    className="p-4 rounded-xl text-sm border font-mono whitespace-pre-wrap"
-                    style={{ 
-                      backgroundColor: 'var(--bg-tertiary)',
-                      borderColor: 'var(--border-primary)',
-                      color: 'var(--text-primary)'
-                    }}
-                  >
-                    {JSON.stringify(summaryData.rawData, null, 2)}
-                  </pre>
-                ) : (
-                  // Formatted Summary View
-                  <div className="prose prose-lg max-w-none">
-                    <div 
-                      className="leading-relaxed"
-                      style={{ color: 'var(--text-primary)' }}
-                      dangerouslySetInnerHTML={{ 
-                        __html: formatMarkdownToHTML(summaryData.summary) 
-                      }}
-                    />
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Actions Footer */}
+            {/* Content */}
             <div 
-              className="flex-shrink-0 border-t px-6 py-4"
+              className="rounded-xl p-6 border"
               style={{ 
-                borderColor: 'var(--border-primary)',
-                backgroundColor: 'var(--bg-tertiary)'
+                backgroundColor: 'var(--bg-tertiary)',
+                borderColor: 'var(--border-primary)'
               }}
             >
-              <div className="flex items-center justify-between">
-                <div 
-                  className="flex items-center text-sm"
-                  style={{ color: 'var(--text-secondary)' }}
+              {showRawData ? (
+                // Raw Data View
+                <pre 
+                  className="text-sm font-mono whitespace-pre-wrap leading-relaxed"
+                  style={{ color: 'var(--text-primary)' }}
                 >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  Last updated: {new Date().toLocaleDateString()}
+                  {JSON.stringify(summaryData.rawData, null, 2)}
+                </pre>
+              ) : (
+                // Formatted Summary View - Much more readable
+                <div 
+                  className="max-w-none leading-relaxed"
+                  style={{ 
+                    color: 'var(--text-primary)',
+                    lineHeight: '1.8',
+                    fontSize: '18px',
+                    fontWeight: '400'
+                  }}
+                >
+                  <div
+                    className="business-summary-content"
+                    style={{
+                      color: 'var(--text-primary)',
+                      fontFamily: 'system-ui, -apple-system, sans-serif'
+                    }}
+                    dangerouslySetInnerHTML={{ 
+                      __html: formatMarkdownToHTML(summaryData.summary) 
+                    }}
+                  />
                 </div>
-                <div className="flex items-center space-x-3">
-                  {summaryData?.rawData && (
-                    <button
-                      onClick={() => setShowRawData(!showRawData)}
-                      className="flex items-center space-x-2 text-sm font-medium transition-colors"
-                      style={{ color: 'var(--text-secondary)' }}
-                      onMouseEnter={(e) => e.currentTarget.style.color = 'var(--text-primary)'}
-                      onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={showRawData ? "M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" : "M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"} />
-                      </svg>
-                      <span>{showRawData ? 'Show Summary' : 'Show Raw Data'}</span>
-                    </button>
-                  )}
-                </div>
-              </div>
+              )}
             </div>
-          </>
+
+            {/* Footer Info */}
+            <div 
+              className="flex items-center justify-center text-sm pt-4"
+              style={{ color: 'var(--text-secondary)' }}
+            >
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Last updated: {new Date().toLocaleDateString()}
+            </div>
+          </div>
         ) : (
           <div className="flex-1 flex items-center justify-center p-12">
             <div className="text-center">

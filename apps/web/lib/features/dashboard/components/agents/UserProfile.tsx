@@ -114,23 +114,39 @@ export default function UserProfile({ user, subscription, onLogout, onManageBill
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+        className="flex items-center space-x-3 p-2 rounded-lg transition-colors"
+        style={{ backgroundColor: 'transparent' }}
+        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)'}
+        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
       >
-        <div className="w-8 h-8 bg-orange-400 rounded-full flex items-center justify-center">
-          <span className="text-white font-semibold text-sm">
+        <div 
+          className="w-8 h-8 rounded-full flex items-center justify-center"
+          style={{ backgroundColor: 'var(--accent-primary)' }}
+        >
+          <span 
+            className="font-semibold text-sm"
+            style={{ color: 'var(--text-primary)' }}
+          >
             {getInitials(user.email!)}
           </span>
         </div>
         <div className="hidden sm:block text-left">
-          <p className="text-sm font-medium text-gray-900">
+          <p 
+            className="text-sm font-medium"
+            style={{ color: 'var(--text-primary)' }}
+          >
             {user.email}
           </p>
-          <p className="text-xs text-gray-500">
+          <p 
+            className="text-xs"
+            style={{ color: 'var(--text-secondary)' }}
+          >
             {subscription?.plan_name || 'Free'} Plan
           </p>
         </div>
         <svg 
-          className={`w-4 h-4 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          style={{ color: 'var(--text-secondary)' }}
           fill="none" 
           stroke="currentColor" 
           viewBox="0 0 24 24"
@@ -145,18 +161,37 @@ export default function UserProfile({ user, subscription, onLogout, onManageBill
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-[100]"
+            className="absolute right-0 mt-2 w-80 rounded-lg shadow-lg border py-2 z-[100]"
+            style={{
+              backgroundColor: 'var(--bg-secondary)',
+              borderColor: 'var(--border-primary)'
+            }}
           >
-            <div className="px-4 py-3 border-b border-gray-100">
+            <div 
+              className="px-4 py-3 border-b"
+              style={{ borderColor: 'var(--border-primary)' }}
+            >
               <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-orange-400 rounded-full flex items-center justify-center">
-                  <span className="text-white font-semibold text-lg">
+                <div 
+                  className="w-12 h-12 rounded-full flex items-center justify-center"
+                  style={{ backgroundColor: 'var(--accent-primary)' }}
+                >
+                  <span 
+                    className="font-semibold text-lg"
+                    style={{ color: 'var(--text-primary)' }}
+                  >
                     {getInitials(user.email!)}
                   </span>
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">{user.email}</p>
-                  <p className="text-sm text-gray-500">
+                  <p 
+                    className="font-medium"
+                    style={{ color: 'var(--text-primary)' }}
+                  >{user.email}</p>
+                  <p 
+                    className="text-sm"
+                    style={{ color: 'var(--text-secondary)' }}
+                  >
                     Member since {formatDate(user.created_at)}
                   </p>
                 </div>
@@ -165,37 +200,70 @@ export default function UserProfile({ user, subscription, onLogout, onManageBill
 
             <div className="px-4 py-3">
               <div className="mb-3">
-                <p className="text-sm font-medium text-gray-700">{t('organizationName')}</p>
+                <p 
+                  className="text-sm font-medium"
+                  style={{ color: 'var(--text-primary)' }}
+                >{t('organizationName')}</p>
                 <div className="flex items-center space-x-2 mt-1">
                   <input
                     type="text"
                     value={orgName}
                     onChange={e => setOrgName(e.target.value)}
                     className="border px-2 py-1 rounded text-sm flex-1"
+                    style={{
+                      backgroundColor: 'var(--bg-tertiary)',
+                      borderColor: 'var(--border-primary)',
+                      color: 'var(--text-primary)'
+                    }}
                     disabled={orgLoading}
                   />
                   <button
                     onClick={handleOrgNameUpdate}
-                    className="px-3 py-1 bg-green-500 text-white rounded text-xs font-medium disabled:opacity-50"
+                    className="px-3 py-1 rounded text-xs font-medium disabled:opacity-50"
+                    style={{
+                      backgroundColor: 'var(--accent-primary)',
+                      color: 'var(--text-primary)'
+                    }}
                     disabled={orgLoading || !orgName}
                   >
                     Save
                   </button>
                 </div>
-                {orgError && <p className="text-xs text-red-600 mt-1">{orgError}</p>}
-                {orgSuccess && <p className="text-xs text-green-600 mt-1">{orgSuccess}</p>}
+                {orgError && <p className="text-xs mt-1" style={{ color: '#ef4444' }}>{orgError}</p>}
+                {orgSuccess && <p className="text-xs mt-1" style={{ color: '#22c55e' }}>{orgSuccess}</p>}
               </div>
 
               {/* Mobile App Code */}
               <div className="mb-3">
-                <p className="text-sm font-medium text-gray-700">Mobile App Code</p>
-                <div className="flex items-center justify-between mt-1 bg-gray-50 rounded px-3 py-2 border border-gray-200">
-                  <span className="text-lg font-mono font-bold text-gray-900 tracking-wider">
+                <p 
+                  className="text-sm font-medium"
+                  style={{ color: 'var(--text-primary)' }}
+                >Mobile App Code</p>
+                <div 
+                  className="flex items-center justify-between mt-1 rounded px-3 py-2 border"
+                  style={{
+                    backgroundColor: 'var(--bg-tertiary)',
+                    borderColor: 'var(--border-primary)'
+                  }}
+                >
+                  <span 
+                    className="text-lg font-mono font-bold tracking-wider"
+                    style={{ color: 'var(--text-primary)' }}
+                  >
                     {mobileAppCode || '000000'}
                   </span>
                   <button
                     onClick={() => navigator.clipboard.writeText(mobileAppCode || '000000')}
-                    className="ml-2 p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded transition-colors"
+                    className="ml-2 p-1 rounded transition-colors"
+                    style={{ color: 'var(--text-secondary)' }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = 'var(--text-primary)'
+                      e.currentTarget.style.backgroundColor = 'var(--bg-hover)'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = 'var(--text-secondary)'
+                      e.currentTarget.style.backgroundColor = 'transparent'
+                    }}
                     title="Copy mobile code"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -209,7 +277,10 @@ export default function UserProfile({ user, subscription, onLogout, onManageBill
               </div>
 
               <div className="mb-3">
-                <p className="text-sm font-medium text-gray-700">{t('currentPlan')}</p>
+                <p 
+                  className="text-sm font-medium"
+                  style={{ color: 'var(--text-primary)' }}
+                >{t('currentPlan')}</p>
                 <div className="flex items-center justify-between mt-1">
                   <span className="text-sm text-gray-900 capitalize">
                     {subscription?.plan_name || 'Free'}
@@ -226,7 +297,10 @@ export default function UserProfile({ user, subscription, onLogout, onManageBill
 
               {subscription?.current_period_end && (
                 <div className="mb-3">
-                  <p className="text-sm font-medium text-gray-700">{t('nextBilling')}</p>
+                  <p 
+                  className="text-sm font-medium"
+                  style={{ color: 'var(--text-primary)' }}
+                >{t('nextBilling')}</p>
                   <p className="text-sm text-gray-900 mt-1">
                     {formatDate(subscription.current_period_end)}
                   </p>

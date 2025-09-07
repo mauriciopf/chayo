@@ -84,7 +84,13 @@ export function LogoUpload({ currentLogo, onUpload, uploading }: LogoUploadProps
       {/* Current Logo Preview */}
       {preview && (
         <div className="relative inline-block">
-          <div className="w-24 h-24 rounded-lg border border-gray-200 overflow-hidden bg-gray-50 flex items-center justify-center">
+          <div 
+            className="w-24 h-24 rounded-lg border overflow-hidden flex items-center justify-center"
+            style={{ 
+              backgroundColor: 'var(--bg-tertiary)',
+              borderColor: 'var(--border-primary)'
+            }}
+          >
             <img
               src={preview}
               alt="Logo preview"
@@ -102,11 +108,13 @@ export function LogoUpload({ currentLogo, onUpload, uploading }: LogoUploadProps
 
       {/* Upload Area */}
       <div
-        className={`relative border-2 border-dashed rounded-lg p-6 transition-colors ${
-          dragActive
-            ? 'border-blue-400 bg-blue-50'
-            : 'border-gray-300 hover:border-gray-400'
-        } ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
+        className="relative border-2 border-dashed rounded-lg p-6 transition-colors"
+        style={{
+          backgroundColor: dragActive ? 'var(--bg-hover)' : 'var(--bg-tertiary)',
+          borderColor: dragActive ? 'var(--accent-primary)' : 'var(--border-primary)',
+          opacity: uploading ? 0.5 : 1,
+          pointerEvents: uploading ? 'none' : 'auto'
+        }}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
         onDragOver={handleDrag}
@@ -123,20 +131,34 @@ export function LogoUpload({ currentLogo, onUpload, uploading }: LogoUploadProps
         <div className="text-center">
           {uploading ? (
             <div className="flex flex-col items-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-3"></div>
-              <p className="text-sm text-gray-600">{t('uploading')}</p>
+              <div 
+                className="animate-spin rounded-full h-8 w-8 border-b-2 mb-3"
+                style={{ borderColor: 'var(--accent-primary)' }}
+              ></div>
+              <p 
+                className="text-sm"
+                style={{ color: 'var(--text-secondary)' }}
+              >
+                {t('uploading')}
+              </p>
             </div>
           ) : (
             <div className="flex flex-col items-center">
-              <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-3">
+              <div 
+                className="w-12 h-12 rounded-lg flex items-center justify-center mb-3"
+                style={{ backgroundColor: 'var(--bg-secondary)' }}
+              >
                 {dragActive ? (
-                  <Upload className="h-6 w-6 text-blue-600" />
+                  <Upload className="h-6 w-6" style={{ color: 'var(--accent-primary)' }} />
                 ) : (
-                  <ImageIcon className="h-6 w-6 text-gray-400" />
+                  <ImageIcon className="h-6 w-6" style={{ color: 'var(--text-secondary)' }} />
                 )}
               </div>
               
-              <p className="text-sm text-gray-600 mb-2">
+              <p 
+                className="text-sm mb-2"
+                style={{ color: 'var(--text-secondary)' }}
+              >
                 {dragActive ? t('dropHere') : t('dragAndDrop')}
               </p>
               
@@ -145,12 +167,21 @@ export function LogoUpload({ currentLogo, onUpload, uploading }: LogoUploadProps
                 whileTap={{ scale: 0.98 }}
                 type="button"
                 onClick={openFileDialog}
-                className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
+                className="px-4 py-2 text-sm rounded-lg transition-colors"
+                style={{ 
+                  backgroundColor: 'var(--accent-primary)',
+                  color: 'var(--text-primary)'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--accent-primary)'}
               >
                 {t('selectFile')}
               </motion.button>
               
-              <p className="text-xs text-gray-500 mt-2">
+              <p 
+                className="text-xs mt-2"
+                style={{ color: 'var(--text-secondary)' }}
+              >
                 {t('supportedFormats')}
               </p>
             </div>

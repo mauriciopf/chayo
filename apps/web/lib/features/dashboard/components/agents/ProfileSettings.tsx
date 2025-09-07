@@ -208,13 +208,22 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
                 id="displayName"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-orange-500"
+                style={{ 
+                  backgroundColor: 'var(--bg-tertiary)',
+                  borderColor: 'var(--border-primary)',
+                  color: 'var(--text-primary)'
+                }}
                 placeholder={t('displayNamePlaceholder')}
               />
             </div>
             
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              <label 
+                htmlFor="email" 
+                className="block text-sm font-medium mb-1"
+                style={{ color: 'var(--text-primary)' }}
+              >
                 {t('emailAddress')}
               </label>
               <input
@@ -222,10 +231,18 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
                 id="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-orange-500"
+                style={{ 
+                  backgroundColor: 'var(--bg-tertiary)',
+                  borderColor: 'var(--border-primary)',
+                  color: 'var(--text-primary)'
+                }}
                 placeholder={t('emailPlaceholder')}
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p 
+                className="text-xs mt-1"
+                style={{ color: 'var(--text-secondary)' }}
+              >
                 {t('emailVerificationNote')}
               </p>
             </div>
@@ -234,11 +251,18 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`p-3 rounded-lg ${
-                  profileMessage.type === 'success'
-                    ? 'bg-gray-50 text-gray-800 border border-gray-200'
-                    : 'bg-red-50 text-red-800 border border-red-200'
-                }`}
+                className="p-3 rounded-lg border"
+                style={{
+                  backgroundColor: profileMessage.type === 'success' 
+                    ? 'var(--bg-tertiary)' 
+                    : 'var(--bg-tertiary)',
+                  color: profileMessage.type === 'success'
+                    ? 'var(--text-primary)'
+                    : '#ef4444',
+                  borderColor: profileMessage.type === 'success'
+                    ? 'var(--border-primary)'
+                    : '#ef4444'
+                }}
               >
                 {profileMessage.text}
               </motion.div>
@@ -247,7 +271,13 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
             <button
               type="submit"
               disabled={isUpdatingProfile}
-              className="w-full bg-orange-400 hover:bg-orange-500 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center"
+              className="w-full disabled:cursor-not-allowed font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center"
+              style={{ 
+                backgroundColor: isUpdatingProfile ? 'var(--bg-tertiary)' : 'var(--accent-primary)',
+                color: 'var(--text-primary)'
+              }}
+              onMouseEnter={(e) => !isUpdatingProfile && (e.currentTarget.style.backgroundColor = 'var(--bg-hover)')}
+              onMouseLeave={(e) => !isUpdatingProfile && (e.currentTarget.style.backgroundColor = 'var(--accent-primary)')}
             >
               {isUpdatingProfile ? (
                 <>
@@ -266,7 +296,10 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
 
           {/* Organization Name Edit */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label 
+              className="block text-sm font-medium mb-1"
+              style={{ color: 'var(--text-primary)' }}
+            >
               {t('organizationName')}
             </label>
             <div className="flex items-center space-x-2">
@@ -275,20 +308,29 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
                 value={orgName}
                 onChange={e => setOrgName(e.target.value)}
                 className="border px-2 py-1 rounded text-sm flex-1"
+                style={{
+                  backgroundColor: 'var(--bg-tertiary)',
+                  borderColor: 'var(--border-primary)',
+                  color: 'var(--text-primary)'
+                }}
                 disabled={orgLoading}
                 placeholder={t('organizationNamePlaceholder')}
               />
               <button
                 type="button"
                 onClick={handleOrgNameUpdate}
-                className="px-3 py-1 bg-purple-600 text-white rounded text-xs font-medium disabled:opacity-50"
+                className="px-3 py-1 rounded text-xs font-medium disabled:opacity-50"
+                style={{
+                  backgroundColor: 'var(--accent-primary)',
+                  color: 'var(--text-primary)'
+                }}
                 disabled={orgLoading || !orgName}
               >
                 {t('save')}
               </button>
             </div>
-            {orgError && <p className="text-xs text-red-600 mt-1">{orgError}</p>}
-            {orgSuccess && <p className="text-xs text-green-600 mt-1">{orgSuccess}</p>}
+            {orgError && <p className="text-xs mt-1" style={{ color: '#ef4444' }}>{orgError}</p>}
+            {orgSuccess && <p className="text-xs mt-1" style={{ color: '#22c55e' }}>{orgSuccess}</p>}
           </div>
         </div>
 
@@ -306,7 +348,11 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
           
           <form onSubmit={updatePassword} className="space-y-4">
             <div>
-              <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-1">
+              <label 
+                htmlFor="newPassword" 
+                className="block text-sm font-medium mb-1"
+                style={{ color: 'var(--text-primary)' }}
+              >
                 {t('newPassword')}
               </label>
               <input
@@ -314,14 +360,23 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
                 id="newPassword"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-orange-500"
+                style={{ 
+                  backgroundColor: 'var(--bg-tertiary)',
+                  borderColor: 'var(--border-primary)',
+                  color: 'var(--text-primary)'
+                }}
                 placeholder={t('newPasswordPlaceholder')}
                 minLength={6}
               />
             </div>
             
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+              <label 
+                htmlFor="confirmPassword" 
+                className="block text-sm font-medium mb-1"
+                style={{ color: 'var(--text-primary)' }}
+              >
                 {t('confirmNewPassword')}
               </label>
               <input
@@ -329,7 +384,12 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
                 id="confirmPassword"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-orange-500"
+                style={{ 
+                  backgroundColor: 'var(--bg-tertiary)',
+                  borderColor: 'var(--border-primary)',
+                  color: 'var(--text-primary)'
+                }}
                 placeholder={t('confirmPasswordPlaceholder')}
                 minLength={6}
               />
@@ -339,11 +399,18 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`p-3 rounded-lg ${
-                  passwordMessage.type === 'success'
-                    ? 'bg-gray-50 text-gray-800 border border-gray-200'
-                    : 'bg-red-50 text-red-800 border border-red-200'
-                }`}
+                className="p-3 rounded-lg border"
+                style={{
+                  backgroundColor: passwordMessage.type === 'success' 
+                    ? 'var(--bg-tertiary)' 
+                    : 'var(--bg-tertiary)',
+                  color: passwordMessage.type === 'success'
+                    ? 'var(--text-primary)'
+                    : '#ef4444',
+                  borderColor: passwordMessage.type === 'success'
+                    ? 'var(--border-primary)'
+                    : '#ef4444'
+                }}
               >
                 {passwordMessage.text}
               </motion.div>
@@ -352,7 +419,13 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
             <button
               type="submit"
               disabled={isUpdatingPassword || !newPassword || !confirmPassword}
-              className="w-full bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center"
+              className="w-full disabled:cursor-not-allowed font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center"
+              style={{ 
+                backgroundColor: isUpdatingPassword ? 'var(--bg-tertiary)' : 'var(--accent-primary)',
+                color: 'var(--text-primary)'
+              }}
+              onMouseEnter={(e) => !isUpdatingPassword && (e.currentTarget.style.backgroundColor = 'var(--bg-hover)')}
+              onMouseLeave={(e) => !isUpdatingPassword && (e.currentTarget.style.backgroundColor = 'var(--accent-primary)')}
             >
               {isUpdatingPassword ? (
                 <>
@@ -372,20 +445,35 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
       </div>
 
       {/* Account Information */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+      <div 
+        className="rounded-lg shadow p-6"
+        style={{ backgroundColor: 'var(--bg-secondary)' }}
+      >
+        <h3 
+          className="text-lg font-semibold mb-4"
+          style={{ color: 'var(--text-primary)' }}
+        >
           {t('accountInformation')}
         </h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
           <div>
-            <label className="block text-gray-500 mb-1">{t('userId')}</label>
-            <p className="text-gray-900 font-mono text-xs break-all">{user.id}</p>
+            <label 
+              className="block mb-1"
+              style={{ color: 'var(--text-secondary)' }}
+            >{t('userId')}</label>
+            <p 
+              className="font-mono text-xs break-all"
+              style={{ color: 'var(--text-primary)' }}
+            >{user.id}</p>
           </div>
           
           <div>
-            <label className="block text-gray-500 mb-1">{t('accountCreated')}</label>
-            <p className="text-gray-900">
+            <label 
+              className="block mb-1"
+              style={{ color: 'var(--text-secondary)' }}
+            >{t('accountCreated')}</label>
+            <p style={{ color: 'var(--text-primary)' }}>
               {new Date(user.created_at).toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'long',
@@ -395,8 +483,11 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
           </div>
           
           <div>
-            <label className="block text-gray-500 mb-1">{t('lastSignIn')}</label>
-            <p className="text-gray-900">
+            <label 
+              className="block mb-1"
+              style={{ color: 'var(--text-secondary)' }}
+            >{t('lastSignIn')}</label>
+            <p style={{ color: 'var(--text-primary)' }}>
               {user.last_sign_in_at 
                 ? new Date(user.last_sign_in_at).toLocaleDateString('en-US', {
                     year: 'numeric',
@@ -409,8 +500,14 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
           </div>
           
           <div>
-            <label className="block text-gray-500 mb-1">{t('emailConfirmed')}</label>
-            <p className={`font-medium ${user.email_confirmed_at ? 'text-green-600' : 'text-yellow-600'}`}>
+            <label 
+              className="block mb-1"
+              style={{ color: 'var(--text-secondary)' }}
+            >{t('emailConfirmed')}</label>
+            <p 
+              className="font-medium"
+              style={{ color: user.email_confirmed_at ? '#22c55e' : '#eab308' }}
+            >
               {user.email_confirmed_at ? t('yes') : t('pending')}
             </p>
           </div>

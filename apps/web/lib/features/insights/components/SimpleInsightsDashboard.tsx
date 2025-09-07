@@ -22,9 +22,18 @@ export default function SimpleInsightsDashboard({ organizationId }: SimpleInsigh
                 className="p-6 rounded-lg shadow animate-pulse"
                 style={{ backgroundColor: 'var(--bg-secondary)' }}
               >
-                <div className="h-4 bg-gray-200 rounded mb-4"></div>
-                <div className="h-8 bg-gray-200 rounded mb-2"></div>
-                <div className="h-4 bg-gray-200 rounded"></div>
+                <div 
+                  className="h-4 rounded mb-4"
+                  style={{ backgroundColor: 'var(--bg-tertiary)' }}
+                ></div>
+                <div 
+                  className="h-8 rounded mb-2"
+                  style={{ backgroundColor: 'var(--bg-tertiary)' }}
+                ></div>
+                <div 
+                  className="h-4 rounded"
+                  style={{ backgroundColor: 'var(--bg-tertiary)' }}
+                ></div>
               </div>
             ))}
           </div>
@@ -36,8 +45,11 @@ export default function SimpleInsightsDashboard({ organizationId }: SimpleInsigh
   if (error) {
     return (
       <div className="min-h-[calc(100vh-200px)] flex items-center justify-center">
-        <div className="bg-white p-6 rounded-lg shadow">
-          <p className="text-red-600">{error}</p>
+        <div 
+          className="p-6 rounded-lg shadow"
+          style={{ backgroundColor: 'var(--bg-secondary)' }}
+        >
+          <p style={{ color: '#ef4444' }}>{error}</p>
         </div>
       </div>
     )
@@ -49,24 +61,36 @@ export default function SimpleInsightsDashboard({ organizationId }: SimpleInsigh
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         
         {/* Card 1: What customers want most */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+        <div 
+          className="p-6 rounded-lg shadow-sm border"
+          style={{
+            backgroundColor: 'var(--bg-secondary)',
+            borderColor: 'var(--border-primary)'
+          }}
+        >
+          <h3 
+            className="text-lg font-semibold mb-2"
+            style={{ color: 'var(--text-primary)' }}
+          >
             Top Customer Request
           </h3>
           {summary?.topRequest ? (
             <>
-              <div className="text-3xl font-bold text-blue-600 mb-1">
+              <div 
+                className="text-3xl font-bold mb-1"
+                style={{ color: '#3b82f6' }}
+              >
                 {summary.topRequest.percentage}%
               </div>
-              <p className="text-gray-600">
+              <p style={{ color: 'var(--text-secondary)' }}>
                 of customers are asking about{' '}
-                <strong className="text-gray-900">
+                <strong style={{ color: 'var(--text-primary)' }}>
                   {getIntentDisplayName(summary.topRequest.intent)}
                 </strong>
               </p>
             </>
           ) : (
-            <div className="text-gray-500">
+            <div style={{ color: 'var(--text-secondary)' }}>
               <div className="text-2xl font-bold mb-1">—</div>
               <p>No customer data yet</p>
             </div>
@@ -74,31 +98,61 @@ export default function SimpleInsightsDashboard({ organizationId }: SimpleInsigh
         </div>
 
         {/* Card 2: Simple recommendation */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+        <div 
+          className="p-6 rounded-lg shadow-sm border"
+          style={{
+            backgroundColor: 'var(--bg-secondary)',
+            borderColor: 'var(--border-primary)'
+          }}
+        >
+          <h3 
+            className="text-lg font-semibold mb-2"
+            style={{ color: 'var(--text-primary)' }}
+          >
             Recommendation
           </h3>
-          <div className="text-sm text-gray-700">
+          <div 
+            className="text-sm"
+            style={{ color: 'var(--text-secondary)' }}
+          >
             {getSimpleRecommendation(summary?.topRequest)}
           </div>
         </div>
 
         {/* Card 3: Quick stats */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+        <div 
+          className="p-6 rounded-lg shadow-sm border"
+          style={{
+            backgroundColor: 'var(--bg-secondary)',
+            borderColor: 'var(--border-primary)'
+          }}
+        >
+          <h3 
+            className="text-lg font-semibold mb-2"
+            style={{ color: 'var(--text-primary)' }}
+          >
             This Week
           </h3>
-          <div className="text-3xl font-bold text-green-600 mb-1">
+          <div 
+            className="text-3xl font-bold mb-1"
+            style={{ color: '#22c55e' }}
+          >
             {summary?.totalConversations || 0}
           </div>
-          <p className="text-gray-600">customer conversations</p>
+          <p style={{ color: 'var(--text-secondary)' }}>customer conversations</p>
         </div>
         
       </div>
 
       {/* Detailed breakdown if there are multiple request types */}
       {summary?.allRequests && summary.allRequests.length > 1 && (
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <div 
+          className="p-6 rounded-lg shadow-sm border"
+          style={{
+            backgroundColor: 'var(--bg-secondary)',
+            borderColor: 'var(--border-primary)'
+          }}
+        >
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
             Customer Request Breakdown
           </h3>
@@ -107,13 +161,22 @@ export default function SimpleInsightsDashboard({ organizationId }: SimpleInsigh
               <div key={index} className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                  <span className="text-gray-700 capitalize">
+                  <span 
+                    className="capitalize"
+                    style={{ color: 'var(--text-secondary)' }}
+                  >
                     {getIntentDisplayName(request.intent)}
                   </span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <span className="text-sm text-gray-500">{request.count} requests</span>
-                  <span className="text-sm font-medium text-gray-900">
+                  <span 
+                    className="text-sm"
+                    style={{ color: 'var(--text-secondary)' }}
+                  >{request.count} requests</span>
+                  <span 
+                    className="text-sm font-medium"
+                    style={{ color: 'var(--text-primary)' }}
+                  >
                     {request.percentage}%
                   </span>
                 </div>

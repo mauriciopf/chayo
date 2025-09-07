@@ -239,36 +239,67 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.95, opacity: 0 }}
-            className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden"
+            className="rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden"
+            style={{ backgroundColor: 'var(--bg-secondary)' }}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-200 flex-shrink-0">
+            <div 
+              className="flex items-center justify-between p-6 border-b flex-shrink-0"
+              style={{ borderColor: 'var(--border-primary)' }}
+            >
               <div className="flex items-center gap-3">
                 <span className="text-2xl">{hint.icon}</span>
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-900">{content.title}</h2>
-                  <p className="text-sm text-gray-500">{t('modal.shareFeature')}</p>
+                  <h2 
+                    className="text-xl font-semibold"
+                    style={{ color: 'var(--text-primary)' }}
+                  >
+                    {content.title}
+                  </h2>
+                  <p 
+                    className="text-sm"
+                    style={{ color: 'var(--text-secondary)' }}
+                  >
+                    {t('modal.shareFeature')}
+                  </p>
                 </div>
               </div>
               <button
                 onClick={onClose}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 rounded-lg transition-colors"
+                style={{ 
+                  color: 'var(--text-secondary)',
+                  backgroundColor: 'transparent'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               >
-                <X className="w-5 h-5 text-gray-500" />
+                <X className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} />
               </button>
             </div>
 
             {/* Content */}
             <div className="flex-1 p-6 overflow-y-auto min-h-0">
               {/* Enable/Disable Toggle */}
-              <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+              <div 
+                className="mb-6 p-4 rounded-lg"
+                style={{ backgroundColor: 'var(--bg-tertiary)' }}
+              >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <Settings className="w-5 h-5 text-gray-600" />
+                    <Settings className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} />
                     <div>
-                      <h3 className="font-medium text-gray-900">{t('modal.enableTool', { title: content.title })}</h3>
-                      <p className="text-sm text-gray-600">
+                      <h3 
+                        className="font-medium"
+                        style={{ color: 'var(--text-primary)' }}
+                      >
+                        {t('modal.enableTool', { title: content.title })}
+                      </h3>
+                      <p 
+                        className="text-sm"
+                        style={{ color: 'var(--text-secondary)' }}
+                      >
                         {t('modal.makeToolAvailable')}
                       </p>
                     </div>
@@ -283,23 +314,50 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
 
                 {/* Constraint Information */}
                 {currentToolConstraints && !currentToolConstraints.canEnable && isCurrentToolEnabled && (
-                  <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div 
+                    className="mt-4 p-3 rounded-lg border"
+                    style={{ 
+                      backgroundColor: 'var(--bg-tertiary)',
+                      borderColor: 'var(--border-primary)'
+                    }}
+                  >
                     <div className="flex items-start gap-3">
-                      <Info className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                      <Info className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: 'var(--accent-primary)' }} />
                       <div className="flex-1">
-                        <h4 className="text-sm font-medium text-blue-800 mb-1">
+                        <h4 
+                          className="text-sm font-medium mb-1"
+                          style={{ color: 'var(--text-primary)' }}
+                        >
                           {t('modal.setupNeeded')}
                         </h4>
-                        <p className="text-sm text-blue-700 mb-2">
+                        <p 
+                          className="text-sm mb-2"
+                          style={{ color: 'var(--text-secondary)' }}
+                        >
                           {t('modal.toolEnabled', { reason: currentToolConstraints.reason?.toLowerCase() || '' })}
                         </p>
                         {currentToolConstraints.missingConfig && currentToolConstraints.missingConfig.length > 0 && (
                           <div>
-                            <p className="text-xs text-blue-600 mb-1 font-medium">{t('modal.toCompleteSetup')}</p>
-                            <ul className="text-xs text-blue-700 space-y-1">
+                            <p 
+                              className="text-xs mb-1 font-medium"
+                              style={{ color: 'var(--text-primary)' }}
+                            >
+                              {t('modal.toCompleteSetup')}
+                            </p>
+                            <ul 
+                              className="text-xs space-y-1"
+                              style={{ color: 'var(--text-secondary)' }}
+                            >
                               {currentToolConstraints.missingConfig.map((item, index) => (
-                                <li key={index} className="flex items-center gap-1">
-                                  <span className="w-1 h-1 bg-blue-500 rounded-full flex-shrink-0"></span>
+                                <li 
+                                  key={index} 
+                                  className="flex items-center gap-1"
+                                  style={{ color: 'var(--text-secondary)' }}
+                                >
+                                  <span 
+                                    className="w-1 h-1 rounded-full flex-shrink-0"
+                                    style={{ backgroundColor: 'var(--accent-primary)' }}
+                                  ></span>
                                   {item}
                                 </li>
                               ))}
@@ -312,11 +370,20 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
                 )}
 
                 {currentToolConstraints && currentToolConstraints.canEnable && isCurrentToolEnabled && (
-                  <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <div 
+                    className="mt-4 p-3 rounded-lg border"
+                    style={{ 
+                      backgroundColor: 'var(--bg-tertiary)',
+                      borderColor: 'var(--border-primary)'
+                    }}
+                  >
                     <div className="flex items-center gap-3">
-                      <Check className="w-5 h-5 text-green-600 flex-shrink-0" />
+                      <Check className="w-5 h-5 flex-shrink-0" style={{ color: '#22c55e' }} />
                       <div className="flex-1">
-                        <p className="text-sm text-green-700">
+                        <p 
+                          className="text-sm"
+                          style={{ color: 'var(--text-primary)' }}
+                        >
                           {t('modal.toolConfigured')}
                         </p>
                       </div>
@@ -327,17 +394,31 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
 
               {/* Description */}
               <div className="mb-6">
-                <p className="text-gray-700 leading-relaxed">{content.description}</p>
+                <p 
+                  className="leading-relaxed"
+                  style={{ color: 'var(--text-primary)' }}
+                >
+                  {content.description}
+                </p>
               </div>
 
               {/* Features */}
               <div className="mb-6">
-                <h3 className="font-medium text-gray-900 mb-3">{t('modal.featuresIncluded')}</h3>
+                <h3 
+                  className="font-medium mb-3"
+                  style={{ color: 'var(--text-primary)' }}
+                >
+                  {t('modal.featuresIncluded')}
+                </h3>
                 <ul className="space-y-2">
                   {content.features.map((feature, index) => (
-                    <li key={index} className="flex items-center gap-2 text-sm text-gray-600">
-                      <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
-                      {feature}
+                    <li 
+                      key={index} 
+                      className="flex items-center gap-2 text-sm"
+                      style={{ color: 'var(--text-secondary)' }}
+                    >
+                      <Check className="w-4 h-4 flex-shrink-0" style={{ color: '#22c55e' }} />
+                      <span style={{ color: 'var(--text-secondary)' }}>{feature}</span>
                     </li>
                   ))}
                 </ul>
@@ -393,8 +474,17 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
               )}
 
               {!isCurrentToolEnabled && !['appointments', 'documents', 'payments', 'intake_forms', 'faqs', 'mobile-branding'].includes(hint?.category || '') && (
-                <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                  <p className="text-amber-800 text-sm">
+                <div 
+                  className="p-4 rounded-lg border"
+                  style={{ 
+                    backgroundColor: 'var(--bg-tertiary)',
+                    borderColor: 'var(--border-primary)'
+                  }}
+                >
+                  <p 
+                    className="text-sm"
+                    style={{ color: 'var(--text-secondary)' }}
+                  >
                     Enable this agent tool above to make it available to your clients.
                   </p>
                 </div>

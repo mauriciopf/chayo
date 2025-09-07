@@ -97,11 +97,11 @@ export default function ChayoAppointmentsList({ organizationId }: ChayoAppointme
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800'
-      case 'confirmed': return 'bg-blue-100 text-blue-800'
-      case 'completed': return 'bg-green-100 text-green-800'
-      case 'cancelled': return 'bg-red-100 text-red-800'
-      default: return 'bg-gray-100 text-gray-800'
+      case 'pending': return { backgroundColor: 'var(--bg-tertiary)', color: '#f59e0b' }
+      case 'confirmed': return { backgroundColor: 'var(--bg-tertiary)', color: '#3b82f6' }
+      case 'completed': return { backgroundColor: 'var(--bg-tertiary)', color: '#22c55e' }
+      case 'cancelled': return { backgroundColor: 'var(--bg-tertiary)', color: '#ef4444' }
+      default: return { backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)' }
     }
   }
 
@@ -134,7 +134,10 @@ export default function ChayoAppointmentsList({ organizationId }: ChayoAppointme
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div 
+            className="animate-spin rounded-full h-8 w-8 border-b-2"
+            style={{ borderColor: 'var(--accent-primary)' }}
+          ></div>
         </div>
       </div>
     )
@@ -144,33 +147,106 @@ export default function ChayoAppointmentsList({ organizationId }: ChayoAppointme
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-2">Citas Agendadas</h3>
-        <p className="text-sm text-gray-600">
+        <h3 
+          className="text-lg font-medium mb-2"
+          style={{ color: 'var(--text-primary)' }}
+        >
+          Citas Agendadas
+        </h3>
+        <p 
+          className="text-sm"
+          style={{ color: 'var(--text-secondary)' }}
+        >
           Gestiona las citas que los clientes han agendado a través de tu sistema de reservas.
         </p>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <div className="bg-gray-50 p-3 rounded-lg text-center">
-          <div className="text-2xl font-bold text-gray-900">{counts.total}</div>
-          <div className="text-xs text-gray-600">Total</div>
+        <div 
+          className="p-3 rounded-lg text-center"
+          style={{ backgroundColor: 'var(--bg-tertiary)' }}
+        >
+          <div 
+            className="text-2xl font-bold"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            {counts.total}
+          </div>
+          <div 
+            className="text-xs"
+            style={{ color: 'var(--text-secondary)' }}
+          >
+            Total
+          </div>
         </div>
-        <div className="bg-yellow-50 p-3 rounded-lg text-center">
-          <div className="text-2xl font-bold text-yellow-800">{counts.pending}</div>
-          <div className="text-xs text-yellow-600">Pendientes</div>
+        <div 
+          className="p-3 rounded-lg text-center"
+          style={{ backgroundColor: 'var(--bg-tertiary)' }}
+        >
+          <div 
+            className="text-2xl font-bold"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            {counts.pending}
+          </div>
+          <div 
+            className="text-xs"
+            style={{ color: 'var(--text-secondary)' }}
+          >
+            Pendientes
+          </div>
         </div>
-        <div className="bg-blue-50 p-3 rounded-lg text-center">
-          <div className="text-2xl font-bold text-blue-800">{counts.confirmed}</div>
-          <div className="text-xs text-blue-600">Confirmadas</div>
+        <div 
+          className="p-3 rounded-lg text-center"
+          style={{ backgroundColor: 'var(--bg-tertiary)' }}
+        >
+          <div 
+            className="text-2xl font-bold"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            {counts.confirmed}
+          </div>
+          <div 
+            className="text-xs"
+            style={{ color: 'var(--text-secondary)' }}
+          >
+            Confirmadas
+          </div>
         </div>
-        <div className="bg-green-50 p-3 rounded-lg text-center">
-          <div className="text-2xl font-bold text-green-800">{counts.completed}</div>
-          <div className="text-xs text-green-600">Completadas</div>
+        <div 
+          className="p-3 rounded-lg text-center"
+          style={{ backgroundColor: 'var(--bg-tertiary)' }}
+        >
+          <div 
+            className="text-2xl font-bold"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            {counts.completed}
+          </div>
+          <div 
+            className="text-xs"
+            style={{ color: 'var(--text-secondary)' }}
+          >
+            Completadas
+          </div>
         </div>
-        <div className="bg-red-50 p-3 rounded-lg text-center">
-          <div className="text-2xl font-bold text-red-800">{counts.cancelled}</div>
-          <div className="text-xs text-red-600">Canceladas</div>
+        <div 
+          className="p-3 rounded-lg text-center"
+          style={{ backgroundColor: 'var(--bg-tertiary)' }}
+        >
+          <div 
+            className="text-2xl font-bold"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            {counts.cancelled}
+          </div>
+          <div 
+            className="text-xs"
+            style={{ color: 'var(--text-secondary)' }}
+          >
+            Canceladas
+          </div>
         </div>
       </div>
 
@@ -186,11 +262,21 @@ export default function ChayoAppointmentsList({ organizationId }: ChayoAppointme
           <button
             key={filter.value}
             onClick={() => setSelectedStatus(filter.value)}
-            className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-              selectedStatus === filter.value
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+            className="px-3 py-1 rounded-full text-sm font-medium transition-colors"
+            style={{
+              backgroundColor: selectedStatus === filter.value ? 'var(--accent-primary)' : 'var(--bg-tertiary)',
+              color: selectedStatus === filter.value ? 'var(--text-primary)' : 'var(--text-secondary)'
+            }}
+            onMouseEnter={(e) => {
+              if (selectedStatus !== filter.value) {
+                e.currentTarget.style.backgroundColor = 'var(--bg-hover)'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (selectedStatus !== filter.value) {
+                e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)'
+              }
+            }}
           >
             {filter.label}
           </button>
@@ -200,9 +286,14 @@ export default function ChayoAppointmentsList({ organizationId }: ChayoAppointme
       {/* Appointments List */}
       {appointments.length === 0 ? (
         <div className="text-center py-8">
-          <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No hay citas</h3>
-          <p className="text-gray-600">
+          <Calendar className="w-12 h-12 mx-auto mb-4" style={{ color: 'var(--text-secondary)' }} />
+          <h3 
+            className="text-lg font-medium mb-2"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            No hay citas
+          </h3>
+          <p style={{ color: 'var(--text-secondary)' }}>
             {selectedStatus === 'all' 
               ? 'Aún no se han agendado citas a través de tu sistema.'
               : `No hay citas con estado "${selectedStatus}".`
@@ -214,24 +305,39 @@ export default function ChayoAppointmentsList({ organizationId }: ChayoAppointme
           {appointments.map((appointment) => (
             <div
               key={appointment.id}
-              className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+              className="border rounded-lg p-4 hover:shadow-md transition-shadow"
+              style={{ 
+                backgroundColor: 'var(--bg-tertiary)',
+                borderColor: 'var(--border-primary)'
+              }}
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   {/* Header */}
                   <div className="flex items-center gap-3 mb-3">
                     <div className="flex items-center gap-2">
-                      <User className="w-4 h-4 text-gray-600" />
-                      <span className="font-medium text-gray-900">{appointment.client_name}</span>
+                      <User className="w-4 h-4" style={{ color: 'var(--text-secondary)' }} />
+                      <span 
+                        className="font-medium"
+                        style={{ color: 'var(--text-primary)' }}
+                      >
+                        {appointment.client_name}
+                      </span>
                     </div>
-                    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(appointment.status)}`}>
+                    <span 
+                      className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium"
+                      style={getStatusColor(appointment.status)}
+                    >
                       {getStatusIcon(appointment.status)}
                       {appointment.status}
                     </span>
                   </div>
 
                   {/* Details */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-600">
+                  <div 
+                    className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm"
+                    style={{ color: 'var(--text-secondary)' }}
+                  >
                     <div className="flex items-center gap-2">
                       <Calendar className="w-4 h-4" />
                       <span>{formatDate(appointment.appointment_date)}</span>
@@ -254,7 +360,10 @@ export default function ChayoAppointmentsList({ organizationId }: ChayoAppointme
 
                   {/* Notes */}
                   {appointment.notes && (
-                    <div className="mt-3 flex items-start gap-2 text-sm text-gray-600">
+                    <div 
+                      className="mt-3 flex items-start gap-2 text-sm"
+                      style={{ color: 'var(--text-secondary)' }}
+                    >
                       <MessageCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
                       <span>{appointment.notes}</span>
                     </div>
@@ -267,7 +376,10 @@ export default function ChayoAppointmentsList({ organizationId }: ChayoAppointme
                     <button
                       onClick={() => updateAppointmentStatus(appointment.id, 'confirmed')}
                       disabled={updatingId === appointment.id}
-                      className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors disabled:opacity-50"
+                      className="p-2 rounded-lg transition-colors disabled:opacity-50"
+                      style={{ color: '#22c55e' }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                       title="Confirmar"
                     >
                       <Check className="w-4 h-4" />
@@ -275,7 +387,10 @@ export default function ChayoAppointmentsList({ organizationId }: ChayoAppointme
                     <button
                       onClick={() => updateAppointmentStatus(appointment.id, 'cancelled')}
                       disabled={updatingId === appointment.id}
-                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                      className="p-2 rounded-lg transition-colors disabled:opacity-50"
+                      style={{ color: '#ef4444' }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                       title="Cancelar"
                     >
                       <X className="w-4 h-4" />
@@ -288,7 +403,10 @@ export default function ChayoAppointmentsList({ organizationId }: ChayoAppointme
                     <button
                       onClick={() => updateAppointmentStatus(appointment.id, 'completed')}
                       disabled={updatingId === appointment.id}
-                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50"
+                      className="p-2 rounded-lg transition-colors disabled:opacity-50"
+                      style={{ color: '#3b82f6' }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                       title="Marcar como completada"
                     >
                       <Check className="w-4 h-4" />
@@ -296,7 +414,10 @@ export default function ChayoAppointmentsList({ organizationId }: ChayoAppointme
                     <button
                       onClick={() => updateAppointmentStatus(appointment.id, 'cancelled')}
                       disabled={updatingId === appointment.id}
-                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                      className="p-2 rounded-lg transition-colors disabled:opacity-50"
+                      style={{ color: '#ef4444' }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                       title="Cancelar"
                     >
                       <X className="w-4 h-4" />

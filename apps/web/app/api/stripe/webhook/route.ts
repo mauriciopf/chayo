@@ -106,8 +106,8 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
   const subscription = await stripe.subscriptions.retrieve(session.subscription as string)
   
   // Upsert user subscription
-  const { error } = await supabase
-    .from('user_subscriptions')
+  const { error } = await (supabase
+    .from('user_subscriptions') as any)
     .upsert({
       user_id: userId,
       stripe_customer_id: session.customer as string,
@@ -125,8 +125,8 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
 }
 
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
-  const { error } = await supabase
-    .from('user_subscriptions')
+  const { error } = await (supabase
+    .from('user_subscriptions') as any)
     .update({
       status: subscription.status,
       current_period_end: new Date((subscription as any).current_period_end * 1000).toISOString(),
@@ -139,8 +139,8 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
 }
 
 async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
-  const { error } = await supabase
-    .from('user_subscriptions')
+  const { error } = await (supabase
+    .from('user_subscriptions') as any)
     .update({
       status: 'cancelled',
       plan_name: 'free',
@@ -155,8 +155,8 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
 async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {
   // Update subscription status to active
   if ((invoice as any).subscription) {
-    const { error } = await supabase
-      .from('user_subscriptions')
+    const { error } = await (supabase
+      .from('user_subscriptions') as any)
       .update({ status: 'active' })
       .eq('stripe_subscription_id', (invoice as any).subscription as string)
 
@@ -169,8 +169,8 @@ async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {
 async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
   // Update subscription status to past_due
   if ((invoice as any).subscription) {
-    const { error } = await supabase
-      .from('user_subscriptions')
+    const { error } = await (supabase
+      .from('user_subscriptions') as any)
       .update({ status: 'past_due' })
       .eq('stripe_subscription_id', (invoice as any).subscription as string)
 
@@ -183,8 +183,8 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
 // Connect account event handlers
 async function handleAccountUpdated(account: Stripe.Account) {
   // Update stripe_settings when account capabilities change
-  const { error } = await supabase
-    .from('stripe_settings')
+  const { error } = await (supabase
+    .from('stripe_settings') as any)
     .update({
       is_active: account.details_submitted && account.charges_enabled,
       updated_at: new Date().toISOString()
@@ -201,8 +201,8 @@ async function handleAccountUpdated(account: Stripe.Account) {
 async function handleCapabilityUpdated(capability: Stripe.Capability) {
   // Update account status when capabilities change (e.g., transfers enabled)
   if (capability.id === 'transfers') {
-    const { error } = await supabase
-      .from('stripe_settings')
+    const { error } = await (supabase
+      .from('stripe_settings') as any)
       .update({
         updated_at: new Date().toISOString()
       })

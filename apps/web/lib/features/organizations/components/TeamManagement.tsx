@@ -214,17 +214,26 @@ export default function TeamManagement({ organizationId, organizationName }: Tea
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">
+          <h2 
+            className="text-2xl font-bold"
+            style={{ color: 'var(--text-primary)' }}
+          >
             {t('title')}
           </h2>
-          <p className="text-gray-600">
+          <p style={{ color: 'var(--text-secondary)' }}>
             {t('description', { organizationName })}
           </p>
         </div>
         {canManageTeam && (
           <button
             onClick={() => setShowInviteModal(true)}
-            className="bg-orange-400 hover:bg-orange-500 text-white px-4 py-2 rounded-md"
+            className="px-4 py-2 rounded-md transition-colors"
+            style={{
+              backgroundColor: 'var(--accent-primary)',
+              color: 'var(--text-primary)'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--accent-primary)'}
           >
             {t('inviteMember')}
           </button>
@@ -232,13 +241,28 @@ export default function TeamManagement({ organizationId, organizationName }: Tea
       </div>
 
       {/* Team Members */}
-      <div className="bg-white rounded-lg shadow">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">{t('activeMembers')}</h3>
+      <div 
+        className="rounded-lg shadow"
+        style={{ backgroundColor: 'var(--bg-secondary)' }}
+      >
+        <div 
+          className="px-6 py-4 border-b"
+          style={{ borderColor: 'var(--border-primary)' }}
+        >
+          <h3 
+            className="text-lg font-semibold"
+            style={{ color: 'var(--text-primary)' }}
+          >{t('activeMembers')}</h3>
         </div>
-        <div className="divide-y divide-gray-200">
+        <div 
+          className="divide-y"
+          style={{ borderColor: 'var(--border-primary)' }}
+        >
           {members.length === 0 ? (
-            <div className="px-6 py-8 text-center text-gray-500">
+            <div 
+              className="px-6 py-8 text-center"
+              style={{ color: 'var(--text-secondary)' }}
+            >
               {t('noTeamMembers')}
             </div>
           ) : (
@@ -296,11 +320,23 @@ export default function TeamManagement({ organizationId, organizationName }: Tea
 
       {/* Pending Invitations */}
       {invitations.length > 0 && (
-        <div className="bg-white rounded-lg shadow">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">{t('pendingInvitations')}</h3>
+        <div 
+        className="rounded-lg shadow"
+        style={{ backgroundColor: 'var(--bg-secondary)' }}
+      >
+          <div 
+          className="px-6 py-4 border-b"
+          style={{ borderColor: 'var(--border-primary)' }}
+        >
+            <h3 
+            className="text-lg font-semibold"
+            style={{ color: 'var(--text-primary)' }}
+          >{t('pendingInvitations')}</h3>
           </div>
-          <div className="divide-y divide-gray-200">
+          <div 
+          className="divide-y"
+          style={{ borderColor: 'var(--border-primary)' }}
+        >
             {invitations.map((invitation) => (
               <div key={invitation.id} className="px-6 py-4 flex items-center justify-between">
                 <div className="flex items-center">

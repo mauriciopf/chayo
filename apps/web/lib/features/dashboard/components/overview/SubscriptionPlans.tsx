@@ -164,21 +164,31 @@ export default function SubscriptionPlans({ currentSubscription, onClose, onSubs
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="bg-white rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto"
+        className="rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto"
+        style={{ backgroundColor: 'var(--bg-secondary)' }}
       >
         {/* Header */}
         <div className="flex justify-between items-center p-6 border-b">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 
+              className="text-2xl font-bold"
+              style={{ color: 'var(--text-primary)' }}
+            >
               {t('title')}
             </h2>
-            <p className="text-gray-600 mt-1">
+            <p 
+              className="mt-1"
+              style={{ color: 'var(--text-secondary)' }}
+            >
               {t('subtitle')}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="transition-colors"
+            style={{ color: 'var(--text-secondary)' }}
+            onMouseEnter={(e) => e.currentTarget.style.color = 'var(--text-primary)'}
+            onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -188,7 +198,13 @@ export default function SubscriptionPlans({ currentSubscription, onClose, onSubs
 
         {/* Launch Notice */}
         <div className="px-6 pb-4">
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+          <div 
+            className="border rounded-lg p-4"
+            style={{
+              backgroundColor: 'var(--bg-tertiary)',
+              borderColor: 'var(--border-primary)'
+            }}
+          >
             <div className="flex items-center">
               <svg className="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -211,7 +227,7 @@ export default function SubscriptionPlans({ currentSubscription, onClose, onSubs
             <div 
               className="border rounded-lg p-4"
               style={{ 
-                backgroundColor: 'var(--bg-white)',
+                backgroundColor: 'var(--bg-secondary)',
                 borderColor: 'var(--border-primary)'
               }}
             >
@@ -240,7 +256,7 @@ export default function SubscriptionPlans({ currentSubscription, onClose, onSubs
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
-            className={`relative bg-white rounded-3xl shadow-xl overflow-hidden ${
+            className={`relative rounded-3xl shadow-xl overflow-hidden ${
               plan.popular && plan.available ? 'ring-4 scale-105' : ''
             } ${
               !plan.available ? 'opacity-75' : ''
@@ -250,7 +266,7 @@ export default function SubscriptionPlans({ currentSubscription, onClose, onSubs
                 ringColor: 'var(--border-focus)' 
               }),
               ...(targetPlan === plan.id && { 
-                backgroundColor: 'var(--bg-white)',
+                backgroundColor: 'var(--bg-secondary)',
                 ringWidth: '4px',
                 ringColor: 'var(--accent-primary)'
               })
@@ -308,7 +324,13 @@ export default function SubscriptionPlans({ currentSubscription, onClose, onSubs
 
               {currentPlan === plan.id ? (
                 <div className="space-y-3">
-                  <div className="text-center py-3 bg-gray-100 text-gray-800 rounded-lg font-medium">
+                  <div 
+                    className="text-center py-3 rounded-lg font-medium"
+                    style={{
+                      backgroundColor: 'var(--bg-tertiary)',
+                      color: 'var(--text-primary)'
+                    }}
+                  >
                     {t('currentPlan')}
                   </div>
                   <button
@@ -357,7 +379,10 @@ export default function SubscriptionPlans({ currentSubscription, onClose, onSubs
 
       {currentPlan !== 'free' && (
         <div className="mt-8 text-center border-t pt-6">
-          <p className="text-gray-600 mb-4">
+          <p 
+            className="mb-4"
+            style={{ color: 'var(--text-secondary)' }}
+          >
             {t('needChanges')}
           </p>
           <button

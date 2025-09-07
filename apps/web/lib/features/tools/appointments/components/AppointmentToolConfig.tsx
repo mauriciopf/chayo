@@ -203,8 +203,17 @@ export default function AppointmentToolConfig({
 
   if (!isEnabled) {
     return (
-      <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
-        <p className="text-amber-800 text-sm">
+      <div 
+        className="p-4 rounded-lg border"
+        style={{ 
+          backgroundColor: 'var(--bg-tertiary)',
+          borderColor: 'var(--border-primary)'
+        }}
+      >
+        <p 
+          className="text-sm"
+          style={{ color: 'var(--text-secondary)' }}
+        >
           Enable the Appointments tool above to configure booking options.
         </p>
       </div>
@@ -213,25 +222,49 @@ export default function AppointmentToolConfig({
 
   if (loading) {
     return (
-      <div className="border-t border-gray-200 pt-6">
+      <div 
+        className="border-t pt-6"
+        style={{ borderColor: 'var(--border-primary)' }}
+      >
         <div className="text-center py-4">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="text-sm text-gray-500 mt-2">Loading appointment settings...</p>
+          <div 
+            className="animate-spin rounded-full h-6 w-6 border-b-2 mx-auto"
+            style={{ borderColor: 'var(--accent-primary)' }}
+          ></div>
+          <p 
+            className="text-sm mt-2"
+            style={{ color: 'var(--text-secondary)' }}
+          >
+            Loading appointment settings...
+          </p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="border-t border-gray-200 pt-6">
+    <div 
+      className="border-t pt-6"
+      style={{ borderColor: 'var(--border-primary)' }}
+    >
       <div className="flex items-center gap-2 mb-4">
-        <Calendar className="w-5 h-5 text-blue-600" />
-        <h3 className="font-medium text-gray-900">Appointment Booking Configuration</h3>
+        <Calendar className="w-5 h-5" style={{ color: 'var(--accent-primary)' }} />
+        <h3 
+          className="font-medium"
+          style={{ color: 'var(--text-primary)' }}
+        >
+          Appointment Booking Configuration
+        </h3>
       </div>
 
       {/* Provider Selection */}
       <div className="mb-6">
-        <h4 className="font-medium text-gray-900 mb-3">Choose your booking service:</h4>
+        <h4 
+          className="font-medium mb-3"
+          style={{ color: 'var(--text-primary)' }}
+        >
+          Choose your booking service:
+        </h4>
         <div className="space-y-3">
           {providers.map((provider) => (
             <label 
@@ -254,20 +287,42 @@ export default function AppointmentToolConfig({
               />
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <span className="font-medium text-gray-900">{provider.name}</span>
+                  <span 
+                    className="font-medium"
+                    style={{ color: 'var(--text-primary)' }}
+                  >
+                    {provider.name}
+                  </span>
                   {provider.type === 'embed' && (
-                    <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
+                    <span 
+                      className="px-2 py-1 text-xs font-medium rounded-full"
+                      style={{ 
+                        backgroundColor: 'var(--bg-tertiary)',
+                        color: 'var(--text-primary)'
+                      }}
+                    >
                       Embedded
                     </span>
                   )}
                   {provider.type === 'link' && (
-                    <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full flex items-center gap-1">
+                    <span 
+                      className="px-2 py-1 text-xs font-medium rounded-full flex items-center gap-1"
+                      style={{ 
+                        backgroundColor: 'var(--bg-tertiary)',
+                        color: 'var(--text-primary)'
+                      }}
+                    >
                       <ExternalLink className="w-3 h-3" />
                       Link
                     </span>
                   )}
                 </div>
-                <p className="text-sm text-gray-600 mt-1">{provider.description}</p>
+                <p 
+                  className="text-sm mt-1"
+                  style={{ color: 'var(--text-secondary)' }}
+                >
+                  {provider.description}
+                </p>
               </div>
             </label>
           ))}
@@ -280,10 +335,21 @@ export default function AppointmentToolConfig({
           {providers.find(p => p.id === selectedProvider)?.hasOAuth ? (
             // OAuth Flow (Calendly)
             <div>
-              <h4 className="font-medium text-gray-900 mb-3">Connect Your {selectedProvider.charAt(0).toUpperCase() + selectedProvider.slice(1)} Account</h4>
+              <h4 
+                className="font-medium mb-3"
+                style={{ color: 'var(--text-primary)' }}
+              >
+                Connect Your {selectedProvider.charAt(0).toUpperCase() + selectedProvider.slice(1)} Account
+              </h4>
               
               {/* Connection Status */}
-              <div className="mb-4 p-3 border border-gray-200 rounded-lg">
+              <div 
+                className="mb-4 p-3 border rounded-lg"
+                style={{ 
+                  backgroundColor: 'var(--bg-tertiary)',
+                  borderColor: 'var(--border-primary)'
+                }}
+              >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className={`w-3 h-3 rounded-full ${providerUrl ? 'bg-green-500' : 'bg-gray-300'}`}></div>

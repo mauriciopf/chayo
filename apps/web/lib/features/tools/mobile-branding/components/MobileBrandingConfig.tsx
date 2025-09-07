@@ -81,8 +81,17 @@ export function MobileBrandingConfig({
 
   if (!isEnabled) {
     return (
-      <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
-        <p className="text-amber-800 text-sm">
+      <div 
+        className="p-4 border rounded-lg"
+        style={{ 
+          backgroundColor: 'var(--bg-tertiary)',
+          borderColor: 'var(--border-primary)'
+        }}
+      >
+        <p 
+          className="text-sm"
+          style={{ color: 'var(--text-secondary)' }}
+        >
           Enable the Mobile Branding tool above to customize your app's appearance.
         </p>
       </div>

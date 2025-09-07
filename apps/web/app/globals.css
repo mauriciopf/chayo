@@ -17,6 +17,46 @@ html {
   display: none;
 }
 
+
+/* Business Summary Content Styling */
+.business-summary-content * {
+  color: var(--text-primary) !important;
+}
+
+.business-summary-content h1,
+.business-summary-content h2,
+.business-summary-content h3,
+.business-summary-content h4,
+.business-summary-content h5,
+.business-summary-content h6 {
+  color: var(--text-primary) !important;
+  font-weight: 600 !important;
+  margin-bottom: 0.75rem !important;
+}
+
+.business-summary-content p {
+  color: var(--text-primary) !important;
+  margin-bottom: 1rem !important;
+  line-height: 1.8 !important;
+}
+
+.business-summary-content ul,
+.business-summary-content ol {
+  color: var(--text-primary) !important;
+  margin-bottom: 1rem !important;
+}
+
+.business-summary-content li {
+  color: var(--text-primary) !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.business-summary-content strong,
+.business-summary-content b {
+  color: var(--text-primary) !important;
+  font-weight: 600 !important;
+}
+
 /* Professional Dark Theme - Black and Gray */
 :root {
   /* Dark theme as default - black and gray professional look */

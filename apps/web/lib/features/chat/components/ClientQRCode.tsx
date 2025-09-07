@@ -84,31 +84,50 @@ export default function ClientQRCode({ organizationSlug, isOnboardingCompleted =
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="bg-white rounded-xl shadow-lg border border-gray-200 p-6"
+      className="rounded-xl shadow-lg border p-6"
+      style={{
+        backgroundColor: 'var(--bg-secondary)',
+        borderColor: 'var(--border-primary)'
+      }}
     >
       <div className="text-center">
-        <h3 className="text-xl font-bold text-gray-900 mb-2">
+        <h3 
+          className="text-xl font-bold mb-2"
+          style={{ color: 'var(--text-primary)' }}
+        >
           🎯 Client Chat QR Code
         </h3>
-        <p className="text-gray-600 mb-6">
+        <p 
+          className="mb-6"
+          style={{ color: 'var(--text-secondary)' }}
+        >
           Share this QR code with your customers so they can chat directly with your personalized Chayo assistant
         </p>
 
         {/* Setup Status Indicator */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700">
+            <span 
+              className="text-sm font-medium"
+              style={{ color: 'var(--text-primary)' }}
+            >
               Business Setup Status
             </span>
-            <span className="text-sm text-gray-500">
+            <span 
+              className="text-sm"
+              style={{ color: 'var(--text-secondary)' }}
+            >
               {isOnboardingCompleted ? 'Complete' : 'In Progress'}
             </span>
           </div>
-          <div className="mt-2 text-xs text-gray-500">
+          <div 
+            className="mt-2 text-xs"
+            style={{ color: 'var(--text-secondary)' }}
+          >
             {isOnboardingCompleted ? (
-              <span className="text-green-600 font-medium">✅ QR Code is ready to share!</span>
+              <span className="font-medium" style={{ color: '#22c55e' }}>✅ QR Code is ready to share!</span>
             ) : (
-              <span className="text-orange-600">⚙️ Setup in progress</span>
+              <span style={{ color: '#f59e0b' }}>⚙️ Setup in progress</span>
             )}
           </div>
         </div>
@@ -116,7 +135,13 @@ export default function ClientQRCode({ organizationSlug, isOnboardingCompleted =
         {qrCodeUrl && isOnboardingCompleted ? (
           <div className="flex flex-col items-center space-y-4">
             {/* QR Code */}
-            <div className="bg-white p-4 rounded-lg border-2 border-gray-100">
+            <div 
+              className="p-4 rounded-lg border-2"
+              style={{ 
+                backgroundColor: 'var(--bg-secondary)',
+                borderColor: 'var(--border-primary)'
+              }}
+            >
               <img 
                 src={qrCodeUrl} 
                 alt="Client Chat QR Code"
@@ -126,7 +151,10 @@ export default function ClientQRCode({ organizationSlug, isOnboardingCompleted =
 
             {/* URL Display */}
             <div className="w-full max-w-md">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label 
+                className="block text-sm font-medium mb-2"
+                style={{ color: 'var(--text-primary)' }}
+              >
                 Direct Chat Link:
               </label>
               <div className="flex">
@@ -134,11 +162,22 @@ export default function ClientQRCode({ organizationSlug, isOnboardingCompleted =
                   type="text"
                   value={clientChatUrl}
                   readOnly
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-l-md bg-gray-50 text-sm text-gray-600"
+                  className="flex-1 px-3 py-2 border rounded-l-md text-sm"
+                  style={{
+                    backgroundColor: 'var(--bg-tertiary)',
+                    borderColor: 'var(--border-primary)',
+                    color: 'var(--text-secondary)'
+                  }}
                 />
                 <button
                   onClick={copyToClipboard}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-r-md hover:bg-blue-700 transition-colors text-sm font-medium"
+                  className="px-4 py-2 rounded-r-md transition-colors text-sm font-medium"
+                  style={{
+                    backgroundColor: 'var(--accent-primary)',
+                    color: 'var(--text-primary)'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--accent-primary)'}
                 >
                   {copied ? '✓ Copied!' : 'Copy'}
                 </button>
@@ -149,22 +188,46 @@ export default function ClientQRCode({ organizationSlug, isOnboardingCompleted =
             <div className="flex space-x-3">
               <button
                 onClick={shareQR}
-                className="flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium"
+                className="flex items-center px-4 py-2 rounded-lg transition-colors font-medium"
+                style={{
+                  backgroundColor: 'var(--accent-primary)',
+                  color: 'var(--text-primary)'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--accent-primary)'}
               >
                 📱 Share QR Code
               </button>
               <button
                 onClick={downloadQR}
-                className="flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium"
+                className="flex items-center px-4 py-2 rounded-lg transition-colors font-medium"
+                style={{
+                  backgroundColor: 'var(--accent-primary)',
+                  color: 'var(--text-primary)'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--accent-primary)'}
               >
                 💾 Download QR
               </button>
             </div>
 
             {/* Instructions */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md">
-              <h4 className="font-medium text-blue-900 mb-2">How to use:</h4>
-              <ul className="text-sm text-blue-800 space-y-1">
+            <div 
+              className="border rounded-lg p-4 max-w-md"
+              style={{
+                backgroundColor: 'var(--bg-tertiary)',
+                borderColor: 'var(--border-primary)'
+              }}
+            >
+              <h4 
+                className="font-medium mb-2"
+                style={{ color: 'var(--text-primary)' }}
+              >How to use:</h4>
+              <ul 
+                className="text-sm space-y-1"
+                style={{ color: 'var(--text-secondary)' }}
+              >
                 <li>• Print and display the QR code in your business</li>
                 <li>• Share the link via social media or email</li>
                 <li>• Customers can scan to chat instantly with Chayo</li>
