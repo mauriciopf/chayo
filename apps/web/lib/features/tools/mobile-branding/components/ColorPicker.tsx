@@ -163,8 +163,8 @@ export function ColorPicker({ label, value, onChange, description }: ColorPicker
                       style={{
                         backgroundColor: color,
                         borderColor: value === color ? 'var(--accent-primary)' : 'var(--border-secondary)',
-                        ringColor: value === color ? 'var(--border-focus)' : 'transparent'
-                      }}
+                        '--tw-ring-color': value === color ? 'var(--border-focus)' : 'transparent'
+                      } as React.CSSProperties}
                       onMouseEnter={(e) => {
                         if (value !== color) {
                           e.currentTarget.style.borderColor = 'var(--border-focus)'

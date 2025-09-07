@@ -101,7 +101,6 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, chatLoading, chat
                           context={thinkingContext} 
                           isVisible={true}
                           className="text-sm ml-2"
-                          style={{ color: 'var(--text-muted)' }}
                           onboardingProgress={onboardingProgress}
                           organizationId={organizationId}
                           currentPhase={currentPhase as any}

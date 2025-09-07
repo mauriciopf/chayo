@@ -131,8 +131,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 style={{
                   backgroundColor: 'var(--bg-tertiary)',
                   color: 'var(--text-primary)',
-                  ringColor: 'var(--border-focus)'
-                }}
+                  '--tw-ring-color': 'var(--border-focus)'
+                } as React.CSSProperties}
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)'}
                 title={t('uploadTitle')}
