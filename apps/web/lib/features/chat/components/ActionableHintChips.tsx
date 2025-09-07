@@ -175,8 +175,8 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
                     className="absolute -top-1 -right-1 w-3 h-3 rounded-full shadow-sm ring-2"
                     style={{ 
                       backgroundColor: 'var(--text-primary)',
-                      ringColor: 'var(--border-focus)'
-                    }}
+                      '--tw-ring-color': 'var(--border-focus)'
+                    } as React.CSSProperties}
                   />
                 )}
               </motion.button>
