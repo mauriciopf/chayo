@@ -139,23 +139,36 @@ export default function BusinessSummary() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex-1 bg-white shadow-lg border border-gray-100 overflow-hidden flex flex-col rounded-b-2xl"
+        className="flex-1 shadow-lg border overflow-hidden flex flex-col rounded-b-2xl"
+        style={{ 
+          backgroundColor: 'var(--bg-secondary)',
+          borderColor: 'var(--border-primary)'
+        }}
       >
         {summaryData?.summary ? (
           <>
             {/* Card Header */}
-            <div className="flex-shrink-0 p-6 border-b border-gray-100">
+            <div 
+              className="flex-shrink-0 p-6 border-b"
+              style={{ borderColor: 'var(--border-primary)' }}
+            >
               <div className="flex items-center">
-                <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                <div 
+                  className="w-10 h-10 rounded-lg flex items-center justify-center"
+                  style={{ backgroundColor: 'var(--accent-primary)' }}
+                >
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                   </svg>
                 </div>
                 <div className="ml-4">
-                  <h2 className="text-xl font-semibold text-gray-900">
+                  <h2 
+                    className="text-xl font-semibold"
+                    style={{ color: 'var(--text-primary)' }}
+                  >
                     {showRawData ? 'Raw Business Data' : 'Business Intelligence Summary'}
                   </h2>
-                  <p className="text-gray-600">
+                  <p style={{ color: 'var(--text-secondary)' }}>
                     {showRawData ? 'Technical data structure' : 'Everything Chayo knows about your business'}
                   </p>
                 </div>
@@ -212,20 +225,41 @@ export default function BusinessSummary() {
         ) : (
           <div className="flex-1 flex items-center justify-center p-12">
             <div className="text-center">
-              <div className="w-24 h-24 bg-gradient-to-r from-purple-100 to-pink-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg className="w-12 h-12 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div 
+                className="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6"
+                style={{ backgroundColor: 'var(--bg-tertiary)' }}
+              >
+                <svg 
+                  className="w-12 h-12" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                  style={{ color: 'var(--text-secondary)' }}
+                >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                 </svg>
               </div>
-              <h3 className="text-2xl font-semibold text-gray-900 mb-3">No Business Information Yet</h3>
-              <p className="text-gray-600 mb-8 max-w-md mx-auto">
+              <h3 
+                className="text-2xl font-semibold mb-3"
+                style={{ color: 'var(--text-primary)' }}
+              >No Business Information Yet</h3>
+              <p 
+                className="mb-8 max-w-md mx-auto"
+                style={{ color: 'var(--text-secondary)' }}
+              >
                 Start a conversation with your AI assistant to begin collecting your business details. Chayo will learn about your business as you chat.
               </p>
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => window.location.reload()}
-                className="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 font-medium shadow-lg"
+                className="px-8 py-3 rounded-lg transition-all duration-200 font-medium shadow-lg"
+                style={{ 
+                  backgroundColor: 'var(--accent-primary)',
+                  color: 'var(--text-primary)'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--accent-primary)'}
               >
                 Refresh Summary
               </motion.button>

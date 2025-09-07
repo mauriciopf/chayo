@@ -122,12 +122,19 @@ export default function MobileNavigation({
             animate={{ x: 0 }}
             exit={{ x: '-100%' }}
             transition={{ type: 'tween', duration: 0.3 }}
-            className="fixed top-0 left-0 h-full w-80 bg-white shadow-xl z-50 md:hidden overflow-y-auto"
+            className="fixed top-0 left-0 h-full w-80 shadow-xl z-50 md:hidden overflow-y-auto"
+            style={{ backgroundColor: 'var(--bg-secondary)' }}
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+            <div 
+              className="flex items-center justify-between p-4 border-b"
+              style={{ borderColor: 'var(--border-primary)' }}
+            >
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-orange-400 rounded-full flex items-center justify-center">
+                <div 
+                  className="w-10 h-10 rounded-full flex items-center justify-center"
+                  style={{ backgroundColor: 'var(--accent-primary)' }}
+                >
                   <span className="text-white font-semibold">
                     {user ? getInitials(user.email!) : 'U'}
                   </span>
@@ -192,7 +199,10 @@ export default function MobileNavigation({
             </div>
 
             {/* Billing & Settings Section */}
-            <div className="border-t border-gray-200 py-4">
+            <div 
+              className="border-t py-4"
+              style={{ borderColor: 'var(--border-primary)' }}
+            >
               <button
                 onClick={() => {
                   onManageBilling()
