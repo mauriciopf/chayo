@@ -80,6 +80,9 @@ html {
   --accent-warning: #f59e0b;       /* Warning amber */
   --accent-danger: #ef4444;        /* Error red */
   
+  --text-danger: #f87171;          /* Danger text - lighter red for readability */
+  --bg-danger-hover: #1f1f1f;      /* Danger hover background - subtle dark */
+  
   /* Marketing-specific variables - Professional Dark Gray Theme */
   --marketing-hero-bg: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #262626 100%);
   --marketing-card-bg: #1a1a1a;    /* Marketing card backgrounds */

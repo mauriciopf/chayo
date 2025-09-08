@@ -36,7 +36,7 @@ export function MobilePreview({ config }: MobilePreviewProps) {
   ];
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-6">
+    <div className="rounded-xl border p-6" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-primary)' }}>
       <div className="flex items-center gap-3 mb-6">
         <Smartphone className="h-5 w-5 text-gray-600" />
         <h3 className="text-lg font-semibold text-gray-900">
@@ -57,7 +57,7 @@ export function MobilePreview({ config }: MobilePreviewProps) {
               <span>9:41</span>
               <div className="flex items-center gap-1">
                 <div className="w-4 h-2 border border-white rounded-sm">
-                  <div className="w-3 h-1 bg-white rounded-sm"></div>
+                  <div className="w-3 h-1 rounded-sm" style={{ backgroundColor: 'var(--text-primary)' }}></div>
                 </div>
               </div>
             </div>

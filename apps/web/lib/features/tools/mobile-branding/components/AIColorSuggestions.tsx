@@ -122,7 +122,10 @@ export function AIColorSuggestions({
           whileTap={{ scale: 0.95 }}
           onClick={handleRefresh}
           disabled={loading}
-          className="p-2 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors disabled:opacity-50"
+          className="p-2 rounded-lg border transition-colors disabled:opacity-50"
+          style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-primary)' }}
+          onMouseEnter={(e) => !e.currentTarget.disabled && (e.currentTarget.style.backgroundColor = 'var(--bg-hover)')}
+          onMouseLeave={(e) => !e.currentTarget.disabled && (e.currentTarget.style.backgroundColor = 'var(--bg-secondary)')}
         >
           <RefreshCw className={`h-4 w-4 text-gray-600 ${loading ? 'animate-spin' : ''}`} />
         </motion.button>
@@ -149,7 +152,7 @@ export function AIColorSuggestions({
             className="space-y-4"
           >
             {/* AI Description */}
-            <div className="bg-white/70 rounded-lg p-4 border border-white/50">
+            <div className="rounded-lg p-4 border" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-primary)', opacity: 0.9 }}>
               <p className="text-sm text-gray-700 leading-relaxed">
                 {suggestion.description}
               </p>
@@ -210,7 +213,10 @@ export function AIColorSuggestions({
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={onToggleManualMode}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white text-gray-600 rounded-lg font-medium border border-gray-200 hover:bg-gray-50 transition-colors"
+                className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium border transition-colors"
+                style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', borderColor: 'var(--border-primary)' }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'}
               >
 {t('ai.manualMode')}
               </motion.button>

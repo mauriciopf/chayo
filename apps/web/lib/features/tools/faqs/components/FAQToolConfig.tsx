@@ -83,7 +83,10 @@ function FAQPreview({ faqName, faqItems }: FAQPreviewProps) {
                   {/* Question Header */}
                   <button
                     onClick={() => toggleItem(item.id)}
-                    className="w-full p-4 text-left bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between"
+                    className="w-full p-4 text-left transition-colors flex items-center justify-between"
+                    style={{ backgroundColor: 'var(--bg-tertiary)' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)'}
                   >
                     <div className="flex items-start gap-3 flex-1">
                       <span className="text-purple-600 font-semibold text-sm mt-0.5">
@@ -102,7 +105,7 @@ function FAQPreview({ faqName, faqItems }: FAQPreviewProps) {
 
                   {/* Answer Content */}
                   {isExpanded && (
-                    <div className="p-4 bg-white border-t border-gray-100">
+                    <div className="p-4 border-t" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-primary)' }}>
                       <div className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap">
                         {item.answer}
                       </div>
@@ -243,7 +246,7 @@ function SimpleFAQBuilder({ faqItems, onChange }: SimpleFAQBuilderProps) {
       </div>
 
       {/* FAQ Items Preview */}
-      <div className="border border-gray-200 rounded-lg p-4 bg-white min-h-[400px]">
+      <div className="border rounded-lg p-4 min-h-[400px]" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-primary)' }}>
         {faqItems.length === 0 ? (
           <div className="flex items-center justify-center h-32 text-gray-500">
             <div className="text-center">
@@ -493,7 +496,10 @@ export default function FAQToolConfig({ organizationId, isEnabled, onSettingsCha
           <div className="flex gap-2">
             <button
               onClick={() => setIsPreview(!isPreview)}
-              className="flex items-center px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
+              className="flex items-center px-3 py-1 text-sm border rounded-md transition-colors"
+              style={{ borderColor: 'var(--border-primary)', color: 'var(--text-primary)' }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
             >
               <Eye className="w-4 h-4 mr-1" />
               {isPreview ? 'Editor' : 'Vista Previa'}
@@ -635,7 +641,7 @@ export default function FAQToolConfig({ organizationId, isEnabled, onSettingsCha
       {previewingFAQ && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="bg-white rounded-lg shadow-xl">
+            <div className="rounded-lg shadow-xl" style={{ backgroundColor: 'var(--bg-primary)' }}>
               {/* Modal Header */}
               <div className="flex items-center justify-between p-4 border-b border-gray-200">
                 <h3 className="text-lg font-semibold text-gray-900">Vista Previa del FAQ</h3>

@@ -61,7 +61,8 @@ export default function ManageDocumentsModal({
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
-          className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+          className="rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+          style={{ backgroundColor: 'var(--bg-primary)' }}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
@@ -122,7 +123,7 @@ export default function ManageDocumentsModal({
               ) : (
                 <div className="space-y-3">
                   {documents.map((doc) => (
-                    <div key={doc.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div key={doc.id} className="flex items-center justify-between p-3 rounded-lg" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
                       <div className="flex items-center space-x-3">
                         <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -151,7 +152,7 @@ export default function ManageDocumentsModal({
               )}
 
               {/* Stats */}
-              <div className="bg-gray-50 rounded-lg p-4">
+              <div className="rounded-lg p-4" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-gray-600">{t('totalDocuments')}</span>
                   <span className="font-medium text-gray-900">{documents.length}</span>

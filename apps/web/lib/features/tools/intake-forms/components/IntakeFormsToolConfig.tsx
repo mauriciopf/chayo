@@ -204,7 +204,7 @@ function SimpleFormBuilder({ formDefinition, onChange, onFieldClick }: SimpleFor
       {/* Form Preview */}
       <div className="space-y-4">
         <h4 className="font-semibold text-gray-900">Vista Previa del Formulario</h4>
-        <div className="border border-gray-200 rounded-lg p-4 bg-white min-h-[400px]">
+        <div className="border rounded-lg p-4 min-h-[400px]" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-primary)' }}>
           {components.length === 0 ? (
             <div className="flex items-center justify-center h-32 text-gray-500">
               <div className="text-center">
@@ -575,7 +575,10 @@ export default function IntakeFormsToolConfig({ organizationId, isEnabled, onSet
             <button
               onClick={() => setIsPreview(!isPreview)}
               disabled={!formDefinition}
-              className="flex items-center px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center px-3 py-2 border rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ borderColor: 'var(--border-primary)', color: 'var(--text-primary)' }}
+              onMouseEnter={(e) => !e.currentTarget.disabled && (e.currentTarget.style.backgroundColor = 'var(--bg-hover)')}
+              onMouseLeave={(e) => !e.currentTarget.disabled && (e.currentTarget.style.backgroundColor = 'transparent')}
             >
               <Eye className="w-4 h-4 mr-2" />
               {isPreview ? 'Editor' : 'Vista Previa'}
@@ -587,7 +590,10 @@ export default function IntakeFormsToolConfig({ organizationId, isEnabled, onSet
                 setFormName('')
                 setFormDefinition(null)
               }}
-              className="px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+              className="px-3 py-2 border rounded-md transition-colors"
+              style={{ borderColor: 'var(--border-primary)', color: 'var(--text-primary)' }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
             >
               Cancelar
             </button>
@@ -710,21 +716,30 @@ export default function IntakeFormsToolConfig({ organizationId, isEnabled, onSet
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => copyFormLink(form.id)}
-                    className="flex items-center px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50"
+                    className="flex items-center px-3 py-1 text-sm border rounded transition-colors"
+                    style={{ borderColor: 'var(--border-primary)', color: 'var(--text-primary)' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                   >
                     <ExternalLink className="w-4 h-4 mr-1" />
                     Copiar enlace
                   </button>
                   <button
                     onClick={() => handleEditForm(form)}
-                    className="flex items-center px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50"
+                    className="flex items-center px-3 py-1 text-sm border rounded transition-colors"
+                    style={{ borderColor: 'var(--border-primary)', color: 'var(--text-primary)' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                   >
                     <Edit className="w-4 h-4 mr-1" />
                     Editar
                   </button>
                   <button
                     onClick={() => handleDeleteForm(form.id)}
-                    className="flex items-center px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 text-red-600 hover:bg-red-50"
+                    className="flex items-center px-3 py-1 text-sm border rounded transition-colors"
+                    style={{ borderColor: 'var(--border-primary)', color: 'var(--text-danger)' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-danger-hover)'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                   >
                     <Trash2 className="w-4 h-4 mr-1" />
                     Eliminar

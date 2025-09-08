@@ -171,7 +171,7 @@ const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
   const weekDays = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
 
   return (
-    <div className={`bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden ${className}`}>
+    <div className={`rounded-xl shadow-lg border overflow-hidden ${className}`} style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border-primary)' }}>
       {/* Mobile-Optimized Header */}
       <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4">
         <div className="flex items-center gap-2 mb-1">
@@ -261,9 +261,23 @@ const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                       p-3 text-sm rounded-lg border transition-all touch-manipulation min-h-[44px]
                       ${selectedTime === time 
                         ? 'bg-blue-600 text-white border-blue-600' 
-                        : 'bg-gray-50 hover:bg-blue-50 active:bg-blue-100 text-gray-700 border-gray-200'
+                        : 'border-gray-200'
+                      } transition-colors`}
+                    style={{
+                      backgroundColor: selectedTime === time ? undefined : 'var(--bg-tertiary)',
+                      color: selectedTime === time ? undefined : 'var(--text-primary)',
+                      borderColor: selectedTime === time ? undefined : 'var(--border-primary)'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (selectedTime !== time) {
+                        e.currentTarget.style.backgroundColor = 'var(--bg-hover)'
                       }
-                    `}
+                    }}
+                    onMouseLeave={(e) => {
+                      if (selectedTime !== time) {
+                        e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)'
+                      }
+                    }}
                   >
                     {time}
                   </button>
@@ -358,7 +372,10 @@ const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                         setShowBookingForm(false)
                         setSelectedTime(null)
                       }}
-                      className="flex-1 px-4 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors touch-manipulation min-h-[44px]"
+                      className="flex-1 px-4 py-3 border rounded-lg transition-colors touch-manipulation min-h-[44px]"
+                      style={{ borderColor: 'var(--border-primary)', color: 'var(--text-primary)' }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                     >
                       Cancelar
                     </button>

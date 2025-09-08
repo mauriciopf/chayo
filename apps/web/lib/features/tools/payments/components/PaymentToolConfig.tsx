@@ -390,7 +390,10 @@ export default function PaymentToolConfig({
                             if (provider.recurring_interval) setRecurringInterval(provider.recurring_interval)
                           }
                         }}
-                        className="text-xs px-3 py-1 text-gray-600 hover:bg-gray-50 border border-gray-200 rounded-md"
+                        className="text-xs px-3 py-1 border rounded-md transition-colors"
+                        style={{ color: 'var(--text-secondary)', borderColor: 'var(--border-primary)' }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                       >
                         Configure
                       </button>
@@ -428,9 +431,13 @@ export default function PaymentToolConfig({
                     key={provider.id}
                     className={`p-4 border rounded-lg transition-colors ${
                       isConnected 
-                        ? 'border-gray-200 bg-gray-50 opacity-60' 
-                        : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer'
-                    }`}
+                        ? 'border-gray-200 opacity-60'
+                        : 'border-gray-200 hover:border-blue-300 cursor-pointer'
+                    } ${!isConnected ? 'hover:bg-blue-50' : ''}`}
+                    style={{
+                      backgroundColor: isConnected ? 'var(--bg-tertiary)' : 'var(--bg-secondary)',
+                      borderColor: 'var(--border-primary)' 
+                    }}
                     onClick={() => !isConnected && handleConnectProvider(provider.id as any)}
                   >
                     <div className="flex items-center gap-3">
@@ -568,7 +575,7 @@ export default function PaymentToolConfig({
                       Price
                     </label>
                     <div className="flex">
-                      <span className="inline-flex items-center px-3 py-2 border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm rounded-l-md">
+                      <span className="inline-flex items-center px-3 py-2 border border-r-0 text-sm rounded-l-md" style={{ borderColor: 'var(--border-primary)', backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-secondary)' }}>
                         {serviceCurrency.toUpperCase()}
                       </span>
                       <input
