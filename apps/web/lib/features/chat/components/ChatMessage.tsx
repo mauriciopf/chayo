@@ -167,7 +167,7 @@ export default function ChatMessage({ role, content, timestamp, appointmentLink,
     <div className="py-4">
       <div className="w-full px-4">
         <div className={`flex ${role === "user" ? "justify-end" : "justify-start"}`}>
-          <div className={`flex ${role === "user" ? "flex-row-reverse" : "flex-row"} items-start gap-3 w-full max-w-full`}>
+          <div className={`flex ${role === "user" ? "flex-row-reverse" : "flex-row"} items-start gap-3 ${role === "user" ? "max-w-[75%]" : "w-full max-w-full"}`}>
             {/* Avatar */}
             <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
               role === "user" 
@@ -186,11 +186,11 @@ export default function ChatMessage({ role, content, timestamp, appointmentLink,
             </div>
 
             {/* Message Content - Mobile Optimized */}
-            <div className={`flex-1 min-w-0 ${role === "user" ? "text-right" : "text-left"}`}>
+            <div className="flex-1 min-w-0">
               <div 
-                className={`${role === "user" ? "inline-block max-w-[75%] rounded-2xl" : "max-w-[85%]"} px-4 py-3`}
+                className={`${role === "user" ? "rounded-2xl" : ""} px-4 py-3`}
                 style={{
-                  backgroundColor: role === "user" ? 'var(--accent-primary)' : 'transparent',
+                  backgroundColor: role === "user" ? '#374151' : 'transparent', // Dark gray similar to screenshot
                   color: role === "user" ? 'white' : 'var(--text-primary)'
                 }}>
                 {isToolSuggestion && (
@@ -199,7 +199,7 @@ export default function ChatMessage({ role, content, timestamp, appointmentLink,
                     <span className="text-xs font-medium uppercase tracking-wide" style={{ color: 'var(--text-secondary)' }}>Tool Suggestion</span>
                   </div>
                 )}
-                <div className={`text-lg leading-relaxed whitespace-pre-wrap break-words ${
+                <div className={`text-lg whitespace-pre-wrap break-words ${
                   role === "user" ? "" : "border-l-2 pl-3"
                 }`} 
                      style={{ 
