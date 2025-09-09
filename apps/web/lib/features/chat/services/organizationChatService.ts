@@ -339,7 +339,6 @@ export class OrganizationChatService {
       
       console.log('💾 [SERVICE] Storing conversation')
       await this.storeConversation(messages, response.aiMessage, context)
-      console.log('✅ [SERVICE] Conversation stored')
       
       progressEmitter?.('phase', { name: 'done' })
       
@@ -950,6 +949,7 @@ export class OrganizationChatService {
               context.organization.id,
               [conversationText]
             )
+            console.log('✅ [SERVICE] Conversation stored successfully')
           } else {
             console.log('⏭️ Skipped storing conversation - not business relevant')
           }
@@ -958,9 +958,7 @@ export class OrganizationChatService {
         }
       } else {
         console.log('⏭️ Not enough messages for Q&A pair, skipping storage')
-      }
-      
-      console.log('✅ [SERVICE] Conversation stored')
+      }      
     } catch (error) {
       console.error('❌ Error storing conversation:', error)
     }

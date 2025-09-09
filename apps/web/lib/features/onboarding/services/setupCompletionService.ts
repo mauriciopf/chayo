@@ -8,12 +8,7 @@ export interface SetupCompletionStatus {
   completed_at?: string
   total_questions: number
   answered_questions: number
-  current_stage: string
-  stage_progress: Record<string, any>
   completion_data: Record<string, any>
-  stage1_completed?: boolean
-  stage2_completed?: boolean
-  stage3_completed?: boolean
   created_at: string
   updated_at: string
 }
@@ -49,8 +44,6 @@ export class SetupCompletionService {
           setup_status: 'in_progress',
           total_questions: 0, // Dynamic onboarding - no fixed question count
           answered_questions: 0,
-          current_stage: 'stage_1',
-          stage_progress: {},
           completion_data: {}
         })
         .select()

@@ -127,9 +127,12 @@ export default function ChatMessageWithMultipleChoice({
                   </svg>
                 </div>
                 <div className="flex-1">
-                  <div className="w-[70%] bg-white text-gray-900 rounded-2xl px-4 py-3 shadow-sm">
+                  <div className="w-[70%] px-4 py-3" style={{ color: 'var(--text-primary)' }}>
                     <div className="mb-3">
-                      <p className="text-sm">{cleanContent}</p>
+                      <div className="text-lg leading-relaxed border-l-2 pl-3" 
+                           style={{ borderColor: 'rgba(156, 163, 175, 0.3)' }}>
+                        {cleanContent}
+                      </div>
                     </div>
                     
                     {/* Multiple choice options integrated into the chat bubble */}

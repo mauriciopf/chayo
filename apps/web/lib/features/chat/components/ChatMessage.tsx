@@ -164,7 +164,7 @@ export default function ChatMessage({ role, content, timestamp, appointmentLink,
   }
 
   return (
-    <div className="py-4" style={{ backgroundColor: role === "user" ? 'var(--bg-secondary)' : 'var(--bg-primary)' }}>
+    <div className="py-4">
       <div className="w-full px-4">
         <div className={`flex ${role === "user" ? "justify-end" : "justify-start"}`}>
           <div className={`flex ${role === "user" ? "flex-row-reverse" : "flex-row"} items-start gap-3 w-full max-w-full`}>
@@ -188,16 +188,10 @@ export default function ChatMessage({ role, content, timestamp, appointmentLink,
             {/* Message Content - Mobile Optimized */}
             <div className={`flex-1 min-w-0 ${role === "user" ? "text-right" : "text-left"}`}>
               <div 
-                className={`${role === "user" ? "inline-block max-w-[85%]" : "max-w-[85%]"} rounded-2xl px-4 py-3 shadow-sm`}
+                className={`${role === "user" ? "inline-block max-w-[75%] rounded-2xl" : "max-w-[85%]"} px-4 py-3`}
                 style={{
-                  backgroundColor: role === "user" 
-                    ? 'var(--accent-primary)' 
-                    : isToolSuggestion 
-                      ? 'var(--bg-tertiary)' 
-                      : 'var(--bg-tertiary)',
-                  color: 'var(--text-primary)',
-                  borderColor: 'var(--border-secondary)',
-                  borderWidth: role !== "user" ? '1px' : '0'
+                  backgroundColor: role === "user" ? 'var(--accent-primary)' : 'transparent',
+                  color: role === "user" ? 'white' : 'var(--text-primary)'
                 }}>
                 {isToolSuggestion && (
                   <div className="flex items-center gap-2 mb-2">
@@ -205,7 +199,14 @@ export default function ChatMessage({ role, content, timestamp, appointmentLink,
                     <span className="text-xs font-medium uppercase tracking-wide" style={{ color: 'var(--text-secondary)' }}>Tool Suggestion</span>
                   </div>
                 )}
-                <div className="text-base leading-relaxed whitespace-pre-wrap break-words">{cleanContent}</div>
+                <div className={`text-lg leading-relaxed whitespace-pre-wrap break-words ${
+                  role === "user" ? "" : "border-l-2 pl-3"
+                }`} 
+                     style={{ 
+                       borderColor: role === "user" ? 'transparent' : 'rgba(156, 163, 175, 0.3)'
+                     }}>
+                  {cleanContent}
+                </div>
                 
                 {/* Appointment Button - Mobile Optimized */}
                 {appointmentLink && (

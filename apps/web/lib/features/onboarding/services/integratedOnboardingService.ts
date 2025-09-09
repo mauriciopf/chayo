@@ -190,8 +190,6 @@ export class IntegratedOnboardingService {
           setup_status: 'in_progress',
           completed_at: null,
           answered_questions: 0,
-          current_stage: 'stage_1',
-          stage_progress: {},
           completion_data: {}
         })
         .eq('organization_id', organizationId)

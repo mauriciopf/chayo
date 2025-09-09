@@ -37,7 +37,7 @@ export default function SimpleChayoSection() {
             className="text-4xl lg:text-5xl font-bold mb-6"
             style={{ color: 'var(--text-primary)' }}
           >
-            The ALL-Business App
+            Your ALL-Business App
           </h2>
           <p 
             className="text-xl lg:text-2xl max-w-4xl mx-auto leading-relaxed"
