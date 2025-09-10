@@ -15,7 +15,6 @@ export default {
     ios: {
       supportsTablet: false,
       bundleIdentifier: "com.chayo.mobile",
-      buildNumber: "2",
       infoPlist: {}
     },
     android: {
@@ -23,8 +22,7 @@ export default {
         foregroundImage: "./assets/adaptive-icon.png",
         backgroundColor: "#1C1C1E"
       },
-      package: "com.chayo.mobile",
-      versionCode: 1
+      package: "com.chayo.mobile"
     },
     web: {
       favicon: "./assets/favicon.png"
