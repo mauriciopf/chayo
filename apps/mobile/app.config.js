@@ -15,7 +15,7 @@ export default {
     ios: {
       supportsTablet: false,
       bundleIdentifier: "com.chayo.mobile",
-      buildNumber: "1",
+      buildNumber: "2",
       infoPlist: {}
     },
     android: {
