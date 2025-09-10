@@ -1,0 +1,161 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "error": "Error",
+    "retry": "Reintentar",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "done": "Hecho",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "close": "Cerrar",
+    "ok": "OK",
+    "success": "Éxito",
+    "demo": "Probar Demo",
+    "businessName": "Nuestro Negocio"
+  },
+  "navigation": {
+    "chat": "Chat",
+    "appointments": "Citas",
+    "payments": "Pagos",
+    "documents": "Documentos",
+    "faqs": "Preguntas Frecuentes",
+    "whatsapp": "WhatsApp",
+    "home": "Inicio",
+    "profile": "Perfil"
+  },
+  "chat": {
+    "title": "Chat de Chayo",
+    "placeholder": "Escribe tu mensaje...",
+    "send": "Enviar",
+    "typing": "Chayo está escribiendo...",
+    "emptyTitle": "¡Hola! Soy Chayo",
+    "emptySubtitle": "Tu asistente de IA para negocios lista para ayudarte a crecer y optimizar tu negocio.",
+    "emptyGettingStarted": "Comencemos:",
+    "emptyStepBusiness": "Cuéntame sobre tu negocio y sector",
+    "emptyStepChallenges": "Comparte tus mayores desafíos",
+    "emptyStepUpload": "Sube documentos para ayudarme a entender mejor tu negocio",
+    "emptyStepAsk": "Pregúntame sobre estrategias de crecimiento, operaciones o servicio al cliente",
+    "voiceInput": {
+      "startRecording": "Iniciar grabación de voz",
+      "stopRecording": "Detener grabación",
+      "processing": "Procesando voz...",
+      "microphonePermissionDenied": "Permiso de micrófono denegado. Por favor permite el acceso al micrófono e intenta de nuevo.",
+      "microphoneNotFound": "No se encontró micrófono. Por favor verifica la configuración de tu dispositivo.",
+      "microphoneAccessFailed": "Error al acceder al micrófono. Por favor intenta de nuevo.",
+      "noSpeechDetected": "No se detectó voz. Por favor habla más claramente.",
+      "transcriptionFailed": "Reconocimiento de voz falló. Por favor intenta de nuevo."
+    }
+  },
+  "appointments": {
+    "title": "Citas",
+    "upcoming": "Próximas",
+    "past": "Pasadas",
+    "noAppointments": "No hay citas programadas",
+    "scheduleNew": "Programar Nueva Cita",
+    "reschedule": "Reprogramar",
+    "cancel": "Cancelar Cita",
+    "confirm": "Confirmar",
+    "details": "Detalles de la Cita",
+    "date": "Fecha",
+    "time": "Hora",
+    "duration": "Duración",
+    "location": "Ubicación",
+    "notes": "Notas",
+    "book": "Reservar Cita",
+    "available": "Disponible",
+    "unavailable": "No disponible"
+  },
+  "payments": {
+    "title": "Pagos",
+    "history": "Historial de Pagos",
+    "pending": "Pendiente",
+    "completed": "Completado",
+    "failed": "Falló",
+    "amount": "Cantidad",
+    "date": "Fecha",
+    "method": "Método de Pago",
+    "receipt": "Recibo",
+    "noPayments": "No hay historial de pagos",
+    "makePayment": "Realizar Pago"
+  },
+  "documents": {
+    "title": "Documentos",
+    "recent": "Documentos Recientes",
+    "categories": "Categorías",
+    "search": "Buscar documentos...",
+    "noDocuments": "No hay documentos disponibles",
+    "download": "Descargar",
+    "share": "Compartir",
+    "view": "Ver",
+    "upload": "Subir Documento",
+    "signSuccess": "¡Tu documento ha sido firmado exitosamente!",
+    "loadError": "Error al cargar documentos",
+    "signing": "Firmando documento...",
+    "viewDocument": "Ver Documento"
+  },
+  "faqs": {
+    "title": "Preguntas Frecuentes",
+    "search": "Buscar en FAQs...",
+    "noResults": "No se encontraron resultados",
+    "categories": "Categorías",
+    "contactSupport": "Contactar Soporte",
+    "helpful": "¿Fue esto útil?",
+    "yes": "Sí",
+    "no": "No",
+    "loading": "Cargando FAQs...",
+    "loadError": "Error al cargar FAQs"
+  },
+  "profile": {
+    "title": "Perfil",
+    "account": "Cuenta",
+    "settings": "Configuración",
+    "language": "Idioma",
+    "notifications": "Notificaciones",
+    "privacy": "Privacidad",
+    "support": "Soporte",
+    "about": "Acerca de",
+    "signOut": "Cerrar Sesión",
+    "version": "Versión"
+  },
+  "onboarding": {
+    "welcome": "Bienvenido a Chayo",
+    "subtitle": "Tu asistente de IA para negocios",
+    "getStarted": "Empezar",
+    "skip": "Saltar",
+    "setupComplete": "¡Configuración Completa!",
+    "letsBegin": "Comencemos",
+    "demoDescription": "Ve a Chayo en acción con datos de negocio de ejemplo",
+    "enterCode": "Ingresar Código de Negocio",
+    "codeDescription": "Conéctate a tu negocio con un código de 6 dígitos",
+    "switchNote": "Siempre puedes cambiar entre demo y tu negocio más tarde"
+  },
+  "errors": {
+    "networkError": "Error de conexión de red. Por favor verifica tu conexión a internet.",
+    "serverError": "Error del servidor. Por favor intenta de nuevo más tarde.",
+    "unknownError": "Ocurrió un error inesperado.",
+    "permissionDenied": "Permiso denegado. Por favor verifica los permisos de la aplicación.",
+    "fileNotFound": "Archivo no encontrado.",
+    "invalidInput": "Entrada inválida. Por favor verifica tus datos."
+  },
+  "permissions": {
+    "camera": {
+      "title": "Acceso a Cámara",
+      "message": "Chayo necesita acceso a la cámara para tomar fotos y escanear documentos.",
+      "allow": "Permitir",
+      "deny": "No Permitir"
+    },
+    "microphone": {
+      "title": "Acceso a Micrófono",
+      "message": "Chayo necesita acceso al micrófono para mensajes de voz y llamadas.",
+      "allow": "Permitir",
+      "deny": "No Permitir"
+    },
+    "notifications": {
+      "title": "Notificaciones",
+      "message": "Mantente actualizado con mensajes importantes y recordatorios.",
+      "allow": "Permitir",
+      "deny": "No Permitir"
+    }
+  }
+}

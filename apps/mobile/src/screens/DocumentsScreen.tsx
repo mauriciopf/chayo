@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   Alert,
 } from 'react-native';
 import { MobileDocumentViewer } from '../components/MobileDocumentViewer';
 import MobileDocuments from '../components/MobileDocuments';
 import { useAppConfig } from '../hooks/useAppConfig';
+import { useTranslation } from '../hooks/useTranslation';
 import { DocumentData } from '../services/DocumentService';
 
 export const DocumentsScreen: React.FC = () => {
   const { config } = useAppConfig();
+  const { t } = useTranslation();
   const [selectedDocument, setSelectedDocument] = useState<DocumentData | null>(null);
   const [totalDocuments, setTotalDocuments] = useState<number>(0);
 
@@ -28,18 +29,18 @@ export const DocumentsScreen: React.FC = () => {
   };
 
   const getBackButtonText = (): string | null => {
-    return totalDocuments > 1 ? '‹ Back to Documents' : null;
+    return totalDocuments > 1 ? `‹ ${t('documents.title')}` : null;
   };
 
   const handleSigningComplete = (success: boolean, message: string) => {
     if (success) {
       Alert.alert(
-        'Document Signed',
-        'Your document has been signed successfully!',
-        [{ text: 'OK', onPress: handleBackToList }]
+        t('common.success'),
+        t('documents.signSuccess', { defaultValue: 'Your document has been signed successfully!' }),
+        [{ text: t('common.ok'), onPress: handleBackToList }]
       );
     } else {
-      Alert.alert('Signing Failed', message, [{ text: 'OK' }]);
+      Alert.alert(t('common.error'), message, [{ text: t('common.ok') }]);
     }
   };
 

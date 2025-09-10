@@ -6,6 +6,7 @@ import { Text, View, ActivityIndicator, StyleSheet, Platform } from 'react-nativ
 import { NavigationConfigGenerator } from '@chayo/config';
 import { useAppConfig } from '../hooks/useAppConfig';
 import { useThemedStyles } from '../context/ThemeContext';
+import { useTranslation } from '../hooks/useTranslation';
 import { ChatScreen } from '../screens/ChatScreen';
 import { AppointmentsScreen } from '../screens/AppointmentsScreen';
 import { PaymentsScreen } from '../screens/PaymentsScreen';
@@ -33,9 +34,10 @@ const getTabIconName = (iconName: string) => {
 // Fallback screen component for unknown tools
 const FallbackScreen = () => {
   const { themedStyles } = useThemedStyles();
+  const { t } = useTranslation();
   return (
     <View style={[styles.centerContainer, themedStyles.container]}>
-      <Text style={[styles.errorText, themedStyles.secondaryText]}>Tool not implemented yet</Text>
+      <Text style={[styles.errorText, themedStyles.secondaryText]}>{t('errors.unknownError')}</Text>
     </View>
   );
 };
@@ -54,11 +56,12 @@ const getToolScreen = (toolName: string) => {
 
 const LoadingScreen = () => {
   const { theme, themedStyles } = useThemedStyles();
+  const { t } = useTranslation();
   return (
     <View style={[styles.centerContainer, themedStyles.container]}>
       <ActivityIndicator size="large" color={theme.primaryColor} />
       <Text style={[styles.loadingText, themedStyles.primaryText]}>
-        Loading configuration...
+        {t('common.loading')}
       </Text>
     </View>
   );
@@ -66,10 +69,11 @@ const LoadingScreen = () => {
 
 const ErrorScreen = ({ error }: { error: string }) => {
   const { theme, themedStyles } = useThemedStyles();
+  const { t } = useTranslation();
   return (
     <View style={[styles.centerContainer, themedStyles.container]}>
       <Text style={[styles.errorTitle, { color: theme.errorColor }]}>
-        Configuration Error
+        {t('common.error')}
       </Text>
       <Text style={[styles.errorText, themedStyles.secondaryText]}>
         {error}

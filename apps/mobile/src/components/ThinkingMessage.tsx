@@ -7,6 +7,7 @@ import {
   Animated,
 } from 'react-native';
 import { thinkingMessageService, ThinkingContext, OnboardingProgressData } from '../services/ThinkingMessageService';
+import { useTranslation } from '../hooks/useTranslation';
 
 interface ThinkingMessageProps {
   context?: ThinkingContext;
@@ -25,6 +26,7 @@ export const ThinkingMessage: React.FC<ThinkingMessageProps> = ({
   visible = true,
   style,
 }) => {
+  const { t } = useTranslation();
   const [currentMessage, setCurrentMessage] = useState<string>('');
   const [messageIndex, setMessageIndex] = useState<number>(0);
   const [totalMessages, setTotalMessages] = useState<number>(0);

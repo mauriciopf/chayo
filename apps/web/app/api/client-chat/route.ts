@@ -7,7 +7,15 @@ import { ToolIntentResponse, ToolIntentResponseSchema } from '@/lib/shared/schem
 
 export async function POST(request: NextRequest) {
   try {
-    const { message, organizationId, locale = 'en', messages = [] } = await request.json()
+    const body = await request.json()
+    const { message, organizationId, messages = [] } = body
+    
+    // Only support 'en' (default) and 'es', everything else defaults to English
+    let locale = body.locale || 'en'
+    if (locale !== 'en' && locale !== 'es') {
+      console.warn(`🌍 Unsupported locale "${body.locale}" provided, falling back to English`)
+      locale = 'en'
+    }
 
     if (!message || !organizationId) {
       return NextResponse.json(
@@ -34,6 +42,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get client-facing system prompt (RAG-based) with locale support
+    console.log(`🌍 Building system prompt with locale: ${locale}`)
     const systemPrompt = await ClientSystemPromptService.buildClientSystemPrompt(organizationId, message, locale, supabase)
     // No ragMessages needed, all context is in the system prompt
 
@@ -81,18 +90,24 @@ export async function POST(request: NextRequest) {
         intents = structuredResponse.intents
       } else {
         // No tools enabled, use regular completion
+        const fallbackMessage = locale === 'es' 
+          ? 'Lo siento, no pude generar una respuesta.'
+          : 'Sorry, I could not generate a response.'
         const rawResponse = await openAIService.callChatCompletion(openAIMessages, {
           model: 'gpt-4o-mini',
           maxTokens: 500,
           temperature: 0.7,
-        }) || 'Lo siento, no pude generar una respuesta.'
+        }) || fallbackMessage
         assistantResponse = rawResponse
         intents = []
       }
     } catch (error) {
       console.error('❌ OpenAI API error:', error)
+      const errorMessage = locale === 'es' 
+        ? 'Lo siento, ocurrió un error. Por favor, intenta nuevamente.'
+        : 'Sorry, an error occurred. Please try again.'
       return NextResponse.json({
-        response: 'Lo siento, ocurrió un error. Por favor, intenta nuevamente.'
+        response: errorMessage
       })
     }
 

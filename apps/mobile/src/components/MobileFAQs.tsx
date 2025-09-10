@@ -9,6 +9,7 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { useThemedStyles } from '../context/ThemeContext';
+import { useTranslation } from '../hooks/useTranslation';
 
 interface FAQItem {
   id: string;
@@ -37,6 +38,7 @@ const MobileFAQs: React.FC<MobileFAQsProps> = ({
   baseUrl = 'https://chayo.ai',
 }) => {
   const { theme, themedStyles } = useThemedStyles();
+  const { t } = useTranslation();
   const [faqs, setFAQs] = useState<FAQ[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

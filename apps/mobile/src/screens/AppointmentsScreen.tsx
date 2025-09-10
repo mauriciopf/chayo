@@ -3,10 +3,12 @@ import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { WebViewScreen } from '../components/WebViewScreen';
 import { MobileAppointmentCalendar } from '../components';
 import { useAppConfig } from '../hooks/useAppConfig';
+import { useTranslation } from '../hooks/useTranslation';
 import { appointmentService } from '../services';
 
 export const AppointmentsScreen: React.FC = () => {
   const { config, urlGenerator } = useAppConfig();
+  const { t } = useTranslation();
   const [useNativeCalendar, setUseNativeCalendar] = useState<boolean | null>(null);
   const [webViewUrl, setWebViewUrl] = useState<string>('');
 
@@ -68,7 +70,7 @@ export const AppointmentsScreen: React.FC = () => {
   return (
     <WebViewScreen
       url={webViewUrl || fallbackUrl}
-      title="Book Appointment"
+      title={t('appointments.title')}
     />
   );
 };

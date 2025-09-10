@@ -9,6 +9,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { WebView, WebViewNavigation } from 'react-native-webview';
+import { useTranslation } from '../hooks/useTranslation';
 
 interface WebViewScreenProps {
   url: string;
@@ -23,6 +24,7 @@ export const WebViewScreen: React.FC<WebViewScreenProps> = ({
   onNavigationStateChange,
   showRefreshControl = true,
 }) => {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -42,14 +44,14 @@ export const WebViewScreen: React.FC<WebViewScreenProps> = ({
     const { nativeEvent } = syntheticEvent;
     setLoading(false);
     setRefreshing(false);
-    setError(nativeEvent.description || 'Failed to load page');
+    setError(nativeEvent.description || t('errors.networkError'));
     
     Alert.alert(
-      'Connection Error',
-      'Unable to load the page. Please check your internet connection and try again.',
+      t('common.error'),
+      t('errors.networkError'),
       [
-        { text: 'Retry', onPress: () => webViewRef.current?.reload() },
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('common.retry'), onPress: () => webViewRef.current?.reload() },
+        { text: t('common.cancel'), style: 'cancel' },
       ]
     );
   };

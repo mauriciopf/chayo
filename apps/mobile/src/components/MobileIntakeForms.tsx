@@ -13,6 +13,7 @@ import { IntakeForm } from '@chayo/formio';
 import { intakeFormService } from '../services/IntakeFormService';
 import { MobileIntakeForm } from './MobileIntakeForm';
 import { useThemedStyles } from '../context/ThemeContext';
+import { useTranslation } from '../hooks/useTranslation';
 import { useCallback } from 'react';
 
 interface MobileIntakeFormsProps {
@@ -45,6 +46,7 @@ const FormListItem: React.FC<FormListItemProps> = ({ form, onPress, theme, theme
 
 export const MobileIntakeForms: React.FC<MobileIntakeFormsProps> = ({ organizationSlug }) => {
   const { theme, themedStyles } = useThemedStyles();
+  const { t } = useTranslation();
   const [forms, setForms] = useState<IntakeForm[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedFormId, setSelectedFormId] = useState<string | null>(null);

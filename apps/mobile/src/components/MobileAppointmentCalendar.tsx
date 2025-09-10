@@ -12,6 +12,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { useThemedStyles } from '../context/ThemeContext';
+import { useTranslation } from '../hooks/useTranslation';
 
 const { width } = Dimensions.get('window');
 
@@ -36,6 +37,7 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
   baseUrl = 'https://chayo.ai',
 }) => {
   const { theme, themedStyles } = useThemedStyles();
+  const { t } = useTranslation();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);

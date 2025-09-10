@@ -32,6 +32,7 @@ import {
 } from '@chayo/formio';
 import { intakeFormService } from '../services/IntakeFormService';
 import { useThemedStyles } from '../context/ThemeContext';
+import { useTranslation } from '../hooks/useTranslation';
 import { useCallback } from 'react';
 
 interface MobileIntakeFormProps {

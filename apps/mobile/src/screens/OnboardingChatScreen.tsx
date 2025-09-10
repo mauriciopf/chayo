@@ -13,6 +13,7 @@ import {
 import { useSlugValidation } from '../hooks/useSlugValidation';
 import { ThinkingMessage } from '../components/ThinkingMessage';
 import { StorageService } from '../services/StorageService';
+import { useTranslation } from '../hooks/useTranslation';
 
 interface Message {
   id: string;
@@ -30,6 +31,7 @@ interface OnboardingChatScreenProps {
 export const OnboardingChatScreen: React.FC<OnboardingChatScreenProps> = ({
   onSlugValidated,
 }) => {
+  const { t } = useTranslation();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const [currentStep, setCurrentStep] = useState<'welcome' | 'awaiting_code' | 'validating' | 'success'>('welcome');

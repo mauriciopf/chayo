@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { useAppConfig } from '../hooks/useAppConfig';
 import { useThemedStyles } from '../context/ThemeContext';
+import { useTranslation } from '../hooks/useTranslation';
 
 interface Message {
   id: string;
@@ -26,6 +27,7 @@ interface Message {
 export const ChatScreen: React.FC = () => {
   const { config } = useAppConfig();
   const { theme, themedStyles } = useThemedStyles();
+  const { t, i18n } = useTranslation();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -37,13 +39,13 @@ export const ChatScreen: React.FC = () => {
     if (config) {
       const welcomeMessage: Message = {
         id: 'welcome',
-        text: `¡Hola! Soy el asistente de ${config.appName}. ¿En qué puedo ayudarte hoy?`,
+        text: t('chat.emptyTitle') + ' ' + t('chat.emptySubtitle'),
         isUser: false,
         timestamp: new Date(),
       };
       setMessages([welcomeMessage]);
     }
-  }, [config]);
+  }, [config, t]);
 
   // Auto-focus input when screen loads and keep keyboard open
   useEffect(() => {
@@ -90,7 +92,7 @@ export const ChatScreen: React.FC = () => {
         body: JSON.stringify({
           message: inputText.trim(),
           organizationId: config.organizationId,
-          locale: 'es', // Default to Spanish for now
+          locale: i18n.language, // Use current language
           messages: messages.filter(m => !m.isLoading).map(m => ({
             role: m.isUser ? 'user' : 'assistant',
             content: m.text,
@@ -106,7 +108,7 @@ export const ChatScreen: React.FC = () => {
       
       const assistantMessage: Message = {
         id: `assistant-${Date.now()}`,
-        text: data.response || 'Lo siento, no pude procesar tu mensaje.',
+        text: data.response || t('errors.serverError'),
         isUser: false,
         timestamp: new Date(),
       };
@@ -122,7 +124,7 @@ export const ChatScreen: React.FC = () => {
       
       const errorMessage: Message = {
         id: `error-${Date.now()}`,
-        text: 'Lo siento, hubo un problema al procesar tu mensaje. Por favor intenta de nuevo.',
+        text: t('errors.networkError'),
         isUser: false,
         timestamp: new Date(),
       };
@@ -134,9 +136,9 @@ export const ChatScreen: React.FC = () => {
       ]);
 
       Alert.alert(
-        'Error de Conexión',
-        'No se pudo enviar el mensaje. Verifica tu conexión a internet.',
-        [{ text: 'OK' }]
+        t('common.error'),
+        t('errors.networkError'),
+        [{ text: t('common.ok') }]
       );
     } finally {
       setIsTyping(false);
@@ -154,7 +156,7 @@ export const ChatScreen: React.FC = () => {
           <View style={[styles.messageBubble, styles.assistantBubble, { backgroundColor: theme.surfaceColor, borderColor: theme.borderColor }]}>
             <View style={styles.typingIndicator}>
               <ActivityIndicator size="small" color={theme.placeholderColor} />
-              <Text style={[styles.typingText, { color: theme.placeholderColor }]}>Escribiendo...</Text>
+              <Text style={[styles.typingText, { color: theme.placeholderColor }]}>{t('chat.typing')}</Text>
             </View>
           </View>
         </View>
@@ -204,7 +206,7 @@ export const ChatScreen: React.FC = () => {
     return (
       <SafeAreaView style={[styles.loadingContainer, themedStyles.container]}>
         <ActivityIndicator size="large" color={theme.primaryColor} />
-        <Text style={[styles.loadingText, themedStyles.primaryText]}>Cargando chat...</Text>
+        <Text style={[styles.loadingText, themedStyles.primaryText]}>{t('common.loading')}</Text>
       </SafeAreaView>
     );
   }
@@ -233,7 +235,7 @@ export const ChatScreen: React.FC = () => {
             style={[styles.textInput, { backgroundColor: theme.surfaceColor, color: theme.textColor, borderColor: theme.borderColor }]}
             value={inputText}
             onChangeText={setInputText}
-            placeholder="Escribe tu mensaje..."
+            placeholder={t('chat.placeholder')}
             placeholderTextColor={theme.placeholderColor}
             multiline
             maxLength={1000}

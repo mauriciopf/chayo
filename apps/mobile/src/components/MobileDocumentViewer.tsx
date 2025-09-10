@@ -17,6 +17,7 @@ import { WebView } from 'react-native-webview';
 import RNBlobUtil from 'react-native-blob-util';
 import { documentService, DocumentData, SignatureData } from '../services/DocumentService';
 import { useThemedStyles } from '../context/ThemeContext';
+import { useTranslation } from '../hooks/useTranslation';
 
 interface MobileDocumentViewerProps {
   documentId: string;
@@ -32,6 +33,7 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
   onSigningComplete,
 }) => {
   const { theme, themedStyles } = useThemedStyles();
+  const { t } = useTranslation();
   const [document, setDocument] = useState<DocumentData | null>(null);
   const [loading, setLoading] = useState(true);
   const [signing, setSigning] = useState(false);

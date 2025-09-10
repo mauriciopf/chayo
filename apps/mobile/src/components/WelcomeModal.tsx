@@ -8,6 +8,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { useThemedStyles } from '../context/ThemeContext';
+import { useTranslation } from '../hooks/useTranslation';
 
 const { width } = Dimensions.get('window');
 
@@ -23,6 +24,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
   onEnterCode,
 }) => {
   const { theme, themedStyles } = useThemedStyles();
+  const { t } = useTranslation();
   return (
     <Modal
       visible={visible}
@@ -34,9 +36,9 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
         <View style={[styles.modalContainer, themedStyles.surface]}>
           {/* Header */}
           <View style={styles.header}>
-            <Text style={[styles.title, themedStyles.primaryText]}>Welcome to Chayo</Text>
+            <Text style={[styles.title, themedStyles.primaryText]}>{t('onboarding.welcome')}</Text>
             <Text style={[styles.subtitle, themedStyles.secondaryText]}>
-              Discover how Chayo can transform your business
+              {t('onboarding.subtitle')}
             </Text>
           </View>
 
@@ -49,9 +51,9 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
             <View style={styles.optionContent}>
               <Text style={styles.optionIcon}>🎯</Text>
               <View style={styles.optionText}>
-                <Text style={[styles.optionTitle, themedStyles.primaryText]}>Try Demo</Text>
+                <Text style={[styles.optionTitle, themedStyles.primaryText]}>{t('common.demo', { defaultValue: 'Try Demo' })}</Text>
                 <Text style={[styles.optionDescription, themedStyles.secondaryText]}>
-                  See Chayo in action with sample business data
+                  {t('onboarding.demoDescription', { defaultValue: 'See Chayo in action with sample business data' })}
                 </Text>
               </View>
             </View>
@@ -66,9 +68,9 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
             <View style={styles.optionContent}>
               <Text style={styles.optionIcon}>📱</Text>
               <View style={styles.optionText}>
-                <Text style={[styles.optionTitle, themedStyles.primaryText]}>Enter Business Code</Text>
+                <Text style={[styles.optionTitle, themedStyles.primaryText]}>{t('onboarding.enterCode', { defaultValue: 'Enter Business Code' })}</Text>
                 <Text style={[styles.optionDescription, themedStyles.secondaryText]}>
-                  Connect to your business with a 6-digit code
+                  {t('onboarding.codeDescription', { defaultValue: 'Connect to your business with a 6-digit code' })}
                 </Text>
               </View>
             </View>
@@ -76,7 +78,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
 
           {/* Footer */}
           <Text style={[styles.footer, themedStyles.secondaryText]}>
-            You can always switch between demo and your business later
+            {t('onboarding.switchNote', { defaultValue: 'You can always switch between demo and your business later' })}
           </Text>
         </View>
       </View>

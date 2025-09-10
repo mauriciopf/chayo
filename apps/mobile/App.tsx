@@ -31,6 +31,9 @@ import { DeepLinkService } from './src/services/DeepLinkService';
 import { demoModeService } from './src/services/DemoModeService';
 import { WelcomeModal } from './src/components';
 
+// Initialize i18n
+import './src/i18n';
+
 function App(): React.JSX.Element {
   const [isUpdateAvailable, setIsUpdateAvailable] = useState(false);
   const [appReady, setAppReady] = useState(false);

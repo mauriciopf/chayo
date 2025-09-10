@@ -1282,7 +1282,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-safe-area-context (5.6.0):
+  - react-native-safe-area-context (5.6.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1295,8 +1295,8 @@ PODS:
     - React-featureflags
     - React-graphics
     - React-ImageManager
-    - react-native-safe-area-context/common (= 5.6.0)
-    - react-native-safe-area-context/fabric (= 5.6.0)
+    - react-native-safe-area-context/common (= 5.6.1)
+    - react-native-safe-area-context/fabric (= 5.6.1)
     - React-NativeModulesApple
     - React-RCTFabric
     - React-rendererdebug
@@ -1305,7 +1305,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-safe-area-context/common (5.6.0):
+  - react-native-safe-area-context/common (5.6.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1326,7 +1326,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-safe-area-context/fabric (5.6.0):
+  - react-native-safe-area-context/fabric (5.6.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1348,7 +1348,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-webview (13.15.0):
+  - react-native-webview (13.16.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1761,6 +1761,27 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
+  - RNLocalize (3.5.2):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.11.18.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - RNReanimated (3.19.1):
     - DoubleConversion
     - glog
@@ -1880,7 +1901,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (4.14.1):
+  - RNScreens (4.16.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1901,9 +1922,9 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
-    - RNScreens/common (= 4.14.1)
+    - RNScreens/common (= 4.16.0)
     - Yoga
-  - RNScreens/common (4.14.1):
+  - RNScreens/common (4.16.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2027,6 +2048,7 @@ DEPENDENCIES:
   - "RNCPicker (from `../node_modules/@react-native-picker/picker`)"
   - "RNDateTimePicker (from `../node_modules/@react-native-community/datetimepicker`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
+  - RNLocalize (from `../node_modules/react-native-localize`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
@@ -2188,6 +2210,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/datetimepicker"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
+  RNLocalize:
+    :path: "../node_modules/react-native-localize"
   RNReanimated:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
@@ -2238,8 +2262,8 @@ SPEC CHECKSUMS:
   react-native-blob-util: 7113aed98ed23cd1fe63747ef440900e40417077
   react-native-get-random-values: 21325b2244dfa6b58878f51f9aa42821e7ba3d06
   react-native-pdf: 3d0d756b421039adc1d8205fcf5d5f92c403acdb
-  react-native-safe-area-context: 673dffed28e5ed410e0ed789b22eea27dacf3fca
-  react-native-webview: be9957759cb73cb64f2ed5359e32a85f1f5bdff8
+  react-native-safe-area-context: ad7b31de8373577e003e700340b746fd5645b12c
+  react-native-webview: 4c1156463f8031c30ea99262317ac3d0a5940211
   react-native-worklets-core: c80b8d3835acf5a312f4c16a0d2e8c06468f215b
   React-NativeModulesApple: 7c9c0c4e76731529b2e15f5d5edb266b980556ea
   React-perflogger: 069d41f741187be92ed46c6ac67add03b99f3166
@@ -2273,8 +2297,9 @@ SPEC CHECKSUMS:
   RNCPicker: 9710a2110f506b9a9541044c04df290730b3a78a
   RNDateTimePicker: 766ee51b40ca7efffa43b4846675f092f91f288e
   RNGestureHandler: ab7287c9593b75911be221b6c97d7ae6e02652e6
-  RNReanimated: 34d340017e3157ee248a0bf08035f6af663d4650
-  RNScreens: c1e2cca8944acfe3aa40d2c1cba55e96891d4ba0
+  RNLocalize: c1799752902f1d4a7fe3bfe8ffe70449e11f3b44
+  RNReanimated: c86b068e2ed3d9b3b9f79abf2cef25b819d87ec1
+  RNScreens: 0163118f19d0be59f16e049b6efe4c3b225e5684
   RNVectorIcons: 3a2173c340d645b9af2dfe39801ae470a1b0a9a7
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: eca8dd841b7cd47d82d66be58af8e3aeb819012f

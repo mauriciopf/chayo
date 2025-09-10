@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { DocumentService, DocumentData } from '../services/DocumentService';
 import { useThemedStyles } from '../context/ThemeContext';
+import { useTranslation } from '../hooks/useTranslation';
 
 interface MobileDocumentsProps {
   organizationSlug: string;
@@ -24,6 +25,7 @@ const MobileDocuments: React.FC<MobileDocumentsProps> = ({
   onDocumentsLoaded,
 }) => {
   const { theme, themedStyles } = useThemedStyles();
+  const { t } = useTranslation();
   const [documents, setDocuments] = useState<DocumentData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -37,9 +39,9 @@ const MobileDocuments: React.FC<MobileDocumentsProps> = ({
       setDocuments(docs);
       onDocumentsLoaded?.(docs);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to load documents';
+      const errorMessage = err instanceof Error ? err.message : t('documents.loadError', { defaultValue: 'Failed to load documents' });
       setError(errorMessage);
-      Alert.alert('Error', errorMessage);
+      Alert.alert(t('common.error'), errorMessage);
     } finally {
       setLoading(false);
     }

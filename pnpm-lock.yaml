@@ -62,12 +62,18 @@ importers:
       expo-updates:
         specifier: ^0.28.17
         version: 0.28.17(expo@53.0.22(@babel/core@7.28.3)(react-native-webview@13.16.0(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))(react@19.0.0))(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))(react@19.0.0))(react@19.0.0)
+      i18next:
+        specifier: ^25.5.2
+        version: 25.5.2(typescript@5.0.4)
       pdf-lib:
         specifier: ^1.17.1
         version: 1.17.1
       react:
         specifier: 19.0.0
         version: 19.0.0
+      react-i18next:
+        specifier: ^15.7.3
+        version: 15.7.3(i18next@25.5.2(typescript@5.0.4))(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))(react@19.0.0)(typescript@5.0.4)
       react-native:
         specifier: 0.78.3
         version: 0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0)
@@ -83,6 +89,9 @@ importers:
       react-native-is-edge-to-edge:
         specifier: ^1.2.1
         version: 1.2.1(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))(react@19.0.0)
+      react-native-localize:
+        specifier: ^3.5.2
+        version: 3.5.2(@expo/config-plugins@10.1.2)(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))(react@19.0.0)
       react-native-pdf:
         specifier: ^6.7.5
         version: 6.7.7(react-native-blob-util@0.19.11(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))(react@19.0.0))(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))(react@19.0.0)
@@ -3898,6 +3907,9 @@ packages:
   html-escaper@2.0.2:
     resolution: {integrity: sha512-H2iMtd0I4Mt5eYiapRdIDjp+XzelXQ0tFE4JS7YFwFevXXMmOp9myNrUvCg0D6ws8iqkRPBfKHgbwig1SmlLfg==}
 
+  html-parse-stringify@3.0.1:
+    resolution: {integrity: sha512-KknJ50kTInJ7qIScF3jeaFRpMpE8/lfiTdzf/twXyPBLAGrLRTmkz3AdTnKeh40X8k9L2fdYwEp/42WGXIRGcg==}
+
   http-errors@2.0.0:
     resolution: {integrity: sha512-FtwrG/euBzaEjYeRqOgly7G0qviiXoJWnvEH2Z1plBdXgbyjv34pHTSb9zoeHMyDy33+DWy5Wt9Wo+TURtOYSQ==}
     engines: {node: '>= 0.8'}
@@ -3912,6 +3924,14 @@ packages:
 
   i18next@22.4.12:
     resolution: {integrity: sha512-2lE+vRXxQ3lGLub1CVbwgO0IfkLHmUSDVOAVdPh22CsxttMXi+35n2qgxh2wZIkKl6t/NMzPfgFPRDiFQOmiCg==}
+
+  i18next@25.5.2:
+    resolution: {integrity: sha512-lW8Zeh37i/o0zVr+NoCHfNnfvVw+M6FQbRp36ZZ/NyHDJ3NJVpp2HhAUyU9WafL5AssymNoOjMRB48mmx2P6Hw==}
+    peerDependencies:
+      typescript: ^5
+    peerDependenciesMeta:
+      typescript:
+        optional: true
 
   iconv-lite@0.4.24:
     resolution: {integrity: sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==}
@@ -5409,6 +5429,22 @@ packages:
     peerDependencies:
       react: '>=16.3.0'
 
+  react-i18next@15.7.3:
+    resolution: {integrity: sha512-AANws4tOE+QSq/IeMF/ncoHlMNZaVLxpa5uUGW1wjike68elVYr0018L9xYoqBr1OFO7G7boDPrbn0HpMCJxTw==}
+    peerDependencies:
+      i18next: '>= 25.4.1'
+      react: '>= 16.8.0'
+      react-dom: '*'
+      react-native: '*'
+      typescript: ^5
+    peerDependenciesMeta:
+      react-dom:
+        optional: true
+      react-native:
+        optional: true
+      typescript:
+        optional: true
+
   react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
 
@@ -5452,6 +5488,19 @@ packages:
     peerDependencies:
       react: '*'
       react-native: '*'
+
+  react-native-localize@3.5.2:
+    resolution: {integrity: sha512-HfQdwv5sRjh4AQ8a97OTjXYcxPNRlBxiQb861c7Ob6mRuNYCPtaJ45QTcZxZr31vAM3THvtOBp1soqWlQFxjnA==}
+    peerDependencies:
+      '@expo/config-plugins': ^9.0.0 || ^10.0.0
+      react: '*'
+      react-native: '*'
+      react-native-macos: '*'
+    peerDependenciesMeta:
+      '@expo/config-plugins':
+        optional: true
+      react-native-macos:
+        optional: true
 
   react-native-pdf@6.7.7:
     resolution: {integrity: sha512-D0ga/eyPsVWSPEBm622sGVZLl3gibxPmfm2cxsLcUrZ4WDSGR5HyGmvvWaR/m9wXEyIbD4J6q9qzuG6yObcSXw==}
@@ -6346,6 +6395,10 @@ packages:
 
   vlq@1.0.1:
     resolution: {integrity: sha512-gQpnTgkubC6hQgdIcRdYGDSDc+SaujOdyesZQMv6JlfQee/9Mp0Qhnys6WxDWvQnL5WZdT7o2Ul187aSt0Rq+w==}
+
+  void-elements@3.1.0:
+    resolution: {integrity: sha512-Dhxzh5HZuiHQhbvTW9AMetFfBHDMYpo23Uo9btPXgdYP+3T5S+p+jgNy7spra+veYhBP2dCSgxR/i2Y02h5/6w==}
+    engines: {node: '>=0.10.0'}
 
   walker@1.0.8:
     resolution: {integrity: sha512-ts/8E8l5b7kY0vlWLewOkDXMmPdLcVV4GmOQLyxuSswIJsweeFZtAsMF7k1Nszz+TYBQrlYRmzOnr398y1JemQ==}
@@ -11354,6 +11407,10 @@ snapshots:
 
   html-escaper@2.0.2: {}
 
+  html-parse-stringify@3.0.1:
+    dependencies:
+      void-elements: 3.1.0
+
   http-errors@2.0.0:
     dependencies:
       depd: 2.0.0
@@ -11374,6 +11431,12 @@ snapshots:
   i18next@22.4.12:
     dependencies:
       '@babel/runtime': 7.28.3
+
+  i18next@25.5.2(typescript@5.0.4):
+    dependencies:
+      '@babel/runtime': 7.28.3
+    optionalDependencies:
+      typescript: 5.0.4
 
   iconv-lite@0.4.24:
     dependencies:
@@ -13106,6 +13169,16 @@ snapshots:
       react-fast-compare: 3.2.2
       react-side-effect: 2.1.2(react@19.1.1)
 
+  react-i18next@15.7.3(i18next@25.5.2(typescript@5.0.4))(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))(react@19.0.0)(typescript@5.0.4):
+    dependencies:
+      '@babel/runtime': 7.28.3
+      html-parse-stringify: 3.0.1
+      i18next: 25.5.2(typescript@5.0.4)
+      react: 19.0.0
+    optionalDependencies:
+      react-native: 0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0)
+      typescript: 5.0.4
+
   react-is@16.13.1: {}
 
   react-is@18.3.1: {}
@@ -13146,6 +13219,13 @@ snapshots:
     dependencies:
       react: 19.0.0
       react-native: 0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0)
+
+  react-native-localize@3.5.2(@expo/config-plugins@10.1.2)(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))(react@19.0.0):
+    dependencies:
+      react: 19.0.0
+      react-native: 0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0)
+    optionalDependencies:
+      '@expo/config-plugins': 10.1.2
 
   react-native-pdf@6.7.7(react-native-blob-util@0.19.11(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))(react@19.0.0))(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))(react@19.0.0):
     dependencies:
@@ -14192,6 +14272,8 @@ snapshots:
   vary@1.1.2: {}
 
   vlq@1.0.1: {}
+
+  void-elements@3.1.0: {}
 
   walker@1.0.8:
     dependencies:

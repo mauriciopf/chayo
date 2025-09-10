@@ -1,9 +1,11 @@
 import React from 'react';
 import { WebViewScreen } from '../components/WebViewScreen';
 import { useAppConfig } from '../hooks/useAppConfig';
+import { useTranslation } from '../hooks/useTranslation';
 
 export const PaymentsScreen: React.FC = () => {
   const { config, urlGenerator } = useAppConfig();
+  const { t } = useTranslation();
 
   if (!config || !urlGenerator) {
     return null; // Or loading component
@@ -16,7 +18,7 @@ export const PaymentsScreen: React.FC = () => {
   return (
     <WebViewScreen
       url={paymentsUrl}
-      title="Payments"
+      title={t('payments.title')}
     />
   );
 };

@@ -1,4 +1,4 @@
-const {getDefaultConfig} = require('@expo/metro-config');
+const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
 const path = require('path');
 
 /**
@@ -13,6 +13,7 @@ const projectRoot = __dirname;
 const monorepoRoot = path.resolve(projectRoot, '../..');
 
 const config = {
+  projectRoot: projectRoot,
   watchFolders: [monorepoRoot],
   resolver: {
     nodeModulesPaths: [
@@ -65,18 +66,4 @@ const config = {
   },
 };
 
-const defaultConfig = getDefaultConfig(projectRoot);
-module.exports = {
-  ...defaultConfig,
-  ...config,
-  // Explicitly set projectRoot to ensure Metro uses the mobile app directory
-  projectRoot: projectRoot,
-  resolver: {
-    ...defaultConfig.resolver,
-    ...config.resolver,
-  },
-  transformer: {
-    ...defaultConfig.transformer,
-    ...config.transformer,
-  },
-};
+module.exports = mergeConfig(getDefaultConfig(projectRoot), config);
