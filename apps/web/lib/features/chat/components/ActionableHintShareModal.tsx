@@ -12,6 +12,7 @@ import PaymentToolConfig from '../../tools/payments/components/PaymentToolConfig
 import IntakeFormsToolConfig from '../../tools/intake-forms/components/IntakeFormsToolConfig'
 import FAQToolConfig from '../../tools/faqs/components/FAQToolConfig'
 import { MobileBrandingConfig } from '../../tools/mobile-branding/components/MobileBrandingConfig'
+import ProductsToolConfig from '../../tools/products/components/ProductsToolConfig'
 
 interface ActionableHintShareModalProps {
   isOpen: boolean
@@ -46,6 +47,7 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
     appointments: false,
     documents: false,
     payments: false,
+    products: false,
     intake_forms: false,
     faqs: false,
     'mobile-branding': false
@@ -210,6 +212,17 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
             t('modal.mobileBranding.features.1'),
             t('modal.mobileBranding.features.2'),
             t('modal.mobileBranding.features.3')
+          ]
+        }
+      case 'products':
+        return {
+          title: t('modal.products.title'),
+          description: t('modal.products.description'),
+          features: [
+            t('modal.products.features.0'),
+            t('modal.products.features.1'),
+            t('modal.products.features.2'),
+            t('modal.products.features.3')
           ]
         }
       default:
@@ -473,7 +486,15 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
                 />
               )}
 
-              {!isCurrentToolEnabled && !['appointments', 'documents', 'payments', 'intake_forms', 'faqs', 'mobile-branding'].includes(hint?.category || '') && (
+              {hint?.category === 'products' && (
+                <ProductsToolConfig 
+                  organizationId={organizationId}
+                  isEnabled={isCurrentToolEnabled}
+                  onSettingsChange={onSettingsChange}
+                />
+              )}
+
+              {!isCurrentToolEnabled && !['appointments', 'documents', 'payments', 'products', 'intake_forms', 'faqs', 'mobile-branding'].includes(hint?.category || '') && (
                 <div 
                   className="p-4 rounded-lg border"
                   style={{ 

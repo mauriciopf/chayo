@@ -1290,6 +1290,16 @@
           "Real-time mobile preview",
           "Professional app appearance"
         ]
+      },
+      "products": {
+        "title": "Products & Services",
+        "description": "Share your product catalog, services list, or pricing information with clients.",
+        "features": [
+          "Product catalog management",
+          "Service listings with descriptions",
+          "Pricing information display",
+          "Easy product sharing in chat"
+        ]
       }
     }
   },

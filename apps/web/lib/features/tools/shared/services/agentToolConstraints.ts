@@ -36,6 +36,9 @@ export class AgentToolConstraintsService {
       case 'mobile-branding':
         return this.checkMobileBrandingConstraints(organizationId, supabase)
       
+      case 'products':
+        return this.checkProductsConstraints(organizationId, supabase)
+      
       default:
         return { canEnable: true }
     }
@@ -281,5 +284,41 @@ export class AgentToolConstraintsService {
     // Mobile branding doesn't require any specific configuration
     // It can always be enabled as it just allows customizing app appearance
     return { canEnable: true }
+  }
+
+  private static async checkProductsConstraints(
+    organizationId: string, 
+    supabase: any
+  ): Promise<ToolConstraintResult> {
+    try {
+      // Check if organization has any products/services
+      const { data: products, error } = await supabase
+        .from('products_list_tool')
+        .select('id')
+        .eq('organization_id', organizationId)
+        .limit(1)
+
+      if (error) {
+        return {
+          canEnable: false,
+          reason: 'Error checking products configuration'
+        }
+      }
+
+      if (!products || products.length === 0) {
+        return {
+          canEnable: false,
+          reason: 'No products or services configured',
+          missingConfig: ['Add at least one product or service to your catalog']
+        }
+      }
+
+      return { canEnable: true }
+    } catch (error) {
+      return {
+        canEnable: false,
+        reason: 'Error checking products configuration'
+      }
+    }
   }
 }

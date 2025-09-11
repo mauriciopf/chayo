@@ -27,7 +27,8 @@ export async function GET(
       payments: false,
       intake_forms: false,
       faqs: false,
-      'mobile-branding': false
+      'mobile-branding': false,
+      products: false
     })
   } catch (error) {
     console.error('Agent tools GET error:', error)
@@ -45,7 +46,7 @@ export async function POST(
     const { toolType, enabled } = await request.json()
 
     // Validate tool type
-    const validToolTypes = ['appointments', 'documents', 'payments', 'intake_forms', 'faqs', 'mobile-branding']
+    const validToolTypes = ['appointments', 'documents', 'payments', 'intake_forms', 'faqs', 'mobile-branding', 'products']
     if (!validToolTypes.includes(toolType)) {
       return NextResponse.json({ error: 'Invalid tool type' }, { status: 400 })
     }

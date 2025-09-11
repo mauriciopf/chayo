@@ -1316,6 +1316,16 @@
           "Vista previa móvil en tiempo real",
           "Apariencia profesional de la aplicación"
         ]
+      },
+      "products": {
+        "title": "Productos y Servicios",
+        "description": "Comparte tu catálogo de productos, lista de servicios o información de precios con los clientes.",
+        "features": [
+          "Gestión de catálogo de productos",
+          "Listados de servicios con descripciones",
+          "Visualización de información de precios",
+          "Fácil compartir productos en el chat"
+        ]
       }
     }
   },

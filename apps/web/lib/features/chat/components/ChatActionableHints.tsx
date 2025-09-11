@@ -29,20 +29,20 @@ const ChatActionableHints: React.FC<ChatActionableHintsProps> = ({ organizationI
   return (
     <>
       <div 
-        className="px-4 py-3 border-t flex-shrink-0"
+        className="py-3 border-t flex-shrink-0"
         style={{ 
           backgroundColor: 'var(--bg-secondary)',
-          borderColor: 'var(--border-primary)'
+          borderColor: 'var(--border-primary)',
+          overflowX: 'visible', // Allow horizontal overflow for this section
+          overflowY: 'hidden'   // Prevent vertical overflow
         }}
       >
-        <div className="mx-auto max-w-4xl w-full">
-          <ActionableHintChips
-            key={refreshKey}
-            onHintSelect={handleHintSelect}
-            organizationId={organizationId}
-            className="w-full"
-          />
-        </div>
+        <ActionableHintChips
+          key={refreshKey}
+          onHintSelect={handleHintSelect}
+          organizationId={organizationId}
+          className="w-full"
+        />
       </div>
 
       <ActionableHintShareModal

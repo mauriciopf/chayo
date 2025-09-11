@@ -1,15 +1,15 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslations } from 'next-intl'
+import HorizontalCarousel from '@/lib/shared/components/HorizontalCarousel'
 
 export type ActionableHint = {
   id: string
   label: string
   icon: string
   description: string
-  category: 'appointments' | 'documents' | 'payments' | 'intake_forms' | 'faqs' | 'mobile-branding'
+  category: 'appointments' | 'documents' | 'payments' | 'products' | 'intake_forms' | 'faqs' | 'mobile-branding'
 }
 
 interface ActionableHintChipsProps {
@@ -34,6 +34,7 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
     appointments: false,
     documents: false,
     payments: false,
+    products: false,
     intake_forms: false,
     faqs: false
   })
@@ -69,6 +70,13 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
       category: 'payments'
     },
     {
+      id: 'products_services',
+      label: '🛍️ Products & Services',
+      icon: '🛍️',
+      description: 'Share your product catalog, services list, or pricing information.',
+      category: 'products'
+    },
+    {
       id: 'collect_intake_form',
       label: '📋 Intake form',
       icon: '📋',
@@ -84,10 +92,6 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
     }
   ]
 
-
-
-
-
   // Load agent tool settings on component mount
   useEffect(() => {
     if (organizationId) {
@@ -100,7 +104,6 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
       const response = await fetch(`/api/organizations/${organizationId}/agent-tools`)
       if (response.ok) {
         const settings = await response.json()
-
         setAgentToolSettings(settings)
       }
     } catch (error) {
@@ -115,76 +118,49 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
 
   return (
     <div className={`w-full ${className}`}>
-      {/* Simple Horizontal Scroll Container */}
-      <div 
-        className="flex gap-3 overflow-x-auto overflow-y-hidden pb-3 px-1 scroll-container"
-        style={{ 
-          scrollbarWidth: 'none', 
-          msOverflowStyle: 'none',
-          WebkitOverflowScrolling: 'touch'
-        }}
-      >
-        <style dangerouslySetInnerHTML={{
-          __html: `
-            .scroll-container::-webkit-scrollbar {
-              display: none;
-            }
-          `
-        }} />
-          {/* Hint Chips */}
-          <AnimatePresence>
-            {actionableHints.map((hint, index) => (
-              <motion.button
-                key={hint.id}
-                initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                transition={{ 
-                  delay: index * 0.05,
-                  duration: 0.3,
-                  ease: [0.4, 0, 0.2, 1]
-                }}
-                onClick={() => handleHintClick(hint)}
-                className={`flex-shrink-0 px-4 py-2.5 rounded-xl transition-all duration-300 text-sm font-medium group relative overflow-hidden whitespace-nowrap cursor-pointer border ${
-                  agentToolSettings[hint.category]
-                    ? 'shadow-lg ring-1'
-                    : 'opacity-75 hover:opacity-100 hover:ring-1'
-                }`}
-                style={{
-                  backgroundColor: agentToolSettings[hint.category] ? 'var(--accent-primary)' : 'var(--bg-tertiary)',
-                  color: 'var(--text-primary)',
-                  borderColor: agentToolSettings[hint.category] ? 'var(--border-focus)' : 'var(--border-secondary)'
-                }}
-                title={hint.description}
-              >
-                {/* Subtle background pattern for enabled state */}
-                {agentToolSettings[hint.category] && (
-                  <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent" />
-                )}
-                
-                <span className="relative z-10">
-                  {hint.label}
-                </span>
-                
-                {/* Active indicator */}
-                {agentToolSettings[hint.category] && (
-                  <motion.div
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ delay: 0.1, type: "spring", stiffness: 500 }}
-                    className="absolute -top-1 -right-1 w-3 h-3 rounded-full shadow-sm ring-2"
-                    style={{ 
-                      backgroundColor: 'var(--text-primary)',
-                      '--tw-ring-color': 'var(--border-focus)'
-                    } as React.CSSProperties}
-                  />
-                )}
-              </motion.button>
-            ))}
-          </AnimatePresence>
-        </div>
+      <HorizontalCarousel>
+        {/* Hint Chips */}
+        {actionableHints.map((hint) => (
+          <button
+            key={hint.id}
+            onClick={() => handleHintClick(hint)}
+            className={`flex-shrink-0 px-4 py-2.5 rounded-xl text-sm font-medium relative whitespace-nowrap cursor-pointer border ${
+              agentToolSettings[hint.category]
+                ? 'shadow-lg ring-1'
+                : ''
+            }`}
+            style={{
+              backgroundColor: agentToolSettings[hint.category] ? 'var(--accent-primary)' : 'var(--bg-tertiary)',
+              color: 'var(--text-primary)',
+              borderColor: agentToolSettings[hint.category] ? 'var(--border-focus)' : 'var(--border-secondary)',
+              minWidth: '160px'
+            }}
+            title={hint.description}
+          >
+            {/* Subtle background pattern for enabled state */}
+            {agentToolSettings[hint.category] && (
+              <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent" />
+            )}
+            
+            <span className="relative z-10">
+              {hint.label}
+            </span>
+            
+            {/* Active indicator */}
+            {agentToolSettings[hint.category] && (
+              <div
+                className="absolute -top-1 -right-1 w-3 h-3 rounded-full shadow-sm ring-2"
+                style={{ 
+                  backgroundColor: 'var(--text-primary)',
+                  '--tw-ring-color': 'var(--border-focus)'
+                } as React.CSSProperties}
+              />
+            )}
+          </button>
+        ))}
+      </HorizontalCarousel>
     </div>
   )
 }
 
-export default ActionableHintChips 
+export default ActionableHintChips
