@@ -53,7 +53,7 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({ navigation }) =>
 
     try {
       setError(null);
-      const response = await fetch(`${config.apiUrl}/api/products?organizationId=${config.organizationId}&limit=50`);
+      const response = await fetch(`${config.apiBaseUrl}/api/products?organizationId=${config.organizationId}&limit=50`);
       
       if (!response.ok) {
         throw new Error('Failed to fetch products');

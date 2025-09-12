@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { DEFAULT_THEME } from '@chayo/config';
 
 // Tool types that can be enabled/disabled
 export const AVAILABLE_TOOLS = [
@@ -13,12 +14,12 @@ export const AVAILABLE_TOOLS = [
 
 export type ToolType = typeof AVAILABLE_TOOLS[number];
 
-// Theme configuration
+// Theme configuration - using centralized defaults
 export const ThemeConfigSchema = z.object({
-  primaryColor: z.string().default('#007AFF'),
-  secondaryColor: z.string().default('#5856D6'),
-  backgroundColor: z.string().default('#FFFFFF'),
-  textColor: z.string().default('#000000'),
+  primaryColor: z.string().default(DEFAULT_THEME.primaryColor),
+  secondaryColor: z.string().default(DEFAULT_THEME.secondaryColor),
+  backgroundColor: z.string().default(DEFAULT_THEME.backgroundColor),
+  textColor: z.string().default(DEFAULT_THEME.textColor),
   logoUrl: z.string().optional(),
 });
 

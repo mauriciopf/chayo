@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Dimensions,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -32,6 +33,7 @@ export const ProductDetailScreen: React.FC = () => {
   const { theme, themedStyles } = useThemedStyles();
   const { t } = useTranslation();
   const screenWidth = Dimensions.get('window').width;
+  const [imageLoading, setImageLoading] = useState(true);
 
   // Generate same gradient as in the grid for consistency
   const getProductGradient = (productName: string) => {
@@ -85,11 +87,21 @@ export const ProductDetailScreen: React.FC = () => {
         {/* Product Image or Gradient Card */}
         <View style={styles.imageContainer}>
           {product.image_url ? (
-            <Image
-              source={{ uri: product.image_url }}
-              style={[styles.productImage, { backgroundColor: theme.surfaceColor }]}
-              resizeMode="cover"
-            />
+            <View style={styles.imageWrapper}>
+              <Image
+                source={{ uri: product.image_url }}
+                style={[styles.productImage, { backgroundColor: theme.surfaceColor }]}
+                resizeMode="cover"
+                onLoadStart={() => setImageLoading(true)}
+                onLoadEnd={() => setImageLoading(false)}
+                onError={() => setImageLoading(false)}
+              />
+              {imageLoading && (
+                <View style={styles.imageLoadingOverlay}>
+                  <ActivityIndicator size="large" color={theme.primaryColor} />
+                </View>
+              )}
+            </View>
           ) : (
             <View style={[styles.gradientContainer, { backgroundColor: startColor }]}>
               <View 
@@ -117,14 +129,14 @@ export const ProductDetailScreen: React.FC = () => {
           </Text>
 
           {product.description && (
-            <Text style={[styles.productDescription, { color: theme.secondaryTextColor }]}>
+            <Text style={[styles.productDescription, { color: theme.placeholderColor }]}>
               {product.description}
             </Text>
           )}
 
           {product.price && (
             <View style={styles.priceContainer}>
-              <Text style={[styles.priceLabel, { color: theme.secondaryTextColor }]}>
+              <Text style={[styles.priceLabel, { color: theme.placeholderColor }]}>
                 {t('products.detail.price')}
               </Text>
               <Text style={[styles.priceValue, { color: theme.primaryColor }]}>
@@ -136,13 +148,28 @@ export const ProductDetailScreen: React.FC = () => {
           {/* Purchase Button */}
           {product.price && (
             <TouchableOpacity
-              style={[styles.purchaseButton, { backgroundColor: theme.primaryColor }]}
-              onPress={handlePurchase}
-              activeOpacity={0.8}
+              style={[
+                styles.purchaseButton, 
+                { 
+                  backgroundColor: product.payment_transaction_id 
+                    ? theme.primaryColor 
+                    : theme.placeholderColor 
+                }
+              ]}
+              onPress={product.payment_transaction_id ? handlePurchase : undefined}
+              disabled={!product.payment_transaction_id}
+              activeOpacity={product.payment_transaction_id ? 0.8 : 1}
             >
-              <Icon name="shopping-cart" size={20} color="#FFFFFF" />
+              <Icon 
+                name={product.payment_transaction_id ? "shopping-cart" : "lock"} 
+                size={20} 
+                color="#FFFFFF" 
+              />
               <Text style={styles.purchaseButtonText}>
-                {t('products.detail.purchase')} ${product.price}
+                {product.payment_transaction_id 
+                  ? `${t('products.detail.purchase')} $${product.price}`
+                  : t('products.detail.paymentNotConfigured')
+                }
               </Text>
             </TouchableOpacity>
           )}
@@ -154,16 +181,16 @@ export const ProductDetailScreen: React.FC = () => {
             </Text>
             
             <View style={styles.infoRow}>
-              <Icon name="calendar" size={16} color={theme.secondaryTextColor} />
-              <Text style={[styles.infoText, { color: theme.secondaryTextColor }]}>
+              <Icon name="calendar" size={16} color={theme.placeholderColor} />
+              <Text style={[styles.infoText, { color: theme.placeholderColor }]}>
                 {t('products.detail.addedOn')} {new Date(product.created_at).toLocaleDateString()}
               </Text>
             </View>
 
             {product.payment_transaction_id && (
               <View style={styles.infoRow}>
-                <Icon name="credit-card" size={16} color={theme.secondaryTextColor} />
-                <Text style={[styles.infoText, { color: theme.secondaryTextColor }]}>
+                <Icon name="credit-card" size={16} color={theme.placeholderColor} />
+                <Text style={[styles.infoText, { color: theme.placeholderColor }]}>
                   {t('products.detail.paymentConfigured')}
                 </Text>
               </View>
@@ -210,9 +237,24 @@ const styles = StyleSheet.create({
     height: 300,
     marginBottom: 24,
   },
+  imageWrapper: {
+    width: '100%',
+    height: '100%',
+    position: 'relative',
+  },
   productImage: {
     width: '100%',
     height: '100%',
+  },
+  imageLoadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.3)',
   },
   gradientContainer: {
     width: '100%',

@@ -12,9 +12,8 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import Pdf from 'react-native-pdf';
 import { WebView } from 'react-native-webview';
-import RNBlobUtil from 'react-native-blob-util';
+import { useFocusEffect } from '@react-navigation/native';
 import { documentService, DocumentData, SignatureData } from '../services/DocumentService';
 import { useThemedStyles } from '../context/ThemeContext';
 import { useTranslation } from '../hooks/useTranslation';
@@ -41,11 +40,9 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
 
   // PDF viewing state
   const [pdfUrl, setPdfUrl] = useState<string>('');
-  const [pdfPath, setPdfPath] = useState<string>(''); // Local file path
   const [showSigningForm, setShowSigningForm] = useState(false);
-
-  // PDF fallback state
-  const [useWebViewFallback, setUseWebViewFallback] = useState(false);
+  const [webViewKey, setWebViewKey] = useState(0); // Force WebView reload
+  const [pdfLoaded, setPdfLoaded] = useState(false);
 
   // Signing form data
   const [signerName, setSignerName] = useState('');
@@ -63,24 +60,11 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
       const docData = await documentService.getDocument(documentId);
       setDocument(docData);
 
-      // Get PDF URL for both native PDF viewer and WebView fallback
+      // Get PDF URL for WebView
       const remotePdfUrl = documentService.getPdfUrl(documentId);
       setPdfUrl(remotePdfUrl);
 
-      // Download PDF to local file for react-native-pdf
-      const tempPath = `${RNBlobUtil.fs.dirs.CacheDir}/temp_document_${documentId}.pdf`;
-
-      // Download PDF directly to file system
-      await RNBlobUtil.config({
-        path: tempPath,
-        overwrite: true,
-      }).fetch('GET', remotePdfUrl);
-
-      // Set local file path for react-native-pdf (use file:// URI)
-      const fileUri = `file://${tempPath}`;
-      setPdfPath(fileUri);
-
-      // Also download bytes for signing (separate from display)
+      // Download bytes for signing
       const bytes = await documentService.downloadPdfBytes(documentId);
       setPdfBytes(bytes);
 
@@ -96,10 +80,21 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
     loadDocument();
   }, [loadDocument]);
 
-  const handlePdfError = useCallback((err: any) => {
-    console.error('PDF Error:', err);
-    setUseWebViewFallback(true);
-  }, []);
+  // Handle tab focus - reload WebView if PDF was loaded but WebView is blank
+  useFocusEffect(
+    useCallback(() => {
+      // If we have a PDF URL but WebView might be blank, force reload
+      if (pdfUrl && !loading && !error) {
+        // Small delay to ensure tab transition is complete
+        const timer = setTimeout(() => {
+          setWebViewKey(prev => prev + 1);
+        }, 100);
+        
+        return () => clearTimeout(timer);
+      }
+    }, [pdfUrl, loading, error])
+  );
+
 
   const handleSignDocument = () => {
     setShowSigningForm(true);
@@ -276,43 +271,50 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
       </View>
 
       <View style={styles.pdfContainer}>
-        {useWebViewFallback ? (
+        {pdfUrl ? (
           <WebView
+            key={webViewKey} // Force reload when key changes
             source={{ uri: pdfUrl }}
             style={styles.webview}
             onError={(syntheticEvent) => {
               const { nativeEvent } = syntheticEvent;
               console.error('WebView Error:', nativeEvent);
               setError('Failed to load document');
+              setPdfLoaded(false);
             }}
             startInLoadingState={true}
             renderLoading={() => (
               <View style={styles.webviewLoading}>
-                <ActivityIndicator size="large" color="#0A84FF" />
-                <Text style={styles.webviewLoadingText}>Loading document...</Text>
+                <ActivityIndicator size="large" color={theme.primaryColor} />
+                <Text style={[styles.webviewLoadingText, { color: theme.textColor }]}>
+                  {t('documents.loading')}
+                </Text>
               </View>
             )}
-          />
-        ) : pdfPath ? (
-          <Pdf
-            source={{ uri: pdfPath, cache: false }}
-            style={styles.pdf}
-            onLoadComplete={(numberOfPages) => {
-              console.log(`PDF loaded with ${numberOfPages} pages`);
+            onLoadStart={() => {
+              console.log('WebView started loading');
+              setPdfLoaded(false);
             }}
-            onError={handlePdfError}
+            onLoadEnd={() => {
+              console.log('WebView finished loading');
+              setPdfLoaded(true);
+            }}
+            // Additional WebView props for better PDF handling
+            allowsFullscreenVideo={false}
+            allowsInlineMediaPlayback={true}
+            mediaPlaybackRequiresUserAction={false}
+            scalesPageToFit={true}
+            showsHorizontalScrollIndicator={true}
+            showsVerticalScrollIndicator={true}
+            // Prevent WebView from caching issues
+            cacheEnabled={false}
+            incognito={true}
           />
         ) : (
           <View style={styles.pdfPlaceholder}>
-            <ActivityIndicator size="large" color="#0A84FF" />
-            <Text style={styles.pdfPlaceholderText}>Loading PDF...</Text>
-          </View>
-        )}
-
-        {useWebViewFallback && (
-          <View style={styles.fallbackNotice}>
-            <Text style={styles.fallbackNoticeText}>
-              📱 Using web viewer for better compatibility
+            <ActivityIndicator size="large" color={theme.primaryColor} />
+            <Text style={[styles.pdfPlaceholderText, { color: theme.placeholderColor }]}>
+              {t('documents.loading')}
             </Text>
           </View>
         )}
@@ -320,7 +322,7 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
 
       <View style={styles.footer}>
         <TouchableOpacity
-          style={styles.signDocumentButton}
+          style={[styles.signDocumentButton, { backgroundColor: theme.primaryColor }]}
           onPress={handleSignDocument}
           disabled={signing}
         >
@@ -412,10 +414,6 @@ const styles = StyleSheet.create({
     margin: 16,
     backgroundColor: '#2C2C2E',
   },
-  pdf: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
   webview: {
     flex: 1,
     backgroundColor: '#FFFFFF',
@@ -431,23 +429,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   webviewLoadingText: {
-    color: '#FFFFFF',
     fontSize: 16,
     marginTop: 12,
-  },
-  fallbackNotice: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-  },
-  fallbackNoticeText: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    opacity: 0.8,
   },
   pdfPlaceholder: {
     flex: 1,
@@ -455,7 +438,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   pdfPlaceholderText: {
-    color: '#FFFFFF',
     fontSize: 16,
     opacity: 0.6,
   },
@@ -465,7 +447,6 @@ const styles = StyleSheet.create({
     borderTopColor: '#3A3A3C',
   },
   signDocumentButton: {
-    backgroundColor: '#0A84FF',
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',

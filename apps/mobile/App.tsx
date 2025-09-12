@@ -14,6 +14,7 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 // Conditional import for expo-updates (only available in Expo-managed workflow)
 let Updates: any = null;
 try {
@@ -205,7 +206,7 @@ function App(): React.JSX.Element {
 
   // Show main app with organization config
   return (
-    <>
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <StatusBar barStyle="light-content" backgroundColor="#1C1C1E" />
       <AppConfigProvider organizationId={organizationId || undefined}>
         <ThemeProvider>
@@ -219,7 +220,7 @@ function App(): React.JSX.Element {
           />
         </ThemeProvider>
       </AppConfigProvider>
-    </>
+    </GestureHandlerRootView>
   );
 }
 

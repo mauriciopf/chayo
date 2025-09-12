@@ -14,18 +14,7 @@ export class NavigationConfigGenerator {
    * Generate tab configuration based on enabled tools
    */
   generateTabs(): TabConfig[] {
-    const tabs: TabConfig[] = [
-      // Home tab - always enabled (native chat)
-      {
-        name: 'Home',
-        label: 'Chat',
-        icon: 'message-circle',
-        component: 'native-chat',
-        enabled: true,
-      },
-    ];
-
-    // Add tool-based tabs
+    // Define tool configurations first
     const toolConfigs: Partial<Record<ToolType, Omit<TabConfig, 'enabled' | 'url'>>> = {
       appointments: {
         name: 'Appointments',
@@ -66,8 +55,36 @@ export class NavigationConfigGenerator {
       // Note: mobile-branding is excluded as it's a backend configuration tool, not a user-facing tab
     };
 
-    // Add enabled tool tabs - filter out unknown tools gracefully
+    const tabs: TabConfig[] = [
+      // Home tab - always enabled (native chat)
+      {
+        name: 'Home',
+        label: 'Chat',
+        icon: 'message-circle',
+        component: 'native-chat',
+        enabled: true,
+      },
+    ];
+
+    // Add products tab as second tab if enabled (high priority)
+    if (this.config.enabledTools.includes('products')) {
+      const productsConfig = toolConfigs['products'];
+      if (productsConfig) {
+        tabs.push({
+          ...productsConfig,
+          url: this.urlGenerator.getMobileOptimizedUrl(
+            this.urlGenerator.getToolUrl('products')
+          ),
+          enabled: true,
+        });
+      }
+    }
+
+    // Add remaining enabled tool tabs - filter out unknown tools gracefully
     this.config.enabledTools.forEach((tool) => {
+      // Skip products since we already added it as second tab
+      if (tool === 'products') return;
+      
       // Only process tools that are known to this version of the app
       if (AVAILABLE_TOOLS.includes(tool as ToolType)) {
         const toolConfig = toolConfigs[tool as ToolType];

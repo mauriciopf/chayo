@@ -10,14 +10,13 @@ export * from './urls';
 // Navigation configuration
 export * from './navigation';
 
+// Theme constants
+export * from './theme-constants';
+import { DEFAULT_THEME } from './theme-constants';
+
 // Default configurations
 export const DEFAULT_CONFIG = {
   appName: 'Chayo',
-  theme: {
-    primaryColor: '#007AFF',
-    secondaryColor: '#5856D6', 
-    backgroundColor: '#FFFFFF',
-    textColor: '#000000',
-  },
+  theme: DEFAULT_THEME,
   enabledTools: [],
 } as const;

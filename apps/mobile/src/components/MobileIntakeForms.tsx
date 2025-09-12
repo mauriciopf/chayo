@@ -46,7 +46,6 @@ const FormListItem: React.FC<FormListItemProps> = ({ form, onPress, theme, theme
 
 export const MobileIntakeForms: React.FC<MobileIntakeFormsProps> = ({ organizationSlug }) => {
   const { theme, themedStyles } = useThemedStyles();
-  const { t } = useTranslation();
   const [forms, setForms] = useState<IntakeForm[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedFormId, setSelectedFormId] = useState<string | null>(null);
@@ -81,13 +80,6 @@ export const MobileIntakeForms: React.FC<MobileIntakeFormsProps> = ({ organizati
     setSelectedFormId(formId);
   };
 
-  const handleBackToList = () => {
-    setSelectedFormId(null);
-  };
-
-  const getBackButtonText = () => {
-    return forms.length === 1 ? null : '‹ Back to Forms';
-  };
 
   const handleSubmissionComplete = (success: boolean, _message: string) => {
     if (success) {
@@ -102,9 +94,6 @@ export const MobileIntakeForms: React.FC<MobileIntakeFormsProps> = ({ organizati
   if (selectedFormId) {
     return (
       <SafeAreaView style={[styles.container, themedStyles.container]}>
-        <TouchableOpacity style={[styles.backButton, { backgroundColor: theme.surfaceColor, borderColor: theme.borderColor }]} onPress={handleBackToList}>
-          <Text style={[styles.backButtonText, { color: theme.primaryColor }]}>{getBackButtonText()}</Text>
-        </TouchableOpacity>
         <MobileIntakeForm
           formId={selectedFormId}
           onSubmissionComplete={handleSubmissionComplete}
@@ -257,14 +246,5 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: '#8E8E93',
     marginLeft: 8,
-  },
-  backButton: {
-    padding: 16,
-    paddingBottom: 8,
-  },
-  backButtonText: {
-    fontSize: 16,
-    color: '#0A84FF',
-    fontWeight: '500',
   },
 });

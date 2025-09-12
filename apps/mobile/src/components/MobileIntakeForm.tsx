@@ -8,7 +8,6 @@ import {
   StyleSheet,
   Alert,
   ActivityIndicator,
-
   Platform,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
@@ -444,34 +443,37 @@ export const MobileIntakeForm: React.FC<MobileIntakeFormProps> = ({
     : [];
 
   return (
-    <ScrollView style={[styles.container, themedStyles.container]} contentContainerStyle={styles.contentContainer}>
-      <View style={styles.header}>
-        <Text style={[styles.formTitle, themedStyles.primaryText]}>{form.name}</Text>
+    <View style={[styles.container, themedStyles.container]}>
+      {/* Fixed Header */}
+      <View style={[styles.fixedHeader, { borderBottomColor: theme.borderColor }]}>
+        <Text style={[styles.headerTitle, { color: theme.textColor }]}>{form.name}</Text>
         {form.description && (
-          <Text style={[styles.formDescription, themedStyles.secondaryText]}>{form.description}</Text>
+          <Text style={[styles.headerSubtitle, { color: theme.placeholderColor }]}>{form.description}</Text>
         )}
       </View>
 
-      <View style={styles.formFields}>
-        {visibleComponents.map(component => renderField(component))}
-      </View>
+      <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.contentContainer}>
+        <View style={styles.formFields}>
+          {visibleComponents.map(component => renderField(component))}
+        </View>
 
-      <TouchableOpacity
-        style={[
-          styles.submitButton,
-          { backgroundColor: submitting ? theme.borderColor : theme.primaryColor },
-          submitting && styles.submitButtonDisabled,
-        ]}
-        onPress={handleSubmit}
-        disabled={submitting}
-      >
-        {submitting ? (
-          <ActivityIndicator color={theme.textColor} />
-        ) : (
-          <Text style={[styles.submitButtonText, { color: theme.textColor }]}>Submit Form</Text>
-        )}
-      </TouchableOpacity>
-    </ScrollView>
+        <TouchableOpacity
+          style={[
+            styles.submitButton,
+            { backgroundColor: submitting ? theme.borderColor : theme.primaryColor },
+            submitting && styles.submitButtonDisabled,
+          ]}
+          onPress={handleSubmit}
+          disabled={submitting}
+        >
+          {submitting ? (
+            <ActivityIndicator color={theme.textColor} />
+          ) : (
+            <Text style={[styles.submitButtonText, { color: theme.textColor }]}>Submit Form</Text>
+          )}
+        </TouchableOpacity>
+      </ScrollView>
+    </View>
   );
 };
 
@@ -479,6 +481,24 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#1C1C1E',
+  },
+  fixedHeader: {
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 0,
+    backgroundColor: '#1C1C1E',
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  headerSubtitle: {
+    fontSize: 16,
+    lineHeight: 22,
+  },
+  scrollContainer: {
+    flex: 1,
   },
   contentContainer: {
     padding: 16,
@@ -513,21 +533,6 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     opacity: 0.8,
     textAlign: 'center',
-  },
-  header: {
-    marginBottom: 24,
-  },
-  formTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    marginBottom: 8,
-  },
-  formDescription: {
-    fontSize: 16,
-    color: '#FFFFFF',
-    opacity: 0.8,
-    lineHeight: 22,
   },
   formFields: {
     marginBottom: 24,

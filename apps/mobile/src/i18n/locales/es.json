@@ -125,7 +125,8 @@
       "purchase": "Comprar por",
       "details": "Detalles",
       "addedOn": "Agregado el",
-      "paymentConfigured": "Pago configurado"
+      "paymentConfigured": "Pago configurado",
+      "paymentNotConfigured": "Pago no configurado"
     }
   },
   "profile": {

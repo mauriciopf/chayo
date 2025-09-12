@@ -1,4 +1,5 @@
 import { useAppConfig } from './useAppConfig';
+import { DEFAULT_THEME } from '@chayo/config';
 
 export interface ThemeColors {
   primaryColor: string;
@@ -21,13 +22,8 @@ export interface ThemeColors {
 export const useTheme = (): ThemeColors => {
   const { config } = useAppConfig();
 
-  // Default dark theme (fallback) - matches what we've been using
-  const defaultTheme = {
-    primaryColor: '#0A84FF',
-    secondaryColor: '#FF453A',
-    backgroundColor: '#1C1C1E',
-    textColor: '#FFFFFF',
-  };
+  // Use centralized default theme
+  const defaultTheme = DEFAULT_THEME;
 
   // Use configured theme or fallback to defaults
   const theme = config?.theme || defaultTheme;

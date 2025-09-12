@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServerClient } from '@/lib/shared/supabase/server';
 import { AppConfigSchema, AVAILABLE_TOOLS } from '@/lib/shared/types/configTypes';
+import { DEFAULT_THEME } from '@chayo/config';
 
 export async function GET(
   request: NextRequest,
@@ -47,12 +48,7 @@ export async function GET(
     const apiBaseUrl = webBaseUrl;
 
     // Only use custom theme if mobile-branding tool is enabled
-    let themeConfig = {
-      primaryColor: '#0A84FF',
-      secondaryColor: '#FF453A',
-      backgroundColor: '#1C1C1E',
-      textColor: '#FFFFFF',
-    };
+    let themeConfig = DEFAULT_THEME;
 
     if (enabledTools.includes('mobile-branding')) {
       // Get mobile branding configuration only if tool is enabled
