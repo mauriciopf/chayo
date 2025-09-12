@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Dimensions,
   TouchableOpacity,
+  PanResponder,
 } from 'react-native';
 import { useThemedStyles } from '../context/ThemeContext';
 
@@ -44,6 +45,26 @@ export const SwipeFAQCards: React.FC<SwipeFAQCardsProps> = ({
     onSwipeLeft?.(currentFAQ);
     setCurrentIndex((prev) => (prev - 1 + faqs.length) % faqs.length);
   };
+
+  // Basic swipe detection
+  const panResponder = PanResponder.create({
+    onMoveShouldSetPanResponder: (_, gestureState) => {
+      // Only respond to horizontal swipes
+      return Math.abs(gestureState.dx) > Math.abs(gestureState.dy) && Math.abs(gestureState.dx) > 20;
+    },
+    onPanResponderRelease: (_, gestureState) => {
+      const { dx } = gestureState;
+      const swipeThreshold = 50;
+      
+      if (dx > swipeThreshold) {
+        // Swipe right = previous
+        goToPrevious();
+      } else if (dx < -swipeThreshold) {
+        // Swipe left = next
+        goToNext();
+      }
+    },
+  });
 
   if (faqs.length === 0) {
     return (
@@ -96,15 +117,18 @@ export const SwipeFAQCards: React.FC<SwipeFAQCardsProps> = ({
         </View>
 
         {/* Current card (front) */}
-        <View style={[
-          styles.card,
-          styles.currentCard,
-          {
-            backgroundColor: theme.surfaceColor,
-            borderColor: theme.borderColor,
-            shadowColor: theme.textColor,
-          }
-        ]}>
+        <View 
+          {...panResponder.panHandlers}
+          style={[
+            styles.card,
+            styles.currentCard,
+            {
+              backgroundColor: theme.surfaceColor,
+              borderColor: theme.borderColor,
+              shadowColor: theme.textColor,
+            }
+          ]}
+        >
           {currentFAQ.category && (
             <View style={[styles.categoryBadge, { backgroundColor: theme.primaryColor }]}>
               <Text style={[styles.categoryText, { color: theme.backgroundColor }]}>
@@ -124,20 +148,10 @@ export const SwipeFAQCards: React.FC<SwipeFAQCardsProps> = ({
           </View>
           
           <View style={styles.cardFooter}>
-            <View style={styles.navigationButtons}>
-              <TouchableOpacity 
-                style={[styles.navButton, { backgroundColor: theme.borderColor }]}
-                onPress={goToPrevious}
-              >
-                <Text style={[styles.navButtonText, { color: theme.textColor }]}>←</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={[styles.navButton, { backgroundColor: theme.borderColor }]}
-                onPress={goToNext}
-              >
-                <Text style={[styles.navButtonText, { color: theme.textColor }]}>→</Text>
-              </TouchableOpacity>
+            <View style={styles.swipeHints}>
+              <Text style={[styles.hintText, { color: theme.placeholderColor }]}>
+                ← Swipe to navigate →
+              </Text>
             </View>
           </View>
         </View>
@@ -236,21 +250,12 @@ const styles = StyleSheet.create({
   cardFooter: {
     paddingTop: 20,
   },
-  navigationButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  swipeHints: {
     alignItems: 'center',
   },
-  navButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  navButtonText: {
-    fontSize: 24,
-    fontWeight: '600',
+  hintText: {
+    fontSize: 14,
+    fontWeight: '500',
   },
   progressContainer: {
     marginTop: 30,
