@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServerClient } from '@/lib/shared/supabase/server';
-import { AppConfigSchema } from '@/lib/shared/types/configTypes';
+import { AppConfigSchema, AVAILABLE_TOOLS } from '@/lib/shared/types/configTypes';
 
 export async function GET(
   request: NextRequest,
@@ -27,12 +27,17 @@ export async function GET(
         org_id: organization.id
       });
 
-    // Extract enabled tools from the response
+    // Extract enabled tools from the response and filter out unknown tools
     const enabledTools: string[] = [];
     if (toolsData) {
       Object.keys(toolsData).forEach(key => {
         if (toolsData[key] === true) {
-          enabledTools.push(key);
+          // Only include tools that are known to this API version
+          if (AVAILABLE_TOOLS.includes(key as any)) {
+            enabledTools.push(key);
+          } else {
+            console.log(`🔧 Unknown tool "${key}" filtered out - not supported in this API version`);
+          }
         }
       });
     }

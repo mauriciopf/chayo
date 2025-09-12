@@ -1,4 +1,4 @@
-import { TabConfig, ToolType, AppConfig } from './types';
+import { TabConfig, ToolType, AppConfig, AVAILABLE_TOOLS } from './types';
 import { ToolUrlGenerator } from './urls';
 
 /**
@@ -66,17 +66,23 @@ export class NavigationConfigGenerator {
       // Note: mobile-branding is excluded as it's a backend configuration tool, not a user-facing tab
     };
 
-    // Add enabled tool tabs
+    // Add enabled tool tabs - filter out unknown tools gracefully
     this.config.enabledTools.forEach((tool) => {
-      const toolConfig = toolConfigs[tool];
-      if (toolConfig) {
-        tabs.push({
-          ...toolConfig,
-          url: this.urlGenerator.getMobileOptimizedUrl(
-            this.urlGenerator.getToolUrl(tool)
-          ),
-          enabled: true,
-        });
+      // Only process tools that are known to this version of the app
+      if (AVAILABLE_TOOLS.includes(tool as ToolType)) {
+        const toolConfig = toolConfigs[tool as ToolType];
+        if (toolConfig) {
+          tabs.push({
+            ...toolConfig,
+            url: this.urlGenerator.getMobileOptimizedUrl(
+              this.urlGenerator.getToolUrl(tool as ToolType)
+            ),
+            enabled: true,
+          });
+        }
+      } else {
+        // Log unknown tools for debugging but don't crash
+        console.log(`🔧 Unknown tool "${tool}" ignored - not supported in this app version`);
       }
     });
 
@@ -95,5 +101,14 @@ export class NavigationConfigGenerator {
    */
   isToolEnabled(tool: ToolType): boolean {
     return this.config.enabledTools.includes(tool);
+  }
+
+  /**
+   * Get only the tools that are known to this app version
+   */
+  getKnownEnabledTools(): ToolType[] {
+    return this.config.enabledTools.filter(tool => 
+      AVAILABLE_TOOLS.includes(tool as ToolType)
+    ) as ToolType[];
   }
 }
