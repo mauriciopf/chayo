@@ -47,14 +47,7 @@ export const ChatScreen: React.FC = () => {
     }
   }, [config, t]);
 
-  // Auto-focus input when screen loads and keep keyboard open
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      textInputRef.current?.focus();
-    }, 500); // Small delay to ensure screen is fully loaded
-
-    return () => clearTimeout(timer);
-  }, []);
+  // Note: Keyboard will remain hidden on mount - user can tap input to open
 
   const sendMessage = async () => {
     if (!inputText.trim() || !config) return;

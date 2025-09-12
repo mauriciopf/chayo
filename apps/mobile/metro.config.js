@@ -1,9 +1,9 @@
-const {getDefaultConfig} = require('@expo/metro-config');
+const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
 const path = require('path');
 
 /**
- * Metro configuration for Expo monorepo
- * https://docs.expo.dev/guides/monorepos/
+ * Metro configuration for React Native monorepo
+ * https://reactnative.dev/docs/metro
  *
  * @type {import('metro-config').MetroConfig}
  */
@@ -12,12 +12,10 @@ const path = require('path');
 const projectRoot = __dirname;
 const monorepoRoot = path.resolve(projectRoot, '../..');
 
-// Get the default Expo Metro config
+// Get the default React Native Metro config
 const defaultConfig = getDefaultConfig(projectRoot);
 
-module.exports = {
-  ...defaultConfig,
-  
+const config = {
   // Set project root to mobile app directory
   projectRoot: projectRoot,
   
@@ -25,15 +23,24 @@ module.exports = {
   watchFolders: [monorepoRoot],
   
   resolver: {
-    ...defaultConfig.resolver,
-    
     // Node modules paths for both app and monorepo
     nodeModulesPaths: [
       path.resolve(projectRoot, 'node_modules'),
       path.resolve(monorepoRoot, 'node_modules'),
     ],
     
-    // Keep Expo's default resolver settings
+    // Platform extensions
     platforms: ['ios', 'android', 'native', 'web'],
+    
+    // Disable platform-specific extensions that might cause conflicts
+    disableHierarchicalLookup: false,
+  },
+  
+  // Transformer settings
+  transformer: {
+    // Enable inline requires for better performance
+    inlineRequires: true,
   },
 };
+
+module.exports = mergeConfig(defaultConfig, config);

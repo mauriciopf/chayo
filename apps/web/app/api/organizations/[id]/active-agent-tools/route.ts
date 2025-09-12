@@ -10,7 +10,7 @@ export async function GET(
     const supabase = await getSupabaseServerClient();
 
 
-    // Get active agent tools (public endpoint - no auth required for client chat)
+    // Get active agent tools using the database function
     const { data, error } = await supabase
       .rpc('get_organization_agent_tools', {
         org_id: organizationId

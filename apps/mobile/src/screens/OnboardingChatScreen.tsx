@@ -77,8 +77,7 @@ export const OnboardingChatScreen: React.FC<OnboardingChatScreenProps> = ({
       setMessages([welcomeMessage, codeRequestMessage]);
       setCurrentStep('awaiting_code');
 
-      // Focus input
-      textInputRef.current?.focus();
+      // Note: User can tap input to enter business code when ready
     };
 
     initializeChat();

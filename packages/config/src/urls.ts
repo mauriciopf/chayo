@@ -20,6 +20,7 @@ export class ToolUrlGenerator {
       faqs: `${this.webBaseUrl}/faqs/${this.organizationSlug}`,
       intake_forms: `${this.webBaseUrl}/client-chat/${this.organizationSlug}?tool=intake_forms`,
       'mobile-branding': `${this.webBaseUrl}/dashboard/mobile-branding`,
+      products: `${this.webBaseUrl}/client-chat/${this.organizationSlug}?tool=products`,
     };
 
     return urls[tool];
@@ -36,6 +37,7 @@ export class ToolUrlGenerator {
       faqs: this.getToolUrl('faqs'),
       intake_forms: this.getToolUrl('intake_forms'),
       'mobile-branding': this.getToolUrl('mobile-branding'),
+      products: this.getToolUrl('products'),
     };
   }
 

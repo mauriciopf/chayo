@@ -57,6 +57,12 @@ export class NavigationConfigGenerator {
         icon: 'clipboard',
         component: 'native',
       },
+      products: {
+        name: 'Products & Services',
+        label: 'Products',
+        icon: 'package',
+        component: 'native',
+      },
       // Note: mobile-branding is excluded as it's a backend configuration tool, not a user-facing tab
     };
 

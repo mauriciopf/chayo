@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -13,6 +13,8 @@ import { PaymentsScreen } from '../screens/PaymentsScreen';
 import { DocumentsScreen } from '../screens/DocumentsScreen';
 import { FAQsScreen } from '../screens/FAQsScreen';
 import { IntakeFormsScreen } from '../screens/IntakeFormsScreen';
+import { ProductsScreen } from '../screens/ProductsScreen';
+import { ProductDetailScreen } from '../screens/ProductDetailScreen';
 import Icon from 'react-native-vector-icons/Feather';
 
 const Stack = createNativeStackNavigator();
@@ -27,6 +29,8 @@ const getTabIconName = (iconName: string) => {
     'file-text': 'file-text', // Document outline
     'help-circle': 'help-circle', // Help circle outline
     'clipboard': 'clipboard', // Intake forms clipboard
+    'package': 'package', // Products & Services package icon
+    'shopping-bag': 'shopping-bag', // Alternative products icon
   };
   return iconMap[iconName] || 'message-circle';
 };
@@ -50,6 +54,8 @@ const getToolScreen = (toolName: string) => {
     'Documents': DocumentsScreen,
     'FAQs': FAQsScreen,
     'Intake Forms': IntakeFormsScreen,
+    'Products & Services': ProductsScreen,
+    'Products': ProductsScreen, // Alternative name
   };
   return screenMap[toolName as keyof typeof screenMap];
 };
@@ -93,15 +99,16 @@ const TabIcon: React.FC<{ iconName: string; color: string; size: number }> = ({ 
   <Icon name={iconName} size={size} color={color} />
 );
 
+// Tab icon renderer
+const renderTabIcon = (iconName: string) => ({ focused: _focused, color, size }: any) => (
+  <TabIcon iconName={iconName} color={color} size={size} />
+);
+
 // Main Tab Navigator Component
 const MainTabNavigator = () => {
   const { config, urlGenerator } = useAppConfig();
   const { theme } = useThemedStyles();
 
-  // Create tab icon renderer
-  const renderTabIcon = useCallback((iconName: string) => ({ focused: _focused, color, size }: any) => (
-    <TabIcon iconName={iconName} color={color} size={size} />
-  ), []);
 
   if (!config || !urlGenerator) {
     return <ErrorScreenWrapper />;
@@ -170,7 +177,10 @@ export const AppNavigator = () => {
         ) : error ? (
           <Stack.Screen name="Error" component={ErrorScreenWrapper} />
         ) : (
-          <Stack.Screen name="Main" component={MainTabNavigator} />
+          <>
+            <Stack.Screen name="Main" component={MainTabNavigator} />
+            <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
+          </>
         )}
       </Stack.Navigator>
     </NavigationContainer>

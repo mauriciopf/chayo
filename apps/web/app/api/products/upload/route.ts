@@ -65,7 +65,14 @@ export async function POST(request: NextRequest) {
 
     if (uploadError) {
       console.error('Upload error:', uploadError)
-      return NextResponse.json({ error: 'Failed to upload image' }, { status: 500 })
+      console.error('Upload error details:', JSON.stringify(uploadError, null, 2))
+      console.error('File details:', { name: file.name, size: file.size, type: file.type })
+      console.error('Upload path:', fileName)
+      return NextResponse.json({ 
+        error: 'Failed to upload image', 
+        details: uploadError.message || 'Unknown upload error',
+        uploadError: uploadError
+      }, { status: 500 })
     }
 
     // Get public URL

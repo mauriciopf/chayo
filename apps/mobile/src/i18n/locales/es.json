@@ -106,6 +106,28 @@
     "loading": "Cargando FAQs...",
     "loadError": "Error al cargar FAQs"
   },
+  "products": {
+    "title": "Productos y Servicios",
+    "subtitle": "Explora nuestro catálogo",
+    "loading": "Cargando productos...",
+    "empty": {
+      "title": "No hay productos disponibles",
+      "subtitle": "Vuelve más tarde para ver nuevos productos y servicios"
+    },
+    "error": {
+      "title": "Error al cargar productos",
+      "subtitle": "Por favor revisa tu conexión e intenta de nuevo",
+      "retry": "Intentar de Nuevo"
+    },
+    "detail": {
+      "title": "Detalles del Producto",
+      "price": "Precio",
+      "purchase": "Comprar por",
+      "details": "Detalles",
+      "addedOn": "Agregado el",
+      "paymentConfigured": "Pago configurado"
+    }
+  },
   "profile": {
     "title": "Perfil",
     "account": "Cuenta",

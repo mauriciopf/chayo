@@ -106,6 +106,28 @@
     "loading": "Loading FAQs...",
     "loadError": "Failed to load FAQs"
   },
+  "products": {
+    "title": "Products & Services",
+    "subtitle": "Browse our catalog",
+    "loading": "Loading products...",
+    "empty": {
+      "title": "No products available",
+      "subtitle": "Check back later for new products and services"
+    },
+    "error": {
+      "title": "Failed to load products",
+      "subtitle": "Please check your connection and try again",
+      "retry": "Try Again"
+    },
+    "detail": {
+      "title": "Product Details",
+      "price": "Price",
+      "purchase": "Purchase for",
+      "details": "Details",
+      "addedOn": "Added on",
+      "paymentConfigured": "Payment configured"
+    }
+  },
   "profile": {
     "title": "Profile",
     "account": "Account",

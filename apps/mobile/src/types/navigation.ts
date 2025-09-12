@@ -8,13 +8,27 @@ export type TabParamList = {
   Chat: undefined;
   Appointments: { appointmentId?: string };
   Payments: { paymentId?: string };
+  Products: undefined;
   Profile: undefined;
 };
+
+// Product interface for navigation
+interface Product {
+  id: string;
+  name: string;
+  description?: string;
+  image_url?: string;
+  price?: number;
+  payment_transaction_id?: string;
+  created_at: string;
+  updated_at: string;
+}
 
 // Define the parameter list for stack navigation
 export type RootStackParamList = {
   MainTabs: undefined;
   Login: undefined;
+  ProductDetail: { product: Product };
   Signup: undefined;
   Onboarding: undefined;
   AppointmentDetails: { appointmentId: string };
