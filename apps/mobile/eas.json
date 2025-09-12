@@ -24,6 +24,22 @@
     },
     "production": { 
       "autoIncrement": true,
+      "env": {
+        "VERSION_BUMP_TYPE": "minor"
+      },
+      "ios": {
+        "simulator": false,
+        "distribution": "store"
+      }, 
+      "android": {
+        "buildType": "app-bundle"
+      }
+    },
+    "production-patch": { 
+      "autoIncrement": true,
+      "env": {
+        "VERSION_BUMP_TYPE": "patch"
+      },
       "ios": {
         "simulator": false,
         "distribution": "store"

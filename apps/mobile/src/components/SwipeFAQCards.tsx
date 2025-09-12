@@ -1,12 +1,10 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   Dimensions,
-  TouchableOpacity,
   PanResponder,
-  Animated,
 } from 'react-native';
 import { useThemedStyles } from '../context/ThemeContext';
 
@@ -34,58 +32,35 @@ export const SwipeFAQCards: React.FC<SwipeFAQCardsProps> = ({
 }) => {
   const { theme, themedStyles } = useThemedStyles();
   const [currentIndex, setCurrentIndex] = useState(0);
-  
-  // Simple animation for card movement
-  const translateX = useRef(new Animated.Value(0)).current;
 
   const goToNext = () => {
     const currentFAQ = faqs[currentIndex];
     onSwipeRight?.(currentFAQ);
     setCurrentIndex((prev) => (prev + 1) % faqs.length);
-    translateX.setValue(0); // Reset position
   };
 
   const goToPrevious = () => {
     const currentFAQ = faqs[currentIndex];
     onSwipeLeft?.(currentFAQ);
     setCurrentIndex((prev) => (prev - 1 + faqs.length) % faqs.length);
-    translateX.setValue(0); // Reset position
   };
 
-  // Basic swipe detection with visual feedback
+  // Basic swipe detection
   const panResponder = PanResponder.create({
     onMoveShouldSetPanResponder: (_, gestureState) => {
       // Only respond to horizontal swipes
       return Math.abs(gestureState.dx) > Math.abs(gestureState.dy) && Math.abs(gestureState.dx) > 20;
-    },
-    onPanResponderMove: (_, gestureState) => {
-      // Move card with finger (with some resistance)
-      translateX.setValue(gestureState.dx * 0.7);
     },
     onPanResponderRelease: (_, gestureState) => {
       const { dx } = gestureState;
       const swipeThreshold = 50;
       
       if (dx > swipeThreshold) {
-        // Animate out then go to previous
-        Animated.timing(translateX, {
-          toValue: SCREEN_WIDTH,
-          duration: 200,
-          useNativeDriver: true,
-        }).start(goToPrevious);
+        // Swipe right = previous
+        goToPrevious();
       } else if (dx < -swipeThreshold) {
-        // Animate out then go to next
-        Animated.timing(translateX, {
-          toValue: -SCREEN_WIDTH,
-          duration: 200,
-          useNativeDriver: true,
-        }).start(goToNext);
-      } else {
-        // Snap back to center
-        Animated.spring(translateX, {
-          toValue: 0,
-          useNativeDriver: true,
-        }).start();
+        // Swipe left = next
+        goToNext();
       }
     },
   });
@@ -141,7 +116,7 @@ export const SwipeFAQCards: React.FC<SwipeFAQCardsProps> = ({
         </View>
 
         {/* Current card (front) */}
-        <Animated.View 
+        <View 
           {...panResponder.panHandlers}
           style={[
             styles.card,
@@ -150,7 +125,6 @@ export const SwipeFAQCards: React.FC<SwipeFAQCardsProps> = ({
               backgroundColor: theme.surfaceColor,
               borderColor: theme.borderColor,
               shadowColor: theme.textColor,
-              transform: [{ translateX }],
             }
           ]}
         >
@@ -179,7 +153,7 @@ export const SwipeFAQCards: React.FC<SwipeFAQCardsProps> = ({
               </Text>
             </View>
           </View>
-        </Animated.View>
+        </View>
       </View>
       
       {/* Progress indicator */}

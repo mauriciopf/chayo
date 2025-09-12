@@ -13,7 +13,8 @@
     "update:prod": "eas update --branch production --message",
     "build:dev": "eas build --profile development",
     "build:preview": "eas build --profile preview",
-    "build:prod": "eas build --profile production"
+    "build:prod": "eas build --profile production",
+    "eas-build-pre-build": "node scripts/bump-version.js"
   },
   "dependencies": {
     "@chayo/config": "workspace:*",
