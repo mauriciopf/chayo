@@ -3,7 +3,14 @@
 import { useState, useEffect } from 'react';
 import { ThemeConfig, ThemeConfigSchema } from '@/lib/shared/types/configTypes';
 import { useUser } from '@/lib/shared/hooks/useUser';
-import { DEFAULT_THEME } from '@chayo/config';
+
+// Default theme constants (inlined for Vercel compatibility)
+const DEFAULT_THEME = {
+  primaryColor: '#0A84FF',
+  secondaryColor: '#2C2C2E',
+  backgroundColor: '#1C1C1E',
+  textColor: '#FFFFFF',
+};
 
 const DEFAULT_CONFIG: ThemeConfig = {
   ...DEFAULT_THEME,

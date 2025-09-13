@@ -6,14 +6,11 @@
     "dev": "next dev",
     "dev:debug": "NODE_OPTIONS='--inspect' next dev",
     "dev:debug-brk": "NODE_OPTIONS='--inspect-brk' next dev",
-    "prebuild": "cd ../../packages/config && pnpm build && cd ../../packages/formio && pnpm build",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
-    "@chayo/config": "file:../../packages/config",
-    "@chayo/formio": "file:../../packages/formio",
     "@formio/react": "^6.1.0",
     "@stripe/stripe-js": "^7.4.0",
     "@supabase/auth-helpers-nextjs": "^0.10.0",

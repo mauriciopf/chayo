@@ -1,7 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServerClient } from '@/lib/shared/supabase/server';
 import { ThemeConfigSchema } from '@/lib/shared/types/configTypes';
-import { DEFAULT_THEME } from '@chayo/config';
+
+// Default theme constants (inlined for Vercel compatibility)
+const DEFAULT_THEME = {
+  primaryColor: '#0A84FF',
+  secondaryColor: '#2C2C2E',
+  backgroundColor: '#1C1C1E',
+  textColor: '#FFFFFF',
+};
 
 export async function GET(
   request: NextRequest,

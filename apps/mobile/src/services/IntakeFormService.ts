@@ -1,4 +1,4 @@
-import { IntakeForm, IntakeFormResponse, FormioSubmission } from '@chayo/formio';
+import { IntakeForm, IntakeFormResponse, FormioSubmission } from '../formio';
 
 export class IntakeFormService {
   private baseUrl: string;

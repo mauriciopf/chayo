@@ -9,7 +9,7 @@ import {
   Alert,
   SafeAreaView,
 } from 'react-native';
-import { IntakeForm } from '@chayo/formio';
+import { IntakeForm } from '../formio';
 import { intakeFormService } from '../services/IntakeFormService';
 import { MobileIntakeForm } from './MobileIntakeForm';
 import { useThemedStyles } from '../context/ThemeContext';

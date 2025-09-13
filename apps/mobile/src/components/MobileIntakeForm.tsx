@@ -25,7 +25,7 @@ import {
   isPhoneNumberField,
   isTextAreaField,
 
-} from '@chayo/formio';
+} from '../formio';
 import { intakeFormService } from '../services/IntakeFormService';
 import { useThemedStyles } from '../context/ThemeContext';
 import { useCallback } from 'react';

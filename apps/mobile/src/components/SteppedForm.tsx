@@ -14,7 +14,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useThemedStyles } from '../context/ThemeContext';
 import AuthGate from './AuthGate';
 import { useAppConfig } from '../hooks/useAppConfig';
-import { FormioComponent } from '@chayo/formio';
+import { FormioComponent } from '../formio';
 
 
 interface SteppedFormProps {
