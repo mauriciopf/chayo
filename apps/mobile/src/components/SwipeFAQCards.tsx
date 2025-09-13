@@ -4,9 +4,9 @@ import {
   Text,
   StyleSheet,
   Dimensions,
-  PanResponder,
 } from 'react-native';
 import { useThemedStyles } from '../context/ThemeContext';
+import { SwipeContainer } from './SwipeContainer';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const CARD_WIDTH = SCREEN_WIDTH * 0.85;
@@ -45,26 +45,6 @@ export const SwipeFAQCards: React.FC<SwipeFAQCardsProps> = ({
     setCurrentIndex((prev) => (prev - 1 + faqs.length) % faqs.length);
   };
 
-  // Basic swipe detection
-  const panResponder = PanResponder.create({
-    onMoveShouldSetPanResponder: (_, gestureState) => {
-      // Only respond to horizontal swipes
-      return Math.abs(gestureState.dx) > Math.abs(gestureState.dy) && Math.abs(gestureState.dx) > 20;
-    },
-    onPanResponderRelease: (_, gestureState) => {
-      const { dx } = gestureState;
-      const swipeThreshold = 50;
-      
-      if (dx > swipeThreshold) {
-        // Swipe right = previous
-        goToPrevious();
-      } else if (dx < -swipeThreshold) {
-        // Swipe left = next
-        goToNext();
-      }
-    },
-  });
-
   if (faqs.length === 0) {
     return (
       <View style={[styles.container, themedStyles.container]}>
@@ -85,7 +65,12 @@ export const SwipeFAQCards: React.FC<SwipeFAQCardsProps> = ({
 
   return (
     <View style={[styles.container, themedStyles.container]}>
-      <View style={styles.cardStack}>
+      <SwipeContainer
+        onSwipeLeft={goToNext}
+        onSwipeRight={goToPrevious}
+        style={styles.swipeArea}
+      >
+        <View style={styles.cardStack}>
         {/* Next card (behind) */}
         <View style={[
           styles.card,
@@ -116,18 +101,15 @@ export const SwipeFAQCards: React.FC<SwipeFAQCardsProps> = ({
         </View>
 
         {/* Current card (front) */}
-        <View 
-          {...panResponder.panHandlers}
-          style={[
-            styles.card,
-            styles.currentCard,
-            {
-              backgroundColor: theme.surfaceColor,
-              borderColor: theme.borderColor,
-              shadowColor: theme.textColor,
-            }
-          ]}
-        >
+        <View style={[
+          styles.card,
+          styles.currentCard,
+          {
+            backgroundColor: theme.surfaceColor,
+            borderColor: theme.borderColor,
+            shadowColor: theme.textColor,
+          }
+        ]}>
           {currentFAQ.category && (
             <View style={[styles.categoryBadge, { backgroundColor: theme.primaryColor }]}>
               <Text style={[styles.categoryText, { color: theme.backgroundColor }]}>
@@ -155,6 +137,7 @@ export const SwipeFAQCards: React.FC<SwipeFAQCardsProps> = ({
           </View>
         </View>
       </View>
+      </SwipeContainer>
       
       {/* Progress indicator */}
       <View style={styles.progressContainer}>
@@ -172,6 +155,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 20,
+  },
+  swipeArea: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   cardStack: {
     width: CARD_WIDTH,

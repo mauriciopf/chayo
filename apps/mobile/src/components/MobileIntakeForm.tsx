@@ -33,6 +33,8 @@ import { intakeFormService } from '../services/IntakeFormService';
 import { useThemedStyles } from '../context/ThemeContext';
 import { useTranslation } from '../hooks/useTranslation';
 import { useCallback } from 'react';
+import { ModernFloatingInput } from './ModernFloatingInput';
+import { SteppedForm } from './SteppedForm';
 
 interface MobileIntakeFormProps {
   formId: string;
@@ -45,11 +47,11 @@ interface FieldComponentProps {
   value: any;
   onChange: (value: any) => void;
   error?: string;
+  ref?: React.RefObject<any>;
 }
 
 // Individual field components
-const TextFieldComponent: React.FC<FieldComponentProps> = ({ component, value, onChange, error }) => {
-  const { theme, themedStyles } = useThemedStyles();
+const TextFieldComponent: React.FC<FieldComponentProps> = ({ component, value, onChange, error, ref }) => {
   const keyboardType = isEmailField(component)
     ? 'email-address'
     : isNumberField(component)
@@ -59,100 +61,75 @@ const TextFieldComponent: React.FC<FieldComponentProps> = ({ component, value, o
     : 'default';
 
   return (
-    <View style={styles.fieldContainer}>
-      <Text style={[styles.fieldLabel, themedStyles.primaryText]}>
-        {component.label}
-        {component.validate?.required && <Text style={[styles.required, { color: theme.errorColor }]}> *</Text>}
-      </Text>
-      {component.description && (
-        <Text style={[styles.fieldDescription, themedStyles.secondaryText]}>{component.description}</Text>
-      )}
-      <TextInput
-        style={[
-          styles.textInput,
-          {
-            backgroundColor: theme.surfaceColor,
-            color: theme.textColor,
-            borderColor: theme.borderColor,
-          },
-          error && { borderColor: theme.errorColor },
-        ]}
-        value={value || ''}
-        onChangeText={onChange}
-        placeholder={component.placeholder}
-        placeholderTextColor={theme.placeholderColor}
-        keyboardType={keyboardType}
-        multiline={isTextAreaField(component)}
-        numberOfLines={isTextAreaField(component) ? 4 : 1}
-        secureTextEntry={isTextField(component) && (component as any).inputType === 'password'}
-        autoCapitalize={isEmailField(component) ? 'none' : 'sentences'}
-        autoCorrect={!isEmailField(component)}
-      />
-      {error && <Text style={[styles.errorText, { color: theme.errorColor }]}>{error}</Text>}
-    </View>
+    <ModernFloatingInput
+      ref={ref}
+      label="" // No inner label
+      value={value || ''}
+      onChangeText={onChange}
+      placeholder={component.placeholder}
+      keyboardType={keyboardType}
+      multiline={isTextAreaField(component)}
+      numberOfLines={isTextAreaField(component) ? 4 : 1}
+      secureTextEntry={isTextField(component) && (component as any).inputType === 'password'}
+      error={error}
+      required={false} // No inner required indicator
+    />
   );
 };
 
-const SelectFieldComponent: React.FC<FieldComponentProps> = ({ component, value, onChange, error }) => {
-  const { theme, themedStyles } = useThemedStyles();
+const SelectFieldComponent: React.FC<FieldComponentProps> = ({ component, value, onChange, error, ref }) => {
   const options = getFieldOptions(component);
-  const [showPicker, setShowPicker] = useState(false);
+  const { theme } = useThemedStyles();
+
+  const selectedOption = options.find(opt => opt.value === value);
+  const displayValue = selectedOption ? selectedOption.label : '';
+
+  // Create custom input accessory with options
+  const renderOptionsAccessory = () => (
+    <View style={[styles.optionsAccessory, { backgroundColor: theme.backgroundColor, borderTopColor: theme.borderColor }]}>
+      <Text style={[styles.optionsTitle, { color: theme.textColor }]}>
+        {component.label}
+      </Text>
+      <View style={styles.optionsGrid}>
+        {options.map((option) => (
+          <TouchableOpacity
+            key={option.value}
+            style={[
+              styles.optionButton,
+              {
+                backgroundColor: value === option.value ? theme.primaryColor : theme.surfaceColor,
+                borderColor: theme.borderColor,
+              }
+            ]}
+            onPress={() => onChange(option.value)}
+          >
+            <Text style={[
+              styles.optionText,
+              { 
+                color: value === option.value ? '#FFFFFF' : theme.textColor,
+              }
+            ]}>
+              {option.label}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </View>
+  );
 
   return (
-    <View style={styles.fieldContainer}>
-      <Text style={[styles.fieldLabel, themedStyles.primaryText]}>
-        {component.label}
-        {component.validate?.required && <Text style={[styles.required, { color: theme.errorColor }]}> *</Text>}
-      </Text>
-      {component.description && (
-        <Text style={[styles.fieldDescription, themedStyles.secondaryText]}>{component.description}</Text>
-      )}
-
-      <TouchableOpacity
-        style={[
-          styles.selectButton,
-          {
-            backgroundColor: theme.surfaceColor,
-            borderColor: theme.borderColor,
-          },
-          error && { borderColor: theme.errorColor },
-        ]}
-        onPress={() => setShowPicker(true)}
-      >
-        <Text style={[styles.selectButtonText, { color: value ? theme.textColor : theme.placeholderColor }]}>
-          {value ? options.find(opt => opt.value === value)?.label || value : component.placeholder || 'Select an option'}
-        </Text>
-      </TouchableOpacity>
-
-      {showPicker && (
-        <View style={styles.pickerContainer}>
-          <View style={styles.pickerHeader}>
-            <TouchableOpacity onPress={() => setShowPicker(false)}>
-              <Text style={styles.pickerCancel}>Cancel</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => setShowPicker(false)}>
-              <Text style={styles.pickerDone}>Done</Text>
-            </TouchableOpacity>
-          </View>
-          <Picker
-            selectedValue={value}
-            onValueChange={(itemValue) => {
-              onChange(itemValue);
-            }}
-          >
-            <Picker.Item label="Select an option" value="" />
-            {options.map((option) => (
-              <Picker.Item
-                key={option.value}
-                label={option.label}
-                value={option.value}
-              />
-            ))}
-          </Picker>
-        </View>
-      )}
-
-      {error && <Text style={styles.errorText}>{error}</Text>}
+    <View>
+      <ModernFloatingInput
+        ref={ref}
+        label="" // No inner label
+        value={displayValue}
+        onChangeText={() => {}} // Not used for select
+        placeholder={component.placeholder || 'Select an option'}
+        error={error}
+        required={false} // No inner required indicator
+        inputAccessoryView={renderOptionsAccessory()}
+        showSoftInputOnFocus={true} // Show keyboard WITH options above
+      />
     </View>
   );
 };
@@ -376,7 +353,7 @@ export const MobileIntakeForm: React.FC<MobileIntakeFormProps> = ({
     }
   };
 
-  const renderField = (component: FormioComponent) => {
+  const renderField = (component: FormioComponent, ref?: React.RefObject<any>) => {
     if (!shouldShowComponent(component, formData)) {
       return null;
     }
@@ -388,6 +365,7 @@ export const MobileIntakeForm: React.FC<MobileIntakeFormProps> = ({
       value,
       onChange: (newValue: any) => handleFieldChange(component.key, newValue),
       error,
+      ref, // Pass ref to field components
     };
 
     switch (component.type) {
@@ -443,37 +421,17 @@ export const MobileIntakeForm: React.FC<MobileIntakeFormProps> = ({
     : [];
 
   return (
-    <View style={[styles.container, themedStyles.container]}>
-      {/* Fixed Header */}
-      <View style={[styles.fixedHeader, { borderBottomColor: theme.borderColor }]}>
-        <Text style={[styles.headerTitle, { color: theme.textColor }]}>{form.name}</Text>
-        {form.description && (
-          <Text style={[styles.headerSubtitle, { color: theme.placeholderColor }]}>{form.description}</Text>
-        )}
-      </View>
-
-      <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.contentContainer}>
-        <View style={styles.formFields}>
-          {visibleComponents.map(component => renderField(component))}
-        </View>
-
-        <TouchableOpacity
-          style={[
-            styles.submitButton,
-            { backgroundColor: submitting ? theme.borderColor : theme.primaryColor },
-            submitting && styles.submitButtonDisabled,
-          ]}
-          onPress={handleSubmit}
-          disabled={submitting}
-        >
-          {submitting ? (
-            <ActivityIndicator color={theme.textColor} />
-          ) : (
-            <Text style={[styles.submitButtonText, { color: theme.textColor }]}>Submit Form</Text>
-          )}
-        </TouchableOpacity>
-      </ScrollView>
-    </View>
+    <SteppedForm
+      title={form.name}
+      description={form.description}
+      components={visibleComponents}
+      formData={formData}
+      errors={errors}
+      onFieldChange={handleFieldChange}
+      onSubmit={handleSubmit}
+      submitting={submitting}
+      renderField={renderField}
+    />
   );
 };
 
@@ -684,5 +642,35 @@ const styles = StyleSheet.create({
     color: '#FF453A',
     fontSize: 14,
     marginTop: 4,
+  },
+  optionsAccessory: {
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    borderTopWidth: 1,
+    maxHeight: 200,
+  },
+  optionsTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  optionsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    justifyContent: 'center',
+  },
+  optionButton: {
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    minWidth: 80,
+    alignItems: 'center',
+  },
+  optionText: {
+    fontSize: 14,
+    fontWeight: '500',
   },
 });

@@ -1,0 +1,357 @@
+import React, { useState, useRef, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  SafeAreaView,
+  KeyboardAvoidingView,
+  Platform,
+  Dimensions,
+  TextInput,
+  InputAccessoryView,
+} from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
+import { useThemedStyles } from '../context/ThemeContext';
+import { ModernFloatingInput } from './ModernFloatingInput';
+import { FormioComponent } from '@chayo/formio';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
+interface SteppedFormProps {
+  title: string;
+  description?: string;
+  components: FormioComponent[];
+  formData: { [key: string]: any };
+  errors: { [key: string]: string };
+  onFieldChange: (fieldKey: string, value: any) => void;
+  onSubmit: () => void;
+  submitting: boolean;
+  renderField: (component: FormioComponent, ref?: React.RefObject<any>) => React.ReactNode;
+}
+
+// Helper to check if field type needs keyboard
+const isInputField = (component: FormioComponent) => {
+  return ['textfield', 'email', 'number', 'phone_number', 'textarea'].includes(component.type);
+};
+
+export const SteppedForm: React.FC<SteppedFormProps> = ({
+  title,
+  description,
+  components,
+  formData,
+  errors,
+  onFieldChange,
+  onSubmit,
+  submitting,
+  renderField,
+}) => {
+  const { theme } = useThemedStyles();
+  const [currentStep, setCurrentStep] = useState(0);
+  const inputRef = useRef<TextInput>(null);
+  
+  const totalSteps = components.length;
+  const currentComponent = components[currentStep];
+  const isLastStep = currentStep === totalSteps - 1;
+  const isFirstStep = currentStep === 0;
+  
+  const progress = ((currentStep + 1) / totalSteps) * 100;
+
+  const goToNextStep = () => {
+    if (isLastStep) {
+      onSubmit();
+    } else {
+      setCurrentStep(prev => prev + 1);
+    }
+  };
+
+  const goToPreviousStep = () => {
+    if (!isFirstStep) {
+      setCurrentStep(prev => prev - 1);
+    }
+  };
+
+  // Auto-focus input when step changes (for ALL field types)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      inputRef.current?.focus();
+    }, 300); // Small delay for smooth transition
+    
+    return () => clearTimeout(timer);
+  }, [currentStep]);
+
+  // Focus on mount (for ALL field types)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      inputRef.current?.focus();
+    }, 500); // Delay for component to fully mount
+    
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Auto-focus when returning to Forms tab (for ALL field types)
+  useFocusEffect(
+    React.useCallback(() => {
+      const timer = setTimeout(() => {
+        inputRef.current?.focus();
+      }, 300);
+      
+      return () => clearTimeout(timer);
+    }, [])
+  );
+
+  // Auto-advance when non-input field is filled
+  useEffect(() => {
+    if (!isInputField(currentComponent)) {
+      const value = formData[currentComponent?.key || ''];
+      if (value && !isLastStep) {
+        // Auto-advance after selection with small delay
+        const timer = setTimeout(() => {
+          goToNextStep();
+        }, 800); // Give user time to see their selection
+        
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [formData, currentComponent, isLastStep]);
+
+  return (
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.backgroundColor }]}>
+      {/* Header with progress */}
+      <View style={[styles.header, { borderBottomColor: theme.borderColor }]}>
+        <Text style={[styles.title, { color: theme.textColor }]}>{title}</Text>
+        {description && (
+          <Text style={[styles.description, { color: theme.placeholderColor }]}>
+            {description}
+          </Text>
+        )}
+        
+        {/* Progress Bar */}
+        <View style={styles.progressContainer}>
+          <View style={[styles.progressTrack, { backgroundColor: theme.borderColor }]}>
+            <View 
+              style={[
+                styles.progressFill,
+                { 
+                  backgroundColor: theme.primaryColor,
+                  width: `${progress}%`,
+                }
+              ]} 
+            />
+          </View>
+          <Text style={[styles.progressText, { color: theme.placeholderColor }]}>
+            Step {currentStep + 1} of {totalSteps}
+          </Text>
+        </View>
+      </View>
+
+      {/* Current Step Content */}
+      <KeyboardAvoidingView 
+        style={styles.content}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        {/* Step Content */}
+        <View style={styles.stepContainer}>
+          <View style={styles.stepHeader}>
+            <Text style={[styles.stepTitle, { color: theme.textColor }]}>
+              {currentComponent?.label}
+              {currentComponent?.validate?.required && <Text style={{ color: theme.errorColor }}> *</Text>}
+            </Text>
+            {currentComponent?.description && (
+              <Text style={[styles.stepDescription, { color: theme.placeholderColor }]}>
+                {currentComponent.description}
+              </Text>
+            )}
+          </View>
+
+          <View style={styles.fieldContainer}>
+            {renderField(currentComponent, inputRef)}
+          </View>
+          
+          {/* Auto-advance hint for non-input fields */}
+          {(currentComponent?.type === 'select' || currentComponent?.type === 'radio') && (
+            <View style={styles.hintContainer}>
+              <Text style={[styles.hintText, { color: theme.placeholderColor }]}>
+                Select an option to continue
+              </Text>
+            </View>
+          )}
+        </View>
+
+      </KeyboardAvoidingView>
+      
+      {/* iOS Input Accessory View - Navigation above keyboard for ALL fields */}
+      {Platform.OS === 'ios' && (
+        <InputAccessoryView nativeID="formNavigation">
+          <View style={[styles.inputAccessory, { backgroundColor: theme.backgroundColor, borderTopColor: theme.borderColor }]}>
+            {!isFirstStep && (
+              <TouchableOpacity
+                style={[styles.accessoryButton, { borderColor: theme.borderColor }]}
+                onPress={goToPreviousStep}
+              >
+                <Text style={[styles.accessoryButtonText, { color: theme.textColor }]}>
+                  ← Back
+                </Text>
+              </TouchableOpacity>
+            )}
+            
+            <View style={styles.accessoryProgress}>
+              <Text style={[styles.accessoryProgressText, { color: theme.placeholderColor }]}>
+                {currentStep + 1} of {totalSteps}
+              </Text>
+            </View>
+            
+            <TouchableOpacity
+              style={[styles.accessoryButton, { backgroundColor: theme.primaryColor }]}
+              onPress={goToNextStep}
+              disabled={submitting}
+            >
+              <Text style={[styles.accessoryButtonText, { color: '#FFFFFF' }]}>
+                {submitting ? 'Sending...' : isLastStep ? 'Submit' : 'Next →'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </InputAccessoryView>
+      )}
+    </SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  header: {
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    borderBottomWidth: 1,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  description: {
+    fontSize: 16,
+    lineHeight: 22,
+    marginBottom: 20,
+  },
+  progressContainer: {
+    marginTop: 16,
+  },
+  progressTrack: {
+    height: 6,
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    borderRadius: 3,
+    minWidth: 6,
+  },
+  progressText: {
+    fontSize: 12,
+    fontWeight: '500',
+    marginTop: 8,
+    textAlign: 'center',
+  },
+  content: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+  swipeArea: {
+    flex: 1,
+  },
+  stepContainer: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 32,
+    justifyContent: 'center',
+  },
+  stepHeader: {
+    marginBottom: 32,
+    alignItems: 'center',
+  },
+  stepTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  stepDescription: {
+    fontSize: 14,
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  fieldContainer: {
+    paddingHorizontal: 16,
+  },
+  hintContainer: {
+    marginTop: 16,
+    alignItems: 'center',
+  },
+  hintText: {
+    fontSize: 14,
+    fontWeight: '500',
+    textAlign: 'center',
+  },
+  inputAccessory: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderTopWidth: 1,
+  },
+  accessoryButton: {
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 80,
+  },
+  accessoryButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  accessoryProgress: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  accessoryProgressText: {
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  navigationBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    paddingBottom: Platform.OS === 'ios' ? 34 : 16,
+  },
+  navButton: {
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 80,
+  },
+  navButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  progressInfo: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  progressLabel: {
+    fontSize: 12,
+    fontWeight: '500',
+  },
+});
