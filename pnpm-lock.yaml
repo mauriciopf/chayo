@@ -17,12 +17,6 @@ importers:
 
   apps/mobile:
     dependencies:
-      '@chayo/config':
-        specifier: workspace:*
-        version: link:../../packages/config
-      '@chayo/formio':
-        specifier: workspace:*
-        version: link:../../packages/formio
       '@expo/cli':
         specifier: ^0.24.20
         version: 0.24.20
@@ -180,12 +174,6 @@ importers:
 
   apps/web:
     dependencies:
-      '@chayo/config':
-        specifier: file:../../packages/config
-        version: link:../../packages/config
-      '@chayo/formio':
-        specifier: file:../../packages/formio
-        version: link:../../packages/formio
       '@formio/react':
         specifier: ^6.1.0
         version: 6.1.0(@formio/core@2.5.1)(@formio/js@5.2.1(@popperjs/core@2.11.8))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -301,29 +289,6 @@ importers:
       tailwindcss:
         specifier: ^3.3.2
         version: 3.4.17
-      typescript:
-        specifier: ^5
-        version: 5.0.4
-
-  packages/config:
-    dependencies:
-      zod:
-        specifier: ^3.22.0
-        version: 3.25.76
-    devDependencies:
-      '@types/node':
-        specifier: ^20
-        version: 20.19.13
-      typescript:
-        specifier: ^5
-        version: 5.0.4
-
-  packages/formio:
-    dependencies:
-      zod:
-        specifier: ^3.25.76
-        version: 3.25.76
-    devDependencies:
       typescript:
         specifier: ^5
         version: 5.0.4

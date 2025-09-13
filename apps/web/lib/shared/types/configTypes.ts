@@ -1,5 +1,12 @@
 import { z } from 'zod';
-import { DEFAULT_THEME } from '@chayo/config';
+
+// Default theme constants (inlined for Vercel compatibility)
+const DEFAULT_THEME = {
+  primaryColor: '#0A84FF',
+  secondaryColor: '#2C2C2E',
+  backgroundColor: '#1C1C1E',
+  textColor: '#FFFFFF',
+};
 
 // Tool types that can be enabled/disabled
 export const AVAILABLE_TOOLS = [
@@ -14,7 +21,7 @@ export const AVAILABLE_TOOLS = [
 
 export type ToolType = typeof AVAILABLE_TOOLS[number];
 
-// Theme configuration - using centralized defaults
+// Theme configuration - using inlined defaults
 export const ThemeConfigSchema = z.object({
   primaryColor: z.string().default(DEFAULT_THEME.primaryColor),
   secondaryColor: z.string().default(DEFAULT_THEME.secondaryColor),
