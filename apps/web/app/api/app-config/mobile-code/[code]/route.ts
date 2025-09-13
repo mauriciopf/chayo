@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServerClient } from '@/lib/shared/supabase/server';
 import { AppConfigSchema } from '@/lib/shared/types/configTypes';
 import { isValidMobileAppCode } from '@/lib/shared/utils/mobileAppCode';
+import { DEFAULT_THEME } from '@chayo/config';
 
 export async function GET(
   request: NextRequest,
@@ -64,12 +65,7 @@ export async function GET(
       businessName: organization.name,
       mobileAppCode: organization.mobile_app_code,
       appName: 'Chayo', // Default for free tier
-      theme: brandingConfig?.theme_config || {
-        primaryColor: '#007AFF',
-        secondaryColor: '#5856D6',
-        backgroundColor: '#FFFFFF',
-        textColor: '#000000',
-      },
+      theme: brandingConfig?.theme_config || DEFAULT_THEME,
       enabledTools,
       webBaseUrl,
       apiBaseUrl,
@@ -89,12 +85,7 @@ export async function GET(
       businessName: 'Demo Business',
       mobileAppCode: mobileAppCode,
       appName: 'Chayo',
-      theme: {
-        primaryColor: '#007AFF',
-        secondaryColor: '#5856D6',
-        backgroundColor: '#FFFFFF',
-        textColor: '#000000',
-      },
+      theme: DEFAULT_THEME,
       enabledTools: ['appointments', 'payments', 'documents', 'faqs'],
       webBaseUrl: process.env.NEXT_PUBLIC_SITE_URL || 'https://chayo.vercel.app',
       apiBaseUrl: process.env.NEXT_PUBLIC_SITE_URL || 'https://chayo.vercel.app',

@@ -3,12 +3,10 @@
 import { useState, useEffect } from 'react';
 import { ThemeConfig, ThemeConfigSchema } from '@/lib/shared/types/configTypes';
 import { useUser } from '@/lib/shared/hooks/useUser';
+import { DEFAULT_THEME } from '@chayo/config';
 
 const DEFAULT_CONFIG: ThemeConfig = {
-  primaryColor: '#007AFF',
-  secondaryColor: '#5856D6', 
-  backgroundColor: '#FFFFFF',
-  textColor: '#000000',
+  ...DEFAULT_THEME,
   logoUrl: undefined,
 };
 

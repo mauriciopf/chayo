@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServerClient } from '@/lib/shared/supabase/server';
 import { ThemeConfigSchema } from '@/lib/shared/types/configTypes';
+import { DEFAULT_THEME } from '@chayo/config';
 
 export async function GET(
   request: NextRequest,
@@ -43,12 +44,7 @@ export async function GET(
     }
 
     // Return config or defaults
-    const themeConfig = config?.theme_config || {
-      primaryColor: '#007AFF',
-      secondaryColor: '#5856D6',
-      backgroundColor: '#FFFFFF',
-      textColor: '#000000',
-    };
+    const themeConfig = config?.theme_config || DEFAULT_THEME;
 
     return NextResponse.json(themeConfig);
   } catch (error) {
