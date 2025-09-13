@@ -25,6 +25,8 @@ try {
 }
 import { AppConfigProvider } from './src/context/AppConfigContext';
 import { ThemeProvider } from './src/context/ThemeContext';
+import { AuthProvider } from './src/context/AuthContext';
+import AuthErrorBoundary from './src/components/AuthErrorBoundary';
 import AppNavigator from './src/navigation/AppNavigator';
 import { OnboardingChatScreen } from './src/screens/OnboardingChatScreen';
 import { StorageService } from './src/services/StorageService';
@@ -210,14 +212,18 @@ function App(): React.JSX.Element {
       <StatusBar barStyle="light-content" backgroundColor="#1C1C1E" />
       <AppConfigProvider organizationId={organizationId || undefined}>
         <ThemeProvider>
-          <AppNavigator />
-          
-          {/* Welcome Modal - Now inside ThemeProvider */}
-          <WelcomeModal
-            visible={showWelcomeModal}
-            onTryDemo={handleTryDemo}
-            onEnterCode={handleEnterCode}
-          />
+          <AuthErrorBoundary>
+            <AuthProvider>
+              <AppNavigator />
+              
+              {/* Welcome Modal - Now inside ThemeProvider */}
+              <WelcomeModal
+                visible={showWelcomeModal}
+                onTryDemo={handleTryDemo}
+                onEnterCode={handleEnterCode}
+              />
+            </AuthProvider>
+          </AuthErrorBoundary>
         </ThemeProvider>
       </AppConfigProvider>
     </GestureHandlerRootView>

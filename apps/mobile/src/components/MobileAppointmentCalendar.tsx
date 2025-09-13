@@ -13,15 +13,15 @@ import {
 } from 'react-native';
 import { useThemedStyles } from '../context/ThemeContext';
 import { useTranslation } from '../hooks/useTranslation';
+import AuthGate from './AuthGate';
+import { useAppConfig } from '../hooks/useAppConfig';
+import { createCustomerInteraction } from '../services/authService';
 
 const { width } = Dimensions.get('window');
 
 interface AppointmentDetails {
   date: string;
   time: string;
-  name: string;
-  email: string;
-  phone: string;
   notes: string;
 }
 
@@ -38,6 +38,7 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
 }) => {
   const { theme, themedStyles } = useThemedStyles();
   const { t } = useTranslation();
+  const { config } = useAppConfig();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
@@ -46,9 +47,6 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
   const [appointmentDetails, setAppointmentDetails] = useState<AppointmentDetails>({
     date: '',
     time: '',
-    name: '',
-    email: '',
-    phone: '',
     notes: '',
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -125,38 +123,41 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
     }));
   };
 
-  const handleBookingSubmit = async () => {
-    // Validate required fields
-    if (!appointmentDetails.name || !appointmentDetails.email || !appointmentDetails.phone) {
-      Alert.alert('Error', 'Please fill in all required fields (Name, Email, Phone)');
-      return;
-    }
-
-    // Basic email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(appointmentDetails.email)) {
-      Alert.alert('Error', 'Please enter a valid email address');
-      return;
-    }
-
+  const handleAuthenticatedBooking = async (user: any, customerId: string) => {
     setIsLoading(true);
 
     try {
+      const appointmentData = {
+        organizationId: config?.organizationId || organizationId,
+        customerId,
+        clientName: user.fullName,
+        clientEmail: user.email,
+        appointmentDate: selectedDate ? formatDateForAPI(selectedDate) : '',
+        appointmentTime: selectedTime,
+        serviceType: 'General Consultation',
+        notes: appointmentDetails.notes,
+      };
+
+      // Track customer interaction
+      await createCustomerInteraction(
+        customerId,
+        config?.organizationId || organizationId,
+        'appointments',
+        {
+          date: appointmentData.appointmentDate,
+          time: appointmentData.appointmentTime,
+          service: appointmentData.serviceType,
+          notes: appointmentData.notes,
+        }
+      );
+
+      // Submit appointment
       const response = await fetch(`${baseUrl}/api/appointments`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          organizationId,
-          clientName: appointmentDetails.name,
-          clientEmail: appointmentDetails.email,
-          clientPhone: appointmentDetails.phone,
-          appointmentDate: appointmentDetails.date,
-          appointmentTime: appointmentDetails.time,
-          serviceType: 'General Consultation',
-          notes: appointmentDetails.notes,
-        }),
+        body: JSON.stringify(appointmentData),
       });
 
       const result = await response.json();
@@ -164,7 +165,7 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
       if (response.ok) {
         Alert.alert(
           'Success!',
-          `Your appointment has been booked for ${formatDate(selectedDate!)} at ${selectedTime}. We'll send you a confirmation email shortly.`,
+          `Your appointment has been booked for ${formatDate(selectedDate!)} at ${selectedTime}.\n\nConfirmation will be sent to ${user.email}`,
           [
             {
               text: 'OK',
@@ -177,9 +178,6 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
                 setAppointmentDetails({
                   date: '',
                   time: '',
-                  name: '',
-                  email: '',
-                  phone: '',
                   notes: '',
                 });
               },
@@ -241,48 +239,6 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
 
           <View style={[styles.form, { backgroundColor: theme.backgroundColor }]}>
             <View style={styles.inputGroup}>
-              <Text style={[styles.label, themedStyles.primaryText]}>Name *</Text>
-              <TextInput
-                style={[styles.input, { backgroundColor: theme.surfaceColor, color: theme.textColor, borderColor: theme.borderColor }]}
-                value={appointmentDetails.name}
-                onChangeText={(text) =>
-                  setAppointmentDetails(prev => ({ ...prev, name: text }))
-                }
-                placeholder="Enter your full name"
-                placeholderTextColor={theme.placeholderColor}
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={[styles.label, themedStyles.primaryText]}>Email *</Text>
-              <TextInput
-                style={[styles.input, { backgroundColor: theme.surfaceColor, color: theme.textColor, borderColor: theme.borderColor }]}
-                value={appointmentDetails.email}
-                onChangeText={(text) =>
-                  setAppointmentDetails(prev => ({ ...prev, email: text }))
-                }
-                placeholder="Enter your email address"
-                placeholderTextColor={theme.placeholderColor}
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={[styles.label, themedStyles.primaryText]}>Phone *</Text>
-              <TextInput
-                style={[styles.input, { backgroundColor: theme.surfaceColor, color: theme.textColor, borderColor: theme.borderColor }]}
-                value={appointmentDetails.phone}
-                onChangeText={(text) =>
-                  setAppointmentDetails(prev => ({ ...prev, phone: text }))
-                }
-                placeholder="Enter your phone number"
-                placeholderTextColor={theme.placeholderColor}
-                keyboardType="phone-pad"
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
               <Text style={[styles.label, themedStyles.primaryText]}>Notes (Optional)</Text>
               <TextInput
                 style={[styles.input, styles.textArea, { backgroundColor: theme.surfaceColor, color: theme.textColor, borderColor: theme.borderColor }]}
@@ -298,17 +254,24 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
               />
             </View>
 
-            <TouchableOpacity
-              style={[styles.bookButton, { backgroundColor: theme.primaryColor }, isLoading && styles.bookButtonDisabled]}
-              onPress={handleBookingSubmit}
-              disabled={isLoading}
+            <AuthGate
+              tool="appointments"
+              organizationId={config?.organizationId || organizationId}
+              onAuthenticated={handleAuthenticatedBooking}
+              title="Sign in to book your appointment"
+              message={`Confirm your appointment for ${formatDate(selectedDate!)} at ${selectedTime}`}
             >
-              {isLoading ? (
-                <ActivityIndicator color={theme.backgroundColor} />
-              ) : (
-                <Text style={[styles.bookButtonText, { color: theme.backgroundColor }]}>Book Appointment</Text>
-              )}
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.bookButton, { backgroundColor: theme.primaryColor }, isLoading && styles.bookButtonDisabled]}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <ActivityIndicator color={theme.backgroundColor} />
+                ) : (
+                  <Text style={[styles.bookButtonText, { color: theme.backgroundColor }]}>Book Appointment</Text>
+                )}
+              </TouchableOpacity>
+            </AuthGate>
           </View>
         </ScrollView>
       </SafeAreaView>

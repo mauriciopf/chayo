@@ -32,12 +32,18 @@ importers:
       '@expo/metro-config':
         specifier: ^0.20.17
         version: 0.20.17
+      '@invertase/react-native-apple-authentication':
+        specifier: ^2.4.1
+        version: 2.4.1
       '@react-native-async-storage/async-storage':
         specifier: ^2.1.0
         version: 2.2.0(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))
       '@react-native-community/datetimepicker':
         specifier: ^8.2.0
         version: 8.4.4(expo@53.0.22(@babel/core@7.28.3)(react-native-webview@13.16.0(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))(react@19.0.0))(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))(react@19.0.0))(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))(react@19.0.0)
+      '@react-native-google-signin/google-signin':
+        specifier: ^16.0.0
+        version: 16.0.0(expo@53.0.22(@babel/core@7.28.3)(react-native-webview@13.16.0(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))(react@19.0.0))(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))(react@19.0.0))(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))(react@19.0.0)
       '@react-native-picker/picker':
         specifier: ^2.9.0
         version: 2.11.1(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))(react@19.0.0)
@@ -50,6 +56,9 @@ importers:
       '@react-navigation/native-stack':
         specifier: ^7.3.25
         version: 7.3.26(@react-navigation/native@7.1.17(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))(react@19.0.0))(react-native-safe-area-context@5.6.1(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))(react@19.0.0))(react-native-screens@4.16.0(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))(react@19.0.0))(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))(react@19.0.0)
+      '@supabase/supabase-js':
+        specifier: ^2.57.0
+        version: 2.57.0
       base64-js:
         specifier: ^1.5.1
         version: 1.5.1
@@ -59,6 +68,9 @@ importers:
       expo:
         specifier: ^53.0.20
         version: 53.0.22(@babel/core@7.28.3)(react-native-webview@13.16.0(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))(react@19.0.0))(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))(react@19.0.0)
+      expo-crypto:
+        specifier: ^15.0.7
+        version: 15.0.7(expo@53.0.22(@babel/core@7.28.3)(react-native-webview@13.16.0(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))(react@19.0.0))(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))(react@19.0.0))
       expo-updates:
         specifier: ^0.28.17
         version: 0.28.17(expo@53.0.22(@babel/core@7.28.3)(react-native-webview@13.16.0(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))(react@19.0.0))(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))(react@19.0.0))(react@19.0.0)
@@ -101,6 +113,9 @@ importers:
       react-native-sse:
         specifier: ^1.2.1
         version: 1.2.1
+      react-native-url-polyfill:
+        specifier: ^2.0.0
+        version: 2.0.0(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))
       react-native-vector-icons:
         specifier: ^10.3.0
         version: 10.3.0
@@ -1364,6 +1379,10 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@invertase/react-native-apple-authentication@2.4.1':
+    resolution: {integrity: sha512-SzWXS/T6H62ScTX+jMLJFLAcBp2p8P30J5uQEimpLMUolqnv/iAljfpwTvZYaniVmMSUXjG0/N95ScUIcmsYRQ==}
+    engines: {node: '>=14'}
+
   '@isaacs/balanced-match@4.0.1':
     resolution: {integrity: sha512-yzMTt9lEb8Gv7zRioUilSglI0c0smZ9k5D65677DLWLtWJaXIS3CqcGyUFByYKlnUj6TkjLVs54fBl6+TiGQDQ==}
     engines: {node: 20 || >=22}
@@ -1621,6 +1640,16 @@ packages:
       expo:
         optional: true
       react-native-windows:
+        optional: true
+
+  '@react-native-google-signin/google-signin@16.0.0':
+    resolution: {integrity: sha512-jVuzPo8odREekFc0b4RK3YsqCvedtLIM2P6NSszFr9cYyhKrUNikffPapL6LmkL9qkb8K6pDeb5CXg4qALOc0g==}
+    peerDependencies:
+      expo: '>=52.0.40'
+      react: '*'
+      react-native: '*'
+    peerDependenciesMeta:
+      expo:
         optional: true
 
   '@react-native-picker/picker@2.11.1':
@@ -3499,6 +3528,11 @@ packages:
     peerDependencies:
       expo: '*'
       react-native: '*'
+
+  expo-crypto@15.0.7:
+    resolution: {integrity: sha512-FUo41TwwGT2e5rA45PsjezI868Ch3M6wbCZsmqTWdF/hr+HyPcrp1L//dsh/hsrsyrQdpY/U96Lu71/wXePJeg==}
+    peerDependencies:
+      expo: '*'
 
   expo-eas-client@0.14.4:
     resolution: {integrity: sha512-TSL1BbBFIuXchJmPgbPnB7cGpOOuSGJcQ/L7gij/+zPjExwvKm5ckA5dlSulwoFhH8zQt4vb7bfISPSAWQVWBw==}
@@ -5502,6 +5536,11 @@ packages:
 
   react-native-sse@1.2.1:
     resolution: {integrity: sha512-zejanlScF+IB9tYnbdry0MT34qjBXbiV/E72qGz33W/tX1bx8MXsbB4lxiuPETc9v/008vYZ60yjIstW22VlVg==}
+
+  react-native-url-polyfill@2.0.0:
+    resolution: {integrity: sha512-My330Do7/DvKnEvwQc0WdcBnFPploYKp9CYlefDXzIdEaA+PAhDYllkvGeEroEzvc4Kzzj2O4yVdz8v6fjRvhA==}
+    peerDependencies:
+      react-native: '*'
 
   react-native-vector-icons@10.3.0:
     resolution: {integrity: sha512-IFQ0RE57819hOUdFvgK4FowM5aMXg7C7XKsuGLevqXkkIJatc3QopN0wYrb2IrzUgmdpfP+QVIbI3S6h7M0btw==}
@@ -8142,6 +8181,8 @@ snapshots:
   '@img/sharp-win32-x64@0.34.3':
     optional: true
 
+  '@invertase/react-native-apple-authentication@2.4.1': {}
+
   '@isaacs/balanced-match@4.0.1': {}
 
   '@isaacs/brace-expansion@5.0.0':
@@ -8568,6 +8609,13 @@ snapshots:
     optionalDependencies:
       expo: 53.0.22(@babel/core@7.28.3)(react-native-webview@13.16.0(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))(react@19.0.0))(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))(react@19.0.0)
 
+  '@react-native-google-signin/google-signin@16.0.0(expo@53.0.22(@babel/core@7.28.3)(react-native-webview@13.16.0(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))(react@19.0.0))(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))(react@19.0.0))(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))(react@19.0.0)':
+    dependencies:
+      react: 19.0.0
+      react-native: 0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0)
+    optionalDependencies:
+      expo: 53.0.22(@babel/core@7.28.3)(react-native-webview@13.16.0(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))(react@19.0.0))(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))(react@19.0.0)
+
   '@react-native-picker/picker@2.11.1(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))(react@19.0.0)':
     dependencies:
       react: 19.0.0
@@ -8843,9 +8891,7 @@ snapshots:
     transitivePeerDependencies:
       - '@babel/core'
       - '@babel/preset-env'
-      - bufferutil
       - supports-color
-      - utf-8-validate
 
   '@react-native/normalize-colors@0.78.3': {}
 
@@ -10611,7 +10657,7 @@ snapshots:
       eslint: 8.57.1
       eslint-import-resolver-node: 0.3.9
       eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0(eslint@8.57.1))(eslint@8.57.1)
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.0.4))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(eslint@8.57.1))(eslint@8.57.1))(eslint@8.57.1)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.0.4))(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1)
       eslint-plugin-jsx-a11y: 6.10.2(eslint@8.57.1)
       eslint-plugin-react: 7.37.5(eslint@8.57.1)
       eslint-plugin-react-hooks: 5.0.0-canary-7118f5dd7-20230705(eslint@8.57.1)
@@ -10645,7 +10691,7 @@ snapshots:
       tinyglobby: 0.2.14
       unrs-resolver: 1.11.1
     optionalDependencies:
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.0.4))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(eslint@8.57.1))(eslint@8.57.1))(eslint@8.57.1)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.0.4))(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -10673,7 +10719,7 @@ snapshots:
       lodash: 4.17.21
       string-natural-compare: 3.0.1
 
-  eslint-plugin-import@2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.0.4))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(eslint@8.57.1))(eslint@8.57.1))(eslint@8.57.1):
+  eslint-plugin-import@2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.0.4))(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1):
     dependencies:
       '@rtsao/scc': 1.1.0
       array-includes: 3.1.9
@@ -10902,6 +10948,11 @@ snapshots:
       react-native: 0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0)
     transitivePeerDependencies:
       - supports-color
+
+  expo-crypto@15.0.7(expo@53.0.22(@babel/core@7.28.3)(react-native-webview@13.16.0(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))(react@19.0.0))(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))(react@19.0.0)):
+    dependencies:
+      base64-js: 1.5.1
+      expo: 53.0.22(@babel/core@7.28.3)(react-native-webview@13.16.0(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))(react@19.0.0))(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))(react@19.0.0)
 
   expo-eas-client@0.14.4: {}
 
@@ -13221,6 +13272,11 @@ snapshots:
       warn-once: 0.1.1
 
   react-native-sse@1.2.1: {}
+
+  react-native-url-polyfill@2.0.0(react-native@0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0)):
+    dependencies:
+      react-native: 0.78.3(@babel/core@7.28.3)(@babel/preset-env@7.28.3(@babel/core@7.28.3))(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0)
+      whatwg-url-without-unicode: 8.0.0-3
 
   react-native-vector-icons@10.3.0:
     dependencies:

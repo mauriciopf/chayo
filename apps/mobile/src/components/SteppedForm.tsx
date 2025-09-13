@@ -5,18 +5,17 @@ import {
   StyleSheet,
   TouchableOpacity,
   SafeAreaView,
-  KeyboardAvoidingView,
   Platform,
-  Dimensions,
   TextInput,
   InputAccessoryView,
+  KeyboardAvoidingView,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useThemedStyles } from '../context/ThemeContext';
-import { ModernFloatingInput } from './ModernFloatingInput';
+import AuthGate from './AuthGate';
+import { useAppConfig } from '../hooks/useAppConfig';
 import { FormioComponent } from '@chayo/formio';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 interface SteppedFormProps {
   title: string;
@@ -26,8 +25,10 @@ interface SteppedFormProps {
   errors: { [key: string]: string };
   onFieldChange: (fieldKey: string, value: any) => void;
   onSubmit: () => void;
+  onAuthenticatedSubmit?: (user: any, customerId: string) => void;
   submitting: boolean;
   renderField: (component: FormioComponent, ref?: React.RefObject<any>) => React.ReactNode;
+  organizationId?: string;
 }
 
 // Helper to check if field type needs keyboard
@@ -40,13 +41,14 @@ export const SteppedForm: React.FC<SteppedFormProps> = ({
   description,
   components,
   formData,
-  errors,
-  onFieldChange,
   onSubmit,
+  onAuthenticatedSubmit,
   submitting,
   renderField,
+  organizationId,
 }) => {
   const { theme } = useThemedStyles();
+  const { config } = useAppConfig();
   const [currentStep, setCurrentStep] = useState(0);
   const inputRef = useRef<TextInput>(null);
   
@@ -201,15 +203,34 @@ export const SteppedForm: React.FC<SteppedFormProps> = ({
               </Text>
             </View>
             
-            <TouchableOpacity
-              style={[styles.accessoryButton, { backgroundColor: theme.primaryColor }]}
-              onPress={goToNextStep}
-              disabled={submitting}
-            >
-              <Text style={[styles.accessoryButtonText, { color: '#FFFFFF' }]}>
-                {submitting ? 'Sending...' : isLastStep ? 'Submit' : 'Next →'}
-              </Text>
-            </TouchableOpacity>
+            {isLastStep && onAuthenticatedSubmit ? (
+              <AuthGate
+                tool="intake_forms"
+                organizationId={organizationId || config?.organizationId || ''}
+                onAuthenticated={onAuthenticatedSubmit}
+                title="Sign in to submit your form"
+                message="We need your email to send you a copy of your submission"
+              >
+                <TouchableOpacity
+                  style={[styles.accessoryButton, { backgroundColor: theme.primaryColor }]}
+                  disabled={submitting}
+                >
+                  <Text style={[styles.accessoryButtonText, { color: '#FFFFFF' }]}>
+                    {submitting ? 'Sending...' : 'Submit'}
+                  </Text>
+                </TouchableOpacity>
+              </AuthGate>
+            ) : (
+              <TouchableOpacity
+                style={[styles.accessoryButton, { backgroundColor: theme.primaryColor }]}
+                onPress={goToNextStep}
+                disabled={submitting}
+              >
+                <Text style={[styles.accessoryButtonText, { color: '#FFFFFF' }]}>
+                  {submitting ? 'Sending...' : isLastStep ? 'Submit' : 'Next →'}
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
         </InputAccessoryView>
       )}

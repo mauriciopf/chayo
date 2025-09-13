@@ -2,15 +2,12 @@ import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
-  TextInput,
-  TouchableOpacity,
-  ScrollView,
   StyleSheet,
   Alert,
   ActivityIndicator,
   Platform,
+  TouchableOpacity,
 } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {
   IntakeForm,
@@ -31,10 +28,11 @@ import {
 } from '@chayo/formio';
 import { intakeFormService } from '../services/IntakeFormService';
 import { useThemedStyles } from '../context/ThemeContext';
-import { useTranslation } from '../hooks/useTranslation';
 import { useCallback } from 'react';
 import { ModernFloatingInput } from './ModernFloatingInput';
 import { SteppedForm } from './SteppedForm';
+import { useAppConfig } from '../hooks/useAppConfig';
+import { createCustomerInteraction } from '../services/authService';
 
 interface MobileIntakeFormProps {
   formId: string;
@@ -253,6 +251,7 @@ export const MobileIntakeForm: React.FC<MobileIntakeFormProps> = ({
   onFormLoad,
 }) => {
   const { theme, themedStyles } = useThemedStyles();
+  const { config } = useAppConfig();
   const [form, setForm] = useState<IntakeForm | null>(null);
   const [formData, setFormData] = useState<{ [key: string]: any }>({});
   const [loading, setLoading] = useState(true);
@@ -353,6 +352,68 @@ export const MobileIntakeForm: React.FC<MobileIntakeFormProps> = ({
     }
   };
 
+  const handleAuthenticatedSubmit = async (user: any, customerId: string) => {
+    setSubmitting(true);
+
+    try {
+      // Validate form data
+      if (!form?.formio_definition) {
+        Alert.alert('Error', 'Form not loaded properly');
+        return;
+      }
+      
+      const validation = validateFormSubmission(form.formio_definition, { data: formData });
+      if (!validation.isValid) {
+        Alert.alert('Validation Error', validation.errors.join('\n'));
+        return;
+      }
+
+      // Track customer interaction
+      if (config?.organizationId) {
+        await createCustomerInteraction(
+          customerId,
+          config.organizationId,
+          'intake_forms',
+          {
+            formId,
+            formName: form.name,
+            submissionData: formData,
+          }
+        );
+      }
+
+      // Submit form with customer information
+      const result = await intakeFormService.submitForm(
+        formId,
+        { 
+          data: {
+            ...formData,
+            customerName: user.fullName,
+            customerEmail: user.email,
+            customerId,
+          }
+        },
+        { anonymousUserId }
+      );
+
+      Alert.alert('Success', `Form submitted successfully!\n\nA copy has been sent to ${user.email}`);
+      onSubmissionComplete?.(true, result.message);
+
+      // Reset form
+      if (form.formio_definition) {
+        const defaultValues = getFormDefaultValues(form.formio_definition);
+        setFormData(defaultValues);
+      }
+
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to submit form';
+      Alert.alert('Error', errorMessage);
+      onSubmissionComplete?.(false, errorMessage);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const renderField = (component: FormioComponent, ref?: React.RefObject<any>) => {
     if (!shouldShowComponent(component, formData)) {
       return null;
@@ -429,8 +490,10 @@ export const MobileIntakeForm: React.FC<MobileIntakeFormProps> = ({
       errors={errors}
       onFieldChange={handleFieldChange}
       onSubmit={handleSubmit}
+      onAuthenticatedSubmit={handleAuthenticatedSubmit}
       submitting={submitting}
       renderField={renderField}
+      organizationId={config?.organizationId}
     />
   );
 };

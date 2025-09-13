@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
   Alert,
@@ -17,6 +16,9 @@ import { useFocusEffect } from '@react-navigation/native';
 import { documentService, DocumentData, SignatureData } from '../services/DocumentService';
 import { useThemedStyles } from '../context/ThemeContext';
 import { useTranslation } from '../hooks/useTranslation';
+import AuthGate from './AuthGate';
+import { useAppConfig } from '../hooks/useAppConfig';
+import { createCustomerInteraction } from '../services/authService';
 
 interface MobileDocumentViewerProps {
   documentId: string;
@@ -33,6 +35,7 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
 }) => {
   const { theme, themedStyles } = useThemedStyles();
   const { t } = useTranslation();
+  const { config } = useAppConfig();
   const [document, setDocument] = useState<DocumentData | null>(null);
   const [loading, setLoading] = useState(true);
   const [signing, setSigning] = useState(false);
@@ -42,11 +45,7 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
   const [pdfUrl, setPdfUrl] = useState<string>('');
   const [showSigningForm, setShowSigningForm] = useState(false);
   const [webViewKey, setWebViewKey] = useState(0); // Force WebView reload
-  const [pdfLoaded, setPdfLoaded] = useState(false);
 
-  // Signing form data
-  const [signerName, setSignerName] = useState('');
-  const [signerEmail, setSignerEmail] = useState('');
 
   // PDF processing
   const [pdfBytes, setPdfBytes] = useState<ArrayBuffer | null>(null);
@@ -100,12 +99,7 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
     setShowSigningForm(true);
   };
 
-  const handleSubmitSignature = async () => {
-    if (!signerName.trim() || !signerEmail.trim()) {
-      Alert.alert('Error', 'Please fill in all required fields');
-      return;
-    }
-
+  const handleAuthenticatedSigning = async (user: any, customerId: string) => {
     if (!pdfBytes) {
       Alert.alert('Error', 'PDF not loaded. Please try again.');
       return;
@@ -115,9 +109,23 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
       setSigning(true);
 
       const signatureData: SignatureData = {
-        signerName: signerName.trim(),
-        signerEmail: signerEmail.trim(),
+        signerName: user.fullName,
+        signerEmail: user.email,
       };
+
+      // Track customer interaction
+      if (config?.organizationId) {
+        await createCustomerInteraction(
+          customerId,
+          config.organizationId,
+          'documents',
+          {
+            documentId,
+            documentName: document?.file_name,
+            signedAt: new Date().toISOString(),
+          }
+        );
+      }
 
       // Process PDF with pdf-lib (add signature)
       const signedPdfBytes = await documentService.processPdf(
@@ -134,12 +142,13 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
 
       Alert.alert(
         'Success',
-        'Document signed successfully!',
+        `Document signed successfully!\n\nA copy has been sent to ${user.email}`,
         [
           {
             text: 'OK',
             onPress: () => {
               onSigningComplete?.(true, 'Document signed successfully');
+              setShowSigningForm(false);
             },
           },
         ]
@@ -157,8 +166,6 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
 
   const handleCancelSigning = () => {
     setShowSigningForm(false);
-    setSignerName('');
-    setSignerEmail('');
   };
 
   if (loading) {
@@ -202,30 +209,6 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
             </View>
 
             <View style={styles.form}>
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Full Name *</Text>
-                <TextInput
-                  style={styles.input}
-                  value={signerName}
-                  onChangeText={setSignerName}
-                  placeholder="Enter your full name"
-                  placeholderTextColor="#8E8E93"
-                />
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Email Address *</Text>
-                <TextInput
-                  style={styles.input}
-                  value={signerEmail}
-                  onChangeText={setSignerEmail}
-                  placeholder="Enter your email address"
-                  placeholderTextColor="#8E8E93"
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                />
-              </View>
-
               <View style={styles.buttonGroup}>
                 <TouchableOpacity
                   style={styles.cancelButton}
@@ -235,17 +218,24 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
                   <Text style={styles.cancelButtonText}>Cancel</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity
-                  style={[styles.signButton, signing && styles.signButtonDisabled]}
-                  onPress={handleSubmitSignature}
-                  disabled={signing}
+                <AuthGate
+                  tool="documents"
+                  organizationId={config?.organizationId}
+                  onAuthenticated={handleAuthenticatedSigning}
+                  title="Sign in to sign this document"
+                  message={`Digitally sign "${document?.file_name}"`}
                 >
-                  {signing ? (
-                    <ActivityIndicator size="small" color="#FFFFFF" />
-                  ) : (
-                    <Text style={styles.signButtonText}>Sign Document</Text>
-                  )}
-                </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.signButton, signing && styles.signButtonDisabled]}
+                    disabled={signing}
+                  >
+                    {signing ? (
+                      <ActivityIndicator size="small" color="#FFFFFF" />
+                    ) : (
+                      <Text style={styles.signButtonText}>Sign Document</Text>
+                    )}
+                  </TouchableOpacity>
+                </AuthGate>
               </View>
             </View>
           </ScrollView>
@@ -280,7 +270,6 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
               const { nativeEvent } = syntheticEvent;
               console.error('WebView Error:', nativeEvent);
               setError('Failed to load document');
-              setPdfLoaded(false);
             }}
             startInLoadingState={true}
             renderLoading={() => (
@@ -293,11 +282,9 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
             )}
             onLoadStart={() => {
               console.log('WebView started loading');
-              setPdfLoaded(false);
             }}
             onLoadEnd={() => {
               console.log('WebView finished loading');
-              setPdfLoaded(true);
             }}
             // Additional WebView props for better PDF handling
             allowsFullscreenVideo={false}
