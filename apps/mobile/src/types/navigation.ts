@@ -24,8 +24,26 @@ interface Product {
   updated_at: string;
 }
 
+// Business interface for marketplace navigation
+interface Business {
+  id: string;
+  name: string;
+  slug: string;
+  category: string;
+  representative_image_url?: string;
+  description?: string;
+  rating: number;
+  review_count: number;
+  mobile_app_code: string;
+}
+
 // Define the parameter list for stack navigation
 export type RootStackParamList = {
+  Marketplace: undefined;
+  BusinessDetail: { 
+    business: Business;
+    organizationId: string;
+  };
   MainTabs: undefined;
   Login: undefined;
   ProductDetail: { product: Product };
