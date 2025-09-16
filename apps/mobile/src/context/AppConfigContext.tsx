@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { AppConfig, ConfigLoader, ToolUrlGenerator } from '../lib/config';
+import { AppConfig, ConfigLoader } from '../lib/config';
 import { UseAppConfigReturn } from '../hooks/useAppConfig';
 
 // Configuration constants
@@ -28,36 +28,24 @@ export const AppConfigProvider: React.FC<AppConfigProviderProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const configLoader = React.useMemo(() => new ConfigLoader({
-    webBaseUrl: CONFIG.WEB_BASE_URL,
-    apiBaseUrl: CONFIG.API_BASE_URL,
-  }), []);
 
   const loadConfig = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
-      let loadedConfig: AppConfig;
+      let loadedConfig: AppConfig | null;
 
       if (organizationId) {
         // Load by organization ID (most common - from stored data)
-        loadedConfig = await configLoader.loadConfigById(organizationId);
-      } else if (organizationSlug) {
-        // Load by organization slug (QR code flow)
-        loadedConfig = await configLoader.loadConfigBySlug(organizationSlug);
-      } else if (userEmail) {
-        // Load by email (login flow)
-        loadedConfig = await configLoader.loadConfigByEmail(userEmail);
+        loadedConfig = await ConfigLoader.loadConfig(organizationId);
       } else {
         throw new Error('Either organizationId, organizationSlug, or userEmail must be provided');
       }
 
       setConfig(loadedConfig);
 
-      // Create URL generator
-      const generator = configLoader.createUrlGenerator(loadedConfig.organizationSlug);
-      setUrlGenerator(generator);
+      // Create URL generator removed
 
     } catch (err) {
       console.error('Config loading failed:', err);
@@ -66,7 +54,7 @@ export const AppConfigProvider: React.FC<AppConfigProviderProps> = ({
     } finally {
       setLoading(false);
     }
-  }, [organizationId, organizationSlug, userEmail, configLoader]);
+  }, [organizationId, organizationSlug, userEmail]);
 
   const refetch = async () => {
     await loadConfig();

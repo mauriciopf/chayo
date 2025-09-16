@@ -25,6 +25,7 @@ try {
 }
 import { AuthProvider } from './src/context/AuthContext';
 import AuthErrorBoundary from './src/components/AuthErrorBoundary';
+import LoadingScreen from './src/components/LoadingScreen';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import MarketplaceScreen from './src/screens/MarketplaceScreen';
@@ -83,13 +84,10 @@ function App(): React.JSX.Element {
 
   if (!appReady) {
     return (
-      <View style={styles.loadingContainer}>
-        <StatusBar barStyle="light-content" backgroundColor="#000000" />
-        <ActivityIndicator size="large" color="#007AFF" />
-        <Text style={styles.loadingText}>
-          {isUpdateAvailable ? 'Updating Chayo...' : 'Loading Marketplace...'}
-        </Text>
-      </View>
+      <LoadingScreen 
+        message={isUpdateAvailable ? 'Updating Chayo...' : 'Loading Marketplace...'}
+        subMessage="Setting up your business discovery experience"
+      />
     );
   }
 

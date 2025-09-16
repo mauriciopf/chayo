@@ -70,19 +70,6 @@ export class ConfigLoader {
       return null;
     }
   }
-
-  static async loadConfigByCode(code: string): Promise<AppConfig | null> {
-    try {
-      const response = await fetch(`https://chayo.vercel.app/api/app-config/mobile-code/${code}`);
-      if (!response.ok) {
-        throw new Error(`Failed to load config by code: ${response.status}`);
-      }
-      return await response.json();
-    } catch (error) {
-      console.error('Failed to load app config by code:', error);
-      return null;
-    }
-  }
 }
 
 // Tool URL generator class

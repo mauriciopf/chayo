@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,6 +11,8 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import { AppConfigProvider } from '../context/AppConfigContext';
 import { ThemeProvider } from '../context/ThemeContext';
 import BusinessTabNavigator from '../navigation/BusinessTabNavigator';
+import LoadingScreen from '../components/LoadingScreen';
+import { supabase } from '../services/authService';
 
 interface Business {
   id: string;
@@ -21,7 +23,6 @@ interface Business {
   description?: string;
   rating: number;
   review_count: number;
-  mobile_app_code: string;
 }
 
 interface BusinessDetailScreenProps {
@@ -33,10 +34,73 @@ export default function BusinessDetailScreen() {
   const route = useRoute();
   const navigation = useNavigation();
   const { business, organizationId } = route.params as BusinessDetailScreenProps;
+  const [isLoadingConfig, setIsLoadingConfig] = useState(true);
+  const [configError, setConfigError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Load business configuration
+    const loadBusinessConfig = async () => {
+      try {
+        setIsLoadingConfig(true);
+        setConfigError(null);
+        
+        // Verify the business exists and is active
+        const { data: businessData, error } = await supabase
+          .from('organizations')
+          .select('id, name, slug, active')
+          .eq('id', organizationId)
+          .eq('active', true)
+          .single();
+
+        if (error || !businessData) {
+          throw new Error('Business not found or inactive');
+        }
+
+        // Small delay to show the beautiful loading animation
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        setIsLoadingConfig(false);
+      } catch (error) {
+        console.error('Error loading business config:', error);
+        setConfigError('Unable to load business configuration');
+        setIsLoadingConfig(false);
+      }
+    };
+
+    loadBusinessConfig();
+  }, [organizationId]);
 
   const handleBackToMarketplace = () => {
     navigation.navigate('Marketplace');
   };
+
+  // Show loading screen while loading config
+  if (isLoadingConfig) {
+    return (
+      <LoadingScreen 
+        message={`Loading ${business.name}...`}
+        subMessage="Preparing your business experience"
+      />
+    );
+  }
+
+  // Show error screen if config failed to load
+  if (configError) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <StatusBar barStyle="light-content" backgroundColor="#1C1C1E" />
+        <View style={styles.errorContainer}>
+          <TouchableOpacity style={styles.backButton} onPress={handleBackToMarketplace}>
+            <Text style={styles.backButtonText}>← Back to Marketplace</Text>
+          </TouchableOpacity>
+          <Text style={styles.errorText}>{configError}</Text>
+          <TouchableOpacity style={styles.retryButton} onPress={() => window.location.reload()}>
+            <Text style={styles.retryButtonText}>Try Again</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -58,7 +122,7 @@ export default function BusinessDetailScreen() {
 
       {/* Business App Content - Loads app-config for selected business */}
       <View style={styles.appContainer}>
-        <AppConfigProvider organizationId={organizationId}>
+        <AppConfigProvider organizationId={organizationId} businessName={business.name}>
           <ThemeProvider>
             <BusinessTabNavigator 
               businessName={business.name}
@@ -163,5 +227,31 @@ const styles = StyleSheet.create({
   },
   appContainer: {
     flex: 1,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 32,
+    backgroundColor: '#1C1C1E',
+  },
+  errorText: {
+    fontSize: 18,
+    color: '#FF453A',
+    textAlign: 'center',
+    marginVertical: 24,
+    lineHeight: 24,
+  },
+  retryButton: {
+    backgroundColor: '#007AFF',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+    marginTop: 16,
+  },
+  retryButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });

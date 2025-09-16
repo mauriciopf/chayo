@@ -28,20 +28,39 @@ export const useTheme = (): ThemeColors => {
   // Use configured theme or fallback to defaults
   const theme = config?.theme || defaultTheme;
 
+  // Ensure all theme properties exist and are strings
+  const safeTheme = {
+    primary: theme.primary || defaultTheme.primary,
+    secondary: theme.secondary || defaultTheme.secondary,
+    accent: theme.accent || defaultTheme.accent,
+    background: theme.background || defaultTheme.background,
+    surface: theme.surface || defaultTheme.surface,
+    text: theme.text || defaultTheme.text,
+    textSecondary: theme.textSecondary || defaultTheme.textSecondary,
+    border: theme.border || defaultTheme.border,
+    success: theme.success || defaultTheme.success,
+    warning: theme.warning || defaultTheme.warning,
+    error: theme.error || defaultTheme.error,
+    info: theme.info || defaultTheme.info,
+  };
+
   // Determine if we're using a dark theme based on background color
-  const isDark = isColorDark(theme.backgroundColor);
+  const isDark = isColorDark(safeTheme.background);
 
   // Generate derived colors based on the theme
   const derivedColors = {
-    surfaceColor: isDark ? lighten(theme.backgroundColor, 0.1) : darken(theme.backgroundColor, 0.05),
-    borderColor: isDark ? lighten(theme.backgroundColor, 0.2) : darken(theme.backgroundColor, 0.1),
-    placeholderColor: isDark ? lighten(theme.textColor, -0.4) : darken(theme.textColor, -0.4),
+    surfaceColor: isDark ? lighten(safeTheme.background, 0.1) : darken(safeTheme.background, 0.05),
+    borderColor: isDark ? lighten(safeTheme.background, 0.2) : darken(safeTheme.background, 0.1),
+    placeholderColor: isDark ? lighten(safeTheme.text, -0.4) : darken(safeTheme.text, -0.4),
     errorColor: '#FF453A', // iOS system red
     successColor: '#30D158', // iOS system green
   };
 
   return {
-    ...theme,
+    primaryColor: safeTheme.primary,
+    secondaryColor: safeTheme.secondary,
+    backgroundColor: safeTheme.background,
+    textColor: safeTheme.text,
     ...derivedColors,
   };
 };
@@ -50,11 +69,16 @@ export const useTheme = (): ThemeColors => {
  * Utility function to determine if a color is dark
  */
 function isColorDark(color: string): boolean {
+  // Safety check
+  if (!color || typeof color !== 'string') {
+    return false; // Default to light theme
+  }
+  
   // Convert hex to RGB
   const hex = color.replace('#', '');
-  const r = parseInt(hex.substr(0, 2), 16);
-  const g = parseInt(hex.substr(2, 2), 16);
-  const b = parseInt(hex.substr(4, 2), 16);
+  const r = parseInt(hex.substr(0, 2), 16) || 0;
+  const g = parseInt(hex.substr(2, 2), 16) || 0;
+  const b = parseInt(hex.substr(4, 2), 16) || 0;
 
   // Calculate luminance
   const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
