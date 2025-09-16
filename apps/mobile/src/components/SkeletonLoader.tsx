@@ -21,46 +21,48 @@ export const SkeletonBox: React.FC<SkeletonLoaderProps> = ({
   borderRadius = 8,
   style 
 }) => {
-  const shimmerValue = useRef(new Animated.Value(0)).current;
+  const translateX = useRef(new Animated.Value(-boxWidth)).current;
 
   useEffect(() => {
     const shimmerAnimation = Animated.loop(
-      Animated.sequence([
-        Animated.timing(shimmerValue, {
-          toValue: 1,
-          duration: 1500,
-          useNativeDriver: false,
-        }),
-        Animated.timing(shimmerValue, {
-          toValue: 0,
-          duration: 1500,
-          useNativeDriver: false,
-        }),
-      ])
+      Animated.timing(translateX, {
+        toValue: boxWidth,
+        duration: 1500,
+        useNativeDriver: true,
+      })
     );
 
     shimmerAnimation.start();
 
     return () => shimmerAnimation.stop();
-  }, [shimmerValue]);
-
-  const shimmerColor = shimmerValue.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['#E5E5EA', '#F2F2F7'],
-  });
+  }, [translateX, boxWidth]);
 
   return (
-    <Animated.View
+    <View
       style={[
         {
           width: boxWidth,
           height,
           borderRadius,
-          backgroundColor: shimmerColor,
+          backgroundColor: '#E5E5EA',
+          overflow: 'hidden',
         },
         style,
       ]}
-    />
+    >
+      <Animated.View
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: '#F2F2F7',
+          opacity: 0.7,
+          transform: [{ translateX }],
+        }}
+      />
+    </View>
   );
 };
 

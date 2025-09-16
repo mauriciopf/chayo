@@ -224,6 +224,8 @@ const styles = StyleSheet.create({
   },
   appContainer: {
     flex: 1,
+    marginTop: 0,
+    paddingTop: 0,
   },
   errorContainer: {
     flex: 1,

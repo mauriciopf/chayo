@@ -7,12 +7,12 @@ import {
   TouchableOpacity,
   StyleSheet,
   Dimensions,
-  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useThemedStyles } from '../context/ThemeContext';
 import { useTranslation } from '../hooks/useTranslation';
+import { SkeletonBox } from '../components/SkeletonLoader';
 import Icon from 'react-native-vector-icons/Feather';
 
 interface Product {
@@ -98,7 +98,11 @@ export const ProductDetailScreen: React.FC = () => {
               />
               {imageLoading && (
                 <View style={styles.imageLoadingOverlay}>
-                  <ActivityIndicator size="large" color={theme.primaryColor} />
+                  <SkeletonBox 
+                    width={screenWidth} 
+                    height={300} 
+                    borderRadius={0}
+                  />
                 </View>
               )}
             </View>
@@ -252,9 +256,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.3)',
+    backgroundColor: '#F2F2F7',
   },
   gradientContainer: {
     width: '100%',

@@ -120,6 +120,7 @@ export default function LoginModal({
   };
 
   const handleClose = () => {
+    console.log('LoginModal: Close button pressed');
     resetForm();
     onClose();
   };
@@ -237,11 +238,19 @@ export default function LoginModal({
       top: 16,
       right: 16,
       padding: 8,
+      zIndex: 10,
+      backgroundColor: 'rgba(0, 0, 0, 0.1)',
+      borderRadius: 20,
+      width: 40,
+      height: 40,
+      justifyContent: 'center',
+      alignItems: 'center',
     },
     closeButtonText: {
-      fontSize: 24,
+      fontSize: 20,
       color: theme.textColor,
-      opacity: 0.5,
+      opacity: 0.8,
+      fontWeight: 'bold',
     },
     loadingOverlay: {
       ...StyleSheet.absoluteFillObject,
@@ -259,16 +268,30 @@ export default function LoginModal({
       animationType="fade"
       onRequestClose={handleClose}
     >
-      <KeyboardAvoidingView 
+      <TouchableOpacity 
         style={styles.overlay} 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        activeOpacity={1}
+        onPress={handleClose}
       >
+        <KeyboardAvoidingView 
+          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }} 
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
         <ScrollView 
           contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}
           keyboardShouldPersistTaps="handled"
         >
-          <View style={styles.container}>
-            <TouchableOpacity style={styles.closeButton} onPress={handleClose}>
+          <TouchableOpacity 
+            style={styles.container}
+            activeOpacity={1}
+            onPress={(e) => e.stopPropagation()}
+          >
+            <TouchableOpacity 
+              style={styles.closeButton} 
+              onPress={handleClose}
+              activeOpacity={0.7}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
               <Text style={styles.closeButtonText}>×</Text>
             </TouchableOpacity>
 
@@ -375,9 +398,10 @@ export default function LoginModal({
                 <ActivityIndicator size="large" color={theme.primaryColor} />
               </View>
             )}
-          </View>
+          </TouchableOpacity>
         </ScrollView>
-      </KeyboardAvoidingView>
+        </KeyboardAvoidingView>
+      </TouchableOpacity>
     </Modal>
   );
 }
