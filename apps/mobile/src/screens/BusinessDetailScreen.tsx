@@ -100,7 +100,7 @@ export default function BusinessDetailScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#1C1C1E" />
       
       {/* Business Header with Back Button */}
@@ -112,6 +112,9 @@ export default function BusinessDetailScreen() {
         <View style={styles.businessInfo}>
           <Text style={styles.businessName}>{business.name}</Text>
         </View>
+        
+        {/* Spacer to balance the back button and center the title */}
+        <View style={styles.headerSpacer} />
       </View>
 
       {/* Business App Content - Loads app-config for selected business */}
@@ -125,7 +128,7 @@ export default function BusinessDetailScreen() {
           </ThemeProvider>
         </AppConfigProvider>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -189,7 +192,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingTop: 50, // Account for status bar
+    paddingBottom: 16,
     backgroundColor: '#1C1C1E',
     borderBottomWidth: 1,
     borderBottomColor: '#2C2C2E',
@@ -202,6 +206,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#007AFF',
     fontWeight: '500',
+  },
+  headerSpacer: {
+    width: 60, // Match approximate back button width to center title
   },
   businessInfo: {
     flex: 1,

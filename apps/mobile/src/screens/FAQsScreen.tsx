@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import LoadingScreen from '../components/LoadingScreen';
 import { SwipeFAQCards } from '../components/SwipeFAQCards';
 import { useAppConfig } from '../hooks/useAppConfig';
@@ -102,7 +102,7 @@ export const FAQsScreen: React.FC = () => {
 
   if (error) {
     return (
-      <SafeAreaView style={[styles.container, themedStyles.container]}>
+      <View style={[styles.container, themedStyles.container]}>
         <View style={styles.errorContainer}>
           <Text style={[styles.errorTitle, { color: theme.textColor }]}>
             Oops!
@@ -111,12 +111,12 @@ export const FAQsScreen: React.FC = () => {
             {error}
           </Text>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView style={[styles.container, themedStyles.container]}>
+    <View style={[styles.container, themedStyles.container]}>
       <View style={styles.header}>
         <Text style={[styles.headerTitle, { color: theme.textColor }]}>
           Help & FAQs
@@ -131,7 +131,7 @@ export const FAQsScreen: React.FC = () => {
         onSwipeLeft={handleSwipeLeft}
         onSwipeRight={handleSwipeRight}
       />
-    </SafeAreaView>
+    </View>
   );
 };
 

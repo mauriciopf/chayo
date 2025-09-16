@@ -8,7 +8,6 @@ import {
   StyleSheet,
   Dimensions,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useThemedStyles } from '../context/ThemeContext';
 import { useTranslation } from '../hooks/useTranslation';
@@ -64,7 +63,7 @@ export const ProductDetailScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={[styles.container, themedStyles.container]}>
+    <View style={[styles.container, themedStyles.container]}>
       {/* Header */}
       <View style={[styles.header, { borderBottomColor: theme.borderColor }]}>
         <TouchableOpacity
@@ -202,7 +201,7 @@ export const ProductDetailScreen: React.FC = () => {
           </View>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -214,7 +213,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingTop: 50, // Account for status bar
+    paddingBottom: 12,
     borderBottomWidth: 1,
   },
   backButton: {

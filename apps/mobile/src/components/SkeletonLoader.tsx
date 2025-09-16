@@ -5,6 +5,7 @@ import {
   Animated,
   Dimensions,
 } from 'react-native';
+import { useThemedStyles } from '../context/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
@@ -21,6 +22,7 @@ export const SkeletonBox: React.FC<SkeletonLoaderProps> = ({
   borderRadius = 8,
   style 
 }) => {
+  const { theme } = useThemedStyles();
   const translateX = useRef(new Animated.Value(-boxWidth)).current;
 
   useEffect(() => {
@@ -37,6 +39,10 @@ export const SkeletonBox: React.FC<SkeletonLoaderProps> = ({
     return () => shimmerAnimation.stop();
   }, [translateX, boxWidth]);
 
+  // Use theme-aware colors
+  const baseColor = theme.surfaceColor || '#2C2C2E';
+  const shimmerColor = theme.borderColor || '#3A3A3C';
+
   return (
     <View
       style={[
@@ -44,7 +50,7 @@ export const SkeletonBox: React.FC<SkeletonLoaderProps> = ({
           width: boxWidth,
           height,
           borderRadius,
-          backgroundColor: '#E5E5EA',
+          backgroundColor: baseColor,
           overflow: 'hidden',
         },
         style,
@@ -57,8 +63,8 @@ export const SkeletonBox: React.FC<SkeletonLoaderProps> = ({
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundColor: '#F2F2F7',
-          opacity: 0.7,
+          backgroundColor: shimmerColor,
+          opacity: 0.6,
           transform: [{ translateX }],
         }}
       />
@@ -68,10 +74,11 @@ export const SkeletonBox: React.FC<SkeletonLoaderProps> = ({
 
 // Product Card Skeleton
 export const ProductCardSkeleton: React.FC = () => {
+  const { themedStyles } = useThemedStyles();
   const cardWidth = (width - 48) / 2; // Same as marketplace cards
 
   return (
-    <View style={[styles.productCard, { width: cardWidth }]}>
+    <View style={[styles.productCard, themedStyles.surface, { width: cardWidth }]}>
       {/* Product Image Skeleton */}
       <SkeletonBox 
         width={cardWidth - 24} 
@@ -124,8 +131,9 @@ export const ProductsSkeleton: React.FC<ProductsSkeletonProps> = ({ count = 6 })
 
 // FAQ Item Skeleton
 export const FAQSkeleton: React.FC = () => {
+  const { themedStyles } = useThemedStyles();
   return (
-    <View style={styles.faqItem}>
+    <View style={[styles.faqItem, themedStyles.surface]}>
       <SkeletonBox width={width - 64} height={20} borderRadius={4} style={{ marginBottom: 8 }} />
       <SkeletonBox width={width - 100} height={16} borderRadius={4} style={{ marginBottom: 4 }} />
       <SkeletonBox width={width - 120} height={16} borderRadius={4} />
@@ -135,8 +143,9 @@ export const FAQSkeleton: React.FC = () => {
 
 // Appointment Card Skeleton
 export const AppointmentSkeleton: React.FC = () => {
+  const { themedStyles } = useThemedStyles();
   return (
-    <View style={styles.appointmentCard}>
+    <View style={[styles.appointmentCard, themedStyles.surface]}>
       <View style={styles.appointmentHeader}>
         <SkeletonBox width={120} height={18} borderRadius={4} />
         <SkeletonBox width={60} height={16} borderRadius={4} />
@@ -149,8 +158,9 @@ export const AppointmentSkeleton: React.FC = () => {
 
 // Document Item Skeleton
 export const DocumentSkeleton: React.FC = () => {
+  const { themedStyles } = useThemedStyles();
   return (
-    <View style={styles.documentItem}>
+    <View style={[styles.documentItem, themedStyles.surface]}>
       <View style={styles.documentIcon}>
         <SkeletonBox width={40} height={40} borderRadius={8} />
       </View>
@@ -164,7 +174,6 @@ export const DocumentSkeleton: React.FC = () => {
 
 const styles = StyleSheet.create({
   productCard: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 12,
     marginBottom: 16,
@@ -198,7 +207,6 @@ const styles = StyleSheet.create({
     paddingTop: 16,
   },
   faqItem: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 16,
     marginHorizontal: 16,
@@ -213,7 +221,6 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   appointmentCard: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 16,
     marginHorizontal: 16,
@@ -235,7 +242,6 @@ const styles = StyleSheet.create({
   documentItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 16,
     marginHorizontal: 16,

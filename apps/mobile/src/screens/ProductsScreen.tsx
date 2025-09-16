@@ -8,7 +8,6 @@ import {
   RefreshControl,
   Dimensions,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useThemedStyles } from '../context/ThemeContext';
 import { useTranslation } from '../hooks/useTranslation';
 import { useAppConfig } from '../hooks/useAppConfig';
@@ -149,14 +148,14 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({ navigation }) =>
 
   if (error && !refreshing) {
     return (
-      <SafeAreaView style={[styles.container, themedStyles.container]}>
+      <View style={[styles.container, themedStyles.container]}>
         {renderError()}
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView style={[styles.container, themedStyles.container]}>
+    <View style={[styles.container, themedStyles.container]}>
       <View style={styles.header}>
         <Text style={[styles.title, { color: theme.textColor }]}>
           {t('products.title')}
@@ -184,7 +183,7 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({ navigation }) =>
         }
         ListEmptyComponent={renderEmptyState}
       />
-    </SafeAreaView>
+    </View>
   );
 };
 

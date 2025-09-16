@@ -276,11 +276,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   content: {
-    width: 200,
-    height: 200,
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
+    width: '100%',
   },
   centralCore: {
     width: 60,

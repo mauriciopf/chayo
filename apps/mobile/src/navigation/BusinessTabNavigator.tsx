@@ -81,6 +81,13 @@ function MainTabNavigator({ businessName, onBackToMarketplace }: BusinessTabNavi
   const { theme } = useThemedStyles();
   const { t } = useTranslation();
 
+  // Debug: Log actual theme values being used
+  console.log('🎨 BusinessTabNavigator theme:', {
+    secondaryColor: theme.secondaryColor,
+    primaryColor: theme.primaryColor,
+    backgroundColor: theme.backgroundColor,
+  });
+
   if (!config) {
     return (
       <LoadingScreen />
