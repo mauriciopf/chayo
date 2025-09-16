@@ -84,10 +84,7 @@ function App(): React.JSX.Element {
 
   if (!appReady) {
     return (
-      <LoadingScreen 
-        message={isUpdateAvailable ? 'Updating Chayo...' : 'Loading Marketplace...'}
-        subMessage="Setting up your business discovery experience"
-      />
+      <LoadingScreen />
     );
   }
 
