@@ -114,15 +114,12 @@ export default function BusinessDetailScreen() {
         
         <View style={styles.businessInfo}>
           <Text style={styles.businessName}>{business.name}</Text>
-          <Text style={styles.businessCategory}>
-            {getCategoryIcon(business.category)} {getCategoryLabel(business.category)}
-          </Text>
         </View>
       </View>
 
       {/* Business App Content - Loads app-config for selected business */}
       <View style={styles.appContainer}>
-        <AppConfigProvider organizationId={organizationId} businessName={business.name}>
+        <AppConfigProvider organizationId={organizationId} organizationSlug={business.slug}>
           <ThemeProvider>
             <BusinessTabNavigator 
               businessName={business.name}

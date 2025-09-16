@@ -3,26 +3,21 @@
 
 export interface AppConfig {
   organizationId: string;
-  name: string;
-  slug: string;
+  organizationSlug: string;
+  businessName: string;
+  appName: string;
   theme: ThemeConfig;
-  tools: ToolConfig[];
-  branding: BrandingConfig;
+  enabledTools: string[];
+  webBaseUrl: string;
+  apiBaseUrl: string;
 }
 
 export interface ThemeConfig {
-  primary: string;
-  secondary: string;
-  accent: string;
-  background: string;
-  surface: string;
-  text: string;
-  textSecondary: string;
-  border: string;
-  success: string;
-  warning: string;
-  error: string;
-  info: string;
+  primaryColor: string;
+  secondaryColor: string;
+  backgroundColor: string;
+  textColor: string;
+  logoUrl?: string;
 }
 
 export interface ToolConfig {
@@ -67,6 +62,19 @@ export class ConfigLoader {
       return await response.json();
     } catch (error) {
       console.error('Failed to load app config:', error);
+      return null;
+    }
+  }
+
+  static async loadConfigBySlug(organizationSlug: string): Promise<AppConfig | null> {
+    try {
+      const response = await fetch(`https://chayo.vercel.app/api/app-config/${organizationSlug}`);
+      if (!response.ok) {
+        throw new Error(`Failed to load config: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Failed to load app config by slug:', error);
       return null;
     }
   }

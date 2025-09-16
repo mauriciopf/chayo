@@ -12,16 +12,14 @@ export const AppConfigContext = createContext<UseAppConfigReturn | null>(null);
 
 interface AppConfigProviderProps {
   children: ReactNode;
-  organizationSlug?: string;
-  organizationId?: string;
-  userEmail?: string;
+  organizationId: string;
+  organizationSlug: string;
 }
 
 export const AppConfigProvider: React.FC<AppConfigProviderProps> = ({
   children,
   organizationSlug,
   organizationId,
-  userEmail,
 }) => {
   const [config, setConfig] = useState<AppConfig | null>(null);
   const [urlGenerator, setUrlGenerator] = useState<ToolUrlGenerator | null>(null);
@@ -34,13 +32,12 @@ export const AppConfigProvider: React.FC<AppConfigProviderProps> = ({
       setLoading(true);
       setError(null);
 
-      let loadedConfig: AppConfig | null;
+      // Use the public API with organization slug (no authentication required)
+      console.log('Loading config for business:', organizationSlug);
+      const loadedConfig = await ConfigLoader.loadConfigBySlug(organizationSlug);
 
-      if (organizationId) {
-        // Load by organization ID (most common - from stored data)
-        loadedConfig = await ConfigLoader.loadConfig(organizationId);
-      } else {
-        throw new Error('Either organizationId, organizationSlug, or userEmail must be provided');
+      if (!loadedConfig) {
+        throw new Error('Failed to load business configuration');
       }
 
       setConfig(loadedConfig);
@@ -54,17 +51,17 @@ export const AppConfigProvider: React.FC<AppConfigProviderProps> = ({
     } finally {
       setLoading(false);
     }
-  }, [organizationId, organizationSlug, userEmail]);
+  }, [organizationId, organizationSlug]);
 
   const refetch = async () => {
     await loadConfig();
   };
 
   useEffect(() => {
-    if (organizationId || organizationSlug || userEmail) {
+    if (organizationSlug) {
       loadConfig();
     }
-  }, [organizationId, organizationSlug, userEmail, loadConfig]);
+  }, [organizationSlug, loadConfig]);
 
   const value: UseAppConfigReturn = {
     config,

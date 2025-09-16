@@ -13,6 +13,7 @@ import { FAQsScreen } from '../screens/FAQsScreen';
 import { IntakeFormsScreen } from '../screens/IntakeFormsScreen';
 import { ProductsScreen } from '../screens/ProductsScreen';
 import { ProductDetailScreen } from '../screens/ProductDetailScreen';
+import LoadingScreen from '../components/LoadingScreen';
 import Icon from 'react-native-vector-icons/Feather';
 
 const Stack = createNativeStackNavigator();
@@ -63,9 +64,11 @@ const generateTabs = (enabledTools: string[], businessName: string, onBackToMark
     { name: 'intake_forms', label: 'Forms', icon: 'clipboard' },
   ];
 
-  // Filter only enabled tools and add back button to all
+  // Always include chat, then filter other enabled tools
+  const enabledToolsWithChat = ['chat', ...enabledTools];
+  
   return toolConfigs
-    .filter(tool => enabledTools.includes(tool.name))
+    .filter(tool => enabledToolsWithChat.includes(tool.name))
     .map(tool => ({
       ...tool,
       businessName,
@@ -80,12 +83,10 @@ function MainTabNavigator({ businessName, onBackToMarketplace }: BusinessTabNavi
 
   if (!config) {
     return (
-      <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color={theme.primaryColor} />
-        <Text style={[styles.loadingText, { color: theme.textColor }]}>
-          Loading {businessName}...
-        </Text>
-      </View>
+      <LoadingScreen 
+        message={`Loading ${businessName}...`}
+        subMessage="Preparing business tools"
+      />
     );
   }
 
@@ -93,7 +94,7 @@ function MainTabNavigator({ businessName, onBackToMarketplace }: BusinessTabNavi
 
   const renderTabIcon = ({ route, focused, color }: any) => {
     const tab = tabs.find(t => t.name === route.name);
-    const iconName = tab ? getTabIconName(tab.icon) : 'circle';
+    const iconName = getTabIconName(tab?.icon || 'circle');
     return <Icon name={iconName} size={24} color={color} />;
   };
 
@@ -111,21 +112,25 @@ function MainTabNavigator({ businessName, onBackToMarketplace }: BusinessTabNavi
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        tabBarIcon: renderTabIcon,
+        tabBarIcon: ({ focused, color }) => renderTabIcon({ route, focused, color }),
         tabBarActiveTintColor: theme.primaryColor,
         tabBarInactiveTintColor: theme.textColor + '60',
         tabBarStyle: {
           backgroundColor: theme.secondaryColor,
           borderTopWidth: 0,
-          paddingBottom: Platform.OS === 'ios' ? 20 : 10,
-          height: Platform.OS === 'ios' ? 90 : 70,
+          paddingBottom: Platform.OS === 'ios' ? 34 : 8, // Proper safe area
+          paddingTop: 8,
+          height: Platform.OS === 'ios' ? 88 : 60, // Standard tab bar height
         },
         tabBarLabelStyle: {
-          fontSize: 12,
+          fontSize: 10,
           fontWeight: '500',
+          marginTop: -2, // Bring labels closer to icons
         },
-        headerShown: true,
-        header: () => renderTabHeader(route.name),
+        tabBarIconStyle: {
+          marginTop: Platform.OS === 'ios' ? 4 : 0, // Adjust icon position
+        },
+        headerShown: false,
       })}
     >
       {tabs.map(tab => (
