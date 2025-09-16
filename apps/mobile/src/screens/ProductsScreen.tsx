@@ -3,17 +3,17 @@ import {
   View,
   Text,
   FlatList,
-  Image,
   TouchableOpacity,
   StyleSheet,
   RefreshControl,
-  ActivityIndicator,
   Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useThemedStyles } from '../context/ThemeContext';
 import { useTranslation } from '../hooks/useTranslation';
 import { useAppConfig } from '../hooks/useAppConfig';
+import LoadingScreen from '../components/LoadingScreen';
+import { ProductCard } from '../components/ProductCard';
 import Icon from 'react-native-vector-icons/Feather';
 
 interface Product {
@@ -80,8 +80,8 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({ navigation }) =>
   };
 
   // Generate a consistent gradient based on product name
-  const getProductGradient = (productName: string) => {
-    const gradients = [
+  const getProductGradient = (productName: string): [string, string] => {
+    const gradients: [string, string][] = [
       ['#667eea', '#764ba2'], // Purple to Blue
       ['#f093fb', '#f5576c'], // Pink to Red
       ['#4facfe', '#00f2fe'], // Blue to Cyan
@@ -98,46 +98,14 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({ navigation }) =>
   };
 
   const renderProduct = ({ item }: { item: Product }) => {
-    const [startColor, endColor] = getProductGradient(item.name);
-
     return (
-      <TouchableOpacity
-        style={[styles.productItem, { width: itemSize, height: itemSize }]}
-        onPress={() => handleProductPress(item)}
-        activeOpacity={0.8}
-      >
-        {item.image_url ? (
-          <Image
-            source={{ uri: item.image_url }}
-            style={[styles.productImage, { backgroundColor: theme.surfaceColor }]}
-            resizeMode="cover"
-          />
-        ) : (
-          <View style={[styles.placeholderImage, { backgroundColor: startColor }]}>
-            {/* Gradient effect using multiple layers */}
-            <View 
-              style={[
-                styles.gradientOverlay,
-                { 
-                  backgroundColor: endColor,
-                  opacity: 0.6,
-                }
-              ]} 
-            />
-            <View style={styles.textContainer}>
-              <Text style={styles.placeholderProductName} numberOfLines={3}>
-                {item.name}
-              </Text>
-              {item.price && (
-                <Text style={styles.placeholderPrice}>
-                  ${item.price}
-                </Text>
-              )}
-            </View>
-          </View>
-        )}
-        
-      </TouchableOpacity>
+      <ProductCard
+        item={item}
+        itemSize={itemSize}
+        onPress={handleProductPress}
+        theme={theme}
+        getProductGradient={getProductGradient}
+      />
     );
   };
 
@@ -175,14 +143,10 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({ navigation }) =>
 
   if (loading && !refreshing) {
     return (
-      <SafeAreaView style={[styles.container, themedStyles.container]}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={theme.primaryColor} />
-          <Text style={[styles.loadingText, { color: theme.placeholderColor }]}>
-            {t('products.loading')}
-          </Text>
-        </View>
-      </SafeAreaView>
+      <LoadingScreen 
+        message="Loading Products..."
+        subMessage="Fetching available products and services"
+      />
     );
   }
 

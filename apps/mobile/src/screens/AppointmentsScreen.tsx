@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import LoadingScreen from '../components/LoadingScreen';
 import { WebViewScreen } from '../components/WebViewScreen';
 import { MobileAppointmentCalendar } from '../components';
 import { useAppConfig } from '../hooks/useAppConfig';
@@ -46,7 +47,10 @@ export const AppointmentsScreen: React.FC = () => {
   if (useNativeCalendar === null) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
+        <LoadingScreen 
+          message="Loading Appointments..."
+          subMessage="Setting up your calendar"
+        />
       </View>
     );
   }

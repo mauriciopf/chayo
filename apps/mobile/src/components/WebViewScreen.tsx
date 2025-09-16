@@ -2,13 +2,13 @@ import React, { useState, useRef } from 'react';
 import {
   View,
   StyleSheet,
-  ActivityIndicator,
   Alert,
   SafeAreaView,
   RefreshControl,
   ScrollView,
 } from 'react-native';
 import { WebView, WebViewNavigation } from 'react-native-webview';
+import LoadingScreen from './LoadingScreen';
 import { useTranslation } from '../hooks/useTranslation';
 
 interface WebViewScreenProps {
@@ -144,9 +144,10 @@ export const WebViewScreen: React.FC<WebViewScreenProps> = ({
       )}
 
       {loading && (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#007AFF" />
-        </View>
+        <LoadingScreen 
+          message="Loading..."
+          subMessage="Opening web interface"
+        />
       )}
     </SafeAreaView>
   );
