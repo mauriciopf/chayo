@@ -12,7 +12,6 @@ interface DesktopNavigationProps {
   user: any
   subscription: any
   businessName: string
-  mobileAppCode: string | null
 }
 
 export default function DesktopNavigation({
@@ -23,22 +22,10 @@ export default function DesktopNavigation({
   user,
   subscription,
   businessName,
-  mobileAppCode
 }: DesktopNavigationProps) {
   const t = useTranslations('dashboard')
   const [copied, setCopied] = useState(false)
 
-  const copyMobileCode = async () => {
-    if (!mobileAppCode) return
-    
-    try {
-      await navigator.clipboard.writeText(mobileAppCode)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    } catch (error) {
-      console.error('Failed to copy mobile code:', error)
-    }
-  }
 
   const menuItems = [
     {
