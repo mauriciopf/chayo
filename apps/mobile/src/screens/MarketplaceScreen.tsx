@@ -14,7 +14,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { supabase } from '../lib/supabase';
+import { supabase } from '../services/authService';
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = (width - 48) / 2; // 2 columns with 16px margins
@@ -30,8 +30,6 @@ interface Business {
   review_count: number;
   address?: string;
   phone?: string;
-  featured: boolean;
-  mobile_app_code: string;
 }
 
 interface Category {
@@ -57,7 +55,6 @@ const CATEGORIES: Category[] = [
 export default function MarketplaceScreen() {
   const navigation = useNavigation();
   const [businesses, setBusinesses] = useState<Business[]>([]);
-  const [featuredBusinesses, setFeaturedBusinesses] = useState<Business[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -68,23 +65,55 @@ export default function MarketplaceScreen() {
       if (refresh) setRefreshing(true);
       else setLoading(true);
 
-      // Load featured businesses
-      const { data: featured } = await supabase.rpc('get_featured_businesses', { limit_count: 6 });
-      if (featured) setFeaturedBusinesses(featured);
+      console.log('🔍 Loading businesses...', { searchQuery, selectedCategory });
 
-      // Load all businesses with search and category filter
-      const categoryFilter = selectedCategory === 'all' ? null : selectedCategory;
-      const { data: allBusinesses } = await supabase.rpc('search_businesses', {
-        search_query: searchQuery,
-        category_filter: categoryFilter,
-        limit_count: 50,
-        offset_count: 0,
-      });
+      // First, let's see what organizations exist at all
+      const { data: allOrgs, error: allOrgsError } = await supabase
+        .from('organizations')
+        .select('id, name, active, category')
+        .limit(10);
       
+      console.log('🔍 All organizations in DB:', { count: allOrgs?.length || 0, orgs: allOrgs, error: allOrgsError });
+
+      // Build query for organizations table
+      let query = supabase
+        .from('organizations')
+        .select(`
+          id,
+          name,
+          slug,
+          category,
+          representative_image_url,
+          description,
+          rating,
+          review_count,
+          active
+        `)
+        .eq('active', true);
+
+      // Apply category filter
+      if (selectedCategory !== 'all') {
+        query = query.eq('category', selectedCategory);
+        console.log('🏷️ Filtering by category:', selectedCategory);
+      }
+
+      // Apply search filter
+      if (searchQuery.trim()) {
+        query = query.or(`name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
+        console.log('🔍 Searching for:', searchQuery);
+      }
+
+      // Load all businesses (limit 50)
+      console.log('🏢 Loading all businesses...');
+      const { data: allBusinesses, error: allError } = await query
+        .order('name')
+        .limit(50);
+      
+      console.log('🏢 All businesses result:', { count: allBusinesses?.length || 0, error: allError });
       if (allBusinesses) setBusinesses(allBusinesses);
 
     } catch (error) {
-      console.error('Error loading businesses:', error);
+      console.error('❌ Error loading businesses:', error);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -250,20 +279,6 @@ export default function MarketplaceScreen() {
           />
         </View>
 
-        {/* Featured Businesses */}
-        {featuredBusinesses.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>⭐ Featured</Text>
-            <FlatList
-              data={featuredBusinesses}
-              renderItem={renderBusinessCard}
-              keyExtractor={(item) => item.id}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.featuredList}
-            />
-          </View>
-        )}
 
         {/* All Businesses */}
         <View style={styles.section}>

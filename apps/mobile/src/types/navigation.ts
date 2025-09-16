@@ -34,7 +34,6 @@ interface Business {
   description?: string;
   rating: number;
   review_count: number;
-  mobile_app_code: string;
 }
 
 // Define the parameter list for stack navigation
