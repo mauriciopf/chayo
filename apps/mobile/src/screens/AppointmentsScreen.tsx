@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
 import LoadingScreen from '../components/LoadingScreen';
 import { WebViewScreen } from '../components/WebViewScreen';
 import { MobileAppointmentCalendar } from '../components';
@@ -45,11 +44,7 @@ export const AppointmentsScreen: React.FC = () => {
 
   // Show loading while determining calendar type
   if (useNativeCalendar === null) {
-    return (
-      <View style={styles.loadingContainer}>
-        <LoadingScreen />
-      </View>
-    );
+    return <LoadingScreen />;
   }
 
   // Show native calendar for Chayo appointments
@@ -75,12 +70,3 @@ export const AppointmentsScreen: React.FC = () => {
     />
   );
 };
-
-const styles = StyleSheet.create({
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f8f9fa',
-  },
-});
