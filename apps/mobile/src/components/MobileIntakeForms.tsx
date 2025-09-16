@@ -5,7 +5,6 @@ import {
   FlatList,
   TouchableOpacity,
   StyleSheet,
-  ActivityIndicator,
   Alert,
   SafeAreaView,
 } from 'react-native';
@@ -15,6 +14,7 @@ import { MobileIntakeForm } from './MobileIntakeForm';
 import { useThemedStyles } from '../context/ThemeContext';
 import { useTranslation } from '../hooks/useTranslation';
 import { useCallback } from 'react';
+import LoadingScreen from './LoadingScreen';
 
 interface MobileIntakeFormsProps {
   organizationSlug: string;
@@ -105,12 +105,7 @@ export const MobileIntakeForms: React.FC<MobileIntakeFormsProps> = ({ organizati
   // Show loading state
   if (loading) {
     return (
-      <SafeAreaView style={[styles.container, themedStyles.container]}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={theme.primaryColor} />
-          <Text style={[styles.loadingText, themedStyles.primaryText]}>Loading intake forms...</Text>
-        </View>
-      </SafeAreaView>
+      <LoadingScreen />
     );
   }
 
@@ -160,17 +155,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#1C1C1E',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#1C1C1E',
-  },
-  loadingText: {
-    marginTop: 16,
-    fontSize: 16,
-    color: '#FFFFFF',
   },
   emptyContainer: {
     flex: 1,

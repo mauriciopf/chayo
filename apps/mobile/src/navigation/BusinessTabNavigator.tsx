@@ -83,10 +83,7 @@ function MainTabNavigator({ businessName, onBackToMarketplace }: BusinessTabNavi
 
   if (!config) {
     return (
-      <LoadingScreen 
-        message={`Loading ${businessName}...`}
-        subMessage="Preparing business tools"
-      />
+      <LoadingScreen />
     );
   }
 

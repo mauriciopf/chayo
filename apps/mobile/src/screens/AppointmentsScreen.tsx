@@ -47,10 +47,7 @@ export const AppointmentsScreen: React.FC = () => {
   if (useNativeCalendar === null) {
     return (
       <View style={styles.loadingContainer}>
-        <LoadingScreen 
-          message="Loading Appointments..."
-          subMessage="Setting up your calendar"
-        />
+        <LoadingScreen />
       </View>
     );
   }

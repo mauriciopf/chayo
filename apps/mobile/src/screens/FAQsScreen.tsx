@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
 import LoadingScreen from '../components/LoadingScreen';
-import { FAQSkeleton } from '../components/SkeletonLoader';
 import { SwipeFAQCards } from '../components/SwipeFAQCards';
 import { useAppConfig } from '../hooks/useAppConfig';
 import { useTranslation } from '../hooks/useTranslation';
@@ -97,13 +96,7 @@ export const FAQsScreen: React.FC = () => {
 
   if (loading) {
     return (
-      <SafeAreaView style={[styles.container, themedStyles.container]}>
-        <View style={styles.skeletonContainer}>
-          {Array.from({ length: 5 }).map((_, index) => (
-            <FAQSkeleton key={index} />
-          ))}
-        </View>
-      </SafeAreaView>
+      <LoadingScreen />
     );
   }
 
@@ -161,16 +154,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    marginTop: 16,
-    fontSize: 16,
-    fontWeight: '500',
-  },
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -186,9 +169,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
     lineHeight: 22,
-  },
-  skeletonContainer: {
-    flex: 1,
-    paddingTop: 20,
   },
 });

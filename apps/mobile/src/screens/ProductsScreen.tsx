@@ -143,10 +143,7 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({ navigation }) =>
 
   if (loading && !refreshing) {
     return (
-      <LoadingScreen 
-        message="Loading Products..."
-        subMessage="Fetching available products and services"
-      />
+      <LoadingScreen />
     );
   }
 

@@ -77,10 +77,7 @@ export default function BusinessDetailScreen() {
   // Show loading screen while loading config
   if (isLoadingConfig) {
     return (
-      <LoadingScreen 
-        message={`Loading ${business.name}...`}
-        subMessage="Preparing your business experience"
-      />
+      <LoadingScreen />
     );
   }
 

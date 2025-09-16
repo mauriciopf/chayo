@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   Alert,
-  ActivityIndicator,
   Platform,
   TouchableOpacity,
 } from 'react-native';
@@ -29,6 +28,7 @@ import {
 import { intakeFormService } from '../services/IntakeFormService';
 import { useThemedStyles } from '../context/ThemeContext';
 import { useCallback } from 'react';
+import LoadingScreen from './LoadingScreen';
 import { ModernFloatingInput } from './ModernFloatingInput';
 import { SteppedForm } from './SteppedForm';
 import { useAppConfig } from '../hooks/useAppConfig';
@@ -461,10 +461,7 @@ export const MobileIntakeForm: React.FC<MobileIntakeFormProps> = ({
 
   if (loading) {
     return (
-      <View style={[styles.loadingContainer, themedStyles.container]}>
-        <ActivityIndicator size="large" color={theme.primaryColor} />
-        <Text style={[styles.loadingText, themedStyles.primaryText]}>Loading form...</Text>
-      </View>
+      <LoadingScreen />
     );
   }
 
@@ -524,17 +521,6 @@ const styles = StyleSheet.create({
   contentContainer: {
     padding: 16,
     paddingBottom: 32,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#1C1C1E',
-  },
-  loadingText: {
-    marginTop: 16,
-    fontSize: 16,
-    color: '#FFFFFF',
   },
   errorContainer: {
     flex: 1,

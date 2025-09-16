@@ -144,10 +144,7 @@ export const WebViewScreen: React.FC<WebViewScreenProps> = ({
       )}
 
       {loading && (
-        <LoadingScreen 
-          message="Loading..."
-          subMessage="Opening web interface"
-        />
+        <LoadingScreen />
       )}
     </SafeAreaView>
   );

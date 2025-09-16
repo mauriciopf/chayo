@@ -16,6 +16,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { documentService, DocumentData, SignatureData } from '../services/DocumentService';
 import { useThemedStyles } from '../context/ThemeContext';
 import { useTranslation } from '../hooks/useTranslation';
+import LoadingScreen from './LoadingScreen';
 import AuthGate from './AuthGate';
 import { useAppConfig } from '../hooks/useAppConfig';
 import { createCustomerInteraction } from '../services/authService';
@@ -170,12 +171,7 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
 
   if (loading) {
     return (
-      <SafeAreaView style={[styles.container, themedStyles.container]}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={theme.primaryColor} />
-          <Text style={[styles.loadingText, themedStyles.primaryText]}>Loading document...</Text>
-        </View>
-      </SafeAreaView>
+      <LoadingScreen />
     );
   }
 
@@ -273,12 +269,7 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
             }}
             startInLoadingState={true}
             renderLoading={() => (
-              <View style={styles.webviewLoading}>
-                <ActivityIndicator size="large" color={theme.primaryColor} />
-                <Text style={[styles.webviewLoadingText, { color: theme.textColor }]}>
-                  {t('documents.loading')}
-                </Text>
-              </View>
+              <LoadingScreen />
             )}
             onLoadStart={() => {
               console.log('WebView started loading');
@@ -298,12 +289,7 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
             incognito={true}
           />
         ) : (
-          <View style={styles.pdfPlaceholder}>
-            <ActivityIndicator size="large" color={theme.primaryColor} />
-            <Text style={[styles.pdfPlaceholderText, { color: theme.placeholderColor }]}>
-              {t('documents.loading')}
-            </Text>
-          </View>
+          <LoadingScreen />
         )}
       </View>
 
@@ -324,16 +310,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#1C1C1E',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    marginTop: 16,
-    fontSize: 16,
-    color: '#FFFFFF',
   },
   errorContainer: {
     flex: 1,
@@ -404,29 +380,6 @@ const styles = StyleSheet.create({
   webview: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-  },
-  webviewLoading: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: '#1C1C1E',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  webviewLoadingText: {
-    fontSize: 16,
-    marginTop: 12,
-  },
-  pdfPlaceholder: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  pdfPlaceholderText: {
-    fontSize: 16,
-    opacity: 0.6,
   },
   footer: {
     padding: 20,
