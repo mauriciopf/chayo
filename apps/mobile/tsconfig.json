@@ -2,7 +2,11 @@
   "extends": "@react-native/typescript-config/tsconfig.json",
   "compilerOptions": {
     "composite": true,
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
   "include": [
     "src/**/*",
@@ -10,6 +14,7 @@
     "index.js",
     "app.config.js"
   ],
+  "typeRoots": ["./src/types", "./node_modules/@types"],
   "exclude": [
     "node_modules",
     "dist",

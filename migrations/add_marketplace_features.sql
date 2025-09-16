@@ -2,22 +2,7 @@
 -- Purpose: Transform app into business marketplace with categories and discovery
 -- Date: 2024-12-XX
 
--- Add marketplace fields to organizations table
-ALTER TABLE organizations 
-ADD COLUMN IF NOT EXISTS category TEXT DEFAULT 'general',
-ADD COLUMN IF NOT EXISTS representative_image_url TEXT,
-ADD COLUMN IF NOT EXISTS description TEXT,
-ADD COLUMN IF NOT EXISTS featured BOOLEAN DEFAULT false,
-ADD COLUMN IF NOT EXISTS rating DECIMAL(3,2) DEFAULT 0.0,
-ADD COLUMN IF NOT EXISTS review_count INTEGER DEFAULT 0,
-ADD COLUMN IF NOT EXISTS address TEXT,
-ADD COLUMN IF NOT EXISTS phone TEXT,
-ADD COLUMN IF NOT EXISTS website TEXT,
-ADD COLUMN IF NOT EXISTS business_hours JSONB DEFAULT '{}',
-ADD COLUMN IF NOT EXISTS tags TEXT[] DEFAULT '{}',
-ADD COLUMN IF NOT EXISTS active BOOLEAN DEFAULT true;
-
--- Create business categories enum (can be expanded later)
+-- Create business categories enum first (can be expanded later)
 DO $$ BEGIN
     CREATE TYPE business_category AS ENUM (
         'general',
@@ -45,9 +30,20 @@ EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
 
--- Update category column to use enum
+-- Add marketplace fields to organizations table (with proper enum type)
 ALTER TABLE organizations 
-ALTER COLUMN category TYPE business_category USING category::business_category;
+ADD COLUMN IF NOT EXISTS category business_category DEFAULT 'general'::business_category,
+ADD COLUMN IF NOT EXISTS representative_image_url TEXT,
+ADD COLUMN IF NOT EXISTS description TEXT,
+ADD COLUMN IF NOT EXISTS featured BOOLEAN DEFAULT false,
+ADD COLUMN IF NOT EXISTS rating DECIMAL(3,2) DEFAULT 0.0,
+ADD COLUMN IF NOT EXISTS review_count INTEGER DEFAULT 0,
+ADD COLUMN IF NOT EXISTS address TEXT,
+ADD COLUMN IF NOT EXISTS phone TEXT,
+ADD COLUMN IF NOT EXISTS website TEXT,
+ADD COLUMN IF NOT EXISTS business_hours JSONB DEFAULT '{}',
+ADD COLUMN IF NOT EXISTS tags TEXT[] DEFAULT '{}',
+ADD COLUMN IF NOT EXISTS active BOOLEAN DEFAULT true;
 
 -- Set default categories for existing businesses (you can customize these)
 UPDATE organizations 

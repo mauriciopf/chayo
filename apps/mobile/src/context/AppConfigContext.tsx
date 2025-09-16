@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { AppConfig, ConfigLoader, ToolUrlGenerator } from '@chayo/config';
+import { AppConfig, ConfigLoader, ToolUrlGenerator } from '../lib/config';
 import { UseAppConfigReturn } from '../hooks/useAppConfig';
 
 // Configuration constants

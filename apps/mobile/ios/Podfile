@@ -8,7 +8,7 @@ require Pod::Executable.execute_command('node', ['-p',
 # Explicit requires for monorepo
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 
-platform :ios, min_ios_version_supported
+platform :ios, '15.1'
 prepare_react_native_project!
 
 linkage = ENV['USE_FRAMEWORKS']
@@ -42,5 +42,25 @@ target 'ChayoMobile' do
       :mac_catalyst_enabled => false,
       # :ccache_enabled => true
     )
+    
+    # Fix deployment target for all pods and main project
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        # Force iOS 15.1 for all targets
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.1'
+        config.build_settings['TVOS_DEPLOYMENT_TARGET'] = '15.1'
+        config.build_settings['MACOSX_DEPLOYMENT_TARGET'] = '10.15'
+        config.build_settings['WATCHOS_DEPLOYMENT_TARGET'] = '8.0'
+      end
+    end
+    
+    # Also fix the main project targets
+    installer.generated_projects.each do |project|
+      project.targets.each do |target|
+        target.build_configurations.each do |config|
+          config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.1'
+        end
+      end
+    end
   end
 end

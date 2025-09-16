@@ -1,8 +1,16 @@
 import { supabase } from '../lib/supabase';
 import { appleAuth } from '@invertase/react-native-apple-authentication';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
-import * as Crypto from 'expo-crypto';
 import { Platform } from 'react-native';
+import 'react-native-get-random-values';
+import { sha256 } from 'js-sha256';
+import {
+  EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+  EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
+} from '@env';
+
+// Export supabase for use in other modules
+export { supabase };
 
 // Types
 export interface AuthUser {
@@ -29,13 +37,14 @@ export interface Customer {
 export function configureGoogleSignIn() {
   try {
     GoogleSignin.configure({
-      // These will need to be configured with your actual OAuth client IDs
-      iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
-      webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+      iosClientId: EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID || '408321366335-k0k1ncstcrfic51h9t6vg22774ut765u.apps.googleusercontent.com',
+      webClientId: EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || '408321366335-k0k1ncstcrfic51h9t6vg22774ut765u.apps.googleusercontent.com',
       offlineAccess: false,
     });
   } catch (error) {
-    console.error('Failed to configure Google Sign-In:', error);
+    if (__DEV__) {
+      console.error('Failed to configure Google Sign-In:', error);
+    }
     // Non-blocking error - app can still function with Apple/Email auth
   }
 }
@@ -58,10 +67,9 @@ export async function signInWithApple(): Promise<AuthUser> {
 
   // Generate nonce
   const rawNonce = randomString(32);
-  const hashedNonce = await Crypto.digestStringAsync(
-    Crypto.CryptoDigestAlgorithm.SHA256,
-    rawNonce
-  );
+  
+  // Create SHA-256 hash using js-sha256 (getRandomValues polyfilled by react-native-get-random-values)
+  const hashedNonce = sha256(rawNonce);
 
   // Request Apple credentials
   const credential = await appleAuth.performRequest({

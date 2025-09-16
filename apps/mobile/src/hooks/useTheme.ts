@@ -1,5 +1,5 @@
 import { useAppConfig } from './useAppConfig';
-import { DEFAULT_THEME } from '@chayo/config';
+import { DEFAULT_THEME } from '../lib/config';
 
 export interface ThemeColors {
   primaryColor: string;

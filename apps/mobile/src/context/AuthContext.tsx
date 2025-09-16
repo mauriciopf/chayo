@@ -1,11 +1,11 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { supabase } from '../lib/supabase';
 import { 
   AuthUser, 
   Customer, 
   configureGoogleSignIn, 
   getCurrentSession,
-  createOrUpdateCustomer 
+  createOrUpdateCustomer,
+  supabase
 } from '../services/authService';
 import { Session } from '@supabase/supabase-js';
 
@@ -65,7 +65,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.email);
+        if (__DEV__) {
+          console.log('Auth state changed:', event, session?.user?.email);
+        }
         
         setSession(session);
         
@@ -92,7 +94,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   const handleSignOut = async () => {
-    const { signOut } = await import('@/services/authService');
+    const { signOut } = await import('../services/authService');
     await signOut();
     setUser(null);
     setCustomer(null);
@@ -103,7 +105,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       callback(user, customer);
     } else {
       // This will trigger the login modal in the calling component
-      console.log('Authentication required');
+      if (__DEV__) {
+        console.log('Authentication required');
+      }
     }
   };
 

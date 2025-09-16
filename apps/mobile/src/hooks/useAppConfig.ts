@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
-import { AppConfig, ConfigLoader, ToolUrlGenerator } from '@chayo/config';
+import { AppConfig, ConfigLoader, ToolUrlGenerator } from '../lib/config';
 import { AppConfigContext } from '../context/AppConfigContext';
 
 export interface UseAppConfigReturn {
