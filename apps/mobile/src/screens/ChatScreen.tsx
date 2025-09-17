@@ -205,10 +205,12 @@ export const ChatScreen: React.FC = () => {
   }
 
   return (
-    <SafeAreaView style={[styles.container, themedStyles.container]}>
+    <View style={[styles.container, themedStyles.container]}>
       <KeyboardAvoidingView 
         style={styles.container}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
+        enabled={true}
       >
         <FlatList
           ref={flatListRef}
@@ -235,8 +237,9 @@ export const ChatScreen: React.FC = () => {
             editable={!isTyping}
             keyboardAppearance="dark"
             blurOnSubmit={false}
-            returnKeyType="send"
-            onSubmitEditing={sendMessage}
+            returnKeyType="done"
+            onSubmitEditing={() => textInputRef.current?.blur()}
+            enablesReturnKeyAutomatically={false}
           />
           <TouchableOpacity
             style={[
@@ -251,7 +254,7 @@ export const ChatScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 };
 
