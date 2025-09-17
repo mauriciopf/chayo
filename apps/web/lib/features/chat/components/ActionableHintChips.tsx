@@ -36,7 +36,8 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
     payments: false,
     products: false,
     intake_forms: false,
-    faqs: false
+    faqs: false,
+    customer_support: false
   })
 
   // Define the actionable hints
@@ -89,6 +90,13 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
       icon: '❓',
       description: 'Business hours, location, pricing, policies.',
       category: 'faqs'
+    },
+    {
+      id: 'customer_support',
+      label: '💬 Customer Support',
+      icon: '💬',
+      description: 'Manage real-time customer conversations and support tickets.',
+      category: 'customer_support'
     }
   ]
 

@@ -16,7 +16,8 @@ export const AVAILABLE_TOOLS = [
   'faqs',
   'intake_forms',
   'mobile-branding',
-  'products'
+  'products',
+  'customer_support'
 ] as const;
 
 export type ToolType = typeof AVAILABLE_TOOLS[number];

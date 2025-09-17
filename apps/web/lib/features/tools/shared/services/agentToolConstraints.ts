@@ -39,6 +39,9 @@ export class AgentToolConstraintsService {
       case 'products':
         return this.checkProductsConstraints(organizationId, supabase)
       
+      case 'customer_support':
+        return this.checkCustomerSupportConstraints(organizationId, supabase)
+      
       default:
         return { canEnable: true }
     }
@@ -318,6 +321,23 @@ export class AgentToolConstraintsService {
       return {
         canEnable: false,
         reason: 'Error checking products configuration'
+      }
+    }
+  }
+
+  private static async checkCustomerSupportConstraints(
+    organizationId: string, 
+    supabase: any
+  ): Promise<ToolConstraintResult> {
+    try {
+      // Customer support is always available - no special configuration needed
+      // The tool enables real-time customer messaging capabilities
+      return { canEnable: true }
+    } catch (error) {
+      console.error('Error checking customer support constraints:', error)
+      return { 
+        canEnable: false, 
+        reason: 'Unable to verify customer support configuration' 
       }
     }
   }

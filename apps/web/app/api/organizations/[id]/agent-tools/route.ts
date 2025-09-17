@@ -28,7 +28,8 @@ export async function GET(
       intake_forms: false,
       faqs: false,
       'mobile-branding': false,
-      products: false
+      products: false,
+      customer_support: false
     })
   } catch (error) {
     console.error('Agent tools GET error:', error)

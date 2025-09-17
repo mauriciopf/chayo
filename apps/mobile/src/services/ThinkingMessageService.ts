@@ -10,6 +10,7 @@ export type ThinkingContext =
   | 'customer_workflow'
   | 'setup_finalization'
   | 'slug_validation'
+  | 'customer-support'
 
 export type ThinkingPhase =
   | 'initializing'
@@ -216,6 +217,7 @@ export class ThinkingMessageService {
         savingData: ['💾 Guardando datos...', '📱 Configurando aplicación...'],
         'auth-check': ['🔐 Verifying authentication...', '🛡️ Checking credentials...'],
         'dashboard-loading': ['📊 Loading your business data...', '🏢 Initializing dashboard...'],
+        'customer-support': ['💬 Connecting to support team...', '👥 Notifying available agents...', '⏳ Waiting for agent response...'],
         done: ['✅ Done', '🎉 Ready']
       };
       

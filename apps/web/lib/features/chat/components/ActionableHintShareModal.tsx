@@ -13,6 +13,7 @@ import IntakeFormsToolConfig from '../../tools/intake-forms/components/IntakeFor
 import FAQToolConfig from '../../tools/faqs/components/FAQToolConfig'
 import { MobileBrandingConfig } from '../../tools/mobile-branding/components/MobileBrandingConfig'
 import ProductsToolConfig from '../../tools/products/components/ProductsToolConfig'
+import CustomerSupportTool from '../../tools/customer-support/components/CustomerSupportTool'
 
 interface ActionableHintShareModalProps {
   isOpen: boolean
@@ -50,7 +51,8 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
     products: false,
     intake_forms: false,
     faqs: false,
-    'mobile-branding': false
+    'mobile-branding': false,
+    customer_support: false
   })
   const [toolConstraints, setToolConstraints] = useState<{ [key: string]: ToolConstraint }>({})
   const [loading, setLoading] = useState(false)
@@ -223,6 +225,17 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
             t('modal.products.features.1'),
             t('modal.products.features.2'),
             t('modal.products.features.3')
+          ]
+        }
+      case 'customer_support':
+        return {
+          title: 'Customer Support',
+          description: 'Enable real-time customer support chat for your mobile app users',
+          features: [
+            'Real-time messaging with customers',
+            'Conversation management and history',
+            'Multiple agent support',
+            'Read receipts and status tracking'
           ]
         }
       default:
@@ -494,7 +507,15 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
                 />
               )}
 
-              {!isCurrentToolEnabled && !['appointments', 'documents', 'payments', 'products', 'intake_forms', 'faqs', 'mobile-branding'].includes(hint?.category || '') && (
+              {hint?.category === 'customer_support' && (
+                <CustomerSupportTool 
+                  organizationId={organizationId}
+                  isEnabled={isCurrentToolEnabled}
+                  onSettingsChange={onSettingsChange}
+                />
+              )}
+
+              {!isCurrentToolEnabled && !['appointments', 'documents', 'payments', 'products', 'intake_forms', 'faqs', 'mobile-branding', 'customer_support'].includes(hint?.category || '') && (
                 <div 
                   className="p-4 rounded-lg border"
                   style={{ 

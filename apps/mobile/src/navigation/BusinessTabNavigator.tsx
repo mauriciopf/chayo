@@ -13,6 +13,7 @@ import { FAQsScreen } from '../screens/FAQsScreen';
 import { IntakeFormsScreen } from '../screens/IntakeFormsScreen';
 import { ProductsScreen } from '../screens/ProductsScreen';
 import { ProductDetailScreen } from '../screens/ProductDetailScreen';
+import { CustomerSupportScreen } from '../screens/CustomerSupportScreen';
 import LoadingScreen from '../components/LoadingScreen';
 import Icon from 'react-native-vector-icons/Feather';
 
@@ -28,6 +29,7 @@ interface BusinessTabNavigatorProps {
 const getTabIconName = (iconName: string) => {
   const iconMap: Record<string, string> = {
     'message-circle': 'message-circle',
+    'headphones': 'headphones',
     'calendar': 'calendar',
     'credit-card': 'credit-card',
     'file-text': 'file-text',
@@ -48,6 +50,7 @@ const getToolScreen = (tool: string) => {
     faqs: FAQsScreen,
     intake_forms: IntakeFormsScreen,
     products: ProductsScreen,
+    customer_support: CustomerSupportScreen,
   };
   return screenMap[tool] || ChatScreen;
 };
@@ -56,6 +59,7 @@ const getToolScreen = (tool: string) => {
 const generateTabs = (enabledTools: string[], businessName: string, onBackToMarketplace: () => void) => {
   const toolConfigs = [
     { name: 'chat', label: 'Chat', icon: 'message-circle' },
+    { name: 'customer_support', label: 'Support', icon: 'headphones' },
     { name: 'products', label: 'Products', icon: 'shopping-bag' },
     { name: 'appointments', label: 'Appointments', icon: 'calendar' },
     { name: 'payments', label: 'Payments', icon: 'credit-card' },
