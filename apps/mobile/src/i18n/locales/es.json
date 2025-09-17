@@ -26,9 +26,13 @@
   },
   "chat": {
     "title": "Chat de Chayo",
+    "aiTab": "Chat IA",
+    "supportTab": "Soporte al Cliente",
     "placeholder": "Escribe tu mensaje...",
     "send": "Enviar",
     "typing": "Chayo está escribiendo...",
+    "thinking": "La IA está pensando...",
+    "notAvailable": "El chat no está disponible",
     "emptyTitle": "¡Hola! Soy Chayo",
     "emptySubtitle": "Tu asistente de IA para negocios lista para ayudarte a crecer y optimizar tu negocio.",
     "emptyGettingStarted": "Comencemos:",

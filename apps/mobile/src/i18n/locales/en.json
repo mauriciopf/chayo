@@ -26,9 +26,13 @@
   },
   "chat": {
     "title": "Chayo Chat",
+    "aiTab": "AI Chat",
+    "supportTab": "Customer Support",
     "placeholder": "Type your message...",
     "send": "Send",
     "typing": "Chayo is typing...",
+    "thinking": "AI is thinking...",
+    "notAvailable": "Chat is not available",
     "emptyTitle": "¡Hola! I'm Chayo",
     "emptySubtitle": "Your AI business assistant ready to help you grow and optimize your business.",
     "emptyGettingStarted": "Let's get started:",

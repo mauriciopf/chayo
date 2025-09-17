@@ -9,7 +9,7 @@ export type ActionableHint = {
   label: string
   icon: string
   description: string
-  category: 'appointments' | 'documents' | 'payments' | 'products' | 'intake_forms' | 'faqs' | 'mobile-branding'
+  category: 'appointments' | 'documents' | 'payments' | 'products' | 'intake_forms' | 'faqs' | 'mobile-branding' | 'customer_support'
 }
 
 interface ActionableHintChipsProps {

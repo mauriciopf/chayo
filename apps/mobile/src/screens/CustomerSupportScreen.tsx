@@ -70,6 +70,37 @@ export const CustomerSupportScreen: React.FC = () => {
     }
   }, [conversation, isAuthenticated, setupRealtimeSubscription]);
 
+  const loadMessages = useCallback(async (conversationId: string) => {
+    try {
+      const { data: messageData, error } = await supabase
+        .from('customer_support_messages')
+        .select(`
+          id,
+          content,
+          sender_type,
+          sender_name,
+          sender_email,
+          created_at
+        `)
+        .eq('conversation_id', conversationId)
+        .order('created_at', { ascending: true });
+
+      if (error) {
+        console.error('Error loading messages:', error);
+        return;
+      }
+
+      const formattedMessages: SupportMessage[] = messageData?.map(msg => ({
+        ...msg,
+        isUser: msg.sender_type === 'customer'
+      })) || [];
+
+      setMessages(formattedMessages);
+    } catch (error) {
+      console.error('Error loading messages:', error);
+    }
+  }, []);
+
   const initializeCustomerSupport = useCallback(async () => {
     if (!user || !config) return;
 
@@ -144,38 +175,6 @@ export const CustomerSupportScreen: React.FC = () => {
       setLoading(false);
     }
   }, [user, config, loadMessages]);
-
-  const loadMessages = async (conversationId: string) => {
-    try {
-      const { data: messageData, error } = await supabase
-        .from('customer_support_messages')
-        .select(`
-          id,
-          content,
-          sender_type,
-          sender_name,
-          sender_email,
-          created_at
-        `)
-        .eq('conversation_id', conversationId)
-        .order('created_at', { ascending: true });
-
-      if (error) {
-        console.error('Error loading messages:', error);
-        return;
-      }
-
-      const formattedMessages: SupportMessage[] = (messageData || []).map(msg => ({
-        ...msg,
-        isUser: msg.sender_type === 'customer'
-      }));
-
-      setMessages(formattedMessages);
-      scrollToBottom();
-    } catch (error) {
-      console.error('Error loading messages:', error);
-    }
-  };
 
   const setupRealtimeSubscription = useCallback(() => {
     if (!conversation) return;

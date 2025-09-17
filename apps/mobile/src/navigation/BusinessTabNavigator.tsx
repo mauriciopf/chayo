@@ -1,10 +1,9 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text, View, ActivityIndicator, StyleSheet, Platform, TouchableOpacity } from 'react-native';
+import { Platform } from 'react-native';
 import { useAppConfig } from '../hooks/useAppConfig';
 import { useThemedStyles } from '../context/ThemeContext';
-import { useTranslation } from '../hooks/useTranslation';
 import { ChatScreen } from '../screens/ChatScreen';
 import { AppointmentsScreen } from '../screens/AppointmentsScreen';
 import { PaymentsScreen } from '../screens/PaymentsScreen';
@@ -13,7 +12,6 @@ import { FAQsScreen } from '../screens/FAQsScreen';
 import { IntakeFormsScreen } from '../screens/IntakeFormsScreen';
 import { ProductsScreen } from '../screens/ProductsScreen';
 import { ProductDetailScreen } from '../screens/ProductDetailScreen';
-import { CustomerSupportScreen } from '../screens/CustomerSupportScreen';
 import LoadingScreen from '../components/LoadingScreen';
 import Icon from 'react-native-vector-icons/Feather';
 
@@ -50,7 +48,6 @@ const getToolScreen = (tool: string) => {
     faqs: FAQsScreen,
     intake_forms: IntakeFormsScreen,
     products: ProductsScreen,
-    customer_support: CustomerSupportScreen,
   };
   return screenMap[tool] || ChatScreen;
 };
@@ -59,7 +56,6 @@ const getToolScreen = (tool: string) => {
 const generateTabs = (enabledTools: string[], businessName: string, onBackToMarketplace: () => void) => {
   const toolConfigs = [
     { name: 'chat', label: 'Chat', icon: 'message-circle' },
-    { name: 'customer_support', label: 'Support', icon: 'headphones' },
     { name: 'products', label: 'Products', icon: 'shopping-bag' },
     { name: 'appointments', label: 'Appointments', icon: 'calendar' },
     { name: 'payments', label: 'Payments', icon: 'credit-card' },
@@ -83,7 +79,6 @@ const generateTabs = (enabledTools: string[], businessName: string, onBackToMark
 function MainTabNavigator({ businessName, onBackToMarketplace }: BusinessTabNavigatorProps) {
   const { config } = useAppConfig();
   const { theme } = useThemedStyles();
-  const { t } = useTranslation();
 
   // Debug: Log actual theme values being used
   console.log('🎨 BusinessTabNavigator theme:', {
@@ -100,22 +95,11 @@ function MainTabNavigator({ businessName, onBackToMarketplace }: BusinessTabNavi
 
   const tabs = generateTabs(config.enabledTools, businessName, onBackToMarketplace);
 
-  const renderTabIcon = ({ route, focused, color }: any) => {
+  const renderTabIcon = ({ route, color }: any) => {
     const tab = tabs.find(t => t.name === route.name);
     const iconName = getTabIconName(tab?.icon || 'circle');
     return <Icon name={iconName} size={24} color={color} />;
   };
-
-  const renderTabHeader = (title: string) => (
-    <View style={styles.tabHeader}>
-      <TouchableOpacity style={styles.backButton} onPress={onBackToMarketplace}>
-        <Icon name="arrow-left" size={20} color={theme.primaryColor} />
-        <Text style={[styles.backButtonText, { color: theme.primaryColor }]}>Back</Text>
-      </TouchableOpacity>
-      <Text style={[styles.headerTitle, { color: theme.textColor }]}>{businessName}</Text>
-      <View style={styles.backButton} /> {/* Spacer for centering */}
-    </View>
-  );
 
   return (
     <Tab.Navigator
@@ -166,45 +150,3 @@ export default function BusinessTabNavigator({ businessName, onBackToMarketplace
     </Stack.Navigator>
   );
 }
-
-const styles = StyleSheet.create({
-  centerContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  loadingText: {
-    marginTop: 16,
-    fontSize: 16,
-    textAlign: 'center',
-  },
-  tabHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: '#1C1C1E',
-    borderBottomWidth: 1,
-    borderBottomColor: '#2C2C2E',
-  },
-  backButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingVertical: 8,
-    paddingHorizontal: 4,
-    minWidth: 60,
-  },
-  backButtonText: {
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    flex: 1,
-  },
-});

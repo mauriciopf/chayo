@@ -1,6 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServerClient } from '@/lib/shared/supabase/server';
 
+// Type definition for customer support conversation from database function
+interface CustomerSupportConversation {
+  id: string;
+  organization_id: string;
+  customer_id: string | null;
+  customer_email: string | null;
+  customer_name: string | null;
+  subject: string | null;
+  status: 'open' | 'in_progress' | 'resolved' | 'closed';
+  priority: 'low' | 'normal' | 'high' | 'urgent';
+  assigned_to: string | null;
+  tags: string[];
+  created_at: string;
+  updated_at: string;
+  last_message_at: string | null;
+  last_customer_message_at: string | null;
+  last_agent_message_at: string | null;
+  unread_count: number;
+  last_message_content: string | null;
+  last_message_sender_type: 'customer' | 'agent' | 'system' | null;
+}
+
 // GET: List customer support conversations for an organization
 export async function GET(request: NextRequest) {
   try {
@@ -46,14 +68,14 @@ export async function GET(request: NextRequest) {
     }
 
     // Apply additional filters if specified
-    let filteredConversations = conversations || [];
+    let filteredConversations: CustomerSupportConversation[] = (conversations as CustomerSupportConversation[]) || [];
     
     if (status) {
-      filteredConversations = filteredConversations.filter(conv => conv.status === status);
+      filteredConversations = filteredConversations.filter((conv: CustomerSupportConversation) => conv.status === status);
     }
     
     if (priority) {
-      filteredConversations = filteredConversations.filter(conv => conv.priority === priority);
+      filteredConversations = filteredConversations.filter((conv: CustomerSupportConversation) => conv.priority === priority);
     }
 
     return NextResponse.json({

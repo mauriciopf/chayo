@@ -511,7 +511,7 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
                 <CustomerSupportTool 
                   organizationId={organizationId}
                   isEnabled={isCurrentToolEnabled}
-                  onSettingsChange={onSettingsChange}
+                  onSettingsChange={onSettingsChange || (() => {})}
                 />
               )}
 
