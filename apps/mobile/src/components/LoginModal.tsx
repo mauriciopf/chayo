@@ -8,7 +8,6 @@ import {
   Alert,
   StyleSheet,
   Platform,
-  ActivityIndicator,
   KeyboardAvoidingView,
   ScrollView,
 } from 'react-native';
@@ -22,6 +21,7 @@ import {
   signUpWithEmail,
   AuthUser 
 } from '../services/authService';
+import LoadingScreen from './LoadingScreen';
 
 interface LoginModalProps {
   visible: boolean;
@@ -395,7 +395,7 @@ export default function LoginModal({
 
             {loading && (
               <View style={styles.loadingOverlay}>
-                <ActivityIndicator size="large" color={theme.primaryColor} />
+                <LoadingScreen />
               </View>
             )}
           </TouchableOpacity>

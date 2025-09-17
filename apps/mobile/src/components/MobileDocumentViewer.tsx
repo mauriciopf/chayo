@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
-  ActivityIndicator,
   SafeAreaView,
   ScrollView,
   KeyboardAvoidingView,
@@ -226,7 +225,7 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
                     disabled={signing}
                   >
                     {signing ? (
-                      <ActivityIndicator size="small" color="#FFFFFF" />
+                      <LoadingScreen />
                     ) : (
                       <Text style={styles.signButtonText}>Sign Document</Text>
                     )}

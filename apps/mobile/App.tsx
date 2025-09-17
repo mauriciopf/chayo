@@ -9,10 +9,7 @@ import React, { useEffect, useState } from 'react';
 import {
   StatusBar,
   Alert,
-  View,
-  Text,
   StyleSheet,
-  ActivityIndicator,
 } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 // Conditional import for expo-updates (only available in Expo-managed workflow)

@@ -5,13 +5,13 @@ import {
   FlatList,
   TouchableOpacity,
   StyleSheet,
-  ActivityIndicator,
   SafeAreaView,
   Alert,
 } from 'react-native';
 import { DocumentService, DocumentData } from '../services/DocumentService';
 import { useThemedStyles } from '../context/ThemeContext';
 import { useTranslation } from '../hooks/useTranslation';
+import LoadingScreen from './LoadingScreen';
 
 interface MobileDocumentsProps {
   organizationSlug: string;
@@ -103,7 +103,7 @@ const MobileDocuments: React.FC<MobileDocumentsProps> = ({
     return (
       <SafeAreaView style={[styles.container, themedStyles.container]}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={theme.primaryColor} />
+          <LoadingScreen />
           <Text style={[styles.loadingText, themedStyles.primaryText]}>Loading documents...</Text>
         </View>
       </SafeAreaView>

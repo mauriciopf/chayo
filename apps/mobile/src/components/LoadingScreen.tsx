@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import {
   View,
+  Text,
   StyleSheet,
   Animated,
   Easing,
@@ -14,156 +15,93 @@ interface LoadingScreenProps {
 }
 
 const LoadingScreen: React.FC<LoadingScreenProps> = () => {
-  // Create multiple layers of animated elements
-  const particleAnimations = useRef(
-    Array.from({ length: 6 }, () => ({
-      rotate: new Animated.Value(0),
-      scale: new Animated.Value(0),
-      opacity: new Animated.Value(0),
-    }))
-  ).current;
-
-  const centralPulse = useRef(new Animated.Value(0)).current;
-  const orbitalRotation = useRef(new Animated.Value(0)).current;
-  const morphAnimation = useRef(new Animated.Value(0)).current;
-
+  // Organic, flowing animations
+  const breatheValue = useRef(new Animated.Value(0)).current;
+  const floatValue = useRef(new Animated.Value(0)).current;
+  const waveValue = useRef(new Animated.Value(0)).current;
+  
   useEffect(() => {
-    // Central pulsing core
-    const pulseAnimation = Animated.loop(
+    // Slow, meditative breathing
+    const breatheAnimation = Animated.loop(
       Animated.sequence([
-        Animated.timing(centralPulse, {
+        Animated.timing(breatheValue, {
           toValue: 1,
-          duration: 1500,
+          duration: 3000, // Slower, more meditative
+          easing: Easing.bezier(0.4, 0.0, 0.2, 1), // Organic curve
+          useNativeDriver: true,
+        }),
+        Animated.timing(breatheValue, {
+          toValue: 0,
+          duration: 3000,
+          easing: Easing.bezier(0.4, 0.0, 0.2, 1),
+          useNativeDriver: true,
+        }),
+      ])
+    );
+
+    // Gentle floating motion
+    const floatAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatValue, {
+          toValue: 1,
+          duration: 4000, // Even slower, dreamlike
           easing: Easing.bezier(0.25, 0.46, 0.45, 0.94),
           useNativeDriver: true,
         }),
-        Animated.timing(centralPulse, {
+        Animated.timing(floatValue, {
           toValue: 0,
-          duration: 1500,
+          duration: 4000,
           easing: Easing.bezier(0.55, 0.06, 0.68, 0.19),
           useNativeDriver: true,
         }),
       ])
     );
 
-    // Orbital rotation
-    const orbitalAnimation = Animated.loop(
-      Animated.timing(orbitalRotation, {
+    // Subtle wave motion
+    const waveAnimation = Animated.loop(
+      Animated.timing(waveValue, {
         toValue: 1,
-        duration: 4000,
-        easing: Easing.linear,
+        duration: 6000, // Long, hypnotic cycle
+        easing: Easing.bezier(0.445, 0.05, 0.55, 0.95),
         useNativeDriver: true,
       })
     );
 
-    // Morphing shape animation
-    const morphingAnimation = Animated.loop(
-      Animated.sequence([
-        Animated.timing(morphAnimation, {
-          toValue: 1,
-          duration: 2000,
-          easing: Easing.bezier(0.68, -0.55, 0.265, 1.55),
-          useNativeDriver: true,
-        }),
-        Animated.timing(morphAnimation, {
-          toValue: 0,
-          duration: 2000,
-          easing: Easing.bezier(0.445, 0.05, 0.55, 0.95),
-          useNativeDriver: true,
-        }),
-      ])
-    );
-
-    // Particle system animation
-    const particleAnimations_mapped = particleAnimations.map((particle, index) => {
-      const delay = index * 300;
-      
-      return Animated.loop(
-        Animated.sequence([
-          Animated.delay(delay),
-          Animated.parallel([
-            Animated.timing(particle.opacity, {
-              toValue: 1,
-              duration: 800,
-              useNativeDriver: true,
-            }),
-            Animated.timing(particle.scale, {
-              toValue: 1,
-              duration: 800,
-              easing: Easing.out(Easing.back(2)),
-              useNativeDriver: true,
-            }),
-          ]),
-          Animated.timing(particle.rotate, {
-            toValue: 1,
-            duration: 3000,
-            easing: Easing.linear,
-            useNativeDriver: true,
-          }),
-          Animated.parallel([
-            Animated.timing(particle.opacity, {
-              toValue: 0,
-              duration: 800,
-              useNativeDriver: true,
-            }),
-            Animated.timing(particle.scale, {
-              toValue: 0,
-              duration: 800,
-              easing: Easing.in(Easing.back(2)),
-              useNativeDriver: true,
-            }),
-          ]),
-          Animated.timing(particle.rotate, {
-            toValue: 0,
-            duration: 0,
-            useNativeDriver: true,
-          }),
-        ])
-      );
-    });
-
-    // Start all animations
-    pulseAnimation.start();
-    orbitalAnimation.start();
-    morphingAnimation.start();
-    Animated.stagger(0, particleAnimations_mapped).start();
+    breatheAnimation.start();
+    floatAnimation.start();
+    waveAnimation.start();
 
     return () => {
-      pulseAnimation.stop();
-      orbitalAnimation.stop();
-      morphingAnimation.stop();
-      particleAnimations.forEach(particle => {
-        particle.rotate.stopAnimation();
-        particle.scale.stopAnimation();
-        particle.opacity.stopAnimation();
-      });
+      breatheValue.stopAnimation();
+      floatValue.stopAnimation();
+      waveValue.stopAnimation();
     };
   }, []);
 
-  // Animation interpolations
-  const centralScale = centralPulse.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0.8, 1.3],
-  });
-
-  const centralOpacity = centralPulse.interpolate({
+  // Organic interpolations
+  const textOpacity = breatheValue.interpolate({
     inputRange: [0, 0.5, 1],
-    outputRange: [0.4, 1, 0.4],
+    outputRange: [0.6, 1, 0.6],
   });
 
-  const orbitalRotate = orbitalRotation.interpolate({
+  const textScale = breatheValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.98, 1.02],
+  });
+
+  const floatTranslateY = floatValue.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [0, -8, 0],
+  });
+
+  const waveRotate = waveValue.interpolate({
     inputRange: [0, 1],
     outputRange: ['0deg', '360deg'],
   });
 
-  const morphScale = morphAnimation.interpolate({
+  const accentScale = waveValue.interpolate({
     inputRange: [0, 0.5, 1],
-    outputRange: [1, 1.2, 1],
-  });
-
-  const morphBorderRadius = morphAnimation.interpolate({
-    inputRange: [0, 0.5, 1],
-    outputRange: [30, 8, 30],
+    outputRange: [1, 1.1, 1],
   });
 
   return (
@@ -171,98 +109,112 @@ const LoadingScreen: React.FC<LoadingScreenProps> = () => {
       <StatusBar barStyle="light-content" backgroundColor="#1C1C1E" />
       
       <View style={styles.content}>
-        {/* Central morphing core */}
+        {/* Flowing organic shapes in background */}
         <Animated.View
           style={[
-            styles.centralCore,
+            styles.organicShape1,
             {
               transform: [
-                { scale: Animated.multiply(centralScale, morphScale) },
+                { rotate: waveRotate },
+                { scale: accentScale },
               ],
-              opacity: centralOpacity,
-              borderRadius: morphBorderRadius,
+              opacity: breatheValue.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0.05, 0.15],
+              }),
+            },
+          ]}
+        />
+        
+        <Animated.View
+          style={[
+            styles.organicShape2,
+            {
+              transform: [
+                { 
+                  rotate: waveValue.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: ['0deg', '-180deg'],
+                  })
+                },
+                { scale: accentScale },
+              ],
+              opacity: breatheValue.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0.08, 0.12],
+              }),
             },
           ]}
         />
 
-        {/* Orbital rings */}
+        {/* Main CHAYO text with boho styling */}
         <Animated.View
           style={[
-            styles.orbitalContainer,
+            styles.textContainer,
             {
-              transform: [{ rotate: orbitalRotate }],
+              opacity: textOpacity,
+              transform: [
+                { scale: textScale },
+                { translateY: floatTranslateY },
+              ],
             },
           ]}
         >
-          {/* Inner orbital ring */}
-          <View style={styles.innerOrbit}>
-            <View style={[styles.orbitDot, styles.orbitDot1]} />
-            <View style={[styles.orbitDot, styles.orbitDot2]} />
-          </View>
-          
-          {/* Outer orbital ring */}
-          <View style={styles.outerOrbit}>
-            <View style={[styles.orbitDot, styles.orbitDot3]} />
-            <View style={[styles.orbitDot, styles.orbitDot4]} />
-          </View>
+          <Text style={styles.brandText}>CHAYO</Text>
         </Animated.View>
 
-        {/* Particle system */}
-        {particleAnimations.map((particle, index) => {
-          const angle = (index / particleAnimations.length) * 2 * Math.PI;
-          const radius = 60 + Math.sin(index) * 20;
-          const x = Math.cos(angle) * radius;
-          const y = Math.sin(angle) * radius;
-
-          const rotateInterpolation = particle.rotate.interpolate({
-            inputRange: [0, 1],
-            outputRange: ['0deg', '720deg'],
-          });
-
-          return (
-            <Animated.View
-              key={index}
-              style={[
-                styles.particle,
+        {/* Organic flowing accent line */}
+        <Animated.View
+          style={[
+            styles.flowingAccent,
+            {
+              opacity: breatheValue.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0.3, 0.7],
+              }),
+              transform: [
                 {
-                  left: x + 100, // Center offset
-                  top: y + 100,
-                  transform: [
-                    { scale: particle.scale },
-                    { rotate: rotateInterpolation },
-                  ],
-                  opacity: particle.opacity,
+                  scaleX: breatheValue.interpolate({
+                    inputRange: [0, 0.5, 1],
+                    outputRange: [0.8, 1.2, 0.8],
+                  }),
                 },
-              ]}
-            />
-          );
-        })}
+              ],
+            },
+          ]}
+        />
 
-        {/* Energy waves */}
-        <Animated.View
-          style={[
-            styles.energyWave1,
-            {
-              transform: [{ scale: centralScale }],
-              opacity: centralOpacity.interpolate({
-                inputRange: [0, 1],
-                outputRange: [0, 0.3],
-              }),
-            },
-          ]}
-        />
-        <Animated.View
-          style={[
-            styles.energyWave2,
-            {
-              transform: [{ scale: Animated.multiply(centralScale, 1.5) }],
-              opacity: centralOpacity.interpolate({
-                inputRange: [0, 1],
-                outputRange: [0, 0.2],
-              }),
-            },
-          ]}
-        />
+        {/* Subtle floating dots - like dust particles */}
+        {[0, 1, 2].map((index) => (
+          <Animated.View
+            key={index}
+            style={[
+              styles.floatingDot,
+              {
+                left: 50 + index * 60 + '%',
+                top: 60 + index * 10 + '%',
+                opacity: floatValue.interpolate({
+                  inputRange: [0, 0.5, 1],
+                  outputRange: [0.1, 0.4, 0.1],
+                }),
+                transform: [
+                  {
+                    translateY: floatValue.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0, -20 - index * 5],
+                    }),
+                  },
+                  {
+                    scale: breatheValue.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0.5, 1.5],
+                    }),
+                  },
+                ],
+              },
+            ]}
+          />
+        ))}
       </View>
     </SafeAreaView>
   );
@@ -272,105 +224,59 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#1C1C1E',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   content: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
-    width: '100%',
   },
-  centralCore: {
-    width: 60,
-    height: 60,
-    backgroundColor: '#007AFF',
-    position: 'absolute',
-    shadowColor: '#007AFF',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 20,
-    elevation: 10,
+  textContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 2,
   },
-  orbitalContainer: {
+  brandText: {
+    fontSize: 42,
+    fontWeight: '200', // Ultra-thin for ethereal feel
+    color: '#F5F5DC', // Warm beige instead of stark white
+    textAlign: 'center',
+    letterSpacing: 6, // Airy, spacious
+    textShadowColor: 'rgba(245, 245, 220, 0.3)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 20,
+  },
+  organicShape1: {
     position: 'absolute',
     width: 200,
     height: 200,
-    justifyContent: 'center',
-    alignItems: 'center',
+    borderRadius: 100,
+    backgroundColor: '#8B7355', // Warm earth brown
+    zIndex: 0,
   },
-  innerOrbit: {
+  organicShape2: {
     position: 'absolute',
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    borderWidth: 1,
-    borderColor: 'rgba(0, 122, 255, 0.2)',
+    width: 150,
+    height: 300,
+    borderRadius: 75,
+    backgroundColor: '#A0956B', // Sage green-brown
+    zIndex: 0,
   },
-  outerOrbit: {
+  flowingAccent: {
+    width: 80,
+    height: 1,
+    backgroundColor: '#D4AF37', // Warm gold
+    marginTop: 32,
+    borderRadius: 0.5,
+    zIndex: 1,
+  },
+  floatingDot: {
     position: 'absolute',
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    borderWidth: 1,
-    borderColor: 'rgba(88, 86, 214, 0.2)',
-  },
-  orbitDot: {
-    position: 'absolute',
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#5856D6',
-  },
-  orbitDot1: {
-    top: -4,
-    left: '50%',
-    marginLeft: -4,
-  },
-  orbitDot2: {
-    bottom: -4,
-    left: '50%',
-    marginLeft: -4,
-  },
-  orbitDot3: {
-    top: -4,
-    left: '50%',
-    marginLeft: -4,
-    backgroundColor: '#007AFF',
-  },
-  orbitDot4: {
-    bottom: -4,
-    left: '50%',
-    marginLeft: -4,
-    backgroundColor: '#007AFF',
-  },
-  particle: {
-    position: 'absolute',
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#FF9500',
-    shadowColor: '#FF9500',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 4,
-  },
-  energyWave1: {
-    position: 'absolute',
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    borderWidth: 2,
-    borderColor: '#007AFF',
-  },
-  energyWave2: {
-    position: 'absolute',
-    width: 160,
-    height: 160,
-    borderRadius: 80,
-    borderWidth: 1,
-    borderColor: '#5856D6',
+    width: 3,
+    height: 3,
+    borderRadius: 1.5,
+    backgroundColor: '#DEB887', // Burlywood - natural, earthy
+    zIndex: 1,
   },
 });
 

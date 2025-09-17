@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   TextInput,
   Alert,
-  ActivityIndicator,
   SafeAreaView,
   Dimensions,
 } from 'react-native';
@@ -16,6 +15,7 @@ import { useTranslation } from '../hooks/useTranslation';
 import AuthGate from './AuthGate';
 import { useAppConfig } from '../hooks/useAppConfig';
 import { createCustomerInteraction } from '../services/authService';
+import LoadingScreen from './LoadingScreen';
 
 const { width } = Dimensions.get('window');
 
@@ -266,7 +266,7 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
                 disabled={isLoading}
               >
                 {isLoading ? (
-                  <ActivityIndicator color={theme.backgroundColor} />
+                  <LoadingScreen />
                 ) : (
                   <Text style={[styles.bookButtonText, { color: theme.backgroundColor }]}>Book Appointment</Text>
                 )}
