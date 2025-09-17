@@ -4,10 +4,20 @@ const path = require('path');
 
 function getCurrentVersion() {
   try {
-    // Read current version from app.config.js
+    // Read current version from app.config.js (handle ES modules)
     const appConfigPath = path.join(__dirname, '../app.config.js');
-    const appConfig = require(appConfigPath);
-    return appConfig.expo.version;
+    const content = fs.readFileSync(appConfigPath, 'utf8');
+    
+    // Extract version using regex since it's ES module syntax
+    const versionMatch = content.match(/version:\s*["']([^"']+)["']/);
+    if (versionMatch) {
+      const version = versionMatch[1];
+      console.log(`📋 Found current version: ${version}`);
+      return version;
+    }
+    
+    console.log('Could not parse version from app.config.js, using 1.0.0');
+    return '1.0.0';
   } catch (error) {
     console.log('Could not read version from app.config.js, using 1.0.0');
     return '1.0.0';
