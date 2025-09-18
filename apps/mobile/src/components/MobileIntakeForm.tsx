@@ -616,7 +616,7 @@ const styles = StyleSheet.create({
   },
   pickerDone: {
     fontSize: 16,
-    color: '#0A84FF',
+    color: '#2F5D62',
     fontWeight: '600',
   },
   radioOption: {
@@ -629,7 +629,7 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: 10,
     borderWidth: 2,
-    borderColor: '#0A84FF',
+    borderColor: '#2F5D62',
     marginRight: 12,
     alignItems: 'center',
     justifyContent: 'center',
@@ -638,7 +638,7 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: '#0A84FF',
+    backgroundColor: '#2F5D62',
   },
   radioLabel: {
     fontSize: 16,
@@ -652,14 +652,14 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderWidth: 2,
-    borderColor: '#0A84FF',
+    borderColor: '#2F5D62',
     borderRadius: 4,
     marginRight: 12,
     alignItems: 'center',
     justifyContent: 'center',
   },
   checkboxChecked: {
-    backgroundColor: '#0A84FF',
+    backgroundColor: '#2F5D62',
   },
   checkmark: {
     color: '#FFFFFF',
@@ -672,7 +672,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   submitButton: {
-    backgroundColor: '#0A84FF',
+    backgroundColor: '#2F5D62',
     borderRadius: 8,
     padding: 16,
     alignItems: 'center',

@@ -6,7 +6,7 @@ import { useUser } from '@/lib/shared/hooks/useUser';
 
 // Default theme constants (inlined for Vercel compatibility)
 const DEFAULT_THEME = {
-  primaryColor: '#0A84FF',
+  primaryColor: '#2F5D62',
   secondaryColor: '#2C2C2E',
   backgroundColor: '#1C1C1E',
   textColor: '#FFFFFF',

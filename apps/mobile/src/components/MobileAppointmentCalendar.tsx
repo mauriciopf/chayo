@@ -418,7 +418,7 @@ const styles = StyleSheet.create({
   },
   navButtonText: {
     fontSize: 24,
-    color: '#0A84FF',
+    color: '#2F5D62',
     fontWeight: '600',
   },
   monthYear: {
@@ -468,7 +468,7 @@ const styles = StyleSheet.create({
     color: '#8E8E93',
   },
   selectedDay: {
-    backgroundColor: '#0A84FF',
+    backgroundColor: '#2F5D62',
     borderRadius: 22,
   },
   selectedDayText: {
@@ -491,7 +491,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#0A84FF',
+    borderColor: '#2F5D62',
   },
   selectedDateText: {
     fontSize: 16,
@@ -502,7 +502,7 @@ const styles = StyleSheet.create({
   selectedTimeText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#0A84FF',
+    color: '#2F5D62',
     textAlign: 'center',
     marginTop: 4,
   },
@@ -568,7 +568,7 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
   },
   bookButton: {
-    backgroundColor: '#0A84FF',
+    backgroundColor: '#2F5D62',
     paddingVertical: 16,
     borderRadius: 8,
     alignItems: 'center',

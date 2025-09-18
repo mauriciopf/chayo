@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
   },
   codeButton: {
     backgroundColor: '#3A3A3C',
-    borderColor: '#0A84FF',
+    borderColor: '#2F5D62',
   },
   optionContent: {
     flexDirection: 'row',

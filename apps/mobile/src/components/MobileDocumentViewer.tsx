@@ -330,7 +330,7 @@ const styles = StyleSheet.create({
     opacity: 0.8,
   },
   retryButton: {
-    backgroundColor: '#0A84FF',
+    backgroundColor: '#2F5D62',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
@@ -355,7 +355,7 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     fontSize: 18,
-    color: '#0A84FF',
+    color: '#2F5D62',
     fontWeight: '600',
   },
   headerTitleContainer: {
@@ -456,7 +456,7 @@ const styles = StyleSheet.create({
   },
   signButton: {
     flex: 2,
-    backgroundColor: '#0A84FF',
+    backgroundColor: '#2F5D62',
     borderRadius: 8,
     padding: 16,
     alignItems: 'center',

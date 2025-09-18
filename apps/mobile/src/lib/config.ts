@@ -37,7 +37,7 @@ export interface BrandingConfig {
 
 // Default theme constants (matching API defaults for consistency)
 export const DEFAULT_THEME: ThemeConfig = {
-  primary: '#0A84FF',
+  primary: '#2F5D62',
   secondary: '#2C2C2E',
   accent: '#FF9500',
   background: '#1C1C1E',

@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 8,
-    backgroundColor: '#0A84FF',
+    backgroundColor: '#2F5D62',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   retryButton: {
-    backgroundColor: '#0A84FF',
+    backgroundColor: '#2F5D62',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
