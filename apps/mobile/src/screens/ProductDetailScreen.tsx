@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import {
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useThemedStyles } from '../context/ThemeContext';
 import { useTranslation } from '../hooks/useTranslation';
+import { useNavigationHeader } from '../context/NavigationContext';
 import { SkeletonBox } from '../components/SkeletonLoader';
 import Icon from 'react-native-vector-icons/Feather';
 
@@ -33,6 +34,12 @@ export const ProductDetailScreen: React.FC = () => {
   const { t } = useTranslation();
   const screenWidth = Dimensions.get('window').width;
   const [imageLoading, setImageLoading] = useState(true);
+
+  // Use auto-cleanup navigation header
+  useNavigationHeader('Product Details', {
+    onBackPress: () => navigation.goBack(),
+    autoCleanup: true, // Automatically return to business header when component unmounts
+  });
 
   // Generate same gradient as in the grid for consistency
   const getProductGradient = (productName: string) => {
@@ -58,25 +65,10 @@ export const ProductDetailScreen: React.FC = () => {
     console.log('Purchase product:', product.id);
   };
 
-  const handleGoBack = () => {
-    navigation.goBack();
-  };
 
   return (
     <View style={[styles.container, themedStyles.container]}>
-      {/* Header */}
-      <View style={[styles.header, { borderBottomColor: theme.borderColor }]}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={handleGoBack}
-        >
-          <Icon name="arrow-left" size={24} color={theme.textColor} />
-        </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: theme.textColor }]}>
-          {t('products.detail.title')}
-        </Text>
-        <View style={styles.headerSpacer} />
-      </View>
+      {/* Header is now managed by NavigationContext */}
 
       <ScrollView
         style={styles.scrollView}
@@ -208,27 +200,6 @@ export const ProductDetailScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingTop: 50, // Account for status bar
-    paddingBottom: 12,
-    borderBottomWidth: 1,
-  },
-  backButton: {
-    padding: 8,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    flex: 1,
-    textAlign: 'center',
-    marginRight: 40, // Compensate for back button
-  },
-  headerSpacer: {
-    width: 40,
   },
   scrollView: {
     flex: 1,

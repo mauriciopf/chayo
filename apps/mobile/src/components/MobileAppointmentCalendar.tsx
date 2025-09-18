@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,7 +11,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { useThemedStyles } from '../context/ThemeContext';
-import { useTranslation } from '../hooks/useTranslation';
+import { useScreenNavigation } from '../context/NavigationContext';
 import AuthGate from './AuthGate';
 import { useAppConfig } from '../hooks/useAppConfig';
 import { createCustomerInteraction } from '../services/authService';
@@ -33,11 +33,9 @@ interface MobileAppointmentCalendarProps {
 
 const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
   organizationId,
-  businessName = 'Our Business',
   baseUrl = 'https://chayo.ai',
 }) => {
   const { theme, themedStyles } = useThemedStyles();
-  const { t } = useTranslation();
   const { config } = useAppConfig();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -50,6 +48,24 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
     notes: '',
   });
   const [isLoading, setIsLoading] = useState(false);
+
+  const { setScreenHeader, setRootNavigation } = useScreenNavigation();
+
+  // Set up navigation headers based on current state
+  useEffect(() => {
+    if (showBookingForm) {
+      setScreenHeader('Book Appointment', {
+        onBackPress: () => setShowBookingForm(false),
+      });
+    } else if (showTimeSlots) {
+      setScreenHeader('Select Time', {
+        onBackPress: () => setShowTimeSlots(false),
+      });
+    } else {
+      // At root level - let business header show
+      setRootNavigation();
+    }
+  }, [showBookingForm, showTimeSlots, setScreenHeader, setRootNavigation]);
 
   // Available time slots (9 AM to 5 PM)
   const timeSlots = [
@@ -218,15 +234,7 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
     return (
       <SafeAreaView style={[styles.container, themedStyles.container]}>
         <ScrollView style={[styles.formContainer, { backgroundColor: theme.backgroundColor }]}>
-          <View style={[styles.header, { backgroundColor: theme.backgroundColor }]}>
-            <TouchableOpacity
-              style={styles.backButton}
-              onPress={() => setShowBookingForm(false)}
-            >
-              <Text style={[styles.backButtonText, { color: theme.primaryColor }]}>← Back</Text>
-            </TouchableOpacity>
-            <Text style={[styles.headerTitle, themedStyles.primaryText]}>Book Appointment</Text>
-          </View>
+          {/* Header is now managed by NavigationContext */}
 
           <View style={[styles.selectedDateTimeCard, { backgroundColor: theme.primaryColor, borderColor: theme.primaryColor }]}>
             <Text style={[styles.selectedDateText, { color: theme.backgroundColor }]}>
@@ -281,15 +289,7 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
   if (showTimeSlots) {
     return (
       <SafeAreaView style={[styles.container, themedStyles.container]}>
-        <View style={[styles.header, { backgroundColor: theme.backgroundColor }]}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => setShowTimeSlots(false)}
-          >
-            <Text style={[styles.backButtonText, { color: theme.primaryColor }]}>← Back</Text>
-          </TouchableOpacity>
-          <Text style={[styles.headerTitle, themedStyles.primaryText]}>Select Time</Text>
-        </View>
+        {/* Header is now managed by NavigationContext */}
 
         <View style={[styles.selectedDateCard, { backgroundColor: theme.surfaceColor, borderColor: theme.borderColor }]}>
           <Text style={[styles.selectedDateText, { color: theme.textColor }]}>
@@ -326,9 +326,7 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
 
   return (
     <SafeAreaView style={[styles.container, themedStyles.container]}>
-      <View style={[styles.header, { backgroundColor: theme.backgroundColor }]}>
-        <Text style={[styles.headerTitle, themedStyles.primaryText]}>Book with {businessName}</Text>
-      </View>
+      {/* Header is now managed by NavigationContext - shows business name */}
 
       <View style={[styles.calendarHeader, { backgroundColor: theme.surfaceColor }]}>
         <TouchableOpacity
@@ -401,32 +399,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#1C1C1E',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: '#1C1C1E',
-    borderBottomWidth: 1,
-    borderBottomColor: '#3A3A3C',
-  },
-  backButton: {
-    position: 'absolute',
-    left: 20,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-  },
-  backButtonText: {
-    fontSize: 16,
-    color: '#0A84FF',
-    fontWeight: '600',
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#FFFFFF',
   },
   calendarHeader: {
     flexDirection: 'row',

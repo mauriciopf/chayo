@@ -10,6 +10,8 @@ import {
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { AppConfigProvider } from '../context/AppConfigContext';
 import { ThemeProvider } from '../context/ThemeContext';
+import { NavigationProvider } from '../context/NavigationContext';
+import { SmartHeader } from '../components/SmartHeader';
 import BusinessTabNavigator from '../navigation/BusinessTabNavigator';
 import LoadingScreen from '../components/LoadingScreen';
 import { supabase } from '../services/authService';
@@ -30,7 +32,8 @@ interface BusinessDetailScreenProps {
   organizationId: string;
 }
 
-export default function BusinessDetailScreen() {
+// Inner component that uses the navigation context
+function BusinessDetailContent() {
   const route = useRoute();
   const navigation = useNavigation();
   const { business, organizationId } = route.params as BusinessDetailScreenProps;
@@ -87,11 +90,11 @@ export default function BusinessDetailScreen() {
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle="light-content" backgroundColor="#1C1C1E" />
         <View style={styles.errorContainer}>
-          <TouchableOpacity style={styles.backButton} onPress={handleBackToMarketplace}>
-            <Text style={styles.backButtonText}>← Back to Marketplace</Text>
+          <TouchableOpacity style={styles.retryButton} onPress={handleBackToMarketplace}>
+            <Text style={styles.retryButtonText}>← Back to Marketplace</Text>
           </TouchableOpacity>
           <Text style={styles.errorText}>{configError}</Text>
-          <TouchableOpacity style={styles.retryButton} onPress={() => window.location.reload()}>
+          <TouchableOpacity style={styles.retryButton} onPress={handleBackToMarketplace}>
             <Text style={styles.retryButtonText}>Try Again</Text>
           </TouchableOpacity>
         </View>
@@ -103,128 +106,40 @@ export default function BusinessDetailScreen() {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#1C1C1E" />
       
-      {/* Business Header with Back Button */}
-      <View style={styles.businessHeader}>
-        <TouchableOpacity style={styles.backButton} onPress={handleBackToMarketplace}>
-          <Text style={styles.backButtonText}>← Back</Text>
-        </TouchableOpacity>
-        
-        <View style={styles.businessInfo}>
-          <Text style={styles.businessName}>{business.name}</Text>
-        </View>
-        
-        {/* Spacer to balance the back button and center the title */}
-        <View style={styles.headerSpacer} />
-      </View>
-
       {/* Business App Content - Loads app-config for selected business */}
-      <View style={styles.appContainer}>
-        <AppConfigProvider organizationId={organizationId} organizationSlug={business.slug}>
-          <ThemeProvider>
+      <AppConfigProvider organizationId={organizationId} organizationSlug={business.slug}>
+        <ThemeProvider>
+          {/* Smart Header - automatically switches between business and nested headers */}
+          <SmartHeader
+            businessName={business.name}
+            onBackToMarketplace={handleBackToMarketplace}
+          />
+          
+          <View style={styles.appContainer}>
             <BusinessTabNavigator 
               businessName={business.name}
               onBackToMarketplace={handleBackToMarketplace}
             />
-          </ThemeProvider>
-        </AppConfigProvider>
-      </View>
+          </View>
+        </ThemeProvider>
+      </AppConfigProvider>
     </View>
   );
 }
 
-// Helper functions for category display
-const getCategoryIcon = (category: string): string => {
-  const categoryMap: { [key: string]: string } = {
-    healthcare: '🏥',
-    dental: '🦷',
-    legal: '⚖️',
-    automotive: '🚗',
-    beauty: '💄',
-    fitness: '💪',
-    restaurant: '🍽️',
-    retail: '🛍️',
-    professional_services: '💼',
-    home_services: '🏠',
-    education: '📚',
-    finance: '💰',
-    real_estate: '🏡',
-    technology: '💻',
-    consulting: '📊',
-    entertainment: '🎭',
-    travel: '✈️',
-    nonprofit: '❤️',
-    other: '🏪',
-  };
-  return categoryMap[category] || '🏪';
-};
-
-const getCategoryLabel = (category: string): string => {
-  const labelMap: { [key: string]: string } = {
-    healthcare: 'Healthcare',
-    dental: 'Dental',
-    legal: 'Legal',
-    automotive: 'Automotive',
-    beauty: 'Beauty & Wellness',
-    fitness: 'Fitness',
-    restaurant: 'Restaurant',
-    retail: 'Retail',
-    professional_services: 'Professional Services',
-    home_services: 'Home Services',
-    education: 'Education',
-    finance: 'Finance',
-    real_estate: 'Real Estate',
-    technology: 'Technology',
-    consulting: 'Consulting',
-    entertainment: 'Entertainment',
-    travel: 'Travel',
-    nonprofit: 'Non-Profit',
-    other: 'Other',
-  };
-  return labelMap[category] || 'Business';
-};
+// Main component that provides navigation context
+export default function BusinessDetailScreen() {
+  return (
+    <NavigationProvider>
+      <BusinessDetailContent />
+    </NavigationProvider>
+  );
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#000000',
-  },
-  businessHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 50, // Account for status bar
-    paddingBottom: 16,
-    backgroundColor: '#1C1C1E',
-    borderBottomWidth: 1,
-    borderBottomColor: '#2C2C2E',
-  },
-  backButton: {
-    paddingVertical: 8,
-    paddingRight: 16,
-  },
-  backButtonText: {
-    fontSize: 16,
-    color: '#007AFF',
-    fontWeight: '500',
-  },
-  headerSpacer: {
-    width: 60, // Match approximate back button width to center title
-  },
-  businessInfo: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  businessName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    textAlign: 'center',
-    marginBottom: 4,
-  },
-  businessCategory: {
-    fontSize: 14,
-    color: '#8E8E93',
-    textAlign: 'center',
   },
   appContainer: {
     flex: 1,
