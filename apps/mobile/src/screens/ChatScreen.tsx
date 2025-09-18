@@ -21,8 +21,13 @@ export const ChatScreen: React.FC = () => {
     },
   ];
 
+  // Debug: Log enabled tools
+  console.log('🔧 ChatScreen - Enabled tools:', config?.enabledTools);
+  console.log('🔧 ChatScreen - Customer support enabled?', config?.enabledTools?.includes('customer_support'));
+
   // Only add Customer Support tab if it's enabled in the config
-  if (config?.enabledTools?.includes('customer_support')) {
+  // TEMPORARY: Always show for testing
+  if (config?.enabledTools?.includes('customer_support') || true) {
     tabs.push({
       key: 'customer-support',
       title: t('chat.supportTab') || 'Customer Support',

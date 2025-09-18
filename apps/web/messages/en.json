@@ -397,6 +397,26 @@
     "failedToUpdateOrg": "Failed to update organization",
     "billingPortalError": "Unable to open billing portal. Please try again.",
     "createAgentButton": "Create Agent",
+    "tools": {
+      "customerSupport": {
+        "title": "Customer Support",
+        "description": "Manage customer support conversations and provide real-time assistance",
+        "conversations": "Conversations",
+        "noConversations": "No conversations yet",
+        "selectConversation": "Select a conversation to start chatting",
+        "loading": "Loading conversations...",
+        "sendMessage": "Send message",
+        "typing": "Type your message...",
+        "online": "Online",
+        "offline": "Offline",
+        "responding": "Responding...",
+        "messageCount": "messages",
+        "newConversation": "New conversation started",
+        "conversationResolved": "Conversation resolved",
+        "customerOnline": "Customer is online",
+        "customerOffline": "Customer went offline"
+      }
+    },
     "upgradePlan": "Upgrade Plan",
     "changePlan": "Change Plan",
     "connectChannels": "Connect Channels",

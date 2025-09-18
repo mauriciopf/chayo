@@ -397,6 +397,26 @@
     "failedToUpdateOrg": "Error al actualizar organización",
     "billingPortalError": "No se puede abrir el portal de facturación. Por favor intenta de nuevo.",
     "createAgentButton": "Crear Agente",
+    "tools": {
+      "customerSupport": {
+        "title": "Soporte al Cliente",
+        "description": "Gestiona conversaciones de soporte al cliente y proporciona asistencia en tiempo real",
+        "conversations": "Conversaciones",
+        "noConversations": "Aún no hay conversaciones",
+        "selectConversation": "Selecciona una conversación para empezar a chatear",
+        "loading": "Cargando conversaciones...",
+        "sendMessage": "Enviar mensaje",
+        "typing": "Escribe tu mensaje...",
+        "online": "En línea",
+        "offline": "Desconectado",
+        "responding": "Respondiendo...",
+        "messageCount": "mensajes",
+        "newConversation": "Nueva conversación iniciada",
+        "conversationResolved": "Conversación resuelta",
+        "customerOnline": "Cliente está en línea",
+        "customerOffline": "Cliente se desconectó"
+      }
+    },
     "upgradePlan": "Mejorar Plan",
     "changePlan": "Cambiar Plan",
     "connectChannels": "Conectar Canales",
