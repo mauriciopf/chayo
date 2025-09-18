@@ -26,8 +26,8 @@
   },
   "chat": {
     "title": "Chayo Chat",
-    "aiTab": "AI Chat",
-    "supportTab": "Customer Support",
+    "aiTab": "AI",
+    "supportTab": "Human",
     "placeholder": "Type your message...",
     "send": "Send",
     "typing": "Chayo is typing...",

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   View,
   Text,
@@ -52,6 +53,20 @@ export const CustomerSupportScreen: React.FC = () => {
   
   const flatListRef = useRef<FlatList>(null);
   const textInputRef = useRef<TextInput>(null);
+
+  // Automatically show login modal when screen is focused and user is not authenticated
+  useFocusEffect(
+    useCallback(() => {
+      if (!isAuthenticated) {
+        // Small delay to let the screen transition complete
+        const timer = setTimeout(() => {
+          setShowLoginModal(true);
+        }, 300);
+        
+        return () => clearTimeout(timer);
+      }
+    }, [isAuthenticated])
+  );
   
   // Use existing SSE system for loading states
   const sseProgress = useSSEProgress(config?.organizationId);
@@ -337,28 +352,30 @@ export const CustomerSupportScreen: React.FC = () => {
     </View>
   );
 
-  // Show login modal if not authenticated
+  // Show clean loading state while login modal is presented
   if (!isAuthenticated) {
     return (
       <View style={[styles.container, themedStyles.container]}>
-        <View style={styles.authPrompt}>
-          <Text style={[styles.authTitle, { color: theme.textColor }]}>
-            Sign in to Contact Support
-          </Text>
-          <Text style={[styles.authSubtitle, { color: theme.placeholderColor }]}>
-            Please sign in to start a conversation with our support team
-          </Text>
-          <TouchableOpacity
-            style={[styles.authButton, { backgroundColor: theme.primaryColor }]}
-            onPress={() => setShowLoginModal(true)}
-          >
-            <Text style={styles.authButtonText}>Sign In</Text>
-          </TouchableOpacity>
-        </View>
+        {/* Clean background while login modal is shown - tappable to reopen modal */}
+        <TouchableOpacity 
+          style={styles.authLoadingContainer}
+          onPress={() => setShowLoginModal(true)}
+          activeOpacity={1}
+        >
+          <View style={styles.authLoadingContent}>
+            <Text style={[styles.authLoadingText, { color: theme.placeholderColor }]}>
+              {showLoginModal ? 'Preparing Support Chat...' : 'Tap to Sign In for Support'}
+            </Text>
+          </View>
+        </TouchableOpacity>
 
         <LoginModal
           visible={showLoginModal}
-          onClose={() => setShowLoginModal(false)}
+          onClose={() => {
+            setShowLoginModal(false);
+            // If user closes modal without logging in, show a helpful message
+            // They can tap anywhere to try again
+          }}
           onSuccess={handleLoginSuccess}
           title="Sign in for Support"
           message="Sign in to start a conversation with our support team"
@@ -562,34 +579,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
   },
-  authPrompt: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 32,
-  },
-  authTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-    textAlign: 'center',
-    marginBottom: 12,
-  },
-  authSubtitle: {
-    fontSize: 16,
-    textAlign: 'center',
-    lineHeight: 22,
-    marginBottom: 32,
-  },
-  authButton: {
-    paddingHorizontal: 32,
-    paddingVertical: 12,
-    borderRadius: 8,
-  },
-  authButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -603,5 +592,21 @@ const styles = StyleSheet.create({
   thinkingContainer: {
     paddingVertical: 16,
     paddingHorizontal: 16,
+  },
+  authLoadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#1C1C1E',
+  },
+  authLoadingContent: {
+    alignItems: 'center',
+    paddingHorizontal: 32,
+  },
+  authLoadingText: {
+    fontSize: 16,
+    color: '#8E8E93',
+    textAlign: 'center',
+    opacity: 0.8,
   },
 });

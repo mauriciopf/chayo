@@ -26,8 +26,8 @@
   },
   "chat": {
     "title": "Chat de Chayo",
-    "aiTab": "Chat IA",
-    "supportTab": "Soporte al Cliente",
+    "aiTab": "IA",
+    "supportTab": "Humano",
     "placeholder": "Escribe tu mensaje...",
     "send": "Enviar",
     "typing": "Chayo está escribiendo...",

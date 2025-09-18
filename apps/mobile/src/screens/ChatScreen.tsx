@@ -16,7 +16,7 @@ export const ChatScreen: React.FC = () => {
   const tabs = [
     {
       key: 'ai-chat',
-      title: t('chat.aiTab') || 'AI Chat',
+      title: t('chat.aiTab') || 'AI',
       component: <AIChatContent />,
     },
   ];
@@ -30,7 +30,7 @@ export const ChatScreen: React.FC = () => {
   if (config?.enabledTools?.includes('customer_support') || true) {
     tabs.push({
       key: 'customer-support',
-      title: t('chat.supportTab') || 'Customer Support',
+      title: t('chat.supportTab') || 'Human',
       component: <CustomerSupportScreen />,
     });
   }

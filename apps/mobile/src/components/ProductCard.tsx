@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
-  Image,
   StyleSheet,
+  Animated,
 } from 'react-native';
-import { SkeletonBox } from './SkeletonLoader';
+import { PremiumProductCardSkeleton } from './PremiumProductCardSkeleton';
 
 interface Product {
   id: string;
@@ -34,30 +34,66 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   const [imageLoading, setImageLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
   const [startColor, endColor] = getProductGradient(item.name);
+  const imageOpacity = useRef(new Animated.Value(0)).current;
+  const cardScale = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    if (!imageLoading) {
+      // Smooth fade-in when image loads
+      Animated.timing(imageOpacity, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [imageLoading, imageOpacity]);
+
+  const handlePressIn = () => {
+    Animated.spring(cardScale, {
+      toValue: 0.96,
+      useNativeDriver: true,
+      tension: 300,
+      friction: 10,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(cardScale, {
+      toValue: 1,
+      useNativeDriver: true,
+      tension: 300,
+      friction: 10,
+    }).start();
+  };
 
   return (
-    <TouchableOpacity
-      style={[styles.productItem, { width: itemSize, height: itemSize }]}
-      onPress={() => onPress(item)}
-      activeOpacity={0.8}
-    >
+    <Animated.View style={[{ transform: [{ scale: cardScale }] }]}>
+      <TouchableOpacity
+        style={[styles.productItem, { width: itemSize, height: itemSize }]}
+        onPress={() => onPress(item)}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        activeOpacity={1}
+      >
       {item.image_url && !imageError ? (
         <View style={styles.imageContainer}>
           {imageLoading && (
             <View style={[styles.productImage, styles.imageSkeleton]}>
-              <SkeletonBox
+              <PremiumProductCardSkeleton
                 width={itemSize - 24}
                 height={itemSize - 80}
-                borderRadius={12}
+                theme={theme}
               />
             </View>
           )}
-          <Image
+          <Animated.Image
             source={{ uri: item.image_url }}
             style={[
               styles.productImage,
-              { backgroundColor: theme.surfaceColor },
-              imageLoading && { position: 'absolute', opacity: 0 },
+              { 
+                backgroundColor: theme.surfaceColor,
+                opacity: imageOpacity,
+              },
             ]}
             resizeMode="cover"
             onLoad={() => setImageLoading(false)}
@@ -89,15 +125,28 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           </View>
         </View>
       )}
-    </TouchableOpacity>
+      </TouchableOpacity>
+    </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
   productItem: {
-    borderRadius: 12,
+    borderRadius: 16,
     overflow: 'hidden',
     position: 'relative',
+    backgroundColor: '#2C2C2E',
+    borderWidth: 1,
+    borderColor: '#3A3A3C',
+    // Premium shadows for depth
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 6,
   },
   productImage: {
     width: '100%',
@@ -116,6 +165,17 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#2C2C2E',
+    borderRadius: 16,
+    // Premium shadow while loading
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   placeholderImage: {
     width: '100%',
