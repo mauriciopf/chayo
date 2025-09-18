@@ -50,6 +50,13 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
       category: 'mobile-branding'
     },
     {
+      id: 'customer_support',
+      label: '💬 Customer Support',
+      icon: '💬',
+      description: 'Manage real-time customer conversations and support tickets.',
+      category: 'customer_support'
+    },
+    {
       id: 'schedule_appointment',
       label: '📅 Schedule appointment',
       icon: '📅',
@@ -90,13 +97,6 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
       icon: '❓',
       description: 'Business hours, location, pricing, policies.',
       category: 'faqs'
-    },
-    {
-      id: 'customer_support',
-      label: '💬 Customer Support',
-      icon: '💬',
-      description: 'Manage real-time customer conversations and support tickets.',
-      category: 'customer_support'
     }
   ]
 
