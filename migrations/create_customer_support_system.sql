@@ -175,7 +175,7 @@ BEGIN
         FROM customer_support_messages m
         LEFT JOIN customer_support_read_receipts r ON (
             r.conversation_id = m.conversation_id 
-            AND r.user_id = user_id
+            AND r.user_id = get_customer_support_conversations.user_id
         )
         WHERE r.last_read_message_id IS NULL 
            OR m.created_at > r.last_read_at
