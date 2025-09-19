@@ -154,7 +154,26 @@ export class VibeCardService {
         return false
       }
 
-      // Note: Vibe card is not a database tool - it's a core feature always available when setup is complete
+      // Update organization name if business_name was collected
+      if (vibeCardData.business_name && vibeCardData.business_name !== 'Business') {
+        try {
+          const { error: orgUpdateError } = await this.supabaseClient
+            .from('organizations')
+            .update({
+              name: vibeCardData.business_name,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', organizationId)
+
+          if (orgUpdateError) {
+            console.warn('⚠️ Failed to update organization name:', orgUpdateError)
+          } else {
+            console.log('✅ Updated organization name to:', vibeCardData.business_name)
+          }
+        } catch (orgError) {
+          console.warn('⚠️ Error updating organization name:', orgError)
+        }
+      }
 
       console.log('✅ Onboarding completed with vibe card for organization:', organizationId)
       return true
