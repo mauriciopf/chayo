@@ -27,7 +27,7 @@ export class VibeCardService {
 
       // Convert fields to object
       const fieldsData: Record<string, any> = {}
-      businessFields.forEach(field => {
+      businessFields.forEach((field: any) => {
         if (field.field_value) {
           // Handle array fields (stored as JSON strings)
           try {
@@ -223,7 +223,7 @@ export class VibeCardService {
         return []
       }
 
-      return data?.map(item => ({
+      return data?.map((item: any) => ({
         organization_id: item.organization_id,
         slug: item.slug,
         setup_status: 'completed',

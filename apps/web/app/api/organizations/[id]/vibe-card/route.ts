@@ -5,10 +5,10 @@ import { VibeCardData } from '@/lib/shared/types/vibeCardTypes';
 // GET - Retrieve vibe card data
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ organizationId: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { organizationId } = await params;
+    const { id: organizationId } = await params;
     const supabase = await getSupabaseServerClient();
 
     const { data, error } = await supabase
@@ -64,10 +64,10 @@ export async function GET(
 // PUT - Update vibe card data
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ organizationId: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { organizationId } = await params;
+    const { id: organizationId } = await params;
     const vibeCardData: VibeCardData = await request.json();
     const supabase = await getSupabaseServerClient();
 

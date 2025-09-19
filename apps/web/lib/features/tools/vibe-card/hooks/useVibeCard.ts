@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { VibeCardData } from '@/lib/shared/types/vibeCardTypes';
-import { VibeCardService } from '../../onboarding/services/vibeCardService';
+import { VibeCardService } from '../../../onboarding/services/vibeCardService';
 
 export function useVibeCard(organizationId: string) {
   const [vibeCard, setVibeCard] = useState<VibeCardData | null>(null);
@@ -43,7 +43,7 @@ export function useVibeCard(organizationId: string) {
       setSaving(true);
       setError(null);
 
-      // Call API to save vibe card (update completion_data)
+      // Call API to save vibe card (update vibe_cards table)
       const response = await fetch(`/api/organizations/${organizationId}/vibe-card`, {
         method: 'PUT',
         headers: {

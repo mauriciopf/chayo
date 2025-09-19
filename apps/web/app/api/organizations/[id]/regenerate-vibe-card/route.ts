@@ -5,10 +5,10 @@ import { VibeCardService } from '@/lib/features/onboarding/services/vibeCardServ
 // POST - Regenerate vibe card using AI
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ organizationId: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { organizationId } = await params;
+    const { id: organizationId } = await params;
     const supabase = await getSupabaseServerClient();
     const vibeCardService = new VibeCardService(supabase);
 

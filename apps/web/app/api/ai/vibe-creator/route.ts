@@ -145,17 +145,19 @@ ${business_info.target_customers?.length ? `Target Customers: ${business_info.ta
 
 Generate a complete vibe profile that will make this business irresistible to their ideal customers.`
 
-    const response = await openAIService.createChatCompletion({
-      model: 'gpt-4o',
-      messages: [
+    const responseContent = await openAIService.callChatCompletion(
+      [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt }
       ],
-      response_format: VibeCreationSchema,
-      temperature: 0.8 // Higher creativity for vibe creation
-    })
+      {
+        model: 'gpt-4o',
+        responseFormat: VibeCreationSchema,
+        temperature: 0.8 // Higher creativity for vibe creation
+      }
+    )
 
-    const vibeData = JSON.parse(response.choices[0].message.content || '{}') as VibeCreationResponse
+    const vibeData = JSON.parse(responseContent || '{}') as VibeCreationResponse
 
     return NextResponse.json(vibeData)
 
