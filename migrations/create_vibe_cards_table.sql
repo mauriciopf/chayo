@@ -10,25 +10,21 @@ CREATE TABLE IF NOT EXISTS vibe_cards (
   business_name TEXT NOT NULL,
   business_type TEXT NOT NULL,
   
-  -- Vibe Elements (AI-enhanced)
-  origin_story TEXT NOT NULL,
+  -- Essential collected fields
+  origin_story TEXT DEFAULT '',
   value_badges JSONB DEFAULT '[]'::jsonb, -- Array of strings
-  personality_traits JSONB DEFAULT '[]'::jsonb, -- Array of strings
+  perfect_for JSONB DEFAULT '[]'::jsonb, -- Array of strings
   
-  -- Visual Vibe (AI-generated)
+  -- AI-generated fields (always created by AI)
   vibe_colors JSONB NOT NULL DEFAULT '{
     "primary": "#8B7355",
     "secondary": "#A8956F", 
     "accent": "#E6D7C3"
   }'::jsonb,
   vibe_aesthetic TEXT DEFAULT 'Boho-chic',
-  
-  -- Connection Elements (AI-enhanced)
-  why_different TEXT NOT NULL,
-  perfect_for JSONB DEFAULT '[]'::jsonb, -- Array of strings
-  
-  -- Social Proof (AI-generated)
-  customer_love TEXT NOT NULL,
+  personality_traits JSONB DEFAULT '[]'::jsonb, -- AI-generated
+  why_different TEXT DEFAULT '', -- AI-generated
+  customer_love TEXT DEFAULT '', -- AI-generated
   
   -- Optional fields
   location TEXT,

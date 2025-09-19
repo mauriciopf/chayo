@@ -26,7 +26,14 @@ export const OnboardingQuestionSchema = {
         },
         field_name: {
           type: "string",
-          description: "Database field name for this business information"
+          enum: [
+            "business_name",
+            "business_type", 
+            "origin_story",
+            "value_badges",
+            "perfect_for"
+          ],
+          description: "Essential vibe card field name - streamlined to 5 core fields only"
         },
         field_type: {
           type: "string",

@@ -122,17 +122,19 @@ export async function POST(request: NextRequest) {
     }
 
     // Create AI prompt for vibe creation
-    const systemPrompt = `You are an expert brand strategist and color psychologist creating compelling vibe cards for a boho marketplace. Your task is to analyze the business information and create:
+    const systemPrompt = `You are an expert brand strategist creating compelling vibe cards for a boho marketplace. 
 
-1. **Perfect Color Palette**: Choose colors that reflect the business's personality and appeal to their target customers
-2. **Enhanced Storytelling**: Polish their origin story into something magnetic and authentic
-3. **Value Badges**: Extract key value propositions that customers care about
-4. **Personality Traits**: Define the business character in relatable terms
-5. **Differentiation**: Articulate what makes them special
-6. **Customer Connection**: Identify their perfect customer matches
-7. **Social Proof**: Create a testimonial-style statement about customer love
+Based on the provided business information (which may be minimal), you must create a COMPLETE vibe card by:
 
-Focus on creating an emotional connection that will attract ideal customers in a marketplace setting.`
+1. **Perfect Color Palette**: Choose colors that reflect the business type and create emotional appeal
+2. **Enhanced Storytelling**: Polish any origin story provided, or create one based on business type
+3. **Value Badges**: Extract or infer key values that customers would care about
+4. **Personality Traits**: Define business character based on type and any provided info
+5. **Differentiation**: Create compelling uniqueness statements
+6. **Customer Connection**: Identify ideal customer types for this business
+7. **Social Proof**: Generate authentic testimonial-style statements
+
+IMPORTANT: Even with minimal input, create a complete, compelling vibe card that would attract customers.`
 
     const userPrompt = `Create a compelling vibe card for this business:
 

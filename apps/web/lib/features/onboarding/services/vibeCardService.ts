@@ -48,12 +48,11 @@ export class VibeCardService {
         },
         body: JSON.stringify({
           business_info: {
-            business_name: fieldsData[VIBE_CARD_FIELDS.BUSINESS_NAME] || fieldsData['business_name'] || 'Business',
-            business_type: fieldsData[VIBE_CARD_FIELDS.BUSINESS_TYPE] || fieldsData['business_type'] || 'Business',
-            origin_story: fieldsData[VIBE_CARD_FIELDS.ORIGIN_STORY] || fieldsData['origin_story'],
-            values: fieldsData[VIBE_CARD_FIELDS.VALUE_BADGES] || fieldsData['values'] || fieldsData['value_badges'],
-            personality: fieldsData[VIBE_CARD_FIELDS.PERSONALITY_TRAITS] || fieldsData['personality'] || fieldsData['personality_traits'],
-            target_customers: fieldsData[VIBE_CARD_FIELDS.PERFECT_FOR] || fieldsData['target_customers'] || fieldsData['perfect_for']
+            business_name: fieldsData[VIBE_CARD_FIELDS.BUSINESS_NAME] || 'Business',
+            business_type: fieldsData[VIBE_CARD_FIELDS.BUSINESS_TYPE] || 'Business',
+            origin_story: fieldsData[VIBE_CARD_FIELDS.ORIGIN_STORY] || '',
+            values: fieldsData[VIBE_CARD_FIELDS.VALUE_BADGES] || [],
+            target_customers: fieldsData[VIBE_CARD_FIELDS.PERFECT_FOR] || []
           }
         })
       })
@@ -64,23 +63,30 @@ export class VibeCardService {
 
       const aiVibeData = await response.json()
 
-      // Construct final vibe card data
+      // Construct final vibe card data (streamlined with AI enhancement)
       const vibeCardData: VibeCardData = {
-        business_name: fieldsData[VIBE_CARD_FIELDS.BUSINESS_NAME] || fieldsData['business_name'] || 'Business',
-        business_type: fieldsData[VIBE_CARD_FIELDS.BUSINESS_TYPE] || fieldsData['business_type'] || 'Business',
-        origin_story: aiVibeData.enhanced_origin_story || fieldsData[VIBE_CARD_FIELDS.ORIGIN_STORY] || fieldsData['origin_story'] || '',
-        value_badges: aiVibeData.value_badges || fieldsData[VIBE_CARD_FIELDS.VALUE_BADGES] || fieldsData['value_badges'] || [],
-        personality_traits: aiVibeData.personality_traits || fieldsData[VIBE_CARD_FIELDS.PERSONALITY_TRAITS] || fieldsData['personality_traits'] || [],
+        // Essential collected fields
+        business_name: fieldsData[VIBE_CARD_FIELDS.BUSINESS_NAME] || 'Business',
+        business_type: fieldsData[VIBE_CARD_FIELDS.BUSINESS_TYPE] || 'Business',
+        
+        // AI-enhanced fields (optional - AI will generate if missing)
+        origin_story: aiVibeData.enhanced_origin_story || fieldsData[VIBE_CARD_FIELDS.ORIGIN_STORY] || '',
+        value_badges: aiVibeData.value_badges || fieldsData[VIBE_CARD_FIELDS.VALUE_BADGES] || [],
+        perfect_for: aiVibeData.perfect_for || fieldsData[VIBE_CARD_FIELDS.PERFECT_FOR] || [],
+        
+        // AI-generated fields (always from AI)
         vibe_colors: aiVibeData.vibe_colors || {
           primary: '#8B7355',
           secondary: '#A8956F', 
           accent: '#E6D7C3'
         },
-        vibe_aesthetic: aiVibeData.vibe_aesthetic || fieldsData[VIBE_CARD_FIELDS.VIBE_AESTHETIC] || fieldsData['vibe_aesthetic'] || 'Boho-chic',
-        why_different: aiVibeData.why_different || fieldsData[VIBE_CARD_FIELDS.WHY_DIFFERENT] || fieldsData['why_different'] || '',
-        perfect_for: aiVibeData.perfect_for || fieldsData[VIBE_CARD_FIELDS.PERFECT_FOR] || fieldsData['perfect_for'] || [],
-        customer_love: aiVibeData.customer_love || fieldsData[VIBE_CARD_FIELDS.CUSTOMER_LOVE] || fieldsData['customer_love'] || '',
-        location: fieldsData[VIBE_CARD_FIELDS.LOCATION] || fieldsData['location'],
+        vibe_aesthetic: aiVibeData.vibe_aesthetic || 'Boho-chic',
+        personality_traits: aiVibeData.personality_traits || [],
+        why_different: aiVibeData.why_different || '',
+        customer_love: aiVibeData.customer_love || '',
+        
+        // Optional contact info
+        location: fieldsData['location'],
         website: fieldsData['website'],
         contact_info: {
           phone: fieldsData['phone'] || fieldsData['contact_phone'],
@@ -109,25 +115,29 @@ export class VibeCardService {
         return false
       }
 
-      // Store vibe card in dedicated table
+      // Store vibe card in dedicated table (with proper null handling)
       const { error: vibeCardError } = await this.supabaseClient
         .from('vibe_cards')
         .upsert({
           organization_id: organizationId,
           business_name: vibeCardData.business_name,
           business_type: vibeCardData.business_type,
-          origin_story: vibeCardData.origin_story,
-          value_badges: vibeCardData.value_badges,
-          personality_traits: vibeCardData.personality_traits,
-          vibe_colors: vibeCardData.vibe_colors,
-          vibe_aesthetic: vibeCardData.vibe_aesthetic,
-          why_different: vibeCardData.why_different,
-          perfect_for: vibeCardData.perfect_for,
-          customer_love: vibeCardData.customer_love,
-          location: vibeCardData.location,
-          website: vibeCardData.website,
-          contact_phone: vibeCardData.contact_info?.phone,
-          contact_email: vibeCardData.contact_info?.email,
+          origin_story: vibeCardData.origin_story || '',
+          value_badges: vibeCardData.value_badges || [],
+          personality_traits: vibeCardData.personality_traits || [],
+          vibe_colors: vibeCardData.vibe_colors || {
+            primary: '#8B7355',
+            secondary: '#A8956F', 
+            accent: '#E6D7C3'
+          },
+          vibe_aesthetic: vibeCardData.vibe_aesthetic || 'Boho-chic',
+          why_different: vibeCardData.why_different || '',
+          perfect_for: vibeCardData.perfect_for || [],
+          customer_love: vibeCardData.customer_love || '',
+          location: vibeCardData.location || null,
+          website: vibeCardData.website || null,
+          contact_phone: vibeCardData.contact_info?.phone || null,
+          contact_email: vibeCardData.contact_info?.email || null,
           updated_at: new Date().toISOString()
         }, {
           onConflict: 'organization_id'
