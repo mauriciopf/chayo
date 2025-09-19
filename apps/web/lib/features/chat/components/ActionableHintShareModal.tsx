@@ -78,6 +78,11 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
   }
 
   const loadToolConstraints = async (toolType: string) => {
+    // Skip constraint loading for vibe-card (it's not a database tool)
+    if (toolType === 'vibe-card') {
+      return
+    }
+    
     try {
       const response = await fetch(`/api/organizations/${organizationId}/agent-tools/constraints?toolType=${toolType}`)
       if (response.ok) {
