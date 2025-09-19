@@ -30,8 +30,8 @@ export const OnboardingQuestionSchema = {
         },
         field_type: {
           type: "string",
-          enum: ["text", "multiple_choice", "boolean", "number"],
-          description: "Type of input expected"
+          enum: ["text", "multiple_choice", "boolean", "number", "array"],
+          description: "Type of input expected (array type already supported in database)"
         },
         question_template: {
           type: "string", 
@@ -119,7 +119,7 @@ export interface OnboardingQuestionResponse {
   message: string
   status: "onboarding_in_progress" | "setup_complete"
   field_name: string
-  field_type: "text" | "multiple_choice" | "boolean" | "number"
+  field_type: "text" | "multiple_choice" | "boolean" | "number" | "array"
   question_template: string
   multiple_choices: string[]
   allow_multiple: boolean

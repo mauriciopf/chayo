@@ -1,11 +1,11 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { MobileBrandingConfig } from '@/lib/features/tools/mobile-branding/components/MobileBrandingConfig';
+import { VibeCardConfig } from '@/lib/features/tools/vibe-card/components/VibeCardConfig';
 import { useAuth } from '@/lib/features/auth/hooks/useAuth';
 
-export default function MobileBrandingPage() {
-  const t = useTranslations('mobile-branding');
+export default function VibeCardPage() {
+  const t = useTranslations('vibe-card');
   const { currentOrganization, authState, loading } = useAuth();
 
   // Show loading state while authentication is loading
@@ -25,7 +25,7 @@ export default function MobileBrandingPage() {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
-          <p className="text-red-600">Please authenticate to access mobile branding settings.</p>
+          <p className="text-red-600">Please authenticate to access vibe card settings.</p>
         </div>
       </div>
     );
@@ -33,7 +33,7 @@ export default function MobileBrandingPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <MobileBrandingConfig 
+      <VibeCardConfig 
         organizationId={currentOrganization.id}
         isEnabled={true}
       />

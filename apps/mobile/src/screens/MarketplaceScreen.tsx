@@ -6,30 +6,42 @@ import {
   FlatList,
   TextInput,
   TouchableOpacity,
-  Image,
   SafeAreaView,
   StatusBar,
   Dimensions,
   RefreshControl,
   ScrollView,
 } from 'react-native';
+// Using pure React Native Views for gradients (no external dependencies)
 import { useNavigation } from '@react-navigation/native';
-import { supabase } from '../services/authService';
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = (width - 48) / 2; // 2 columns with 16px margins
 
-interface Business {
-  id: string;
-  name: string;
+interface VibeCardData {
+  business_name: string;
+  business_type: string;
+  origin_story: string;
+  value_badges: string[];
+  personality_traits: string[];
+  vibe_colors: {
+    primary: string;
+    secondary: string;
+    accent: string;
+  };
+  vibe_aesthetic: string;
+  why_different: string;
+  perfect_for: string[];
+  customer_love: string;
+  location?: string;
+}
+
+interface MarketplaceVibeCard {
+  organization_id: string;
   slug: string;
-  category: string;
-  representative_image_url?: string;
-  description?: string;
-  rating: number;
-  review_count: number;
-  address?: string;
-  phone?: string;
+  setup_status: 'completed';
+  completed_at: string;
+  vibe_data: VibeCardData;
 }
 
 interface Category {
@@ -41,79 +53,62 @@ interface Category {
 }
 
 const CATEGORIES: Category[] = [
-  { id: 'all', name: 'all', label: 'All', icon: '🏪', color: '#007AFF' },
-  { id: 'healthcare', name: 'healthcare', label: 'Healthcare', icon: '🏥', color: '#34C759' },
-  { id: 'dental', name: 'dental', label: 'Dental', icon: '🦷', color: '#00C7BE' },
-  { id: 'legal', name: 'legal', label: 'Legal', icon: '⚖️', color: '#5856D6' },
-  { id: 'automotive', name: 'automotive', label: 'Auto', icon: '🚗', color: '#FF3B30' },
-  { id: 'beauty', name: 'beauty', label: 'Beauty', icon: '💄', color: '#FF2D92' },
-  { id: 'fitness', name: 'fitness', label: 'Fitness', icon: '💪', color: '#FF9500' },
-  { id: 'restaurant', name: 'restaurant', label: 'Food', icon: '🍽️', color: '#FFCC02' },
-  { id: 'professional_services', name: 'professional_services', label: 'Services', icon: '💼', color: '#8E8E93' },
+  { id: 'all', name: 'all', label: 'All', icon: '💖', color: '#8B7355' },
+  { id: 'wellness', name: 'wellness', label: 'Wellness', icon: '🌿', color: '#A8956F' },
+  { id: 'beauty', name: 'beauty', label: 'Beauty', icon: '✨', color: '#E6D7C3' },
+  { id: 'fitness', name: 'fitness', label: 'Fitness', icon: '🧘‍♀️', color: '#D4B896' },
+  { id: 'food', name: 'food', label: 'Food', icon: '🌱', color: '#C9A876' },
+  { id: 'services', name: 'services', label: 'Services', icon: '🤲', color: '#B8A082' },
+  { id: 'creative', name: 'creative', label: 'Creative', icon: '🎨', color: '#A8956F' },
+  { id: 'lifestyle', name: 'lifestyle', label: 'Lifestyle', icon: '🌙', color: '#8B7355' },
 ];
 
 export default function MarketplaceScreen() {
   const navigation = useNavigation();
-  const [businesses, setBusinesses] = useState<Business[]>([]);
+  const [vibeCards, setVibeCards] = useState<MarketplaceVibeCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
 
-  const loadBusinesses = useCallback(async (refresh = false) => {
+  const loadVibeCards = useCallback(async (refresh = false) => {
     try {
       if (refresh) setRefreshing(true);
       else setLoading(true);
 
-      console.log('🔍 Loading businesses...', { searchQuery, selectedCategory });
+      console.log('💖 Loading vibe cards...', { searchQuery, selectedCategory });
 
-      // First, let's see what organizations exist at all
-      const { data: allOrgs, error: allOrgsError } = await supabase
-        .from('organizations')
-        .select('id, name, active, category')
-        .limit(10);
+      // Build API URL with filters
+      const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL || 'https://chayo.vercel.app';
+      const params = new URLSearchParams();
       
-      console.log('🔍 All organizations in DB:', { count: allOrgs?.length || 0, orgs: allOrgs, error: allOrgsError });
-
-      // Build query for organizations table
-      let query = supabase
-        .from('organizations')
-        .select(`
-          id,
-          name,
-          slug,
-          category,
-          representative_image_url,
-          description,
-          rating,
-          review_count,
-          active
-        `)
-        .eq('active', true);
-
-      // Apply category filter
       if (selectedCategory !== 'all') {
-        query = query.eq('category', selectedCategory);
-        console.log('🏷️ Filtering by category:', selectedCategory);
+        params.append('business_type', selectedCategory);
       }
-
-      // Apply search filter
-      if (searchQuery.trim()) {
-        query = query.or(`name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
-        console.log('🔍 Searching for:', searchQuery);
-      }
-
-      // Load all businesses (limit 50)
-      console.log('🏢 Loading all businesses...');
-      const { data: allBusinesses, error: allError } = await query
-        .order('name')
-        .limit(50);
       
-      console.log('🏢 All businesses result:', { count: allBusinesses?.length || 0, error: allError });
-      if (allBusinesses) setBusinesses(allBusinesses);
+      if (searchQuery.trim()) {
+        params.append('search', searchQuery);
+      }
+      
+      params.append('limit', '50');
+
+      const response = await fetch(`${apiUrl}/api/marketplace/vibe-cards?${params}`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch vibe cards');
+      }
+
+      const data = await response.json();
+      console.log('💖 Vibe cards loaded:', { count: data.vibe_cards?.length || 0 });
+      
+      if (data.vibe_cards) {
+        setVibeCards(data.vibe_cards);
+      }
 
     } catch (error) {
-      console.error('❌ Error loading businesses:', error);
+      console.error('❌ Error loading vibe cards:', error);
+      // Fallback to empty array on error
+      setVibeCards([]);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -121,14 +116,14 @@ export default function MarketplaceScreen() {
   }, [searchQuery, selectedCategory]);
 
   useEffect(() => {
-    loadBusinesses();
-  }, [loadBusinesses]);
+    loadVibeCards();
+  }, [loadVibeCards]);
 
-  const handleBusinessSelect = (business: Business) => {
-    // Navigate to business detail screen with business info
+  const handleVibeCardSelect = (vibeCard: MarketplaceVibeCard) => {
+    // Navigate to business detail screen with vibe card info
     navigation.navigate('BusinessDetail', { 
-      business,
-      organizationId: business.id 
+      vibeCard,
+      organizationId: vibeCard.organization_id 
     });
   };
 
@@ -137,66 +132,80 @@ export default function MarketplaceScreen() {
     setSearchQuery(''); // Clear search when selecting category
   };
 
-  const renderBusinessCard = ({ item: business }: { item: Business }) => (
-    <TouchableOpacity 
-      style={styles.businessCard}
-      onPress={() => handleBusinessSelect(business)}
-      activeOpacity={0.8}
-    >
-      <View style={styles.businessImageContainer}>
-        {business.representative_image_url ? (
-          <Image 
-            source={{ uri: business.representative_image_url }} 
-            style={styles.businessImage}
-            resizeMode="cover"
+  const renderVibeCard = ({ item: vibeCard }: { item: MarketplaceVibeCard }) => {
+    const { vibe_data } = vibeCard;
+    
+    return (
+      <TouchableOpacity 
+        style={styles.vibeCard}
+        onPress={() => handleVibeCardSelect(vibeCard)}
+        activeOpacity={0.8}
+      >
+        {/* Gradient Header - Pure React Native */}
+        <View style={[styles.vibeCardHeader, { backgroundColor: vibe_data.vibe_colors.primary }]}>
+          {/* Gradient overlay effect */}
+          <View 
+            style={[
+              styles.gradientOverlay, 
+              { backgroundColor: vibe_data.vibe_colors.secondary }
+            ]} 
           />
-        ) : (
-          <View style={[styles.businessImagePlaceholder, { backgroundColor: getCategoryColor(business.category) }]}>
-            <Text style={styles.businessImagePlaceholderIcon}>
-              {getCategoryIcon(business.category)}
+          <View style={styles.vibeCardHeaderContent}>
+            <Text style={styles.vibeAesthetic}>💖 {vibe_data.vibe_aesthetic}</Text>
+            <Text style={styles.businessName} numberOfLines={2}>
+              {vibe_data.business_name}
             </Text>
-            <Text style={styles.businessImagePlaceholderText}>
-              {business.name}
-            </Text>
+            <Text style={styles.businessType}>{vibe_data.business_type}</Text>
+            {vibe_data.location && (
+              <Text style={styles.location}>📍 {vibe_data.location}</Text>
+            )}
           </View>
-        )}
-        {business.featured && (
-          <View style={styles.featuredBadge}>
-            <Text style={styles.featuredBadgeText}>⭐</Text>
-          </View>
-        )}
-      </View>
-      
-      <View style={styles.businessInfo}>
-        <Text style={styles.businessName} numberOfLines={2}>
-          {business.name}
-        </Text>
-        
-        <View style={styles.categoryContainer}>
-          <Text style={styles.categoryBadge}>
-            {getCategoryIcon(business.category)} {getCategoryLabel(business.category)}
-          </Text>
         </View>
-        
-        {business.rating > 0 && (
-          <View style={styles.ratingContainer}>
-            <Text style={styles.rating}>
-              ⭐ {business.rating.toFixed(1)}
-            </Text>
-            <Text style={styles.reviewCount}>
-              ({business.review_count})
-            </Text>
-          </View>
-        )}
-        
-        {business.address && (
-          <Text style={styles.address} numberOfLines={1}>
-            📍 {business.address}
+
+        {/* Content */}
+        <View style={styles.vibeCardContent}>
+          {/* Origin Story */}
+          <Text style={styles.originStory} numberOfLines={3}>
+            {vibe_data.origin_story}
           </Text>
-        )}
-      </View>
-    </TouchableOpacity>
-  );
+
+          {/* Value Badges */}
+          <View style={styles.badgesContainer}>
+            {vibe_data.value_badges.slice(0, 3).map((badge, index) => (
+              <View 
+                key={index}
+                style={[
+                  styles.valueBadge, 
+                  { backgroundColor: vibe_data.vibe_colors.primary + '20' }
+                ]}
+              >
+                <Text style={[styles.valueBadgeText, { color: vibe_data.vibe_colors.primary }]}>
+                  {badge}
+                </Text>
+              </View>
+            ))}
+            {vibe_data.value_badges.length > 3 && (
+              <View style={styles.moreBadge}>
+                <Text style={styles.moreBadgeText}>+{vibe_data.value_badges.length - 3}</Text>
+              </View>
+            )}
+          </View>
+
+          {/* Perfect For */}
+          {vibe_data.perfect_for.length > 0 && (
+            <View style={styles.perfectForContainer}>
+              <Text style={[styles.perfectForLabel, { color: vibe_data.vibe_colors.primary }]}>
+                Perfect for:
+              </Text>
+              <Text style={styles.perfectForText} numberOfLines={1}>
+                {vibe_data.perfect_for.slice(0, 2).join(', ')}
+              </Text>
+            </View>
+          )}
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   const renderCategoryPill = ({ item: category }: { item: Category }) => (
     <TouchableOpacity
@@ -237,8 +246,8 @@ export default function MarketplaceScreen() {
       
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Discover Businesses</Text>
-        <Text style={styles.headerSubtitle}>Find the perfect service for you</Text>
+        <Text style={styles.headerTitle}>💖 Vibe Marketplace</Text>
+        <Text style={styles.headerSubtitle}>Discover businesses that match your energy</Text>
       </View>
 
       {/* Search Bar */}
@@ -264,7 +273,7 @@ export default function MarketplaceScreen() {
       <ScrollView 
         style={styles.content}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={() => loadBusinesses(true)} />
+          <RefreshControl refreshing={refreshing} onRefresh={() => loadVibeCards(true)} />
         }
       >
         {/* Category Pills */}
@@ -280,20 +289,34 @@ export default function MarketplaceScreen() {
         </View>
 
 
-        {/* All Businesses */}
+        {/* Vibe Cards */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
-            {selectedCategory === 'all' ? 'All Businesses' : `${getCategoryLabel(selectedCategory)} Businesses`}
+            {selectedCategory === 'all' ? '💖 Discover Amazing Vibes' : `✨ ${getCategoryLabel(selectedCategory)} Vibes`}
           </Text>
-          <FlatList
-            data={businesses}
-            renderItem={renderBusinessCard}
-            keyExtractor={(item) => item.id}
-            numColumns={2}
-            columnWrapperStyle={styles.businessRow}
-            scrollEnabled={false}
-            contentContainerStyle={styles.businessGrid}
-          />
+          {loading && vibeCards.length === 0 ? (
+            <View style={styles.loadingContainer}>
+              <Text style={styles.loadingText}>Loading beautiful vibe cards...</Text>
+            </View>
+          ) : vibeCards.length === 0 ? (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyIcon}>💫</Text>
+              <Text style={styles.emptyTitle}>No Vibe Cards Yet</Text>
+              <Text style={styles.emptyText}>
+                Be the first to complete your onboarding and create your unique vibe card!
+              </Text>
+            </View>
+          ) : (
+            <FlatList
+              data={vibeCards}
+              renderItem={renderVibeCard}
+              keyExtractor={(item) => item.organization_id}
+              numColumns={2}
+              columnWrapperStyle={styles.vibeCardRow}
+              scrollEnabled={false}
+              contentContainerStyle={styles.vibeCardGrid}
+            />
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -303,7 +326,7 @@ export default function MarketplaceScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#1A1A1A', // Warmer dark background
   },
   header: {
     paddingHorizontal: 20,
@@ -313,12 +336,12 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#F5F5DC', // Warm white
     marginBottom: 4,
   },
   headerSubtitle: {
     fontSize: 16,
-    color: '#8E8E93',
+    color: '#D4B896', // Warm beige
   },
   searchContainer: {
     paddingHorizontal: 20,
@@ -399,20 +422,52 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     gap: 16,
   },
-  businessGrid: {
+  vibeCardGrid: {
     paddingHorizontal: 20,
   },
-  businessRow: {
+  vibeCardRow: {
     justifyContent: 'space-between',
-    marginBottom: 16,
+    marginBottom: 20,
   },
-  businessCard: {
+  vibeCard: {
     width: CARD_WIDTH,
-    backgroundColor: '#1C1C1E',
-    borderRadius: 16,
-    padding: 12,
+    backgroundColor: '#2A2A2A',
+    borderRadius: 20,
+    overflow: 'hidden',
     borderWidth: 1,
-    borderColor: '#2C2C2E',
+    borderColor: '#3A3A3A',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  vibeCardHeader: {
+    padding: 16,
+    minHeight: 120,
+    position: 'relative',
+  },
+  gradientOverlay: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: '50%',
+    opacity: 0.6,
+  },
+  vibeCardHeaderContent: {
+    flex: 1,
+    zIndex: 1,
+  },
+  vibeAesthetic: {
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.9)',
+    marginBottom: 8,
+    fontWeight: '500',
+  },
+  vibeCardContent: {
+    padding: 16,
+    paddingTop: 12,
   },
   businessImageContainer: {
     position: 'relative',
@@ -460,8 +515,94 @@ const styles = StyleSheet.create({
   },
   businessName: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
     color: '#FFFFFF',
+    lineHeight: 20,
+    marginBottom: 4,
+  },
+  businessType: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontWeight: '500',
+  },
+  location: {
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.7)',
+    marginTop: 4,
+  },
+  originStory: {
+    fontSize: 13,
+    color: '#E0E0E0',
+    lineHeight: 18,
+    marginBottom: 12,
+    fontStyle: 'italic',
+  },
+  badgesContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    marginBottom: 12,
+  },
+  valueBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  valueBadgeText: {
+    fontSize: 10,
+    fontWeight: '600',
+  },
+  moreBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    backgroundColor: '#4A4A4A',
+  },
+  moreBadgeText: {
+    fontSize: 10,
+    color: '#CCCCCC',
+    fontWeight: '500',
+  },
+  perfectForContainer: {
+    marginTop: 4,
+  },
+  perfectForLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  perfectForText: {
+    fontSize: 11,
+    color: '#CCCCCC',
+  },
+  loadingContainer: {
+    padding: 40,
+    alignItems: 'center',
+  },
+  loadingText: {
+    color: '#D4B896',
+    fontSize: 16,
+    fontStyle: 'italic',
+  },
+  emptyContainer: {
+    padding: 40,
+    alignItems: 'center',
+  },
+  emptyIcon: {
+    fontSize: 48,
+    marginBottom: 16,
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#F5F5DC',
+    marginBottom: 8,
+  },
+  emptyText: {
+    fontSize: 14,
+    color: '#D4B896',
+    textAlign: 'center',
     lineHeight: 20,
   },
   categoryContainer: {

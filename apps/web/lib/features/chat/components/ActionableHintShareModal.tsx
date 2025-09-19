@@ -11,7 +11,7 @@ import DocumentToolConfig from '../../tools/documents/components/DocumentToolCon
 import PaymentToolConfig from '../../tools/payments/components/PaymentToolConfig'
 import IntakeFormsToolConfig from '../../tools/intake-forms/components/IntakeFormsToolConfig'
 import FAQToolConfig from '../../tools/faqs/components/FAQToolConfig'
-import { MobileBrandingConfig } from '../../tools/mobile-branding/components/MobileBrandingConfig'
+import { VibeCardConfig } from '../../tools/vibe-card/components/VibeCardConfig'
 import ProductsToolConfig from '../../tools/products/components/ProductsToolConfig'
 import CustomerSupportTool from '../../tools/customer-support/components/CustomerSupportTool'
 
@@ -51,7 +51,7 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
     products: false,
     intake_forms: false,
     faqs: false,
-    'mobile-branding': false,
+    'vibe-card': false,
     customer_support: false
   })
   const [toolConstraints, setToolConstraints] = useState<{ [key: string]: ToolConstraint }>({})
@@ -205,15 +205,15 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
             t('modal.faqs.features.3')
           ]
         }
-      case 'mobile-branding':
+      case 'vibe-card':
         return {
-          title: t('modal.mobileBranding.title'),
-          description: t('modal.mobileBranding.description'),
+          title: t('modal.vibeCard.title'),
+          description: t('modal.vibeCard.description'),
           features: [
-            t('modal.mobileBranding.features.0'),
-            t('modal.mobileBranding.features.1'),
-            t('modal.mobileBranding.features.2'),
-            t('modal.mobileBranding.features.3')
+            t('modal.vibeCard.features.0'),
+            t('modal.vibeCard.features.1'),
+            t('modal.vibeCard.features.2'),
+            t('modal.vibeCard.features.3')
           ]
         }
       case 'products':
@@ -491,8 +491,8 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
                 />
               )}
 
-              {hint?.category === 'mobile-branding' && (
-                <MobileBrandingConfig 
+              {hint?.category === 'vibe-card' && (
+                <VibeCardConfig 
                   organizationId={organizationId}
                   isEnabled={isCurrentToolEnabled}
                   onSettingsChange={onSettingsChange}
@@ -515,7 +515,7 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
                 />
               )}
 
-              {!isCurrentToolEnabled && !['appointments', 'documents', 'payments', 'products', 'intake_forms', 'faqs', 'mobile-branding', 'customer_support'].includes(hint?.category || '') && (
+              {!isCurrentToolEnabled && !['appointments', 'documents', 'payments', 'products', 'intake_forms', 'faqs', 'vibe-card', 'customer_support'].includes(hint?.category || '') && (
                 <div 
                   className="p-4 rounded-lg border"
                   style={{ 

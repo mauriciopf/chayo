@@ -9,7 +9,7 @@ export type ActionableHint = {
   label: string
   icon: string
   description: string
-  category: 'appointments' | 'documents' | 'payments' | 'products' | 'intake_forms' | 'faqs' | 'mobile-branding' | 'customer_support'
+  category: 'appointments' | 'documents' | 'payments' | 'products' | 'intake_forms' | 'faqs' | 'vibe-card' | 'customer_support'
 }
 
 interface ActionableHintChipsProps {
@@ -30,7 +30,7 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
   const t = useTranslations('chat')
 
   const [agentToolSettings, setAgentToolSettings] = useState<AgentToolSettings>({
-    'mobile-branding': false,
+    'vibe-card': false,
     appointments: false,
     documents: false,
     payments: false,
@@ -43,11 +43,11 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
   // Define the actionable hints
   const actionableHints: ActionableHint[] = [
     {
-      id: 'mobile_branding',
-      label: '📱 Mobile branding',
-      icon: '📱',
-      description: 'Customize mobile app colors, logo, and branding.',
-      category: 'mobile-branding'
+      id: 'vibe_card',
+      label: '💖 Vibe Card',
+      icon: '💖',
+      description: 'Create your unique marketplace vibe card to attract ideal customers.',
+      category: 'vibe-card'
     },
     {
       id: 'customer_support',

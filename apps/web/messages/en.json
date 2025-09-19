@@ -1,57 +1,43 @@
 {
-  "mobile-branding": {
-    "title": "Mobile App Branding",
-    "description": "Customize your mobile app's appearance with colors and logo",
+  "vibe-card": {
+    "title": "Marketplace Vibe Card",
+    "subtitle": "Your unique story that attracts ideal customers",
+    "disabled": "Complete your onboarding to create your vibe card",
+    "loading": "Loading your vibe card...",
+    "edit": "Edit Vibe",
+    "cancel": "Cancel",
     "save": "Save Changes",
     "saving": "Saving...",
-    "reset": "Reset to Defaults",
-    "logo": {
-      "title": "App Logo",
-      "dragAndDrop": "Drag and drop your logo here",
-      "dropHere": "Drop your logo here",
-      "selectFile": "Select File",
-      "uploading": "Uploading...",
-      "supportedFormats": "PNG, JPG, SVG up to 5MB",
-      "invalidFileType": "Please select a valid image file (PNG, JPG, SVG)",
-      "fileTooLarge": "File size must be less than 5MB",
-      "guidelines": {
-        "title": "Logo Guidelines",
-        "size": "Recommended size: 512x512px or larger",
-        "format": "Use PNG with transparent background for best results",
-        "background": "Avoid logos with white backgrounds",
-        "quality": "Use high-resolution images for crisp display"
-      }
-    },
-    "colors": {
-      "title": "App Colors",
-      "primary": "Primary Color",
-      "primaryDescription": "Main brand color used for buttons and highlights",
-      "secondary": "Secondary Color",
-      "secondaryDescription": "Used for tab bars and secondary elements",
-      "background": "Background Color",
-      "backgroundDescription": "Main background color of the app",
-      "text": "Text Color",
-      "textDescription": "Primary text color throughout the app"
+    "regenerate": "Regenerate with AI",
+    "regenerating": "Regenerating...",
+    "noVibeCard": {
+      "title": "No Vibe Card Yet",
+      "description": "Complete your onboarding to create your unique marketplace vibe card.",
+      "instruction": "Your vibe card will showcase your story, values, and personality to attract ideal customers."
     },
     "preview": {
-      "title": "Mobile Preview",
-      "description": "See how your branding will look on mobile devices",
-      "inputPlaceholder": "Type your message...",
-      "sampleMessages": {
-        "welcome": "Welcome! How can I help you today?",
-        "userQuestion": "I need help with my appointment",
-        "response": "I'd be happy to help you with your appointment. Let me check your available options."
+      "title": "Your Vibe Card Preview"
+    },
+    "editor": {
+      "title": "Edit Your Vibe"
+    },
+    "info": {
+      "title": "About Vibe Cards",
+      "howItWorks": {
+        "title": "How It Works",
+        "point1": "AI creates your vibe card from onboarding answers",
+        "point2": "Showcases your story, values & personality",
+        "point3": "Attracts customers who resonate with your vibe",
+        "point4": "Appears in the marketplace when setup is complete"
+      },
+      "marketplace": {
+        "title": "Marketplace Display",
+        "description": "Your vibe card helps ideal customers discover and connect with your business in our boho marketplace."
       }
     },
-    "ai": {
-      "title": "AI Color Harmony",
-      "description": "Smart suggestions based on color theory",
-      "generating": "Generating suggestions...",
-      "apply": "Apply These Colors",
-      "applied": "Applied & Saved!",
-      "refresh": "Refresh suggestions",
-      "manualMode": "I prefer to choose my own colors",
-      "backToAI": "← Back to AI Suggestions"
+    "aiRegenerate": {
+      "title": "AI Enhancement",
+      "description": "Let AI recreate your vibe card with enhanced storytelling and perfect colors."
     }
   },
   "footer": {
@@ -1302,14 +1288,14 @@
           "Location and contact info"
         ]
       },
-      "mobileBranding": {
-        "title": "Mobile App Branding",
-        "description": "Customize your mobile app's appearance with colors, logo, and branding.",
+      "vibeCard": {
+        "title": "Marketplace Vibe Card",
+        "description": "Create your unique vibe card to attract ideal customers in the marketplace.",
         "features": [
-          "Custom color themes and branding",
-          "Logo upload and management",
-          "Real-time mobile preview",
-          "Professional app appearance"
+          "AI-generated story and personality",
+          "Beautiful visual design with custom colors",
+          "Value badges and personality traits",
+          "Marketplace visibility for customer discovery"
         ]
       },
       "products": {

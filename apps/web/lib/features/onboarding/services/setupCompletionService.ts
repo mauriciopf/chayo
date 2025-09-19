@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/shared/supabase/client'
 import { YamlPromptLoader } from '../../chat/services/systemPrompt/YamlPromptLoader'
+import { VibeCardService } from './vibeCardService'
 
 export interface SetupCompletionStatus {
   id: string
@@ -15,9 +16,11 @@ export interface SetupCompletionStatus {
 
 export class SetupCompletionService {
   private supabaseClient: any
+  private vibeCardService: VibeCardService
 
   constructor(supabaseClient?: any) {
     this.supabaseClient = supabaseClient || supabase
+    this.vibeCardService = new VibeCardService(supabaseClient)
   }
 
   /**
@@ -82,19 +85,30 @@ export class SetupCompletionService {
   }
 
   /**
-   * Mark setup as completed
+   * Mark setup as completed with vibe card generation
    */
   async markAsCompleted(organizationId: string, completionData: Record<string, any>): Promise<void> {
     try {
-      await this.supabaseClient
-        .from('setup_completion')
-        .update({
-          setup_status: 'completed',
-          completed_at: new Date().toISOString(),
-          completion_data: completionData,
-          updated_at: new Date().toISOString()
-        })
-        .eq('organization_id', organizationId)
+      console.log('🎨 Starting vibe card completion for organization:', organizationId)
+      
+      // Use vibe card service to complete onboarding with enhanced vibe data
+      const success = await this.vibeCardService.completeOnboardingWithVibeCard(organizationId)
+      
+      if (!success) {
+        // Fallback to basic completion if vibe card generation fails
+        console.warn('⚠️ Vibe card generation failed, falling back to basic completion')
+        await this.supabaseClient
+          .from('setup_completion')
+          .update({
+            setup_status: 'completed',
+            completed_at: new Date().toISOString(),
+            completion_data: { ...completionData, vibe_card_generation_failed: true },
+            updated_at: new Date().toISOString()
+          })
+          .eq('organization_id', organizationId)
+      }
+      
+      console.log('✅ Setup completion finished for organization:', organizationId)
     } catch (error) {
       console.error('Error marking setup as completed:', error)
       throw error
