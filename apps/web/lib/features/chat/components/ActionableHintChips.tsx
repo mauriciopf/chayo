@@ -29,6 +29,14 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
 }) => {
   const t = useTranslations('chat')
 
+  // Helper function to check if a hint is enabled (special handling for vibe-card)
+  const isHintEnabled = (category: ActionableHint['category']): boolean => {
+    if (category === 'vibe-card') {
+      return true // Vibe card is always "enabled" as a core feature
+    }
+    return agentToolSettings[category as keyof AgentToolSettings] || false
+  }
+
   const [agentToolSettings, setAgentToolSettings] = useState<AgentToolSettings>({
     appointments: false,
     documents: false,
@@ -132,20 +140,20 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
             key={hint.id}
             onClick={() => handleHintClick(hint)}
             className={`flex-shrink-0 px-4 py-2.5 rounded-xl text-sm font-medium relative whitespace-nowrap cursor-pointer border ${
-              agentToolSettings[hint.category]
+              isHintEnabled(hint.category)
                 ? 'shadow-lg ring-1'
                 : ''
             }`}
             style={{
-              backgroundColor: agentToolSettings[hint.category] ? 'var(--accent-primary)' : 'var(--bg-tertiary)',
+              backgroundColor: isHintEnabled(hint.category) ? 'var(--accent-primary)' : 'var(--bg-tertiary)',
               color: 'var(--text-primary)',
-              borderColor: agentToolSettings[hint.category] ? 'var(--border-focus)' : 'var(--border-secondary)',
+              borderColor: isHintEnabled(hint.category) ? 'var(--border-focus)' : 'var(--border-secondary)',
               minWidth: '160px'
             }}
             title={hint.description}
           >
             {/* Subtle background pattern for enabled state */}
-            {agentToolSettings[hint.category] && (
+            {isHintEnabled(hint.category) && (
               <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent" />
             )}
             
@@ -154,7 +162,7 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
             </span>
             
             {/* Active indicator */}
-            {agentToolSettings[hint.category] && (
+            {isHintEnabled(hint.category) && (
               <div
                 className="absolute -top-1 -right-1 w-3 h-3 rounded-full shadow-sm ring-2"
                 style={{ 
