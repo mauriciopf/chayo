@@ -24,7 +24,7 @@ interface ActionableHintShareModalProps {
 }
 
 type AgentToolSettings = {
-  [key in ActionableHint['category']]: boolean
+  [key in Exclude<ActionableHint['category'], 'vibe-card'>]: boolean
 }
 
 type ToolConstraint = {
