@@ -30,14 +30,14 @@ export function VibeCardPreview({ vibeCard }: VibeCardPreviewProps) {
       className="rounded-2xl overflow-hidden shadow-xl border max-w-md"
       style={{ 
         backgroundColor: 'var(--bg-primary)',
-        borderColor: vibe_colors.primary + '20'
+        borderColor: vibe_colors?.primary + '20'
       }}
     >
       {/* Header with gradient */}
       <div 
         className="p-6 text-white relative overflow-hidden"
         style={{
-          background: `linear-gradient(135deg, ${vibe_colors.primary} 0%, ${vibe_colors.secondary} 100%)`
+          background: `linear-gradient(135deg, ${vibe_colors?.primary} 0%, ${vibe_colors?.secondary} 100%)`
         }}
       >
         <div className="relative z-10">
@@ -60,11 +60,11 @@ export function VibeCardPreview({ vibeCard }: VibeCardPreviewProps) {
         {/* Decorative elements */}
         <div 
           className="absolute -top-4 -right-4 w-24 h-24 rounded-full opacity-20"
-          style={{ backgroundColor: vibe_colors.accent }}
+          style={{ backgroundColor: vibe_colors?.accent }}
         />
         <div 
           className="absolute -bottom-2 -left-2 w-16 h-16 rounded-full opacity-20"
-          style={{ backgroundColor: vibe_colors.accent }}
+          style={{ backgroundColor: vibe_colors?.accent }}
         />
       </div>
 
@@ -73,7 +73,7 @@ export function VibeCardPreview({ vibeCard }: VibeCardPreviewProps) {
         
         {/* Origin Story */}
         <div>
-          <h4 className="font-semibold text-sm mb-2" style={{ color: vibe_colors.primary }}>
+          <h4 className="font-semibold text-sm mb-2" style={{ color: vibe_colors?.primary }}>
             Our Story
           </h4>
           <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
@@ -84,7 +84,7 @@ export function VibeCardPreview({ vibeCard }: VibeCardPreviewProps) {
         {/* Value Badges */}
         {(value_badges || []).length > 0 && (
           <div>
-            <h4 className="font-semibold text-sm mb-2" style={{ color: vibe_colors.primary }}>
+            <h4 className="font-semibold text-sm mb-2" style={{ color: vibe_colors?.primary }}>
               What We Stand For
             </h4>
             <div className="flex flex-wrap gap-2">
@@ -93,8 +93,8 @@ export function VibeCardPreview({ vibeCard }: VibeCardPreviewProps) {
                   key={index}
                   className="px-3 py-1 rounded-full text-xs font-medium"
                   style={{
-                    backgroundColor: vibe_colors.primary + '15',
-                    color: vibe_colors.primary
+                    backgroundColor: vibe_colors?.primary + '15',
+                    color: vibe_colors?.primary
                   }}
                 >
                   {badge}
@@ -107,7 +107,7 @@ export function VibeCardPreview({ vibeCard }: VibeCardPreviewProps) {
         {/* Personality Traits */}
         {(personality_traits || []).length > 0 && (
           <div>
-            <h4 className="font-semibold text-sm mb-2" style={{ color: vibe_colors.primary }}>
+            <h4 className="font-semibold text-sm mb-2" style={{ color: vibe_colors?.primary }}>
               Our Vibe
             </h4>
             <div className="flex flex-wrap gap-2">
@@ -116,8 +116,8 @@ export function VibeCardPreview({ vibeCard }: VibeCardPreviewProps) {
                   key={index}
                   className="px-2 py-1 rounded text-xs"
                   style={{
-                    backgroundColor: vibe_colors.secondary + '20',
-                    color: vibe_colors.secondary
+                    backgroundColor: vibe_colors?.secondary + '20',
+                    color: vibe_colors?.secondary
                   }}
                 >
                   {trait}
@@ -130,7 +130,7 @@ export function VibeCardPreview({ vibeCard }: VibeCardPreviewProps) {
         {/* Why Different */}
         {why_different && (
           <div>
-            <h4 className="font-semibold text-sm mb-2" style={{ color: vibe_colors.primary }}>
+            <h4 className="font-semibold text-sm mb-2" style={{ color: vibe_colors?.primary }}>
               What Makes Us Special
             </h4>
             <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
@@ -142,13 +142,13 @@ export function VibeCardPreview({ vibeCard }: VibeCardPreviewProps) {
         {/* Perfect For */}
         {(perfect_for || []).length > 0 && (
           <div>
-            <h4 className="font-semibold text-sm mb-2" style={{ color: vibe_colors.primary }}>
+            <h4 className="font-semibold text-sm mb-2" style={{ color: vibe_colors?.primary }}>
               Perfect For
             </h4>
             <ul className="text-sm space-y-1">
               {(perfect_for || []).map((customer, index) => (
                 <li key={index} className="flex items-center gap-2" style={{ color: 'var(--text-secondary)' }}>
-                  <Star className="h-3 w-3" style={{ color: vibe_colors.accent }} />
+                  <Star className="h-3 w-3" style={{ color: vibe_colors?.accent }} />
                   {customer}
                 </li>
               ))}
@@ -161,8 +161,8 @@ export function VibeCardPreview({ vibeCard }: VibeCardPreviewProps) {
           <div 
             className="rounded-lg p-4 border-l-4"
             style={{
-              backgroundColor: vibe_colors.primary + '05',
-              borderLeftColor: vibe_colors.primary
+              backgroundColor: vibe_colors?.primary + '05',
+              borderLeftColor: vibe_colors?.primary
             }}
           >
             <p className="text-sm italic" style={{ color: 'var(--text-secondary)' }}>
@@ -177,7 +177,7 @@ export function VibeCardPreview({ vibeCard }: VibeCardPreviewProps) {
           whileTap={{ scale: 0.98 }}
           className="w-full py-3 rounded-lg font-semibold text-white shadow-lg"
           style={{
-            background: `linear-gradient(135deg, ${vibe_colors.primary} 0%, ${vibe_colors.secondary} 100%)`
+            background: `linear-gradient(135deg, ${vibe_colors?.primary} 0%, ${vibe_colors?.secondary} 100%)`
           }}
         >
           Connect With Us

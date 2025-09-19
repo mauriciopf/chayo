@@ -142,12 +142,12 @@ export default function MarketplaceScreen() {
         activeOpacity={0.8}
       >
         {/* Gradient Header - Pure React Native */}
-        <View style={[styles.vibeCardHeader, { backgroundColor: vibe_data.vibe_colors.primary }]}>
+        <View style={[styles.vibeCardHeader, { backgroundColor: vibe_data.vibe_colors?.primary }]}>
           {/* Gradient overlay effect */}
           <View 
             style={[
               styles.gradientOverlay, 
-              { backgroundColor: vibe_data.vibe_colors.secondary }
+              { backgroundColor: vibe_data.vibe_colors?.secondary }
             ]} 
           />
           <View style={styles.vibeCardHeaderContent}>
@@ -176,10 +176,10 @@ export default function MarketplaceScreen() {
                 key={index}
                 style={[
                   styles.valueBadge, 
-                  { backgroundColor: vibe_data.vibe_colors.primary + '20' }
+                  { backgroundColor: vibe_data.vibe_colors?.primary + '20' }
                 ]}
               >
-                <Text style={[styles.valueBadgeText, { color: vibe_data.vibe_colors.primary }]}>
+                <Text style={[styles.valueBadgeText, { color: vibe_data.vibe_colors?.primary }]}>
                   {badge}
                 </Text>
               </View>
@@ -194,7 +194,7 @@ export default function MarketplaceScreen() {
           {/* Perfect For */}
           {vibe_data.perfect_for.length > 0 && (
             <View style={styles.perfectForContainer}>
-              <Text style={[styles.perfectForLabel, { color: vibe_data.vibe_colors.primary }]}>
+              <Text style={[styles.perfectForLabel, { color: vibe_data.vibe_colors?.primary }]}>
                 Perfect for:
               </Text>
               <Text style={styles.perfectForText} numberOfLines={1}>
