@@ -15,7 +15,6 @@ export const AVAILABLE_TOOLS = [
   'documents',
   'faqs',
   'intake_forms',
-  'vibe-card',
   'products',
   'customer_support'
 ] as const;
@@ -61,7 +60,6 @@ export interface ToolUrlConfig {
   documents: string;
   faqs: string;
   intake_forms: string;
-  'vibe-card': string;
   products: string;
 }
 

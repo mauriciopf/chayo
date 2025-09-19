@@ -30,7 +30,6 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
   const t = useTranslations('chat')
 
   const [agentToolSettings, setAgentToolSettings] = useState<AgentToolSettings>({
-    'vibe-card': false,
     appointments: false,
     documents: false,
     payments: false,

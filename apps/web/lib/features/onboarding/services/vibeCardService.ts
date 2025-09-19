@@ -154,6 +154,8 @@ export class VibeCardService {
         return false
       }
 
+      // Note: Vibe card is not a database tool - it's a core feature always available when setup is complete
+
       console.log('✅ Onboarding completed with vibe card for organization:', organizationId)
       return true
 

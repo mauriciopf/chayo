@@ -51,7 +51,6 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
     products: false,
     intake_forms: false,
     faqs: false,
-    'vibe-card': false,
     customer_support: false
   })
   const [toolConstraints, setToolConstraints] = useState<{ [key: string]: ToolConstraint }>({})
@@ -95,6 +94,13 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
   }
 
   const updateAgentToolSetting = async (toolType: ActionableHint['category'], enabled: boolean) => {
+    // Special handling for vibe-card - it's not a database tool
+    if (toolType === 'vibe-card') {
+      // Vibe card is always available once onboarding is complete
+      // No database update needed
+      return
+    }
+    
     setLoading(true)
     
     // Optimistic update - immediately update the UI state
@@ -248,7 +254,7 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
   const content = getCategoryContent(hint.category)
   if (!content) return null
 
-  const isCurrentToolEnabled = agentToolSettings[hint.category]
+  const isCurrentToolEnabled = hint.category === 'vibe-card' ? true : agentToolSettings[hint.category]
   const currentToolConstraints = toolConstraints[hint.category]
 
   return (
