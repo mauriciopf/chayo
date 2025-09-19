@@ -6,18 +6,9 @@ export interface AppConfig {
   organizationSlug: string;
   businessName: string;
   appName: string;
-  theme: ThemeConfig;
   enabledTools: string[];
   webBaseUrl: string;
   apiBaseUrl: string;
-}
-
-export interface ThemeConfig {
-  primaryColor: string;
-  secondaryColor: string;
-  backgroundColor: string;
-  textColor: string;
-  logoUrl?: string;
 }
 
 export interface ToolConfig {
@@ -32,34 +23,22 @@ export interface ToolConfig {
 export interface BrandingConfig {
   logo?: string;
   favicon?: string;
-  colors: ThemeConfig;
 }
-
-// Default theme constants (matching API defaults for consistency)
-export const DEFAULT_THEME: ThemeConfig = {
-  primary: '#2F5D62',
-  secondary: '#2C2C2E',
-  accent: '#FF9500',
-  background: '#1C1C1E',
-  surface: '#2C2C2E',
-  text: '#FFFFFF',
-  textSecondary: '#8E8E93',
-  border: '#3A3A3C',
-  success: '#34C759',
-  warning: '#FF9500',
-  error: '#FF3B30',
-  info: '#007AFF',
-};
 
 // Configuration loader class
 export class ConfigLoader {
   static async loadConfig(organizationId: string): Promise<AppConfig | null> {
     try {
-      const response = await fetch(`https://chayo.vercel.app/api/organizations/${organizationId}/mobile-config`);
-      if (!response.ok) {
-        throw new Error(`Failed to load config: ${response.status}`);
-      }
-      return await response.json();
+      // Simplified config - no theme customization, static app design
+      return {
+        organizationId,
+        organizationSlug: 'unknown', // Will be set by app-config endpoint
+        businessName: 'Business', // Will be set by app-config endpoint
+        appName: 'Chayo',
+        enabledTools: [], // Will be populated by app-config endpoint
+        webBaseUrl: 'https://chayo.vercel.app',
+        apiBaseUrl: 'https://chayo.vercel.app'
+      };
     } catch (error) {
       console.error('Failed to load app config:', error);
       return null;

@@ -2,14 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServerClient } from '@/lib/shared/supabase/server';
 import { AppConfigSchema, AVAILABLE_TOOLS } from '@/lib/shared/types/configTypes';
 
-// Default theme constants (inlined for Vercel compatibility)
-const DEFAULT_THEME = {
-  primaryColor: '#2F5D62',
-  secondaryColor: '#2C2C2E',
-  backgroundColor: '#1C1C1E',
-  textColor: '#FFFFFF',
-};
-
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
@@ -54,28 +46,11 @@ export async function GET(
     const webBaseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://chayo.vercel.app';
     const apiBaseUrl = webBaseUrl;
 
-    // Only use custom theme if mobile-branding tool is enabled
-    let themeConfig = DEFAULT_THEME;
-
-    if (enabledTools.includes('mobile-branding')) {
-      // Get mobile branding configuration only if tool is enabled
-      const { data: brandingConfig } = await supabase
-        .from('organization_app_configs')
-        .select('theme_config')
-        .eq('organization_id', organization.id)
-        .single();
-      
-      if (brandingConfig?.theme_config) {
-        themeConfig = brandingConfig.theme_config;
-      }
-    }
-
     const appConfig = {
       organizationSlug: organization.slug,
       organizationId: organization.id,
       businessName: organization.name,
       appName: 'Chayo', // Default for free tier
-      theme: themeConfig,
       enabledTools,
       webBaseUrl,
       apiBaseUrl,
