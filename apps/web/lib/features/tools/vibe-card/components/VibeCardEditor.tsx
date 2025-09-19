@@ -18,7 +18,7 @@ export function VibeCardEditor({ vibeCard, onChange }: VibeCardEditorProps) {
   const handleAddValueBadge = () => {
     if (newValueBadge.trim()) {
       onChange({
-        value_badges: [...vibeCard.value_badges, newValueBadge.trim()]
+        value_badges: [...(vibeCard.value_badges || []), newValueBadge.trim()]
       });
       setNewValueBadge('');
     }
@@ -26,14 +26,14 @@ export function VibeCardEditor({ vibeCard, onChange }: VibeCardEditorProps) {
 
   const handleRemoveValueBadge = (index: number) => {
     onChange({
-      value_badges: vibeCard.value_badges.filter((_, i) => i !== index)
+      value_badges: (vibeCard.value_badges || []).filter((_, i) => i !== index)
     });
   };
 
   const handleAddPersonalityTrait = () => {
     if (newPersonalityTrait.trim()) {
       onChange({
-        personality_traits: [...vibeCard.personality_traits, newPersonalityTrait.trim()]
+        personality_traits: [...(vibeCard.personality_traits || []), newPersonalityTrait.trim()]
       });
       setNewPersonalityTrait('');
     }
@@ -41,14 +41,14 @@ export function VibeCardEditor({ vibeCard, onChange }: VibeCardEditorProps) {
 
   const handleRemovePersonalityTrait = (index: number) => {
     onChange({
-      personality_traits: vibeCard.personality_traits.filter((_, i) => i !== index)
+      personality_traits: (vibeCard.personality_traits || []).filter((_, i) => i !== index)
     });
   };
 
   const handleAddPerfectFor = () => {
     if (newPerfectFor.trim()) {
       onChange({
-        perfect_for: [...vibeCard.perfect_for, newPerfectFor.trim()]
+        perfect_for: [...(vibeCard.perfect_for || []), newPerfectFor.trim()]
       });
       setNewPerfectFor('');
     }
@@ -56,7 +56,7 @@ export function VibeCardEditor({ vibeCard, onChange }: VibeCardEditorProps) {
 
   const handleRemovePerfectFor = (index: number) => {
     onChange({
-      perfect_for: vibeCard.perfect_for.filter((_, i) => i !== index)
+      perfect_for: (vibeCard.perfect_for || []).filter((_, i) => i !== index)
     });
   };
 
@@ -201,7 +201,7 @@ export function VibeCardEditor({ vibeCard, onChange }: VibeCardEditorProps) {
         </label>
         <div className="space-y-2">
           <div className="flex flex-wrap gap-2">
-            {vibeCard.value_badges.map((badge, index) => (
+            {(vibeCard.value_badges || []).map((badge, index) => (
               <motion.span
                 key={index}
                 initial={{ opacity: 0, scale: 0.8 }}
@@ -257,7 +257,7 @@ export function VibeCardEditor({ vibeCard, onChange }: VibeCardEditorProps) {
         </label>
         <div className="space-y-2">
           <div className="flex flex-wrap gap-2">
-            {vibeCard.personality_traits.map((trait, index) => (
+            {(vibeCard.personality_traits || []).map((trait, index) => (
               <motion.span
                 key={index}
                 initial={{ opacity: 0, scale: 0.8 }}
@@ -333,7 +333,7 @@ export function VibeCardEditor({ vibeCard, onChange }: VibeCardEditorProps) {
         </label>
         <div className="space-y-2">
           <div className="space-y-1">
-            {vibeCard.perfect_for.map((customer, index) => (
+            {(vibeCard.perfect_for || []).map((customer, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, x: -10 }}

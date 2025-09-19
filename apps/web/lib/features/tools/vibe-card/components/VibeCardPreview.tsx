@@ -82,13 +82,13 @@ export function VibeCardPreview({ vibeCard }: VibeCardPreviewProps) {
         </div>
 
         {/* Value Badges */}
-        {value_badges.length > 0 && (
+        {(value_badges || []).length > 0 && (
           <div>
             <h4 className="font-semibold text-sm mb-2" style={{ color: vibe_colors.primary }}>
               What We Stand For
             </h4>
             <div className="flex flex-wrap gap-2">
-              {value_badges.map((badge, index) => (
+              {(value_badges || []).map((badge, index) => (
                 <span
                   key={index}
                   className="px-3 py-1 rounded-full text-xs font-medium"
@@ -105,13 +105,13 @@ export function VibeCardPreview({ vibeCard }: VibeCardPreviewProps) {
         )}
 
         {/* Personality Traits */}
-        {personality_traits.length > 0 && (
+        {(personality_traits || []).length > 0 && (
           <div>
             <h4 className="font-semibold text-sm mb-2" style={{ color: vibe_colors.primary }}>
               Our Vibe
             </h4>
             <div className="flex flex-wrap gap-2">
-              {personality_traits.map((trait, index) => (
+              {(personality_traits || []).map((trait, index) => (
                 <span
                   key={index}
                   className="px-2 py-1 rounded text-xs"
@@ -140,13 +140,13 @@ export function VibeCardPreview({ vibeCard }: VibeCardPreviewProps) {
         )}
 
         {/* Perfect For */}
-        {perfect_for.length > 0 && (
+        {(perfect_for || []).length > 0 && (
           <div>
             <h4 className="font-semibold text-sm mb-2" style={{ color: vibe_colors.primary }}>
               Perfect For
             </h4>
             <ul className="text-sm space-y-1">
-              {perfect_for.map((customer, index) => (
+              {(perfect_for || []).map((customer, index) => (
                 <li key={index} className="flex items-center gap-2" style={{ color: 'var(--text-secondary)' }}>
                   <Star className="h-3 w-3" style={{ color: vibe_colors.accent }} />
                   {customer}
