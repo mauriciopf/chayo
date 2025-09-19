@@ -19,7 +19,7 @@ interface ActionableHintChipsProps {
 }
 
 type AgentToolSettings = {
-  [key in ActionableHint['category']]: boolean
+  [key in Exclude<ActionableHint['category'], 'vibe-card'>]: boolean
 }
 
 const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({ 
