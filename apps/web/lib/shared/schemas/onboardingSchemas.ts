@@ -3,11 +3,11 @@
  * These replace the error-prone JSON formatting instructions in system prompts
  */
 
-// Schema for onboarding questions with business field collection
-export const OnboardingQuestionSchema = {
+// Schema for onboarding that handles both questions AND completion
+export const OnboardingSchema = {
   type: "json_schema",
   json_schema: {
-    name: "onboarding_question",
+    name: "onboarding_response",
     strict: true,
     schema: {
       type: "object",
@@ -22,7 +22,7 @@ export const OnboardingQuestionSchema = {
             "onboarding_in_progress",
             "setup_complete"
           ],
-          description: "Current onboarding status"
+          description: "Current onboarding status - use setup_complete when all 5 fields are collected"
         },
         field_name: {
           type: "string",
@@ -33,56 +33,29 @@ export const OnboardingQuestionSchema = {
             "value_badges",
             "perfect_for"
           ],
-          description: "Essential vibe card field name - streamlined to 5 core fields only"
+          description: "Essential vibe card field name - ONLY required when status is onboarding_in_progress"
         },
         field_type: {
           type: "string",
           enum: ["text", "multiple_choice", "boolean", "number", "array"],
-          description: "Type of input expected (array type already supported in database)"
+          description: "Type of input expected - ONLY required when status is onboarding_in_progress"
         },
         question_template: {
           type: "string", 
-          description: "The actual question being asked, extracted from the message"
+          description: "The actual question being asked - ONLY required when status is onboarding_in_progress"
         },
         multiple_choices: {
           type: "array",
           items: {
             type: "string"
           },
-          description: "Array of choices for multiple choice questions. Use empty array for non-multiple-choice fields.",
+          description: "Array of choices for multiple choice questions - ONLY required when status is onboarding_in_progress",
           default: []
         },
         allow_multiple: {
           type: "boolean",
-          description: "Whether multiple choices can be selected. Set to false for non-multiple-choice fields.",
+          description: "Whether multiple choices can be selected - ONLY required when status is onboarding_in_progress",
           default: false
-        }
-      },
-      required: ["message", "status", "field_name", "field_type", "question_template", "multiple_choices", "allow_multiple"],
-      additionalProperties: false
-    }
-  }
-} as const
-
-// Schema for simple status updates (stage transitions, completion)
-export const OnboardingStatusSchema = {
-  type: "json_schema", 
-  json_schema: {
-    name: "onboarding_status",
-    strict: true,
-    schema: {
-      type: "object",
-      properties: {
-        message: {
-          type: "string",
-          description: "Status update message to display to user"
-        },
-        status: {
-          type: "string", 
-          enum: [
-            "setup_complete"
-          ],
-          description: "Completion status signal"
         }
       },
       required: ["message", "status"],
