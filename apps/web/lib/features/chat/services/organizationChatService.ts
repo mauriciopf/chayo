@@ -10,9 +10,8 @@ import { openAIService } from '@/lib/shared/services/OpenAIService'
 import { businessInfoService } from '@/lib/features/organizations/services/businessInfoService'
 // Dynamic import for server-only scraping service
 import { 
-  OnboardingSchema,
   OnboardingQuestionResponse,
-  CustomerSimulationResponse 
+  OnboardingSchema
 } from '@/lib/shared/schemas/onboardingSchemas'
 import {
   BusinessConversationalSchema,
@@ -733,7 +732,7 @@ export class OrganizationChatService {
       let structuredResponse: OnboardingQuestionResponse | BusinessConversationResponse
       
       if (promptType === 'onboarding') {
-        console.log('🎯 [STRUCTURED] Using OnboardingSchema for structured output')
+        console.log('🎯 [STRUCTURED] Using unified OnboardingSchema for structured output')
         structuredResponse = await this.callStructuredOpenAI<OnboardingQuestionResponse>(
           systemPrompt, 
           enhancedMessages, 

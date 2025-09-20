@@ -3,7 +3,7 @@
  * These replace the error-prone JSON formatting instructions in system prompts
  */
 
-// Schema for onboarding that handles both questions AND completion
+// Unified schema for onboarding - handles both questions AND completion with conditional logic
 export const OnboardingSchema = {
   type: "json_schema",
   json_schema: {
@@ -22,7 +22,7 @@ export const OnboardingSchema = {
             "onboarding_in_progress",
             "setup_complete"
           ],
-          description: "Current onboarding status - use setup_complete when all 5 fields are collected"
+          description: "Current onboarding status"
         },
         field_name: {
           type: "string",
@@ -33,32 +33,45 @@ export const OnboardingSchema = {
             "value_badges",
             "perfect_for"
           ],
-          description: "Essential vibe card field name - ONLY required when status is onboarding_in_progress"
+          description: "Essential vibe card field name"
         },
         field_type: {
           type: "string",
-          enum: ["text", "multiple_choice", "boolean", "number", "array"],
-          description: "Type of input expected - ONLY required when status is onboarding_in_progress"
+          enum: ["text", "multiple_choice", "array"],
+          description: "Type of input expected"
         },
         question_template: {
           type: "string", 
-          description: "The actual question being asked - ONLY required when status is onboarding_in_progress"
+          description: "The actual question being asked"
         },
         multiple_choices: {
           type: "array",
           items: {
             type: "string"
           },
-          description: "Array of choices for multiple choice questions - ONLY required when status is onboarding_in_progress",
-          default: []
+          description: "Array of choices for multiple choice questions"
         },
         allow_multiple: {
           type: "boolean",
-          description: "Whether multiple choices can be selected - ONLY required when status is onboarding_in_progress",
-          default: false
+          description: "Whether multiple choices can be selected"
         }
       },
-      required: ["message", "status"],
+      oneOf: [
+        {
+          // Completion case - only message and status required
+          properties: {
+            status: { const: "setup_complete" }
+          },
+          required: ["message", "status"]
+        },
+        {
+          // Question case - all fields required
+          properties: {
+            status: { const: "onboarding_in_progress" }
+          },
+          required: ["message", "status", "field_name", "field_type", "question_template", "multiple_choices", "allow_multiple"]
+        }
+      ],
       additionalProperties: false
     }
   }
