@@ -7,8 +7,8 @@ interface VibeCreationRequest {
     business_name: string
     business_type: string
     origin_story?: string
-    values?: string[]
-    target_customers?: string[]
+    value_badges?: string[] // Always arrays after parsing
+    perfect_for?: string[] // Always arrays after parsing
   }
 }
 
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
 
     console.log('🤖 [VIBE-CREATOR-API] Generating vibe card for:', business_info.business_name)
 
-    // AI Generation Schema
+    // AI Generation Schema - Streamlined to match database
     const VibeCreationSchema = {
       type: "json_schema",
       json_schema: {
@@ -41,6 +41,11 @@ export async function POST(request: NextRequest) {
         schema: {
           type: "object",
           properties: {
+            business_name: { type: "string", description: "Enhanced business name" },
+            business_type: { type: "string", description: "Refined business type" },
+            origin_story: { type: "string", description: "Polished origin story" },
+            value_badges: { type: "array", items: { type: "string" }, description: "Key value propositions" },
+            perfect_for: { type: "array", items: { type: "string" }, description: "Perfect customer types" },
             vibe_colors: {
               type: "object",
               properties: {
@@ -55,15 +60,9 @@ export async function POST(request: NextRequest) {
               type: "string",
               enum: [...VIBE_AESTHETICS],
               description: "The overall aesthetic vibe"
-            },
-            enhanced_origin_story: { type: "string", description: "Polished origin story" },
-            value_badges: { type: "array", items: { type: "string" }, description: "Key value propositions" },
-            personality_traits: { type: "array", items: { type: "string" }, description: "Business personality traits" },
-            why_different: { type: "string", description: "What makes this business unique" },
-            perfect_for: { type: "array", items: { type: "string" }, description: "Perfect customer types" },
-            customer_love: { type: "string", description: "Testimonial-style statement" }
+            }
           },
-          required: ["vibe_colors", "vibe_aesthetic", "enhanced_origin_story", "value_badges", "personality_traits", "why_different", "perfect_for", "customer_love"],
+          required: ["business_name", "business_type", "origin_story", "value_badges", "perfect_for", "vibe_colors", "vibe_aesthetic"],
           additionalProperties: false
         }
       }
@@ -73,23 +72,22 @@ export async function POST(request: NextRequest) {
 
 Based on the provided business information, create a COMPLETE vibe card by:
 
-1. **Perfect Color Palette**: Choose colors that reflect the business type and create emotional appeal
-2. **Enhanced Storytelling**: Polish the origin story into something magnetic and authentic  
-3. **Value Badges**: Extract or enhance key values that customers care about
-4. **Personality Traits**: Define business character based on type and provided info
-5. **Differentiation**: Create compelling uniqueness statements
-6. **Customer Connection**: Identify ideal customer types for this business
-7. **Social Proof**: Generate authentic testimonial-style statements
+1. **Enhanced Business Identity**: Polish the business name and type for maximum appeal
+2. **Perfect Color Palette**: Choose colors that reflect the business type and create emotional appeal
+3. **Enhanced Storytelling**: Polish the origin story into something magnetic and authentic  
+4. **Value Badges**: Extract or enhance key values that customers care about (3-5 badges)
+5. **Customer Connection**: Identify ideal customer types for this business (3-5 types)
+6. **Aesthetic Vibe**: Choose the perfect aesthetic that matches the business personality
 
-IMPORTANT: Create a complete, compelling vibe card that would attract customers.`
+IMPORTANT: Create a complete, compelling vibe card that would attract ideal customers in a boho marketplace.`
 
     const userPrompt = `Create a compelling vibe card for this business:
 
 Business Name: ${business_info.business_name}
 Business Type: ${business_info.business_type}
 ${business_info.origin_story ? `Origin Story: ${business_info.origin_story}` : ''}
-${business_info.values?.length ? `Values: ${business_info.values.join(', ')}` : ''}
-${business_info.target_customers?.length ? `Target Customers: ${business_info.target_customers.join(', ')}` : ''}
+${business_info.value_badges?.length ? `Value Badges: ${business_info.value_badges.join(', ')}` : ''}
+${business_info.perfect_for?.length ? `Perfect For: ${business_info.perfect_for.join(', ')}` : ''}
 
 Generate a complete vibe profile that will make this business irresistible to their ideal customers.`
 

@@ -55,6 +55,17 @@ export class VibeCardService {
       const apiUrl = `${baseUrl}/api/ai/vibe-creator`
       console.log('🌐 [VIBE-SERVICE] Using API URL:', apiUrl)
       
+      // Helper function to convert string to array if needed
+      const parseFieldValue = (value: any): string[] => {
+        if (!value) return []
+        if (Array.isArray(value)) return value
+        if (typeof value === 'string') {
+          // Split by comma and clean up
+          return value.split(',').map(item => item.trim()).filter(item => item.length > 0)
+        }
+        return []
+      }
+
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
@@ -65,8 +76,8 @@ export class VibeCardService {
             business_name: fieldsData[VIBE_CARD_FIELDS.BUSINESS_NAME] || 'Business',
             business_type: fieldsData[VIBE_CARD_FIELDS.BUSINESS_TYPE] || 'Business',
             origin_story: fieldsData[VIBE_CARD_FIELDS.ORIGIN_STORY] || '',
-            values: fieldsData[VIBE_CARD_FIELDS.VALUE_BADGES] || [],
-            target_customers: fieldsData[VIBE_CARD_FIELDS.PERFECT_FOR] || []
+            value_badges: parseFieldValue(fieldsData[VIBE_CARD_FIELDS.VALUE_BADGES]),
+            perfect_for: parseFieldValue(fieldsData[VIBE_CARD_FIELDS.PERFECT_FOR])
           }
         })
       })
