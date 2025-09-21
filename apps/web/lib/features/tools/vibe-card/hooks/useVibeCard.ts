@@ -43,23 +43,15 @@ export function useVibeCard(organizationId: string) {
       setSaving(true);
       setError(null);
 
-      // Call API to save vibe card (update vibe_cards table)
-      const response = await fetch(`/api/organizations/${organizationId}/vibe-card`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(vibeCardData)
-      });
-
-      if (!response.ok) {
+      // Use service directly (no API route needed)
+      const success = await vibeCardService.updateVibeCard(organizationId, vibeCardData);
+      
+      if (success) {
+        setVibeCard(vibeCardData);
+        return true;
+      } else {
         throw new Error('Failed to save vibe card');
       }
-
-      const result = await response.json();
-      setVibeCard(result.vibe_card);
-      
-      return true;
     } catch (err) {
       console.error('Error saving vibe card:', err);
       setError('Failed to save vibe card');
@@ -74,22 +66,15 @@ export function useVibeCard(organizationId: string) {
       setRegenerating(true);
       setError(null);
 
-      // Call API to regenerate vibe card using AI
-      const response = await fetch(`/api/organizations/${organizationId}/regenerate-vibe-card`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
+      // Use service directly (no API route needed)
+      const newVibeCard = await vibeCardService.regenerateVibeCard(organizationId);
+      
+      if (newVibeCard) {
+        setVibeCard(newVibeCard);
+        return true;
+      } else {
         throw new Error('Failed to regenerate vibe card');
       }
-
-      const result = await response.json();
-      setVibeCard(result.vibe_card);
-      
-      return true;
     } catch (err) {
       console.error('Error regenerating vibe card:', err);
       setError('Failed to regenerate vibe card');

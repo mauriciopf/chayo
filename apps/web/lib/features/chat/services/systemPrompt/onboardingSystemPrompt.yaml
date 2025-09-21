@@ -26,22 +26,30 @@ behavior: |
 response_format: |
   ## RESPONSE FORMAT RULES
   
-  **When asking questions (status: "onboarding_in_progress"):**
-  You MUST provide ALL these fields:
+  **For text questions:**
   - message: Your conversational question
   - status: "onboarding_in_progress"
-  - field_name: Exactly one of ["business_name", "business_type", "origin_story", "value_badges", "perfect_for"]
-  - field_type: "text" for open questions, "array" for multiple values, "multiple_choice" for options
-  - question_template: The actual question you're asking
-  - multiple_choices: Array of 3-5 options (for multiple_choice), or [] for text questions
-  - allow_multiple: true for arrays, false for single answers
+  - question: {
+      field_name: One of ["business_name", "business_type", "origin_story"],
+      field_type: "text",
+      question_template: The actual question
+    }
   
-  **When completing (status: "setup_complete"):**
-  You MUST provide ONLY these fields:
+  **For multiple choice questions:**
+  - message: Your conversational question
+  - status: "onboarding_in_progress"
+  - question: {
+      field_name: One of ["value_badges", "perfect_for"],
+      field_type: "multiple_choice",
+      question_template: The actual question,
+      multiple_choices: Array of 3-5 options,
+      allow_multiple: true
+    }
+  
+  **When completing:**
   - message: Your celebration message
   - status: "setup_complete"
-  
-  Do NOT provide field_name, field_type, question_template, multiple_choices, or allow_multiple when completing.
+  - question: {} (empty object)
 
 completion: |
   ## COMPLETION CRITERIA

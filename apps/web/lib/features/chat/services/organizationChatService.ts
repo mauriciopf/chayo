@@ -762,20 +762,23 @@ export class OrganizationChatService {
       let multipleChoices = undefined
       let allowMultiple = false
       
-      // Extract business question data from structured response
-      if ('field_name' in structuredResponse && 'field_type' in structuredResponse) {
-        const questionResp = structuredResponse as OnboardingQuestionResponse | BusinessQuestionResponse
+      // Extract business question data from structured response (nested question property)
+      if ('question' in structuredResponse && structuredResponse.question) {
+        const questionData = structuredResponse.question as any
         
-        businessQuestion = {
-          question_template: questionResp.question_template,
-          field_name: questionResp.field_name,
-          field_type: questionResp.field_type,
-          multiple_choices: questionResp.multiple_choices || null
-        }
-        
-        if (questionResp.field_type === 'multiple_choice' && questionResp.multiple_choices) {
-          multipleChoices = questionResp.multiple_choices
-          allowMultiple = questionResp.allow_multiple || false
+        // Check if question object has actual content (not empty completion object)
+        if (questionData.field_name && questionData.field_type && questionData.question_template) {
+          businessQuestion = {
+            question_template: questionData.question_template,
+            field_name: questionData.field_name,
+            field_type: questionData.field_type,
+            multiple_choices: questionData.multiple_choices || null
+          }
+          
+          if (questionData.field_type === 'multiple_choice' && questionData.multiple_choices) {
+            multipleChoices = questionData.multiple_choices
+            allowMultiple = questionData.allow_multiple || false
+          }
         }
       }
       

@@ -3,7 +3,7 @@
  * These replace the error-prone JSON formatting instructions in system prompts
  */
 
-// Unified schema for onboarding - handles both questions AND completion with conditional logic
+// Clean schema with empty object approach for completion
 export const OnboardingSchema = {
   type: "json_schema",
   json_schema: {
@@ -11,71 +11,87 @@ export const OnboardingSchema = {
     strict: true,
     schema: {
       type: "object",
+      additionalProperties: false,
       properties: {
         message: {
           type: "string",
-          description: "The conversational message to display to the user"
+          description: "Conversational message to display to the user"
         },
         status: {
           type: "string",
-          enum: [
-            "onboarding_in_progress",
-            "setup_complete"
-          ],
+          enum: ["onboarding_in_progress", "setup_complete"],
           description: "Current onboarding status"
         },
-        field_name: {
-          type: "string",
-          enum: [
-            "business_name",
-            "business_type", 
-            "origin_story",
-            "value_badges",
-            "perfect_for"
-          ],
-          description: "Essential vibe card field name"
-        },
-        field_type: {
-          type: "string",
-          enum: ["text", "multiple_choice", "array"],
-          description: "Type of input expected"
-        },
-        question_template: {
-          type: "string", 
-          description: "The actual question being asked"
-        },
-        multiple_choices: {
-          type: "array",
-          items: {
-            type: "string"
-          },
-          description: "Array of choices for multiple choice questions"
-        },
-        allow_multiple: {
-          type: "boolean",
-          description: "Whether multiple choices can be selected"
+        question: {
+          anyOf: [
+            // Empty object for completion (when setup_complete)
+            {
+              type: "object",
+              additionalProperties: false,
+              properties: {},
+              required: []
+            },
+            // Text question
+            {
+              type: "object",
+              additionalProperties: false,
+              properties: {
+                field_name: {
+                  type: "string",
+                  enum: ["business_name", "business_type", "origin_story", "value_badges", "perfect_for"]
+                },
+                field_type: { type: "string", enum: ["text"] },
+                question_template: { type: "string" }
+              },
+              required: ["field_name", "field_type", "question_template"]
+            },
+            // Array question
+            {
+              type: "object",
+              additionalProperties: false,
+              properties: {
+                field_name: {
+                  type: "string",
+                  enum: ["business_name", "business_type", "origin_story", "value_badges", "perfect_for"]
+                },
+                field_type: { type: "string", enum: ["array"] },
+                question_template: { type: "string" }
+              },
+              required: ["field_name", "field_type", "question_template"]
+            },
+            // Multiple-choice question
+            {
+              type: "object",
+              additionalProperties: false,
+              properties: {
+                field_name: {
+                  type: "string",
+                  enum: ["business_name", "business_type", "origin_story", "value_badges", "perfect_for"]
+                },
+                field_type: { type: "string", enum: ["multiple_choice"] },
+                question_template: { type: "string" },
+                multiple_choices: {
+                  type: "array",
+                  items: { type: "string" },
+                  description: "Choices to present to the user"
+                },
+                allow_multiple: {
+                  type: "boolean",
+                  description: "Whether multiple choices can be selected"
+                }
+              },
+              required: ["field_name", "field_type", "question_template", "multiple_choices", "allow_multiple"]
+            }
+          ]
         }
       },
-      oneOf: [
-        {
-          // Completion case - only message and status required
-          properties: {
-            status: { const: "setup_complete" }
-          },
-          required: ["message", "status"]
-        },
-        {
-          // Question case - all fields required
-          properties: {
-            status: { const: "onboarding_in_progress" }
-          },
-          required: ["message", "status", "field_name", "field_type", "question_template", "multiple_choices", "allow_multiple"]
-        }
-      ],
-      additionalProperties: false
+      required: ["message", "status", "question"]
     }
   }
 } as const
+
+
+
 
 // Schema for business conversation responses (post-onboarding)
 export const BusinessResponseSchema = {
@@ -111,11 +127,13 @@ export const BusinessResponseSchema = {
 export interface OnboardingQuestionResponse {
   message: string
   status: "onboarding_in_progress" | "setup_complete"
-  field_name: string
-  field_type: "text" | "multiple_choice" | "boolean" | "number" | "array"
-  question_template: string
-  multiple_choices: string[]
-  allow_multiple: boolean
+  question: {
+    field_name?: string
+    field_type?: "text" | "multiple_choice" | "array"
+    question_template?: string
+    multiple_choices?: string[]
+    allow_multiple?: boolean
+  }
 }
 
 export interface OnboardingStatusResponse {
