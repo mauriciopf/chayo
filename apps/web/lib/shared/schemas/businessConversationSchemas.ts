@@ -89,7 +89,7 @@ export const BusinessQuestionSchema = {
           description: "Current information collection status"
         },
       },
-      required: ["message", "question_template", "field_name", "field_type", "status"],
+      required: ["message", "question_template", "field_name", "field_type", "status", "multiple_choices", "allow_multiple"],
       additionalProperties: false,
     },
   },

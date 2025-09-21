@@ -1,6 +1,5 @@
 import { supabase } from '@/lib/shared/supabase/client'
-import { openAIService } from '@/lib/shared/services/OpenAIService'
-import { VibeCardData, VIBE_CARD_FIELDS, VIBE_AESTHETICS } from '@/lib/shared/types/vibeCardTypes'
+import { VibeCardData, VIBE_CARD_FIELDS } from '@/lib/shared/types/vibeCardTypes'
 
 export class VibeCardService {
   private supabaseClient: any
@@ -9,99 +8,6 @@ export class VibeCardService {
     this.supabaseClient = supabaseClient || supabase
   }
 
-  /**
-   * Generate AI-enhanced vibe data from business info (integrated AI generation)
-   */
-  private async generateAIVibeData(businessInfo: {
-    business_name: string
-    business_type: string
-    origin_story: string
-    values: string[]
-    target_customers: string[]
-  }): Promise<any> {
-    console.log('🤖 [VIBE-SERVICE] Starting AI vibe generation...')
-    
-    try {
-      const systemPrompt = `You are an expert brand strategist creating compelling vibe cards for a boho marketplace. 
-
-Based on the provided business information, create a COMPLETE vibe card by:
-
-1. **Perfect Color Palette**: Choose colors that reflect the business type and create emotional appeal
-2. **Enhanced Storytelling**: Polish the origin story into something magnetic and authentic
-3. **Value Badges**: Extract or enhance key values that customers care about
-4. **Personality Traits**: Define business character based on type and provided info
-5. **Differentiation**: Create compelling uniqueness statements
-6. **Customer Connection**: Identify ideal customer types for this business
-7. **Social Proof**: Generate authentic testimonial-style statements
-
-IMPORTANT: Create a complete, compelling vibe card that would attract customers.`
-
-      const userPrompt = `Create a compelling vibe card for this business:
-
-Business Name: ${businessInfo.business_name}
-Business Type: ${businessInfo.business_type}
-${businessInfo.origin_story ? `Origin Story: ${businessInfo.origin_story}` : ''}
-${businessInfo.values?.length ? `Values: ${businessInfo.values.join(', ')}` : ''}
-${businessInfo.target_customers?.length ? `Target Customers: ${businessInfo.target_customers.join(', ')}` : ''}
-
-Generate a complete vibe profile that will make this business irresistible to their ideal customers.`
-
-      // AI Vibe Creation Schema (inline)
-      const VibeCreationSchema = {
-        type: "json_schema",
-        json_schema: {
-          name: "vibe_creation",
-          strict: true,
-          schema: {
-            type: "object",
-            properties: {
-              vibe_colors: {
-                type: "object",
-                properties: {
-                  primary: { type: "string", description: "Primary color in hex format" },
-                  secondary: { type: "string", description: "Secondary color in hex format" },
-                  accent: { type: "string", description: "Accent color in hex format" }
-                },
-                required: ["primary", "secondary", "accent"],
-                additionalProperties: false
-              },
-              vibe_aesthetic: {
-                type: "string",
-                enum: [...VIBE_AESTHETICS],
-                description: "The overall aesthetic vibe"
-              },
-              enhanced_origin_story: { type: "string", description: "Polished origin story" },
-              value_badges: { type: "array", items: { type: "string" }, maxItems: 6, description: "Key value propositions" },
-              personality_traits: { type: "array", items: { type: "string" }, maxItems: 5, description: "Business personality traits" },
-              why_different: { type: "string", description: "What makes this business unique" },
-              perfect_for: { type: "array", items: { type: "string" }, maxItems: 4, description: "Perfect customer types" },
-              customer_love: { type: "string", description: "Testimonial-style statement" }
-            },
-            required: ["vibe_colors", "vibe_aesthetic", "enhanced_origin_story", "value_badges", "personality_traits", "why_different", "perfect_for", "customer_love"],
-            additionalProperties: false
-          }
-        }
-      } as const
-
-      const responseContent = await openAIService.callChatCompletion(
-        [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-        {
-          model: 'gpt-4o',
-          responseFormat: VibeCreationSchema,
-          temperature: 0.8
-        }
-      )
-
-      return JSON.parse(responseContent || '{}')
-
-    } catch (error) {
-      console.error('🚨 [VIBE-SERVICE] AI generation error:', error)
-      throw error
-    }
-  }
 
   /**
    * Generate vibe card data from collected business info fields
@@ -143,17 +49,35 @@ Generate a complete vibe profile that will make this business irresistible to th
 
       console.log('🎨 [VIBE-SERVICE] Collected fields data:', fieldsData)
       
-      // Generate AI-enhanced vibe data directly (no API call needed)
-      console.log('🤖 [VIBE-SERVICE] Generating AI-enhanced vibe data...')
-      const aiVibeData = await this.generateAIVibeData({
-        business_name: fieldsData[VIBE_CARD_FIELDS.BUSINESS_NAME] || 'Business',
-        business_type: fieldsData[VIBE_CARD_FIELDS.BUSINESS_TYPE] || 'Business',
-        origin_story: fieldsData[VIBE_CARD_FIELDS.ORIGIN_STORY] || '',
-        values: fieldsData[VIBE_CARD_FIELDS.VALUE_BADGES] || [],
-        target_customers: fieldsData[VIBE_CARD_FIELDS.PERFECT_FOR] || []
-      })
+      // Call AI Vibe Creator API (server-side with absolute URL)
+      console.log('🤖 [VIBE-SERVICE] Calling AI vibe creator API...')
+      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+      const apiUrl = `${baseUrl}/api/ai/vibe-creator`
+      console.log('🌐 [VIBE-SERVICE] Using API URL:', apiUrl)
       
-      console.log('✅ [VIBE-SERVICE] AI vibe data generated:', aiVibeData)
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          business_info: {
+            business_name: fieldsData[VIBE_CARD_FIELDS.BUSINESS_NAME] || 'Business',
+            business_type: fieldsData[VIBE_CARD_FIELDS.BUSINESS_TYPE] || 'Business',
+            origin_story: fieldsData[VIBE_CARD_FIELDS.ORIGIN_STORY] || '',
+            values: fieldsData[VIBE_CARD_FIELDS.VALUE_BADGES] || [],
+            target_customers: fieldsData[VIBE_CARD_FIELDS.PERFECT_FOR] || []
+          }
+        })
+      })
+
+      if (!response.ok) {
+        console.error('🚨 [VIBE-SERVICE] AI vibe creator API failed:', response.status, response.statusText)
+        throw new Error('Failed to generate vibe card')
+      }
+
+      const aiVibeData = await response.json()
+      console.log('✅ [VIBE-SERVICE] AI vibe creator response:', aiVibeData)
 
       // Construct final vibe card data (streamlined with AI enhancement)
       const vibeCardData: VibeCardData = {
@@ -207,7 +131,7 @@ Generate a complete vibe profile that will make this business irresistible to th
         return false
       }
 
-      // Store vibe card in dedicated table (with proper null handling)
+      // Store vibe card in streamlined table (only essential columns)
       const { error: vibeCardError } = await this.supabaseClient
         .from('vibe_cards')
         .upsert({
@@ -216,20 +140,13 @@ Generate a complete vibe profile that will make this business irresistible to th
           business_type: vibeCardData.business_type,
           origin_story: vibeCardData.origin_story || '',
           value_badges: vibeCardData.value_badges || [],
-          personality_traits: vibeCardData.personality_traits || [],
+          perfect_for: vibeCardData.perfect_for || [],
           vibe_colors: vibeCardData.vibe_colors || {
             primary: '#8B7355',
             secondary: '#A8956F', 
             accent: '#E6D7C3'
           },
           vibe_aesthetic: vibeCardData.vibe_aesthetic || 'Boho-chic',
-          why_different: vibeCardData.why_different || '',
-          perfect_for: vibeCardData.perfect_for || [],
-          customer_love: vibeCardData.customer_love || '',
-          location: vibeCardData.location || null,
-          website: vibeCardData.website || null,
-          contact_phone: vibeCardData.contact_info?.phone || null,
-          contact_email: vibeCardData.contact_info?.email || null,
           updated_at: new Date().toISOString()
         }, {
           onConflict: 'organization_id'
@@ -396,7 +313,7 @@ Generate a complete vibe profile that will make this business irresistible to th
         return null
       }
 
-      // Update existing vibe card in database
+      // Update existing vibe card in streamlined database
       const { error } = await this.supabaseClient
         .from('vibe_cards')
         .update({
