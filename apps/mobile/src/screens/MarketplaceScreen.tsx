@@ -274,6 +274,11 @@ export default function MarketplaceScreen() {
             </View>
           )}
 
+          {/* iOS News Style "More" Indicator */}
+          <View style={styles.moreIndicator}>
+            <Text style={styles.moreIndicatorText}>...</Text>
+          </View>
+
           {/* Instagram Style Action Buttons */}
           <View style={styles.socialActions}>
             <TouchableOpacity 
@@ -565,21 +570,23 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: '#3A3A3A',
+    // Enhanced 3D shadow for more tappable feeling
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 12, // Android shadow
   },
   interactiveCard: {
     transform: [{ scale: 1 }],
     borderWidth: 2,
     borderColor: '#4A4A4A',
+    // Even deeper shadow for pressed state
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-    elevation: 12,
+    shadowOffset: { width: 0, height: 16 },
+    shadowOpacity: 0.5,
+    shadowRadius: 20,
+    elevation: 20,
   },
   vibeCardHeader: {
     padding: 16,
@@ -806,6 +813,19 @@ const styles = StyleSheet.create({
   },
   socialButtonIcon: {
     fontSize: 22,
+  },
+  // iOS News Style "More" Indicator
+  moreIndicator: {
+    alignItems: 'flex-end',
+    paddingRight: 16,
+    paddingBottom: 8,
+  },
+  moreIndicatorText: {
+    color: '#FFFFFF',
+    fontSize: 24,
+    fontWeight: '300',
+    letterSpacing: 4,
+    opacity: 0.7,
   },
   // Skeleton loading styles
   skeletonCard: {
