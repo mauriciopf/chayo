@@ -11,9 +11,12 @@ import {
   Dimensions,
   RefreshControl,
   ScrollView,
+  Animated,
+  Vibration,
 } from 'react-native';
 // Using pure React Native Views for gradients (no external dependencies)
 import { useNavigation } from '@react-navigation/native';
+import { ShareIcon, BookmarkIcon } from '../components/icons';
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = width - 40; // Full width with 20px margins on each side
@@ -70,6 +73,8 @@ export default function MarketplaceScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [expandedStories, setExpandedStories] = useState<{[key: string]: boolean}>({});
+  const [likedCards, setLikedCards] = useState<{[key: string]: boolean}>({});
 
   const loadVibeCards = useCallback(async (refresh = false) => {
     try {
@@ -125,7 +130,6 @@ export default function MarketplaceScreen() {
       business: {
         id: vibeCard.organization_id,
         name: vibeCard.vibe_data.business_name,
-        type: vibeCard.vibe_data.business_type,
         description: vibeCard.vibe_data.origin_story,
         vibe_data: vibeCard.vibe_data
       },
@@ -140,13 +144,63 @@ export default function MarketplaceScreen() {
 
   const renderVibeCard = ({ item: vibeCard }: { item: MarketplaceVibeCard }) => {
     const { vibe_data } = vibeCard;
+    const scaleAnim = new Animated.Value(1);
+    const showFullStory = expandedStories[vibeCard.organization_id] || false;
+    
+    const handlePressIn = () => {
+      Vibration.vibrate(10); // Subtle haptic feedback
+      Animated.spring(scaleAnim, {
+        toValue: 0.98,
+        useNativeDriver: true,
+        tension: 300,
+        friction: 10,
+      }).start();
+    };
+
+    const handlePressOut = () => {
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        useNativeDriver: true,
+        tension: 300,
+        friction: 10,
+      }).start();
+    };
+
+    const handlePress = () => {
+      handleVibeCardSelect(vibeCard);
+    };
+
+    const toggleStory = () => {
+      setExpandedStories(prev => ({
+        ...prev,
+        [vibeCard.organization_id]: !prev[vibeCard.organization_id]
+      }));
+    };
+
+    const toggleLike = () => {
+      setLikedCards(prev => ({
+        ...prev,
+        [vibeCard.organization_id]: !prev[vibeCard.organization_id]
+      }));
+    };
+
+    const isLiked = likedCards[vibeCard.organization_id] || false;
+
+    // Check if story is long enough to need truncation
+    const isLongStory = vibe_data.origin_story.length > 150;
+    const displayStory = showFullStory || !isLongStory 
+      ? vibe_data.origin_story 
+      : vibe_data.origin_story.substring(0, 150) + '...';
     
     return (
-      <TouchableOpacity 
-        style={[styles.vibeCard, styles.interactiveCard]}
-        onPress={() => handleVibeCardSelect(vibeCard)}
-        activeOpacity={0.9}
-      >
+      <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+        <TouchableOpacity 
+          style={[styles.vibeCard, styles.interactiveCard]}
+          onPress={handlePress}
+          onPressIn={handlePressIn}
+          onPressOut={handlePressOut}
+          activeOpacity={1}
+        >
         {/* Gradient Header - Pure React Native */}
         <View style={[styles.vibeCardHeader, { backgroundColor: vibe_data.vibe_colors?.primary }]}>
           {/* Gradient overlay effect */}
@@ -171,24 +225,41 @@ export default function MarketplaceScreen() {
         {/* Content */}
         <View style={styles.vibeCardContent}>
           {/* Origin Story */}
-          <Text style={styles.originStory}>
-            {vibe_data.origin_story}
-          </Text>
+          <View>
+            <Text style={styles.originStory}>
+              {displayStory}
+            </Text>
+            {isLongStory && (
+              <TouchableOpacity 
+                onPress={toggleStory}
+                style={styles.readMoreButton}
+              >
+                <Text style={styles.readMoreText}>
+                  {showFullStory ? 'Read Less' : 'Read More'}
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
 
           {/* Value Badges */}
           <View style={styles.badgesContainer}>
             {vibe_data.value_badges.map((badge, index) => (
-              <View 
+              <TouchableOpacity
                 key={index}
                 style={[
                   styles.valueBadge, 
                   { backgroundColor: vibe_data.vibe_colors?.primary + '20' }
                 ]}
+                onPress={() => {
+                  Vibration.vibrate(5);
+                  // Could show badge details or highlight related businesses
+                }}
+                activeOpacity={0.7}
               >
                 <Text style={[styles.valueBadgeText, { color: vibe_data.vibe_colors?.primary }]}>
                   {badge}
                 </Text>
-              </View>
+              </TouchableOpacity>
             ))}
             {vibe_data.value_badges.length > 3 && (
               <View style={styles.moreBadge}>
@@ -208,8 +279,44 @@ export default function MarketplaceScreen() {
               </Text>
             </View>
           )}
+
+          {/* Instagram Style Action Buttons */}
+          <View style={styles.socialActions}>
+            <TouchableOpacity 
+              style={styles.socialButton}
+              onPress={() => {
+                Vibration.vibrate(5);
+                toggleLike();
+              }}
+            >
+              <Text style={[styles.socialButtonIcon, { color: isLiked ? '#FF3040' : '#FFFFFF' }]}>
+                {isLiked ? '♥' : '♡'}
+              </Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={styles.socialButton}
+              onPress={() => {
+                Vibration.vibrate(5);
+                // Handle share action
+              }}
+            >
+              <ShareIcon size={22} color="#FFFFFF" />
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={styles.socialButton}
+              onPress={() => {
+                Vibration.vibrate(5);
+                // Handle save/bookmark action
+              }}
+            >
+              <BookmarkIcon size={22} color="#FFFFFF" />
+            </TouchableOpacity>
+          </View>
         </View>
       </TouchableOpacity>
+      </Animated.View>
     );
   };
 
@@ -235,6 +342,34 @@ export default function MarketplaceScreen() {
     const cat = CATEGORIES.find(c => c.name === category);
     return cat?.label || 'Business';
   };
+
+  const renderSkeletonCard = () => (
+    <View style={[styles.vibeCard, styles.skeletonCard]}>
+      {/* Skeleton Header */}
+      <View style={[styles.vibeCardHeader, styles.skeletonHeader]}>
+        <View style={styles.skeletonShimmer} />
+        <View style={styles.vibeCardHeaderContent}>
+          <View style={[styles.skeletonText, { width: '60%', height: 16 }]} />
+          <View style={[styles.skeletonText, { width: '80%', height: 20, marginTop: 8 }]} />
+          <View style={[styles.skeletonText, { width: '50%', height: 14, marginTop: 4 }]} />
+        </View>
+      </View>
+      
+      {/* Skeleton Content */}
+      <View style={styles.vibeCardContent}>
+        <View style={[styles.skeletonText, { width: '100%', height: 16 }]} />
+        <View style={[styles.skeletonText, { width: '90%', height: 16, marginTop: 4 }]} />
+        <View style={[styles.skeletonText, { width: '70%', height: 16, marginTop: 4 }]} />
+        
+        {/* Skeleton Badges */}
+        <View style={[styles.badgesContainer, { marginTop: 12 }]}>
+          <View style={[styles.skeletonBadge]} />
+          <View style={[styles.skeletonBadge]} />
+          <View style={[styles.skeletonBadge]} />
+        </View>
+      </View>
+    </View>
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -291,8 +426,12 @@ export default function MarketplaceScreen() {
             {selectedCategory === 'all' ? '💖 Discover Amazing Vibes' : `✨ ${getCategoryLabel(selectedCategory)} Vibes`}
           </Text>
           {loading && vibeCards.length === 0 ? (
-            <View style={styles.loadingContainer}>
-              <Text style={styles.loadingText}>Loading beautiful vibe cards...</Text>
+            <View style={styles.vibeCardGrid}>
+              {[1, 2, 3].map((index) => (
+                <View key={index} style={{ marginBottom: 20 }}>
+                  {renderSkeletonCard()}
+                </View>
+              ))}
             </View>
           ) : vibeCards.length === 0 ? (
             <View style={styles.emptyContainer}>
@@ -641,5 +780,65 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: '#8E8E93',
     lineHeight: 14,
+  },
+  // New interactive styles
+  readMoreButton: {
+    marginTop: 8,
+    marginBottom: 16,
+    alignSelf: 'flex-start',
+  },
+  readMoreText: {
+    fontSize: 12,
+    color: '#007AFF',
+    fontWeight: '600',
+  },
+  socialActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 16,
+    paddingTop: 12,
+    paddingBottom: 8,
+    paddingHorizontal: 24, // More padding for better spacing with 3 buttons
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  socialButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 8,
+    minWidth: 44,
+    minHeight: 44,
+  },
+  socialButtonIcon: {
+    fontSize: 22,
+  },
+  // Skeleton loading styles
+  skeletonCard: {
+    backgroundColor: '#2A2A2A',
+  },
+  skeletonHeader: {
+    backgroundColor: '#3A3A3A',
+  },
+  skeletonShimmer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#4A4A4A',
+    opacity: 0.3,
+  },
+  skeletonText: {
+    backgroundColor: '#4A4A4A',
+    borderRadius: 4,
+    opacity: 0.6,
+  },
+  skeletonBadge: {
+    width: 80,
+    height: 28,
+    backgroundColor: '#4A4A4A',
+    borderRadius: 14,
+    opacity: 0.6,
   },
 });
