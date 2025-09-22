@@ -56,7 +56,7 @@ interface Category {
 }
 
 const CATEGORIES: Category[] = [
-  { id: 'all', name: 'all', label: 'All', icon: '💖', color: '#8B7355' },
+  { id: 'all', name: 'all', label: 'All', icon: '✨', color: '#8B7355' },
   { id: 'wellness', name: 'wellness', label: 'Wellness', icon: '🌿', color: '#A8956F' },
   { id: 'beauty', name: 'beauty', label: 'Beauty', icon: '✨', color: '#E6D7C3' },
   { id: 'fitness', name: 'fitness', label: 'Fitness', icon: '🧘‍♀️', color: '#D4B896' },
@@ -81,7 +81,7 @@ export default function MarketplaceScreen() {
       if (refresh) setRefreshing(true);
       else setLoading(true);
 
-      console.log('💖 Loading vibe cards...', { searchQuery, selectedCategory });
+      console.log('✨ Loading vibe cards...', { searchQuery, selectedCategory });
 
       // Build API URL with filters
       const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL || 'https://chayo.vercel.app';
@@ -104,7 +104,7 @@ export default function MarketplaceScreen() {
       }
 
       const data = await response.json();
-      console.log('💖 Vibe cards loaded:', { count: data.vibe_cards?.length || 0 });
+      console.log('✨ Vibe cards loaded:', { count: data.vibe_cards?.length || 0 });
       
       if (data.vibe_cards) {
         setVibeCards(data.vibe_cards);
@@ -205,7 +205,7 @@ export default function MarketplaceScreen() {
             ]} 
           />
           <View style={styles.vibeCardHeaderContent}>
-            <Text style={styles.vibeAesthetic}>💖 {vibe_data.vibe_aesthetic}</Text>
+               <Text style={styles.vibeAesthetic}>✨ {vibe_data.vibe_aesthetic}</Text>
             <Text style={styles.businessName}>
               {vibe_data.business_name}
             </Text>
@@ -283,8 +283,8 @@ export default function MarketplaceScreen() {
                 toggleLike();
               }}
             >
-              <Text style={[styles.socialButtonIcon, { color: isLiked ? '#FF3040' : '#FFFFFF' }]}>
-                {isLiked ? '♥' : '♡'}
+              <Text style={[styles.socialButtonIcon, { color: isLiked ? '#D4AF37' : '#FFFFFF' }]}>
+                {isLiked ? '★' : '☆'}
               </Text>
             </TouchableOpacity>
             
@@ -371,7 +371,7 @@ export default function MarketplaceScreen() {
       
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>💖 Vibe Marketplace</Text>
+        <Text style={styles.headerTitle}>✨ Vibe Marketplace</Text>
         <Text style={styles.headerSubtitle}>Discover businesses that match your energy</Text>
       </View>
 
@@ -417,7 +417,7 @@ export default function MarketplaceScreen() {
         {/* Vibe Cards */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
-            {selectedCategory === 'all' ? '💖 Discover Amazing Vibes' : `✨ ${getCategoryLabel(selectedCategory)} Vibes`}
+            {selectedCategory === 'all' ? '✨ Discover Amazing Vibes' : `✨ ${getCategoryLabel(selectedCategory)} Vibes`}
           </Text>
           {loading && vibeCards.length === 0 ? (
             <View style={styles.vibeCardGrid}>
