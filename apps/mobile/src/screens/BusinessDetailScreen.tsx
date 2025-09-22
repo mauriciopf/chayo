@@ -16,29 +16,24 @@ import BusinessTabNavigator from '../navigation/BusinessTabNavigator';
 import LoadingScreen from '../components/LoadingScreen';
 import { supabase } from '../services/authService';
 
-interface Business {
+interface BusinessDetailScreenProps {
+  organizationId: string;
+}
+
+interface OrganizationData {
   id: string;
   name: string;
   slug: string;
-  category: string;
-  representative_image_url?: string;
-  description?: string;
-  rating: number;
-  review_count: number;
-}
-
-interface BusinessDetailScreenProps {
-  business: Business;
-  organizationId: string;
 }
 
 // Inner component that uses the navigation context
 function BusinessDetailContent() {
   const route = useRoute();
   const navigation = useNavigation();
-  const { business, organizationId } = route.params as BusinessDetailScreenProps;
+  const { organizationId } = route.params as BusinessDetailScreenProps;
   const [isLoadingConfig, setIsLoadingConfig] = useState(true);
   const [configError, setConfigError] = useState<string | null>(null);
+  const [organizationData, setOrganizationData] = useState<OrganizationData | null>(null);
 
   useEffect(() => {
     // Load business configuration
@@ -47,17 +42,18 @@ function BusinessDetailContent() {
         setIsLoadingConfig(true);
         setConfigError(null);
         
-        // Verify the business exists and is active
+        // Fetch organization data
         const { data: businessData, error } = await supabase
           .from('organizations')
-          .select('id, name, slug, active')
+          .select('id, name, slug')
           .eq('id', organizationId)
-          .eq('active', true)
           .single();
 
         if (error || !businessData) {
-          throw new Error('Business not found or inactive');
+          throw new Error('Business not found');
         }
+
+        setOrganizationData(businessData);
 
         // Small delay to show the beautiful loading animation
         await new Promise(resolve => setTimeout(resolve, 1000));
@@ -77,8 +73,8 @@ function BusinessDetailContent() {
     navigation.navigate('Marketplace');
   };
 
-  // Show loading screen while loading config
-  if (isLoadingConfig) {
+  // Show loading screen while loading config or if no organization data
+  if (isLoadingConfig || !organizationData) {
     return (
       <LoadingScreen />
     );
@@ -107,17 +103,17 @@ function BusinessDetailContent() {
       <StatusBar barStyle="light-content" backgroundColor="#1C1C1E" />
       
       {/* Business App Content - Loads app-config for selected business */}
-      <AppConfigProvider organizationId={organizationId} organizationSlug={business.slug}>
+      <AppConfigProvider organizationId={organizationId} organizationSlug={organizationData.slug}>
         <ThemeProvider>
           {/* Smart Header - automatically switches between business and nested headers */}
           <SmartHeader
-            businessName={business.name}
+            businessName={organizationData.name}
             onBackToMarketplace={handleBackToMarketplace}
           />
           
           <View style={styles.appContainer}>
             <BusinessTabNavigator 
-              businessName={business.name}
+              businessName={organizationData.name}
               onBackToMarketplace={handleBackToMarketplace}
             />
           </View>

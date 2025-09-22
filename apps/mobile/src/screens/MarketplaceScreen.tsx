@@ -125,14 +125,8 @@ export default function MarketplaceScreen() {
   }, [loadVibeCards]);
 
   const handleVibeCardSelect = (vibeCard: MarketplaceVibeCard) => {
-    // Navigate to business detail screen with vibe card info
+    // Navigate to business detail screen with only the organization ID
     navigation.navigate('BusinessDetail', {
-      business: {
-        id: vibeCard.organization_id,
-        name: vibeCard.vibe_data.business_name,
-        description: vibeCard.vibe_data.origin_story,
-        vibe_data: vibeCard.vibe_data
-      },
       organizationId: vibeCard.organization_id
     });
   };
