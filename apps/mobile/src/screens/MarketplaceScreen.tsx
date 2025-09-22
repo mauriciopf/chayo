@@ -16,7 +16,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
-const CARD_WIDTH = (width - 48) / 2; // 2 columns with 16px margins
+const CARD_WIDTH = width - 40; // Full width with 20px margins on each side
 
 interface VibeCardData {
   business_name: string;
@@ -121,9 +121,15 @@ export default function MarketplaceScreen() {
 
   const handleVibeCardSelect = (vibeCard: MarketplaceVibeCard) => {
     // Navigate to business detail screen with vibe card info
-    navigation.navigate('BusinessDetail', { 
-      vibeCard,
-      organizationId: vibeCard.organization_id 
+    navigation.navigate('BusinessDetail', {
+      business: {
+        id: vibeCard.organization_id,
+        name: vibeCard.vibe_data.business_name,
+        type: vibeCard.vibe_data.business_type,
+        description: vibeCard.vibe_data.origin_story,
+        vibe_data: vibeCard.vibe_data
+      },
+      organizationId: vibeCard.organization_id
     });
   };
 
@@ -137,9 +143,9 @@ export default function MarketplaceScreen() {
     
     return (
       <TouchableOpacity 
-        style={styles.vibeCard}
+        style={[styles.vibeCard, styles.interactiveCard]}
         onPress={() => handleVibeCardSelect(vibeCard)}
-        activeOpacity={0.8}
+        activeOpacity={0.9}
       >
         {/* Gradient Header - Pure React Native */}
         <View style={[styles.vibeCardHeader, { backgroundColor: vibe_data.vibe_colors?.primary }]}>
@@ -152,7 +158,7 @@ export default function MarketplaceScreen() {
           />
           <View style={styles.vibeCardHeaderContent}>
             <Text style={styles.vibeAesthetic}>💖 {vibe_data.vibe_aesthetic}</Text>
-            <Text style={styles.businessName} numberOfLines={2}>
+            <Text style={styles.businessName}>
               {vibe_data.business_name}
             </Text>
             <Text style={styles.businessType}>{vibe_data.business_type}</Text>
@@ -165,13 +171,13 @@ export default function MarketplaceScreen() {
         {/* Content */}
         <View style={styles.vibeCardContent}>
           {/* Origin Story */}
-          <Text style={styles.originStory} numberOfLines={3}>
+          <Text style={styles.originStory}>
             {vibe_data.origin_story}
           </Text>
 
           {/* Value Badges */}
           <View style={styles.badgesContainer}>
-            {vibe_data.value_badges.slice(0, 3).map((badge, index) => (
+            {vibe_data.value_badges.map((badge, index) => (
               <View 
                 key={index}
                 style={[
@@ -197,8 +203,8 @@ export default function MarketplaceScreen() {
               <Text style={[styles.perfectForLabel, { color: vibe_data.vibe_colors?.primary }]}>
                 Perfect for:
               </Text>
-              <Text style={styles.perfectForText} numberOfLines={1}>
-                {vibe_data.perfect_for.slice(0, 2).join(', ')}
+              <Text style={styles.perfectForText}>
+                {vibe_data.perfect_for.join(', ')}
               </Text>
             </View>
           )}
@@ -224,16 +230,6 @@ export default function MarketplaceScreen() {
       </Text>
     </TouchableOpacity>
   );
-
-  const getCategoryColor = (category: string): string => {
-    const cat = CATEGORIES.find(c => c.name === category);
-    return cat?.color || '#8E8E93';
-  };
-
-  const getCategoryIcon = (category: string): string => {
-    const cat = CATEGORIES.find(c => c.name === category);
-    return cat?.icon || '🏪';
-  };
 
   const getCategoryLabel = (category: string): string => {
     const cat = CATEGORIES.find(c => c.name === category);
@@ -311,8 +307,7 @@ export default function MarketplaceScreen() {
               data={vibeCards}
               renderItem={renderVibeCard}
               keyExtractor={(item) => item.organization_id}
-              numColumns={2}
-              columnWrapperStyle={styles.vibeCardRow}
+              numColumns={1}
               scrollEnabled={false}
               contentContainerStyle={styles.vibeCardGrid}
             />
@@ -424,6 +419,7 @@ const styles = StyleSheet.create({
   },
   vibeCardGrid: {
     paddingHorizontal: 20,
+    gap: 20,
   },
   vibeCardRow: {
     justifyContent: 'space-between',
@@ -441,6 +437,16 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
+  },
+  interactiveCard: {
+    transform: [{ scale: 1 }],
+    borderWidth: 2,
+    borderColor: '#4A4A4A',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 12,
   },
   vibeCardHeader: {
     padding: 16,
