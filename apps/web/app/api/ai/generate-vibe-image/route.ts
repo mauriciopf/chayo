@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
 
     // Generate image using DALL-E 3 - optimized for mobile vibe card layout
     const response = await openai.images.generate({
-      model: 'dall-e-3',
+      model: 'gpt-image-1',
       prompt: imagePrompt,
       n: 1,
       size: '1792x1024', // Wide rectangle format (16:9 aspect ratio) - perfect for mobile hero images
