@@ -16,8 +16,6 @@ export class VibeCardImageService {
     filename: string
   ): Promise<string | null> {
     try {
-      console.log('🎨 [VIBE-IMAGE] Downloading DALL-E image from:', dalleImageUrl)
-      
       // Download the image from DALL-E URL (temporary)
       const response = await fetch(dalleImageUrl)
       
@@ -26,12 +24,9 @@ export class VibeCardImageService {
       }
 
       const imageBlob = await response.blob()
-      console.log('📦 [VIBE-IMAGE] Image downloaded, size:', imageBlob.size, 'bytes')
 
       // Generate storage path: {organizationId}/{filename}
       const storagePath = `${organizationId}/${filename}`
-      
-      console.log('☁️ [VIBE-IMAGE] Uploading to Supabase Storage:', storagePath)
 
       // Upload to Supabase Storage (vibecard-images bucket)
       const { data, error } = await this.supabaseClient.storage
@@ -42,24 +37,18 @@ export class VibeCardImageService {
         })
 
       if (error) {
-        console.error('❌ [VIBE-IMAGE] Storage upload error:', error)
         throw error
       }
-
-      console.log('✅ [VIBE-IMAGE] Image uploaded successfully:', data.path)
 
       // Get the public URL
       const { data: publicUrlData } = this.supabaseClient.storage
         .from('vibecard-images')
         .getPublicUrl(storagePath)
 
-      const publicUrl = publicUrlData.publicUrl
-      console.log('🌐 [VIBE-IMAGE] Public URL:', publicUrl)
-
-      return publicUrl
+      return publicUrlData.publicUrl
 
     } catch (error) {
-      console.error('❌ [VIBE-IMAGE] Error storing image:', error)
+      console.error('Error storing vibe card image:', error)
       return null
     }
   }
@@ -84,14 +73,13 @@ export class VibeCardImageService {
         .remove([storagePath])
 
       if (error) {
-        console.error('❌ [VIBE-IMAGE] Error deleting image:', error)
+        console.error('Error deleting vibe card image:', error)
         return false
       }
 
-      console.log('🗑️ [VIBE-IMAGE] Image deleted successfully:', storagePath)
       return true
     } catch (error) {
-      console.error('❌ [VIBE-IMAGE] Error deleting image:', error)
+      console.error('Error deleting vibe card image:', error)
       return false
     }
   }
@@ -105,7 +93,7 @@ export class VibeCardImageService {
       const match = publicUrl.match(/\/vibecard-images\/(.+)$/)
       return match ? match[1] : null
     } catch (error) {
-      console.error('❌ [VIBE-IMAGE] Error extracting storage path:', error)
+      console.error('Error extracting vibe card storage path:', error)
       return null
     }
   }

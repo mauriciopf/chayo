@@ -106,11 +106,6 @@ export default function MarketplaceScreen() {
       }
 
       const data = await response.json();
-      console.log('✨ Vibe cards loaded:', { 
-        count: data.vibe_cards?.length || 0,
-        fullData: data,
-        firstCard: data.vibe_cards?.[0]
-      });
       
       if (data.vibe_cards) {
         setVibeCards(data.vibe_cards);
@@ -144,14 +139,6 @@ export default function MarketplaceScreen() {
 
   const renderVibeCard = ({ item: vibeCard }: { item: MarketplaceVibeCard }) => {
     const { vibe_data } = vibeCard;
-    console.log('🎨 [MARKETPLACE] Rendering vibe card:', {
-      organization_id: vibeCard.organization_id,
-      vibe_data: vibe_data,
-      value_badges: vibe_data.value_badges,
-      perfect_for: vibe_data.perfect_for,
-      origin_story: vibe_data.origin_story,
-      ai_generated_image_url: vibe_data.ai_generated_image_url
-    });
     const scaleAnim = new Animated.Value(1);
     const showFullStory = expandedStories[vibeCard.organization_id] || false;
     

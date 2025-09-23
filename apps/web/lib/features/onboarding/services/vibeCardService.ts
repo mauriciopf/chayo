@@ -283,13 +283,9 @@ export class VibeCardService {
    */
   async getMarketplaceVibeCards(): Promise<any[]> {
     try {
-      // Query vibe_cards table directly with organization info
       const { data, error } = await this.supabaseClient
-        .from('vibe_cards')
-        .select(`
-          *,
-          organizations!inner(slug)
-        `)
+        .from('marketplace_vibe_cards')
+        .select('*')
         .order('created_at', { ascending: false })
 
       if (error) {
@@ -297,22 +293,37 @@ export class VibeCardService {
         return []
       }
 
-      console.log('🔍 [VIBE-SERVICE] Raw marketplace data:', {
+      console.log('🔍 DEBUG: Raw view data:', {
         count: data?.length || 0,
         firstItem: data?.[0],
-        allData: data
+        sampleData: data?.slice(0, 2)
       })
+
+      // Helper function to safely parse JSONB arrays
+      const parseJsonArray = (value: any): string[] => {
+        if (!value) return []
+        if (Array.isArray(value)) return value
+        if (typeof value === 'string') {
+          try {
+            const parsed = JSON.parse(value)
+            return Array.isArray(parsed) ? parsed : []
+          } catch {
+            return []
+          }
+        }
+        return []
+      }
 
       return data?.map((item: any) => ({
         organization_id: item.organization_id,
-        slug: item.organizations?.slug || 'unknown',
+        slug: item.slug,
         setup_status: 'completed',
         completed_at: item.created_at,
         vibe_data: {
-          business_name: item.business_name,
-          business_type: item.business_type,
-          origin_story: item.origin_story,
-          value_badges: item.value_badges || [],
+          business_name: item.business_name || '',
+          business_type: item.business_type || '',
+          origin_story: item.origin_story || '',
+          value_badges: parseJsonArray(item.value_badges),
           personality_traits: [], // Not stored in streamlined table
           vibe_colors: item.vibe_colors || {
             primary: '#8B7355',
@@ -321,7 +332,7 @@ export class VibeCardService {
           },
           vibe_aesthetic: item.vibe_aesthetic || 'Boho-chic',
           why_different: '', // Not stored in streamlined table
-          perfect_for: item.perfect_for || [],
+          perfect_for: parseJsonArray(item.perfect_for),
           customer_love: '', // Not stored in streamlined table
           ai_generated_image_url: item.ai_generated_image_url,
           contact_info: {
