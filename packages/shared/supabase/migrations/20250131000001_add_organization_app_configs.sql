@@ -53,9 +53,4 @@ SELECT
 FROM organizations o
 ON CONFLICT (organization_id, tool_type) DO NOTHING;
 
--- Create storage bucket for organization assets if it doesn't exist
-INSERT INTO storage.buckets (id, name, public)
-VALUES ('organization-assets', 'organization-assets', true)
-ON CONFLICT (id) DO NOTHING;
-
 -- Note: Storage policies removed - using application-level security instead

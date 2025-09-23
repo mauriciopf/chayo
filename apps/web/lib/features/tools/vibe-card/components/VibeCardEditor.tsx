@@ -2,17 +2,19 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, X, Palette } from 'lucide-react';
+import { Plus, X, Palette, Image, RefreshCw } from 'lucide-react';
 import { VibeCardData, VIBE_AESTHETICS } from '@/lib/shared/types/vibeCardTypes';
 
 interface VibeCardEditorProps {
   vibeCard: VibeCardData
   onChange: (updates: Partial<VibeCardData>) => void
+  organizationId: string
 }
 
-export function VibeCardEditor({ vibeCard, onChange }: VibeCardEditorProps) {
+export function VibeCardEditor({ vibeCard, onChange, organizationId }: VibeCardEditorProps) {
   const [newValueBadge, setNewValueBadge] = useState('');
   const [newPerfectFor, setNewPerfectFor] = useState('');
+  const [isRegenerating, setIsRegenerating] = useState(false);
 
   const handleAddValueBadge = () => {
     if (newValueBadge.trim()) {
@@ -45,8 +47,65 @@ export function VibeCardEditor({ vibeCard, onChange }: VibeCardEditorProps) {
     });
   };
 
+  const handleRegenerateWithAI = async () => {
+    setIsRegenerating(true);
+    try {
+      // Call the vibe card service to regenerate the entire vibe card
+      const response = await fetch(`/api/organizations/${organizationId}/regenerate-vibe-card`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to regenerate vibe card');
+      }
+
+      const regeneratedVibeCard = await response.json();
+      
+      // Update the entire vibe card with new AI-generated data
+      onChange(regeneratedVibeCard);
+      
+    } catch (error) {
+      console.error('Error regenerating vibe card:', error);
+      // Could add toast notification here
+    } finally {
+      setIsRegenerating(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
+      
+      {/* Regenerate with AI Button */}
+      <div className="flex justify-between items-center p-4 rounded-lg border" 
+           style={{ 
+             backgroundColor: 'var(--bg-tertiary)', 
+             borderColor: 'var(--border-primary)' 
+           }}>
+        <div>
+          <h3 className="font-medium" style={{ color: 'var(--text-primary)' }}>
+            AI Vibe Card Generator
+          </h3>
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+            Regenerate the entire vibe card with fresh AI content, colors, and image
+          </p>
+        </div>
+        <button
+          onClick={handleRegenerateWithAI}
+          disabled={isRegenerating}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors font-medium"
+          style={{
+            backgroundColor: 'var(--bg-primary)',
+            borderColor: 'var(--border-primary)',
+            color: 'var(--text-primary)'
+          }}
+        >
+          <RefreshCw className={`h-4 w-4 ${isRegenerating ? 'animate-spin' : ''}`} />
+          {isRegenerating ? 'Regenerating...' : 'Regenerate with AI'}
+        </button>
+      </div>
       
       {/* Basic Info */}
       <div className="space-y-4">

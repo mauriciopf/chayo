@@ -30,8 +30,7 @@ END $$;
 -- Ensure buckets exist and are properly configured
 INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 VALUES 
-  ('product-images', 'product-images', true, 52428800, ARRAY['image/jpeg', 'image/png', 'image/webp', 'image/gif']::text[]),
-  ('organization-assets', 'organization-assets', true, 52428800, ARRAY['image/jpeg', 'image/png', 'image/webp', 'image/gif']::text[])
+  ('product-images', 'product-images', true, 52428800, ARRAY['image/jpeg', 'image/png', 'image/webp', 'image/gif']::text[])
 ON CONFLICT (id) DO UPDATE SET 
   public = true,
   file_size_limit = 52428800,

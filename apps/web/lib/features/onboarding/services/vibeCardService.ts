@@ -130,7 +130,7 @@ export class VibeCardService {
   }
 
   /**
-   * Complete onboarding by generating and storing vibe card data
+   * Complete onboarding by generating and storing vibe card data with AI image
    */
   async completeOnboardingWithVibeCard(organizationId: string): Promise<boolean> {
     try {
@@ -140,6 +140,24 @@ export class VibeCardService {
       if (!vibeCardData) {
         console.error('Failed to generate vibe card data')
         return false
+      }
+
+      // Generate AI image for the vibe card
+      let aiGeneratedImageUrl: string | null = null
+      try {
+        console.log('🎨 Generating AI image for vibe card...')
+        aiGeneratedImageUrl = await this.generateVibeCardImage({
+          business_name: vibeCardData.business_name,
+          business_type: vibeCardData.business_type,
+          origin_story: vibeCardData.origin_story || '',
+          vibe_aesthetic: vibeCardData.vibe_aesthetic,
+          vibe_colors: vibeCardData.vibe_colors,
+          organization_id: organizationId
+        })
+        console.log('✅ AI image generated successfully:', aiGeneratedImageUrl)
+      } catch (imageError) {
+        console.warn('⚠️ Failed to generate AI image, continuing without image:', imageError)
+        // Continue without image - don't fail the entire onboarding
       }
 
       // Store vibe card in streamlined table (only essential columns)
@@ -158,6 +176,7 @@ export class VibeCardService {
             accent: '#E6D7C3'
           },
           vibe_aesthetic: vibeCardData.vibe_aesthetic || 'Boho-chic',
+          ai_generated_image_url: aiGeneratedImageUrl,
           updated_at: new Date().toISOString()
         }, {
           onConflict: 'organization_id'
@@ -264,9 +283,13 @@ export class VibeCardService {
    */
   async getMarketplaceVibeCards(): Promise<any[]> {
     try {
+      // Query vibe_cards table directly with organization info
       const { data, error } = await this.supabaseClient
-        .from('marketplace_vibe_cards')
-        .select('*')
+        .from('vibe_cards')
+        .select(`
+          *,
+          organizations!inner(slug)
+        `)
         .order('created_at', { ascending: false })
 
       if (error) {
@@ -274,9 +297,15 @@ export class VibeCardService {
         return []
       }
 
+      console.log('🔍 [VIBE-SERVICE] Raw marketplace data:', {
+        count: data?.length || 0,
+        firstItem: data?.[0],
+        allData: data
+      })
+
       return data?.map((item: any) => ({
         organization_id: item.organization_id,
-        slug: item.slug,
+        slug: item.organizations?.slug || 'unknown',
         setup_status: 'completed',
         completed_at: item.created_at,
         vibe_data: {
@@ -284,21 +313,20 @@ export class VibeCardService {
           business_type: item.business_type,
           origin_story: item.origin_story,
           value_badges: item.value_badges || [],
-          personality_traits: item.personality_traits || [],
+          personality_traits: [], // Not stored in streamlined table
           vibe_colors: item.vibe_colors || {
             primary: '#8B7355',
             secondary: '#A8956F',
             accent: '#E6D7C3'
           },
           vibe_aesthetic: item.vibe_aesthetic || 'Boho-chic',
-          why_different: item.why_different,
+          why_different: '', // Not stored in streamlined table
           perfect_for: item.perfect_for || [],
-          customer_love: item.customer_love,
-          location: item.location,
-          website: item.website,
+          customer_love: '', // Not stored in streamlined table
+          ai_generated_image_url: item.ai_generated_image_url,
           contact_info: {
-            phone: item.contact_phone,
-            email: item.contact_email
+            phone: '',
+            email: ''
           }
         }
       })) || []
@@ -383,6 +411,82 @@ export class VibeCardService {
     } catch (error) {
       console.error('🚨 [VIBE-SERVICE] Error updating vibe card:', error)
       return false
+    }
+  }
+
+  /**
+   * Generate AI image for vibe card
+   */
+  private async generateVibeCardImage(params: {
+    business_name: string
+    business_type: string
+    origin_story: string
+    vibe_aesthetic?: string
+    vibe_colors?: any
+    organization_id?: string
+  }): Promise<string | null> {
+    try {
+      // Use absolute URL for server-side fetch
+      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+      const apiUrl = `${baseUrl}/api/ai/generate-vibe-image`
+      
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(params)
+      })
+
+      if (!response.ok) {
+        throw new Error(`Image generation failed: ${response.status} ${response.statusText}`)
+      }
+
+      const data = await response.json()
+      
+      if (!data.success || !data.image_url) {
+        throw new Error('No image URL returned from AI service')
+      }
+
+      return data.image_url
+    } catch (error) {
+      console.error('Error generating vibe card image:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Regenerate AI image for existing vibe card (for VibeCardEditor)
+   */
+  async regenerateVibeCardImage(organizationId: string): Promise<string | null> {
+    try {
+      // Get current vibe card data
+      const vibeCard = await this.getVibeCardData(organizationId)
+      if (!vibeCard) {
+        throw new Error('No vibe card found for organization')
+      }
+
+      // Generate new image
+      const newImageUrl = await this.generateVibeCardImage({
+        business_name: vibeCard.business_name,
+        business_type: vibeCard.business_type,
+        origin_story: vibeCard.origin_story || '',
+        vibe_aesthetic: vibeCard.vibe_aesthetic,
+        vibe_colors: vibeCard.vibe_colors,
+        organization_id: organizationId
+      })
+
+      if (newImageUrl) {
+        // Update vibe card with new image
+        await this.updateVibeCard(organizationId, {
+          ai_generated_image_url: newImageUrl
+        })
+      }
+
+      return newImageUrl
+    } catch (error) {
+      console.error('Error regenerating vibe card image:', error)
+      return null
     }
   }
 }

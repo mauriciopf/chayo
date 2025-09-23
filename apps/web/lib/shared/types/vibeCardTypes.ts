@@ -30,6 +30,9 @@ export interface VibeCardData {
   // Social Proof (optional - AI can create)
   customer_love?: string
   
+  // AI Generated Image
+  ai_generated_image_url?: string
+  
   // Optional fields that may be collected
   location?: string
   website?: string

@@ -13,6 +13,7 @@ import {
   ScrollView,
   Animated,
   Vibration,
+  Image,
 } from 'react-native';
 // Using pure React Native Views for gradients (no external dependencies)
 import { useNavigation } from '@react-navigation/native';
@@ -37,6 +38,7 @@ interface VibeCardData {
   perfect_for: string[];
   customer_love: string;
   location?: string;
+  ai_generated_image_url?: string;
 }
 
 interface MarketplaceVibeCard {
@@ -104,7 +106,11 @@ export default function MarketplaceScreen() {
       }
 
       const data = await response.json();
-      console.log('✨ Vibe cards loaded:', { count: data.vibe_cards?.length || 0 });
+      console.log('✨ Vibe cards loaded:', { 
+        count: data.vibe_cards?.length || 0,
+        fullData: data,
+        firstCard: data.vibe_cards?.[0]
+      });
       
       if (data.vibe_cards) {
         setVibeCards(data.vibe_cards);
@@ -138,6 +144,14 @@ export default function MarketplaceScreen() {
 
   const renderVibeCard = ({ item: vibeCard }: { item: MarketplaceVibeCard }) => {
     const { vibe_data } = vibeCard;
+    console.log('🎨 [MARKETPLACE] Rendering vibe card:', {
+      organization_id: vibeCard.organization_id,
+      vibe_data: vibe_data,
+      value_badges: vibe_data.value_badges,
+      perfect_for: vibe_data.perfect_for,
+      origin_story: vibe_data.origin_story,
+      ai_generated_image_url: vibe_data.ai_generated_image_url
+    });
     const scaleAnim = new Animated.Value(1);
     const showFullStory = expandedStories[vibeCard.organization_id] || false;
     
@@ -181,10 +195,11 @@ export default function MarketplaceScreen() {
     const isLiked = likedCards[vibeCard.organization_id] || false;
 
     // Check if story is long enough to need truncation
-    const isLongStory = vibe_data.origin_story.length > 150;
+    const originStory = vibe_data.origin_story || '';
+    const isLongStory = originStory.length > 150;
     const displayStory = showFullStory || !isLongStory 
-      ? vibe_data.origin_story 
-      : vibe_data.origin_story.substring(0, 150) + '...';
+      ? originStory 
+      : originStory.substring(0, 150) + '...';
     
     return (
       <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
@@ -195,8 +210,30 @@ export default function MarketplaceScreen() {
           onPressOut={handlePressOut}
           activeOpacity={1}
         >
-        {/* Gradient Header - Pure React Native */}
-        <View style={[styles.vibeCardHeader, { backgroundColor: vibe_data.vibe_colors?.primary }]}>
+        {/* AI Generated Image Header */}
+        {vibe_data.ai_generated_image_url ? (
+          <View style={styles.imageHeader}>
+            <Image 
+              source={{ uri: vibe_data.ai_generated_image_url }}
+              style={styles.aiGeneratedImage}
+              resizeMode="cover"
+            />
+            {/* Gradient overlay for text readability */}
+            <View style={styles.imageOverlay} />
+            <View style={styles.imageHeaderContent}>
+              <Text style={styles.vibeAesthetic}>✨ {vibe_data.vibe_aesthetic}</Text>
+              <Text style={styles.businessName}>
+                {vibe_data.business_name}
+              </Text>
+              <Text style={styles.businessType}>{vibe_data.business_type}</Text>
+              {vibe_data.location && (
+                <Text style={styles.location}>📍 {vibe_data.location}</Text>
+              )}
+            </View>
+          </View>
+        ) : (
+          /* Fallback: Gradient Header - Pure React Native */
+          <View style={[styles.vibeCardHeader, { backgroundColor: vibe_data.vibe_colors?.primary }]}>
           {/* Gradient overlay effect */}
           <View 
             style={[
@@ -215,6 +252,7 @@ export default function MarketplaceScreen() {
             )}
           </View>
         </View>
+        )}
 
         {/* Content */}
         <View style={styles.vibeCardContent}>
@@ -237,7 +275,7 @@ export default function MarketplaceScreen() {
 
           {/* Value Badges */}
           <View style={styles.badgesContainer}>
-            {vibe_data.value_badges.map((badge, index) => (
+            {(vibe_data.value_badges || []).map((badge, index) => (
               <TouchableOpacity
                 key={index}
                 style={[
@@ -255,21 +293,21 @@ export default function MarketplaceScreen() {
                 </Text>
               </TouchableOpacity>
             ))}
-            {vibe_data.value_badges.length > 3 && (
+            {(vibe_data.value_badges || []).length > 3 && (
               <View style={styles.moreBadge}>
-                <Text style={styles.moreBadgeText}>+{vibe_data.value_badges.length - 3}</Text>
+                <Text style={styles.moreBadgeText}>+{(vibe_data.value_badges || []).length - 3}</Text>
               </View>
             )}
           </View>
 
           {/* Perfect For */}
-          {vibe_data.perfect_for.length > 0 && (
+          {(vibe_data.perfect_for || []).length > 0 && (
             <View style={styles.perfectForContainer}>
               <Text style={[styles.perfectForLabel, { color: vibe_data.vibe_colors?.primary }]}>
                 Perfect for:
               </Text>
               <Text style={styles.perfectForText}>
-                {vibe_data.perfect_for.join(', ')}
+                {(vibe_data.perfect_for || []).join(', ')}
               </Text>
             </View>
           )}
@@ -604,6 +642,33 @@ const styles = StyleSheet.create({
   vibeCardHeaderContent: {
     flex: 1,
     zIndex: 1,
+  },
+  // AI Generated Image Header Styles
+  imageHeader: {
+    position: 'relative',
+    height: 200,
+    overflow: 'hidden',
+  },
+  aiGeneratedImage: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+  },
+  imageOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)', // Dark overlay for text readability
+  },
+  imageHeaderContent: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: 16,
+    paddingBottom: 20,
   },
   vibeAesthetic: {
     fontSize: 12,

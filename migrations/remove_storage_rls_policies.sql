@@ -15,11 +15,6 @@ DROP POLICY IF EXISTS "Users can view product images" ON storage.objects;
 DROP POLICY IF EXISTS "Users can delete product images" ON storage.objects;
 DROP POLICY IF EXISTS "Users can update product images" ON storage.objects;
 
--- Drop policies for organization-assets bucket
-DROP POLICY IF EXISTS "Users can upload organization assets" ON storage.objects;
-DROP POLICY IF EXISTS "Users can view organization assets" ON storage.objects;
-DROP POLICY IF EXISTS "Users can delete organization assets" ON storage.objects;
-DROP POLICY IF EXISTS "Users can update organization assets" ON storage.objects;
 
 -- Drop policies for documents bucket
 DROP POLICY IF EXISTS "Users can upload documents" ON storage.objects;
@@ -60,7 +55,6 @@ CREATE POLICY "Allow service role full access to storage" ON storage.objects
 -- Ensure all buckets are public for now (simplest approach)
 UPDATE storage.buckets SET public = true WHERE id IN (
   'product-images',
-  'organization-assets', 
   'documents',
   'agent-documents'
 );
