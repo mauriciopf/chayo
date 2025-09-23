@@ -63,10 +63,13 @@ export async function POST(request: NextRequest) {
     // If organization_id is provided, store the image in Supabase Storage
     let finalImageUrl = temporaryImageUrl
     if (organization_id) {
+      console.log('🔄 [VIBE-IMAGE-API] Starting Supabase Storage process for organization:', organization_id)
       try {
         const vibeImageService = new VibeCardImageService()
         const filename = vibeImageService.generateVibeImageFilename(organization_id)
+        console.log('📝 [VIBE-IMAGE-API] Generated filename:', filename)
         
+        console.log('☁️ [VIBE-IMAGE-API] Calling storeVibeCardImageFromUrl...')
         const storedImageUrl = await vibeImageService.storeVibeCardImageFromUrl(
           temporaryImageUrl,
           organization_id,
@@ -75,14 +78,17 @@ export async function POST(request: NextRequest) {
 
         if (storedImageUrl) {
           finalImageUrl = storedImageUrl
-          console.log('☁️ [VIBE-IMAGE] Image stored in Supabase Storage:', storedImageUrl)
+          console.log('✅ [VIBE-IMAGE-API] Image stored in Supabase Storage successfully:', storedImageUrl)
+          console.log('🔄 [VIBE-IMAGE-API] Final URL changed from temporary to permanent')
         } else {
-          console.warn('⚠️ [VIBE-IMAGE] Failed to store image in Supabase, using temporary URL')
+          console.warn('⚠️ [VIBE-IMAGE-API] storeVibeCardImageFromUrl returned null, using temporary URL')
         }
       } catch (storageError) {
-        console.warn('⚠️ [VIBE-IMAGE] Storage error, using temporary URL:', storageError)
+        console.error('❌ [VIBE-IMAGE-API] Storage error, using temporary URL:', storageError)
         // Continue with temporary URL if storage fails
       }
+    } else {
+      console.log('⚠️ [VIBE-IMAGE-API] No organization_id provided, skipping Supabase Storage')
     }
 
     return NextResponse.json({
