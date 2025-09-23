@@ -3,10 +3,10 @@ import { VibeCardService } from '@/lib/features/onboarding/services/vibeCardServ
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { organizationId: string } }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { organizationId } = params
+    const { id: organizationId } = params
 
     if (!organizationId) {
       return NextResponse.json(
