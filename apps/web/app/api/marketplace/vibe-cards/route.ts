@@ -68,6 +68,7 @@ export async function GET(request: NextRequest) {
         customer_love: item.customer_love,
         location: item.location,
         website: item.website,
+        ai_generated_image_url: item.ai_generated_image_url,
         contact_info: {
           phone: item.contact_phone,
           email: item.contact_email
