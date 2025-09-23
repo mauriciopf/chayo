@@ -508,8 +508,10 @@ Generate a complete vibe profile that will make this business irresistible to th
     organization_id?: string
   }): Promise<string | null> {
     try {
-      // Use absolute URL for server-side fetch
-      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+      // Use absolute URL for server-side fetch - force localhost for development
+      const baseUrl = process.env.NODE_ENV === 'production' 
+        ? (process.env.NEXT_PUBLIC_SITE_URL || 'https://chayo.ai')
+        : 'http://localhost:3000'
       const apiUrl = `${baseUrl}/api/ai/generate-vibe-image`
       
       console.log('🌐 [VIBE-IMAGE] Calling image generation API:', apiUrl)
