@@ -80,18 +80,16 @@ ${businessInfo.perfect_for?.length ? `Perfect For: ${businessInfo.perfect_for.jo
 
 Generate a complete vibe profile that will make this business irresistible to their ideal customers.`
 
-    const responseContent = await openAIService.callChatCompletion(
+    const vibeData = await openAIService.callStructuredCompletion(
       [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt }
       ],
+      VibeCreationSchema,
       {
-        responseFormat: VibeCreationSchema,
         temperature: 0.8
       }
     )
-
-    const vibeData = JSON.parse(responseContent || '{}')
     console.log('✅ [VIBE-SERVICE] Successfully generated vibe card')
 
     return vibeData
@@ -513,6 +511,8 @@ Generate a complete vibe profile that will make this business irresistible to th
       // Use absolute URL for server-side fetch
       const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
       const apiUrl = `${baseUrl}/api/ai/generate-vibe-image`
+      
+      console.log('🌐 [VIBE-IMAGE] Calling image generation API:', apiUrl)
       
       const response = await fetch(apiUrl, {
         method: 'POST',
