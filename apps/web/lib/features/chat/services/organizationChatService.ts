@@ -486,29 +486,6 @@ export class OrganizationChatService {
   }
 
   /**
-   * Legacy OpenAI API call (kept for backward compatibility)
-   * @deprecated Use callStructuredOpenAI instead
-   */
-  private async callOpenAI(systemPrompt: string, messages: ChatMessage[]): Promise<string> {
-    // Prepare messages with full conversation history
-    const chatMessages = [
-      { role: 'system' as const, content: systemPrompt },
-      ...messages.filter(m => m.role === 'user' || m.role === 'assistant').map(m => ({
-        role: m.role as 'user' | 'assistant',
-        content: m.content
-      }))
-    ]
-
-    return await openAIService.callChatCompletion(chatMessages, {
-      model: 'gpt-4o-mini',
-      temperature: 0.9,
-      maxTokens: 1000
-    })
-  }
-
-
-
-  /**
    * Extract just the core business question from a full AI message using AI
    * Removes introductory text, instructions, and choice lists - keeps only the essential question
    */
@@ -518,7 +495,7 @@ export class OrganizationChatService {
       
   
       
-      const response = await openAIService.callChatCompletion([
+      const response = await openAIService.callCompletion([
         {
           role: 'system',
           content: `Extract only the core business question from this message.`

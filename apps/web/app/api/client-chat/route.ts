@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
         const fallbackMessage = locale === 'es' 
           ? 'Lo siento, no pude generar una respuesta.'
           : 'Sorry, I could not generate a response.'
-        const rawResponse = await openAIService.callChatCompletion(openAIMessages, {
+        const rawResponse = await openAIService.callCompletion(openAIMessages, {
           model: 'gpt-4o-mini',
           maxTokens: 500,
           temperature: 0.7,

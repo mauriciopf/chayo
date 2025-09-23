@@ -30,25 +30,23 @@ export class OpenAIService {
   }
 
   /**
-   * Make a chat completion request with proper error handling
+   * Make a simple completion request for text responses (no structured output)
    * @param messages - Array of chat messages
    * @param options - Optional configuration for the request
    * @returns The AI response content
    */
-  public async callChatCompletion(
+  public async callCompletion(
     messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>,
     options: {
       model?: string
       temperature?: number
       maxTokens?: number
-      responseFormat?: any // For structured outputs
     } = {}
   ): Promise<string> {
     const {
       model = 'gpt-4o-mini',
       temperature = 0.9,
-      maxTokens = 1000,
-      responseFormat
+      maxTokens = 1000
     } = options
 
     try {
@@ -57,8 +55,7 @@ export class OpenAIService {
         messages,
         temperature,
         max_tokens: maxTokens,
-        stream: false, // Explicitly set to false to ensure we get a non-stream response
-        ...(responseFormat && { response_format: responseFormat })
+        stream: false
       })
 
       // Type assertion to handle the union type properly
@@ -213,5 +210,12 @@ export class OpenAIService {
   }
 }
 
-// Export singleton instance for convenience
-export const openAIService = OpenAIService.getInstance()
+// Export lazy singleton getter for server-side only usage
+export const openAIService = {
+  getInstance: () => OpenAIService.getInstance(),
+  callCompletion: (messages: any[], options?: any) => OpenAIService.getInstance().callCompletion(messages, options),
+  callStructuredCompletion: <T>(messages: any[], schema: any, options?: any) => OpenAIService.getInstance().callStructuredCompletion<T>(messages, schema, options),
+  generateEmbeddings: (texts: string[], options?: any) => OpenAIService.getInstance().generateEmbeddings(texts, options),
+  transcribeAudio: (audioFile: any, options?: any) => OpenAIService.getInstance().transcribeAudio(audioFile, options),
+  getClient: () => OpenAIService.getInstance().getClient()
+}

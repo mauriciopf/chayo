@@ -54,7 +54,7 @@ Rules:
 
 Answer:`
 
-      const aiResponse = await openAIService.callChatCompletion([
+      const aiResponse = await openAIService.callCompletion([
         { role: 'user', content: prompt }
       ], {
         model: 'gpt-4o-mini',

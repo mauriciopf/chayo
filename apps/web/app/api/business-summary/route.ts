@@ -103,7 +103,7 @@ Respond with ONLY the formatted summary, no additional text.`
     // Use centralized OpenAI service
     const { openAIService } = await import('@/lib/shared/services/OpenAIService')
     
-    const aiResponse = await openAIService.callChatCompletion([
+    const aiResponse = await openAIService.callCompletion([
       {
         role: 'system',
         content: 'You are a professional business summary formatter. Format business data into clear, readable summaries.'

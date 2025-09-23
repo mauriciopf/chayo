@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/shared/supabase/client'
-import { VibeCardData, VIBE_CARD_FIELDS } from '@/lib/shared/types/vibeCardTypes'
+import { VibeCardData, VIBE_CARD_FIELDS, VIBE_AESTHETICS } from '@/lib/shared/types/vibeCardTypes'
+import { openAIService } from '@/lib/shared/services/OpenAIService'
 
 export class VibeCardService {
   private supabaseClient: any
@@ -8,6 +9,93 @@ export class VibeCardService {
     this.supabaseClient = supabaseClient || supabase
   }
 
+  /**
+   * Generate vibe card with AI directly (no HTTP calls)
+   */
+  private async generateVibeCardWithAI(businessInfo: {
+    business_name: string
+    business_type: string
+    origin_story?: string
+    value_badges?: string[]
+    perfect_for?: string[]
+  }): Promise<any> {
+    console.log('🤖 [VIBE-SERVICE] Generating vibe card for:', businessInfo.business_name)
+
+    // AI Generation Schema - Streamlined to match database
+    const VibeCreationSchema = {
+      type: "json_schema",
+      json_schema: {
+        name: "vibe_creation",
+        strict: true,
+        schema: {
+          type: "object",
+          properties: {
+            business_name: { type: "string", description: "Enhanced business name" },
+            business_type: { type: "string", description: "Refined business type" },
+            origin_story: { type: "string", description: "Polished origin story" },
+            value_badges: { type: "array", items: { type: "string" }, description: "Key value propositions" },
+            perfect_for: { type: "array", items: { type: "string" }, description: "Perfect customer types" },
+            vibe_colors: {
+              type: "object",
+              properties: {
+                primary: { type: "string", description: "Primary color in hex format" },
+                secondary: { type: "string", description: "Secondary color in hex format" },
+                accent: { type: "string", description: "Accent color in hex format" }
+              },
+              required: ["primary", "secondary", "accent"],
+              additionalProperties: false
+            },
+            vibe_aesthetic: {
+              type: "string",
+              enum: [...VIBE_AESTHETICS],
+              description: "The overall aesthetic vibe"
+            }
+          },
+          required: ["business_name", "business_type", "origin_story", "value_badges", "perfect_for", "vibe_colors", "vibe_aesthetic"],
+          additionalProperties: false
+        }
+      }
+    } as const
+
+    const systemPrompt = `You are an expert brand strategist creating compelling vibe cards for a boho marketplace. 
+
+Based on the provided business information, create a COMPLETE vibe card by:
+
+1. **Enhanced Business Identity**: Polish the business name and type for maximum appeal
+2. **Perfect Color Palette**: Choose colors that reflect the business type and create emotional appeal
+3. **Enhanced Storytelling**: Polish the origin story into something magnetic and authentic  
+4. **Value Badges**: Extract or enhance key values that customers care about (3-5 badges)
+5. **Customer Connection**: Identify ideal customer types for this business (3-5 types)
+6. **Aesthetic Vibe**: Choose the perfect aesthetic that matches the business personality
+
+IMPORTANT: Create a complete, compelling vibe card that would attract ideal customers in a boho marketplace.`
+
+    const userPrompt = `Create a compelling vibe card for this business:
+
+Business Name: ${businessInfo.business_name}
+Business Type: ${businessInfo.business_type}
+${businessInfo.origin_story ? `Origin Story: ${businessInfo.origin_story}` : ''}
+${businessInfo.value_badges?.length ? `Value Badges: ${businessInfo.value_badges.join(', ')}` : ''}
+${businessInfo.perfect_for?.length ? `Perfect For: ${businessInfo.perfect_for.join(', ')}` : ''}
+
+Generate a complete vibe profile that will make this business irresistible to their ideal customers.`
+
+    const responseContent = await openAIService.callChatCompletion(
+      [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ],
+      {
+        responseFormat: VibeCreationSchema,
+        temperature: 0.8
+      }
+    )
+
+    const vibeData = JSON.parse(responseContent || '{}')
+    console.log('✅ [VIBE-SERVICE] Successfully generated vibe card')
+
+    return vibeData
+  }
 
   /**
    * Generate vibe card data from collected business info fields
@@ -49,12 +137,6 @@ export class VibeCardService {
 
       console.log('🎨 [VIBE-SERVICE] Collected fields data:', fieldsData)
       
-      // Call AI Vibe Creator API (server-side with absolute URL)
-      console.log('🤖 [VIBE-SERVICE] Calling AI vibe creator API...')
-      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-      const apiUrl = `${baseUrl}/api/ai/vibe-creator`
-      console.log('🌐 [VIBE-SERVICE] Using API URL:', apiUrl)
-      
       // Helper function to convert string to array if needed
       const parseFieldValue = (value: any): string[] => {
         if (!value) return []
@@ -66,28 +148,19 @@ export class VibeCardService {
         return []
       }
 
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          business_info: {
-            business_name: fieldsData[VIBE_CARD_FIELDS.BUSINESS_NAME] || 'Business',
-            business_type: fieldsData[VIBE_CARD_FIELDS.BUSINESS_TYPE] || 'Business',
-            origin_story: fieldsData[VIBE_CARD_FIELDS.ORIGIN_STORY] || '',
-            value_badges: parseFieldValue(fieldsData[VIBE_CARD_FIELDS.VALUE_BADGES]),
-            perfect_for: parseFieldValue(fieldsData[VIBE_CARD_FIELDS.PERFECT_FOR])
-          }
-        })
-      })
-
-      if (!response.ok) {
-        console.error('🚨 [VIBE-SERVICE] AI vibe creator API failed:', response.status, response.statusText)
-        throw new Error('Failed to generate vibe card')
+      // Prepare business info for AI generation
+      const businessInfo = {
+        business_name: fieldsData[VIBE_CARD_FIELDS.BUSINESS_NAME] || 'Business',
+        business_type: fieldsData[VIBE_CARD_FIELDS.BUSINESS_TYPE] || 'Business',
+        origin_story: fieldsData[VIBE_CARD_FIELDS.ORIGIN_STORY] || '',
+        value_badges: parseFieldValue(fieldsData[VIBE_CARD_FIELDS.VALUE_BADGES]),
+        perfect_for: parseFieldValue(fieldsData[VIBE_CARD_FIELDS.PERFECT_FOR])
       }
 
-      const aiVibeData = await response.json()
+      console.log('🤖 [VIBE-SERVICE] Generating vibe card with AI...')
+      
+      // Generate vibe card directly with AI (no HTTP calls)
+      const aiVibeData = await this.generateVibeCardWithAI(businessInfo)
       console.log('✅ [VIBE-SERVICE] AI vibe creator response:', aiVibeData)
 
       // Construct final vibe card data (streamlined with AI enhancement)

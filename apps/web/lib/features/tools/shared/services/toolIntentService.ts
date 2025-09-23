@@ -271,7 +271,7 @@ RESPONSE REQUIREMENTS:
 
       console.log('🤖 Calling AI for tool suggestion analysis')
       
-      const response = await openAIService.callChatCompletion(messages, {
+      const response = await openAIService.callCompletion(messages, {
         model: 'gpt-4o-mini',
         temperature: 0.7,
         maxTokens: 200 // Keep suggestions concise

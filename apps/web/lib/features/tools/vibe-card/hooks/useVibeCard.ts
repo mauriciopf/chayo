@@ -66,15 +66,21 @@ export function useVibeCard(organizationId: string) {
       setRegenerating(true);
       setError(null);
 
-      // Use service directly (no API route needed)
-      const newVibeCard = await vibeCardService.regenerateVibeCard(organizationId);
-      
-      if (newVibeCard) {
-        setVibeCard(newVibeCard);
-        return true;
-      } else {
-        throw new Error('Failed to regenerate vibe card');
+      // Call API route for regeneration (server-side only)
+      const response = await fetch(`/api/organizations/${organizationId}/regenerate-vibe-card`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to regenerate vibe card: ${response.status}`);
       }
+
+      const newVibeCard = await response.json();
+      setVibeCard(newVibeCard);
+      return true;
     } catch (err) {
       console.error('Error regenerating vibe card:', err);
       setError('Failed to regenerate vibe card');

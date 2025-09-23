@@ -298,7 +298,7 @@ Priority: Maintain high-quality business knowledge base without clutter.`
       // Use AI to evaluate relevance via centralized service
   
       
-      const aiResponse = await openAIService.callChatCompletion([
+      const aiResponse = await openAIService.callCompletion([
         { role: 'system', content: systemPrompt },
         { role: 'user', content: contentToAnalyze }
       ], {
