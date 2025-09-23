@@ -245,6 +245,7 @@ export function VibeCardConfig({
               {t('editor.title')}
             </h3>
             <VibeCardEditor
+              organizationId={organizationId}
               vibeCard={localVibeCard}
               onChange={handleVibeCardChange}
             />
