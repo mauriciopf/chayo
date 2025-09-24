@@ -1,0 +1,17 @@
+# Ignore iOS build artifacts and Pods to prevent null byte issues
+ios/build/
+ios/Pods/
+ios/Podfile.lock
+
+# Ignore Android build artifacts
+android/app/build/
+
+# Ignore node_modules (will be reinstalled on EAS)
+node_modules/
+
+# Ignore other build artifacts
+*.log
+.DS_Store
+*.tmp
+*~
+._*
