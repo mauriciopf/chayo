@@ -12,6 +12,7 @@ import { FAQsScreen } from '../screens/FAQsScreen';
 import { IntakeFormsScreen } from '../screens/IntakeFormsScreen';
 import { ProductsScreen } from '../screens/ProductsScreen';
 import { ProductDetailScreen } from '../screens/ProductDetailScreen';
+import { HubScreen } from '../screens/HubScreen';
 import LoadingScreen from '../components/LoadingScreen';
 import Icon from 'react-native-vector-icons/Feather';
 
@@ -27,6 +28,7 @@ interface BusinessTabNavigatorProps {
 const getTabIconName = (iconName: string) => {
   const iconMap: Record<string, string> = {
     'message-circle': 'message-circle',
+    'grid': 'grid',
     'headphones': 'headphones',
     'calendar': 'calendar',
     'credit-card': 'credit-card',
@@ -38,10 +40,11 @@ const getTabIconName = (iconName: string) => {
   return iconMap[iconName] || 'circle';
 };
 
-// Tool screen mapping
+// Tool screen mapping - keep original logic for dynamic tools
 const getToolScreen = (tool: string) => {
   const screenMap: Record<string, React.ComponentType<any>> = {
     chat: ChatScreen,
+    hub: HubScreen, // New hub screen
     appointments: AppointmentsScreen,
     payments: PaymentsScreen,
     documents: DocumentsScreen,
@@ -52,28 +55,12 @@ const getToolScreen = (tool: string) => {
   return screenMap[tool] || ChatScreen;
 };
 
-// Generate tabs based on enabled tools
+// Generate simplified tabs - only Chat and Hub
 const generateTabs = (enabledTools: string[], businessName: string, onBackToMarketplace: () => void) => {
-  const toolConfigs = [
-    { name: 'chat', label: 'Chat', icon: 'message-circle' },
-    { name: 'products', label: 'Products', icon: 'shopping-bag' },
-    { name: 'appointments', label: 'Appointments', icon: 'calendar' },
-    { name: 'payments', label: 'Payments', icon: 'credit-card' },
-    { name: 'documents', label: 'Documents', icon: 'file-text' },
-    { name: 'faqs', label: 'FAQs', icon: 'help-circle' },
-    { name: 'intake_forms', label: 'Forms', icon: 'clipboard' },
+  return [
+    { name: 'chat', label: 'Chat', icon: 'message-circle', businessName, onBackToMarketplace },
+    { name: 'hub', label: 'Hub', icon: 'grid', businessName, onBackToMarketplace, enabledTools },
   ];
-
-  // Always include chat, then filter other enabled tools
-  const enabledToolsWithChat = ['chat', ...enabledTools];
-  
-  return toolConfigs
-    .filter(tool => enabledToolsWithChat.includes(tool.name))
-    .map(tool => ({
-      ...tool,
-      businessName,
-      onBackToMarketplace,
-    }));
 };
 
 function MainTabNavigator({ businessName, onBackToMarketplace }: BusinessTabNavigatorProps) {
@@ -95,32 +82,58 @@ function MainTabNavigator({ businessName, onBackToMarketplace }: BusinessTabNavi
 
   const tabs = generateTabs(config.enabledTools, businessName, onBackToMarketplace);
 
-  const renderTabIcon = ({ route, color }: any) => {
+  const renderTabIcon = ({ route, color, focused }: any) => {
     const tab = tabs.find(t => t.name === route.name);
     const iconName = getTabIconName(tab?.icon || 'circle');
-    return <Icon name={iconName} size={24} color={color} />;
+    
+    return (
+      <Icon 
+        name={iconName} 
+        size={focused ? 26 : 24} // Slightly larger when active
+        color={color}
+        style={{
+          textShadowColor: focused ? '#D4A574' : 'transparent', // Warm gold glow when active
+          textShadowOffset: { width: 0, height: 0 },
+          textShadowRadius: focused ? 8 : 0,
+        }}
+      />
+    );
   };
 
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color }) => renderTabIcon({ route, focused, color }),
-        tabBarActiveTintColor: theme.primaryColor,
-        tabBarInactiveTintColor: theme.textColor + '60',
+        tabBarActiveTintColor: '#F4E4BC', // Warm cream for active icons
+        tabBarInactiveTintColor: 'rgba(244, 228, 188, 0.5)', // Muted cream for inactive
         tabBarStyle: {
-          backgroundColor: theme.secondaryColor,
+          backgroundColor: '#1A1A1A', // Deep charcoal background
           borderTopWidth: 0,
-          paddingBottom: Platform.OS === 'ios' ? 34 : 8, // Proper safe area
-          paddingTop: 8,
-          height: Platform.OS === 'ios' ? 88 : 60, // Standard tab bar height
+          paddingBottom: Platform.OS === 'ios' ? 34 : 12,
+          paddingTop: 12,
+          paddingHorizontal: 20, // Add horizontal padding for organic feel
+          height: Platform.OS === 'ios' ? 88 : 64, // Standard height without curves
+          shadowColor: '#D4A574', // Warm gold shadow
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 8,
+          elevation: 8,
         },
         tabBarLabelStyle: {
-          fontSize: 10,
-          fontWeight: '500',
-          marginTop: -2, // Bring labels closer to icons
+          fontSize: 11,
+          fontWeight: '600',
+          marginTop: 2,
+          fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto', // Clean, readable font
+          letterSpacing: 0.5, // Slightly spaced for elegance
         },
         tabBarIconStyle: {
-          marginTop: Platform.OS === 'ios' ? 4 : 0, // Adjust icon position
+          marginTop: Platform.OS === 'ios' ? 2 : 0,
+          marginBottom: 2,
+        },
+        tabBarItemStyle: {
+          paddingVertical: 4,
+          borderRadius: 16, // Organic pill shape for each tab item
+          marginHorizontal: 2,
         },
         headerShown: false,
       })}
@@ -129,12 +142,27 @@ function MainTabNavigator({ businessName, onBackToMarketplace }: BusinessTabNavi
         <Tab.Screen
           key={tab.name}
           name={tab.name}
-          component={getToolScreen(tab.name)}
           options={{
             title: tab.label,
             tabBarLabel: tab.label,
           }}
-        />
+        >
+          {() => {
+            const ScreenComponent = getToolScreen(tab.name);
+            // Pass dynamic enabled tools to Hub screen
+            if (tab.name === 'hub') {
+              return (
+                <ScreenComponent
+                  businessName={tab.businessName}
+                  onBackToMarketplace={tab.onBackToMarketplace}
+                  enabledTools={config?.enabledTools || []}
+                />
+              );
+            }
+            // For other screens, use default props
+            return <ScreenComponent />;
+          }}
+        </Tab.Screen>
       ))}
     </Tab.Navigator>
   );

@@ -69,12 +69,18 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 50, // Account for status bar
-    paddingBottom: 16,
-    backgroundColor: '#1C1C1E',
-    borderBottomWidth: 1,
-    borderBottomColor: '#2C2C2E',
+    paddingHorizontal: 24,
+    paddingTop: 54, // Account for status bar + extra space
+    paddingBottom: 20,
+    backgroundColor: '#1A1A1A', // Deep charcoal to match tab bar
+    borderBottomWidth: 0, // Remove harsh border
+    borderBottomLeftRadius: 20, // Organic curved bottom corners
+    borderBottomRightRadius: 20,
+    shadowColor: '#D4A574', // Warm gold shadow
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 8,
   },
   backButtonContainer: {
     marginRight: 16,
@@ -90,10 +96,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#F4E4BC', // Warm cream color
     textAlign: 'center',
+    letterSpacing: 0.8, // Elegant spacing
+    textShadowColor: 'rgba(212, 165, 116, 0.3)', // Subtle warm glow
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
   rightContainer: {
     justifyContent: 'center',

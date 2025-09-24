@@ -64,13 +64,13 @@ export const CustomBackButton: React.FC<CustomBackButtonProps> = ({
           <Icon 
             name="chevron-left" 
             size={size} 
-            color={theme.primaryColor || '#007AFF'} 
+            color="#F4E4BC" // Warm cream color for icon
             style={styles.icon}
           />
         </View>
         
-        {/* Subtle gradient overlay for depth */}
-        <View style={[styles.gradientOverlay, { backgroundColor: theme.primaryColor + '08' }]} />
+        {/* Mystical gradient overlay for depth */}
+        <View style={[styles.gradientOverlay, { backgroundColor: 'rgba(212, 165, 116, 0.1)' }]} />
       </TouchableOpacity>
     </Animated.View>
   );
@@ -78,26 +78,26 @@ export const CustomBackButton: React.FC<CustomBackButtonProps> = ({
 
 const styles = StyleSheet.create({
   backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    backgroundColor: '#2C2C2E',
-    borderWidth: 1,
-    borderColor: '#3A3A3C',
+    width: 44,
+    height: 44,
+    borderRadius: 22, // Perfect circle for organic feel
+    backgroundColor: 'rgba(244, 228, 188, 0.08)', // Subtle warm cream background
+    borderWidth: 1.5,
+    borderColor: 'rgba(212, 165, 116, 0.2)', // Warm gold border
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
     overflow: 'hidden',
-    // Subtle shadow for iOS
-    shadowColor: '#000',
+    // Mystical shadow
+    shadowColor: '#D4A574', // Warm gold shadow
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 3,
     },
-    shadowOpacity: 0.15,
-    shadowRadius: 3,
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
     // Android shadow
-    elevation: 3,
+    elevation: 6,
   },
   iconContainer: {
     justifyContent: 'center',
@@ -112,8 +112,9 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    height: '50%',
-    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    height: '60%',
+    backgroundColor: 'rgba(244, 228, 188, 0.05)', // Subtle warm cream glow
+    borderRadius: 22, // Match parent border radius
     zIndex: 1,
   },
 });
