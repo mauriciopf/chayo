@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -23,12 +23,19 @@ interface AppointmentTimeSelectionScreenProps {
 export const AppointmentTimeSelectionScreen: React.FC = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { selectedDate, organizationId } = route.params as { selectedDate: Date; organizationId: string };
+  const { selectedDate: selectedDateString, organizationId } = route.params as { selectedDate: string; organizationId: string };
+  const selectedDate = new Date(selectedDateString); // Parse string back to Date
   const { theme, themedStyles } = useThemedStyles();
+  const [selectedTime, setSelectedTime] = useState<string | null>(null);
+
+  // Memoize the back press handler to prevent infinite re-renders
+  const handleBackPress = useCallback(() => {
+    navigation.goBack();
+  }, [navigation]);
 
   // Use auto-cleanup navigation header (same pattern as other detail screens)
   useNavigationHeader('Select Time', {
-    onBackPress: () => navigation.goBack(),
+    onBackPress: handleBackPress,
     autoCleanup: true,
   });
 
@@ -49,11 +56,16 @@ export const AppointmentTimeSelectionScreen: React.FC = () => {
   };
 
   const handleTimeSelect = (time: string) => {
-    navigation.navigate('AppointmentBooking', {
-      selectedDate,
-      selectedTime: time,
-      organizationId,
-    });
+    setSelectedTime(time);
+    
+    // Small delay to show selection before navigating
+    setTimeout(() => {
+      navigation.navigate('AppointmentBooking', {
+        selectedDate: selectedDate.toISOString(), // Convert Date to string for navigation
+        selectedTime: time,
+        organizationId,
+      });
+    }, 150);
   };
 
   return (
@@ -73,24 +85,33 @@ export const AppointmentTimeSelectionScreen: React.FC = () => {
         
         <ScrollView style={styles.timeSlotsContainer} showsVerticalScrollIndicator={false}>
           <View style={styles.timeSlotsGrid}>
-            {timeSlots.map((time) => (
-              <TouchableOpacity
-                key={time}
-                style={[
-                  styles.timeSlot,
-                  { 
-                    backgroundColor: theme.surfaceColor,
-                    borderColor: theme.borderColor,
-                  }
-                ]}
-                onPress={() => handleTimeSelect(time)}
-                activeOpacity={0.7}
-              >
-                <Text style={[styles.timeSlotText, { color: theme.textColor }]}>
-                  {time}
-                </Text>
-              </TouchableOpacity>
-            ))}
+            {timeSlots.map((time) => {
+              const isSelected = selectedTime === time;
+              return (
+                <TouchableOpacity
+                  key={time}
+                  style={[
+                    styles.timeSlot,
+                    { 
+                      backgroundColor: isSelected ? '#4A9B8E' : theme.surfaceColor,
+                      borderColor: isSelected ? '#4A9B8E' : theme.borderColor,
+                    }
+                  ]}
+                  onPress={() => handleTimeSelect(time)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={[
+                    styles.timeSlotText, 
+                    { 
+                      color: isSelected ? '#FFFFFF' : theme.textColor,
+                      fontWeight: isSelected ? '700' : '600',
+                    }
+                  ]}>
+                    {time}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
         </ScrollView>
       </View>

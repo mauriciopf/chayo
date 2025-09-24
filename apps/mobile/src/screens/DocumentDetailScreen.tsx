@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
   View,
   StyleSheet,
@@ -16,9 +16,14 @@ export const DocumentDetailScreen: React.FC = () => {
   const { document, totalDocuments } = route.params as { document: DocumentData; totalDocuments?: number };
   const { t } = useTranslation();
 
+  // Memoize the back press handler to prevent infinite re-renders
+  const handleBackPress = useCallback(() => {
+    navigation.goBack();
+  }, [navigation]);
+
   // Use auto-cleanup navigation header (same pattern as ProductDetailScreen)
   useNavigationHeader('Document Details', {
-    onBackPress: () => navigation.goBack(),
+    onBackPress: handleBackPress,
     autoCleanup: true, // Automatically return to business header when component unmounts
   });
 

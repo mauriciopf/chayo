@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -14,9 +14,14 @@ export const FormDetailScreen: React.FC = () => {
   const { formId } = route.params as { formId: string };
   const { themedStyles } = useThemedStyles();
 
+  // Memoize the back press handler to prevent infinite re-renders
+  const handleBackPress = useCallback(() => {
+    navigation.goBack();
+  }, [navigation]);
+
   // Use auto-cleanup navigation header (same pattern as ProductDetailScreen)
   useNavigationHeader('Form Details', {
-    onBackPress: () => navigation.goBack(),
+    onBackPress: handleBackPress,
     autoCleanup: true, // Automatically return to business header when component unmounts
   });
 

@@ -36,6 +36,22 @@ export type RootStackParamList = {
   Signup: undefined;
   Onboarding: undefined;
   AppointmentDetails: { appointmentId: string };
+  AppointmentTimeSelection: { 
+    selectedDate: string; // Date as ISO string for navigation
+    organizationId: string; 
+  };
+  AppointmentBooking: { 
+    selectedDate: string; // Date as ISO string for navigation
+    selectedTime: string; 
+    organizationId: string; 
+  };
+  DocumentDetail: {
+    document: any;
+    totalDocuments: number;
+  };
+  FormDetail: {
+    formId: string;
+  };
   PaymentDetails: { paymentId: string };
   ChatDetails: { chatId: string };
 };

@@ -122,17 +122,28 @@ export const useNavigationHeader = (
 ) => {
   const { setScreenHeader, setRootNavigation } = useScreenNavigation();
   
+  // Extract primitive values to avoid object reference issues
+  const showBackButton = options?.showBackButton;
+  const backButtonText = options?.backButtonText;
+  const autoCleanup = options?.autoCleanup;
+  const onBackPress = options?.onBackPress;
+  
   React.useEffect(() => {
     // Set header when component mounts
-    setScreenHeader(title, options);
+    setScreenHeader(title, {
+      showBackButton,
+      onBackPress,
+      backButtonText,
+      autoCleanup,
+    });
     
     // Cleanup when component unmounts (if autoCleanup is enabled)
     return () => {
-      if (options?.autoCleanup !== false) {
+      if (autoCleanup !== false) {
         setRootNavigation();
       }
     };
-  }, [title, setScreenHeader, setRootNavigation, options]);
+  }, [title, setScreenHeader, setRootNavigation, showBackButton, backButtonText, autoCleanup, onBackPress]);
 
   return {
     setScreenHeader,

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -12,26 +12,30 @@ import {
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useThemedStyles } from '../context/ThemeContext';
 import { useNavigationHeader } from '../context/NavigationContext';
-import { useAppConfig } from '../hooks/useAppConfig';
 import { createCustomerInteraction } from '../services/authService';
 import AuthGate from '../components/AuthGate';
 
 export const AppointmentBookingScreen: React.FC = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { selectedDate, selectedTime, organizationId } = route.params as { 
-    selectedDate: Date; 
+  const { selectedDate: selectedDateString, selectedTime, organizationId } = route.params as { 
+    selectedDate: string; 
     selectedTime: string; 
     organizationId: string; 
   };
+  const selectedDate = new Date(selectedDateString); // Parse string back to Date
   const { theme, themedStyles } = useThemedStyles();
-  const { config } = useAppConfig();
   const [notes, setNotes] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  // Memoize the back press handler to prevent infinite re-renders
+  const handleBackPress = useCallback(() => {
+    navigation.goBack();
+  }, [navigation]);
+
   // Use auto-cleanup navigation header (same pattern as other detail screens)
   useNavigationHeader('Book Appointment', {
-    onBackPress: () => navigation.goBack(),
+    onBackPress: handleBackPress,
     autoCleanup: true,
   });
 
@@ -49,7 +53,7 @@ export const AppointmentBookingScreen: React.FC = () => {
   };
 
   const handleAuthenticatedBooking = async (user: any, customerId: string) => {
-    if (!config?.organizationId) {
+    if (!organizationId) {
       Alert.alert('Error', 'Organization not found');
       return;
     }
@@ -59,7 +63,7 @@ export const AppointmentBookingScreen: React.FC = () => {
 
       const appointmentData = {
         customer_id: customerId,
-        organization_id: config.organizationId,
+        organization_id: organizationId,
         appointment_date: formatDateForAPI(selectedDate),
         appointment_time: selectedTime,
         notes: notes.trim(),
@@ -71,7 +75,7 @@ export const AppointmentBookingScreen: React.FC = () => {
       // Create customer interaction record
       await createCustomerInteraction(
         customerId,
-        config.organizationId,
+        organizationId,
         'appointment_booking',
         `Appointment booked for ${formatDate(selectedDate)} at ${selectedTime}`,
         { appointmentData }
@@ -102,83 +106,93 @@ export const AppointmentBookingScreen: React.FC = () => {
     }
   };
 
+  const handleBookAppointment = () => {
+    // This will trigger the AuthGate modal
+    setIsLoading(true);
+  };
+
   return (
-    <AuthGate onAuthenticated={handleAuthenticatedBooking}>
-      <SafeAreaView style={[styles.container, themedStyles.container]}>
-        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-          {/* Appointment Details */}
-          <View style={styles.detailsContainer}>
-            <Text style={[styles.sectionTitle, { color: theme.textColor }]}>
-              Appointment Details
-            </Text>
+    <SafeAreaView style={[styles.container, themedStyles.container]}>
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Appointment Details */}
+        <View style={styles.detailsContainer}>
+          <Text style={[styles.sectionTitle, { color: theme.textColor }]}>
+            Appointment Details
+          </Text>
+          
+          <View style={[styles.detailCard, { backgroundColor: theme.surfaceColor }]}>
+            <View style={styles.detailRow}>
+              <Text style={[styles.detailLabel, { color: theme.placeholderColor }]}>
+                Date
+              </Text>
+              <Text style={[styles.detailValue, { color: theme.textColor }]}>
+                {formatDate(selectedDate)}
+              </Text>
+            </View>
             
-            <View style={[styles.detailCard, { backgroundColor: theme.surfaceColor }]}>
-              <View style={styles.detailRow}>
-                <Text style={[styles.detailLabel, { color: theme.placeholderColor }]}>
-                  Date
-                </Text>
-                <Text style={[styles.detailValue, { color: theme.textColor }]}>
-                  {formatDate(selectedDate)}
-                </Text>
-              </View>
-              
-              <View style={styles.detailRow}>
-                <Text style={[styles.detailLabel, { color: theme.placeholderColor }]}>
-                  Time
-                </Text>
-                <Text style={[styles.detailValue, { color: theme.textColor }]}>
-                  {selectedTime}
-                </Text>
-              </View>
+            <View style={styles.detailRow}>
+              <Text style={[styles.detailLabel, { color: theme.placeholderColor }]}>
+                Time
+              </Text>
+              <Text style={[styles.detailValue, { color: theme.textColor }]}>
+                {selectedTime}
+              </Text>
             </View>
           </View>
+        </View>
 
-          {/* Notes Section */}
-          <View style={styles.notesContainer}>
-            <Text style={[styles.sectionTitle, { color: theme.textColor }]}>
-              Additional Notes (Optional)
-            </Text>
-            
-            <TextInput
-              style={[
-                styles.notesInput,
-                {
-                  backgroundColor: theme.surfaceColor,
-                  borderColor: theme.borderColor,
-                  color: theme.textColor,
-                }
-              ]}
-              placeholder="Any special requests or notes..."
-              placeholderTextColor={theme.placeholderColor}
-              value={notes}
-              onChangeText={setNotes}
-              multiline
-              numberOfLines={4}
-              textAlignVertical="top"
-            />
-          </View>
-        </ScrollView>
-
-        {/* Book Button */}
-        <View style={styles.footer}>
-          <TouchableOpacity
+        {/* Notes Section */}
+        <View style={styles.notesContainer}>
+          <Text style={[styles.sectionTitle, { color: theme.textColor }]}>
+            Additional Notes (Optional)
+          </Text>
+          
+          <TextInput
             style={[
-              styles.bookButton,
-              { 
-                backgroundColor: theme.primaryColor,
-                opacity: isLoading ? 0.6 : 1,
+              styles.notesInput,
+              {
+                backgroundColor: theme.surfaceColor,
+                borderColor: theme.borderColor,
+                color: theme.textColor,
               }
             ]}
-            onPress={() => {}} // AuthGate will handle the booking
-            disabled={isLoading}
-          >
-            <Text style={styles.bookButtonText}>
-              {isLoading ? 'Booking...' : 'Book Appointment'}
-            </Text>
-          </TouchableOpacity>
+            placeholder="Any special requests or notes..."
+            placeholderTextColor={theme.placeholderColor}
+            value={notes}
+            onChangeText={setNotes}
+            multiline
+            numberOfLines={4}
+            textAlignVertical="top"
+          />
         </View>
-      </SafeAreaView>
-    </AuthGate>
+      </ScrollView>
+
+      {/* Book Button */}
+      <View style={styles.footer}>
+        <TouchableOpacity
+          style={[
+            styles.bookButton,
+            { 
+              backgroundColor: theme.primaryColor,
+              opacity: isLoading ? 0.6 : 1,
+            }
+          ]}
+          onPress={handleBookAppointment}
+          disabled={isLoading}
+        >
+          <Text style={styles.bookButtonText}>
+            {isLoading ? 'Booking...' : 'Book Appointment'}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* AuthGate Modal - Only show when booking is triggered */}
+      {isLoading && (
+        <AuthGate onAuthenticated={handleAuthenticatedBooking}>
+          <View />
+        </AuthGate>
+      )}
+    </SafeAreaView>
   );
 };
 
