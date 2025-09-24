@@ -29,11 +29,13 @@ interface MobileAppointmentCalendarProps {
   organizationId: string;
   businessName?: string;
   baseUrl?: string;
+  navigation?: any;
 }
 
 const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
   organizationId,
   baseUrl = 'https://chayo.ai',
+  navigation,
 }) => {
   const { theme, themedStyles } = useThemedStyles();
   const { config } = useAppConfig();
@@ -122,12 +124,21 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
       return;
     }
 
-    setSelectedDate(date);
-    setShowTimeSlots(true);
-    setAppointmentDetails(prev => ({
-      ...prev,
-      date: formatDateForAPI(date),
-    }));
+    // Navigate to time selection screen instead of showing internal state
+    if (navigation) {
+      navigation.navigate('AppointmentTimeSelection', {
+        selectedDate: date,
+        organizationId,
+      });
+    } else {
+      // Fallback to internal state if navigation not available
+      setSelectedDate(date);
+      setShowTimeSlots(true);
+      setAppointmentDetails(prev => ({
+        ...prev,
+        date: formatDateForAPI(date),
+      }));
+    }
   };
 
   const handleTimeSelect = (time: string) => {

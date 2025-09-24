@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import {
   View,
   Text,
@@ -6,7 +6,11 @@ import {
   ScrollView,
   TouchableOpacity,
   Dimensions,
+  FlatList,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { useThemedStyles } from '../context/ThemeContext';
 import { useAppConfig } from '../hooks/useAppConfig';
 import { useTranslation } from '../hooks/useTranslation';
@@ -52,13 +56,16 @@ export const HubScreen: React.FC<HubScreenProps> = ({
   const { theme } = useThemedStyles();
   const { config } = useAppConfig();
   const { t } = useTranslation();
+  const navigation = useNavigation();
 
   // Filter tools based on enabled tools
   const availableTools = toolConfigs.filter(tool => enabledTools.includes(tool.name));
   
-  // Default to first available tool
+  // State for tracking active section
   const [activeToolIndex, setActiveToolIndex] = useState(0);
-  const activeTool = availableTools[activeToolIndex];
+  const flatListRef = useRef<FlatList>(null);
+  const topNavScrollRef = useRef<ScrollView>(null);
+  const sectionHeights = useRef<number[]>([]);
 
   if (!config || availableTools.length === 0) {
     return (
@@ -76,6 +83,36 @@ export const HubScreen: React.FC<HubScreenProps> = ({
     );
   }
 
+  // Handle scroll to update active tab
+  const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const scrollY = event.nativeEvent.contentOffset.y;
+    let currentSection = 0;
+    let accumulatedHeight = 0;
+
+    for (let i = 0; i < sectionHeights.current.length; i++) {
+      accumulatedHeight += sectionHeights.current[i];
+      if (scrollY < accumulatedHeight - 100) { // 100px offset for better UX
+        currentSection = i;
+        break;
+      }
+      currentSection = i;
+    }
+
+    if (currentSection !== activeToolIndex) {
+      setActiveToolIndex(currentSection);
+    }
+  }, [activeToolIndex]);
+
+  // Handle tap on top tab to scroll to section
+  const scrollToSection = useCallback((index: number) => {
+    setActiveToolIndex(index);
+    flatListRef.current?.scrollToIndex({
+      index,
+      animated: true,
+      viewPosition: 0,
+    });
+  }, []);
+
   const renderTopTab = (tool: ToolConfig, index: number) => {
     const isActive = index === activeToolIndex;
     
@@ -87,7 +124,7 @@ export const HubScreen: React.FC<HubScreenProps> = ({
           isActive && styles.activeTopTab,
           { borderBottomColor: isActive ? '#F4E4BC' : 'transparent' }
         ]}
-        onPress={() => setActiveToolIndex(index)}
+        onPress={() => scrollToSection(index)}
         activeOpacity={0.7}
       >
         <Icon 
@@ -108,13 +145,38 @@ export const HubScreen: React.FC<HubScreenProps> = ({
     );
   };
 
-  const ActiveComponent = activeTool.component;
+  // Render each tool as a section
+  const renderToolSection = ({ item, index }: { item: ToolConfig; index: number }) => {
+    const ToolComponent = item.component;
+    
+    return (
+      <View 
+        style={styles.toolSection}
+        onLayout={(event) => {
+          const { height } = event.nativeEvent.layout;
+          sectionHeights.current[index] = height;
+        }}
+      >
+        {/* Section Header */}
+        <View style={styles.sectionHeader}>
+          <Icon name={item.icon} size={24} color="#F4E4BC" style={styles.sectionIcon} />
+          <Text style={styles.sectionTitle}>{item.label}</Text>
+        </View>
+        
+        {/* Tool Component */}
+        <View style={styles.toolContainer}>
+          <ToolComponent navigation={navigation} />
+        </View>
+      </View>
+    );
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: theme.backgroundColor }]}>
       {/* Horizontal Scrollable Top Navigation */}
       <View style={styles.topNavContainer}>
         <ScrollView
+          ref={topNavScrollRef}
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.topNavContent}
@@ -124,10 +186,29 @@ export const HubScreen: React.FC<HubScreenProps> = ({
         </ScrollView>
       </View>
 
-      {/* Active Tool Content */}
-      <View style={styles.contentContainer}>
-        <ActiveComponent />
-      </View>
+      {/* Unified Scrollable Content */}
+      <FlatList
+        ref={flatListRef}
+        data={availableTools}
+        renderItem={renderToolSection}
+        keyExtractor={(item) => item.name}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.flatListContent}
+        getItemLayout={(data, index) => ({
+          length: sectionHeights.current[index] || 600, // Estimated height
+          offset: sectionHeights.current.slice(0, index).reduce((sum, height) => sum + height, 0),
+          index,
+        })}
+        onScrollToIndexFailed={(info) => {
+          // Fallback for scroll to index failures
+          const wait = new Promise(resolve => setTimeout(resolve, 500));
+          wait.then(() => {
+            flatListRef.current?.scrollToIndex({ index: info.index, animated: true });
+          });
+        }}
+      />
     </View>
   );
 };
@@ -195,7 +276,33 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: 'rgba(244, 228, 188, 0.6)',
   },
-  contentContainer: {
+  flatListContent: {
+    paddingBottom: 20,
+  },
+  toolSection: {
+    minHeight: 600, // Minimum height for each section
+    paddingVertical: 20,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(212, 165, 116, 0.1)',
+    marginBottom: 16,
+  },
+  sectionIcon: {
+    marginRight: 12,
+  },
+  sectionTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#F4E4BC',
+    letterSpacing: 0.5,
+  },
+  toolContainer: {
     flex: 1,
+    minHeight: 500, // Ensure each tool has enough space
   },
 });

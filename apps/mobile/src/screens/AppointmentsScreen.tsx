@@ -6,7 +6,11 @@ import { useAppConfig } from '../hooks/useAppConfig';
 import { useTranslation } from '../hooks/useTranslation';
 import { appointmentService } from '../services';
 
-export const AppointmentsScreen: React.FC = () => {
+interface AppointmentsScreenProps {
+  navigation: any;
+}
+
+export const AppointmentsScreen: React.FC<AppointmentsScreenProps> = ({ navigation }) => {
   const { config, urlGenerator } = useAppConfig();
   const { t } = useTranslation();
   const [useNativeCalendar, setUseNativeCalendar] = useState<boolean | null>(null);
@@ -54,6 +58,7 @@ export const AppointmentsScreen: React.FC = () => {
         organizationId={config?.organizationId || ''}
         businessName={config?.organizationName || 'Our Business'}
         baseUrl={config?.baseUrl}
+        navigation={navigation}
       />
     );
   }

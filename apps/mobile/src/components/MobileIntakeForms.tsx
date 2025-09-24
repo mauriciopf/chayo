@@ -18,6 +18,7 @@ import LoadingScreen from './LoadingScreen';
 
 interface MobileIntakeFormsProps {
   organizationSlug: string;
+  navigation?: any;
 }
 
 interface FormListItemProps {
@@ -44,11 +45,10 @@ const FormListItem: React.FC<FormListItemProps> = ({ form, onPress, theme, theme
   </TouchableOpacity>
 );
 
-export const MobileIntakeForms: React.FC<MobileIntakeFormsProps> = ({ organizationSlug }) => {
+export const MobileIntakeForms: React.FC<MobileIntakeFormsProps> = ({ organizationSlug, navigation }) => {
   const { theme, themedStyles } = useThemedStyles();
   const [forms, setForms] = useState<IntakeForm[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedFormId, setSelectedFormId] = useState<string | null>(null);
 
   const loadForms = useCallback(async () => {
     try {
@@ -69,38 +69,13 @@ export const MobileIntakeForms: React.FC<MobileIntakeFormsProps> = ({ organizati
     loadForms();
   }, [loadForms]);
 
-  // Auto-select the form if there's only one
-  useEffect(() => {
-    if (forms.length === 1 && !selectedFormId) {
-      setSelectedFormId(forms[0].id);
-    }
-  }, [forms, selectedFormId]);
+  // Remove auto-navigation - let users scroll freely in Hub
 
   const handleFormPress = (formId: string) => {
-    setSelectedFormId(formId);
-  };
-
-
-  const handleSubmissionComplete = (success: boolean, _message: string) => {
-    if (success) {
-      // Go back to list after successful submission
-      setTimeout(() => {
-        setSelectedFormId(null);
-      }, 2000);
+    if (navigation) {
+      navigation.navigate('FormDetail', { formId });
     }
   };
-
-  // If a form is selected, show the form component
-  if (selectedFormId) {
-    return (
-      <SafeAreaView style={[styles.container, themedStyles.container]}>
-        <MobileIntakeForm
-          formId={selectedFormId}
-          onSubmissionComplete={handleSubmissionComplete}
-        />
-      </SafeAreaView>
-    );
-  }
 
   // Show loading state
   if (loading) {

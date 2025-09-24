@@ -12,12 +12,17 @@ import { FAQsScreen } from '../screens/FAQsScreen';
 import { IntakeFormsScreen } from '../screens/IntakeFormsScreen';
 import { ProductsScreen } from '../screens/ProductsScreen';
 import { ProductDetailScreen } from '../screens/ProductDetailScreen';
+import { DocumentDetailScreen } from '../screens/DocumentDetailScreen';
+import { FormDetailScreen } from '../screens/FormDetailScreen';
+import { AppointmentTimeSelectionScreen } from '../screens/AppointmentTimeSelectionScreen';
+import { AppointmentBookingScreen } from '../screens/AppointmentBookingScreen';
 import { HubScreen } from '../screens/HubScreen';
 import LoadingScreen from '../components/LoadingScreen';
 import Icon from 'react-native-vector-icons/Feather';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
+const HubStack = createNativeStackNavigator();
 
 interface BusinessTabNavigatorProps {
   businessName: string;
@@ -44,7 +49,7 @@ const getTabIconName = (iconName: string) => {
 const getToolScreen = (tool: string) => {
   const screenMap: Record<string, React.ComponentType<any>> = {
     chat: ChatScreen,
-    hub: HubScreen, // New hub screen
+    hub: HubStackNavigator, // Hub with inner navigation
     appointments: AppointmentsScreen,
     payments: PaymentsScreen,
     documents: DocumentsScreen,
@@ -54,6 +59,30 @@ const getToolScreen = (tool: string) => {
   };
   return screenMap[tool] || ChatScreen;
 };
+
+// Hub Stack Navigator - handles inner navigation for ALL tools
+function HubStackNavigator({ businessName, onBackToMarketplace, enabledTools }: { businessName: string; onBackToMarketplace: () => void; enabledTools: string[] }) {
+  return (
+    <HubStack.Navigator screenOptions={{ headerShown: false }}>
+      <HubStack.Screen name="HubMain">
+        {() => (
+          <HubScreen
+            businessName={businessName}
+            onBackToMarketplace={onBackToMarketplace}
+            enabledTools={enabledTools}
+          />
+        )}
+      </HubStack.Screen>
+      
+      {/* Universal Detail Screens - All tool detail screens */}
+      <HubStack.Screen name="ProductDetail" component={ProductDetailScreen} />
+      <HubStack.Screen name="DocumentDetail" component={DocumentDetailScreen} />
+      <HubStack.Screen name="FormDetail" component={FormDetailScreen} />
+      <HubStack.Screen name="AppointmentTimeSelection" component={AppointmentTimeSelectionScreen} />
+      <HubStack.Screen name="AppointmentBooking" component={AppointmentBookingScreen} />
+    </HubStack.Navigator>
+  );
+}
 
 // Generate simplified tabs - only Chat and Hub
 const generateTabs = (enabledTools: string[], businessName: string, onBackToMarketplace: () => void) => {
@@ -149,7 +178,7 @@ function MainTabNavigator({ businessName, onBackToMarketplace }: BusinessTabNavi
         >
           {() => {
             const ScreenComponent = getToolScreen(tab.name);
-            // Pass dynamic enabled tools to Hub screen
+            // Pass dynamic enabled tools to Hub stack navigator
             if (tab.name === 'hub') {
               return (
                 <ScreenComponent
@@ -170,11 +199,6 @@ function MainTabNavigator({ businessName, onBackToMarketplace }: BusinessTabNavi
 
 export default function BusinessTabNavigator({ businessName, onBackToMarketplace }: BusinessTabNavigatorProps) {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Main">
-        {() => <MainTabNavigator businessName={businessName} onBackToMarketplace={onBackToMarketplace} />}
-      </Stack.Screen>
-      <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
-    </Stack.Navigator>
+    <MainTabNavigator businessName={businessName} onBackToMarketplace={onBackToMarketplace} />
   );
 }

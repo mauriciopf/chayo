@@ -3,7 +3,11 @@ import { WebViewScreen } from '../components/WebViewScreen';
 import { useAppConfig } from '../hooks/useAppConfig';
 import { useTranslation } from '../hooks/useTranslation';
 
-export const PaymentsScreen: React.FC = () => {
+interface PaymentsScreenProps {
+  navigation?: any;
+}
+
+export const PaymentsScreen: React.FC<PaymentsScreenProps> = ({ navigation }) => {
   const { config, urlGenerator } = useAppConfig();
   const { t } = useTranslation();
 

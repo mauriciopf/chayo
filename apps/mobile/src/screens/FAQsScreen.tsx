@@ -28,7 +28,11 @@ interface SwipeFAQ {
   category?: string;
 }
 
-export const FAQsScreen: React.FC = () => {
+interface FAQsScreenProps {
+  navigation?: any;
+}
+
+export const FAQsScreen: React.FC<FAQsScreenProps> = ({ navigation }) => {
   const { config } = useAppConfig();
   const { t } = useTranslation();
   const { theme, themedStyles } = useThemedStyles();

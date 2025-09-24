@@ -1,11 +1,13 @@
 import React from 'react';
 import { MobileIntakeForms } from '../components/MobileIntakeForms';
 import { useAppConfig } from '../hooks/useAppConfig';
-import { useTranslation } from '../hooks/useTranslation';
 
-export const IntakeFormsScreen: React.FC = () => {
+interface IntakeFormsScreenProps {
+  navigation: any;
+}
+
+export const IntakeFormsScreen: React.FC<IntakeFormsScreenProps> = ({ navigation }) => {
   const { config } = useAppConfig();
-  const { t } = useTranslation();
 
   if (!config) {
     return null; // Or loading component
@@ -14,6 +16,7 @@ export const IntakeFormsScreen: React.FC = () => {
   return (
     <MobileIntakeForms
       organizationSlug={config.organizationSlug || ''}
+      navigation={navigation}
     />
   );
 };

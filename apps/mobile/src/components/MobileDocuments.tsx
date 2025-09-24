@@ -51,12 +51,7 @@ const MobileDocuments: React.FC<MobileDocumentsProps> = ({
     fetchDocuments();
   }, [fetchDocuments]);
 
-  // Auto-select document if there's only one
-  useEffect(() => {
-    if (documents.length === 1) {
-      onDocumentSelect(documents[0]);
-    }
-  }, [documents, onDocumentSelect]);
+  // Remove auto-navigation - let users scroll freely in Hub
 
   const formatFileSize = (bytes: number): string => {
     if (bytes === 0) {
