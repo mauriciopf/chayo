@@ -8,7 +8,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { WebView, WebViewNavigation } from 'react-native-webview';
-import LoadingScreen from './LoadingScreen';
+import { SkeletonBox } from './SkeletonLoader';
 import { useTranslation } from '../hooks/useTranslation';
 
 interface WebViewScreenProps {
@@ -144,7 +144,12 @@ export const WebViewScreen: React.FC<WebViewScreenProps> = ({
       )}
 
       {loading && (
-        <LoadingScreen />
+        <View style={styles.loadingContainer}>
+          <SkeletonBox width={300} height={20} borderRadius={8} style={{ marginBottom: 16 }} />
+          <SkeletonBox width={250} height={16} borderRadius={6} style={{ marginBottom: 12 }} />
+          <SkeletonBox width={280} height={16} borderRadius={6} style={{ marginBottom: 12 }} />
+          <SkeletonBox width={200} height={16} borderRadius={6} />
+        </View>
       )}
     </SafeAreaView>
   );

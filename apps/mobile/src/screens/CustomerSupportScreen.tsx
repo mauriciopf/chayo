@@ -16,7 +16,7 @@ import { useAppConfig } from '../hooks/useAppConfig';
 import { useAuth } from '../context/AuthContext';
 import { useSSEProgress } from '../hooks/useSSEProgress';
 import LoginModal from '../components/LoginModal';
-import LoadingScreen from '../components/LoadingScreen';
+import { SkeletonBox } from '../components/SkeletonLoader';
 import { ThinkingMessage } from '../components/ThinkingMessage';
 import { supabase } from '../services/authService';
 
@@ -385,7 +385,15 @@ export const CustomerSupportScreen: React.FC = () => {
   }
 
   if (loading) {
-    return <LoadingScreen />;
+    return (
+      <View style={[styles.container, themedStyles.container]}>
+        <SkeletonBox width={200} height={20} borderRadius={8} style={{ marginBottom: 16 }} />
+        <SkeletonBox width="100%" height={60} borderRadius={12} style={{ marginBottom: 12 }} />
+        <SkeletonBox width="80%" height={60} borderRadius={12} style={{ marginBottom: 12 }} />
+        <SkeletonBox width="100%" height={60} borderRadius={12} style={{ marginBottom: 12 }} />
+        <SkeletonBox width="70%" height={60} borderRadius={12} />
+      </View>
+    );
   }
 
   if (!config) {

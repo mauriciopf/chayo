@@ -1,7 +1,7 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Platform } from 'react-native';
+import { Platform, View } from 'react-native';
 import { useAppConfig } from '../hooks/useAppConfig';
 import { useThemedStyles } from '../context/ThemeContext';
 import { ChatScreen } from '../screens/ChatScreen';
@@ -18,7 +18,6 @@ import { AppointmentTimeSelectionScreen } from '../screens/AppointmentTimeSelect
 import { AppointmentBookingScreen } from '../screens/AppointmentBookingScreen';
 import { HubScreen } from '../screens/HubScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
-import LoadingScreen from '../components/LoadingScreen';
 import Icon from 'react-native-vector-icons/Feather';
 
 const Tab = createBottomTabNavigator();
@@ -106,13 +105,10 @@ function MainTabNavigator({ businessName, onBackToMarketplace }: BusinessTabNavi
     backgroundColor: theme.backgroundColor,
   });
 
-  if (!config) {
-    return (
-      <LoadingScreen />
-    );
-  }
+  // Always show the tab navigator, even without config
+  // Individual screens will handle their own loading states
 
-  const tabs = generateTabs(config.enabledTools, businessName, onBackToMarketplace);
+  const tabs = generateTabs(config?.enabledTools || [], businessName, onBackToMarketplace);
 
   const renderTabIcon = ({ route, color, focused }: any) => {
     const tab = tabs.find(t => t.name === route.name);

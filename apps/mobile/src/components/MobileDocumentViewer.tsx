@@ -15,7 +15,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { documentService, DocumentData, SignatureData } from '../services/DocumentService';
 import { useThemedStyles } from '../context/ThemeContext';
 import { useTranslation } from '../hooks/useTranslation';
-import LoadingScreen from './LoadingScreen';
+import { SkeletonBox } from './SkeletonLoader';
 import AuthGate from './AuthGate';
 import { useAppConfig } from '../hooks/useAppConfig';
 import { createCustomerInteraction } from '../services/authService';
@@ -170,7 +170,11 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
 
   if (loading) {
     return (
-      <LoadingScreen />
+      <View style={{ flex: 1, backgroundColor: '#1C1C1E', padding: 20 }}>
+        <SkeletonBox width={200} height={24} borderRadius={8} style={{ marginBottom: 20 }} />
+        <SkeletonBox width="100%" height={300} borderRadius={16} style={{ marginBottom: 20 }} />
+        <SkeletonBox width={120} height={44} borderRadius={8} />
+      </View>
     );
   }
 
@@ -225,7 +229,11 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
                     disabled={signing}
                   >
                     {signing ? (
-                      <LoadingScreen />
+                      <View style={{ flex: 1, backgroundColor: '#1C1C1E', padding: 20 }}>
+        <SkeletonBox width={200} height={24} borderRadius={8} style={{ marginBottom: 20 }} />
+        <SkeletonBox width="100%" height={300} borderRadius={16} style={{ marginBottom: 20 }} />
+        <SkeletonBox width={120} height={44} borderRadius={8} />
+      </View>
                     ) : (
                       <Text style={styles.signButtonText}>Sign Document</Text>
                     )}
@@ -268,7 +276,11 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
             }}
             startInLoadingState={true}
             renderLoading={() => (
-              <LoadingScreen />
+              <View style={{ flex: 1, backgroundColor: '#1C1C1E', padding: 20 }}>
+        <SkeletonBox width={200} height={24} borderRadius={8} style={{ marginBottom: 20 }} />
+        <SkeletonBox width="100%" height={300} borderRadius={16} style={{ marginBottom: 20 }} />
+        <SkeletonBox width={120} height={44} borderRadius={8} />
+      </View>
             )}
             onLoadStart={() => {
               console.log('WebView started loading');
@@ -288,7 +300,11 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
             incognito={true}
           />
         ) : (
-          <LoadingScreen />
+          <View style={{ flex: 1, backgroundColor: '#1C1C1E', padding: 20 }}>
+        <SkeletonBox width={200} height={24} borderRadius={8} style={{ marginBottom: 20 }} />
+        <SkeletonBox width="100%" height={300} borderRadius={16} style={{ marginBottom: 20 }} />
+        <SkeletonBox width={120} height={44} borderRadius={8} />
+      </View>
         )}
       </View>
 

@@ -28,7 +28,7 @@ import {
 import { intakeFormService } from '../services/IntakeFormService';
 import { useThemedStyles } from '../context/ThemeContext';
 import { useCallback } from 'react';
-import LoadingScreen from './LoadingScreen';
+import { SkeletonBox } from './SkeletonLoader';
 import { ModernFloatingInput } from './ModernFloatingInput';
 import { SteppedForm } from './SteppedForm';
 import { useAppConfig } from '../hooks/useAppConfig';
@@ -461,7 +461,14 @@ export const MobileIntakeForm: React.FC<MobileIntakeFormProps> = ({
 
   if (loading) {
     return (
-      <LoadingScreen />
+      <View style={{ flex: 1, backgroundColor: '#1C1C1E', padding: 20 }}>
+        <SkeletonBox width={200} height={24} borderRadius={8} style={{ marginBottom: 20 }} />
+        <SkeletonBox width="100%" height={60} borderRadius={12} style={{ marginBottom: 16 }} />
+        <SkeletonBox width="100%" height={60} borderRadius={12} style={{ marginBottom: 16 }} />
+        <SkeletonBox width="100%" height={60} borderRadius={12} style={{ marginBottom: 16 }} />
+        <SkeletonBox width="100%" height={120} borderRadius={12} style={{ marginBottom: 20 }} />
+        <SkeletonBox width={120} height={44} borderRadius={8} />
+      </View>
     );
   }
 

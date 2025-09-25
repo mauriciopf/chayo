@@ -21,7 +21,7 @@ import {
   signUpWithEmail,
   AuthUser 
 } from '../services/authService';
-import LoadingScreen from './LoadingScreen';
+import { SkeletonBox } from './SkeletonLoader';
 
 interface LoginModalProps {
   visible: boolean;
@@ -395,7 +395,12 @@ export default function LoginModal({
 
             {loading && (
               <View style={styles.loadingOverlay}>
-                <LoadingScreen />
+                <View style={{ padding: 20 }}>
+                  <SkeletonBox width={150} height={20} borderRadius={8} style={{ alignSelf: 'center', marginBottom: 20 }} />
+                  <SkeletonBox width="100%" height={50} borderRadius={12} style={{ marginBottom: 16 }} />
+                  <SkeletonBox width="100%" height={50} borderRadius={12} style={{ marginBottom: 16 }} />
+                  <SkeletonBox width={120} height={44} borderRadius={8} style={{ alignSelf: 'center' }} />
+                </View>
               </View>
             )}
           </TouchableOpacity>

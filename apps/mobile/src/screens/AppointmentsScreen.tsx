@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import LoadingScreen from '../components/LoadingScreen';
+import { View } from 'react-native';
+import { AppointmentSkeleton } from '../components/SkeletonLoader';
 import { WebViewScreen } from '../components/WebViewScreen';
 import { MobileAppointmentCalendar } from '../components';
 import { useAppConfig } from '../hooks/useAppConfig';
@@ -48,7 +49,13 @@ export const AppointmentsScreen: React.FC<AppointmentsScreenProps> = ({ navigati
 
   // Show loading while determining calendar type
   if (useNativeCalendar === null) {
-    return <LoadingScreen />;
+    return (
+      <View style={{ flex: 1, backgroundColor: '#1C1C1E', paddingTop: 20 }}>
+        <AppointmentSkeleton />
+        <AppointmentSkeleton />
+        <AppointmentSkeleton />
+      </View>
+    );
   }
 
   // Show native calendar for Chayo appointments

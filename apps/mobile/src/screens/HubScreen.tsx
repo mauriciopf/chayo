@@ -21,6 +21,7 @@ import { AppointmentsScreen } from './AppointmentsScreen';
 import { FAQsScreen } from './FAQsScreen';
 import { PaymentsScreen } from './PaymentsScreen';
 import { UnifiedDocumentsSection } from '../components/UnifiedDocumentsSection';
+import { SkeletonBox } from '../components/SkeletonLoader';
 
 
 interface HubScreenProps {
@@ -113,7 +114,33 @@ export const HubScreen: React.FC<HubScreenProps> = ({
     };
   }, [pushNavigationContext, popNavigationContext, businessName]);
 
-  if (!config || availableTools.length === 0) {
+  // Show hub immediately, even if config is still loading
+  if (!config) {
+    // Show hub with skeleton loading state
+    return (
+      <View style={[styles.container, { backgroundColor: theme.backgroundColor }]}>
+        <View style={styles.topNavContainer}>
+          <View style={styles.topNavContent}>
+            <SkeletonBox width={80} height={60} borderRadius={12} style={styles.skeletonMarginRight} />
+            <SkeletonBox width={80} height={60} borderRadius={12} style={styles.skeletonMarginRight} />
+            <SkeletonBox width={80} height={60} borderRadius={12} />
+          </View>
+        </View>
+        <View style={styles.skeletonContent}>
+          <View style={styles.skeletonSection}>
+            <SkeletonBox width={200} height={24} borderRadius={8} style={styles.skeletonMarginBottom} />
+            <SkeletonBox width={300} height={200} borderRadius={16} />
+          </View>
+          <View style={styles.skeletonSection}>
+            <SkeletonBox width={180} height={24} borderRadius={8} style={styles.skeletonMarginBottom} />
+            <SkeletonBox width={300} height={200} borderRadius={16} />
+          </View>
+        </View>
+      </View>
+    );
+  }
+
+  if (availableTools.length === 0) {
     return (
       <View style={[styles.container, { backgroundColor: theme.backgroundColor }]}>
         <View style={styles.emptyContainer}>
@@ -371,5 +398,19 @@ const styles = StyleSheet.create({
     flex: 1,
     minHeight: 500,
     paddingHorizontal: 4,
+  },
+  skeletonContent: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+  },
+  skeletonSection: {
+    marginBottom: 32,
+  },
+  skeletonMarginRight: {
+    marginRight: 8,
+  },
+  skeletonMarginBottom: {
+    marginBottom: 16,
   },
 });

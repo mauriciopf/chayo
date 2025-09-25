@@ -22,7 +22,7 @@ import {
   signUpWithEmail,
   AuthUser 
 } from '../services/authService';
-import LoadingScreen from '../components/LoadingScreen';
+import { SkeletonBox } from '../components/SkeletonLoader';
 import Icon from 'react-native-vector-icons/Feather';
 
 type AuthMode = 'signin' | 'signup';
@@ -108,7 +108,15 @@ export const ProfileScreen: React.FC = () => {
   };
 
   if (loading) {
-    return <LoadingScreen />;
+    return (
+      <View style={[styles.container, themedStyles.container]}>
+        <SkeletonBox width={80} height={80} borderRadius={40} style={{ alignSelf: 'center', marginBottom: 20 }} />
+        <SkeletonBox width={150} height={20} borderRadius={8} style={{ alignSelf: 'center', marginBottom: 12 }} />
+        <SkeletonBox width={200} height={16} borderRadius={6} style={{ alignSelf: 'center', marginBottom: 32 }} />
+        <SkeletonBox width="100%" height={50} borderRadius={12} style={{ marginBottom: 16 }} />
+        <SkeletonBox width="100%" height={50} borderRadius={12} />
+      </View>
+    );
   }
 
   // If user is already signed in, show profile info

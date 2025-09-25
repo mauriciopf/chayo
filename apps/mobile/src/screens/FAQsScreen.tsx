@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import LoadingScreen from '../components/LoadingScreen';
+import { FAQSkeleton } from '../components/SkeletonLoader';
 import { SwipeFAQCards } from '../components/SwipeFAQCards';
 import { useAppConfig } from '../hooks/useAppConfig';
 import { useTranslation } from '../hooks/useTranslation';
@@ -100,7 +100,12 @@ export const FAQsScreen: React.FC<FAQsScreenProps> = ({ navigation }) => {
 
   if (loading) {
     return (
-      <LoadingScreen />
+      <View style={[styles.container, themedStyles.container]}>
+        <FAQSkeleton />
+        <FAQSkeleton />
+        <FAQSkeleton />
+        <FAQSkeleton />
+      </View>
     );
   }
 

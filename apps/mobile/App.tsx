@@ -10,6 +10,9 @@ import {
   StatusBar,
   Alert,
   StyleSheet,
+  View,
+  ActivityIndicator,
+  Text,
 } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 // Conditional import for expo-updates (only available in Expo-managed workflow)
@@ -22,7 +25,6 @@ try {
 }
 import { AuthProvider } from './src/context/AuthContext';
 import AuthErrorBoundary from './src/components/AuthErrorBoundary';
-import LoadingScreen from './src/components/LoadingScreen';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import MarketplaceScreen from './src/screens/MarketplaceScreen';
@@ -81,7 +83,11 @@ function App(): React.JSX.Element {
 
   if (!appReady) {
     return (
-      <LoadingScreen />
+      <View style={styles.loadingContainer}>
+        <Text style={styles.brandText}>CHAYO</Text>
+        <ActivityIndicator size="large" color="#007AFF" style={styles.loader} />
+        <Text style={styles.loadingText}>Loading...</Text>
+      </View>
     );
   }
 
@@ -127,12 +133,22 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#000000',
+    backgroundColor: '#1C1C1E',
+  },
+  brandText: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    marginBottom: 30,
+    letterSpacing: 2,
+  },
+  loader: {
+    marginVertical: 20,
   },
   loadingText: {
-    marginTop: 12,
     fontSize: 16,
     color: '#FFFFFF',
+    opacity: 0.7,
   },
 });
 

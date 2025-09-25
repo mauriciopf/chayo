@@ -11,7 +11,7 @@ import {
 import { useThemedStyles } from '../context/ThemeContext';
 import { useTranslation } from '../hooks/useTranslation';
 import { useAppConfig } from '../hooks/useAppConfig';
-import LoadingScreen from '../components/LoadingScreen';
+import { ProductsSkeleton } from '../components/SkeletonLoader';
 import { ProductCard } from '../components/ProductCard';
 import Icon from 'react-native-vector-icons/Feather';
 
@@ -142,7 +142,9 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({ navigation }) =>
 
   if (loading && !refreshing) {
     return (
-      <LoadingScreen />
+      <View style={[styles.container, themedStyles.container]}>
+        <ProductsSkeleton count={6} />
+      </View>
     );
   }
 

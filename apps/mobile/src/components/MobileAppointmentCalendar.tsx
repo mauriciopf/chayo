@@ -15,7 +15,7 @@ import { useScreenNavigation } from '../context/NavigationContext';
 import AuthGate from './AuthGate';
 import { useAppConfig } from '../hooks/useAppConfig';
 import { createCustomerInteraction } from '../services/authService';
-import LoadingScreen from './LoadingScreen';
+import { AppointmentSkeleton } from './SkeletonLoader';
 
 const { width } = Dimensions.get('window');
 
@@ -285,7 +285,11 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
                 disabled={isLoading}
               >
                 {isLoading ? (
-                  <LoadingScreen />
+                  <View style={{ paddingTop: 20 }}>
+                    <AppointmentSkeleton />
+                    <AppointmentSkeleton />
+                    <AppointmentSkeleton />
+                  </View>
                 ) : (
                   <Text style={[styles.bookButtonText, { color: theme.backgroundColor }]}>Book Appointment</Text>
                 )}

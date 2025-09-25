@@ -2,12 +2,14 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text, View, ActivityIndicator, StyleSheet, Platform } from 'react-native';
+import { Text, View, StyleSheet, Platform } from 'react-native';
 // Navigation configuration moved inline for marketplace compatibility
 import { useAppConfig } from '../hooks/useAppConfig';
 import { useThemedStyles } from '../context/ThemeContext';
 import { useTranslation } from '../hooks/useTranslation';
 import { ChatScreen } from '../screens/ChatScreen';
+import { HubScreen } from '../screens/HubScreen';
+import { ProfileScreen } from '../screens/ProfileScreen';
 import { AppointmentsScreen } from '../screens/AppointmentsScreen';
 import { PaymentsScreen } from '../screens/PaymentsScreen';
 import { DocumentsScreen } from '../screens/DocumentsScreen';
@@ -60,18 +62,6 @@ const getToolScreen = (toolName: string) => {
   return screenMap[toolName as keyof typeof screenMap];
 };
 
-const LoadingScreen = () => {
-  const { theme, themedStyles } = useThemedStyles();
-  const { t } = useTranslation();
-  return (
-    <View style={[styles.centerContainer, themedStyles.container]}>
-      <ActivityIndicator size="large" color={theme.primaryColor} />
-      <Text style={[styles.loadingText, themedStyles.primaryText]}>
-        {t('common.loading')}
-      </Text>
-    </View>
-  );
-};
 
 const ErrorScreen = ({ error }: { error: string }) => {
   const { theme, themedStyles } = useThemedStyles();
@@ -114,9 +104,21 @@ const MainTabNavigator = () => {
     return <ErrorScreenWrapper />;
   }
 
-  // Generate navigation configuration
-  const navigationGenerator = new NavigationConfigGenerator(config, urlGenerator);
-  const tabs = navigationGenerator.getEnabledTabs();
+  // Generate navigation configuration inline
+  const getEnabledTabs = () => {
+    const enabledTools = config?.enabledTools || [];
+    return [
+      { name: 'Chat', component: ChatScreen, icon: 'message-circle' },
+      { name: 'Hub', component: HubScreen, icon: 'grid' },
+      { name: 'Profile', component: ProfileScreen, icon: 'user' },
+    ].filter(tab => {
+      if (tab.name === 'Chat' || tab.name === 'Hub' || tab.name === 'Profile') {
+        return true;
+      }
+      return enabledTools.includes(tab.name.toLowerCase());
+    });
+  };
+  const tabs = getEnabledTabs();
 
   return (
     <Tab.Navigator
@@ -140,7 +142,7 @@ const MainTabNavigator = () => {
         },
       }}
     >
-      {tabs.map((tab) => {
+      {tabs.map((tab: any) => {
         let ScreenComponent;
 
         if (tab.component === 'native-chat') {
@@ -167,14 +169,12 @@ const MainTabNavigator = () => {
 };
 
 export const AppNavigator = () => {
-  const { loading, error } = useAppConfig();
+  const { error } = useAppConfig();
 
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {loading ? (
-          <Stack.Screen name="Loading" component={LoadingScreen} />
-        ) : error ? (
+        {error ? (
           <Stack.Screen name="Error" component={ErrorScreenWrapper} />
         ) : (
           <>

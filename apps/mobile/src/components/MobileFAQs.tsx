@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { useThemedStyles } from '../context/ThemeContext';
 import { useTranslation } from '../hooks/useTranslation';
-import LoadingScreen from './LoadingScreen';
+import { FAQSkeleton } from './SkeletonLoader';
 
 interface FAQItem {
   id: string;
@@ -129,7 +129,12 @@ const MobileFAQs: React.FC<MobileFAQsProps> = ({
     return (
       <SafeAreaView style={[styles.container, themedStyles.container]}>
         <View style={[styles.loadingContainer, { backgroundColor: theme.backgroundColor }]}>
-          <LoadingScreen />
+          <View style={{ paddingTop: 20 }}>
+            <FAQSkeleton />
+            <FAQSkeleton />
+            <FAQSkeleton />
+            <FAQSkeleton />
+          </View>
           <Text style={[styles.loadingText, themedStyles.primaryText]}>Loading FAQs...</Text>
         </View>
       </SafeAreaView>

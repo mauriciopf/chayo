@@ -14,7 +14,7 @@ import { MobileIntakeForm } from './MobileIntakeForm';
 import { useThemedStyles } from '../context/ThemeContext';
 import { useTranslation } from '../hooks/useTranslation';
 import { useCallback } from 'react';
-import LoadingScreen from './LoadingScreen';
+import { SkeletonBox } from './SkeletonLoader';
 
 interface MobileIntakeFormsProps {
   organizationSlug: string;
@@ -80,7 +80,12 @@ export const MobileIntakeForms: React.FC<MobileIntakeFormsProps> = ({ organizati
   // Show loading state
   if (loading) {
     return (
-      <LoadingScreen />
+      <View style={{ flex: 1, backgroundColor: '#1C1C1E', padding: 20 }}>
+        <SkeletonBox width={200} height={24} borderRadius={8} style={{ marginBottom: 20 }} />
+        <SkeletonBox width="100%" height={120} borderRadius={12} style={{ marginBottom: 16 }} />
+        <SkeletonBox width="100%" height={120} borderRadius={12} style={{ marginBottom: 16 }} />
+        <SkeletonBox width="100%" height={120} borderRadius={12} />
+      </View>
     );
   }
 

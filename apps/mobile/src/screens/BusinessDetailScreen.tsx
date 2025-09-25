@@ -13,7 +13,6 @@ import { ThemeProvider } from '../context/ThemeContext';
 import { NavigationProvider } from '../context/NavigationContext';
 import { SmartHeader } from '../components/SmartHeader';
 import BusinessTabNavigator from '../navigation/BusinessTabNavigator';
-import LoadingScreen from '../components/LoadingScreen';
 import { supabase } from '../services/authService';
 
 interface BusinessDetailScreenProps {
@@ -73,12 +72,8 @@ function BusinessDetailContent() {
     navigation.navigate('Marketplace');
   };
 
-  // Show loading screen while loading config or if no organization data
-  if (isLoadingConfig || !organizationData) {
-    return (
-      <LoadingScreen />
-    );
-  }
+  // Always show the business detail UI
+  // Individual components will handle their own loading states
 
   // Show error screen if config failed to load
   if (configError) {
@@ -103,17 +98,17 @@ function BusinessDetailContent() {
       <StatusBar barStyle="light-content" backgroundColor="#1C1C1E" />
       
       {/* Business App Content - Loads app-config for selected business */}
-      <AppConfigProvider organizationId={organizationId} organizationSlug={organizationData.slug}>
+      <AppConfigProvider organizationId={organizationId} organizationSlug={organizationData?.slug || ''}>
         <ThemeProvider>
           {/* Smart Header - automatically switches between business and nested headers */}
           <SmartHeader
-            businessName={organizationData.name}
+            businessName={organizationData?.name || 'Loading...'}
             onBackToMarketplace={handleBackToMarketplace}
           />
           
           <View style={styles.appContainer}>
             <BusinessTabNavigator 
-              businessName={organizationData.name}
+              businessName={organizationData?.name || 'Loading...'}
               onBackToMarketplace={handleBackToMarketplace}
             />
           </View>
