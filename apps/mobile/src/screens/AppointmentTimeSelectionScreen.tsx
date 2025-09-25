@@ -11,14 +11,6 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { useThemedStyles } from '../context/ThemeContext';
 import { useNavigationHeader } from '../context/NavigationContext';
 
-interface AppointmentTimeSelectionScreenProps {
-  route: {
-    params: {
-      selectedDate: Date;
-      organizationId: string;
-    };
-  };
-}
 
 export const AppointmentTimeSelectionScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -30,11 +22,10 @@ export const AppointmentTimeSelectionScreen: React.FC = () => {
 
   // Memoize the back press handler to prevent infinite re-renders
   const handleBackPress = useCallback(() => {
-    // Use pop() instead of goBack() to stay within the Hub stack
-    navigation.pop();
+    navigation.goBack();
   }, [navigation]);
 
-  // Use auto-cleanup navigation header (same pattern as other detail screens)
+  // Use navigation header with auto-cleanup (original behavior)
   useNavigationHeader('Select Time', {
     onBackPress: handleBackPress,
     autoCleanup: true,
@@ -61,7 +52,7 @@ export const AppointmentTimeSelectionScreen: React.FC = () => {
     
     // Small delay to show selection before navigating
     setTimeout(() => {
-      navigation.push('AppointmentBooking', {
+      navigation.navigate('AppointmentBooking', {
         selectedDate: selectedDate.toISOString(), // Convert Date to string for navigation
         selectedTime: time,
         organizationId,

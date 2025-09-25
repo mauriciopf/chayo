@@ -10,6 +10,18 @@ interface NavigationState {
     onBackPress?: () => void;
     backButtonText?: string;
   };
+  // Navigation context stack to track where we are
+  contextStack: Array<{
+    context: 'root' | 'hub' | 'chat';
+    title?: string;
+  }>;
+  // Screen history stack to restore previous screen headers
+  screenStack: Array<{
+    title: string;
+    showBackButton: boolean;
+    onBackPress?: () => void;
+    backButtonText?: string;
+  }>;
 }
 
 interface NavigationContextType {
@@ -25,6 +37,12 @@ interface NavigationContextType {
   }) => void;
   // Reset to root navigation
   resetNavigation: () => void;
+  // Push a navigation context (e.g., entering Hub)
+  pushNavigationContext: (context: 'root' | 'hub' | 'chat', title?: string) => void;
+  // Pop navigation context (return to previous context)
+  popNavigationContext: () => void;
+  // Get current navigation context
+  getCurrentContext: () => 'root' | 'hub' | 'chat';
 }
 
 const NavigationContext = createContext<NavigationContextType | undefined>(undefined);
@@ -32,14 +50,78 @@ const NavigationContext = createContext<NavigationContextType | undefined>(undef
 export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [navigationState, setNavigationState] = useState<NavigationState>({
     hideBusinessHeader: false,
+    contextStack: [{ context: 'root' }],
+    screenStack: [],
   });
 
-  const setRootNavigation = useCallback(() => {
-    setNavigationState({
-      hideBusinessHeader: false,
-      currentScreen: undefined,
+  const pushNavigationContext = useCallback((context: 'root' | 'hub' | 'chat', title?: string) => {
+    setNavigationState(prev => ({
+      ...prev,
+      contextStack: [...prev.contextStack, { context, title }],
+    }));
+  }, []);
+
+  const popNavigationContext = useCallback(() => {
+    setNavigationState(prev => {
+      const newStack = prev.contextStack.length > 1 
+        ? prev.contextStack.slice(0, -1)
+        : prev.contextStack;
+      
+      const currentContext = newStack[newStack.length - 1];
+      
+      return {
+        ...prev,
+        contextStack: newStack,
+        hideBusinessHeader: currentContext.context !== 'root',
+        currentScreen: currentContext.context !== 'root' ? prev.currentScreen : undefined,
+      };
     });
   }, []);
+
+  const getCurrentContext = useCallback(() => {
+    const currentContext = navigationState.contextStack[navigationState.contextStack.length - 1];
+    return currentContext?.context || 'root';
+  }, [navigationState.contextStack]);
+
+  const setRootNavigation = useCallback(() => {
+    const currentContext = getCurrentContext();
+    
+    setNavigationState(prev => {
+      if (currentContext === 'hub') {
+        // If we're in Hub context, try to restore previous screen from stack
+        if (prev.screenStack.length > 0) {
+          // Pop the last screen from stack and restore it
+          const previousScreen = prev.screenStack[prev.screenStack.length - 1];
+          const newScreenStack = prev.screenStack.slice(0, -1);
+          
+          console.log('🔧 [NavigationContext] Restoring previous screen:', previousScreen);
+          
+          return {
+            ...prev,
+            hideBusinessHeader: true,
+            currentScreen: previousScreen,
+            screenStack: newScreenStack,
+          };
+        } else {
+          // No previous screen, show business name
+          return {
+            ...prev,
+            hideBusinessHeader: true,
+            currentScreen: undefined,
+            screenStack: [],
+          };
+        }
+      } else {
+        // Otherwise, go to actual root
+        return {
+          hideBusinessHeader: false,
+          currentScreen: undefined,
+          contextStack: [{ context: 'root' }],
+          screenStack: [],
+        };
+      }
+    });
+  }, [getCurrentContext]);
 
   const setNestedNavigation = useCallback((screenInfo: {
     title: string;
@@ -47,12 +129,26 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     onBackPress?: () => void;
     backButtonText?: string;
   }) => {
-    setNavigationState({
-      hideBusinessHeader: true,
-      currentScreen: {
+    console.log('🔧 [NavigationContext] setNestedNavigation called with:', screenInfo);
+    setNavigationState(prev => {
+      const newScreenInfo = {
         showBackButton: true,
         ...screenInfo,
-      },
+      };
+      
+      // Push current screen to stack if it exists
+      const newScreenStack = prev.currentScreen 
+        ? [...prev.screenStack, prev.currentScreen]
+        : prev.screenStack;
+      
+      const newState = {
+        ...prev,
+        hideBusinessHeader: true,
+        currentScreen: newScreenInfo,
+        screenStack: newScreenStack,
+      };
+      console.log('🔧 [NavigationContext] New navigation state:', newState);
+      return newState;
     });
   }, []);
 
@@ -65,6 +161,9 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     setRootNavigation,
     setNestedNavigation,
     resetNavigation,
+    pushNavigationContext,
+    popNavigationContext,
+    getCurrentContext,
   };
 
   return (
@@ -84,7 +183,7 @@ export const useNavigation = (): NavigationContextType => {
 
 // Enhanced hook with automatic cleanup
 export const useScreenNavigation = () => {
-  const { setNestedNavigation, setRootNavigation } = useNavigation();
+  const { setNestedNavigation, setRootNavigation, pushNavigationContext, popNavigationContext, getCurrentContext } = useNavigation();
 
   const setScreenHeader = useCallback((
     title: string,
@@ -107,6 +206,9 @@ export const useScreenNavigation = () => {
   return {
     setScreenHeader,
     setRootNavigation,
+    pushNavigationContext,
+    popNavigationContext,
+    getCurrentContext,
   };
 };
 

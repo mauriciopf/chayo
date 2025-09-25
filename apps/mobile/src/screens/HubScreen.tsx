@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useThemedStyles } from '../context/ThemeContext';
+import { useScreenNavigation } from '../context/NavigationContext';
 import { useAppConfig } from '../hooks/useAppConfig';
 import { useTranslation } from '../hooks/useTranslation';
 import Icon from 'react-native-vector-icons/Feather';
@@ -57,6 +58,7 @@ export const HubScreen: React.FC<HubScreenProps> = ({
   const { config } = useAppConfig();
   const { t } = useTranslation();
   const navigation = useNavigation();
+  const { pushNavigationContext, popNavigationContext } = useScreenNavigation();
 
   // Filter tools based on enabled tools
   const availableTools = toolConfigs.filter(tool => enabledTools.includes(tool.name));
@@ -66,6 +68,16 @@ export const HubScreen: React.FC<HubScreenProps> = ({
   const flatListRef = useRef<FlatList>(null);
   const topNavScrollRef = useRef<ScrollView>(null);
   const sectionHeights = useRef<number[]>([]);
+
+  // Push Hub context when component mounts
+  useEffect(() => {
+    pushNavigationContext('hub', businessName);
+    
+    // Pop Hub context when component unmounts
+    return () => {
+      popNavigationContext();
+    };
+  }, [pushNavigationContext, popNavigationContext, businessName]);
 
   if (!config || availableTools.length === 0) {
     return (

@@ -30,11 +30,10 @@ export const AppointmentBookingScreen: React.FC = () => {
 
   // Memoize the back press handler to prevent infinite re-renders
   const handleBackPress = useCallback(() => {
-    // Use pop() instead of goBack() to stay within the Hub stack
-    navigation.pop();
+    navigation.goBack();
   }, [navigation]);
 
-  // Use auto-cleanup navigation header (same pattern as other detail screens)
+  // Use navigation header with auto-cleanup (original behavior)
   useNavigationHeader('Book Appointment', {
     onBackPress: handleBackPress,
     autoCleanup: true,
