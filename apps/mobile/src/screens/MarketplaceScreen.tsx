@@ -12,7 +12,6 @@ import {
   RefreshControl,
   ScrollView,
   Animated,
-  Vibration,
   Image,
 } from 'react-native';
 // Using pure React Native Views for gradients (no external dependencies)
@@ -143,7 +142,6 @@ export default function MarketplaceScreen() {
     const showFullStory = expandedStories[vibeCard.organization_id] || false;
     
     const handlePressIn = () => {
-      Vibration.vibrate(10); // Subtle haptic feedback
       Animated.spring(scaleAnim, {
         toValue: 0.98,
         useNativeDriver: true,
@@ -270,7 +268,6 @@ export default function MarketplaceScreen() {
                   { backgroundColor: vibe_data.vibe_colors?.primary + '20' }
                 ]}
                 onPress={() => {
-                  Vibration.vibrate(5);
                   // Could show badge details or highlight related businesses
                 }}
                 activeOpacity={0.7}
@@ -309,7 +306,6 @@ export default function MarketplaceScreen() {
             <TouchableOpacity 
               style={styles.socialButton}
               onPress={() => {
-                Vibration.vibrate(5);
                 toggleLike();
               }}
             >
@@ -321,7 +317,6 @@ export default function MarketplaceScreen() {
             <TouchableOpacity 
               style={styles.socialButton}
               onPress={() => {
-                Vibration.vibrate(5);
                 // Handle share action
               }}
             >
@@ -331,7 +326,6 @@ export default function MarketplaceScreen() {
             <TouchableOpacity 
               style={styles.socialButton}
               onPress={() => {
-                Vibration.vibrate(5);
                 // Handle save/bookmark action
               }}
             >
