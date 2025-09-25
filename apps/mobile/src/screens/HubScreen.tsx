@@ -5,7 +5,6 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Dimensions,
   FlatList,
   NativeSyntheticEvent,
   NativeScrollEvent,
@@ -14,7 +13,6 @@ import { useNavigation } from '@react-navigation/native';
 import { useThemedStyles } from '../context/ThemeContext';
 import { useScreenNavigation } from '../context/NavigationContext';
 import { useAppConfig } from '../hooks/useAppConfig';
-import { useTranslation } from '../hooks/useTranslation';
 import Icon from 'react-native-vector-icons/Feather';
 
 // Import all tool screens
@@ -53,7 +51,6 @@ export const HubScreen: React.FC<HubScreenProps> = ({
 }) => {
   const { theme } = useThemedStyles();
   const { config } = useAppConfig();
-  const { t: _t } = useTranslation();
   const navigation = useNavigation();
   const { pushNavigationContext, popNavigationContext } = useScreenNavigation();
 
@@ -65,38 +62,12 @@ export const HubScreen: React.FC<HubScreenProps> = ({
     }
     return enabledTools.includes(tool.name);
   });
-  
+
   // State for tracking active section
   const [activeToolIndex, setActiveToolIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
   const topNavScrollRef = useRef<ScrollView>(null);
   const sectionHeights = useRef<number[]>([]);
-
-  // Push Hub context when component mounts
-  useEffect(() => {
-    pushNavigationContext('hub', businessName);
-    
-    // Pop Hub context when component unmounts
-    return () => {
-      popNavigationContext();
-    };
-  }, [pushNavigationContext, popNavigationContext, businessName]);
-
-  if (!config || availableTools.length === 0) {
-    return (
-      <View style={[styles.container, { backgroundColor: theme.backgroundColor }]}>
-        <View style={styles.emptyContainer}>
-          <Icon name="grid" size={48} color={theme.textColor + '60'} />
-          <Text style={[styles.emptyTitle, { color: theme.textColor }]}>
-            No tools available
-          </Text>
-          <Text style={[styles.emptySubtitle, { color: theme.textColor + '80' }]}>
-            Contact support to enable business tools
-          </Text>
-        </View>
-      </View>
-    );
-  }
 
   // Handle scroll to update active tab
   const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -132,30 +103,59 @@ export const HubScreen: React.FC<HubScreenProps> = ({
     });
   }, []);
 
+  // Push Hub context when component mounts
+  useEffect(() => {
+    pushNavigationContext('hub', businessName);
+
+    // Pop Hub context when component unmounts
+    return () => {
+      popNavigationContext();
+    };
+  }, [pushNavigationContext, popNavigationContext, businessName]);
+
+  if (!config || availableTools.length === 0) {
+    return (
+      <View style={[styles.container, { backgroundColor: theme.backgroundColor }]}>
+        <View style={styles.emptyContainer}>
+          <Icon name="grid" size={48} color={theme.textColor + '60'} />
+          <Text style={[styles.emptyTitle, { color: theme.textColor }]}>
+            No tools available
+          </Text>
+          <Text style={[styles.emptySubtitle, { color: theme.textColor + '80' }]}>
+            Contact support to enable business tools
+          </Text>
+        </View>
+      </View>
+    );
+  }
+
   const renderTopTab = (tool: ToolConfig, index: number) => {
     const isActive = index === activeToolIndex;
-    
+
     return (
       <TouchableOpacity
         key={tool.name}
         style={[
           styles.topTab,
           isActive && styles.activeTopTab,
-          { borderBottomColor: isActive ? '#F4E4BC' : 'transparent' }
         ]}
         onPress={() => scrollToSection(index)}
         activeOpacity={0.7}
       >
-        <Icon 
-          name={tool.icon} 
-          size={20} 
-          color={isActive ? '#F4E4BC' : 'rgba(244, 228, 188, 0.6)'} 
-          style={styles.topTabIcon}
-        />
-        <Text 
+        <View style={[
+          styles.topTabIconContainer,
+          isActive && styles.activeTopTabIconContainer,
+        ]}>
+          <Icon
+            name={tool.icon}
+            size={18}
+            color={isActive ? '#1A1A1A' : '#F4E4BC'}
+          />
+        </View>
+        <Text
           style={[
             styles.topTabLabel,
-            { color: isActive ? '#F4E4BC' : 'rgba(244, 228, 188, 0.6)' }
+            isActive ? styles.activeTopTabLabel : styles.inactiveTopTabLabel,
           ]}
         >
           {tool.label}
@@ -167,22 +167,32 @@ export const HubScreen: React.FC<HubScreenProps> = ({
   // Render each tool as a section
   const renderToolSection = ({ item, index }: { item: ToolConfig; index: number }) => {
     const ToolComponent = item.component;
-    
+
     return (
-      <View 
+      <View
         style={styles.toolSection}
         onLayout={(event) => {
           const { height } = event.nativeEvent.layout;
           sectionHeights.current[index] = height;
         }}
       >
-        {/* Section Header */}
+        {/* Enhanced Section Header */}
         <View style={styles.sectionHeader}>
-          <Icon name={item.icon} size={24} color="#F4E4BC" style={styles.sectionIcon} />
-          <Text style={styles.sectionTitle}>{item.label}</Text>
+          <View style={styles.sectionHeaderLeft}>
+            <View style={styles.sectionIconContainer}>
+              <Icon name={item.icon} size={22} color="#F4E4BC" />
+            </View>
+            <View>
+              <Text style={styles.sectionTitle}>{item.label}</Text>
+              <Text style={styles.sectionSubtitle}>Explore {item.label.toLowerCase()}</Text>
+            </View>
+          </View>
+          <View style={styles.sectionHeaderRight}>
+            <Icon name="chevron-down" size={16} color="rgba(244, 228, 188, 0.4)" />
+          </View>
         </View>
-        
-        {/* Tool Component */}
+
+        {/* Tool Component with enhanced container */}
         <View style={styles.toolContainer}>
           <ToolComponent navigation={navigation} />
         </View>
@@ -260,68 +270,106 @@ const styles = StyleSheet.create({
   topNavContainer: {
     backgroundColor: '#1A1A1A',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(212, 165, 116, 0.1)',
-    shadowColor: '#D4A574',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 4,
+    borderBottomColor: 'rgba(244, 228, 188, 0.1)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 8,
   },
   topNavScroll: {
     flexGrow: 0,
   },
   topNavContent: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     alignItems: 'center',
+    paddingVertical: 8,
   },
   topTab: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     alignItems: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: 12,
     paddingVertical: 12,
     marginRight: 8,
-    borderBottomWidth: 2,
-    borderBottomColor: 'transparent',
-    minWidth: 100,
+    borderRadius: 12,
+    minWidth: 80,
   },
   activeTopTab: {
-    borderBottomColor: '#F4E4BC',
+    backgroundColor: 'rgba(244, 228, 188, 0.1)',
   },
-  topTabIcon: {
-    marginRight: 8,
+  topTabIconContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(244, 228, 188, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  activeTopTabIconContainer: {
+    backgroundColor: '#F4E4BC',
   },
   topTabLabel: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '600',
+    textAlign: 'center',
+  },
+  activeTopTabLabel: {
+    color: '#F4E4BC',
+  },
+  inactiveTopTabLabel: {
     color: 'rgba(244, 228, 188, 0.6)',
   },
   flatListContent: {
     paddingBottom: 20,
   },
   toolSection: {
-    minHeight: 600, // Minimum height for each section
-    paddingVertical: 20,
+    minHeight: 600,
+    paddingVertical: 16,
+    marginBottom: 8,
   },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingBottom: 16,
+    paddingVertical: 16,
+    backgroundColor: 'rgba(244, 228, 188, 0.02)',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(212, 165, 116, 0.1)',
-    marginBottom: 16,
+    borderBottomColor: 'rgba(244, 228, 188, 0.08)',
+    marginBottom: 8,
   },
-  sectionIcon: {
+  sectionHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  sectionHeaderRight: {
+    opacity: 0.6,
+  },
+  sectionIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(244, 228, 188, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
     marginRight: 12,
   },
   sectionTitle: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: '700',
     color: '#F4E4BC',
-    letterSpacing: 0.5,
+    letterSpacing: 0.3,
+    marginBottom: 2,
+  },
+  sectionSubtitle: {
+    fontSize: 13,
+    color: 'rgba(244, 228, 188, 0.6)',
+    fontWeight: '500',
   },
   toolContainer: {
     flex: 1,
-    minHeight: 500, // Ensure each tool has enough space
+    minHeight: 500,
+    paddingHorizontal: 4,
   },
 });

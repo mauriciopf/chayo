@@ -157,9 +157,6 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({ navigation }) =>
   return (
     <View style={[styles.container, themedStyles.container]}>
       <View style={styles.header}>
-        <Text style={[styles.title, { color: theme.textColor }]}>
-          {t('products.title')}
-        </Text>
         <Text style={[styles.subtitle, { color: theme.placeholderColor }]}>
           {t('products.subtitle')}
         </Text>
