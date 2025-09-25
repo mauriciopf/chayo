@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,7 @@ import { useTranslation } from '../hooks/useTranslation';
 import { useAppConfig } from '../hooks/useAppConfig';
 import { ProductsSkeleton } from '../components/SkeletonLoader';
 import { ProductCard } from '../components/ProductCard';
+import OffersBannerComponent from '../components/OffersBannerComponent';
 import Icon from 'react-native-vector-icons/Feather';
 
 interface Product {
@@ -21,6 +22,8 @@ interface Product {
   description?: string;
   image_url?: string;
   price?: number;
+  discounted_price?: number;
+  has_active_offer: boolean;
   payment_transaction_id?: string;
   created_at: string;
   updated_at: string;
@@ -43,17 +46,14 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({ navigation }) =>
   const numColumns = 2;
   const itemSize = (screenWidth - 32 - 12) / numColumns; // 32 for padding, 12 for gap
 
-  useEffect(() => {
-    fetchProducts();
-  }, [config]);
-
-  const fetchProducts = async () => {
-    if (!config?.organizationId) return;
+  const fetchProducts = useCallback(async () => {
+    if (!config?.organizationId) {
+      return;
+    }
 
     try {
       setError(null);
       const response = await fetch(`${config.apiBaseUrl}/api/products?organizationId=${config.organizationId}&limit=50`);
-      
       if (!response.ok) {
         throw new Error('Failed to fetch products');
       }
@@ -67,7 +67,11 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({ navigation }) =>
       setLoading(false);
       setRefreshing(false);
     }
-  };
+  }, [config]);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
 
   const onRefresh = () => {
     setRefreshing(true);
@@ -76,6 +80,11 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({ navigation }) =>
 
   const handleProductPress = (product: Product) => {
     navigation.navigate('ProductDetail', { product });
+  };
+
+  const handleLoginRequired = () => {
+    // Navigate to login or show login modal
+    navigation.navigate('Profile'); // Assuming Profile screen handles login
   };
 
   // Generate a consistent gradient based on product name
@@ -90,7 +99,7 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({ navigation }) =>
       ['#ff9a9e', '#fecfef'], // Coral to Pink
       ['#ffecd2', '#fcb69f'], // Cream to Orange
     ];
-    
+
     // Use product name to consistently pick same gradient
     const hash = productName.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
     return gradients[hash % gradients.length];
@@ -122,7 +131,7 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({ navigation }) =>
 
   const renderError = () => (
     <View style={styles.errorContainer}>
-      <Icon name="alert-circle" size={48} color={theme.dangerColor} />
+      <Icon name="alert-circle" size={48} color={theme.errorColor || '#FF6B6B'} />
       <Text style={[styles.errorTitle, { color: theme.textColor }]}>
         {t('products.error.title')}
       </Text>
@@ -158,6 +167,14 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({ navigation }) =>
 
   return (
     <View style={[styles.container, themedStyles.container]}>
+      {/* 🎯 AI OFFERS BANNER - THE CROWN JEWEL! */}
+      {products.length > 0 && config?.organizationId && (
+        <OffersBannerComponent
+          organizationId={config.organizationId}
+          onLoginRequired={handleLoginRequired}
+        />
+      )}
+
       <View style={styles.header}>
         <Text style={[styles.subtitle, { color: theme.placeholderColor }]}>
           {t('products.subtitle')}

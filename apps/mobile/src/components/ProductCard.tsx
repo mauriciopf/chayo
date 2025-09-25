@@ -14,6 +14,11 @@ interface Product {
   description?: string;
   image_url?: string;
   price?: number;
+  discounted_price?: number;
+  has_active_offer: boolean;
+  payment_transaction_id?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 interface ProductCardProps {
@@ -119,9 +124,25 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             <Text style={styles.placeholderProductName} numberOfLines={3}>
               {item.name}
             </Text>
-            <Text style={styles.placeholderProductPrice}>
-              {item.price ? `$${item.price.toFixed(2)}` : 'Price on request'}
-            </Text>
+            <View style={styles.priceContainer}>
+              {item.discounted_price ? (
+                <>
+                  <Text style={[styles.placeholderProductPrice, styles.originalPrice]}>
+                    ${item.price?.toFixed(2)}
+                  </Text>
+                  <Text style={styles.discountedPrice}>
+                    ${item.discounted_price.toFixed(2)}
+                  </Text>
+                  <View style={styles.saleTag}>
+                    <Text style={styles.saleTagText}>SALE</Text>
+                  </View>
+                </>
+              ) : (
+                <Text style={styles.placeholderProductPrice}>
+                  {item.price ? `$${item.price.toFixed(2)}` : 'Price on request'}
+                </Text>
+              )}
+            </View>
           </View>
         </View>
       )}
@@ -215,5 +236,35 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     textAlign: 'center',
     marginTop: 4,
+  },
+  priceContainer: {
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  originalPrice: {
+    textDecorationLine: 'line-through',
+    opacity: 0.7,
+    fontSize: 10,
+  },
+  discountedPrice: {
+    color: '#4ECDC4',
+    fontSize: 14,
+    fontWeight: 'bold',
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  saleTag: {
+    backgroundColor: '#FF6B6B',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    marginTop: 2,
+  },
+  saleTagText: {
+    color: '#FFFFFF',
+    fontSize: 8,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });

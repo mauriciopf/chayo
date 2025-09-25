@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import ProductsManager from '@/components/products/ProductsManager'
 import { Package } from 'lucide-react'
@@ -54,10 +54,11 @@ const ProductsToolConfig: React.FC<ProductsToolConfigProps> = ({
           </h4>
         </div>
         <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-          Manage your product catalog and services that can be shared with clients through the chat interface.
+          Manage your product catalog, services, and promotional offers that can be shared with clients.
         </p>
       </div>
       
+      {/* Products Manager with integrated offers */}
       <ProductsManager organizationId={organizationId} />
     </div>
   )
