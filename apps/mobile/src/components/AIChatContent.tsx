@@ -14,6 +14,7 @@ import {
 import { useAppConfig } from '../hooks/useAppConfig';
 import { useThemedStyles } from '../context/ThemeContext';
 import { useTranslation } from '../hooks/useTranslation';
+import { SkeletonBox } from './SkeletonLoader';
 
 interface Message {
   id: string;
@@ -175,11 +176,53 @@ export const AIChatContent: React.FC = () => {
   if (!config) {
     return (
       <View style={[styles.container, themedStyles.container]}>
-        <View style={styles.emptyContainer}>
-          <Text style={[styles.emptyText, { color: theme.textColor }]}>
-            {t('chat.notAvailable')}
-          </Text>
-        </View>
+        <KeyboardAvoidingView
+          style={styles.keyboardContainer}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={0}
+        >
+          <View style={[styles.chatContainer, { paddingBottom: 100 }]}>
+            {/* Skeleton for chat messages */}
+            <View style={styles.skeletonMessagesContainer}>
+              {/* AI welcome message skeleton */}
+              <View style={[styles.messageContainer, styles.assistantMessage]}>
+                <View style={styles.skeletonMessageBubble}>
+                  <SkeletonBox width={200} height={16} borderRadius={4} style={{ marginBottom: 8 }} />
+                  <SkeletonBox width={150} height={16} borderRadius={4} />
+                </View>
+              </View>
+              
+              {/* User message skeleton */}
+              <View style={[styles.messageContainer, styles.userMessage]}>
+                <View style={styles.skeletonMessageBubble}>
+                  <SkeletonBox width={120} height={16} borderRadius={4} />
+                </View>
+              </View>
+              
+              {/* AI response skeleton */}
+              <View style={[styles.messageContainer, styles.assistantMessage]}>
+                <View style={styles.skeletonMessageBubble}>
+                  <SkeletonBox width={180} height={16} borderRadius={4} style={{ marginBottom: 8 }} />
+                  <SkeletonBox width={220} height={16} borderRadius={4} style={{ marginBottom: 8 }} />
+                  <SkeletonBox width={100} height={16} borderRadius={4} />
+                </View>
+              </View>
+              
+              {/* Another user message skeleton */}
+              <View style={[styles.messageContainer, styles.userMessage]}>
+                <View style={styles.skeletonMessageBubble}>
+                  <SkeletonBox width={90} height={16} borderRadius={4} />
+                </View>
+              </View>
+            </View>
+
+            {/* Skeleton for input area */}
+            <View style={[styles.inputContainer, { backgroundColor: theme.backgroundColor, borderTopColor: theme.borderColor }]}>
+              <SkeletonBox width="75%" height={44} borderRadius={22} style={{ marginRight: 12 }} />
+              <SkeletonBox width={60} height={44} borderRadius={22} />
+            </View>
+          </View>
+        </KeyboardAvoidingView>
       </View>
     );
   }
@@ -343,5 +386,16 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 16,
     textAlign: 'center',
+  },
+  skeletonMessagesContainer: {
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingTop: 16,
+  },
+  skeletonMessageBubble: {
+    maxWidth: '80%',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 18,
   },
 });

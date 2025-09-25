@@ -35,6 +35,7 @@ export const ChatScreen: React.FC = () => {
     });
   }
 
+
   return (
     <View style={[styles.container, themedStyles.container]}>
       <TopTabBar tabs={tabs} initialTab="ai-chat" />
