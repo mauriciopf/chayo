@@ -20,12 +20,10 @@ import Icon from 'react-native-vector-icons/Feather';
 // Import all tool screens
 import { ProductsScreen } from './ProductsScreen';
 import { AppointmentsScreen } from './AppointmentsScreen';
-import { DocumentsScreen } from './DocumentsScreen';
 import { FAQsScreen } from './FAQsScreen';
-import { IntakeFormsScreen } from './IntakeFormsScreen';
 import { PaymentsScreen } from './PaymentsScreen';
+import { UnifiedDocumentsSection } from '../components/UnifiedDocumentsSection';
 
-const { width } = Dimensions.get('window');
 
 interface HubScreenProps {
   businessName: string;
@@ -43,25 +41,30 @@ interface ToolConfig {
 const toolConfigs: ToolConfig[] = [
   { name: 'products', label: 'Products', icon: 'shopping-bag', component: ProductsScreen },
   { name: 'appointments', label: 'Appointments', icon: 'calendar', component: AppointmentsScreen },
-  { name: 'documents', label: 'Documents', icon: 'file-text', component: DocumentsScreen },
+  { name: 'documents_unified', label: 'Documents', icon: 'file-text', component: UnifiedDocumentsSection },
   { name: 'faqs', label: 'FAQs', icon: 'help-circle', component: FAQsScreen },
-  { name: 'intake_forms', label: 'Forms', icon: 'clipboard', component: IntakeFormsScreen },
   { name: 'payments', label: 'Payments', icon: 'credit-card', component: PaymentsScreen },
 ];
 
 export const HubScreen: React.FC<HubScreenProps> = ({
   businessName,
-  onBackToMarketplace,
+  onBackToMarketplace: _onBackToMarketplace,
   enabledTools,
 }) => {
   const { theme } = useThemedStyles();
   const { config } = useAppConfig();
-  const { t } = useTranslation();
+  const { t: _t } = useTranslation();
   const navigation = useNavigation();
   const { pushNavigationContext, popNavigationContext } = useScreenNavigation();
 
   // Filter tools based on enabled tools
-  const availableTools = toolConfigs.filter(tool => enabledTools.includes(tool.name));
+  const availableTools = toolConfigs.filter(tool => {
+    // Special case for unified documents: show if either documents OR intake_forms is enabled
+    if (tool.name === 'documents_unified') {
+      return enabledTools.includes('documents') || enabledTools.includes('intake_forms');
+    }
+    return enabledTools.includes(tool.name);
+  });
   
   // State for tracking active section
   const [activeToolIndex, setActiveToolIndex] = useState(0);
