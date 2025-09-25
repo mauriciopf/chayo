@@ -17,10 +17,10 @@ import { FormDetailScreen } from '../screens/FormDetailScreen';
 import { AppointmentTimeSelectionScreen } from '../screens/AppointmentTimeSelectionScreen';
 import { AppointmentBookingScreen } from '../screens/AppointmentBookingScreen';
 import { HubScreen } from '../screens/HubScreen';
+import { ProfileScreen } from '../screens/ProfileScreen';
 import LoadingScreen from '../components/LoadingScreen';
 import Icon from 'react-native-vector-icons/Feather';
 
-const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 const HubStack = createNativeStackNavigator();
 
@@ -34,6 +34,7 @@ const getTabIconName = (iconName: string) => {
   const iconMap: Record<string, string> = {
     'message-circle': 'message-circle',
     'grid': 'grid',
+    'user': 'user',
     'headphones': 'headphones',
     'calendar': 'calendar',
     'credit-card': 'credit-card',
@@ -50,6 +51,7 @@ const getToolScreen = (tool: string) => {
   const screenMap: Record<string, React.ComponentType<any>> = {
     chat: ChatScreen,
     hub: HubStackNavigator, // Hub with inner navigation
+    profile: ProfileScreen, // Profile screen
     appointments: AppointmentsScreen,
     payments: PaymentsScreen,
     documents: DocumentsScreen,
@@ -84,11 +86,12 @@ function HubStackNavigator({ businessName, onBackToMarketplace, enabledTools }: 
   );
 }
 
-// Generate simplified tabs - only Chat and Hub
+// Generate simplified tabs - Chat, Hub, and Profile
 const generateTabs = (enabledTools: string[], businessName: string, onBackToMarketplace: () => void) => {
   return [
     { name: 'chat', label: 'Chat', icon: 'message-circle', businessName, onBackToMarketplace },
     { name: 'hub', label: 'Hub', icon: 'grid', businessName, onBackToMarketplace, enabledTools },
+    { name: 'profile', label: 'Profile', icon: 'user', businessName, onBackToMarketplace },
   ];
 };
 

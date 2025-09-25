@@ -94,7 +94,6 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           const previousScreen = prev.screenStack[prev.screenStack.length - 1];
           const newScreenStack = prev.screenStack.slice(0, -1);
           
-          console.log('🔧 [NavigationContext] Restoring previous screen:', previousScreen);
           
           return {
             ...prev,
@@ -129,7 +128,6 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     onBackPress?: () => void;
     backButtonText?: string;
   }) => {
-    console.log('🔧 [NavigationContext] setNestedNavigation called with:', screenInfo);
     setNavigationState(prev => {
       const newScreenInfo = {
         showBackButton: true,
@@ -141,14 +139,12 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         ? [...prev.screenStack, prev.currentScreen]
         : prev.screenStack;
       
-      const newState = {
+      return {
         ...prev,
         hideBusinessHeader: true,
         currentScreen: newScreenInfo,
         screenStack: newScreenStack,
       };
-      console.log('🔧 [NavigationContext] New navigation state:', newState);
-      return newState;
     });
   }, []);
 
