@@ -74,8 +74,6 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     backgroundColor: '#1A1A1A', // Deep charcoal to match tab bar
     borderBottomWidth: 0, // Remove harsh border
-    borderBottomLeftRadius: 20, // Organic curved bottom corners
-    borderBottomRightRadius: 20,
     shadowColor: '#D4A574', // Warm gold shadow
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,

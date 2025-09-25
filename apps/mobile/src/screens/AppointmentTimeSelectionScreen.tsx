@@ -30,7 +30,8 @@ export const AppointmentTimeSelectionScreen: React.FC = () => {
 
   // Memoize the back press handler to prevent infinite re-renders
   const handleBackPress = useCallback(() => {
-    navigation.goBack();
+    // Use pop() instead of goBack() to stay within the Hub stack
+    navigation.pop();
   }, [navigation]);
 
   // Use auto-cleanup navigation header (same pattern as other detail screens)
@@ -60,7 +61,7 @@ export const AppointmentTimeSelectionScreen: React.FC = () => {
     
     // Small delay to show selection before navigating
     setTimeout(() => {
-      navigation.navigate('AppointmentBooking', {
+      navigation.push('AppointmentBooking', {
         selectedDate: selectedDate.toISOString(), // Convert Date to string for navigation
         selectedTime: time,
         organizationId,

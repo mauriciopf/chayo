@@ -30,7 +30,8 @@ export const AppointmentBookingScreen: React.FC = () => {
 
   // Memoize the back press handler to prevent infinite re-renders
   const handleBackPress = useCallback(() => {
-    navigation.goBack();
+    // Use pop() instead of goBack() to stay within the Hub stack
+    navigation.pop();
   }, [navigation]);
 
   // Use auto-cleanup navigation header (same pattern as other detail screens)
@@ -106,11 +107,6 @@ export const AppointmentBookingScreen: React.FC = () => {
     }
   };
 
-  const handleBookAppointment = () => {
-    // This will trigger the AuthGate modal
-    setIsLoading(true);
-  };
-
   return (
     <SafeAreaView style={[styles.container, themedStyles.container]}>
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -169,29 +165,29 @@ export const AppointmentBookingScreen: React.FC = () => {
 
       {/* Book Button */}
       <View style={styles.footer}>
-        <TouchableOpacity
-          style={[
-            styles.bookButton,
-            { 
-              backgroundColor: theme.primaryColor,
-              opacity: isLoading ? 0.6 : 1,
-            }
-          ]}
-          onPress={handleBookAppointment}
-          disabled={isLoading}
+        <AuthGate
+          tool="appointments"
+          organizationId={organizationId}
+          onAuthenticated={handleAuthenticatedBooking}
+          title="Sign in to book your appointment"
+          message={`Confirm your appointment for ${formatDate(selectedDate)} at ${selectedTime}`}
         >
-          <Text style={styles.bookButtonText}>
-            {isLoading ? 'Booking...' : 'Book Appointment'}
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* AuthGate Modal - Only show when booking is triggered */}
-      {isLoading && (
-        <AuthGate onAuthenticated={handleAuthenticatedBooking}>
-          <View />
+          <TouchableOpacity
+            style={[
+              styles.bookButton,
+              { 
+                backgroundColor: theme.primaryColor,
+                opacity: isLoading ? 0.6 : 1,
+              }
+            ]}
+            disabled={isLoading}
+          >
+            <Text style={styles.bookButtonText}>
+              {isLoading ? 'Booking...' : 'Book Appointment'}
+            </Text>
+          </TouchableOpacity>
         </AuthGate>
-      )}
+      </View>
     </SafeAreaView>
   );
 };

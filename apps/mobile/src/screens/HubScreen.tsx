@@ -98,10 +98,14 @@ export const HubScreen: React.FC<HubScreenProps> = ({
       currentSection = i;
     }
 
-    if (currentSection !== activeToolIndex) {
-      setActiveToolIndex(currentSection);
-    }
-  }, [activeToolIndex]);
+    // Use functional update to avoid dependency on activeToolIndex
+    setActiveToolIndex(prevIndex => {
+      if (currentSection !== prevIndex) {
+        return currentSection;
+      }
+      return prevIndex;
+    });
+  }, []); // No dependencies to prevent infinite re-creation
 
   // Handle tap on top tab to scroll to section
   const scrollToSection = useCallback((index: number) => {
