@@ -1,17 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
 
 // GET /api/offers/[id] - Get specific offer
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const supabase = await getSupabaseServerClient()
+    
+    const { id } = await params
     const { data: offer, error } = await supabase
       .from('offers')
       .select(`
@@ -19,7 +17,7 @@ export async function GET(
         product_count:product_offers(count),
         assigned_products:product_offers(product_id)
       `)
-      .eq('id', params.id)
+      .eq('id', id)
       .single()
 
     if (error) {
@@ -44,9 +42,12 @@ export async function GET(
 // PUT /api/offers/[id] - Update offer
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const supabase = await getSupabaseServerClient()
+    
+    const { id } = await params
     const body = await request.json()
     const {
       name,
@@ -79,7 +80,7 @@ export async function PUT(
         end_date,
         updated_at: new Date().toISOString()
       })
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
       .single()
 
@@ -93,11 +94,11 @@ export async function PUT(
     await supabase
       .from('product_offers')
       .delete()
-      .eq('offer_id', params.id)
+      .eq('offer_id', id)
 
     // Then, create new associations
     const productOffers = selectedProducts.map((productId: string) => ({
-      offer_id: params.id,
+      offer_id: id,
       product_id: productId
     }))
 
@@ -112,7 +113,7 @@ export async function PUT(
 
     // Update product pricing if offer is active
     if (offer.status === 'active') {
-      await updateProductPricing(params.id)
+      await updateProductPricing(id)
     }
 
     return NextResponse.json({ 
@@ -132,9 +133,12 @@ export async function PUT(
 // PATCH /api/offers/[id] - Update offer status
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const supabase = await getSupabaseServerClient()
+    
+    const { id } = await params
     const body = await request.json()
     const { status } = body
 
@@ -149,7 +153,7 @@ export async function PATCH(
         status,
         updated_at: new Date().toISOString()
       })
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
       .single()
 
@@ -160,9 +164,9 @@ export async function PATCH(
 
     // Update product pricing based on new status
     if (status === 'active') {
-      await updateProductPricing(params.id)
+      await updateProductPricing(id)
     } else {
-      await removeProductPricing(params.id)
+      await removeProductPricing(id)
     }
 
     return NextResponse.json({ offer })
@@ -175,29 +179,32 @@ export async function PATCH(
 // DELETE /api/offers/[id] - Delete offer
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const supabase = await getSupabaseServerClient()
+    
+    const { id } = await params
     // First remove product pricing
-    await removeProductPricing(params.id)
+    await removeProductPricing(id)
 
     // Delete product associations (cascade will handle this, but being explicit)
     await supabase
       .from('product_offers')
       .delete()
-      .eq('offer_id', params.id)
+      .eq('offer_id', id)
 
     // Delete user activations
     await supabase
       .from('user_offer_activations')
       .delete()
-      .eq('offer_id', params.id)
+      .eq('offer_id', id)
 
     // Delete the offer
     const { error } = await supabase
       .from('offers')
       .delete()
-      .eq('id', params.id)
+      .eq('id', id)
 
     if (error) {
       console.error('Error deleting offer:', error)
@@ -214,6 +221,8 @@ export async function DELETE(
 // Helper function to update product pricing
 async function updateProductPricing(offerId: string) {
   try {
+    const supabase = await getSupabaseServerClient()
+    
     // Call the database function to update product discounted prices
     const { error } = await supabase.rpc('update_product_discounted_prices', {
       offer_uuid: offerId
@@ -230,6 +239,8 @@ async function updateProductPricing(offerId: string) {
 // Helper function to remove product pricing
 async function removeProductPricing(offerId: string) {
   try {
+    const supabase = await getSupabaseServerClient()
+    
     // Call the database function to remove product discounted prices
     const { error } = await supabase.rpc('remove_product_discounted_prices', {
       offer_uuid: offerId

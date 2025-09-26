@@ -1,14 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
 
 // GET /api/offers/active - Get active offers for an organization (mobile)
 export async function GET(request: NextRequest) {
   try {
+    const supabase = await getSupabaseServerClient()
+    
     const { searchParams } = new URL(request.url)
     const organizationId = searchParams.get('organizationId')
     const userId = searchParams.get('userId')
@@ -37,7 +34,7 @@ export async function GET(request: NextRequest) {
     }
 
     // If user is provided, check which offers they have activated
-    let userActivations = []
+    let userActivations: any[] = []
     if (userId) {
       const { data: activations } = await supabase
         .from('user_offer_activations')

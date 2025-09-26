@@ -1,15 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-import { cookies } from 'next/headers'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
 
 // GET /api/offers - Fetch all offers for an organization
 export async function GET(request: NextRequest) {
   try {
+    const supabase = await getSupabaseServerClient()
+    
     const { searchParams } = new URL(request.url)
     const organizationId = searchParams.get('organizationId')
 
@@ -50,6 +46,8 @@ export async function GET(request: NextRequest) {
 // POST /api/offers - Create a new offer
 export async function POST(request: NextRequest) {
   try {
+    const supabase = await getSupabaseServerClient()
+    
     const body = await request.json()
     const {
       organizationId,
@@ -138,6 +136,8 @@ export async function POST(request: NextRequest) {
 // Background function to generate AI banner
 async function generateAIBanner(offerId: string, offerName: string, offerDescription: string, productIds: string[]) {
   try {
+    const supabase = await getSupabaseServerClient()
+    
     // Fetch product details for AI prompt
     const { data: products } = await supabase
       .from('products_list_tool')

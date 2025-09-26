@@ -1,22 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
 import OpenAI from 'openai'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!
-})
 
 // POST /api/offers/[id]/generate-banner - Generate AI banner for offer
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
+    
+    // Create clients inside the function to avoid build-time issues
+    const supabase = await getSupabaseServerClient()
+    
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY!
+    })
+    
     // Get offer details
     const { data: offer, error: offerError } = await supabase
       .from('offers')
@@ -26,7 +26,7 @@ export async function POST(
           products_list_tool(name, description)
         )
       `)
-      .eq('id', params.id)
+      .eq('id', id)
       .single()
 
     if (offerError || !offer) {
@@ -78,7 +78,7 @@ STYLE: Modern, clean, professional marketing banner with vibrant gradients, clea
       style: "vivid"
     })
 
-    const imageUrl = imageResponse.data[0]?.url
+    const imageUrl = imageResponse.data?.[0]?.url
 
     if (!imageUrl) {
       throw new Error('No image URL returned from OpenAI')
@@ -94,7 +94,7 @@ STYLE: Modern, clean, professional marketing banner with vibrant gradients, clea
         banner_generated_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       })
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
       .single()
 
@@ -133,5 +133,4 @@ STYLE: Modern, clean, professional marketing banner with vibrant gradients, clea
   }
 }
 
-// POST /api/offers/[id]/regenerate-banner - Regenerate banner (alias for generate-banner)
-export { POST as regenerateBanner }
+// This route handles both generate-banner and regenerate-banner functionality

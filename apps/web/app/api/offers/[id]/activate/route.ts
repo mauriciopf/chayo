@@ -1,18 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-import { cookies } from 'next/headers'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
 
 // POST /api/offers/[id]/activate - Activate offer for a user
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const supabase = await getSupabaseServerClient()
+    
+    const { id } = await params
     const body = await request.json()
     const { userId, organizationId } = body
 
@@ -28,7 +25,7 @@ export async function POST(
     const { data: offer, error: offerError } = await supabase
       .from('offers')
       .select('*')
-      .eq('id', params.id)
+      .eq('id', id)
       .eq('organization_id', organizationId)
       .single()
 
@@ -50,7 +47,7 @@ export async function POST(
       .from('user_offer_activations')
       .select('*')
       .eq('user_id', userId)
-      .eq('offer_id', params.id)
+      .eq('offer_id', id)
       .single()
 
     if (existingActivation) {
@@ -73,7 +70,7 @@ export async function POST(
       .from('user_offer_activations')
       .insert({
         user_id: userId,
-        offer_id: params.id,
+        offer_id: id,
         organization_id: organizationId,
         is_active: true,
         activated_at: new Date().toISOString()
@@ -95,7 +92,7 @@ export async function POST(
           products_list_tool(id, name, price, discounted_price)
         )
       `)
-      .eq('id', params.id)
+      .eq('id', id)
       .single()
 
     return NextResponse.json({
@@ -113,9 +110,12 @@ export async function POST(
 // DELETE /api/offers/[id]/activate - Deactivate offer for a user
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const supabase = await getSupabaseServerClient()
+    
+    const { id } = await params
     const { searchParams } = new URL(request.url)
     const userId = searchParams.get('userId')
 
@@ -131,7 +131,7 @@ export async function DELETE(
         deactivated_at: new Date().toISOString()
       })
       .eq('user_id', userId)
-      .eq('offer_id', params.id)
+      .eq('offer_id', id)
       .eq('is_active', true)
       .select()
       .single()

@@ -376,14 +376,14 @@ const OffersManager: React.FC<OffersManagerProps> = ({ organizationId }) => {
       )}
 
       {/* Create/Edit Modal */}
-      {showCreateModal && (
+      {showCreateForm && (
         <CreateOfferModal
           offer={editingOffer}
           products={products}
           organizationId={organizationId}
-          onClose={() => setShowCreateModal(false)}
+          onClose={() => setShowCreateForm(false)}
           onSuccess={() => {
-            setShowCreateModal(false)
+            setShowCreateForm(false)
             fetchOffers()
           }}
         />
