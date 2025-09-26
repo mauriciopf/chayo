@@ -6,3 +6,4 @@ export { default as AppointmentService, appointmentService } from './Appointment
 export { default as FAQService, faqService } from './FAQService';
 export { IntakeFormService, intakeFormService } from './IntakeFormService';
 export { DocumentService, documentService } from './DocumentService';
+export { OffersService, offersService } from './OffersService';

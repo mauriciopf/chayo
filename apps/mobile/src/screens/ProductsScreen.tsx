@@ -169,10 +169,13 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({ navigation }) =>
     <View style={[styles.container, themedStyles.container]}>
       {/* 🎯 AI OFFERS BANNER - THE CROWN JEWEL! */}
       {products.length > 0 && config?.organizationId && (
-        <OffersBannerComponent
-          organizationId={config.organizationId}
-          onLoginRequired={handleLoginRequired}
-        />
+        <>
+          {console.log('🎯 Rendering OffersBannerComponent with organizationId:', config.organizationId)}
+          <OffersBannerComponent
+            organizationId={config.organizationId}
+            onLoginRequired={handleLoginRequired}
+          />
+        </>
       )}
 
       <View style={styles.header}>

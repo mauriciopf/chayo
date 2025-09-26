@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
 
-// GET /api/offers/active - Get active offers for an organization (mobile)
+// GET /api/offers/active - Get available offers for an organization (mobile)
 export async function GET(request: NextRequest) {
   try {
     const supabase = await getSupabaseServerClient()
@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Organization ID is required' }, { status: 400 })
     }
 
-    // Get active offers for the organization
+    // Get all offers for the organization (not filtering by status - let user activate manually)
     const { data: offers, error: offersError } = await supabase
       .from('offers')
       .select(`
@@ -24,12 +24,11 @@ export async function GET(request: NextRequest) {
         )
       `)
       .eq('organization_id', organizationId)
-      .eq('status', 'active')
-      .gte('end_date', new Date().toISOString()) // Not expired
+      .gte('end_date', new Date().toISOString()) // Only filter out expired offers
       .order('created_at', { ascending: false })
 
     if (offersError) {
-      console.error('Error fetching active offers:', offersError)
+      console.error('Error fetching available offers:', offersError)
       return NextResponse.json({ error: 'Failed to fetch offers' }, { status: 500 })
     }
 

@@ -13,33 +13,9 @@ import {
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '../hooks/useTheme'
 import { useAuth } from '../context/AuthContext'
+import { offersService, Offer } from '../services/OffersService'
 
 const { width: screenWidth } = Dimensions.get('window')
-
-interface Offer {
-  id: string
-  name: string
-  description: string
-  offer_type: 'percentage' | 'fixed_amount'
-  offer_value: number
-  start_date: string
-  end_date: string
-  status: 'active' | 'inactive' | 'expired'
-  ai_banner_url?: string
-  products: Product[]
-  product_count: number
-  is_activated_by_user: boolean
-  activated_at?: string
-}
-
-interface Product {
-  id: string
-  name: string
-  description?: string
-  price?: number
-  discounted_price?: number
-  image_url?: string
-}
 
 interface OffersBannerComponentProps {
   organizationId: string
@@ -61,18 +37,18 @@ export default function OffersBannerComponent({
   const fetchActiveOffers = useCallback(async () => {
     try {
       setLoading(true)
-      const params = new URLSearchParams({
-        organizationId,
-        ...(user?.id && { userId: user.id })
-      })
+      
+      console.log('🎯 Fetching available offers for organizationId:', organizationId, 'userId:', user?.id)
+      
+      const result = await offersService.getActiveOffers(organizationId, user?.id)
+      
+      console.log('🎯 Offers Service Response:', result)
 
-      const response = await fetch(`/api/offers/active?${params}`)
-      const data = await response.json()
-
-      if (response.ok) {
-        setOffers(data.offers || [])
+      if (result.success) {
+        setOffers(result.offers || [])
+        console.log('🎯 Set offers:', result.offers?.length || 0, 'offers')
       } else {
-        console.error('Failed to fetch offers:', data.error)
+        console.error('Failed to fetch offers:', result.error)
       }
     } catch (error) {
       console.error('Error fetching offers:', error)
@@ -94,18 +70,9 @@ export default function OffersBannerComponent({
     setActivating(offerId)
 
     try {
-      const response = await fetch(`/api/offers/${offerId}/activate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: user.id,
-          organizationId
-        })
-      })
+      const result = await offersService.activateOffer(offerId, user.id, organizationId)
 
-      const data = await response.json()
-
-      if (response.ok) {
+      if (result.success) {
         Alert.alert(
           '🎉 Offer Activated!',
           'Your discount has been applied to all eligible products. Happy shopping!',
@@ -113,7 +80,7 @@ export default function OffersBannerComponent({
         )
         fetchActiveOffers() // Refresh offers
       } else {
-        Alert.alert('Error', data.error || 'Failed to activate offer')
+        Alert.alert('Error', result.error || 'Failed to activate offer')
       }
     } catch (error) {
       Alert.alert('Error', 'Network error. Please try again.')
@@ -135,13 +102,13 @@ export default function OffersBannerComponent({
           style: 'destructive',
           onPress: async () => {
             try {
-              const response = await fetch(`/api/offers/${offerId}/activate?userId=${user.id}`, {
-                method: 'DELETE'
-              })
+              const result = await offersService.deactivateOffer(offerId, user.id)
 
-              if (response.ok) {
+              if (result.success) {
                 Alert.alert('Offer Deactivated', 'The offer has been removed from your account.')
                 fetchActiveOffers()
+              } else {
+                Alert.alert('Error', result.error || 'Failed to deactivate offer')
               }
             } catch (error) {
               Alert.alert('Error', 'Failed to deactivate offer')
@@ -535,7 +502,7 @@ export default function OffersBannerComponent({
               </Text>
 
               <View style={styles.productGrid}>
-                {selectedOffer?.products.map((product) => (
+                {selectedOffer?.products?.map((product) => (
                   <View key={product.id} style={styles.productCard}>
                     {product.image_url ? (
                       <Image 
