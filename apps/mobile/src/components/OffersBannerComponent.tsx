@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import {
   View,
   Text,
@@ -10,10 +10,9 @@ import {
   ActivityIndicator,
   Modal
 } from 'react-native'
-import { LinearGradient } from 'expo-linear-gradient'
 import { Ionicons } from '@expo/vector-icons'
-import { useThemedStyles } from '@/lib/hooks/useThemedStyles'
-import { useAuth } from '@/lib/hooks/useAuth'
+import { useTheme } from '../hooks/useTheme'
+import { useAuth } from '../context/AuthContext'
 
 const { width: screenWidth } = Dimensions.get('window')
 
@@ -51,7 +50,7 @@ export default function OffersBannerComponent({
   organizationId, 
   onLoginRequired 
 }: OffersBannerComponentProps) {
-  const { theme } = useThemedStyles()
+  const theme = useTheme()
   const { user } = useAuth()
   const [offers, setOffers] = useState<Offer[]>([])
   const [loading, setLoading] = useState(true)
@@ -59,11 +58,7 @@ export default function OffersBannerComponent({
   const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null)
   const [showOfferModal, setShowOfferModal] = useState(false)
 
-  useEffect(() => {
-    fetchActiveOffers()
-  }, [organizationId, user?.id])
-
-  const fetchActiveOffers = async () => {
+  const fetchActiveOffers = useCallback(async () => {
     try {
       setLoading(true)
       const params = new URLSearchParams({
@@ -84,7 +79,11 @@ export default function OffersBannerComponent({
     } finally {
       setLoading(false)
     }
-  }
+  }, [organizationId, user?.id])
+
+  useEffect(() => {
+    fetchActiveOffers()
+  }, [fetchActiveOffers])
 
   const handleActivateOffer = async (offerId: string) => {
     if (!user) {
@@ -182,7 +181,7 @@ export default function OffersBannerComponent({
       shadowRadius: 8,
     },
     bannerImage: {
-      width: '100%',
+      width: screenWidth - 32,
       height: 160,
       resizeMode: 'cover' as const,
     },
@@ -311,7 +310,7 @@ export default function OffersBannerComponent({
     },
     emptyText: {
       fontSize: 16,
-      color: theme.textSecondary,
+      color: theme.placeholderColor,
       textAlign: 'center' as const,
     },
     // Modal styles
@@ -326,7 +325,7 @@ export default function OffersBannerComponent({
       borderRadius: 20,
       padding: 20,
       margin: 20,
-      maxHeight: '80%',
+      maxHeight: '80%' as any,
     },
     modalHeader: {
       flexDirection: 'row' as const,
@@ -337,7 +336,7 @@ export default function OffersBannerComponent({
     modalTitle: {
       fontSize: 20,
       fontWeight: 'bold' as const,
-      color: theme.textPrimary,
+      color: theme.textColor,
     },
     closeButton: {
       padding: 8,
@@ -349,14 +348,14 @@ export default function OffersBannerComponent({
     },
     productCard: {
       width: (screenWidth - 80) / 2,
-      backgroundColor: theme.cardBackground,
+      backgroundColor: theme.surfaceColor,
       borderRadius: 12,
       padding: 12,
       borderWidth: 1,
       borderColor: theme.borderColor,
     },
     productImage: {
-      width: '100%',
+      width: (screenWidth - 80) / 2 - 24,
       height: 80,
       borderRadius: 8,
       marginBottom: 8,
@@ -364,7 +363,7 @@ export default function OffersBannerComponent({
     productName: {
       fontSize: 14,
       fontWeight: '600' as const,
-      color: theme.textPrimary,
+      color: theme.textColor,
       marginBottom: 4,
     },
     priceContainer: {
@@ -374,7 +373,7 @@ export default function OffersBannerComponent({
     },
     originalPrice: {
       fontSize: 12,
-      color: theme.textSecondary,
+      color: theme.placeholderColor,
       textDecorationLine: 'line-through' as const,
     },
     discountedPrice: {
@@ -399,7 +398,7 @@ export default function OffersBannerComponent({
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={theme.accentColor} />
+        <ActivityIndicator size="large" color={theme.primaryColor} />
       </View>
     )
   }
@@ -427,15 +426,10 @@ export default function OffersBannerComponent({
                 <View style={styles.bannerOverlay} />
               </>
             ) : (
-              <LinearGradient
-                colors={['#667eea', '#764ba2']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.fallbackBanner}
-              >
+              <View style={[styles.fallbackBanner, { backgroundColor: '#667eea' }]}>
                 <Text style={styles.fallbackTitle}>{offer.name}</Text>
                 <Text style={styles.fallbackDescription}>{formatDiscount(offer)}</Text>
-              </LinearGradient>
+              </View>
             )}
             
             <View style={styles.bannerContent}>
@@ -522,19 +516,19 @@ export default function OffersBannerComponent({
                 style={styles.closeButton}
                 onPress={() => setShowOfferModal(false)}
               >
-                <Ionicons name="close" size={24} color={theme.textPrimary} />
+                <Ionicons name="close" size={24} color={theme.textColor} />
               </TouchableOpacity>
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false}>
-              <Text style={{ color: theme.textSecondary, marginBottom: 16 }}>
+              <Text style={{ color: theme.placeholderColor, marginBottom: 16 }}>
                 {selectedOffer?.description}
               </Text>
 
               <Text style={{ 
                 fontSize: 16, 
                 fontWeight: '600', 
-                color: theme.textPrimary, 
+                color: theme.textColor, 
                 marginBottom: 12 
               }}>
                 Products in this offer ({selectedOffer?.product_count})
@@ -553,7 +547,7 @@ export default function OffersBannerComponent({
                         styles.productImage, 
                         { backgroundColor: theme.borderColor, justifyContent: 'center', alignItems: 'center' }
                       ]}>
-                        <Ionicons name="cube-outline" size={24} color={theme.textSecondary} />
+                        <Ionicons name="cube-outline" size={24} color={theme.placeholderColor} />
                       </View>
                     )}
                     

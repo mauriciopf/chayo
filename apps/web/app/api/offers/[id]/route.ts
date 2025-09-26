@@ -116,6 +116,14 @@ export async function PUT(
       await updateProductPricing(id)
     }
 
+    // Regenerate AI banner with updated information
+    try {
+      await regenerateAIBanner(id, offer.name, offer.description, selectedProducts)
+    } catch (error) {
+      console.error('AI banner regeneration failed:', error)
+      // Don't fail the offer update if banner generation fails
+    }
+
     return NextResponse.json({ 
       offer: {
         ...offer,
@@ -251,5 +259,71 @@ async function removeProductPricing(offerId: string) {
     }
   } catch (error) {
     console.error('Error in removeProductPricing:', error)
+  }
+}
+
+// Helper function to regenerate AI banner
+async function regenerateAIBanner(offerId: string, offerName: string, offerDescription: string, productIds: string[]) {
+  try {
+    const supabase = await getSupabaseServerClient()
+    
+    // Fetch product details for AI prompt
+    const { data: products } = await supabase
+      .from('products_list_tool')
+      .select('name, description')
+      .in('id', productIds)
+
+    const productNames = products?.map(p => p.name).join(', ') || 'products'
+    
+    // Create AI prompt
+    const prompt = `Create a stunning promotional banner for "${offerName}". 
+Description: ${offerDescription}
+Products included: ${productNames}
+
+Style: Modern, eye-catching, professional marketing banner with vibrant colors and clear text. 
+Make it visually appealing for e-commerce promotion. Include promotional elements like discount badges or sale indicators.
+High quality, commercial-ready design.`
+
+    // Generate image with OpenAI DALL-E
+    const openai = new (await import('openai')).default({
+      apiKey: process.env.OPENAI_API_KEY!
+    })
+
+    const imageResponse = await openai.images.generate({
+      model: "dall-e-3",
+      prompt: prompt,
+      n: 1,
+      size: "1792x1024", // High quality banner size
+      quality: "hd",
+      style: "vivid"
+    })
+
+    const imageUrl = imageResponse.data?.[0]?.url
+
+    if (!imageUrl) {
+      throw new Error('No image URL returned from OpenAI')
+    }
+
+    // Update offer with banner URL and prompt
+    const { error: updateError } = await supabase
+      .from('offers')
+      .update({
+        ai_banner_url: imageUrl,
+        ai_banner_prompt: prompt,
+        banner_generated_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', offerId)
+
+    if (updateError) {
+      console.error('Error updating offer with banner:', updateError)
+      throw updateError
+    }
+
+    console.log(`AI banner regenerated successfully for offer ${offerId}`)
+    
+  } catch (error) {
+    console.error('Error in regenerateAIBanner:', error)
+    throw error
   }
 }

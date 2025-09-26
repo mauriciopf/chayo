@@ -115,9 +115,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to associate products with offer' }, { status: 500 })
     }
 
-    // Generate AI banner in the background (don't wait for it)
-    generateAIBanner(offer.id, offer.name, offer.description, selectedProducts)
-      .catch(error => console.error('Background AI banner generation failed:', error))
+    // Generate AI banner immediately
+    try {
+      await generateAIBanner(offer.id, offer.name, offer.description, selectedProducts)
+    } catch (error) {
+      console.error('AI banner generation failed:', error)
+      // Don't fail the offer creation if banner generation fails
+    }
 
     return NextResponse.json({ 
       offer: {

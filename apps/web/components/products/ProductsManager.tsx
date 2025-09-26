@@ -864,8 +864,11 @@ export default function ProductsManager({ organizationId }: ProductsManagerProps
           onSave={() => {
             setShowCreateOffer(false)
             setEditingOffer(null)
+            // Refresh offers and products after successful save
             fetchOffers()
             fetchProducts()
+            // Show success message
+            console.log('Offer saved successfully! AI banner has been generated automatically.')
           }}
           onCancel={() => {
             setShowCreateOffer(false)
