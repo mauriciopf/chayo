@@ -10,7 +10,7 @@ import {
   ActivityIndicator,
   Modal
 } from 'react-native'
-import { Ionicons } from '@expo/vector-icons'
+import Icon from 'react-native-vector-icons/Feather'
 import { useTheme } from '../hooks/useTheme'
 import { useAuth } from '../context/AuthContext'
 import { offersService, Offer } from '../services/OffersService'
@@ -431,7 +431,7 @@ export default function OffersBannerComponent({
                       setShowOfferModal(true)
                     }}
                   >
-                    <Ionicons name="eye" size={16} color="white" />
+                    <Icon name="eye" size={16} color="white" />
                     <Text style={styles.buttonText}>View</Text>
                   </TouchableOpacity>
 
@@ -440,7 +440,7 @@ export default function OffersBannerComponent({
                       style={[styles.actionButton, styles.deactivateButton]}
                       onPress={() => handleDeactivateOffer(offer.id)}
                     >
-                      <Ionicons name="close" size={16} color="white" />
+                      <Icon name="x" size={16} color="white" />
                       <Text style={styles.buttonText}>Remove</Text>
                     </TouchableOpacity>
                   ) : (
@@ -452,7 +452,7 @@ export default function OffersBannerComponent({
                       {activating === offer.id ? (
                         <ActivityIndicator size="small" color="white" />
                       ) : (
-                        <Ionicons name="checkmark" size={16} color="white" />
+                        <Icon name="check" size={16} color="white" />
                       )}
                       <Text style={styles.buttonText}>
                         {activating === offer.id ? 'Activating...' : 'Activate'}
@@ -483,7 +483,7 @@ export default function OffersBannerComponent({
                 style={styles.closeButton}
                 onPress={() => setShowOfferModal(false)}
               >
-                <Ionicons name="close" size={24} color={theme.textColor} />
+                <Icon name="x" size={24} color={theme.textColor} />
               </TouchableOpacity>
             </View>
 
@@ -514,7 +514,7 @@ export default function OffersBannerComponent({
                         styles.productImage, 
                         { backgroundColor: theme.borderColor, justifyContent: 'center', alignItems: 'center' }
                       ]}>
-                        <Ionicons name="cube-outline" size={24} color={theme.placeholderColor} />
+                        <Icon name="package" size={24} color={theme.placeholderColor} />
                       </View>
                     )}
                     
