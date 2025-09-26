@@ -20,42 +20,57 @@ const { width: screenWidth } = Dimensions.get('window')
 
 interface OffersBannerComponentProps {
   organizationId: string
+  offers?: Offer[]
+  loading?: boolean
+  onActivateOffer?: (offerId: string, userId: string) => Promise<{ success: boolean; error?: string }>
+  onDeactivateOffer?: (offerId: string, userId: string) => Promise<{ success: boolean; error?: string }>
 }
 
 export default function OffersBannerComponent({ 
-  organizationId
+  organizationId,
+  offers: propsOffers,
+  loading: propsLoading,
+  onActivateOffer: propsActivateOffer,
+  onDeactivateOffer: propsDeactivateOffer
 }: OffersBannerComponentProps) {
   const theme = useTheme()
   const { user } = useAuth()
-  const [offers, setOffers] = useState<Offer[]>([])
-  const [loading, setLoading] = useState(true)
+  const [internalOffers, setInternalOffers] = useState<Offer[]>([])
+  const [internalLoading, setInternalLoading] = useState(true)
   const [activating, setActivating] = useState<string | null>(null)
   const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null)
   const [showOfferModal, setShowOfferModal] = useState(false)
   const [showLoginModal, setShowLoginModal] = useState(false)
 
+  // Use props if provided, otherwise use internal state
+  const offers = propsOffers || internalOffers
+  const loading = propsLoading !== undefined ? propsLoading : internalLoading
+
   const fetchActiveOffers = useCallback(async () => {
+    // Only fetch internally if no props are provided
+    if (propsOffers) return
+    
     try {
-      setLoading(true)
+      setInternalLoading(true)
       
-      console.log('🎯 Fetching available offers for organizationId:', organizationId, 'userId:', user?.id)
+      console.log('🎯 OffersBannerComponent: Fetching available offers for organizationId:', organizationId, 'userId:', user?.id)
       
       const result = await offersService.getActiveOffers(organizationId, user?.id)
       
-      console.log('🎯 Offers Service Response:', result)
+      console.log('🎯 OffersBannerComponent: Service response:', result)
 
       if (result.success) {
-        setOffers(result.offers || [])
-        console.log('🎯 Set offers:', result.offers?.length || 0, 'offers')
+        setInternalOffers(result.offers || [])
+        console.log('🎯 OffersBannerComponent: Set offers:', result.offers?.length || 0, 'offers')
       } else {
         console.error('Failed to fetch offers:', result.error)
       }
     } catch (error) {
       console.error('Error fetching offers:', error)
     } finally {
-      setLoading(false)
+      setInternalLoading(false)
     }
-  }, [organizationId, user?.id])
+  }, [organizationId, user?.id, propsOffers])
 
   useEffect(() => {
     fetchActiveOffers()
@@ -70,7 +85,17 @@ export default function OffersBannerComponent({
     setActivating(offerId)
 
     try {
-      const result = await offersService.activateOffer(offerId, user.id, organizationId)
+      let result
+      
+      // Use props function if provided, otherwise use service directly
+      if (propsActivateOffer) {
+        result = await propsActivateOffer(offerId, user.id)
+      } else {
+        result = await offersService.activateOffer(offerId, user.id, organizationId)
+        if (result.success) {
+          fetchActiveOffers() // Refresh offers only if using internal state
+        }
+      }
 
       if (result.success) {
         Alert.alert(
@@ -78,7 +103,6 @@ export default function OffersBannerComponent({
           'Your discount has been applied to all eligible products. Happy shopping!',
           [{ text: 'Awesome!', style: 'default' }]
         )
-        fetchActiveOffers() // Refresh offers
       } else {
         Alert.alert('Error', result.error || 'Failed to activate offer')
       }
@@ -102,11 +126,20 @@ export default function OffersBannerComponent({
           style: 'destructive',
           onPress: async () => {
             try {
-              const result = await offersService.deactivateOffer(offerId, user.id)
+              let result
+              
+              // Use props function if provided, otherwise use service directly
+              if (propsDeactivateOffer) {
+                result = await propsDeactivateOffer(offerId, user.id)
+              } else {
+                result = await offersService.deactivateOffer(offerId, user.id)
+                if (result.success) {
+                  fetchActiveOffers() // Refresh offers only if using internal state
+                }
+              }
 
               if (result.success) {
                 Alert.alert('Offer Deactivated', 'The offer has been removed from your account.')
-                fetchActiveOffers()
               } else {
                 Alert.alert('Error', result.error || 'Failed to deactivate offer')
               }

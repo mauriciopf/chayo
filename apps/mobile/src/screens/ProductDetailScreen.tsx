@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -12,7 +12,9 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { useThemedStyles } from '../context/ThemeContext';
 import { useTranslation } from '../hooks/useTranslation';
 import { useNavigationHeader } from '../context/NavigationContext';
+import { useAppConfig } from '../hooks/useAppConfig';
 import { SkeletonBox } from '../components/SkeletonLoader';
+import OffersBannerComponent from '../components/OffersBannerComponent';
 import Icon from 'react-native-vector-icons/Feather';
 
 interface Product {
@@ -29,9 +31,16 @@ interface Product {
 export const ProductDetailScreen: React.FC = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { product } = route.params as { product: Product };
+  const { product, offers, activateOffer, deactivateOffer, getOffersForProduct } = route.params as { 
+    product: Product;
+    offers?: any[];
+    activateOffer?: (offerId: string, userId: string) => Promise<{ success: boolean; error?: string }>;
+    deactivateOffer?: (offerId: string, userId: string) => Promise<{ success: boolean; error?: string }>;
+    getOffersForProduct?: (productId: string) => any[];
+  };
   const { theme, themedStyles } = useThemedStyles();
   const { t } = useTranslation();
+  const { config } = useAppConfig();
   const screenWidth = Dimensions.get('window').width;
   const [imageLoading, setImageLoading] = useState(true);
 
@@ -122,7 +131,29 @@ export const ProductDetailScreen: React.FC = () => {
           <Text style={[styles.productTitle, { color: theme.textColor }]}>
             {product.name}
           </Text>
+        </View>
 
+        {/* 🎯 OFFERS BANNER - Show relevant offers for this product */}
+        {config?.organizationId && (() => {
+          // Get offers that apply to this specific product
+          const productOffers = getOffersForProduct ? 
+            getOffersForProduct(product.id) : 
+            offers?.filter(offer => 
+              offer.products?.some((p: any) => p.id === product.id)
+            ) || [];
+          
+          return productOffers.length > 0 ? (
+            <OffersBannerComponent
+              organizationId={config.organizationId}
+              offers={productOffers}
+              loading={false}
+              onActivateOffer={activateOffer}
+              onDeactivateOffer={deactivateOffer}
+            />
+          ) : null;
+        })()}
+
+        <View style={styles.contentContainer}>
           {product.description && (
             <Text style={[styles.productDescription, { color: theme.placeholderColor }]}>
               {product.description}

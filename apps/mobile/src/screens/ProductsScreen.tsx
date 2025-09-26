@@ -11,6 +11,8 @@ import {
 import { useThemedStyles } from '../context/ThemeContext';
 import { useTranslation } from '../hooks/useTranslation';
 import { useAppConfig } from '../hooks/useAppConfig';
+import { useOffers } from '../hooks/useOffers';
+import { useAuth } from '../context/AuthContext';
 import { ProductsSkeleton } from '../components/SkeletonLoader';
 import { ProductCard } from '../components/ProductCard';
 import OffersBannerComponent from '../components/OffersBannerComponent';
@@ -37,10 +39,21 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({ navigation }) =>
   const { config } = useAppConfig();
   const { theme, themedStyles } = useThemedStyles();
   const { t } = useTranslation();
+  const { user } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Use the offers hook to fetch offers data
+  const { 
+    offers, 
+    loading: offersLoading, 
+    activateOffer, 
+    deactivateOffer,
+    refetch: refetchOffers,
+    getOffersForProduct 
+  } = useOffers(config?.organizationId, user?.id);
 
   const screenWidth = Dimensions.get('window').width;
   const numColumns = 2;
@@ -75,11 +88,22 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({ navigation }) =>
 
   const onRefresh = () => {
     setRefreshing(true);
-    fetchProducts();
+    Promise.all([
+      fetchProducts(),
+      refetchOffers()
+    ]).finally(() => {
+      setRefreshing(false);
+    });
   };
 
   const handleProductPress = (product: Product) => {
-    navigation.navigate('ProductDetail', { product });
+    navigation.navigate('ProductDetail', { 
+      product,
+      offers,
+      activateOffer,
+      deactivateOffer,
+      getOffersForProduct 
+    });
   };
 
   const handleLoginRequired = () => {
@@ -168,11 +192,15 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({ navigation }) =>
   return (
     <View style={[styles.container, themedStyles.container]}>
       {/* 🎯 AI OFFERS BANNER - THE CROWN JEWEL! */}
-      {products.length > 0 && config?.organizationId && (
+      {products.length > 0 && config?.organizationId && offers.length > 0 && (
         <>
-          {console.log('🎯 Rendering OffersBannerComponent with organizationId:', config.organizationId)}
+          {console.log('🎯 Rendering OffersBannerComponent with', offers.length, 'offers')}
           <OffersBannerComponent
             organizationId={config.organizationId}
+            offers={offers}
+            loading={offersLoading}
+            onActivateOffer={activateOffer}
+            onDeactivateOffer={deactivateOffer}
           />
         </>
       )}
