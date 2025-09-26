@@ -14,17 +14,16 @@ import Icon from 'react-native-vector-icons/Feather'
 import { useTheme } from '../hooks/useTheme'
 import { useAuth } from '../context/AuthContext'
 import { offersService, Offer } from '../services/OffersService'
+import LoginModal from './LoginModal'
 
 const { width: screenWidth } = Dimensions.get('window')
 
 interface OffersBannerComponentProps {
   organizationId: string
-  onLoginRequired?: () => void
 }
 
 export default function OffersBannerComponent({ 
-  organizationId, 
-  onLoginRequired 
+  organizationId
 }: OffersBannerComponentProps) {
   const theme = useTheme()
   const { user } = useAuth()
@@ -33,6 +32,7 @@ export default function OffersBannerComponent({
   const [activating, setActivating] = useState<string | null>(null)
   const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null)
   const [showOfferModal, setShowOfferModal] = useState(false)
+  const [showLoginModal, setShowLoginModal] = useState(false)
 
   const fetchActiveOffers = useCallback(async () => {
     try {
@@ -63,7 +63,7 @@ export default function OffersBannerComponent({
 
   const handleActivateOffer = async (offerId: string) => {
     if (!user) {
-      onLoginRequired?.()
+      setShowLoginModal(true)
       return
     }
 
@@ -548,6 +548,19 @@ export default function OffersBannerComponent({
           </View>
         </View>
       </Modal>
+
+      {/* Login Modal */}
+      <LoginModal
+        visible={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onSuccess={() => {
+          setShowLoginModal(false)
+          // Refresh offers after login to update activation status
+          fetchActiveOffers()
+        }}
+        title="Sign In Required"
+        message="Please sign in to activate this exclusive offer and start saving!"
+      />
     </View>
   )
 }

@@ -173,7 +173,6 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({ navigation }) =>
           {console.log('🎯 Rendering OffersBannerComponent with organizationId:', config.organizationId)}
           <OffersBannerComponent
             organizationId={config.organizationId}
-            onLoginRequired={handleLoginRequired}
           />
         </>
       )}
