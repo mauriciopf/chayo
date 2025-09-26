@@ -285,17 +285,6 @@ export default function ProductsManager({ organizationId }: ProductsManagerProps
               Create stunning offers with AI-generated banners that boost sales and engage customers
             </p>
           </div>
-          <button
-            onClick={handleCreateOffer}
-            className="flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 hover:scale-105 shadow-lg"
-            style={{ 
-              background: 'linear-gradient(135deg, var(--accent-secondary) 0%, #8B5CF6 100%)',
-              color: 'white'
-            }}
-          >
-            <Plus className="h-5 w-5" />
-            Create AI Offer
-          </button>
         </div>
 
         {/* Offers Display */}
