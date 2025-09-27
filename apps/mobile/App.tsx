@@ -25,6 +25,7 @@ try {
 }
 import { AuthProvider } from './src/context/AuthContext';
 import AuthErrorBoundary from './src/components/AuthErrorBoundary';
+import { ThemeProvider } from './src/context/ThemeContext';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import MarketplaceScreen from './src/screens/MarketplaceScreen';
@@ -97,7 +98,8 @@ function App(): React.JSX.Element {
       <StatusBar barStyle="light-content" backgroundColor="#000000" />
       <AuthErrorBoundary>
         <AuthProvider>
-          <NavigationContainer>
+          <ThemeProvider>
+            <NavigationContainer>
             <Stack.Navigator
               initialRouteName="Marketplace"
               screenOptions={{
@@ -121,7 +123,8 @@ function App(): React.JSX.Element {
                 }}
               />
             </Stack.Navigator>
-          </NavigationContainer>
+            </NavigationContainer>
+          </ThemeProvider>
         </AuthProvider>
       </AuthErrorBoundary>
     </GestureHandlerRootView>

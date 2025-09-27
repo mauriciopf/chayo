@@ -17,6 +17,7 @@ import {
 // Using pure React Native Views for gradients (no external dependencies)
 import { useNavigation } from '@react-navigation/native';
 import { ShareIcon, BookmarkIcon } from '../components/icons';
+import { useThemedStyles } from '../context/ThemeContext';
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = width - 40; // Full width with 20px margins on each side
@@ -69,6 +70,7 @@ const CATEGORIES: Category[] = [
 
 export default function MarketplaceScreen() {
   const navigation = useNavigation();
+  const { fontSizes } = useThemedStyles();
   const [vibeCards, setVibeCards] = useState<MarketplaceVibeCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -207,10 +209,10 @@ export default function MarketplaceScreen() {
             <View style={styles.imageOverlay} />
             <View style={styles.imageHeaderContent}>
               <Text style={styles.vibeAesthetic}>✨ {vibe_data.vibe_aesthetic}</Text>
-              <Text style={styles.businessName}>
+              <Text style={[styles.businessName, { fontSize: fontSizes.lg }]}>
                 {vibe_data.business_name}
               </Text>
-              <Text style={styles.businessType}>{vibe_data.business_type}</Text>
+              <Text style={[styles.businessType, { fontSize: fontSizes.sm }]}>{vibe_data.business_type}</Text>
               {vibe_data.location && (
                 <Text style={styles.location}>📍 {vibe_data.location}</Text>
               )}
@@ -395,8 +397,8 @@ export default function MarketplaceScreen() {
       
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>✨ Vibe Marketplace</Text>
-        <Text style={styles.headerSubtitle}>Discover businesses that match your energy</Text>
+        <Text style={[styles.headerTitle, { fontSize: fontSizes.xxl }]}>✨ Vibe Marketplace</Text>
+        <Text style={[styles.headerSubtitle, { fontSize: fontSizes.base }]}>Discover businesses that match your energy</Text>
       </View>
 
       {/* Search Bar */}
@@ -453,9 +455,9 @@ export default function MarketplaceScreen() {
             </View>
           ) : vibeCards.length === 0 ? (
             <View style={styles.emptyContainer}>
-              <Text style={styles.emptyIcon}>💫</Text>
-              <Text style={styles.emptyTitle}>No Vibe Cards Yet</Text>
-              <Text style={styles.emptyText}>
+              <Text style={[styles.emptyIcon, { fontSize: fontSizes.xxxl }]}>💫</Text>
+              <Text style={[styles.emptyTitle, { fontSize: fontSizes.xl }]}>No Vibe Cards Yet</Text>
+              <Text style={[styles.emptyText, { fontSize: fontSizes.base }]}>
                 Be the first to complete your onboarding and create your unique vibe card!
               </Text>
             </View>

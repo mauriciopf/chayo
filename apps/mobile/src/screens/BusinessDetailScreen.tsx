@@ -9,9 +9,9 @@ import {
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { AppConfigProvider } from '../context/AppConfigContext';
-import { ThemeProvider } from '../context/ThemeContext';
 import { NavigationProvider } from '../context/NavigationContext';
 import { SmartHeader } from '../components/SmartHeader';
+import { useThemedStyles } from '../context/ThemeContext';
 import BusinessTabNavigator from '../navigation/BusinessTabNavigator';
 import { supabase } from '../services/authService';
 
@@ -29,6 +29,7 @@ interface OrganizationData {
 function BusinessDetailContent() {
   const route = useRoute();
   const navigation = useNavigation();
+  const { fontSizes } = useThemedStyles();
   const { organizationId } = route.params as BusinessDetailScreenProps;
   const [isLoadingConfig, setIsLoadingConfig] = useState(true);
   const [configError, setConfigError] = useState<string | null>(null);
@@ -82,11 +83,11 @@ function BusinessDetailContent() {
         <StatusBar barStyle="light-content" backgroundColor="#1C1C1E" />
         <View style={styles.errorContainer}>
           <TouchableOpacity style={styles.retryButton} onPress={handleBackToMarketplace}>
-            <Text style={styles.retryButtonText}>← Back to Marketplace</Text>
+            <Text style={[styles.retryButtonText, { fontSize: fontSizes.base }]}>← Back to Marketplace</Text>
           </TouchableOpacity>
-          <Text style={styles.errorText}>{configError}</Text>
+          <Text style={[styles.errorText, { fontSize: fontSizes.base }]}>{configError}</Text>
           <TouchableOpacity style={styles.retryButton} onPress={handleBackToMarketplace}>
-            <Text style={styles.retryButtonText}>Try Again</Text>
+            <Text style={[styles.retryButtonText, { fontSize: fontSizes.base }]}>Try Again</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -99,20 +100,18 @@ function BusinessDetailContent() {
       
       {/* Business App Content - Loads app-config for selected business */}
       <AppConfigProvider organizationId={organizationId} organizationSlug={organizationData?.slug || ''}>
-        <ThemeProvider>
-          {/* Smart Header - automatically switches between business and nested headers */}
-          <SmartHeader
+        {/* Smart Header - automatically switches between business and nested headers */}
+        <SmartHeader
+          businessName={organizationData?.name || 'Loading...'}
+          onBackToMarketplace={handleBackToMarketplace}
+        />
+        
+        <View style={styles.appContainer}>
+          <BusinessTabNavigator 
             businessName={organizationData?.name || 'Loading...'}
             onBackToMarketplace={handleBackToMarketplace}
           />
-          
-          <View style={styles.appContainer}>
-            <BusinessTabNavigator 
-              businessName={organizationData?.name || 'Loading...'}
-              onBackToMarketplace={handleBackToMarketplace}
-            />
-          </View>
-        </ThemeProvider>
+        </View>
       </AppConfigProvider>
     </View>
   );

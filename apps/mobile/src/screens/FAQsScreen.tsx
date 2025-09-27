@@ -35,7 +35,7 @@ interface FAQsScreenProps {
 export const FAQsScreen: React.FC<FAQsScreenProps> = ({ navigation }) => {
   const { config } = useAppConfig();
   const { t } = useTranslation();
-  const { theme, themedStyles } = useThemedStyles();
+  const { theme, fontSizes, themedStyles } = useThemedStyles();
   const [swipeFAQs, setSwipeFAQs] = useState<SwipeFAQ[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -113,10 +113,10 @@ export const FAQsScreen: React.FC<FAQsScreenProps> = ({ navigation }) => {
     return (
       <View style={[styles.container, themedStyles.container]}>
         <View style={styles.errorContainer}>
-          <Text style={[styles.errorTitle, { color: theme.textColor }]}>
+          <Text style={[styles.errorTitle, { color: theme.textColor, fontSize: fontSizes.xl }]}>
             Oops!
           </Text>
-          <Text style={[styles.errorMessage, { color: theme.placeholderColor }]}>
+          <Text style={[styles.errorMessage, { color: theme.placeholderColor, fontSize: fontSizes.base }]}>
             {error}
           </Text>
         </View>
@@ -127,10 +127,10 @@ export const FAQsScreen: React.FC<FAQsScreenProps> = ({ navigation }) => {
   return (
     <View style={[styles.container, themedStyles.container]}>
       <View style={styles.header}>
-        <Text style={[styles.headerTitle, { color: theme.textColor }]}>
+        <Text style={[styles.headerTitle, { color: theme.textColor, fontSize: fontSizes.xxl }]}>
           Help & FAQs
         </Text>
-        <Text style={[styles.headerSubtitle, { color: theme.placeholderColor }]}>
+        <Text style={[styles.headerSubtitle, { color: theme.placeholderColor, fontSize: fontSizes.base }]}>
           {config.organizationName || 'Our Business'}
         </Text>
       </View>

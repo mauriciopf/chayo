@@ -31,7 +31,7 @@ type AuthMode = 'signin' | 'signup';
 export const ProfileScreen: React.FC = () => {
   const { t } = useTranslation();
   const theme = useTheme();
-  const { fontSizes } = useThemedStyles();
+  const { fontSizes, themedStyles } = useThemedStyles();
   const { user, signOut } = useAuth();
   const [loading, setLoading] = useState(false);
   const [authMode, setAuthMode] = useState<AuthMode>('signin');
