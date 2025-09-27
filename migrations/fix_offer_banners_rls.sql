@@ -17,9 +17,12 @@ DROP POLICY IF EXISTS "Organization members can update offer banners" ON storage
 DROP POLICY IF EXISTS "offer-banners bucket access" ON storage.objects;
 DROP POLICY IF EXISTS "Authenticated offer banners access" ON storage.objects;
 
--- The existing permissive policies should already cover the offer-banners bucket:
--- "Allow authenticated users full access to storage" and "Allow service role full access to storage"
--- These policies apply to ALL objects in storage, including the offer-banners bucket
+-- Create specific policy to allow all operations on offer-banners bucket
+CREATE POLICY "Allow all operations on offer-banners bucket"
+ON storage.objects
+FOR ALL
+USING (bucket_id = 'offer-banners')
+WITH CHECK (bucket_id = 'offer-banners');
 
 -- Note: Bucket public setting needs to be configured via Supabase dashboard or CLI
 -- Cannot modify storage.buckets table directly from migrations due to permissions
