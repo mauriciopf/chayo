@@ -2,7 +2,6 @@ import { supabase } from '../lib/supabase';
 import { appleAuth } from '@invertase/react-native-apple-authentication';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { Platform } from 'react-native';
-import 'react-native-get-random-values';
 import { sha256 } from 'js-sha256';
 import {
   EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
@@ -49,12 +48,23 @@ export function configureGoogleSignIn() {
   }
 }
 
-// Generate random string for Apple nonce
+// Generate cryptographically secure random string for Apple nonce
 function randomString(length = 32): string {
   const chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const randomBytes = new Uint8Array(length);
+  
+  // Use cryptographically secure random values
+  // react-native-get-random-values polyfill is imported at app entry (index.js)
+  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+    crypto.getRandomValues(randomBytes);
+  } else {
+    // Fallback for edge cases where crypto.getRandomValues is not available
+    throw new Error('crypto.getRandomValues is not available - ensure react-native-get-random-values is imported at app entry');
+  }
+  
   let result = '';
   for (let i = 0; i < length; i++) {
-    result += chars[Math.floor(Math.random() * chars.length)];
+    result += chars[randomBytes[i] % chars.length];
   }
   return result;
 }
