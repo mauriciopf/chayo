@@ -13,6 +13,7 @@ import AuthGate from './AuthGate';
 import LoginModal from './LoginModal';
 import { useAppConfig } from '../hooks/useAppConfig';
 import { useTheme } from '../hooks/useTheme';
+import { useThemedStyles } from '../context/ThemeContext';
 
 /**
  * Test component to verify authentication system works correctly
@@ -22,6 +23,7 @@ export default function AuthSystemTest() {
   const { user, customer, signOut } = useAuth();
   const { config } = useAppConfig();
   const theme = useTheme();
+  const { fontSizes } = useThemedStyles();
   const [showManualLogin, setShowManualLogin] = useState(false);
 
   const handleTestAppointment = (user: any, customerId: string) => {
@@ -111,19 +113,19 @@ export default function AuthSystemTest() {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
-        <Text style={styles.title}>🔐 Auth System Test</Text>
+        <Text style={[styles.title, { fontSize: fontSizes.xl }]}>🔐 Auth System Test</Text>
 
         {/* Current Auth Status */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Current Status</Text>
+          <Text style={[styles.sectionTitle, { fontSize: fontSizes.lg }]}>Current Status</Text>
           <View style={styles.statusCard}>
-            <Text style={styles.statusText}>
+            <Text style={[styles.statusText, { fontSize: fontSizes.base }]}>
               User: {user ? `${user.fullName} (${user.email})` : 'Not authenticated'}
             </Text>
-            <Text style={styles.statusText}>
+            <Text style={[styles.statusText, { fontSize: fontSizes.base }]}>
               Customer: {customer ? `ID: ${customer.id}` : 'No customer record'}
             </Text>
-            <Text style={styles.statusText}>
+            <Text style={[styles.statusText, { fontSize: fontSizes.base }]}>
               Organization: {config?.organizationId || 'Not loaded'}
             </Text>
           </View>
@@ -131,18 +133,18 @@ export default function AuthSystemTest() {
 
         {/* Manual Login Test */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Manual Login Test</Text>
+          <Text style={[styles.sectionTitle, { fontSize: fontSizes.lg }]}>Manual Login Test</Text>
           <TouchableOpacity
             style={styles.testButton}
             onPress={() => setShowManualLogin(true)}
           >
-            <Text style={styles.testButtonText}>Show Login Modal</Text>
+            <Text style={[styles.testButtonText, { fontSize: fontSizes.base }]}>Show Login Modal</Text>
           </TouchableOpacity>
         </View>
 
         {/* Progressive Auth Tests */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Progressive Auth Tests</Text>
+          <Text style={[styles.sectionTitle, { fontSize: fontSizes.lg }]}>Progressive Auth Tests</Text>
           
           <AuthGate
             tool="appointments"
@@ -152,7 +154,7 @@ export default function AuthSystemTest() {
             message="Testing appointment booking authentication"
           >
             <TouchableOpacity style={styles.testButton}>
-              <Text style={styles.testButtonText}>📅 Test Appointment Booking</Text>
+              <Text style={[styles.testButtonText, { fontSize: fontSizes.base }]}>📅 Test Appointment Booking</Text>
             </TouchableOpacity>
           </AuthGate>
 
@@ -164,7 +166,7 @@ export default function AuthSystemTest() {
             message="Testing form submission authentication"
           >
             <TouchableOpacity style={styles.testButton}>
-              <Text style={styles.testButtonText}>📋 Test Form Submission</Text>
+              <Text style={[styles.testButtonText, { fontSize: fontSizes.base }]}>📋 Test Form Submission</Text>
             </TouchableOpacity>
           </AuthGate>
 
@@ -176,7 +178,7 @@ export default function AuthSystemTest() {
             message="Testing document signing authentication"
           >
             <TouchableOpacity style={styles.testButton}>
-              <Text style={styles.testButtonText}>📄 Test Document Signing</Text>
+              <Text style={[styles.testButtonText, { fontSize: fontSizes.base }]}>📄 Test Document Signing</Text>
             </TouchableOpacity>
           </AuthGate>
         </View>
@@ -184,12 +186,12 @@ export default function AuthSystemTest() {
         {/* Sign Out */}
         {user && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Session Management</Text>
+            <Text style={[styles.sectionTitle, { fontSize: fontSizes.lg }]}>Session Management</Text>
             <TouchableOpacity
               style={styles.signOutButton}
               onPress={signOut}
             >
-              <Text style={styles.signOutButtonText}>Sign Out</Text>
+              <Text style={[styles.signOutButtonText, { fontSize: fontSizes.base }]}>Sign Out</Text>
             </TouchableOpacity>
           </View>
         )}

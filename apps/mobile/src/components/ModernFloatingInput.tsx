@@ -51,7 +51,7 @@ export const ModernFloatingInput = forwardRef<TextInput, ModernFloatingInputProp
   inputAccessoryView,
   showSoftInputOnFocus = true,
 }, ref) => {
-  const { theme } = useThemedStyles();
+  const { theme, fontSizes } = useThemedStyles();
   const [isFocused, setIsFocused] = useState(false);
   const animatedValue = useRef(new Animated.Value(value ? 1 : 0)).current;
 
@@ -111,6 +111,7 @@ export const ModernFloatingInput = forwardRef<TextInput, ModernFloatingInputProp
     styles.input,
     {
       color: theme.textColor,
+      fontSize: fontSizes.base,
       paddingTop: multiline ? (label ? 24 : 16) : (label ? 20 : 16),
     },
     multiline && { height: numberOfLines * 24 + 40 },
@@ -123,7 +124,7 @@ export const ModernFloatingInput = forwardRef<TextInput, ModernFloatingInputProp
         <TouchableOpacity onPress={onPress} style={containerStyle}>
           <Animated.Text style={labelStyle}>
             {label}
-            {required && <Text style={{ color: theme.errorColor }}> *</Text>}
+            {required && <Text style={{ color: theme.errorColor, fontSize: fontSizes.base }}> *</Text>}
           </Animated.Text>
           
           <View style={[styles.input, { paddingTop: 20, justifyContent: 'center' }]}>
@@ -131,7 +132,7 @@ export const ModernFloatingInput = forwardRef<TextInput, ModernFloatingInputProp
               styles.selectText, 
               { 
                 color: value ? theme.textColor : theme.placeholderColor,
-                fontSize: 16,
+                fontSize: fontSizes.base,
               }
             ]}>
               {value || placeholder || 'Select an option'}
@@ -140,7 +141,7 @@ export const ModernFloatingInput = forwardRef<TextInput, ModernFloatingInputProp
           
           {icon && (
             <View style={styles.iconContainer}>
-              <Text style={[styles.icon, { color: theme.placeholderColor }]}>
+              <Text style={[styles.icon, { color: theme.placeholderColor, fontSize: fontSizes.base }]}>
                 {icon}
               </Text>
             </View>
@@ -148,7 +149,7 @@ export const ModernFloatingInput = forwardRef<TextInput, ModernFloatingInputProp
         </TouchableOpacity>
         
         {error && (
-          <Text style={[styles.errorText, { color: theme.errorColor }]}>
+          <Text style={[styles.errorText, { color: theme.errorColor, fontSize: fontSizes.xs }]}>
             {error}
           </Text>
         )}

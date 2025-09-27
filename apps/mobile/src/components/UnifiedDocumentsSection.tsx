@@ -20,7 +20,7 @@ interface UnifiedDocumentsSectionProps {
 type DocumentsTab = 'documents' | 'forms';
 
 export const UnifiedDocumentsSection: React.FC<UnifiedDocumentsSectionProps> = ({ navigation }) => {
-  const { theme, themedStyles } = useThemedStyles();
+  const { theme, fontSizes, themedStyles } = useThemedStyles();
   const { config } = useAppConfig();
   const [activeTab, setActiveTab] = useState<DocumentsTab>('documents');
   const [totalDocuments, setTotalDocuments] = useState<number>(0);
@@ -59,7 +59,7 @@ export const UnifiedDocumentsSection: React.FC<UnifiedDocumentsSectionProps> = (
           />
           <Text style={[
             styles.tabButtonText,
-            { color: activeTab === 'documents' ? '#FFFFFF' : theme.placeholderColor }
+            { color: activeTab === 'documents' ? '#FFFFFF' : theme.placeholderColor, fontSize: fontSizes.sm }
           ]}>
             Documents
           </Text>
@@ -80,7 +80,7 @@ export const UnifiedDocumentsSection: React.FC<UnifiedDocumentsSectionProps> = (
           />
           <Text style={[
             styles.tabButtonText,
-            { color: activeTab === 'forms' ? '#FFFFFF' : theme.placeholderColor }
+            { color: activeTab === 'forms' ? '#FFFFFF' : theme.placeholderColor, fontSize: fontSizes.sm }
           ]}>
             Forms
           </Text>

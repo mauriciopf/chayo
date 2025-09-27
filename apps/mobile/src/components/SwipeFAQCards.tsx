@@ -30,7 +30,7 @@ export const SwipeFAQCards: React.FC<SwipeFAQCardsProps> = ({
   onSwipeLeft,
   onSwipeRight,
 }) => {
-  const { theme, themedStyles } = useThemedStyles();
+  const { theme, fontSizes, themedStyles } = useThemedStyles();
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const goToNext = () => {
@@ -49,10 +49,10 @@ export const SwipeFAQCards: React.FC<SwipeFAQCardsProps> = ({
     return (
       <View style={[styles.container, themedStyles.container]}>
         <View style={styles.emptyState}>
-          <Text style={[styles.emptyTitle, { color: theme.textColor }]}>
+          <Text style={[styles.emptyTitle, { color: theme.textColor, fontSize: fontSizes.lg }]}>
             No FAQs Available
           </Text>
-          <Text style={[styles.emptyMessage, { color: theme.placeholderColor }]}>
+          <Text style={[styles.emptyMessage, { color: theme.placeholderColor, fontSize: fontSizes.base }]}>
             There are currently no frequently asked questions to display.
           </Text>
         </View>
@@ -83,18 +83,18 @@ export const SwipeFAQCards: React.FC<SwipeFAQCardsProps> = ({
         ]}>
           {nextFAQ.category && (
             <View style={[styles.categoryBadge, { backgroundColor: theme.primaryColor }]}>
-              <Text style={[styles.categoryText, { color: theme.backgroundColor }]}>
+              <Text style={[styles.categoryText, { color: theme.backgroundColor, fontSize: fontSizes.xs }]}>
                 {nextFAQ.category}
               </Text>
             </View>
           )}
           
           <View style={styles.cardContent}>
-            <Text style={[styles.question, { color: theme.textColor }]}>
+            <Text style={[styles.question, { color: theme.textColor, fontSize: fontSizes.lg }]}>
               {nextFAQ.question}
             </Text>
             
-            <Text style={[styles.answer, { color: theme.placeholderColor }]}>
+            <Text style={[styles.answer, { color: theme.placeholderColor, fontSize: fontSizes.base }]}>
               {nextFAQ.answer}
             </Text>
           </View>
@@ -112,25 +112,25 @@ export const SwipeFAQCards: React.FC<SwipeFAQCardsProps> = ({
         ]}>
           {currentFAQ.category && (
             <View style={[styles.categoryBadge, { backgroundColor: theme.primaryColor }]}>
-              <Text style={[styles.categoryText, { color: theme.backgroundColor }]}>
+              <Text style={[styles.categoryText, { color: theme.backgroundColor, fontSize: fontSizes.xs }]}>
                 {currentFAQ.category}
               </Text>
             </View>
           )}
           
           <View style={styles.cardContent}>
-            <Text style={[styles.question, { color: theme.textColor }]}>
+            <Text style={[styles.question, { color: theme.textColor, fontSize: fontSizes.lg }]}>
               {currentFAQ.question}
             </Text>
             
-            <Text style={[styles.answer, { color: theme.placeholderColor }]}>
+            <Text style={[styles.answer, { color: theme.placeholderColor, fontSize: fontSizes.base }]}>
               {currentFAQ.answer}
             </Text>
           </View>
           
           <View style={styles.cardFooter}>
             <View style={styles.swipeHints}>
-              <Text style={[styles.hintText, { color: theme.placeholderColor }]}>
+              <Text style={[styles.hintText, { color: theme.placeholderColor, fontSize: fontSizes.sm }]}>
                 ← Swipe to navigate →
               </Text>
             </View>
@@ -141,7 +141,7 @@ export const SwipeFAQCards: React.FC<SwipeFAQCardsProps> = ({
       
       {/* Progress indicator */}
       <View style={styles.progressContainer}>
-        <Text style={[styles.progressText, { color: theme.placeholderColor }]}>
+        <Text style={[styles.progressText, { color: theme.placeholderColor, fontSize: fontSizes.sm }]}>
           {currentIndex + 1} of {faqs.length}
         </Text>
       </View>

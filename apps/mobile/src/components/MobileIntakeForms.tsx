@@ -28,25 +28,25 @@ interface FormListItemProps {
   themedStyles: any;
 }
 
-const FormListItem: React.FC<FormListItemProps> = ({ form, onPress, theme, themedStyles }) => (
+const FormListItem: React.FC<FormListItemProps & { fontSizes: any }> = ({ form, onPress, theme, themedStyles, fontSizes }) => (
   <TouchableOpacity style={[styles.formItem, { backgroundColor: theme.surfaceColor, borderColor: theme.borderColor }]} onPress={onPress}>
     <View style={styles.formContent}>
-      <Text style={[styles.formTitle, themedStyles.primaryText]}>{form.name}</Text>
+      <Text style={[styles.formTitle, themedStyles.primaryText, { fontSize: fontSizes.base }]}>{form.name}</Text>
       {form.description && (
-        <Text style={[styles.formDescription, themedStyles.secondaryText]} numberOfLines={2}>
+        <Text style={[styles.formDescription, themedStyles.secondaryText, { fontSize: fontSizes.sm }]} numberOfLines={2}>
           {form.description}
         </Text>
       )}
-      <Text style={[styles.formStatus, { color: form.is_active ? theme.successColor : theme.errorColor }]}>
+      <Text style={[styles.formStatus, { color: form.is_active ? theme.successColor : theme.errorColor, fontSize: fontSizes.xs }]}>
         {form.is_active ? '✅ Active' : '❌ Inactive'}
       </Text>
     </View>
-    <Text style={[styles.chevron, { color: theme.primaryColor }]}>›</Text>
+    <Text style={[styles.chevron, { color: theme.primaryColor, fontSize: fontSizes.lg }]}>›</Text>
   </TouchableOpacity>
 );
 
 export const MobileIntakeForms: React.FC<MobileIntakeFormsProps> = ({ organizationSlug, navigation }) => {
-  const { theme, themedStyles } = useThemedStyles();
+  const { theme, fontSizes, themedStyles } = useThemedStyles();
   const [forms, setForms] = useState<IntakeForm[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -94,8 +94,8 @@ export const MobileIntakeForms: React.FC<MobileIntakeFormsProps> = ({ organizati
     return (
       <SafeAreaView style={[styles.container, themedStyles.container]}>
         <View style={styles.emptyContainer}>
-          <Text style={[styles.emptyTitle, themedStyles.primaryText]}>No Forms Available</Text>
-          <Text style={[styles.emptyMessage, themedStyles.secondaryText]}>
+          <Text style={[styles.emptyTitle, themedStyles.primaryText, { fontSize: fontSizes.lg }]}>No Forms Available</Text>
+          <Text style={[styles.emptyMessage, themedStyles.secondaryText, { fontSize: fontSizes.base }]}>
             There are currently no active intake forms for this organization.
           </Text>
         </View>
@@ -107,8 +107,8 @@ export const MobileIntakeForms: React.FC<MobileIntakeFormsProps> = ({ organizati
   return (
     <SafeAreaView style={[styles.container, themedStyles.container]}>
       <View style={styles.header}>
-        <Text style={[styles.headerTitle, themedStyles.primaryText]}>Intake Forms</Text>
-        <Text style={[styles.headerSubtitle, themedStyles.secondaryText]}>
+        <Text style={[styles.headerTitle, themedStyles.primaryText, { fontSize: fontSizes.xl }]}>Intake Forms</Text>
+        <Text style={[styles.headerSubtitle, themedStyles.secondaryText, { fontSize: fontSizes.base }]}>
           Select a form to fill out
         </Text>
       </View>
@@ -122,6 +122,7 @@ export const MobileIntakeForms: React.FC<MobileIntakeFormsProps> = ({ organizati
             onPress={() => handleFormPress(item.id)}
             theme={theme}
             themedStyles={themedStyles}
+            fontSizes={fontSizes}
           />
         )}
         contentContainerStyle={styles.listContainer}

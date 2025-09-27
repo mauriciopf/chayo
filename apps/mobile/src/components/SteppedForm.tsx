@@ -47,7 +47,7 @@ export const SteppedForm: React.FC<SteppedFormProps> = ({
   renderField,
   organizationId,
 }) => {
-  const { theme } = useThemedStyles();
+  const { theme, fontSizes } = useThemedStyles();
   const { config } = useAppConfig();
   const [currentStep, setCurrentStep] = useState(0);
   const inputRef = useRef<TextInput>(null);
@@ -121,9 +121,9 @@ export const SteppedForm: React.FC<SteppedFormProps> = ({
     <SafeAreaView style={[styles.container, { backgroundColor: theme.backgroundColor }]}>
       {/* Header with progress */}
       <View style={[styles.header, { borderBottomColor: theme.borderColor }]}>
-        <Text style={[styles.title, { color: theme.textColor }]}>{title}</Text>
+        <Text style={[styles.title, { color: theme.textColor, fontSize: fontSizes.xl }]}>{title}</Text>
         {description && (
-          <Text style={[styles.description, { color: theme.placeholderColor }]}>
+          <Text style={[styles.description, { color: theme.placeholderColor, fontSize: fontSizes.base }]}>
             {description}
           </Text>
         )}
@@ -141,7 +141,7 @@ export const SteppedForm: React.FC<SteppedFormProps> = ({
               ]} 
             />
           </View>
-          <Text style={[styles.progressText, { color: theme.placeholderColor }]}>
+          <Text style={[styles.progressText, { color: theme.placeholderColor, fontSize: fontSizes.sm }]}>
             Step {currentStep + 1} of {totalSteps}
           </Text>
         </View>
@@ -155,12 +155,12 @@ export const SteppedForm: React.FC<SteppedFormProps> = ({
         {/* Step Content */}
         <View style={styles.stepContainer}>
           <View style={styles.stepHeader}>
-            <Text style={[styles.stepTitle, { color: theme.textColor }]}>
+            <Text style={[styles.stepTitle, { color: theme.textColor, fontSize: fontSizes.lg }]}>
               {currentComponent?.label}
-              {currentComponent?.validate?.required && <Text style={{ color: theme.errorColor }}> *</Text>}
+              {currentComponent?.validate?.required && <Text style={{ color: theme.errorColor, fontSize: fontSizes.lg }}> *</Text>}
             </Text>
             {currentComponent?.description && (
-              <Text style={[styles.stepDescription, { color: theme.placeholderColor }]}>
+              <Text style={[styles.stepDescription, { color: theme.placeholderColor, fontSize: fontSizes.sm }]}>
                 {currentComponent.description}
               </Text>
             )}
@@ -173,7 +173,7 @@ export const SteppedForm: React.FC<SteppedFormProps> = ({
           {/* Auto-advance hint for non-input fields */}
           {(currentComponent?.type === 'select' || currentComponent?.type === 'radio') && (
             <View style={styles.hintContainer}>
-              <Text style={[styles.hintText, { color: theme.placeholderColor }]}>
+              <Text style={[styles.hintText, { color: theme.placeholderColor, fontSize: fontSizes.xs }]}>
                 Select an option to continue
               </Text>
             </View>
@@ -191,14 +191,14 @@ export const SteppedForm: React.FC<SteppedFormProps> = ({
                 style={[styles.accessoryButton, { borderColor: theme.borderColor }]}
                 onPress={goToPreviousStep}
               >
-                <Text style={[styles.accessoryButtonText, { color: theme.textColor }]}>
+                <Text style={[styles.accessoryButtonText, { color: theme.textColor, fontSize: fontSizes.base }]}>
                   ← Back
                 </Text>
               </TouchableOpacity>
             )}
             
             <View style={styles.accessoryProgress}>
-              <Text style={[styles.accessoryProgressText, { color: theme.placeholderColor }]}>
+              <Text style={[styles.accessoryProgressText, { color: theme.placeholderColor, fontSize: fontSizes.sm }]}>
                 {currentStep + 1} of {totalSteps}
               </Text>
             </View>
@@ -215,7 +215,7 @@ export const SteppedForm: React.FC<SteppedFormProps> = ({
                   style={[styles.accessoryButton, { backgroundColor: theme.primaryColor }]}
                   disabled={submitting}
                 >
-                  <Text style={[styles.accessoryButtonText, { color: '#FFFFFF' }]}>
+                  <Text style={[styles.accessoryButtonText, { color: '#FFFFFF', fontSize: fontSizes.base }]}>
                     {submitting ? 'Sending...' : 'Submit'}
                   </Text>
                 </TouchableOpacity>
@@ -226,7 +226,7 @@ export const SteppedForm: React.FC<SteppedFormProps> = ({
                 onPress={goToNextStep}
                 disabled={submitting}
               >
-                <Text style={[styles.accessoryButtonText, { color: '#FFFFFF' }]}>
+                <Text style={[styles.accessoryButtonText, { color: '#FFFFFF', fontSize: fontSizes.base }]}>
                   {submitting ? 'Sending...' : isLastStep ? 'Submit' : 'Next →'}
                 </Text>
               </TouchableOpacity>
