@@ -13,8 +13,6 @@ import {
   Calendar, 
   Image, 
   RefreshCw, 
-  Eye, 
-  EyeOff, 
   Sparkles,
   CheckCircle,
   Clock,
@@ -186,26 +184,6 @@ export default function ProductsManager({ organizationId }: ProductsManagerProps
     }
   }
 
-  const handleToggleOfferStatus = async (offerId: string, currentStatus: string) => {
-    const newStatus = currentStatus === 'active' ? 'inactive' : 'active'
-    
-    try {
-      const response = await fetch(`/api/offers/${offerId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus })
-      })
-      
-      if (response.ok) {
-        setOffers(offers.map(o => 
-          o.id === offerId ? { ...o, status: newStatus as any } : o
-        ))
-        fetchProducts() // Refresh products to update pricing
-      }
-    } catch (error) {
-      console.error('Error updating offer status:', error)
-    }
-  }
 
   const handleRegenerateBanner = async (offerId: string) => {
     setGeneratingBanner(offerId)
@@ -447,22 +425,6 @@ export default function ProductsManager({ organizationId }: ProductsManagerProps
                         </button>
                       )}
 
-                      {/* Toggle Status */}
-                      <button
-                        onClick={() => handleToggleOfferStatus(offer.id, offer.status)}
-                        className="p-2 rounded-lg transition-colors"
-                        title={offer.status === 'active' ? 'Deactivate Offer' : 'Activate Offer'}
-                        style={{ 
-                          backgroundColor: 'var(--bg-tertiary)',
-                          color: offer.status === 'active' ? 'var(--accent-danger)' : 'var(--accent-secondary)'
-                        }}
-                      >
-                        {offer.status === 'active' ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </button>
 
                       {/* Edit */}
                       <button
@@ -513,34 +475,44 @@ export default function ProductsManager({ organizationId }: ProductsManagerProps
                   {expandedOffer === offer.id && (
                     <div className="mt-6 pt-6 border-t" style={{ borderColor: 'var(--border-secondary)' }}>
                       {/* AI Banner Preview */}
-                      {offer.ai_banner_url && (
-                        <div className="mb-6">
-                          <div className="flex items-center gap-2 mb-3">
-                            <Sparkles className="h-4 w-4" style={{ color: 'var(--accent-secondary)' }} />
-                            <span className="font-medium" style={{ color: 'var(--text-primary)' }}>
-                              AI Generated Banner
+                      <div className="mb-6">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Sparkles className="h-4 w-4" style={{ color: 'var(--accent-secondary)' }} />
+                          <span className="font-medium" style={{ color: 'var(--text-primary)' }}>
+                            AI Generated Banner
+                          </span>
+                          {offer.banner_generated_at && (
+                            <span className="text-xs px-2 py-1 rounded-full" 
+                                  style={{ 
+                                    backgroundColor: 'var(--bg-tertiary)', 
+                                    color: 'var(--text-secondary)' 
+                                  }}>
+                              Generated {formatDate(offer.banner_generated_at)}
                             </span>
-                            {offer.banner_generated_at && (
-                              <span className="text-xs px-2 py-1 rounded-full" 
-                                    style={{ 
-                                      backgroundColor: 'var(--bg-tertiary)', 
-                                      color: 'var(--text-secondary)' 
-                                    }}>
-                                Generated {formatDate(offer.banner_generated_at)}
-                              </span>
-                            )}
-                          </div>
-                          <div className="relative">
-                            <img 
-                              src={offer.ai_banner_url} 
-                              alt={`AI Banner for ${offer.name}`}
-                              className="w-full max-w-2xl h-48 object-cover rounded-lg border shadow-lg"
-                              style={{ borderColor: 'var(--border-primary)' }}
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-lg"></div>
-                          </div>
+                          )}
                         </div>
-                      )}
+                        <div className="relative">
+                          {offer.ai_banner_url ? (
+                            <>
+                              <img 
+                                src={offer.ai_banner_url} 
+                                alt={`AI Banner for ${offer.name}`}
+                                className="w-full max-w-2xl h-48 object-cover rounded-lg border shadow-lg"
+                                style={{ borderColor: 'var(--border-primary)' }}
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-lg"></div>
+                            </>
+                          ) : (
+                            <div className="w-full max-w-2xl h-48 bg-gray-100 rounded-lg border flex items-center justify-center" 
+                                 style={{ borderColor: 'var(--border-primary)' }}>
+                              <div className="text-center">
+                                <Sparkles className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+                                <p className="text-sm text-gray-500">Banner will appear here</p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
 
                       {/* Assigned Products Preview */}
                       <div>
