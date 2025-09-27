@@ -50,7 +50,7 @@ export const HubScreen: React.FC<HubScreenProps> = ({
   onBackToMarketplace: _onBackToMarketplace,
   enabledTools,
 }) => {
-  const { theme } = useThemedStyles();
+  const { theme, fontSizes } = useThemedStyles();
   const { config } = useAppConfig();
   const navigation = useNavigation();
   const { pushNavigationContext, popNavigationContext } = useScreenNavigation();
@@ -145,10 +145,10 @@ export const HubScreen: React.FC<HubScreenProps> = ({
       <View style={[styles.container, { backgroundColor: theme.backgroundColor }]}>
         <View style={styles.emptyContainer}>
           <Icon name="grid" size={48} color={theme.textColor + '60'} />
-          <Text style={[styles.emptyTitle, { color: theme.textColor }]}>
+          <Text style={[styles.emptyTitle, { color: theme.textColor, fontSize: fontSizes.xl }]}>
             No tools available
           </Text>
-          <Text style={[styles.emptySubtitle, { color: theme.textColor + '80' }]}>
+          <Text style={[styles.emptySubtitle, { color: theme.textColor + '80', fontSize: fontSizes.base }]}>
             Contact support to enable business tools
           </Text>
         </View>
@@ -210,8 +210,8 @@ export const HubScreen: React.FC<HubScreenProps> = ({
               <Icon name={item.icon} size={22} color="#F4E4BC" />
             </View>
             <View>
-              <Text style={styles.sectionTitle}>{item.label}</Text>
-              <Text style={styles.sectionSubtitle}>Explore {item.label.toLowerCase()}</Text>
+              <Text style={[styles.sectionTitle, { fontSize: fontSizes.lg }]}>{item.label}</Text>
+              <Text style={[styles.sectionSubtitle, { fontSize: fontSizes.sm }]}>Explore {item.label.toLowerCase()}</Text>
             </View>
           </View>
           <View style={styles.sectionHeaderRight}>

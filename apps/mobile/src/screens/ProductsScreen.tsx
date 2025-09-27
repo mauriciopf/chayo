@@ -37,7 +37,7 @@ interface ProductsScreenProps {
 
 export const ProductsScreen: React.FC<ProductsScreenProps> = ({ navigation }) => {
   const { config } = useAppConfig();
-  const { theme, themedStyles } = useThemedStyles();
+  const { theme, fontSizes, themedStyles } = useThemedStyles();
   const { t } = useTranslation();
   const { user } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
@@ -144,10 +144,10 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({ navigation }) =>
   const renderEmptyState = () => (
     <View style={styles.emptyContainer}>
       <Icon name="package" size={64} color={theme.placeholderColor} />
-      <Text style={[styles.emptyTitle, { color: theme.textColor }]}>
+      <Text style={[styles.emptyTitle, { color: theme.textColor, fontSize: fontSizes.xl }]}>
         {t('products.empty.title')}
       </Text>
-      <Text style={[styles.emptySubtitle, { color: theme.placeholderColor }]}>
+      <Text style={[styles.emptySubtitle, { color: theme.placeholderColor, fontSize: fontSizes.base }]}>
         {t('products.empty.subtitle')}
       </Text>
     </View>
@@ -156,17 +156,17 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({ navigation }) =>
   const renderError = () => (
     <View style={styles.errorContainer}>
       <Icon name="alert-circle" size={48} color={theme.errorColor || '#FF6B6B'} />
-      <Text style={[styles.errorTitle, { color: theme.textColor }]}>
+      <Text style={[styles.errorTitle, { color: theme.textColor, fontSize: fontSizes.xl }]}>
         {t('products.error.title')}
       </Text>
-      <Text style={[styles.errorSubtitle, { color: theme.placeholderColor }]}>
+      <Text style={[styles.errorSubtitle, { color: theme.placeholderColor, fontSize: fontSizes.base }]}>
         {error || t('products.error.subtitle')}
       </Text>
       <TouchableOpacity
         style={[styles.retryButton, { backgroundColor: theme.primaryColor }]}
         onPress={fetchProducts}
       >
-        <Text style={[styles.retryButtonText, { color: '#FFFFFF' }]}>
+        <Text style={[styles.retryButtonText, { color: '#FFFFFF', fontSize: fontSizes.base }]}>
           {t('products.error.retry')}
         </Text>
       </TouchableOpacity>
@@ -206,7 +206,7 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({ navigation }) =>
       )}
 
       <View style={styles.header}>
-        <Text style={[styles.subtitle, { color: theme.placeholderColor }]}>
+        <Text style={[styles.subtitle, { color: theme.placeholderColor, fontSize: fontSizes.sm }]}>
           {t('products.subtitle')}
         </Text>
       </View>

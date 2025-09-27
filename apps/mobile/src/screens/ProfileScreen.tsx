@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../hooks/useTheme';
+import { useThemedStyles } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { getAuthProviderAvailability } from '../utils/authConfig';
 import { 
@@ -30,6 +31,7 @@ type AuthMode = 'signin' | 'signup';
 export const ProfileScreen: React.FC = () => {
   const { t } = useTranslation();
   const theme = useTheme();
+  const { fontSizes } = useThemedStyles();
   const { user, signOut } = useAuth();
   const [loading, setLoading] = useState(false);
   const [authMode, setAuthMode] = useState<AuthMode>('signin');
@@ -128,10 +130,10 @@ export const ProfileScreen: React.FC = () => {
             <View style={[styles.avatarContainer, { backgroundColor: theme.primaryColor }]}>
               <Icon name="user" size={40} color="#FFFFFF" />
             </View>
-            <Text style={[styles.welcomeText, { color: theme.textColor }]}>
+            <Text style={[styles.welcomeText, { color: theme.textColor, fontSize: fontSizes.xl }]}>
               Welcome back!
             </Text>
-            <Text style={[styles.emailText, { color: theme.placeholderColor }]}>
+            <Text style={[styles.emailText, { color: theme.placeholderColor, fontSize: fontSizes.base }]}>
               {user.email}
             </Text>
           </View>

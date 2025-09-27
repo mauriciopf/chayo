@@ -13,6 +13,7 @@ import {
 import Icon from 'react-native-vector-icons/Feather'
 import { useTheme } from '../hooks/useTheme'
 import { useAuth } from '../context/AuthContext'
+import { useThemedStyles } from '../context/ThemeContext'
 import { offersService, Offer } from '../services/OffersService'
 import LoginModal from './LoginModal'
 
@@ -34,6 +35,7 @@ export default function OffersBannerComponent({
   onDeactivateOffer: propsDeactivateOffer
 }: OffersBannerComponentProps) {
   const theme = useTheme()
+  const { fontSizes } = useThemedStyles()
   const { user } = useAuth()
   const [internalOffers, setInternalOffers] = useState<Offer[]>([])
   const [internalLoading, setInternalLoading] = useState(true)
@@ -427,32 +429,32 @@ export default function OffersBannerComponent({
               </>
             ) : (
               <View style={[styles.fallbackBanner, { backgroundColor: '#667eea' }]}>
-                <Text style={styles.fallbackTitle}>{offer.name}</Text>
-                <Text style={styles.fallbackDescription}>{formatDiscount(offer)}</Text>
+                <Text style={[styles.fallbackTitle, { fontSize: fontSizes.lg }]}>{offer.name}</Text>
+                <Text style={[styles.fallbackDescription, { fontSize: fontSizes.base }]}>{formatDiscount(offer)}</Text>
               </View>
             )}
             
             <View style={styles.bannerContent}>
               <View style={styles.bannerHeader}>
                 <View style={styles.discountBadge}>
-                  <Text style={styles.discountText}>{formatDiscount(offer)}</Text>
+                  <Text style={[styles.discountText, { fontSize: fontSizes.md }]}>{formatDiscount(offer)}</Text>
                 </View>
                 {offer.is_activated_by_user && (
                   <View style={styles.activatedBadge}>
-                    <Text style={styles.activatedText}>✓ ACTIVE</Text>
+                    <Text style={[styles.activatedText, { fontSize: fontSizes.xs }]}>✓ ACTIVE</Text>
                   </View>
                 )}
               </View>
 
               <View>
-                <Text style={styles.bannerTitle}>{offer.name}</Text>
-                <Text style={styles.bannerDescription} numberOfLines={2}>
+                <Text style={[styles.bannerTitle, { fontSize: fontSizes.lg }]}>{offer.name}</Text>
+                <Text style={[styles.bannerDescription, { fontSize: fontSizes.sm }]} numberOfLines={2}>
                   {offer.description}
                 </Text>
               </View>
 
               <View style={styles.bannerFooter}>
-                <Text style={styles.expiryText}>
+                <Text style={[styles.expiryText, { fontSize: fontSizes.xs }]}>
                   Expires {formatDate(offer.end_date)}
                 </Text>
                 
@@ -465,7 +467,7 @@ export default function OffersBannerComponent({
                     }}
                   >
                     <Icon name="eye" size={16} color="white" />
-                    <Text style={styles.buttonText}>View</Text>
+                    <Text style={[styles.buttonText, { fontSize: fontSizes.sm }]}>View</Text>
                   </TouchableOpacity>
 
                   {offer.is_activated_by_user ? (
@@ -474,7 +476,7 @@ export default function OffersBannerComponent({
                       onPress={() => handleDeactivateOffer(offer.id)}
                     >
                       <Icon name="x" size={16} color="white" />
-                      <Text style={styles.buttonText}>Remove</Text>
+                      <Text style={[styles.buttonText, { fontSize: fontSizes.sm }]}>Remove</Text>
                     </TouchableOpacity>
                   ) : (
                     <TouchableOpacity
@@ -487,7 +489,7 @@ export default function OffersBannerComponent({
                       ) : (
                         <Icon name="check" size={16} color="white" />
                       )}
-                      <Text style={styles.buttonText}>
+                      <Text style={[styles.buttonText, { fontSize: fontSizes.sm }]}>
                         {activating === offer.id ? 'Activating...' : 'Activate'}
                       </Text>
                     </TouchableOpacity>
@@ -509,7 +511,7 @@ export default function OffersBannerComponent({
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>
+              <Text style={[styles.modalTitle, { fontSize: fontSizes.xl }]}>
                 {selectedOffer?.name} - {selectedOffer && formatDiscount(selectedOffer)}
               </Text>
               <TouchableOpacity
@@ -521,12 +523,12 @@ export default function OffersBannerComponent({
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false}>
-              <Text style={{ color: theme.placeholderColor, marginBottom: 16 }}>
+              <Text style={{ color: theme.placeholderColor, marginBottom: 16, fontSize: fontSizes.sm }}>
                 {selectedOffer?.description}
               </Text>
 
               <Text style={{ 
-                fontSize: 16, 
+                fontSize: fontSizes.md, 
                 fontWeight: '600', 
                 color: theme.textColor, 
                 marginBottom: 12 
@@ -551,7 +553,7 @@ export default function OffersBannerComponent({
                       </View>
                     )}
                     
-                    <Text style={styles.productName} numberOfLines={2}>
+                    <Text style={[styles.productName, { fontSize: fontSizes.sm }]} numberOfLines={2}>
                       {product.name}
                     </Text>
                     
@@ -560,16 +562,16 @@ export default function OffersBannerComponent({
                         <View style={styles.priceContainer}>
                           {product.discounted_price ? (
                             <>
-                              <Text style={styles.originalPrice}>${product.price}</Text>
-                              <Text style={styles.discountedPrice}>${product.discounted_price}</Text>
+                              <Text style={[styles.originalPrice, { fontSize: fontSizes.xs }]}>${product.price}</Text>
+                              <Text style={[styles.discountedPrice, { fontSize: fontSizes.sm }]}>${product.discounted_price}</Text>
                             </>
                           ) : (
-                            <Text style={styles.discountedPrice}>${product.price}</Text>
+                            <Text style={[styles.discountedPrice, { fontSize: fontSizes.sm }]}>${product.price}</Text>
                           )}
                         </View>
                         {product.discounted_price && (
                           <View style={styles.saleTag}>
-                            <Text style={styles.saleTagText}>ON SALE</Text>
+                            <Text style={[styles.saleTagText, { fontSize: fontSizes.xs }]}>ON SALE</Text>
                           </View>
                         )}
                       </View>

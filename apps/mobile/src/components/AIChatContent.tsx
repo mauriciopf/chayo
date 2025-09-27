@@ -26,7 +26,7 @@ interface Message {
 
 export const AIChatContent: React.FC = () => {
   const { config } = useAppConfig();
-  const { theme, themedStyles } = useThemedStyles();
+  const { theme, fontSizes, themedStyles } = useThemedStyles();
   const { t, i18n } = useTranslation();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
@@ -156,7 +156,7 @@ export const AIChatContent: React.FC = () => {
         {item.isLoading ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="small" color="#2F5D62" />
-            <Text style={[styles.loadingText, { color: theme.placeholderColor }]}>
+            <Text style={[styles.loadingText, { color: theme.placeholderColor, fontSize: fontSizes.sm }]}>
               {t('chat.thinking')}
             </Text>
           </View>
@@ -164,7 +164,7 @@ export const AIChatContent: React.FC = () => {
           <Text
             style={[
               styles.messageText,
-              { color: item.isUser ? '#FFFFFF' : theme.textColor },
+              { color: item.isUser ? '#FFFFFF' : theme.textColor, fontSize: fontSizes.base },
             ]}
           >
             {item.text}
@@ -258,6 +258,7 @@ export const AIChatContent: React.FC = () => {
                   color: theme.textColor,
                   borderColor: isInputFocused ? '#2F5D62' : theme.borderColor,
                   borderWidth: isInputFocused ? 2 : 1,
+                  fontSize: fontSizes.base,
                 },
               ]}
               value={inputText}
@@ -291,6 +292,7 @@ export const AIChatContent: React.FC = () => {
                   styles.sendButtonText,
                   {
                     color: inputText.trim() ? '#2F5D62' : theme.placeholderColor,
+                    fontSize: fontSizes.base,
                   },
                 ]}
               >

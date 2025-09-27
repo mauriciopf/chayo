@@ -7,6 +7,7 @@ import {
   Animated,
 } from 'react-native';
 import { PremiumProductCardSkeleton } from './PremiumProductCardSkeleton';
+import { useThemedStyles } from '../context/ThemeContext';
 
 interface Product {
   id: string;
@@ -36,6 +37,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   theme,
   getProductGradient,
 }) => {
+  const { fontSizes } = useThemedStyles();
   const [imageLoading, setImageLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
   const [startColor, endColor] = getProductGradient(item.name);
@@ -121,24 +123,24 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             ]}
           />
           <View style={styles.textContainer}>
-            <Text style={styles.placeholderProductName} numberOfLines={3}>
+            <Text style={[styles.placeholderProductName, { fontSize: fontSizes.md }]} numberOfLines={3}>
               {item.name}
             </Text>
             <View style={styles.priceContainer}>
               {item.discounted_price ? (
                 <>
-                  <Text style={[styles.placeholderProductPrice, styles.originalPrice]}>
+                  <Text style={[styles.placeholderProductPrice, styles.originalPrice, { fontSize: fontSizes.xs }]}>
                     ${item.price?.toFixed(2)}
                   </Text>
-                  <Text style={styles.discountedPrice}>
+                  <Text style={[styles.discountedPrice, { fontSize: fontSizes.base }]}>
                     ${item.discounted_price.toFixed(2)}
                   </Text>
                   <View style={styles.saleTag}>
-                    <Text style={styles.saleTagText}>SALE</Text>
+                    <Text style={[styles.saleTagText, { fontSize: fontSizes.xs }]}>SALE</Text>
                   </View>
                 </>
               ) : (
-                <Text style={styles.placeholderProductPrice}>
+                <Text style={[styles.placeholderProductPrice, { fontSize: fontSizes.sm }]}>
                   {item.price ? `$${item.price.toFixed(2)}` : 'Price on request'}
                 </Text>
               )}

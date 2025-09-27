@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { thinkingMessageService, ThinkingContext, OnboardingProgressData } from '../services/ThinkingMessageService';
 import { useTranslation } from '../hooks/useTranslation';
+import { useThemedStyles } from '../context/ThemeContext';
 
 interface ThinkingMessageProps {
   context?: ThinkingContext;
@@ -27,6 +28,7 @@ export const ThinkingMessage: React.FC<ThinkingMessageProps> = ({
   style,
 }) => {
   const { t } = useTranslation();
+  const { fontSizes } = useThemedStyles();
   const [currentMessage, setCurrentMessage] = useState<string>('');
   const [messageIndex, setMessageIndex] = useState<number>(0);
   const [totalMessages, setTotalMessages] = useState<number>(0);
@@ -102,7 +104,7 @@ export const ThinkingMessage: React.FC<ThinkingMessageProps> = ({
             { opacity: fadeAnim }
           ]}
         >
-          <Text style={styles.messageText}>
+          <Text style={[styles.messageText, { fontSize: fontSizes.base }]}>
             {currentMessage}
           </Text>
           

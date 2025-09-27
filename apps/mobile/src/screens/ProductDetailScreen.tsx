@@ -38,7 +38,7 @@ export const ProductDetailScreen: React.FC = () => {
     deactivateOffer?: (offerId: string, userId: string) => Promise<{ success: boolean; error?: string }>;
     getOffersForProduct?: (productId: string) => any[];
   };
-  const { theme, themedStyles } = useThemedStyles();
+  const { theme, fontSizes, themedStyles } = useThemedStyles();
   const { t } = useTranslation();
   const { config } = useAppConfig();
   const screenWidth = Dimensions.get('window').width;
@@ -118,7 +118,7 @@ export const ProductDetailScreen: React.FC = () => {
                 ]} 
               />
               <View style={styles.gradientContent}>
-                <Text style={styles.gradientTitle}>
+                <Text style={[styles.gradientTitle, { fontSize: fontSizes.xl }]}>
                   {product.name}
                 </Text>
               </View>
@@ -128,7 +128,7 @@ export const ProductDetailScreen: React.FC = () => {
 
         {/* Product Information */}
         <View style={styles.contentContainer}>
-          <Text style={[styles.productTitle, { color: theme.textColor }]}>
+          <Text style={[styles.productTitle, { color: theme.textColor, fontSize: fontSizes.xxl }]}>
             {product.name}
           </Text>
         </View>
@@ -155,17 +155,17 @@ export const ProductDetailScreen: React.FC = () => {
 
         <View style={styles.contentContainer}>
           {product.description && (
-            <Text style={[styles.productDescription, { color: theme.placeholderColor }]}>
+            <Text style={[styles.productDescription, { color: theme.placeholderColor, fontSize: fontSizes.base }]}>
               {product.description}
             </Text>
           )}
 
           {product.price && (
             <View style={styles.priceContainer}>
-              <Text style={[styles.priceLabel, { color: theme.placeholderColor }]}>
+              <Text style={[styles.priceLabel, { color: theme.placeholderColor, fontSize: fontSizes.sm }]}>
                 {t('products.detail.price')}
               </Text>
-              <Text style={[styles.priceValue, { color: theme.primaryColor }]}>
+              <Text style={[styles.priceValue, { color: theme.primaryColor, fontSize: fontSizes.lg }]}>
                 ${product.price}
               </Text>
             </View>
@@ -191,7 +191,7 @@ export const ProductDetailScreen: React.FC = () => {
                 size={20} 
                 color="#FFFFFF" 
               />
-              <Text style={styles.purchaseButtonText}>
+              <Text style={[styles.purchaseButtonText, { fontSize: fontSizes.base }]}>
                 {product.payment_transaction_id 
                   ? `${t('products.detail.purchase')} $${product.price}`
                   : t('products.detail.paymentNotConfigured')
@@ -202,13 +202,13 @@ export const ProductDetailScreen: React.FC = () => {
 
           {/* Additional Information */}
           <View style={styles.additionalInfo}>
-            <Text style={[styles.sectionTitle, { color: theme.textColor }]}>
+            <Text style={[styles.sectionTitle, { color: theme.textColor, fontSize: fontSizes.md }]}>
               {t('products.detail.details')}
             </Text>
             
             <View style={styles.infoRow}>
               <Icon name="calendar" size={16} color={theme.placeholderColor} />
-              <Text style={[styles.infoText, { color: theme.placeholderColor }]}>
+              <Text style={[styles.infoText, { color: theme.placeholderColor, fontSize: fontSizes.sm }]}>
                 {t('products.detail.addedOn')} {new Date(product.created_at).toLocaleDateString()}
               </Text>
             </View>
@@ -216,7 +216,7 @@ export const ProductDetailScreen: React.FC = () => {
             {product.payment_transaction_id && (
               <View style={styles.infoRow}>
                 <Icon name="credit-card" size={16} color={theme.placeholderColor} />
-                <Text style={[styles.infoText, { color: theme.placeholderColor }]}>
+                <Text style={[styles.infoText, { color: theme.placeholderColor, fontSize: fontSizes.sm }]}>
                   {t('products.detail.paymentConfigured')}
                 </Text>
               </View>

@@ -25,7 +25,7 @@ export const NavigationHeader: React.FC<NavigationHeaderProps> = ({
   backgroundColor,
   borderBottomColor,
 }) => {
-  const { theme } = useThemedStyles();
+  const { theme, fontSizes } = useThemedStyles();
 
   const headerBackgroundColor = backgroundColor || theme.backgroundColor;
   const headerBorderColor = borderBottomColor || theme.borderColor;
@@ -48,7 +48,7 @@ export const NavigationHeader: React.FC<NavigationHeaderProps> = ({
       )}
       
       <View style={[styles.titleContainer, !showBackButton && styles.titleContainerCentered]}>
-        <Text style={[styles.title, { color: theme.textColor }]} numberOfLines={1}>
+        <Text style={[styles.title, { color: theme.textColor, fontSize: fontSizes.xl }]} numberOfLines={1}>
           {title}
         </Text>
       </View>

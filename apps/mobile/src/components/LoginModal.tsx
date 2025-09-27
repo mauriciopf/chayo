@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../hooks/useTheme';
+import { useThemedStyles } from '../context/ThemeContext';
 import { getAuthProviderAvailability } from '../utils/authConfig';
 import { 
   signInWithApple, 
@@ -42,6 +43,7 @@ export default function LoginModal({
 }: LoginModalProps) {
   const { t } = useTranslation();
   const theme = useTheme();
+  const { fontSizes } = useThemedStyles();
   const [loading, setLoading] = useState(false);
   const [authMode, setAuthMode] = useState<AuthMode>('signin');
   const [providerAvailability] = useState(() => getAuthProviderAvailability());
@@ -292,15 +294,15 @@ export default function LoginModal({
               activeOpacity={0.7}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <Text style={styles.closeButtonText}>×</Text>
+              <Text style={[styles.closeButtonText, { fontSize: fontSizes.xxl }]}>×</Text>
             </TouchableOpacity>
 
             <View style={styles.header}>
-              <Text style={styles.title}>
+              <Text style={[styles.title, { fontSize: fontSizes.xl }]}>
                 {title || t('auth.signInRequired')}
               </Text>
               {message && (
-                <Text style={styles.message}>{message}</Text>
+                <Text style={[styles.message, { fontSize: fontSizes.base }]}>{message}</Text>
               )}
             </View>
 
@@ -311,7 +313,7 @@ export default function LoginModal({
                   onPress={handleAppleSignIn}
                   disabled={loading}
                 >
-                  <Text style={styles.socialButtonText}>
+                  <Text style={[styles.socialButtonText, { fontSize: fontSizes.base }]}>
                     🍎 Continue with Apple
                   </Text>
                 </TouchableOpacity>
@@ -323,7 +325,7 @@ export default function LoginModal({
                   onPress={handleGoogleSignIn}
                   disabled={loading}
                 >
-                  <Text style={styles.socialButtonText}>
+                  <Text style={[styles.socialButtonText, { fontSize: fontSizes.base }]}>
                     📧 Continue with Google
                   </Text>
                 </TouchableOpacity>
@@ -332,7 +334,7 @@ export default function LoginModal({
 
             <View style={styles.divider}>
               <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>or</Text>
+              <Text style={[styles.dividerText, { fontSize: fontSizes.sm }]}>or</Text>
               <View style={styles.dividerLine} />
             </View>
 
@@ -372,14 +374,14 @@ export default function LoginModal({
                 onPress={handleEmailAuth}
                 disabled={loading}
               >
-                <Text style={styles.emailButtonText}>
+                <Text style={[styles.emailButtonText, { fontSize: fontSizes.base }]}>
                   {authMode === 'signup' ? 'Create Account' : 'Sign In'}
                 </Text>
               </TouchableOpacity>
             </View>
 
             <View style={styles.switchMode}>
-              <Text style={styles.switchModeText}>
+              <Text style={[styles.switchModeText, { fontSize: fontSizes.sm }]}>
                 {authMode === 'signup' 
                   ? 'Already have an account? ' 
                   : "Don't have an account? "
