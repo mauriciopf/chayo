@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
+import { OfferImageService } from '@/lib/shared/services/offerImageService'
 import OpenAI from 'openai'
 
 // POST /api/offers/[id]/generate-banner - Generate AI banner for offer
@@ -84,12 +85,32 @@ STYLE: Modern, clean, professional marketing banner with vibrant gradients, clea
       throw new Error('No image URL returned from OpenAI')
     }
 
-    // Download and store the image (in a real app, you'd upload to your storage)
-    // For now, we'll store the OpenAI URL directly
+    // Store the temporary DALL-E image permanently in Supabase Storage
+    const offerImageService = new OfferImageService(supabase)
+    
+    // Clean up old banner if it exists
+    if (offer.ai_banner_url) {
+      await offerImageService.cleanupOldOfferImage(offer.ai_banner_url)
+    }
+    
+    // Store the new image permanently
+    const permanentImageUrl = await offerImageService.storeOfferImageFromUrl(
+      imageUrl, 
+      offer.organization_id, 
+      id
+    )
+
+    if (!permanentImageUrl) {
+      throw new Error('Failed to store banner image permanently')
+    }
+
+    console.log('Stored banner permanently:', permanentImageUrl)
+
+    // Update offer with permanent image URL
     const { data: updatedOffer, error: updateError } = await supabase
       .from('offers')
       .update({
-        ai_banner_url: imageUrl,
+        ai_banner_url: permanentImageUrl, // Store permanent URL, not temporary DALL-E URL
         ai_banner_prompt: prompt,
         banner_generated_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
@@ -104,7 +125,7 @@ STYLE: Modern, clean, professional marketing banner with vibrant gradients, clea
     }
 
     return NextResponse.json({
-      banner_url: imageUrl,
+      banner_url: permanentImageUrl,
       banner_prompt: prompt,
       offer: updatedOffer
     })

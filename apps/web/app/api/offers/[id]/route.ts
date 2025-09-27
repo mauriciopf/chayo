@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
+import { OfferImageService } from '@/lib/shared/services/offerImageService'
 
 // GET /api/offers/[id] - Get specific offer
 export async function GET(
@@ -193,6 +194,21 @@ export async function DELETE(
     const supabase = await getSupabaseServerClient()
     
     const { id } = await params
+    
+    // Get offer details to clean up banner image
+    const { data: offer } = await supabase
+      .from('offers')
+      .select('ai_banner_url')
+      .eq('id', id)
+      .single()
+    
+    // Clean up banner image if it exists
+    if (offer?.ai_banner_url) {
+      const offerImageService = new OfferImageService(supabase)
+      await offerImageService.cleanupOldOfferImage(offer.ai_banner_url)
+      console.log('Cleaned up banner image for deleted offer:', id)
+    }
+    
     // First remove product pricing
     await removeProductPricing(id)
 

@@ -11,8 +11,6 @@ import {
   DollarSign, 
   Image,
   RefreshCw,
-  Eye,
-  EyeOff,
   Package
 } from 'lucide-react'
 
@@ -112,25 +110,6 @@ const OffersManager: React.FC<OffersManagerProps> = ({ organizationId }) => {
     }
   }
 
-  const handleToggleStatus = async (offerId: string, currentStatus: string) => {
-    const newStatus = currentStatus === 'active' ? 'inactive' : 'active'
-    
-    try {
-      const response = await fetch(`/api/offers/${offerId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus })
-      })
-      
-      if (response.ok) {
-        setOffers(offers.map(o => 
-          o.id === offerId ? { ...o, status: newStatus as any } : o
-        ))
-      }
-    } catch (error) {
-      console.error('Error updating offer status:', error)
-    }
-  }
 
   const handleRegenerateBanner = async (offerId: string) => {
     setGeneratingBanner(offerId)
@@ -315,17 +294,17 @@ const OffersManager: React.FC<OffersManagerProps> = ({ organizationId }) => {
                     </button>
                   )}
 
-                  {/* Toggle Status */}
+                  {/* Regenerate Banner */}
                   <button
-                    onClick={() => handleToggleStatus(offer.id, offer.status)}
-                    className="p-2 rounded hover:bg-gray-100 transition-colors"
-                    title={offer.status === 'active' ? 'Deactivate' : 'Activate'}
+                    onClick={() => handleRegenerateBanner(offer.id)}
+                    disabled={generatingBanner === offer.id}
+                    className="p-2 rounded hover:bg-gray-100 transition-colors disabled:opacity-50"
+                    title="Regenerate AI Banner"
                   >
-                    {offer.status === 'active' ? (
-                      <EyeOff className="h-4 w-4" style={{ color: 'var(--text-secondary)' }} />
-                    ) : (
-                      <Eye className="h-4 w-4" style={{ color: 'var(--text-secondary)' }} />
-                    )}
+                    <RefreshCw 
+                      className={`h-4 w-4 ${generatingBanner === offer.id ? 'animate-spin' : ''}`}
+                      style={{ color: 'var(--text-secondary)' }}
+                    />
                   </button>
 
                   {/* Edit */}
@@ -349,27 +328,34 @@ const OffersManager: React.FC<OffersManagerProps> = ({ organizationId }) => {
               </div>
 
               {/* Banner Preview */}
-              {offer.ai_banner_url && (
-                <div className="mt-4 p-3 rounded-lg" style={{ backgroundColor: 'var(--bg-secondary)' }}>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Image className="h-4 w-4" style={{ color: 'var(--accent-secondary)' }} />
-                    <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-                      AI Generated Banner
+              <div className="mt-4 p-3 rounded-lg" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+                <div className="flex items-center gap-2 mb-2">
+                  <Image className="h-4 w-4" style={{ color: 'var(--accent-secondary)' }} />
+                  <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
+                    AI Generated Banner
+                  </span>
+                  {offer.banner_generated_at && (
+                    <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                      Generated {formatDate(offer.banner_generated_at)}
                     </span>
-                    {offer.banner_generated_at && (
-                      <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-                        Generated {formatDate(offer.banner_generated_at)}
-                      </span>
-                    )}
-                  </div>
+                  )}
+                </div>
+                {offer.ai_banner_url ? (
                   <img 
                     src={offer.ai_banner_url} 
                     alt={`Banner for ${offer.name}`}
                     className="w-full max-w-md h-32 object-cover rounded border"
                     style={{ borderColor: 'var(--border-primary)' }}
                   />
-                </div>
-              )}
+                ) : (
+                  <div className="w-full max-w-md h-32 bg-gray-100 rounded border flex items-center justify-center" style={{ borderColor: 'var(--border-primary)' }}>
+                    <div className="text-center">
+                      <Image className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+                      <p className="text-sm text-gray-500">Banner will appear here</p>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           ))}
         </div>
