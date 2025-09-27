@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
     marginRight: 4,
   },
   progressDotActive: {
-    backgroundColor: '#8E8E93',
+    backgroundColor: '#2F5D62',
   },
 });
 

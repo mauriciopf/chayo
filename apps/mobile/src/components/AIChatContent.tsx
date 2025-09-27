@@ -31,6 +31,7 @@ export const AIChatContent: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [isInputFocused, setIsInputFocused] = useState(false);
   const flatListRef = useRef<FlatList>(null);
   const textInputRef = useRef<TextInput>(null);
 
@@ -148,13 +149,13 @@ export const AIChatContent: React.FC = () => {
           styles.messageBubble,
           {
             backgroundColor: item.isUser ? theme.primaryColor : theme.surfaceColor,
-            borderColor: theme.borderColor,
+            borderColor: item.isUser ? theme.primaryColor : '#2F5D62',
           },
         ]}
       >
         {item.isLoading ? (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="small" color={theme.primaryColor} />
+            <ActivityIndicator size="small" color="#2F5D62" />
             <Text style={[styles.loadingText, { color: theme.placeholderColor }]}>
               {t('chat.thinking')}
             </Text>
@@ -255,11 +256,14 @@ export const AIChatContent: React.FC = () => {
                 {
                   backgroundColor: theme.surfaceColor,
                   color: theme.textColor,
-                  borderColor: theme.borderColor,
+                  borderColor: isInputFocused ? '#2F5D62' : theme.borderColor,
+                  borderWidth: isInputFocused ? 2 : 1,
                 },
               ]}
               value={inputText}
               onChangeText={setInputText}
+              onFocus={() => setIsInputFocused(true)}
+              onBlur={() => setIsInputFocused(false)}
               placeholder={t('chat.placeholder')}
               placeholderTextColor={theme.placeholderColor}
               multiline
@@ -273,7 +277,9 @@ export const AIChatContent: React.FC = () => {
               style={[
                 styles.sendButton,
                 {
-                  backgroundColor: inputText.trim() ? theme.primaryColor : theme.surfaceColor,
+                  backgroundColor: theme.surfaceColor,
+                  borderColor: inputText.trim() ? '#2F5D62' : theme.borderColor,
+                  borderWidth: 2,
                 },
               ]}
               onPress={sendMessage}
@@ -284,7 +290,7 @@ export const AIChatContent: React.FC = () => {
                 style={[
                   styles.sendButtonText,
                   {
-                    color: inputText.trim() ? '#FFFFFF' : theme.placeholderColor,
+                    color: inputText.trim() ? '#2F5D62' : theme.placeholderColor,
                   },
                 ]}
               >
