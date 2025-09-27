@@ -17,7 +17,7 @@ export const AppointmentTimeSelectionScreen: React.FC = () => {
   const route = useRoute();
   const { selectedDate: selectedDateString, organizationId } = route.params as { selectedDate: string; organizationId: string };
   const selectedDate = new Date(selectedDateString); // Parse string back to Date
-  const { theme, themedStyles } = useThemedStyles();
+  const { theme, fontSizes, themedStyles } = useThemedStyles();
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
 
   // Memoize the back press handler to prevent infinite re-renders
@@ -64,14 +64,14 @@ export const AppointmentTimeSelectionScreen: React.FC = () => {
     <SafeAreaView style={[styles.container, themedStyles.container]}>
       {/* Selected Date Display */}
       <View style={styles.dateContainer}>
-        <Text style={[styles.dateText, { color: theme.textColor }]}>
+        <Text style={[styles.dateText, { color: theme.textColor, fontSize: fontSizes.lg }]}>
           {formatDate(selectedDate)}
         </Text>
       </View>
 
       {/* Available Times */}
       <View style={styles.content}>
-        <Text style={[styles.sectionTitle, { color: theme.textColor }]}>
+        <Text style={[styles.sectionTitle, { color: theme.textColor, fontSize: fontSizes.lg }]}>
           Available Times
         </Text>
         
@@ -97,6 +97,7 @@ export const AppointmentTimeSelectionScreen: React.FC = () => {
                     { 
                       color: isSelected ? '#FFFFFF' : theme.textColor,
                       fontWeight: isSelected ? '700' : '600',
+                      fontSize: fontSizes.base,
                     }
                   ]}>
                     {time}

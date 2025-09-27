@@ -33,7 +33,7 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
   backButtonText = '‹ Back',
   onSigningComplete,
 }) => {
-  const { theme, themedStyles } = useThemedStyles();
+  const { theme, fontSizes, themedStyles } = useThemedStyles();
   const { t } = useTranslation();
   const { config } = useAppConfig();
   const [document, setDocument] = useState<DocumentData | null>(null);
@@ -182,10 +182,10 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
     return (
       <SafeAreaView style={[styles.container, themedStyles.container]}>
         <View style={styles.errorContainer}>
-          <Text style={[styles.errorTitle, { color: theme.errorColor }]}>Error Loading Document</Text>
-          <Text style={[styles.errorMessage, themedStyles.secondaryText]}>{error}</Text>
+          <Text style={[styles.errorTitle, { color: theme.errorColor, fontSize: fontSizes.lg }]}>Error Loading Document</Text>
+          <Text style={[styles.errorMessage, themedStyles.secondaryText, { fontSize: fontSizes.base }]}>{error}</Text>
           <TouchableOpacity style={[styles.retryButton, { backgroundColor: theme.primaryColor }]} onPress={loadDocument}>
-            <Text style={styles.retryButtonText}>Retry</Text>
+            <Text style={[styles.retryButtonText, { fontSize: fontSizes.base }]}>Retry</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -201,8 +201,8 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
         >
           <ScrollView style={styles.formContainer}>
             <View style={styles.formHeader}>
-              <Text style={styles.formTitle}>Sign Document</Text>
-              <Text style={styles.formSubtitle}>
+              <Text style={[styles.formTitle, { fontSize: fontSizes.xl }]}>Sign Document</Text>
+              <Text style={[styles.formSubtitle, { fontSize: fontSizes.sm }]}>
                 {document?.file_name}
               </Text>
             </View>
@@ -214,7 +214,7 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
                   onPress={handleCancelSigning}
                   disabled={signing}
                 >
-                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                  <Text style={[styles.cancelButtonText, { fontSize: fontSizes.base }]}>Cancel</Text>
                 </TouchableOpacity>
 
                 <AuthGate
@@ -235,7 +235,7 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
         <SkeletonBox width={120} height={44} borderRadius={8} />
       </View>
                     ) : (
-                      <Text style={styles.signButtonText}>Sign Document</Text>
+                      <Text style={[styles.signButtonText, { fontSize: fontSizes.base }]}>Sign Document</Text>
                     )}
                   </TouchableOpacity>
                 </AuthGate>
@@ -253,14 +253,14 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
         <View style={styles.headerTop}>
           {onBack && backButtonText && (
             <TouchableOpacity style={[styles.backButton, { backgroundColor: theme.surfaceColor }]} onPress={onBack}>
-              <Text style={[styles.backButtonText, { color: theme.primaryColor }]}>{backButtonText}</Text>
+              <Text style={[styles.backButtonText, { color: theme.primaryColor, fontSize: fontSizes.base }]}>{backButtonText}</Text>
             </TouchableOpacity>
           )}
           <View style={styles.headerTitleContainer}>
-            <Text style={[styles.headerTitle, themedStyles.primaryText]}>Document</Text>
+            <Text style={[styles.headerTitle, themedStyles.primaryText, { fontSize: fontSizes.lg }]}>Document</Text>
           </View>
         </View>
-        <Text style={[styles.headerSubtitle, themedStyles.secondaryText]}>{document?.file_name}</Text>
+        <Text style={[styles.headerSubtitle, themedStyles.secondaryText, { fontSize: fontSizes.sm }]}>{document?.file_name}</Text>
       </View>
 
       <View style={styles.pdfContainer}>
@@ -314,7 +314,7 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
           onPress={handleSignDocument}
           disabled={signing}
         >
-          <Text style={styles.signDocumentButtonText}>Sign Document</Text>
+          <Text style={[styles.signDocumentButtonText, { fontSize: fontSizes.base }]}>Sign Document</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

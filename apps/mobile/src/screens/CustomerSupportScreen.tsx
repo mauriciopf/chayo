@@ -39,7 +39,7 @@ interface Conversation {
 
 export const CustomerSupportScreen: React.FC = () => {
   const { config } = useAppConfig();
-  const { theme, themedStyles } = useThemedStyles();
+  const { theme, fontSizes, themedStyles } = useThemedStyles();
   const { user } = useAuth();
   const isAuthenticated = !!user;
   
@@ -329,19 +329,19 @@ export const CustomerSupportScreen: React.FC = () => {
           : [styles.agentBubble, { backgroundColor: theme.surfaceColor }]
       ]}>
         {!item.isUser && (
-          <Text style={[styles.senderName, { color: theme.placeholderColor }]}>
+          <Text style={[styles.senderName, { color: theme.placeholderColor, fontSize: fontSizes.xs }]}>
             {item.sender_name}
           </Text>
         )}
         <Text style={[
           styles.messageText,
-          { color: item.isUser ? '#FFFFFF' : theme.textColor }
+          { color: item.isUser ? '#FFFFFF' : theme.textColor, fontSize: fontSizes.base }
         ]}>
           {item.content}
         </Text>
         <Text style={[
           styles.timestamp,
-          { color: item.isUser ? 'rgba(255,255,255,0.7)' : theme.placeholderColor }
+          { color: item.isUser ? 'rgba(255,255,255,0.7)' : theme.placeholderColor, fontSize: fontSizes.xs }
         ]}>
           {new Date(item.created_at).toLocaleTimeString([], { 
             hour: '2-digit', 
@@ -363,7 +363,7 @@ export const CustomerSupportScreen: React.FC = () => {
           activeOpacity={1}
         >
           <View style={styles.authLoadingContent}>
-            <Text style={[styles.authLoadingText, { color: theme.placeholderColor }]}>
+            <Text style={[styles.authLoadingText, { color: theme.placeholderColor, fontSize: fontSizes.base }]}>
               {showLoginModal ? 'Preparing Support Chat...' : 'Tap to Sign In for Support'}
             </Text>
           </View>
@@ -400,7 +400,7 @@ export const CustomerSupportScreen: React.FC = () => {
     return (
       <View style={[styles.container, themedStyles.container]}>
         <View style={styles.errorContainer}>
-          <Text style={[styles.errorText, { color: theme.textColor }]}>
+          <Text style={[styles.errorText, { color: theme.textColor, fontSize: fontSizes.base }]}>
             Customer support is not available
           </Text>
         </View>
@@ -418,10 +418,10 @@ export const CustomerSupportScreen: React.FC = () => {
       >
         {/* Header */}
         <View style={[styles.header, { borderBottomColor: theme.borderColor }]}>
-          <Text style={[styles.headerTitle, { color: theme.textColor }]}>
+          <Text style={[styles.headerTitle, { color: theme.textColor, fontSize: fontSizes.lg }]}>
             Customer Support
           </Text>
-          <Text style={[styles.headerSubtitle, { color: theme.placeholderColor }]}>
+          <Text style={[styles.headerSubtitle, { color: theme.placeholderColor, fontSize: fontSizes.sm }]}>
             Chat with our support team
           </Text>
         </View>
@@ -455,7 +455,7 @@ export const CustomerSupportScreen: React.FC = () => {
         <View style={[styles.inputContainer, { backgroundColor: theme.backgroundColor, borderTopColor: theme.borderColor }]}>
           <TextInput
             ref={textInputRef}
-            style={[styles.textInput, { backgroundColor: theme.surfaceColor, color: theme.textColor, borderColor: theme.borderColor }]}
+            style={[styles.textInput, { backgroundColor: theme.surfaceColor, color: theme.textColor, borderColor: theme.borderColor, fontSize: fontSizes.base }]}
             value={inputText}
             onChangeText={setInputText}
             placeholder="Type your message..."
@@ -478,9 +478,9 @@ export const CustomerSupportScreen: React.FC = () => {
             disabled={!inputText.trim() || sending}
           >
             {sending ? (
-              <Text style={styles.sendButtonText}>...</Text>
+              <Text style={[styles.sendButtonText, { fontSize: fontSizes.lg }]}>...</Text>
             ) : (
-              <Text style={styles.sendButtonText}>↑</Text>
+              <Text style={[styles.sendButtonText, { fontSize: fontSizes.lg }]}>↑</Text>
             )}
           </TouchableOpacity>
         </View>

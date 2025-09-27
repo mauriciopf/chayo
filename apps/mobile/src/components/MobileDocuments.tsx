@@ -24,7 +24,7 @@ const MobileDocuments: React.FC<MobileDocumentsProps> = ({
   onDocumentSelect,
   onDocumentsLoaded,
 }) => {
-  const { theme, themedStyles } = useThemedStyles();
+  const { theme, fontSizes, themedStyles } = useThemedStyles();
   const { t } = useTranslation();
   const [documents, setDocuments] = useState<DocumentData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -78,18 +78,18 @@ const MobileDocuments: React.FC<MobileDocumentsProps> = ({
       onPress={() => onDocumentSelect(item)}
     >
       <View style={styles.documentIcon}>
-        <Text style={styles.documentIconText}>📄</Text>
+        <Text style={[styles.documentIconText, { fontSize: fontSizes.lg }]}>📄</Text>
       </View>
       <View style={styles.documentInfo}>
-        <Text style={[styles.documentName, themedStyles.primaryText]} numberOfLines={2}>
+        <Text style={[styles.documentName, themedStyles.primaryText, { fontSize: fontSizes.base }]} numberOfLines={2}>
           {item.file_name}
         </Text>
-        <Text style={[styles.documentMeta, themedStyles.secondaryText]}>
+        <Text style={[styles.documentMeta, themedStyles.secondaryText, { fontSize: fontSizes.sm }]}>
           {formatFileSize(item.file_size)} • {formatDate(item.created_at)}
         </Text>
       </View>
       <View style={styles.arrowIcon}>
-        <Text style={[styles.arrowText, { color: theme.primaryColor }]}>›</Text>
+        <Text style={[styles.arrowText, { color: theme.primaryColor, fontSize: fontSizes.lg }]}>›</Text>
       </View>
     </TouchableOpacity>
   );
@@ -111,11 +111,11 @@ const MobileDocuments: React.FC<MobileDocumentsProps> = ({
     return (
       <SafeAreaView style={[styles.container, themedStyles.container]}>
         <View style={styles.errorContainer}>
-          <Text style={styles.errorIcon}>📄</Text>
-          <Text style={[styles.errorTitle, themedStyles.primaryText]}>Unable to Load Documents</Text>
-          <Text style={[styles.errorMessage, themedStyles.secondaryText]}>{error}</Text>
+          <Text style={[styles.errorIcon, { fontSize: fontSizes.xxxl }]}>📄</Text>
+          <Text style={[styles.errorTitle, themedStyles.primaryText, { fontSize: fontSizes.lg }]}>Unable to Load Documents</Text>
+          <Text style={[styles.errorMessage, themedStyles.secondaryText, { fontSize: fontSizes.base }]}>{error}</Text>
           <TouchableOpacity style={[styles.retryButton, { backgroundColor: theme.primaryColor }]} onPress={fetchDocuments}>
-            <Text style={styles.retryButtonText}>Try Again</Text>
+            <Text style={[styles.retryButtonText, { fontSize: fontSizes.base }]}>Try Again</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -126,9 +126,9 @@ const MobileDocuments: React.FC<MobileDocumentsProps> = ({
     return (
       <SafeAreaView style={[styles.container, themedStyles.container]}>
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyIcon}>📄</Text>
-          <Text style={[styles.emptyTitle, themedStyles.primaryText]}>No Documents Available</Text>
-          <Text style={[styles.emptyMessage, themedStyles.secondaryText]}>
+          <Text style={[styles.emptyIcon, { fontSize: fontSizes.xxxl }]}>📄</Text>
+          <Text style={[styles.emptyTitle, themedStyles.primaryText, { fontSize: fontSizes.lg }]}>No Documents Available</Text>
+          <Text style={[styles.emptyMessage, themedStyles.secondaryText, { fontSize: fontSizes.base }]}>
             There are no documents available for signing at this time.
           </Text>
         </View>
@@ -139,8 +139,8 @@ const MobileDocuments: React.FC<MobileDocumentsProps> = ({
   return (
     <SafeAreaView style={[styles.container, themedStyles.container]}>
       <View style={styles.header}>
-        <Text style={[styles.headerTitle, themedStyles.primaryText]}>Documents to Sign</Text>
-        <Text style={[styles.headerSubtitle, themedStyles.secondaryText]}>
+        <Text style={[styles.headerTitle, themedStyles.primaryText, { fontSize: fontSizes.xl }]}>Documents to Sign</Text>
+        <Text style={[styles.headerSubtitle, themedStyles.secondaryText, { fontSize: fontSizes.base }]}>
           {documents.length} document{documents.length !== 1 ? 's' : ''} available
         </Text>
       </View>

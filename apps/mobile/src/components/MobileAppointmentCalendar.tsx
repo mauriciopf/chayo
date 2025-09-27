@@ -37,7 +37,7 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
   baseUrl = 'https://chayo.ai',
   navigation,
 }) => {
-  const { theme, themedStyles } = useThemedStyles();
+  const { theme, fontSizes, themedStyles } = useThemedStyles();
   const { config } = useAppConfig();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -248,17 +248,17 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
           {/* Header is now managed by NavigationContext */}
 
           <View style={[styles.selectedDateTimeCard, { backgroundColor: theme.primaryColor, borderColor: theme.primaryColor }]}>
-            <Text style={[styles.selectedDateText, { color: theme.backgroundColor }]}>
+            <Text style={[styles.selectedDateText, { color: theme.backgroundColor, fontSize: fontSizes.base }]}>
               📅 {selectedDate ? formatDate(selectedDate) : ''}
             </Text>
-            <Text style={[styles.selectedTimeText, { color: theme.backgroundColor }]}>
+            <Text style={[styles.selectedTimeText, { color: theme.backgroundColor, fontSize: fontSizes.base }]}>
               🕐 {selectedTime}
             </Text>
           </View>
 
           <View style={[styles.form, { backgroundColor: theme.backgroundColor }]}>
             <View style={styles.inputGroup}>
-              <Text style={[styles.label, themedStyles.primaryText]}>Notes (Optional)</Text>
+              <Text style={[styles.label, themedStyles.primaryText, { fontSize: fontSizes.sm }]}>Notes (Optional)</Text>
               <TextInput
                 style={[styles.input, styles.textArea, { backgroundColor: theme.surfaceColor, color: theme.textColor, borderColor: theme.borderColor }]}
                 value={appointmentDetails.notes}
@@ -291,7 +291,7 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
                     <AppointmentSkeleton />
                   </View>
                 ) : (
-                  <Text style={[styles.bookButtonText, { color: theme.backgroundColor }]}>Book Appointment</Text>
+                  <Text style={[styles.bookButtonText, { color: theme.backgroundColor, fontSize: fontSizes.base }]}>Book Appointment</Text>
                 )}
               </TouchableOpacity>
             </AuthGate>
@@ -307,13 +307,13 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
         {/* Header is now managed by NavigationContext */}
 
         <View style={[styles.selectedDateCard, { backgroundColor: theme.surfaceColor, borderColor: theme.borderColor }]}>
-          <Text style={[styles.selectedDateText, { color: theme.textColor }]}>
+          <Text style={[styles.selectedDateText, { color: theme.textColor, fontSize: fontSizes.base }]}>
             📅 {selectedDate ? formatDate(selectedDate) : ''}
           </Text>
         </View>
 
         <ScrollView style={[styles.timeSlotsContainer, { backgroundColor: theme.backgroundColor }]}>
-          <Text style={[styles.sectionTitle, { color: theme.textColor }]}>Available Times</Text>
+          <Text style={[styles.sectionTitle, { color: theme.textColor, fontSize: fontSizes.lg }]}>Available Times</Text>
           <View style={styles.timeSlotGrid}>
             {timeSlots.map((time) => (
               <TouchableOpacity
@@ -348,10 +348,10 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
           style={[styles.navButton, { backgroundColor: theme.backgroundColor }]}
           onPress={() => navigateMonth('prev')}
         >
-          <Text style={[styles.navButtonText, { color: theme.primaryColor }]}>‹</Text>
+          <Text style={[styles.navButtonText, { color: theme.primaryColor, fontSize: fontSizes.xl }]}>‹</Text>
         </TouchableOpacity>
 
-        <Text style={[styles.monthYear, themedStyles.primaryText]}>
+        <Text style={[styles.monthYear, themedStyles.primaryText, { fontSize: fontSizes.lg }]}>
           {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
         </Text>
 
@@ -359,13 +359,13 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
           style={[styles.navButton, { backgroundColor: theme.backgroundColor }]}
           onPress={() => navigateMonth('next')}
         >
-          <Text style={[styles.navButtonText, { color: theme.primaryColor }]}>›</Text>
+          <Text style={[styles.navButtonText, { color: theme.primaryColor, fontSize: fontSizes.xl }]}>›</Text>
         </TouchableOpacity>
       </View>
 
       <View style={[styles.dayNamesRow, { backgroundColor: theme.surfaceColor }]}>
         {dayNames.map((day) => (
-          <Text key={day} style={[styles.dayName, themedStyles.secondaryText]}>
+          <Text key={day} style={[styles.dayName, themedStyles.secondaryText, { fontSize: fontSizes.xs }]}>
             {day}
           </Text>
         ))}
@@ -402,7 +402,7 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
       </View>
 
       <View style={[styles.footer, { backgroundColor: theme.surfaceColor }]}>
-        <Text style={[styles.footerText, themedStyles.secondaryText]}>
+        <Text style={[styles.footerText, themedStyles.secondaryText, { fontSize: fontSizes.sm }]}>
           Select a date to view available appointment times
         </Text>
       </View>

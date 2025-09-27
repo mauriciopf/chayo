@@ -24,7 +24,7 @@ export const AppointmentBookingScreen: React.FC = () => {
     organizationId: string; 
   };
   const selectedDate = new Date(selectedDateString); // Parse string back to Date
-  const { theme, themedStyles } = useThemedStyles();
+  const { theme, fontSizes, themedStyles } = useThemedStyles();
   const [notes, setNotes] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -111,25 +111,25 @@ export const AppointmentBookingScreen: React.FC = () => {
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Appointment Details */}
         <View style={styles.detailsContainer}>
-          <Text style={[styles.sectionTitle, { color: theme.textColor }]}>
+          <Text style={[styles.sectionTitle, { color: theme.textColor, fontSize: fontSizes.lg }]}>
             Appointment Details
           </Text>
           
           <View style={[styles.detailCard, { backgroundColor: theme.surfaceColor }]}>
             <View style={styles.detailRow}>
-              <Text style={[styles.detailLabel, { color: theme.placeholderColor }]}>
+              <Text style={[styles.detailLabel, { color: theme.placeholderColor, fontSize: fontSizes.sm }]}>
                 Date
               </Text>
-              <Text style={[styles.detailValue, { color: theme.textColor }]}>
+              <Text style={[styles.detailValue, { color: theme.textColor, fontSize: fontSizes.base }]}>
                 {formatDate(selectedDate)}
               </Text>
             </View>
             
             <View style={styles.detailRow}>
-              <Text style={[styles.detailLabel, { color: theme.placeholderColor }]}>
+              <Text style={[styles.detailLabel, { color: theme.placeholderColor, fontSize: fontSizes.sm }]}>
                 Time
               </Text>
-              <Text style={[styles.detailValue, { color: theme.textColor }]}>
+              <Text style={[styles.detailValue, { color: theme.textColor, fontSize: fontSizes.base }]}>
                 {selectedTime}
               </Text>
             </View>
@@ -138,7 +138,7 @@ export const AppointmentBookingScreen: React.FC = () => {
 
         {/* Notes Section */}
         <View style={styles.notesContainer}>
-          <Text style={[styles.sectionTitle, { color: theme.textColor }]}>
+          <Text style={[styles.sectionTitle, { color: theme.textColor, fontSize: fontSizes.lg }]}>
             Additional Notes (Optional)
           </Text>
           
@@ -149,6 +149,7 @@ export const AppointmentBookingScreen: React.FC = () => {
                 backgroundColor: theme.surfaceColor,
                 borderColor: theme.borderColor,
                 color: theme.textColor,
+                fontSize: fontSizes.base,
               }
             ]}
             placeholder="Any special requests or notes..."
@@ -181,7 +182,7 @@ export const AppointmentBookingScreen: React.FC = () => {
             ]}
             disabled={isLoading}
           >
-            <Text style={styles.bookButtonText}>
+            <Text style={[styles.bookButtonText, { fontSize: fontSizes.base }]}>
               {isLoading ? 'Booking...' : 'Book Appointment'}
             </Text>
           </TouchableOpacity>

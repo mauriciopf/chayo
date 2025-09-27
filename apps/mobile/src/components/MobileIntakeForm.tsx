@@ -250,7 +250,7 @@ export const MobileIntakeForm: React.FC<MobileIntakeFormProps> = ({
   onSubmissionComplete,
   onFormLoad,
 }) => {
-  const { theme, themedStyles } = useThemedStyles();
+  const { theme, fontSizes, themedStyles } = useThemedStyles();
   const { config } = useAppConfig();
   const [form, setForm] = useState<IntakeForm | null>(null);
   const [formData, setFormData] = useState<{ [key: string]: any }>({});

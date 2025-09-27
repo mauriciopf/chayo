@@ -37,7 +37,7 @@ const MobileFAQs: React.FC<MobileFAQsProps> = ({
   businessName = 'Our Business',
   baseUrl = 'https://chayo.ai',
 }) => {
-  const { theme, themedStyles } = useThemedStyles();
+  const { theme, fontSizes, themedStyles } = useThemedStyles();
   const { t } = useTranslation();
   const [faqs, setFAQs] = useState<FAQ[]>([]);
   const [loading, setLoading] = useState(true);
@@ -90,9 +90,9 @@ const MobileFAQs: React.FC<MobileFAQsProps> = ({
           activeOpacity={0.7}
         >
           <View style={styles.questionHeader}>
-            <Text style={[styles.questionText, themedStyles.primaryText]}>{item.question}</Text>
+            <Text style={[styles.questionText, themedStyles.primaryText, { fontSize: fontSizes.base }]}>{item.question}</Text>
             <View style={styles.iconContainer}>
-              <Text style={[styles.expandIcon, { color: theme.primaryColor }, isExpanded && styles.expandIconRotated]}>
+              <Text style={[styles.expandIcon, { color: theme.primaryColor, fontSize: fontSizes.xs }, isExpanded && styles.expandIconRotated]}>
                 ▼
               </Text>
             </View>
@@ -101,7 +101,7 @@ const MobileFAQs: React.FC<MobileFAQsProps> = ({
 
         {isExpanded && (
           <View style={[styles.answerContainer, { borderTopColor: theme.borderColor, backgroundColor: theme.backgroundColor }]}>
-            <Text style={[styles.answerText, themedStyles.secondaryText]}>{item.answer}</Text>
+            <Text style={[styles.answerText, themedStyles.secondaryText, { fontSize: fontSizes.sm }]}>{item.answer}</Text>
           </View>
         )}
       </View>
@@ -111,9 +111,9 @@ const MobileFAQs: React.FC<MobileFAQsProps> = ({
   const renderFAQCategory = (faq: FAQ) => (
     <View key={faq.id} style={styles.faqCategory}>
       <View style={[styles.categoryHeader, { backgroundColor: theme.surfaceColor }]}>
-        <Text style={[styles.categoryTitle, themedStyles.primaryText]}>{faq.name}</Text>
+        <Text style={[styles.categoryTitle, themedStyles.primaryText, { fontSize: fontSizes.lg }]}>{faq.name}</Text>
         {faq.description && (
-          <Text style={[styles.categoryDescription, themedStyles.secondaryText]}>{faq.description}</Text>
+          <Text style={[styles.categoryDescription, themedStyles.secondaryText, { fontSize: fontSizes.sm }]}>{faq.description}</Text>
         )}
       </View>
 
@@ -135,7 +135,7 @@ const MobileFAQs: React.FC<MobileFAQsProps> = ({
             <FAQSkeleton />
             <FAQSkeleton />
           </View>
-          <Text style={[styles.loadingText, themedStyles.primaryText]}>Loading FAQs...</Text>
+          <Text style={[styles.loadingText, themedStyles.primaryText, { fontSize: fontSizes.base }]}>Loading FAQs...</Text>
         </View>
       </SafeAreaView>
     );
@@ -145,9 +145,9 @@ const MobileFAQs: React.FC<MobileFAQsProps> = ({
     return (
       <SafeAreaView style={[styles.container, themedStyles.container]}>
         <View style={[styles.errorContainer, { backgroundColor: theme.backgroundColor }]}>
-          <Text style={[styles.errorText, { color: theme.errorColor }]}>{error}</Text>
+          <Text style={[styles.errorText, { color: theme.errorColor, fontSize: fontSizes.base }]}>{error}</Text>
           <TouchableOpacity style={[styles.retryButton, { backgroundColor: theme.primaryColor }]} onPress={fetchFAQs}>
-            <Text style={[styles.retryButtonText, { color: theme.backgroundColor }]}>Retry</Text>
+            <Text style={[styles.retryButtonText, { color: theme.backgroundColor, fontSize: fontSizes.base }]}>Retry</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -158,15 +158,15 @@ const MobileFAQs: React.FC<MobileFAQsProps> = ({
     <SafeAreaView style={[styles.container, themedStyles.container]}>
       {/* Header */}
       <View style={[styles.header, { backgroundColor: theme.backgroundColor, borderBottomColor: theme.borderColor }]}>
-        <Text style={[styles.headerTitle, themedStyles.primaryText]}>Help & FAQs</Text>
-        <Text style={[styles.headerSubtitle, themedStyles.secondaryText]}>{businessName}</Text>
+        <Text style={[styles.headerTitle, themedStyles.primaryText, { fontSize: fontSizes.xl }]}>Help & FAQs</Text>
+        <Text style={[styles.headerSubtitle, themedStyles.secondaryText, { fontSize: fontSizes.base }]}>{businessName}</Text>
       </View>
 
       <ScrollView style={[styles.content, { backgroundColor: theme.backgroundColor }]} showsVerticalScrollIndicator={false}>
         {faqs.length === 0 ? (
           <View style={[styles.emptyContainer, { backgroundColor: theme.backgroundColor }]}>
-            <Text style={[styles.emptyText, themedStyles.primaryText]}>No FAQs available</Text>
-            <Text style={[styles.emptySubtext, themedStyles.secondaryText]}>
+            <Text style={[styles.emptyText, themedStyles.primaryText, { fontSize: fontSizes.lg }]}>No FAQs available</Text>
+            <Text style={[styles.emptySubtext, themedStyles.secondaryText, { fontSize: fontSizes.sm }]}>
               Check back later for helpful information
             </Text>
           </View>

@@ -20,7 +20,7 @@ interface TopTabBarProps {
 }
 
 export const TopTabBar: React.FC<TopTabBarProps> = ({ tabs, initialTab }) => {
-  const { theme } = useThemedStyles();
+  const { theme, fontSizes } = useThemedStyles();
   const [activeTab, setActiveTab] = useState(initialTab || tabs[0]?.key || '');
   const [indicatorPosition] = useState(new Animated.Value(0));
 
@@ -54,6 +54,7 @@ export const TopTabBar: React.FC<TopTabBarProps> = ({ tabs, initialTab }) => {
                 {
                   color: activeTab === tab.key ? theme.primaryColor : theme.placeholderColor,
                   fontWeight: activeTab === tab.key ? '600' : '400',
+                  fontSize: fontSizes.base,
                 }
               ]}
             >
