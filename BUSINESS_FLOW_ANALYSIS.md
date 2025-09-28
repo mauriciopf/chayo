@@ -172,7 +172,7 @@ if (aiResponse.includes('STATUS: setup_complete')) {
 // Key hooks managing the flow
 useAuth()                    // Authentication state
 useDashboardInit()          // Dashboard initialization  
-useOnboardingProgress()     // Onboarding progress tracking
+useOnboardingCompletion()     // Onboarding progress tracking
 useBusinessModeChat()       // Business chat functionality
 useChat()                   // Core chat mechanics
 ```
@@ -192,7 +192,7 @@ DashboardContent
 ```
 
 ### State Synchronization
-- **Real-time Progress** - `useOnboardingProgress` polls `/api/onboarding-status`
+- **Real-time Progress** - `useOnboardingCompletion` polls `/api/onboarding-status`
 - **Chat State** - `useChat` manages messages and API calls to `/api/organization-chat`
 - **Business Mode** - `useBusinessModeChat` handles onboarding completion detection
 

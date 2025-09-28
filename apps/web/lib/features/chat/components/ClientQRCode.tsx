@@ -3,16 +3,13 @@
 import { useState, useEffect } from 'react'
 import QRCode from 'qrcode'
 import { motion } from 'framer-motion'
-import { AgentChannel } from '../../dashboard/services/dashboardInitService'
-import { OnboardingProgressData } from '../../../shared/services/ThinkingMessageService'
 
 interface ClientQRCodeProps {
   organizationSlug: string
   isOnboardingCompleted?: boolean
-  onboardingProgress?: OnboardingProgressData
 }
 
-export default function ClientQRCode({ organizationSlug, isOnboardingCompleted = false, onboardingProgress }: ClientQRCodeProps) {
+export default function ClientQRCode({ organizationSlug, isOnboardingCompleted = false }: ClientQRCodeProps) {
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('')
   const [clientChatUrl, setClientChatUrl] = useState<string>('')
   const [copied, setCopied] = useState(false)

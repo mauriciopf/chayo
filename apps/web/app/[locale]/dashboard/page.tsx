@@ -15,7 +15,7 @@ import { useQRCodeLogic } from '@/lib/features/chat/hooks/useQRCodeLogic'
 import { useBillingManagement } from '@/lib/features/dashboard/hooks/useBillingManagement'
 import { useLogout } from '@/lib/features/auth/hooks/useLogout'
 
-import { useOnboardingProgress } from '@/lib/features/onboarding/hooks/useOnboardingProgress'
+import { useOnboardingCompletion } from '@/lib/features/onboarding/hooks/useOnboardingCompletion'
 
 import ChatContainer from '@/lib/features/chat/components/ChatContainer'
 import ClientQRCode from '@/lib/features/chat/components/ClientQRCode'
@@ -123,7 +123,7 @@ function DashboardContent() {
     organizationId: auth.currentOrganization?.id,
     hasOrganization: !!auth.currentOrganization
   })
-  const { progress: onboardingProgress } = useOnboardingProgress(auth.currentOrganization?.id)
+  const isOnboardingCompleted = useOnboardingCompletion(auth.currentOrganization?.id)
 
   // Dashboard UI state
   const [activeView, setActiveView] = useState<ActiveView>(mobile.isMobile ? 'agents' : 'chat')
@@ -245,8 +245,7 @@ function DashboardContent() {
           <div className="w-full max-w-4xl mx-auto">
             <ClientQRCode 
               organizationSlug={auth.currentOrganization.slug}
-              isOnboardingCompleted={onboardingProgress.isCompleted}
-              onboardingProgress={onboardingProgress}
+              isOnboardingCompleted={isOnboardingCompleted}
             />
           </div>
         ) : (

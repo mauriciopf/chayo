@@ -51,8 +51,8 @@ const importFixes = [
   
   // Fix hook imports
   {
-    pattern: /from ['"]@\/lib\/hooks\/useOnboardingProgress['"]/g,
-    replacement: "from '@/lib/features/onboarding/hooks/useOnboardingProgress'"
+    pattern: /from ['"]@\/lib\/hooks\/useOnboardingCompletion['"]/g,
+    replacement: "from '@/lib/features/onboarding/hooks/useOnboardingCompletion'"
   },
   
   // Fix remaining organization-related imports

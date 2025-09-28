@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { ChatContextType, getSystemMessageForContext } from '../services/chatContextMessages'
-import { useOnboardingCompletion } from '../../onboarding/hooks/useOnboardingProgress'
+import { useOnboardingCompletion } from '../../onboarding/hooks/useOnboardingCompletion'
 import { Message } from '@/lib/shared/types'
 
 interface UseBusinessModeChatProps {
@@ -107,7 +107,7 @@ export function useBusinessModeChat({
     }
   }, [organizationId])
 
-  // Note: SSE phase detection is now handled directly in useOnboardingProgress hook
+  // Note: SSE phase detection is now handled directly in useOnboardingCompletion hook
 
   return {
     // State
