@@ -838,18 +838,21 @@ export class OrganizationChatService {
           fieldType: pendingQuestion.field_type
         })
         
-        const userMessages = messages.filter(m => m.role === 'user').map(m => m.content).join(' ')
-        console.log('💬 [VALIDATE] User messages to validate:', {
-          messageCount: messages.filter(m => m.role === 'user').length,
-          combinedLength: userMessages.length,
-          content: userMessages.substring(0, 200) + (userMessages.length > 200 ? '...' : '')
+        // Get only the LAST user message to validate against the current pending question
+        const userMessagesArray = messages.filter(m => m.role === 'user')
+        const lastUserMessage = userMessagesArray.length > 0 ? userMessagesArray[userMessagesArray.length - 1].content : ''
+        
+        console.log('💬 [VALIDATE] Last user message to validate:', {
+          totalUserMessages: userMessagesArray.length,
+          lastMessageLength: lastUserMessage.length,
+          content: lastUserMessage.substring(0, 200) + (lastUserMessage.length > 200 ? '...' : '')
         })
         
-        if (userMessages.trim()) {
+        if (lastUserMessage.trim()) {
           // Check if the pending question was answered
           console.log('🤖 [VALIDATE] Calling AI validation service')
           const validationResult = await validationService.validateAnswerWithAI(
-            userMessages, 
+            lastUserMessage, 
             pendingQuestion.question_template
           )
           console.log('📊 [VALIDATE] AI validation result:', validationResult)
