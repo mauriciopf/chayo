@@ -115,17 +115,16 @@ export class OrganizationChatService {
           console.log('✅ [FLOW] Onboarding completed - transitioning to business mode')
           return await this.handleChatFlow(messages, context, false) // Recursive call for business mode
         }
-
-        // 🌐 NEW: Check if this is a brand new organization that should start with website scraping
-        const shouldOfferWebsiteScraping = await this.shouldOfferWebsiteScraping(context.organization.id, messages)
-        if (shouldOfferWebsiteScraping) {
-          console.log('🌐 [FLOW] Brand new organization - offering website scraping option')
-          return {
-            aiMessage: "Welcome! I'm Chayo, your AI business assistant. 🎉\n\nTo get started quickly, I can extract information from your business website to personalize your experience and speed up the setup process.\n\nDo you have a business website you'd like me to analyze? If you do, I'll provide you with a simple way to share it with me. If not, no worries - I'll guide you through our standard setup questions.",
-            statusSignal: 'website_scraping_offered'
-          }
-        }
       } else {
+         // 🌐 NEW: Check if this is a brand new organization that should start with website scraping
+         const shouldOfferWebsiteScraping = await this.shouldOfferWebsiteScraping(context.organization.id, messages)
+         if (shouldOfferWebsiteScraping) {
+           console.log('🌐 [FLOW] Brand new organization - offering website scraping option')
+           return {
+             aiMessage: "Welcome! I'm Chayo, your AI business assistant. 🎉\n\nTo get started quickly, I can extract information from your business website to personalize your experience and speed up the setup process.\n\nDo you have a business website you'd like me to analyze? If you do, I'll provide you with a simple way to share it with me. If not, no worries - I'll guide you through our standard setup questions.",
+             statusSignal: 'website_scraping_offered'
+           }
+         }
         console.log('💼 [FLOW] Business mode - generating business conversation')
       }
       
