@@ -21,6 +21,12 @@ export type ThinkingPhase =
   | 'updatingProfile'
   | 'updatingProgress'
   | 'switchingMode'
+  | 'generatingVibeCard'
+  | 'analyzingBusiness'
+  | 'craftingStory'
+  | 'selectingColors'
+  | 'generatingVibeImage'
+  | 'finalizingVibeCard'
   | 'done'
 
 export interface OnboardingProgressData {
@@ -216,6 +222,31 @@ export class ThinkingMessageService {
           '⚙️ Configuring your business assistant...',
           '🔄 Training mode is starting...',
           '✨ Getting ready to help with your business...'
+        ],
+        generatingVibeCard: [
+          '🎨 Creating your marketplace vibe card...',
+          '✨ Preparing your unique business story...'
+        ],
+        analyzingBusiness: [
+          '🔍 Analyzing your business information...',
+          '📊 Understanding your unique story and values...'
+        ],
+        craftingStory: [
+          '📝 Crafting your compelling business narrative...',
+          '💫 Weaving together your story elements...'
+        ],
+        selectingColors: [
+          '🎨 Selecting perfect colors for your brand...',
+          '🌈 Choosing colors that match your vibe...'
+        ],
+        generatingVibeImage: [
+          '🖼️ AI is creating your unique vibe card image...',
+          '🎭 Painting your visual identity...',
+          '⏳ This may take 1-2 minutes for the best quality...'
+        ],
+        finalizingVibeCard: [
+          '✨ Adding final touches to your vibe card...',
+          '🎯 Perfecting every detail...'
         ],
         'auth-check': ['🔐 Verifying authentication...', '🛡️ Checking credentials...'],
         'dashboard-loading': ['📊 Loading your business data...', '🏢 Initializing dashboard...'],

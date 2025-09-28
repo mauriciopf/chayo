@@ -7,7 +7,7 @@ import ChatInput from './ChatInput'
 import ChatEmptyState from './ChatEmptyState'
 import ChatActionableHints from './ChatActionableHints'
 
-import OnboardingCompletion from '../../onboarding/components/OnboardingCompletion'
+import VibeCardGenerationModal from '../../onboarding/components/VibeCardGenerationModal'
 import OnboardingCompletionBanner from '../../onboarding/components/OnboardingCompletionBanner'
 import Tutorial from '../../onboarding/components/Tutorial'
 import { useBusinessModeChat } from '../hooks/useBusinessModeChat'
@@ -116,11 +116,19 @@ export default function BusinessChatView({
       >
         {messages.length === 0 && !chatLoading && <ChatEmptyState />}
         
-        {/* Onboarding Completion */}
-        <OnboardingCompletion 
+        {/* Vibe Card Generation Modal */}
+        <VibeCardGenerationModal 
           isVisible={showCompletion}
-          onContinue={onContinueCompletion}
-          onNavigateToQR={businessNavigateToQR}
+          organizationId={organizationId || ''}
+          currentPhase={currentPhase}
+          thinkingMessage={messages.find(m => m.role === 'thinking')?.content}
+          onComplete={(vibeCardImageUrl) => {
+            onContinueCompletion()
+            if (vibeCardImageUrl) {
+              console.log('🎨 Vibe card generated with image:', vibeCardImageUrl)
+            }
+          }}
+          onSkip={onContinueCompletion}
         />
 
         {/* Show completion banner with tutorial button */}

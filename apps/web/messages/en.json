@@ -40,6 +40,21 @@
       "description": "Let AI recreate your vibe card with enhanced storytelling and perfect colors."
     }
   },
+  "vibeGeneration": {
+    "initializing": "Starting your vibe card journey...",
+    "analyzingBusiness": "Understanding your unique business...",
+    "craftingStory": "Weaving your story together...",
+    "selectingColors": "Choosing perfect colors...",
+    "generatingImage": "Creating your visual identity...",
+    "finalizing": "Adding final touches...",
+    "completed": "Your vibe card is ready!",
+    "error": "Something went wrong",
+    "tryAgain": "Try Again",
+    "skipForNow": "Skip for Now",
+    "enterMarketplace": "Enter the Marketplace",
+    "estimatedTime": "This usually takes 1-2 minutes",
+    "funFact": "AI-generated vibe cards help customers find businesses that match their values and aesthetic preferences."
+  },
   "footer": {
     "brand": "Chayo",
     "tagline": "Your ALL-Business App, 24/7",

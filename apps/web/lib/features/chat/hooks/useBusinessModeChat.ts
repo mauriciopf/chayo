@@ -80,9 +80,9 @@ export function useBusinessModeChat({
     
     setShowOnboardingProgress(!onboardingProgress.isCompleted)
     
-    // Only show completion modal once when setup is completed
+    // Only show vibe card generation modal once when setup is completed
     if (onboardingProgress.isCompleted && !hasShownCompletionModal && organizationId) {
-      console.log('✅ Showing onboarding completion modal')
+      console.log('✅ Showing vibe card generation modal')
       setShowCompletion(true)
       setHasShownCompletionModal(true)
       // Persist the flag to localStorage
