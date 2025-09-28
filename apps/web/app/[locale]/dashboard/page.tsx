@@ -123,7 +123,7 @@ function DashboardContent() {
     organizationId: auth.currentOrganization?.id,
     hasOrganization: !!auth.currentOrganization
   })
-  const isOnboardingCompleted = useOnboardingCompletion(auth.currentOrganization?.id)
+  const { isCompleted: isOnboardingCompleted, loading: onboardingLoading } = useOnboardingCompletion(auth.currentOrganization?.id)
 
   // Dashboard UI state
   const [activeView, setActiveView] = useState<ActiveView>(mobile.isMobile ? 'agents' : 'chat')

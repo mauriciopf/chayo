@@ -25,8 +25,8 @@ export function useBusinessModeChat({
   // Chat context state
   const [chatContext, setChatContext] = useState<ChatContextType>('business_setup')
   
-  // Onboarding completion status using simple SSE-based hook
-  const isOnboardingCompleted = useOnboardingCompletion(organizationId, currentPhase)
+  // Onboarding completion status using database + SSE-based hook
+  const { isCompleted: isOnboardingCompleted, loading: onboardingLoading } = useOnboardingCompletion(organizationId, currentPhase)
   const [showOnboardingProgress, setShowOnboardingProgress] = useState(false)
   const [showCompletion, setShowCompletion] = useState(false)
   

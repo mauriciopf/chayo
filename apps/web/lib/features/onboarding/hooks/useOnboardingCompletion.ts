@@ -2,27 +2,56 @@ import { useState, useEffect } from 'react'
 
 export function useOnboardingCompletion(organizationId?: string, currentPhase?: string | null) {
   const [isCompleted, setIsCompleted] = useState(false)
+  const [loading, setLoading] = useState(false)
 
-  // Initialize as incomplete
+  // 1. Initial database check when component mounts or organizationId changes
   useEffect(() => {
     if (!organizationId) {
+      console.log('⚠️ [ONBOARDING] No organizationId provided')
       setIsCompleted(false)
       return
     }
 
-    console.log('🔄 [ONBOARDING] Initializing completion status for organization:', organizationId)
-    setIsCompleted(false)
+    const checkInitialCompletionStatus = async () => {
+      console.log('🔄 [ONBOARDING] Checking initial completion status from database for:', organizationId)
+      setLoading(true)
+      
+      try {
+        // Check setup_completion table directly
+        const response = await fetch('/api/setup-completion-status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ organizationId })
+        })
+        
+        if (response.ok) {
+          const { isCompleted: dbCompleted } = await response.json()
+          console.log('📊 [ONBOARDING] Database completion status:', dbCompleted)
+          setIsCompleted(dbCompleted)
+        } else {
+          console.warn('⚠️ [ONBOARDING] Failed to fetch completion status, defaulting to incomplete')
+          setIsCompleted(false)
+        }
+      } catch (error) {
+        console.error('❌ [ONBOARDING] Error checking completion status:', error)
+        setIsCompleted(false)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    checkInitialCompletionStatus()
   }, [organizationId])
 
-  // Listen for SSE phase changes to determine completion status
+  // 2. Listen for real-time SSE phase changes when user just completes onboarding
   useEffect(() => {
     if (!organizationId || !currentPhase) return
 
-    console.log('🔄 [ONBOARDING] Phase changed:', currentPhase)
+    console.log('🔄 [ONBOARDING] SSE Phase changed:', currentPhase)
 
-    // When we receive switchingMode phase, it means onboarding is completed
+    // When we receive switchingMode phase, it means onboarding just completed
     if (currentPhase === 'switchingMode') {
-      console.log('✅ [ONBOARDING] switchingMode detected - onboarding completed!')
+      console.log('✅ [ONBOARDING] switchingMode detected - onboarding just completed!')
       setIsCompleted(true)
     }
     
@@ -37,10 +66,10 @@ export function useOnboardingCompletion(organizationId?: string, currentPhase?: 
     ]
     
     if (vibeCardPhases.includes(currentPhase)) {
-      console.log('🎨 [ONBOARDING] Vibe card generation phase - onboarding completed!')
+      console.log('🎨 [ONBOARDING] Vibe card generation phase - ensuring completion status!')
       setIsCompleted(true)
     }
   }, [currentPhase, organizationId])
 
-  return isCompleted
+  return { isCompleted, loading }
 }
