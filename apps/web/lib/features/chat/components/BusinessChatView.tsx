@@ -13,7 +13,6 @@ import Tutorial from '../../onboarding/components/Tutorial'
 import { useBusinessModeChat } from '../hooks/useBusinessModeChat'
 import { Message, AuthState } from '../../../shared/types'
 import { ThinkingContext } from '../../../shared/services/ThinkingMessageService'
-import { OnboardingProgressData } from '../../../shared/services/ThinkingMessageService'
 
 type ChatMode = 'business' | 'client'
 
@@ -84,8 +83,7 @@ export default function BusinessChatView({
 
   const {
     chatContext,
-    onboardingProgress,
-    showOnboardingProgress,
+    isOnboardingCompleted,
     showCompletion,
     hasShownCompletionModal,
     handleQuickReply,
@@ -141,7 +139,7 @@ export default function BusinessChatView({
         {/* Show completion banner with tutorial button */}
         <OnboardingCompletionBanner
           isVisible={
-            onboardingProgress.isCompleted && 
+            isOnboardingCompleted && 
             hasShownCompletionModal && 
             !showCompletion &&
             currentPhase !== 'switchingMode' // Hide during mode switching for cleaner UX
@@ -156,13 +154,13 @@ export default function BusinessChatView({
         />
         
         {(() => {
-          // Determine thinking context based on onboarding progress
+          // Determine thinking context based on onboarding completion
           const getThinkingContext = (): ThinkingContext => {
-            if (!showOnboardingProgress || onboardingProgress.isCompleted) {
+            if (isOnboardingCompleted) {
               return 'default'
             }
             
-            // Simplified: just show onboarding progress without specific stages
+            // Show onboarding in progress
             return 'onboarding_in_progress'
           }
 
@@ -173,7 +171,6 @@ export default function BusinessChatView({
               chatError={chatError} 
               onOptionSelect={handleMultipleChoiceSelect}
               thinkingContext={getThinkingContext()}
-              onboardingProgress={onboardingProgress}
               organizationId={organizationId}
               currentPhase={currentPhase}
             />
@@ -203,7 +200,7 @@ export default function BusinessChatView({
         chatContext={chatContext}
         setChatContext={handleQuickReply}
         currentOnboardingQuestion={undefined}
-        isOnboardingActive={showOnboardingProgress}
+        isOnboardingActive={!isOnboardingCompleted}
         onModeSwitch={onModeSwitch}
       />
     </>

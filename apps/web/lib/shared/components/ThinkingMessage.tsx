@@ -1,14 +1,13 @@
 'use client'
 
 import React, { useEffect, useState, useRef } from 'react'
-import { thinkingMessageService, ThinkingContext, OnboardingProgressData } from '../services/ThinkingMessageService'
+import { thinkingMessageService, ThinkingContext } from '../services/ThinkingMessageService'
 import { Shield, Database, Settings, Zap } from 'lucide-react'
 
 interface ThinkingMessageProps {
   context: ThinkingContext
   isVisible: boolean
   className?: string
-  onboardingProgress?: OnboardingProgressData // Add onboarding data
   organizationId?: string // Add organization ID for real data
   currentPhase?: string | null
   messageType?: 'default' | 'auth' | 'dashboard' | 'onboarding' | 'system' // New message types
@@ -18,7 +17,6 @@ export default function ThinkingMessage({
   context, 
   isVisible, 
   className = "text-sm text-zinc-400 ml-2",
-  onboardingProgress,
   organizationId,
   currentPhase,
   messageType = 'default'
@@ -40,7 +38,7 @@ export default function ThinkingMessage({
     try {
       if (isVisible) {
         // Create new message stream with onboarding progress and organization ID
-        streamRef.current = thinkingMessageService.createMessageStream(context, instanceIdRef.current, onboardingProgress, organizationId)
+        streamRef.current = thinkingMessageService.createMessageStream(context, instanceIdRef.current, undefined, organizationId)
         
         // Set up message change callback
         if (streamRef.current && typeof streamRef.current.onMessageChange === 'function') {
@@ -79,14 +77,7 @@ export default function ThinkingMessage({
         console.error('ThinkingMessage cleanup error:', error)
       }
     }
-  }, [context, isVisible, onboardingProgress, organizationId])
-
-  // Update context when onboarding progress changes
-  useEffect(() => {
-    if (streamRef.current && onboardingProgress && typeof streamRef.current.updateContext === 'function') {
-      streamRef.current.updateContext(onboardingProgress)
-    }
-  }, [onboardingProgress])
+  }, [context, isVisible, organizationId])
 
   // Update current phase to adjust messages
   useEffect(() => {

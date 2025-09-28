@@ -6,14 +6,13 @@ import {
   ActivityIndicator,
   Animated,
 } from 'react-native';
-import { thinkingMessageService, ThinkingContext, OnboardingProgressData } from '../services/ThinkingMessageService';
+import { thinkingMessageService, ThinkingContext } from '../services/ThinkingMessageService';
 import { useTranslation } from '../hooks/useTranslation';
 import { useThemedStyles } from '../context/ThemeContext';
 
 interface ThinkingMessageProps {
   context?: ThinkingContext;
   instanceId?: string;
-  onboardingProgress?: OnboardingProgressData;
   organizationId?: string;
   visible?: boolean;
   style?: any;
@@ -41,7 +40,6 @@ export const ThinkingMessage: React.FC<ThinkingMessageProps> = ({
     const messageStream = thinkingMessageService.getOrCreateMessageStream(
       context,
       instanceId,
-      onboardingProgress,
       organizationId
     );
 

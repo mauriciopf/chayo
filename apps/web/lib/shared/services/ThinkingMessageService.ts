@@ -29,9 +29,8 @@ export type ThinkingPhase =
   | 'finalizingVibeCard'
   | 'done'
 
-export interface OnboardingProgressData {
-  isCompleted: boolean
-}
+// Simplified: We no longer need complex onboarding progress data
+// Everything is handled by simple boolean completion status
 
 interface MessageStream {
   start: () => void
@@ -40,7 +39,6 @@ interface MessageStream {
   getAllMessages: () => string[]
   getCurrentIndex: () => number
   onMessageChange: (callback: (message: string, index: number, total: number) => void) => void
-  updateContext: (progress: OnboardingProgressData) => void
   updatePhase: (phase: string) => void
 }
 
@@ -87,7 +85,7 @@ export class ThinkingMessageService {
     return this.getContextualMessages(context)
   }
 
-  createMessageStream(context: ThinkingContext, instanceId: string = 'default', onboardingProgress?: OnboardingProgressData, organizationId?: string): MessageStream {
+  createMessageStream(context: ThinkingContext, instanceId: string = 'default', _unused?: any, organizationId?: string): MessageStream {
     let messages: string[] = []
     let currentIndex = 0
     
@@ -147,44 +145,7 @@ export class ThinkingMessageService {
       this.messageCallbacks.set(instanceId, callbacks)
     }
 
-    const updateContext = async (progress: OnboardingProgressData) => {
-      try {
-        // Simple stage-based defaults when no phase overrides are active
-        let newMessages: string[] = []
-        if (progress.isCompleted) {
-          newMessages = ['🎉 Setup complete!', '✅ Your AI assistant is ready']
-        } else {
-          // Show general onboarding messages since we removed stages
-          newMessages = [
-            '🧠 Learning about your business...',
-            '💬 Generating personalized questions...',
-            '📋 Building your profile...',
-            '⚙️ Setting up your assistant...'
-          ]
-        }
-        
-        // Update stored messages
-        this.messageArrays.set(instanceId, newMessages)
-        messages = newMessages
-        
-        // Reset to first message of new context
-        currentIndex = 0
-        this.currentIndices.set(instanceId, 0)
-        const newMessage = newMessages[0] || 'AI is thinking...'
-        this.currentMessages.set(instanceId, newMessage)
-        
-        // Notify callbacks with new context
-        this.notifyCallbacks(instanceId, newMessage)
-        
-        // Restart cycling with new messages
-        if (this.messageIntervals.has(instanceId)) {
-          stop()
-          await start()
-        }
-      } catch (error) {
-        console.error('Error updating context:', error)
-      }
-    }
+    // Removed updateContext - no longer needed with simplified onboarding
 
     const updatePhase = (phase: string | any) => {
       // Support both string phase and object with custom message
@@ -266,7 +227,6 @@ export class ThinkingMessageService {
       getAllMessages,
       getCurrentIndex,
       onMessageChange,
-      updateContext,
       updatePhase
     }
   }

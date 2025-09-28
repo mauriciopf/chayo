@@ -27,7 +27,6 @@ export function useBusinessModeChat({
   
   // Onboarding completion status using database + SSE-based hook
   const { isCompleted: isOnboardingCompleted, loading: onboardingLoading } = useOnboardingCompletion(organizationId, currentPhase)
-  const [showOnboardingProgress, setShowOnboardingProgress] = useState(false)
   const [showCompletion, setShowCompletion] = useState(false)
   
   // Simple sendMessage wrapper - SSE events handle progress updates automatically
@@ -71,17 +70,14 @@ export function useBusinessModeChat({
     await wrappedSendMessage(finalInput)
   }
 
-  // Update onboarding visibility when completion status changes
+  // Show vibe card generation modal when onboarding completes
   useEffect(() => {
     console.log('🔄 [MODAL-DEBUG] Onboarding completion changed:', {
       isCompleted: isOnboardingCompleted,
       hasShownCompletionModal,
       organizationId,
-      willShowProgress: !isOnboardingCompleted,
       shouldShowModal: isOnboardingCompleted && !hasShownCompletionModal && organizationId
     })
-    
-    setShowOnboardingProgress(!isOnboardingCompleted)
     
     // Only show vibe card generation modal once when setup is completed
     if (isOnboardingCompleted && !hasShownCompletionModal && organizationId) {
@@ -90,12 +86,6 @@ export function useBusinessModeChat({
       setHasShownCompletionModal(true)
       // Persist the flag to localStorage
       localStorage.setItem(getCompletionModalShownKey(organizationId), 'true')
-    } else {
-      console.log('❌ [MODAL-DEBUG] NOT showing modal:', {
-        isCompleted: isOnboardingCompleted,
-        hasShownModal: hasShownCompletionModal,
-        hasOrgId: !!organizationId
-      })
     }
   }, [isOnboardingCompleted, hasShownCompletionModal, organizationId])
 
@@ -112,8 +102,7 @@ export function useBusinessModeChat({
   return {
     // State
     chatContext,
-    onboardingProgress: { isCompleted: isOnboardingCompleted }, // Backward compatibility
-    showOnboardingProgress,
+    isOnboardingCompleted,
     showCompletion,
     hasShownCompletionModal,
     
@@ -122,15 +111,13 @@ export function useBusinessModeChat({
     handleMultipleChoiceSelect,
     setChatContext,
     setShowCompletion,
-    setShowOnboardingProgress,
     sendMessage: wrappedSendMessage,
     
     // Handlers for components
     onContinueCompletion: () => {
       setShowCompletion(false)
-      setShowOnboardingProgress(false)
-      // Unlock QR code when user clicks "Start Using Chayo"
-      if (unlockQRCode) {
+      // Simple QR unlock logic: if onboarding is completed, unlock QR
+      if (isOnboardingCompleted && unlockQRCode) {
         unlockQRCode()
       }
     },

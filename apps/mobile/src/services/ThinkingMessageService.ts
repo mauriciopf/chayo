@@ -29,14 +29,6 @@ export type ThinkingPhase =
   | 'savingData'
   | 'done'
 
-export interface OnboardingProgressData {
-  isCompleted: boolean
-  totalQuestions: number
-  answeredQuestions: number
-  currentQuestion?: string
-  currentStage?: string
-}
-
 interface MessageStream {
   start: () => void
   stop: () => void
@@ -44,7 +36,6 @@ interface MessageStream {
   getAllMessages: () => string[]
   getCurrentIndex: () => number
   onMessageChange: (callback: (message: string, index: number, total: number) => void) => void
-  updateContext: (progress: OnboardingProgressData) => void
   updatePhase: (phase: string | { name?: string; message?: string }) => void
 }
 

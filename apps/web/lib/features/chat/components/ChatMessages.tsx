@@ -4,7 +4,7 @@ import ChatMessage from './ChatMessage'
 import ChatMessageWithMultipleChoice from './ChatMessageWithMultipleChoice'
 import ThinkingMessage from '../../../shared/components/ThinkingMessage'
 import { Message } from '../../../shared/types'
-import { ThinkingContext, OnboardingProgressData } from '../../../shared/services/ThinkingMessageService'
+import { ThinkingContext } from '../../../shared/services/ThinkingMessageService'
 import { useTranslations } from 'next-intl'
 
 interface ChatMessagesProps {
@@ -13,12 +13,11 @@ interface ChatMessagesProps {
   chatError: string | null
   onOptionSelect?: (selectedOptions: string | string[]) => void
   thinkingContext?: ThinkingContext
-  onboardingProgress?: OnboardingProgressData
   organizationId?: string
   currentPhase?: string | null
 }
 
-const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, chatLoading, chatError, onOptionSelect, thinkingContext = 'default', onboardingProgress, organizationId, currentPhase }) => {
+const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, chatLoading, chatError, onOptionSelect, thinkingContext = 'default', organizationId, currentPhase }) => {
     const t = useTranslations('chat')
   
 
@@ -101,7 +100,6 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, chatLoading, chat
                           context={thinkingContext} 
                           isVisible={true}
                           className="text-sm ml-2"
-                          onboardingProgress={onboardingProgress}
                           organizationId={organizationId}
                           currentPhase={currentPhase as any}
                           messageType={(currentPhase as any)?.messageType || 'default'}
