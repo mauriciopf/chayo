@@ -19,6 +19,17 @@ const nextConfig = {
     // This will make Next.js look for .env files in the parent directory
     ...require('dotenv').config({ path: path.resolve(__dirname, '../../.env.local') }).parsed,
   },
+  // Webpack configuration to handle YAML imports
+  webpack: (config) => {
+    // Handle YAML files as raw text
+    config.module.rules.push({
+      test: /\.ya?ml$/,
+      use: 'raw-loader',
+      type: 'asset/source'
+    })
+
+    return config
+  },
 }
 
 module.exports = withNextIntl(nextConfig)

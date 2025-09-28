@@ -1,8 +1,10 @@
 import yaml from 'js-yaml'
-import fs from 'fs'
-import path from 'path'
 import { getLocaleInstructions } from './i18nPromptUtils'
 // Note: getUniversalQuestionFormatInstructions removed - using OpenAI Structured Outputs instead
+
+// Import YAML files directly - webpack will handle them
+import onboardingYaml from './onboardingSystemPrompt.yaml'
+import businessYaml from './businessSystemPrompt.yaml'
 
 export interface SystemPromptConfig {
   identity: string
@@ -63,10 +65,8 @@ export class YamlPromptLoader {
     }
 
     try {
-      // Choose the appropriate YAML file based on setup completion status
-      const fileName = isSetupCompleted ? 'businessSystemPrompt.yaml' : 'onboardingSystemPrompt.yaml'
-      const yamlPath = path.join(process.cwd(), 'lib', 'features', 'chat', 'services', 'systemPrompt', fileName)
-      const yamlContent = fs.readFileSync(yamlPath, 'utf8')
+      // Choose the appropriate YAML content based on setup completion status
+      const yamlContent = isSetupCompleted ? businessYaml : onboardingYaml
       const config = yaml.load(yamlContent) as SystemPromptConfig
       
       // Only cache the onboarding config to avoid conflicts
@@ -75,7 +75,7 @@ export class YamlPromptLoader {
       }
       return config
     } catch (error) {
-      console.error(`Error loading ${isSetupCompleted ? 'businessSystemPrompt.yaml' : 'onboardingSystemPrompt.yaml'}:`, error)
+      console.error(`Error loading ${isSetupCompleted ? 'business' : 'onboarding'} system prompt:`, error)
       throw error
     }
   }
