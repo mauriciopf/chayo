@@ -70,24 +70,25 @@ export function useBusinessModeChat({
     await wrappedSendMessage(finalInput)
   }
 
-  // Show vibe card generation modal when onboarding completes
+  // Show vibe card generation modal when vibe card generation starts
   useEffect(() => {
-    console.log('🔄 [MODAL-DEBUG] Onboarding completion changed:', {
-      isCompleted: isOnboardingCompleted,
+    if (!organizationId || !currentPhase) return
+
+    console.log('🔄 [MODAL-DEBUG] Current phase changed:', {
+      currentPhase,
       hasShownCompletionModal,
-      organizationId,
-      shouldShowModal: isOnboardingCompleted && !hasShownCompletionModal && organizationId
+      organizationId
     })
     
-    // Only show vibe card generation modal once when setup is completed
-    if (isOnboardingCompleted && !hasShownCompletionModal && organizationId) {
-      console.log('✅ [MODAL-DEBUG] Showing vibe card generation modal - all conditions met!')
+    // Show modal when vibe card generation starts (not when onboarding completes)
+    if (currentPhase === 'startingVibeCardGeneration' && !hasShownCompletionModal && organizationId) {
+      console.log('✅ [MODAL-DEBUG] startingVibeCardGeneration detected - showing vibe card modal!')
       setShowCompletion(true)
       setHasShownCompletionModal(true)
       // Persist the flag to localStorage
       localStorage.setItem(getCompletionModalShownKey(organizationId), 'true')
     }
-  }, [isOnboardingCompleted, hasShownCompletionModal, organizationId])
+  }, [currentPhase, hasShownCompletionModal, organizationId])
 
   // Update hasShownCompletionModal when organizationId changes
   useEffect(() => {

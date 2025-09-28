@@ -208,6 +208,9 @@ Generate a complete vibe profile that will make this business irresistible to th
     progressEmitter?: (event: string, data?: any) => void
   ): Promise<boolean> {
     try {
+      // Emit dedicated phase to trigger the vibe card generation modal
+      progressEmitter?.('phase', { name: 'startingVibeCardGeneration' })
+      
       // Emit phase: Analyzing business information
       progressEmitter?.('phase', { name: 'analyzingBusiness' })
       

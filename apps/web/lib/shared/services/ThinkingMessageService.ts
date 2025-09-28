@@ -21,6 +21,7 @@ export type ThinkingPhase =
   | 'updatingProfile'
   | 'updatingProgress'
   | 'switchingMode'
+  | 'startingVibeCardGeneration'
   | 'generatingVibeCard'
   | 'analyzingBusiness'
   | 'craftingStory'

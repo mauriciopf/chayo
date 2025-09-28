@@ -118,6 +118,7 @@ export default function VibeCardGenerationModal({
     // Map SSE phases to modal stages and progress
     const phaseToStageMap: Record<string, { stage: GenerationStage; progress: number }> = {
       'switchingMode': { stage: 'initializing', progress: 5 },
+      'startingVibeCardGeneration': { stage: 'initializing', progress: 10 },
       'analyzingBusiness': { stage: 'analyzing_business', progress: 20 },
       'craftingStory': { stage: 'crafting_story', progress: 40 },
       'selectingColors': { stage: 'selecting_colors', progress: 60 },
