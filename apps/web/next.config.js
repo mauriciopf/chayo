@@ -24,7 +24,6 @@ const nextConfig = {
     // Handle YAML files as raw text
     config.module.rules.push({
       test: /\.ya?ml$/,
-      use: 'raw-loader',
       type: 'asset/source'
     })
 
