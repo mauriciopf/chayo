@@ -55,20 +55,8 @@ export function useOnboardingCompletion(organizationId?: string, currentPhase?: 
       setIsCompleted(true)
     }
     
-    // Handle vibe card generation phases (these happen after completion)
-    const vibeCardPhases = [
-      'generatingVibeCard',
-      'analyzingBusiness', 
-      'craftingStory',
-      'selectingColors',
-      'generatingVibeImage',
-      'finalizingVibeCard'
-    ]
-    
-    if (vibeCardPhases.includes(currentPhase)) {
-      console.log('🎨 [ONBOARDING] Vibe card generation phase - ensuring completion status!')
-      setIsCompleted(true)
-    }
+    // Note: Vibe card phases (analyzingBusiness, craftingStory, etc.) are handled 
+    // by the VibeCardGenerationModal for progress display, not for completion detection
   }, [currentPhase, organizationId])
 
   return { isCompleted, loading }
