@@ -1,75 +1,46 @@
 import { useState, useEffect } from 'react'
-import { OnboardingProgressData } from '../../../shared/services/ThinkingMessageService'
 
-export function useOnboardingProgress(organizationId?: string) {
-  const [progress, setProgress] = useState<OnboardingProgressData>({
-    isCompleted: false,
-    totalQuestions: 0,
-    answeredQuestions: 0
-  })
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+export function useOnboardingCompletion(organizationId?: string, currentPhase?: string | null) {
+  const [isCompleted, setIsCompleted] = useState(false)
 
-  const fetchProgress = async () => {
+  // Initialize as incomplete
+  useEffect(() => {
     if (!organizationId) {
-      console.log('⚠️ No organizationId provided to useOnboardingProgress')
+      setIsCompleted(false)
       return
     }
 
-    console.log('🔄 Fetching onboarding progress for organization:', organizationId)
-    setLoading(true)
-    setError(null)
-
-    try {
-      // Use API endpoint instead of server-side service
-      const response = await fetch('/api/onboarding-status')
-      if (response.ok) {
-        const apiData = await response.json()
-        const { progress: progressData } = apiData
-        
-        console.log('📊 Onboarding API response:', {
-          rawResponse: apiData,
-          progressData,
-          isCompleted: progressData.isCompleted,
-          totalQuestions: progressData.totalQuestions,
-          answeredQuestions: progressData.answeredQuestions
-        })
-        
-        const newProgress: OnboardingProgressData = {
-          isCompleted: progressData.isCompleted,
-          totalQuestions: progressData.totalQuestions || 0,
-          answeredQuestions: progressData.answeredQuestions || 0,
-          currentQuestion: undefined // API doesn't return pending questions for client safety
-        }
-        
-        console.log('✅ Setting new progress state:', newProgress)
-        setProgress(newProgress)
-      } else {
-        console.error('❌ Onboarding API failed:', response.status, response.statusText)
-        throw new Error('Failed to fetch onboarding status')
-      }
-    } catch (err) {
-      console.error('Failed to fetch onboarding progress:', err)
-      setError('Failed to load onboarding progress')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    if (organizationId) {
-      fetchProgress()
-    }
+    console.log('🔄 [ONBOARDING] Initializing completion status for organization:', organizationId)
+    setIsCompleted(false)
   }, [organizationId])
 
-  const refreshProgress = () => {
-    fetchProgress()
-  }
+  // Listen for SSE phase changes to determine completion status
+  useEffect(() => {
+    if (!organizationId || !currentPhase) return
 
-  return {
-    progress,
-    loading,
-    error,
-    refreshProgress
-  }
-} 
+    console.log('🔄 [ONBOARDING] Phase changed:', currentPhase)
+
+    // When we receive switchingMode phase, it means onboarding is completed
+    if (currentPhase === 'switchingMode') {
+      console.log('✅ [ONBOARDING] switchingMode detected - onboarding completed!')
+      setIsCompleted(true)
+    }
+    
+    // Handle vibe card generation phases (these happen after completion)
+    const vibeCardPhases = [
+      'generatingVibeCard',
+      'analyzingBusiness', 
+      'craftingStory',
+      'selectingColors',
+      'generatingVibeImage',
+      'finalizingVibeCard'
+    ]
+    
+    if (vibeCardPhases.includes(currentPhase)) {
+      console.log('🎨 [ONBOARDING] Vibe card generation phase - onboarding completed!')
+      setIsCompleted(true)
+    }
+  }, [currentPhase, organizationId])
+
+  return isCompleted
+}

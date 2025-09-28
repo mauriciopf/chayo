@@ -11,8 +11,6 @@ export interface OnboardingQuestion {
 }
 
 export interface OnboardingProgress {
-  totalQuestions: number
-  answeredQuestions: number
   isCompleted: boolean
   pendingQuestions: OnboardingQuestion[]
 }
@@ -82,39 +80,16 @@ export class IntegratedOnboardingService {
       const setupStatus = await this.setupCompletionService.getOrCreateSetupCompletion(organizationId)
       const isCompleted = setupStatus?.setup_status === 'completed'
 
-      // Get all questions (answered and unanswered)
-      const { data: allQuestions, error } = await this.supabaseClient
-        .from('business_info_fields')
-        .select('is_answered')
-        .eq('organization_id', organizationId)
-
-      if (error) {
-        console.error('Error fetching questions for progress:', error)
-        return {
-          totalQuestions: 0,
-          answeredQuestions: 0,
-          isCompleted: false,
-          pendingQuestions: []
-        }
-      }
-
-      const totalQuestions = allQuestions?.length || 0
-      const answeredQuestions = allQuestions?.filter((q: any) => q.is_answered).length || 0
-      
       // Get pending questions
       const pendingQuestions = await this.getPendingQuestions(organizationId)
 
       return {
-        totalQuestions,
-        answeredQuestions,
         isCompleted,
         pendingQuestions
       }
     } catch (error) {
       console.error('Error getting onboarding progress:', error)
       return {
-        totalQuestions: 0,
-        answeredQuestions: 0,
         isCompleted: false,
         pendingQuestions: []
       }

@@ -31,9 +31,6 @@ export type ThinkingPhase =
 
 export interface OnboardingProgressData {
   isCompleted: boolean
-  totalQuestions: number
-  answeredQuestions: number
-  currentQuestion?: string
 }
 
 interface MessageStream {

@@ -108,9 +108,7 @@ export class OrganizationChatService {
         const onboardingService = new IntegratedOnboardingService()
         const progress = await onboardingService.getOnboardingProgress(context.organization.id)
         console.log('📊 [FLOW] Re-checking onboarding progress:', {
-          isCompleted: progress.isCompleted,
-          totalQuestions: progress.totalQuestions,
-          answeredQuestions: progress.answeredQuestions
+          isCompleted: progress.isCompleted
         })
         
         if (progress.isCompleted) {
@@ -270,8 +268,7 @@ export class OrganizationChatService {
       const isOnboarding = !progress.isCompleted
       console.log('📊 [SERVICE] Onboarding status:', {
         isCompleted: progress.isCompleted,
-        isOnboarding,
-        totalQuestions: progress.totalQuestions
+        isOnboarding
       })
       
       console.log(`🎯 Onboarding status: ${isOnboarding ? 'PROCESSING' : 'COMPLETED'}`)

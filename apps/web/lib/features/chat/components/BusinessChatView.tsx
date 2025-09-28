@@ -97,7 +97,8 @@ export default function BusinessChatView({
     setMessages,
     sendMessage,
     unlockQRCode,
-    onNavigateToQR
+    onNavigateToQR,
+    currentPhase
   })
 
   // Note: switchingMode phase is handled by SSE events - no manual refreshing needed
@@ -121,15 +122,21 @@ export default function BusinessChatView({
           isVisible={showCompletion}
           organizationId={organizationId || ''}
           currentPhase={currentPhase}
-          thinkingMessage={messages.find(m => m.role === 'thinking')?.content}
+          thinkingMessage={messages.find(m => m.role === 'ai' && m.content.includes('🤔'))?.content}
           onComplete={(vibeCardImageUrl) => {
+            console.log('🎨 [MODAL-DEBUG] Modal completed, calling onContinueCompletion')
             onContinueCompletion()
             if (vibeCardImageUrl) {
               console.log('🎨 Vibe card generated with image:', vibeCardImageUrl)
             }
           }}
-          onSkip={onContinueCompletion}
+          onSkip={() => {
+            console.log('⏭️ [MODAL-DEBUG] Modal skipped, calling onContinueCompletion')
+            onContinueCompletion()
+          }}
         />
+        
+        {/* Debug info for modal visibility - moved to useEffect */}
 
         {/* Show completion banner with tutorial button */}
         <OnboardingCompletionBanner
@@ -195,7 +202,7 @@ export default function BusinessChatView({
         isMobile={isMobile}
         chatContext={chatContext}
         setChatContext={handleQuickReply}
-        currentOnboardingQuestion={onboardingProgress.currentQuestion}
+        currentOnboardingQuestion={undefined}
         isOnboardingActive={showOnboardingProgress}
         onModeSwitch={onModeSwitch}
       />

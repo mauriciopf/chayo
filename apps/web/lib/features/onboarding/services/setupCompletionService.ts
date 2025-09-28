@@ -7,8 +7,6 @@ export interface SetupCompletionStatus {
   organization_id: string
   setup_status: 'in_progress' | 'completed' | 'abandoned'
   completed_at?: string
-  total_questions: number
-  answered_questions: number
   completion_data: Record<string, any>
   created_at: string
   updated_at: string
@@ -45,8 +43,6 @@ export class SetupCompletionService {
         .insert({
           organization_id: organizationId,
           setup_status: 'in_progress',
-          total_questions: 0, // Dynamic onboarding - no fixed question count
-          answered_questions: 0,
           completion_data: {}
         })
         .select()
@@ -64,17 +60,14 @@ export class SetupCompletionService {
   }
 
   /**
-   * Update setup completion progress
+   * Update setup completion progress (simplified - just marks as in progress)
    */
-  async updateProgress(
-    organizationId: string, 
-    answeredQuestions: number
-  ): Promise<void> {
+  async updateProgress(organizationId: string): Promise<void> {
     try {
       await this.supabaseClient
         .from('setup_completion')
         .update({
-          answered_questions: answeredQuestions,
+          setup_status: 'in_progress',
           updated_at: new Date().toISOString()
         })
         .eq('organization_id', organizationId)

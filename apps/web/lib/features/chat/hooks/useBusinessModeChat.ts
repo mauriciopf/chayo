@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { ChatContextType, getSystemMessageForContext } from '../services/chatContextMessages'
-import { useOnboardingProgress } from '../../onboarding/hooks/useOnboardingProgress'
+import { useOnboardingCompletion } from '../../onboarding/hooks/useOnboardingProgress'
 import { Message } from '@/lib/shared/types'
 
 interface UseBusinessModeChatProps {
@@ -11,6 +11,7 @@ interface UseBusinessModeChatProps {
   sendMessage: (messageContent: string) => Promise<void>
   unlockQRCode?: () => void
   onNavigateToQR?: () => void
+  currentPhase?: string | null
 }
 
 export function useBusinessModeChat({
@@ -18,13 +19,14 @@ export function useBusinessModeChat({
   setMessages,
   sendMessage,
   unlockQRCode,
-  onNavigateToQR
+  onNavigateToQR,
+  currentPhase
 }: UseBusinessModeChatProps) {
   // Chat context state
   const [chatContext, setChatContext] = useState<ChatContextType>('business_setup')
   
-  // Onboarding progress state using custom hook (read-only, SSE handles updates)
-  const { progress: onboardingProgress } = useOnboardingProgress(organizationId)
+  // Onboarding completion status using simple SSE-based hook
+  const isOnboardingCompleted = useOnboardingCompletion(organizationId, currentPhase)
   const [showOnboardingProgress, setShowOnboardingProgress] = useState(false)
   const [showCompletion, setShowCompletion] = useState(false)
   
@@ -69,26 +71,33 @@ export function useBusinessModeChat({
     await wrappedSendMessage(finalInput)
   }
 
-  // Update onboarding visibility when progress changes
+  // Update onboarding visibility when completion status changes
   useEffect(() => {
-    console.log('🔄 Onboarding progress changed:', {
-      isCompleted: onboardingProgress.isCompleted,
-      totalQuestions: onboardingProgress.totalQuestions,
-      answeredQuestions: onboardingProgress.answeredQuestions,
-      willShowProgress: !onboardingProgress.isCompleted
+    console.log('🔄 [MODAL-DEBUG] Onboarding completion changed:', {
+      isCompleted: isOnboardingCompleted,
+      hasShownCompletionModal,
+      organizationId,
+      willShowProgress: !isOnboardingCompleted,
+      shouldShowModal: isOnboardingCompleted && !hasShownCompletionModal && organizationId
     })
     
-    setShowOnboardingProgress(!onboardingProgress.isCompleted)
+    setShowOnboardingProgress(!isOnboardingCompleted)
     
     // Only show vibe card generation modal once when setup is completed
-    if (onboardingProgress.isCompleted && !hasShownCompletionModal && organizationId) {
-      console.log('✅ Showing vibe card generation modal')
+    if (isOnboardingCompleted && !hasShownCompletionModal && organizationId) {
+      console.log('✅ [MODAL-DEBUG] Showing vibe card generation modal - all conditions met!')
       setShowCompletion(true)
       setHasShownCompletionModal(true)
       // Persist the flag to localStorage
       localStorage.setItem(getCompletionModalShownKey(organizationId), 'true')
+    } else {
+      console.log('❌ [MODAL-DEBUG] NOT showing modal:', {
+        isCompleted: isOnboardingCompleted,
+        hasShownModal: hasShownCompletionModal,
+        hasOrgId: !!organizationId
+      })
     }
-  }, [onboardingProgress.isCompleted, hasShownCompletionModal, organizationId])
+  }, [isOnboardingCompleted, hasShownCompletionModal, organizationId])
 
   // Update hasShownCompletionModal when organizationId changes
   useEffect(() => {
@@ -98,10 +107,12 @@ export function useBusinessModeChat({
     }
   }, [organizationId])
 
+  // Note: SSE phase detection is now handled directly in useOnboardingProgress hook
+
   return {
     // State
     chatContext,
-    onboardingProgress,
+    onboardingProgress: { isCompleted: isOnboardingCompleted }, // Backward compatibility
     showOnboardingProgress,
     showCompletion,
     hasShownCompletionModal,
