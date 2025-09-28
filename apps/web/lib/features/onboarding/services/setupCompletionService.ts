@@ -80,15 +80,19 @@ export class SetupCompletionService {
   /**
    * Mark setup as completed with vibe card generation
    */
-  async markAsCompleted(organizationId: string, completionData: Record<string, any>): Promise<void> {
+  async markAsCompleted(
+    organizationId: string, 
+    completionData: Record<string, any>,
+    progressEmitter?: (event: string, data?: any) => void
+  ): Promise<void> {
     console.log('🎯 [SETUP-COMPLETION] markAsCompleted called for organization:', organizationId)
     console.log('🎯 [SETUP-COMPLETION] Completion data:', completionData)
     
     try {
       console.log('🎨 [SETUP-COMPLETION] Starting vibe card completion for organization:', organizationId)
       
-      // Use vibe card service to complete onboarding with enhanced vibe data
-      const success = await this.vibeCardService.completeOnboardingWithVibeCard(organizationId)
+      // Use vibe card service to complete onboarding with enhanced vibe data and SSE progress
+      const success = await this.vibeCardService.completeOnboardingWithVibeCard(organizationId, progressEmitter)
       
       if (!success) {
         // Fallback to basic completion if vibe card generation fails

@@ -104,7 +104,8 @@ export class IntegratedOnboardingService {
    */
   async updateOnboardingProgress(
     organizationId: string,
-    params: { statusSignal?: string | null; aiMessage?: string }
+    params: { statusSignal?: string | null; aiMessage?: string },
+    progressEmitter?: (event: string, data?: any) => void
   ): Promise<{
     isCompleted: boolean
     progress: OnboardingProgress
@@ -114,7 +115,7 @@ export class IntegratedOnboardingService {
 
       // Handle full completion only
       const isCompleted = normalized === 'setup_complete'
-        ? await this.setupCompletionService.markAsCompleted(organizationId, { source: 'ai_signal' }).then(() => true)
+        ? await this.setupCompletionService.markAsCompleted(organizationId, { source: 'ai_signal' }, progressEmitter).then(() => true)
         : false
       
       // Return current progress

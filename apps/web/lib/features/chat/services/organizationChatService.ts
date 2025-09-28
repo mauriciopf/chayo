@@ -154,12 +154,14 @@ export class OrganizationChatService {
           console.log('✅ Setup complete signal detected - marking onboarding as completed')
           await onboardingService.updateOnboardingProgress(
             context.organization.id,
-            { statusSignal: 'setup_complete', aiMessage: aiResponse.aiMessage }
+            { statusSignal: 'setup_complete', aiMessage: aiResponse.aiMessage },
+            progressEmitter
           )
         } else {
           await onboardingService.updateOnboardingProgress(
             context.organization.id,
-            { statusSignal: aiResponse.statusSignal, aiMessage: aiResponse.aiMessage }
+            { statusSignal: aiResponse.statusSignal, aiMessage: aiResponse.aiMessage },
+            progressEmitter
           )
         }
         
@@ -196,14 +198,6 @@ export class OrganizationChatService {
           console.warn('⚠️ Failed to create agent during onboarding completion:', error)
         }
 
-        // Generate vibe card with progress updates
-        try {
-          console.log('🎨 Starting vibe card generation with SSE progress...')
-          await this.generateVibeCardWithProgress(context.organization.id, progressEmitter)
-        } catch (error) {
-          console.warn('⚠️ Failed to generate vibe card:', error)
-          // Continue even if vibe card generation fails
-        }
         
         // Generate a business-mode response right away so the user sees training begin immediately
         const businessResponse = await this.generateAndStoreAIResponse(messages, context, 'business', progressEmitter)
@@ -1083,63 +1077,4 @@ export class OrganizationChatService {
     }
   }
 
-  /**
-   * Generate vibe card with SSE progress updates
-   */
-  private async generateVibeCardWithProgress(
-    organizationId: string, 
-    progressEmitter?: (event: string, data?: any) => void
-  ): Promise<void> {
-    try {
-      console.log('🎨 [VIBE-CARD] Starting generation with progress updates')
-      
-      // Import VibeCardService
-      const { VibeCardService } = await import('../../onboarding/services/vibeCardService')
-      const vibeCardService = new VibeCardService(this.supabaseClient)
-      
-      // Stage 1: Analyzing business
-      progressEmitter?.('phase', { name: 'analyzingBusiness' })
-      await new Promise(resolve => setTimeout(resolve, 2000)) // Simulate analysis time
-      
-      // Stage 2: Crafting story
-      progressEmitter?.('phase', { name: 'craftingStory' })
-      await new Promise(resolve => setTimeout(resolve, 2000)) // Simulate crafting time
-      
-      // Stage 3: Selecting colors
-      progressEmitter?.('phase', { name: 'selectingColors' })
-      await new Promise(resolve => setTimeout(resolve, 1500)) // Simulate color selection
-      
-      // Stage 4: Generating vibe card image (this is the long part)
-      progressEmitter?.('phase', { name: 'generatingVibeImage' })
-      console.log('🖼️ [VIBE-CARD] Starting image generation (this may take 30-60 seconds)...')
-      
-      // This is where the actual heavy lifting happens
-      const success = await vibeCardService.completeOnboardingWithVibeCard(organizationId)
-      
-      if (!success) {
-        throw new Error('Failed to generate vibe card')
-      }
-      
-      // Stage 5: Finalizing
-      progressEmitter?.('phase', { name: 'finalizingVibeCard' })
-      await new Promise(resolve => setTimeout(resolve, 1000)) // Simulate finalization
-      
-      console.log('✅ [VIBE-CARD] Generation completed successfully')
-      
-      // Emit completion event with vibe card data
-      const vibeCardData = await vibeCardService.getVibeCardData(organizationId)
-      progressEmitter?.('vibeCardCompleted', {
-        success: true,
-        imageUrl: vibeCardData?.ai_generated_image_url,
-        vibeCard: vibeCardData
-      })
-      
-    } catch (error) {
-      console.error('❌ [VIBE-CARD] Generation failed:', error)
-      progressEmitter?.('vibeCardError', {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      })
-    }
-  }
 } 

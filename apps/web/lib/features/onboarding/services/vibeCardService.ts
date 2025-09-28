@@ -203,8 +203,14 @@ Generate a complete vibe profile that will make this business irresistible to th
   /**
    * Complete onboarding by generating and storing vibe card data with AI image
    */
-  async completeOnboardingWithVibeCard(organizationId: string): Promise<boolean> {
+  async completeOnboardingWithVibeCard(
+    organizationId: string, 
+    progressEmitter?: (event: string, data?: any) => void
+  ): Promise<boolean> {
     try {
+      // Emit phase: Analyzing business information
+      progressEmitter?.('phase', { name: 'analyzingBusiness' })
+      
       // Generate vibe card data
       const vibeCardData = await this.generateVibeCardFromBusinessInfo(organizationId)
       
@@ -213,9 +219,15 @@ Generate a complete vibe profile that will make this business irresistible to th
         return false
       }
 
+      // Emit phase: Crafting brand story
+      progressEmitter?.('phase', { name: 'craftingStory' })
+
       // Generate AI image for the vibe card
       let aiGeneratedImageUrl: string | null = null
       try {
+        // Emit phase: Generating visual identity
+        progressEmitter?.('phase', { name: 'generatingVisuals' })
+        
         console.log('🎨 Generating AI image for vibe card...')
         aiGeneratedImageUrl = await this.generateVibeCardImage({
           business_name: vibeCardData.business_name,
@@ -230,6 +242,9 @@ Generate a complete vibe profile that will make this business irresistible to th
         console.warn('⚠️ Failed to generate AI image, continuing without image:', imageError)
         // Continue without image - don't fail the entire onboarding
       }
+
+      // Emit phase: Finalizing vibe card
+      progressEmitter?.('phase', { name: 'finalizingVibeCard' })
 
       // Store vibe card in streamlined table (only essential columns)
       const { error: vibeCardError } = await this.supabaseClient
