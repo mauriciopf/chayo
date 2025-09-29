@@ -11,7 +11,6 @@ import { useChat } from '@/lib/features/chat/hooks/useChat'
 import { useMobile } from '@/lib/shared/hooks/useMobile'
 import { useDashboardInit } from '@/lib/features/dashboard/hooks/useDashboardInit'
 
-import { useQRCodeLogic } from '@/lib/features/chat/hooks/useQRCodeLogic'
 import { useBillingManagement } from '@/lib/features/dashboard/hooks/useBillingManagement'
 import { useLogout } from '@/lib/features/auth/hooks/useLogout'
 
@@ -69,8 +68,6 @@ function DashboardContent() {
 
   const dashboardInit = useDashboardInit(locale, auth.authState, auth.user, t('authPrompt'), auth.loading)
 
-  // Use QR code logic hook
-  const qrCodeLogic = useQRCodeLogic({ auth, chat, dashboardInit, currentPhase: chat.currentPhase })
 
   // Use billing management hook
   const { handleManageBilling } = useBillingManagement()
@@ -191,8 +188,6 @@ function DashboardContent() {
             setHasUserInteracted={mobile.setHasUserInteracted}
             isMobile={mobile.isMobile}
             organizationId={auth.currentOrganization?.id}
-            unlockQRCode={qrCodeLogic.unlockQRCode}
-            onNavigateToQR={() => setActiveView('qrcode')}
             currentPhase={chat.currentPhase}
             agent={auth.agents[0]}
             organization={auth.currentOrganization}
@@ -231,8 +226,6 @@ function DashboardContent() {
               setHasUserInteracted={mobile.setHasUserInteracted}
               isMobile={mobile.isMobile}
               organizationId={auth.currentOrganization?.id}
-              unlockQRCode={qrCodeLogic.unlockQRCode}
-              onNavigateToQR={() => setActiveView('qrcode')}
               currentPhase={chat.currentPhase}
               agent={auth.agents[0]}
               organization={auth.currentOrganization}

@@ -33,8 +33,6 @@ interface ChatContainerProps {
   setHasUserInteracted: (interacted: boolean) => void;
   isMobile: boolean;
   organizationId?: string;
-  unlockQRCode?: () => void;
-  onNavigateToQR?: () => void;
   // Additional props for client mode
   agent?: Agent;
   organization?: Organization | null;
@@ -70,8 +68,6 @@ export default function ChatContainer({
   setHasUserInteracted,
   isMobile,
   organizationId,
-  unlockQRCode,
-  onNavigateToQR,
   agent,
   organization,
   locale = 'en',
@@ -133,8 +129,6 @@ export default function ChatContainer({
           setHasUserInteracted={setHasUserInteracted}
           isMobile={isMobile}
           organizationId={organizationId}
-          unlockQRCode={unlockQRCode}
-          onNavigateToQR={onNavigateToQR}
           onModeSwitch={handleModeSwitch}
           currentPhase={currentPhase}
         />

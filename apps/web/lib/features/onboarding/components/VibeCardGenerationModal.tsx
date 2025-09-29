@@ -18,10 +18,8 @@ import {
 interface VibeCardGenerationModalProps {
   isVisible: boolean
   organizationId: string
-  onComplete: (vibeCardImageUrl?: string) => void
-  onSkip?: () => void
+  onDismiss: () => void
   currentPhase?: string | null
-  thinkingMessage?: string
 }
 
 type GenerationStage = 
@@ -95,10 +93,8 @@ const STAGE_MESSAGES = {
 export default function VibeCardGenerationModal({ 
   isVisible, 
   organizationId, 
-  onComplete, 
-  onSkip,
-  currentPhase,
-  thinkingMessage
+  onDismiss,
+  currentPhase
 }: VibeCardGenerationModalProps) {
   const t = useTranslations('vibeGeneration')
   const [progress, setProgress] = useState<GenerationProgress>({
@@ -106,14 +102,13 @@ export default function VibeCardGenerationModal({
     progress: 0,
     message: 'Starting vibe card generation...'
   })
-  const [vibeCardImageUrl, setVibeCardImageUrl] = useState<string | null>(null)
   const [startTime] = useState(Date.now())
 
-  // Listen to existing SSE system via currentPhase and thinkingMessage
+  // Listen to existing SSE system via currentPhase
   useEffect(() => {
     if (!isVisible || !currentPhase) return
 
-    console.log('🎨 Vibe card modal listening to phase:', currentPhase, thinkingMessage)
+    console.log('🎨 Vibe card modal listening to phase:', currentPhase)
     
     // Map SSE phases to modal stages and progress
     const phaseToStageMap: Record<string, { stage: GenerationStage; progress: number }> = {
@@ -131,10 +126,10 @@ export default function VibeCardGenerationModal({
       setProgress({
         stage: stageInfo.stage,
         progress: stageInfo.progress,
-        message: thinkingMessage || STAGE_MESSAGES[stageInfo.stage]?.subtitle || 'Processing...'
+        message: STAGE_MESSAGES[stageInfo.stage]?.subtitle || 'Processing...'
       })
     }
-  }, [currentPhase, thinkingMessage, isVisible])
+  }, [currentPhase, isVisible])
 
   // Detect completion when phases stop updating (vibe card generation finished)
   useEffect(() => {
@@ -156,16 +151,8 @@ export default function VibeCardGenerationModal({
     }
   }, [currentPhase, isVisible])
 
-  const handleComplete = () => {
-    onComplete(vibeCardImageUrl || undefined)
-  }
-
-  const handleSkip = () => {
-    if (onSkip) {
-      onSkip()
-    } else {
-      onComplete()
-    }
+  const handleDismiss = () => {
+    onDismiss()
   }
 
   const currentStage = STAGE_MESSAGES[progress.stage]
@@ -312,20 +299,6 @@ export default function VibeCardGenerationModal({
                 animate={{ opacity: 1, y: 0 }}
                 className="text-center"
               >
-                {vibeCardImageUrl && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.3 }}
-                    className="mb-6"
-                  >
-                    <img
-                      src={vibeCardImageUrl}
-                      alt="Generated Vibe Card"
-                      className="w-full max-w-xs mx-auto rounded-xl shadow-lg"
-                    />
-                  </motion.div>
-                )}
                 
                 <motion.p
                   initial={{ opacity: 0, y: 10 }}
@@ -342,7 +315,7 @@ export default function VibeCardGenerationModal({
                   transition={{ delay: 0.6 }}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={handleComplete}
+                  onClick={handleDismiss}
                   className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2"
                 >
                   <span>Enter the Marketplace</span>
@@ -375,7 +348,7 @@ export default function VibeCardGenerationModal({
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={handleSkip}
+                    onClick={handleDismiss}
                     className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-3 px-4 rounded-xl transition-all duration-200"
                   >
                     Skip for Now

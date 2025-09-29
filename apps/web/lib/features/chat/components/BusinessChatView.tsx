@@ -41,8 +41,6 @@ interface BusinessChatViewProps {
   setHasUserInteracted: (interacted: boolean) => void
   isMobile: boolean
   organizationId?: string
-  unlockQRCode?: () => void
-  onNavigateToQR?: () => void
   onModeSwitch?: (mode: ChatMode) => void
   currentPhase?: string | null
 }
@@ -72,8 +70,6 @@ export default function BusinessChatView({
   setHasUserInteracted,
   isMobile,
   organizationId,
-  unlockQRCode,
-  onNavigateToQR,
   onModeSwitch,
   currentPhase
 }: BusinessChatViewProps) {
@@ -84,18 +80,14 @@ export default function BusinessChatView({
   const {
     chatContext,
     isOnboardingCompleted,
-    showCompletion,
-    hasShownCompletionModal,
+    showVibeCardCompletion,
+    setShowVibeCardCompletion,
     handleQuickReply,
     handleMultipleChoiceSelect,
-    onContinueCompletion,
-    onNavigateToQR: businessNavigateToQR
   } = useBusinessModeChat({
     organizationId,
     setMessages,
     sendMessage,
-    unlockQRCode,
-    onNavigateToQR,
     currentPhase
   })
 
@@ -117,20 +109,12 @@ export default function BusinessChatView({
         
         {/* Vibe Card Generation Modal */}
         <VibeCardGenerationModal 
-          isVisible={showCompletion}
+          isVisible={showVibeCardCompletion}
           organizationId={organizationId || ''}
           currentPhase={currentPhase}
-          thinkingMessage={messages.find(m => m.role === 'ai' && m.content.includes('🤔'))?.content}
-          onComplete={(vibeCardImageUrl) => {
-            console.log('🎨 [MODAL-DEBUG] Modal completed, calling onContinueCompletion')
-            onContinueCompletion()
-            if (vibeCardImageUrl) {
-              console.log('🎨 Vibe card generated with image:', vibeCardImageUrl)
-            }
-          }}
-          onSkip={() => {
-            console.log('⏭️ [MODAL-DEBUG] Modal skipped, calling onContinueCompletion')
-            onContinueCompletion()
+          onDismiss={() => {
+            console.log('❌ [MODAL-DEBUG] Modal dismissed')
+            setShowVibeCardCompletion(false)
           }}
         />
         
@@ -138,11 +122,7 @@ export default function BusinessChatView({
 
         {/* Show completion banner with tutorial button */}
         <OnboardingCompletionBanner
-          isVisible={
-            isOnboardingCompleted && 
-            hasShownCompletionModal && 
-            !showCompletion &&
-            currentPhase !== 'switchingMode' // Hide during mode switching for cleaner UX
+          isVisible={isOnboardingCompleted // Hide during mode switching for cleaner UX
           }
           onStartTutorial={() => setShowTutorial(true)}
         />

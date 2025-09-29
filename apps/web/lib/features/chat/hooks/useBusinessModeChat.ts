@@ -9,8 +9,6 @@ interface UseBusinessModeChatProps {
   organizationId?: string
   setMessages: (messages: Message[] | ((prev: Message[]) => Message[])) => void
   sendMessage: (messageContent: string) => Promise<void>
-  unlockQRCode?: () => void
-  onNavigateToQR?: () => void
   currentPhase?: string | null
 }
 
@@ -18,8 +16,6 @@ export function useBusinessModeChat({
   organizationId,
   setMessages,
   sendMessage,
-  unlockQRCode,
-  onNavigateToQR,
   currentPhase
 }: UseBusinessModeChatProps) {
   // Chat context state
@@ -27,22 +23,13 @@ export function useBusinessModeChat({
   
   // Onboarding completion status using database + SSE-based hook
   const { isCompleted: isOnboardingCompleted, loading: onboardingLoading } = useOnboardingCompletion(organizationId, currentPhase)
-  const [showCompletion, setShowCompletion] = useState(false)
+  const [showVibeCardCompletion, setShowVibeCardCompletion] = useState(false)
   
   // Simple sendMessage wrapper - SSE events handle progress updates automatically
   const wrappedSendMessage = async (messageContent: string) => {
     await sendMessage(messageContent)
     // Note: Progress updates are handled by SSE events, no manual refresh needed
   }
-  
-  // Persistent flag using localStorage
-  const getCompletionModalShownKey = (orgId: string) => `onboarding_modal_shown_${orgId}`
-  const [hasShownCompletionModal, setHasShownCompletionModal] = useState(() => {
-    if (typeof window !== 'undefined' && organizationId) {
-      return localStorage.getItem(getCompletionModalShownKey(organizationId)) === 'true'
-    }
-    return false
-  })
 
   // Handler for quick reply chip click
   const handleQuickReply = (context: ChatContextType) => {
@@ -76,27 +63,16 @@ export function useBusinessModeChat({
 
     console.log('🔄 [MODAL-DEBUG] Current phase changed:', {
       currentPhase,
-      hasShownCompletionModal,
-      organizationId
+      organizationId,
+      showVibeCardCompletion
     })
     
-    // Show modal when vibe card generation starts (not when onboarding completes)
-    if (currentPhase === 'startingVibeCardGeneration' && !hasShownCompletionModal && organizationId) {
+    // Show modal when vibe card generation starts
+    if (currentPhase === 'startingVibeCardGeneration' && organizationId) {
       console.log('✅ [MODAL-DEBUG] startingVibeCardGeneration detected - showing vibe card modal!')
-      setShowCompletion(true)
-      setHasShownCompletionModal(true)
-      // Persist the flag to localStorage
-      localStorage.setItem(getCompletionModalShownKey(organizationId), 'true')
+      setShowVibeCardCompletion(true)
     }
-  }, [currentPhase, hasShownCompletionModal, organizationId])
-
-  // Update hasShownCompletionModal when organizationId changes
-  useEffect(() => {
-    if (organizationId) {
-      const hasShown = localStorage.getItem(getCompletionModalShownKey(organizationId)) === 'true'
-      setHasShownCompletionModal(hasShown)
-    }
-  }, [organizationId])
+  }, [currentPhase, organizationId])
 
   // Note: SSE phase detection is now handled directly in useOnboardingCompletion hook
 
@@ -104,24 +80,13 @@ export function useBusinessModeChat({
     // State
     chatContext,
     isOnboardingCompleted,
-    showCompletion,
-    hasShownCompletionModal,
+    showVibeCardCompletion,
     
     // Actions
     handleQuickReply,
     handleMultipleChoiceSelect,
     setChatContext,
-    setShowCompletion,
-    sendMessage: wrappedSendMessage,
-    
-    // Handlers for components
-    onContinueCompletion: () => {
-      setShowCompletion(false)
-      // Simple QR unlock logic: if onboarding is completed, unlock QR
-      if (isOnboardingCompleted && unlockQRCode) {
-        unlockQRCode()
-      }
-    },
-    onNavigateToQR
+    setShowVibeCardCompletion,
+    sendMessage: wrappedSendMessage
   }
 }
