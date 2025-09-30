@@ -225,11 +225,14 @@ Generate a complete vibe profile that will make this business irresistible to th
       // Emit phase: Crafting brand story
       progressEmitter?.('phase', { name: 'craftingStory' })
 
+      // Emit phase: Selecting colors
+      progressEmitter?.('phase', { name: 'selectingColors' })
+
       // Generate AI image for the vibe card
       let aiGeneratedImageUrl: string | null = null
       try {
-        // Emit phase: Generating visual identity
-        progressEmitter?.('phase', { name: 'generatingVisuals' })
+        // Emit phase: Generating vibe card image
+        progressEmitter?.('phase', { name: 'generatingVibeImage' })
         
         console.log('🎨 Generating AI image for vibe card...')
         aiGeneratedImageUrl = await this.generateVibeCardImage({
