@@ -150,7 +150,8 @@ export const SteppedForm: React.FC<SteppedFormProps> = ({
       {/* Current Step Content */}
       <KeyboardAvoidingView 
         style={styles.content}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
       >
         {/* Step Content */}
         <View style={styles.stepContainer}>
@@ -286,8 +287,8 @@ const styles = StyleSheet.create({
   stepContainer: {
     flex: 1,
     paddingHorizontal: 20,
-    paddingTop: 32,
-    justifyContent: 'center',
+    paddingTop: 48,
+    paddingBottom: 20,
   },
   stepHeader: {
     marginBottom: 32,
