@@ -25,8 +25,7 @@
     "production": { 
       "autoIncrement": true,
       "env": {
-        "VERSION_BUMP_TYPE": "minor",
-        "USE_HERMES": "1"
+        "VERSION_BUMP_TYPE": "minor"
       },
       "ios": {
         "simulator": false,
@@ -40,8 +39,7 @@
     "production-patch": { 
       "autoIncrement": true,
       "env": {
-        "VERSION_BUMP_TYPE": "patch",
-        "USE_HERMES": "1"
+        "VERSION_BUMP_TYPE": "patch"
       },
       "ios": {
         "simulator": false,
