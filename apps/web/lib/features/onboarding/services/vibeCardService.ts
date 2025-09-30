@@ -208,8 +208,15 @@ Generate a complete vibe profile that will make this business irresistible to th
     progressEmitter?: (event: string, data?: any) => void
   ): Promise<boolean> {
     try {
+      console.log('🎨 [VIBE-CARD-SSE] progressEmitter available?', !!progressEmitter)
+      
       // Emit dedicated phase to trigger the vibe card generation modal
-      progressEmitter?.('phase', { name: 'startingVibeCardGeneration' })
+      if (progressEmitter) {
+        console.log('📡 [VIBE-CARD-SSE] Emitting startingVibeCardGeneration phase')
+        progressEmitter('phase', { name: 'startingVibeCardGeneration' })
+      } else {
+        console.warn('⚠️ [VIBE-CARD-SSE] No progressEmitter - modal will not show!'  )
+      }
       
       // Emit phase: Analyzing business information
       progressEmitter?.('phase', { name: 'analyzingBusiness' })

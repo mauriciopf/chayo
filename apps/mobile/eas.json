@@ -29,7 +29,8 @@
       },
       "ios": {
         "simulator": false,
-        "distribution": "store"
+        "distribution": "store",
+        "image": "latest"
       }, 
       "android": {
         "buildType": "app-bundle"
@@ -42,7 +43,8 @@
       },
       "ios": {
         "simulator": false,
-        "distribution": "store"
+        "distribution": "store",
+        "image": "latest"
       }, 
       "android": {
         "buildType": "app-bundle"

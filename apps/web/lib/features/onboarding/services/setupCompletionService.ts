@@ -87,6 +87,7 @@ export class SetupCompletionService {
   ): Promise<void> {
     console.log('🎯 [SETUP-COMPLETION] markAsCompleted called for organization:', organizationId)
     console.log('🎯 [SETUP-COMPLETION] Completion data:', completionData)
+    console.log('🎯 [SETUP-COMPLETION] progressEmitter available?', !!progressEmitter)
     
     try {
       console.log('🎨 [SETUP-COMPLETION] Starting vibe card completion for organization:', organizationId)
