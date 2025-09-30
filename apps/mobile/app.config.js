@@ -2,6 +2,7 @@ export default {
   expo: {
     name: "Chayo",
     slug: "chayo-mobile",
+    owner: "chayo-ai",
     version: "1.1.3",
     orientation: "portrait",
     icon: "./assets/chayo_logo.png",
@@ -34,7 +35,7 @@ export default {
     runtimeVersion: "1.1.3",
     extra: {
       eas: {
-        projectId: "4ec6342b-7cd8-45e0-9ce1-2c1da5e1b694"
+        projectId: "74f0a115-1928-4581-86d2-a81a2f76d355"
       }
     }
   }
