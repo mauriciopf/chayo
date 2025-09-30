@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import 'react-native-url-polyfill/auto';
 import { validateAuthConfig } from '../utils/authConfig';
 
@@ -17,6 +18,7 @@ try {
 export const supabase = createClient(config.supabaseUrl, config.supabaseAnonKey, {
   auth: {
     // Configure auth settings for mobile
+    storage: AsyncStorage,
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: false,
