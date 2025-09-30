@@ -25,7 +25,8 @@
     "production": { 
       "autoIncrement": true,
       "env": {
-        "VERSION_BUMP_TYPE": "minor"
+        "VERSION_BUMP_TYPE": "minor",
+        "USE_HERMES": "1"
       },
       "ios": {
         "simulator": false,
@@ -39,12 +40,12 @@
     "production-patch": { 
       "autoIncrement": true,
       "env": {
-        "VERSION_BUMP_TYPE": "patch"
+        "VERSION_BUMP_TYPE": "patch",
+        "USE_HERMES": "1"
       },
       "ios": {
         "simulator": false,
-        "distribution": "store",
-        "image": "latest"
+        "distribution": "store"
       }, 
       "android": {
         "buildType": "app-bundle"

@@ -1,3 +1,6 @@
+# Force Hermes to use precompiled binaries instead of building from source
+ENV['USE_HERMES'] = '1'
+
 # Resolve react_native_pods.rb with node to allow for hoisting
 require Pod::Executable.execute_command('node', ['-p',
   'require.resolve(
@@ -26,7 +29,10 @@ target 'ChayoMobile' do
     :app_path => "#{Pod::Config.instance.installation_root}/..",
     # Enable New Architecture for iOS
     :fabric_enabled => true,
-    :new_arch_enabled => true
+    :new_arch_enabled => true,
+    # Force Hermes to use precompiled binaries (tarball) instead of building from source
+    :hermes_enabled => true,
+    :production => false
   )
 
   target 'ChayoMobileTests' do
