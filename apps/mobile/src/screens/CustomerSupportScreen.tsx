@@ -10,6 +10,7 @@ import {
   Platform,
   KeyboardAvoidingView,
   Alert,
+  Keyboard,
 } from 'react-native';
 import { useThemedStyles } from '../context/ThemeContext';
 import { useAppConfig } from '../hooks/useAppConfig';
@@ -84,6 +85,20 @@ export const CustomerSupportScreen: React.FC = () => {
       setupRealtimeSubscription();
     }
   }, [conversation, isAuthenticated, setupRealtimeSubscription]);
+
+  // Handle keyboard show/hide to scroll to bottom
+  useEffect(() => {
+    const keyboardWillShowListener = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+      () => {
+        scrollToBottom();
+      }
+    );
+
+    return () => {
+      keyboardWillShowListener.remove();
+    };
+  }, []);
 
   const loadMessages = useCallback(async (conversationId: string) => {
     try {
@@ -409,82 +424,70 @@ export const CustomerSupportScreen: React.FC = () => {
   }
 
   return (
-    <View style={[styles.container, themedStyles.container]}>
-      <KeyboardAvoidingView 
-        style={styles.container}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
-        enabled={true}
-      >
-        {/* Header */}
-        <View style={[styles.header, { borderBottomColor: theme.borderColor }]}>
-          <Text style={[styles.headerTitle, { color: theme.textColor, fontSize: fontSizes.lg }]}>
-            Customer Support
-          </Text>
-          <Text style={[styles.headerSubtitle, { color: theme.placeholderColor, fontSize: fontSizes.sm }]}>
-            Chat with our support team
-          </Text>
-        </View>
+    <KeyboardAvoidingView 
+      style={[styles.container, themedStyles.container]}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+    >
+      {/* Messages */}
+      <FlatList
+        ref={flatListRef}
+        data={messages}
+        renderItem={renderMessage}
+        keyExtractor={(item) => item.id}
+        style={styles.messagesList}
+        contentContainerStyle={styles.messagesContainer}
+        showsVerticalScrollIndicator={false}
+        onContentSizeChange={scrollToBottom}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
+        ListFooterComponent={
+          waitingForAgent ? (
+            <View style={styles.thinkingContainer}>
+              <ThinkingMessage
+                context="customer-support"
+                instanceId={conversation?.id || 'support'}
+                organizationId={config?.organizationId}
+                visible={waitingForAgent}
+              />
+            </View>
+          ) : null
+        }
+      />
 
-        {/* Messages */}
-        <FlatList
-          ref={flatListRef}
-          data={messages}
-          renderItem={renderMessage}
-          keyExtractor={(item) => item.id}
-          style={styles.messagesList}
-          contentContainerStyle={styles.messagesContainer}
-          showsVerticalScrollIndicator={false}
-          onContentSizeChange={scrollToBottom}
-          keyboardShouldPersistTaps="handled"
-          ListFooterComponent={
-            waitingForAgent ? (
-              <View style={styles.thinkingContainer}>
-                <ThinkingMessage
-                  context="customer-support"
-                  instanceId={conversation?.id || 'support'}
-                  organizationId={config?.organizationId}
-                  visible={waitingForAgent}
-                />
-              </View>
-            ) : null
-          }
+      {/* Input Container */}
+      <View style={[styles.inputContainer, { backgroundColor: theme.backgroundColor, borderTopColor: theme.borderColor }]}>
+        <TextInput
+          ref={textInputRef}
+          style={[styles.textInput, { backgroundColor: theme.surfaceColor, color: theme.textColor, borderColor: theme.borderColor, fontSize: fontSizes.base }]}
+          value={inputText}
+          onChangeText={setInputText}
+          placeholder="Type your message..."
+          placeholderTextColor={theme.placeholderColor}
+          multiline
+          maxLength={1000}
+          editable={!sending}
+          keyboardAppearance="dark"
+          blurOnSubmit={false}
+          returnKeyType="default"
+          onSubmitEditing={() => textInputRef.current?.blur()}
+          enablesReturnKeyAutomatically={false}
         />
-
-        {/* Input Container */}
-        <View style={[styles.inputContainer, { backgroundColor: theme.backgroundColor, borderTopColor: theme.borderColor }]}>
-          <TextInput
-            ref={textInputRef}
-            style={[styles.textInput, { backgroundColor: theme.surfaceColor, color: theme.textColor, borderColor: theme.borderColor, fontSize: fontSizes.base }]}
-            value={inputText}
-            onChangeText={setInputText}
-            placeholder="Type your message..."
-            placeholderTextColor={theme.placeholderColor}
-            multiline
-            maxLength={1000}
-            editable={!sending}
-            keyboardAppearance="dark"
-            blurOnSubmit={false}
-            returnKeyType="done"
-            onSubmitEditing={() => textInputRef.current?.blur()}
-            enablesReturnKeyAutomatically={false}
-          />
-          <TouchableOpacity
-            style={[
-              styles.sendButton,
-              { backgroundColor: inputText.trim() ? theme.primaryColor : theme.borderColor },
-            ]}
-            onPress={sendMessage}
-            disabled={!inputText.trim() || sending}
-          >
-            {sending ? (
-              <Text style={[styles.sendButtonText, { fontSize: fontSizes.lg }]}>...</Text>
-            ) : (
-              <Text style={[styles.sendButtonText, { fontSize: fontSizes.lg }]}>↑</Text>
-            )}
-          </TouchableOpacity>
-        </View>
-      </KeyboardAvoidingView>
+        <TouchableOpacity
+          style={[
+            styles.sendButton,
+            { backgroundColor: inputText.trim() ? theme.primaryColor : theme.borderColor },
+          ]}
+          onPress={sendMessage}
+          disabled={!inputText.trim() || sending}
+        >
+          {sending ? (
+            <Text style={[styles.sendButtonText, { fontSize: fontSizes.lg }]}>...</Text>
+          ) : (
+            <Text style={[styles.sendButtonText, { fontSize: fontSizes.lg }]}>↑</Text>
+          )}
+        </TouchableOpacity>
+      </View>
 
       <LoginModal
         visible={showLoginModal}
@@ -493,28 +496,13 @@ export const CustomerSupportScreen: React.FC = () => {
         title="Sign in for Support"
         message="Sign in to start a conversation with our support team"
       />
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  header: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  headerSubtitle: {
-    fontSize: 14,
-    textAlign: 'center',
-    marginTop: 4,
   },
   messagesList: {
     flex: 1,
@@ -561,9 +549,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-end',
     paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingTop: 12,
+    paddingBottom: 12,
     borderTopWidth: 1,
-    paddingBottom: Platform.OS === 'ios' ? 34 : 16,
   },
   textInput: {
     flex: 1,
