@@ -64,10 +64,10 @@ export class ThinkingMessageService {
   private getContextualMessages(context: ThinkingContext): string[] {
     const contextMessages = {
       default: [
-        "🤖 AI is thinking...",
-        "💭 Processing your request...",
-        "⚡ Working on it...",
-        "🔄 Analyzing information..."
+        "🤖 La IA está pensando...",
+        "💭 Procesando tu solicitud...",
+        "⚡ Trabajando en ello...",
+        "🔄 Analizando la información..."
       ],
       slug_validation: [
         "🔍 Analizando mensaje...",
@@ -124,7 +124,7 @@ export class ThinkingMessageService {
     };
 
     const getCurrentMessage = () => {
-      return this.currentMessages.get(instanceId) || 'AI is thinking...';
+      return this.currentMessages.get(instanceId) || 'La IA está pensando...';
     };
 
     const getAllMessages = () => {
@@ -146,18 +146,18 @@ export class ThinkingMessageService {
       try {
         let newMessages: string[] = [];
         if (progress.isCompleted) {
-          newMessages = ['🎉 Setup complete!', '✅ Your AI assistant is ready'];
+          newMessages = ['🎉 ¡Configuración terminada!', '✅ Tu asistente de IA está listo'];
         } else {
           const stage = progress.currentStage;
-          if (stage === 'stage_1') newMessages = ['🧠 Getting the basics...', '✍️ Collecting essential details...'];
-          else if (stage === 'stage_2') newMessages = ['🔎 Deep-diving into your services...', '📚 Gathering industry specifics...'];
-          else if (stage === 'stage_3') newMessages = ['🔧 Finalizing preferences...', '📞 Configuring communication & logistics...'];
+          if (stage === 'stage_1') newMessages = ['🧠 Obteniendo lo fundamental...', '✍️ Recolectando detalles esenciales...'];
+          else if (stage === 'stage_2') newMessages = ['🔎 Profundizando en tus servicios...', '📚 Reuniendo información del sector...'];
+          else if (stage === 'stage_3') newMessages = ['🔧 Ajustando preferencias...', '📞 Configurando comunicación y logística...'];
           else newMessages = this.getContextualMessages('default');
         }
         
         this.messageArrays.set(instanceId, newMessages);
         this.currentIndices.set(instanceId, 0);
-        const newMessage = newMessages[0] || 'AI is thinking...';
+        const newMessage = newMessages[0] || 'La IA está pensando...';
         this.currentMessages.set(instanceId, newMessage);
         this.notifyCallbacks(instanceId, newMessage);
         
@@ -187,29 +187,29 @@ export class ThinkingMessageService {
       }
       
       const map: Record<string, string[]> = {
-        initializing: ['🤖 Getting things ready...', '🔧 Preparing context...'],
-        checkingExistingQuestion: ['🔎 Checking pending questions...', '🧭 Looking for where we left off...'],
-        buildingContext: ['🧠 Summarizing what we already know...', '📋 Reviewing your answers...'],
-        buildingPrompt: ['✍️ Framing the next question...', '🧩 Structuring the assistant prompt...'],
-        retrievingKnowledge: ['📚 Reviewing your previous answers...', '🔎 Retrieving relevant info...'],
-        callingAI: ['🤝 Talking to the assistant...', '📡 Generating the best next step...'],
-        parsingResponse: ['🔍 Interpreting the response...', '🧪 Validating result...'],
-        updatingProfile: ['💾 Saving your business info...', '📊 Updating your profile...'],
-        updatingProgress: ['📈 Updating progress...', '🗂️ Advancing your onboarding...'],
+        initializing: ['🤖 Preparando todo...', '🔧 Configurando el contexto...'],
+        checkingExistingQuestion: ['🔎 Revisando preguntas pendientes...', '🧭 Buscando dónde nos quedamos...'],
+        buildingContext: ['🧠 Resumiendo lo que ya sabemos...', '📋 Revisando tus respuestas...'],
+        buildingPrompt: ['✍️ Preparando la siguiente pregunta...', '🧩 Estructurando el mensaje del asistente...'],
+        retrievingKnowledge: ['📚 Repasando tus respuestas anteriores...', '🔎 Recuperando información relevante...'],
+        callingAI: ['🤝 Consultando al asistente...', '📡 Generando el mejor siguiente paso...'],
+        parsingResponse: ['🔍 Interpretando la respuesta...', '🧪 Validando el resultado...'],
+        updatingProfile: ['💾 Guardando la información de tu negocio...', '📊 Actualizando tu perfil...'],
+        updatingProgress: ['📈 Actualizando tu progreso...', '🗂️ Avanzando en tu onboarding...'],
         switchingMode: [
-          '🎉 Setup completed! Transitioning to business mode...',
-          '⚙️ Configuring your business assistant...',
-          '🔄 Training mode is starting...',
-          '✨ Getting ready to help with your business...'
+          '🎉 ¡Configuración completa! Entrando en modo negocio...',
+          '⚙️ Configurando tu asistente empresarial...',
+          '🔄 Iniciando modo de entrenamiento...',
+          '✨ Preparando todo para ayudarte con tu negocio...'
         ],
         detectingSlug: ['🔍 Analizando mensaje...', '🤖 Detectando código de negocio...'],
         validatingSlug: ['🏢 Verificando código...', '🔐 Validando negocio...'],
         loadingConfig: ['⚙️ Cargando configuración...', '📊 Obteniendo datos del negocio...'],
-        savingData: ['💾 Guardando datos...', '📱 Configurando aplicación...'],
-        'auth-check': ['🔐 Verifying authentication...', '🛡️ Checking credentials...'],
-        'dashboard-loading': ['📊 Loading your business data...', '🏢 Initializing dashboard...'],
-        'customer-support': ['💬 Connecting to support team...', '👥 Notifying available agents...', '⏳ Waiting for agent response...'],
-        done: ['✅ Done', '🎉 Ready']
+        savingData: ['💾 Guardando datos...', '📱 Configurando la aplicación...'],
+        'auth-check': ['🔐 Verificando autenticación...', '🛡️ Revisando credenciales...'],
+        'dashboard-loading': ['📊 Cargando la información de tu negocio...', '🏢 Inicializando el panel...'],
+        'customer-support': ['💬 Conectando con el equipo de soporte...', '👥 Avisando a los agentes disponibles...', '⏳ Esperando respuesta del agente...'],
+        done: ['✅ Listo', '🎉 Preparado']
       };
       
       const msgs = map[phaseName];
@@ -240,14 +240,14 @@ export class ThinkingMessageService {
     
     messages = this.getMessagesForContext(context)
     
-    this.currentMessages.set(instanceId, messages[0] || 'AI is thinking...')
+    this.currentMessages.set(instanceId, messages[0] || 'La IA está pensando...')
     this.currentIndices.set(instanceId, 0)
     this.messageArrays.set(instanceId, messages)
     this.messageCallbacks.set(instanceId, [])
 
     const start = async () => {
       this.stop(instanceId)
-      const initialMessage = messages[currentIndex] || 'AI is thinking...'
+      const initialMessage = messages[currentIndex] || 'La IA está pensando...'
       this.currentMessages.set(instanceId, initialMessage)
       this.notifyCallbacks(instanceId, initialMessage)
       
@@ -271,7 +271,7 @@ export class ThinkingMessageService {
     }
 
     const getCurrentMessage = () => {
-      return this.currentMessages.get(instanceId) || messages[0] || 'AI is thinking...'
+      return this.currentMessages.get(instanceId) || messages[0] || 'La IA está pensando...'
     }
 
     const getAllMessages = () => {
@@ -292,12 +292,12 @@ export class ThinkingMessageService {
       try {
         let newMessages: string[] = []
         if (progress.isCompleted) {
-          newMessages = ['🎉 Setup complete!', '✅ Your AI assistant is ready']
+          newMessages = ['🎉 ¡Configuración terminada!', '✅ Tu asistente de IA está listo']
         } else {
           const stage = progress.currentStage
-          if (stage === 'stage_1') newMessages = ['🧠 Getting the basics...', '✍️ Collecting essential details...']
-          else if (stage === 'stage_2') newMessages = ['🔎 Deep-diving into your services...', '📚 Gathering industry specifics...']
-          else if (stage === 'stage_3') newMessages = ['🔧 Finalizing preferences...', '📞 Configuring communication & logistics...']
+          if (stage === 'stage_1') newMessages = ['🧠 Obteniendo lo esencial...', '✍️ Recolectando detalles importantes...']
+          else if (stage === 'stage_2') newMessages = ['🔎 Profundizando en tus servicios...', '📚 Reuniendo información del sector...']
+          else if (stage === 'stage_3') newMessages = ['🔧 Ajustando preferencias...', '📞 Configurando comunicación y logística...']
           else newMessages = this.getContextualMessages('default')
         }
         
@@ -306,7 +306,7 @@ export class ThinkingMessageService {
         
         currentIndex = 0
         this.currentIndices.set(instanceId, 0)
-        const newMessage = newMessages[0] || 'AI is thinking...'
+        const newMessage = newMessages[0] || 'La IA está pensando...'
         this.currentMessages.set(instanceId, newMessage)
         
         this.notifyCallbacks(instanceId, newMessage)
@@ -337,28 +337,28 @@ export class ThinkingMessageService {
       }
       
       const map: Record<string, string[]> = {
-        initializing: ['🤖 Getting things ready...', '🔧 Preparing context...'],
-        checkingExistingQuestion: ['🔎 Checking pending questions...', '🧭 Looking for where we left off...'],
-        buildingContext: ['🧠 Summarizing what we already know...', '📋 Reviewing your answers...'],
-        buildingPrompt: ['✍️ Framing the next question...', '🧩 Structuring the assistant prompt...'],
-        retrievingKnowledge: ['📚 Reviewing your previous answers...', '🔎 Retrieving relevant info...'],
-        callingAI: ['🤝 Talking to the assistant...', '📡 Generating the best next step...'],
-        parsingResponse: ['🔍 Interpreting the response...', '🧪 Validating result...'],
-        updatingProfile: ['💾 Saving your business info...', '📊 Updating your profile...'],
-        updatingProgress: ['📈 Updating progress...', '🗂️ Advancing your onboarding...'],
+        initializing: ['🤖 Preparando todo...', '🔧 Configurando el contexto...'],
+        checkingExistingQuestion: ['🔎 Revisando preguntas pendientes...', '🧭 Buscando dónde nos quedamos...'],
+        buildingContext: ['🧠 Resumiendo lo que ya sabemos...', '📋 Revisando tus respuestas...'],
+        buildingPrompt: ['✍️ Preparando la siguiente pregunta...', '🧩 Estructurando el mensaje del asistente...'],
+        retrievingKnowledge: ['📚 Repasando tus respuestas anteriores...', '🔎 Recuperando información relevante...'],
+        callingAI: ['🤝 Consultando al asistente...', '📡 Generando el mejor siguiente paso...'],
+        parsingResponse: ['🔍 Interpretando la respuesta...', '🧪 Validando el resultado...'],
+        updatingProfile: ['💾 Guardando la información de tu negocio...', '📊 Actualizando tu perfil...'],
+        updatingProgress: ['📈 Actualizando tu progreso...', '🗂️ Avanzando en tu onboarding...'],
         switchingMode: [
-          '🎉 Setup completed! Transitioning to business mode...',
-          '⚙️ Configuring your business assistant...',
-          '🔄 Training mode is starting...',
-          '✨ Getting ready to help with your business...'
+          '🎉 ¡Configuración completa! Entrando en modo negocio...',
+          '⚙️ Configurando tu asistente empresarial...',
+          '🔄 Iniciando modo de entrenamiento...',
+          '✨ Preparando todo para ayudarte con tu negocio...'
         ],
         detectingSlug: ['🔍 Analizando mensaje...', '🤖 Detectando código de negocio...'],
         validatingSlug: ['🏢 Verificando código...', '🔐 Validando negocio...'],
         loadingConfig: ['⚙️ Cargando configuración...', '📊 Obteniendo datos del negocio...'],
-        savingData: ['💾 Guardando datos...', '📱 Configurando aplicación...'],
-        'auth-check': ['🔐 Verifying authentication...', '🛡️ Checking credentials...'],
-        'dashboard-loading': ['📊 Loading your business data...', '🏢 Initializing dashboard...'],
-        done: ['✅ Done', '🎉 Ready']
+        savingData: ['💾 Guardando datos...', '📱 Configurando la aplicación...'],
+        'auth-check': ['🔐 Verificando autenticación...', '🛡️ Revisando credenciales...'],
+        'dashboard-loading': ['📊 Cargando la información de tu negocio...', '🏢 Inicializando el panel...'],
+        done: ['✅ Listo', '🎉 Preparado']
       }
       
       const msgs = map[phaseName]

@@ -4,16 +4,14 @@ import {notFound} from 'next/navigation';
 import type { Metadata } from 'next'
 import '../globals.css'
 
-import ConditionalLanguageSelector from '@/components/layout/ConditionalLanguageSelector'
-
 // Define supported locales directly
-const locales = ['en', 'es'];
+const locales = ['es'];
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://chayo.ai'),
-  title: 'Chayo AI – Tu Comadre Digital que Nunca Duerme | AI Health Assistant',
-  description: 'Chayo es tu comadre digital que nunca duerme. IA que aprende tus necesidades de negocio, te acompaña 24/7, y te ayuda a hacer crecer tu negocio. Configuración en 5 minutos.',
-  keywords: 'AI health assistant, digital health, AI healthcare, health automation, Hispanic health, Latina health, health monitoring, AI wellness, health support, 24/7 health care',
+  title: 'Chayo AI – Tu Comadre Digital que Nunca Duerme | Asistente de IA para negocios',
+  description: 'Chayo es tu comadre digital que nunca duerme. Aprende tus necesidades de negocio, te acompaña 24/7 y te ayuda a hacer crecer tu negocio. Configuración en 5 minutos.',
+  keywords: 'asistente de ia, negocios latinos, automatización en español, soporte 24/7, inteligencia artificial latina, crecimiento empresarial, asistente virtual hispano',
   authors: [{ name: 'Chayo AI' }],
   robots: 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1',
   openGraph: {
@@ -30,7 +28,7 @@ export const metadata: Metadata = {
       },
     ],
     siteName: 'Chayo AI',
-    locale: 'en_US',
+    locale: 'es_US',
   },
   twitter: {
     card: 'summary_large_image',
@@ -74,7 +72,6 @@ export default async function LocaleLayout({
       <head></head>
       <body className="font-sans">
         <NextIntlClientProvider messages={messages} locale={locale}>
-          <ConditionalLanguageSelector />
           {children}
         </NextIntlClientProvider>
       </body>

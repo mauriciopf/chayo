@@ -1,23 +1,15 @@
 import {getRequestConfig} from 'next-intl/server';
- 
-export default getRequestConfig(async ({locale}) => {
-  // Ensure locale is always defined and valid
-  const validLocale = locale && ['en', 'es'].includes(locale) ? locale : 'en';
-  
+
+export default getRequestConfig(async () => {
   try {
-    const messages = (await import(`./messages/${validLocale}.json`)).default;
-    
+    const messages = (await import('./messages/es.json')).default;
+
     return {
-      locale: validLocale,
+      locale: 'es',
       messages
     };
   } catch (error) {
-    console.error(`Failed to load messages for locale ${validLocale}:`, error);
-    // Fallback to English
-    const fallbackMessages = (await import(`./messages/en.json`)).default;
-    return {
-      locale: 'en',
-      messages: fallbackMessages
-    };
+    console.error('Failed to load Spanish messages:', error);
+    throw error;
   }
 });

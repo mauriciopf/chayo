@@ -34,7 +34,7 @@ export default function AppointmentToolConfig({
       id: 'custom',
       name: 'Chayo Appointments',
       type: 'embed',
-      description: 'Use our built-in calendar booking system - no setup required',
+      description: 'Usa nuestro sistema de reservas integrado; no requiere configuración',
       setupRequired: false,
       hasOAuth: false
     },
@@ -42,7 +42,7 @@ export default function AppointmentToolConfig({
       id: 'calendly',
       name: 'Calendly',
       type: 'embed',
-      description: 'Connect your Calendly account for seamless booking integration',
+      description: 'Conecta tu cuenta de Calendly para integrar tus reservas sin fricciones',
       setupRequired: true,
       hasOAuth: true
     },
@@ -50,7 +50,7 @@ export default function AppointmentToolConfig({
       id: 'vagaro',
       name: 'Vagaro',
       type: 'link',
-      description: 'Share your Vagaro booking link (no OAuth available)',
+      description: 'Comparte tu enlace de reservas de Vagaro (OAuth no disponible)',
       setupRequired: true,
       hasOAuth: false
     },
@@ -58,7 +58,7 @@ export default function AppointmentToolConfig({
       id: 'square',
       name: 'Square Appointments',
       type: 'link',
-      description: 'Share your Square booking link (simpler than OAuth setup)',
+      description: 'Comparte tu enlace de reservas de Square (más simple que configurar OAuth)',
       setupRequired: true,
       hasOAuth: false
     }
@@ -107,9 +107,9 @@ export default function AppointmentToolConfig({
         const errorData = await response.json()
         if (errorData.manualSetup) {
           // Provider doesn't have OAuth configured yet
-          alert(`${provider.charAt(0).toUpperCase() + provider.slice(1)} OAuth is not yet configured. Please contact support for setup assistance.`)
+          alert(`La integración OAuth de ${provider.charAt(0).toUpperCase() + provider.slice(1)} aún no está configurada. Por favor contacta a soporte para recibir ayuda.`)
         } else {
-          throw new Error(errorData.message || 'Failed to initialize provider connection')
+          throw new Error(errorData.message || 'No se pudo iniciar la conexión con el proveedor')
         }
         return
       }
@@ -121,14 +121,14 @@ export default function AppointmentToolConfig({
       
     } catch (error) {
       console.error('Error connecting to provider:', error)
-      alert('Failed to connect to provider. Please try again.')
+      alert('No se pudo conectar con el proveedor. Intenta nuevamente.')
     } finally {
       setSaving(false)
     }
   }
 
   const handleDisconnectProvider = async () => {
-    if (!confirm('Are you sure you want to disconnect this provider? This will disable appointment booking.')) {
+    if (!confirm('¿Seguro que deseas desconectar este proveedor? Esto deshabilitará la reserva de citas.')) {
       return
     }
 
@@ -139,16 +139,16 @@ export default function AppointmentToolConfig({
       })
 
       if (!response.ok) {
-        throw new Error('Failed to disconnect provider')
+        throw new Error('No se pudo desconectar al proveedor')
       }
 
       setProviderUrl('')
       onSettingsChange?.()
-      alert('Provider disconnected successfully!')
+      alert('¡Proveedor desconectado correctamente!')
       
     } catch (error) {
       console.error('Error disconnecting provider:', error)
-      alert('Failed to disconnect provider. Please try again.')
+      alert('No se pudo desconectar al proveedor. Intenta nuevamente.')
     } finally {
       setSaving(false)
     }
@@ -162,13 +162,13 @@ export default function AppointmentToolConfig({
       if (provider?.hasOAuth) {
         // OAuth provider (Calendly) - URL should come from OAuth connection
         if (!providerUrl) {
-          alert('Please connect your Calendly account first')
+          alert('Conecta tu cuenta de Calendly primero')
           return
         }
       } else {
         // Manual URL providers (Vagaro, Square) - URL is required
         if (!providerUrl) {
-          alert('Please enter your booking URL first')
+          alert('Ingresa primero tu URL de reservas')
           return
         }
       }
@@ -188,14 +188,14 @@ export default function AppointmentToolConfig({
       })
 
       if (!response.ok) {
-        throw new Error('Failed to save appointment settings')
+        throw new Error('No se pudo guardar la configuración de citas')
       }
 
       onSettingsChange?.()
-      alert('Appointment settings saved successfully!')
+      alert('¡Configuración de citas guardada exitosamente!')
     } catch (error) {
       console.error('Error saving appointment settings:', error)
-      alert('Failed to save settings. Please try again.')
+      alert('No se pudo guardar la configuración. Intenta nuevamente.')
     } finally {
       setSaving(false)
     }
@@ -214,7 +214,7 @@ export default function AppointmentToolConfig({
           className="text-sm"
           style={{ color: 'var(--text-secondary)' }}
         >
-          Enable the Appointments tool above to configure booking options.
+          Activa la herramienta de Citas para configurar las opciones de reserva.
         </p>
       </div>
     )
@@ -235,7 +235,7 @@ export default function AppointmentToolConfig({
             className="text-sm mt-2"
             style={{ color: 'var(--text-secondary)' }}
           >
-            Loading appointment settings...
+            Cargando configuración de citas...
           </p>
         </div>
       </div>
@@ -253,7 +253,7 @@ export default function AppointmentToolConfig({
           className="font-medium"
           style={{ color: 'var(--text-primary)' }}
         >
-          Appointment Booking Configuration
+          Configuración de reservas de citas
         </h3>
       </div>
 
@@ -263,7 +263,7 @@ export default function AppointmentToolConfig({
           className="font-medium mb-3"
           style={{ color: 'var(--text-primary)' }}
         >
-          Choose your booking service:
+          Elige tu servicio de reservas:
         </h4>
         <div className="space-y-3">
           {providers.map((provider) => (
@@ -301,7 +301,7 @@ export default function AppointmentToolConfig({
                         color: 'var(--text-primary)'
                       }}
                     >
-                      Embedded
+                      Integrado
                     </span>
                   )}
                   {provider.type === 'link' && (
@@ -313,7 +313,7 @@ export default function AppointmentToolConfig({
                       }}
                     >
                       <ExternalLink className="w-3 h-3" />
-                      Link
+                      Enlace
                     </span>
                   )}
                 </div>
@@ -339,7 +339,7 @@ export default function AppointmentToolConfig({
                 className="font-medium mb-3"
                 style={{ color: 'var(--text-primary)' }}
               >
-                Connect Your {selectedProvider.charAt(0).toUpperCase() + selectedProvider.slice(1)} Account
+                Conecta tu cuenta de {selectedProvider.charAt(0).toUpperCase() + selectedProvider.slice(1)}
               </h4>
               
               {/* Connection Status */}
@@ -354,7 +354,7 @@ export default function AppointmentToolConfig({
                   <div className="flex items-center gap-3">
                     <div className={`w-3 h-3 rounded-full ${providerUrl ? 'bg-green-500' : 'bg-gray-300'}`}></div>
                     <span className="text-sm font-medium text-gray-900">
-                      {selectedProvider.charAt(0).toUpperCase() + selectedProvider.slice(1)} Account
+                      Cuenta de {selectedProvider.charAt(0).toUpperCase() + selectedProvider.slice(1)}
                     </span>
                   </div>
                   <span className={`text-xs px-2 py-1 rounded-full ${
@@ -362,12 +362,12 @@ export default function AppointmentToolConfig({
                       ? 'bg-green-100 text-green-800' 
                       : 'bg-gray-100 text-gray-600'
                   }`}>
-                    {providerUrl ? 'Connected' : 'Not Connected'}
+                    {providerUrl ? 'Conectada' : 'Sin conexión'}
                   </span>
                 </div>
                 {providerUrl && (
                   <div className="mt-2 text-xs text-gray-500 truncate">
-                    Connected URL: {providerUrl}
+                    URL conectada: {providerUrl}
                   </div>
                 )}
               </div>
@@ -385,12 +385,14 @@ export default function AppointmentToolConfig({
                 {saving ? (
                   <div className="flex items-center justify-center gap-2">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
-                    Connecting...
+                    Conectando...
                   </div>
                 ) : (
                   <div className="flex items-center justify-center gap-2">
                     <ExternalLink className="w-4 h-4" />
-                    {providerUrl ? `Reconnect to ${selectedProvider.charAt(0).toUpperCase() + selectedProvider.slice(1)}` : `Connect to ${selectedProvider.charAt(0).toUpperCase() + selectedProvider.slice(1)}`}
+                    {providerUrl 
+                      ? `Volver a conectar con ${selectedProvider.charAt(0).toUpperCase() + selectedProvider.slice(1)}` 
+                      : `Conectar con ${selectedProvider.charAt(0).toUpperCase() + selectedProvider.slice(1)}`}
                   </div>
                 )}
               </button>
@@ -401,18 +403,18 @@ export default function AppointmentToolConfig({
                   onClick={() => handleDisconnectProvider()}
                   className="w-full mt-2 py-2 px-4 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg font-medium transition-colors"
                 >
-                  Disconnect Account
+                  Desconectar cuenta
                 </button>
               )}
 
               <p className="text-xs text-gray-500 mt-2">
-                Connect your Calendly account to automatically get your booking link and enable seamless embedding.
+                Conecta tu cuenta de Calendly para obtener tu enlace de reservas automáticamente y habilitar la integración sin fricciones.
               </p>
             </div>
           ) : (
             // Manual URL Entry (Vagaro, Square)
             <div>
-              <h4 className="font-medium text-gray-900 mb-3">Setup Your {selectedProvider.charAt(0).toUpperCase() + selectedProvider.slice(1)} Integration</h4>
+              <h4 className="font-medium text-gray-900 mb-3">Configura tu integración con {selectedProvider.charAt(0).toUpperCase() + selectedProvider.slice(1)}</h4>
               
               {/* Setup Instructions */}
               <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
@@ -421,21 +423,21 @@ export default function AppointmentToolConfig({
                     <span className="text-blue-600 text-sm font-bold">!</span>
                   </div>
                   <div>
-                    <h5 className="font-medium text-blue-900 mb-2">Setup Instructions:</h5>
+                    <h5 className="font-medium text-blue-900 mb-2">Instrucciones de configuración:</h5>
                     <div className="text-sm text-blue-800 space-y-1">
                       {selectedProvider === 'vagaro' && (
                         <>
-                          <p>1. Sign in to your Vagaro business account</p>
-                          <p>2. Go to <strong>Settings → Website & Widgets</strong></p>
-                          <p>3. Copy your public booking URL</p>
+                          <p>1. Inicia sesión en tu cuenta empresarial de Vagaro</p>
+                          <p>2. Ve a <strong>Settings → Website & Widgets</strong></p>
+                          <p>3. Copia tu URL pública de reservas</p>
                           <p>4. Paste it in the field below</p>
                         </>
                       )}
                       {selectedProvider === 'square' && (
                         <>
-                          <p>1. Sign in to your Square Dashboard</p>
-                          <p>2. Go to <strong>Appointments → Settings</strong></p>
-                          <p>3. Find your public booking URL</p>
+                          <p>1. Inicia sesión en tu panel de Square</p>
+                          <p>2. Ve a <strong>Appointments → Settings</strong></p>
+                          <p>3. Busca tu URL pública de reservas</p>
                           <p>4. Paste it in the field below</p>
                         </>
                       )}
@@ -447,8 +449,8 @@ export default function AppointmentToolConfig({
               {/* URL Input */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {selectedProvider === 'vagaro' && 'Your Vagaro Booking URL'}
-                  {selectedProvider === 'square' && 'Your Square Appointments URL'}
+                  {selectedProvider === 'vagaro' && 'Tu URL de reservas de Vagaro'}
+                  {selectedProvider === 'square' && 'Tu URL de Square Appointments'}
                 </label>
                 <input
                   type="url"
@@ -456,8 +458,8 @@ export default function AppointmentToolConfig({
                   onChange={(e) => setProviderUrl(e.target.value)}
                   placeholder={
                     selectedProvider === 'vagaro' ? 'https://www.vagaro.com/your-business' :
-                    selectedProvider === 'square' ? 'https://squareup.com/appointments/book/your-location' :
-                    'Enter your booking URL'
+                    selectedProvider === 'square' ? 'https://squareup.com/appointments/book/tu-negocio' :
+                    'Ingresa tu URL de reservas'
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
@@ -475,14 +477,14 @@ export default function AppointmentToolConfig({
                       ? 'bg-green-100 text-green-800' 
                       : 'bg-gray-100 text-gray-600'
                   }`}>
-                    {providerUrl ? 'Ready to Save' : 'URL Required'}
+                    {providerUrl ? 'Listo para guardar' : 'URL requerida'}
                   </span>
                 </div>
               </div>
 
               <p className="text-xs text-gray-500">
-                {selectedProvider === 'vagaro' && 'Clients will be redirected to your Vagaro booking page to schedule appointments'}
-                {selectedProvider === 'square' && 'Clients will be redirected to your Square booking page to schedule appointments'}
+                {selectedProvider === 'vagaro' && 'Las personas serán redirigidas a tu página de reservas de Vagaro para agendar sus citas'}
+                {selectedProvider === 'square' && 'Las personas serán redirigidas a tu página de reservas de Square para agendar sus citas'}
               </p>
             </div>
           )}
@@ -492,18 +494,18 @@ export default function AppointmentToolConfig({
       {/* Calendly System Info */}
       {selectedProvider === 'calendly' && (
         <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-          <h4 className="font-medium text-green-900 mb-2">Calendly Integration</h4>
+          <h4 className="font-medium text-green-900 mb-2">Integración con Calendly</h4>
           <p className="text-sm text-green-800 mb-3">
-            Your Calendly booking widget will be embedded directly in your appointment page. Provide your Calendly URL to connect your account.
+            El widget de Calendly se integrará directamente en tu página de citas. Proporciona tu URL de Calendly para conectar la cuenta.
           </p>
           <div className="text-xs text-green-700">
             <div className="flex items-center gap-1 mb-1">
               <Calendar className="w-3 h-3" />
-              <span>Seamless embedded booking experience</span>
+              <span>Experiencia de reservas integrada y sin fricciones</span>
             </div>
             <div className="flex items-center gap-1">
               <Settings className="w-3 h-3" />
-              <span>Manage your availability in your Calendly account</span>
+              <span>Gestiona tu disponibilidad desde tu cuenta de Calendly</span>
             </div>
           </div>
         </div>
@@ -512,18 +514,18 @@ export default function AppointmentToolConfig({
       {/* Vagaro System Info */}
       {selectedProvider === 'vagaro' && (
         <div className="mb-6 p-4 bg-purple-50 border border-purple-200 rounded-lg">
-          <h4 className="font-medium text-purple-900 mb-2">Vagaro Integration</h4>
+          <h4 className="font-medium text-purple-900 mb-2">Integración con Vagaro</h4>
           <p className="text-sm text-purple-800 mb-3">
-            Clients will be redirected to your Vagaro booking page to schedule appointments.
+            Las personas serán redirigidas a tu página de reservas de Vagaro para agendar sus citas.
           </p>
           <div className="text-xs text-purple-700">
             <div className="flex items-center gap-1 mb-1">
               <ExternalLink className="w-3 h-3" />
-              <span>Redirects to your Vagaro business page</span>
+              <span>Redirige a tu página empresarial de Vagaro</span>
             </div>
             <div className="flex items-center gap-1">
               <Settings className="w-3 h-3" />
-              <span>Manage services and availability in your Vagaro account</span>
+              <span>Gestiona servicios y disponibilidad desde tu cuenta de Vagaro</span>
             </div>
           </div>
         </div>
@@ -532,18 +534,18 @@ export default function AppointmentToolConfig({
       {/* Square System Info */}
       {selectedProvider === 'square' && (
         <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <h4 className="font-medium text-yellow-900 mb-2">Square Appointments Integration</h4>
+          <h4 className="font-medium text-yellow-900 mb-2">Integración con Square Appointments</h4>
           <p className="text-sm text-yellow-800 mb-3">
-            Clients will be redirected to your Square Appointments booking page to schedule appointments.
+            Las personas serán redirigidas a tu página de Square Appointments para agendar sus citas.
           </p>
           <div className="text-xs text-yellow-700">
             <div className="flex items-center gap-1 mb-1">
               <ExternalLink className="w-3 h-3" />
-              <span>Redirects to your Square business page</span>
+              <span>Redirige a tu página empresarial de Square</span>
             </div>
             <div className="flex items-center gap-1">
               <Settings className="w-3 h-3" />
-              <span>Manage services and availability in your Square account</span>
+              <span>Gestiona servicios y disponibilidad desde tu cuenta de Square</span>
             </div>
           </div>
         </div>
@@ -592,10 +594,10 @@ export default function AppointmentToolConfig({
               {saving ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  Saving...
+                  Guardando...
                 </>
               ) : (
-                'Save Settings'
+                'Guardar configuración'
               )}
             </button>
           </div>

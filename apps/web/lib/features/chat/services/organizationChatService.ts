@@ -221,7 +221,7 @@ export class OrganizationChatService {
    */
   async processChat(
     messages: ChatMessage[],
-    locale: string = 'en',
+    locale: string = 'es',
     progressEmitter?: (event: string, data?: any) => void
   ): Promise<ChatResponse & { organization: any }> {
     try {

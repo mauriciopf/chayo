@@ -135,7 +135,7 @@ export async function POST(req: NextRequest) {
         {
           user,
           organization: response.organization,
-          locale: validatedRequest.locale || 'en'
+          locale: validatedRequest.locale || 'es'
         }
       )
       console.log('✅ [API] Conversation stored successfully')

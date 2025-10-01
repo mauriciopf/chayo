@@ -42,7 +42,7 @@ export default class AuthErrorBoundary extends Component<Props, State> {
     const errorMessage = this.state.error?.message || 'Unknown authentication error';
     Alert.alert(
       'Error Details',
-      `Error: ${errorMessage}\n\nPlease contact support if this persists.`,
+      `Error: ${errorMessage}\n\nComunícate con soporte si el problema continúa.`,
       [{ text: 'OK' }]
     );
   };

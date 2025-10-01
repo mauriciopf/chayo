@@ -60,18 +60,18 @@ export default function DocumentToolConfig({
     event.target.value = ''
 
     if (file.type !== 'application/pdf') {
-      alert('Please select a PDF file')
+      alert('Selecciona un archivo PDF')
       return
     }
 
     if (file.size > 10 * 1024 * 1024) { // 10MB limit
-      alert('File size must be less than 10MB')
+      alert('El archivo debe pesar menos de 10MB')
       return
     }
 
     // Confirm replacement if documents exist
     if (documents.length > 0) {
-      const confirmReplace = confirm('This will replace your existing document. Continue?')
+      const confirmReplace = confirm('Esto reemplazará tu documento actual. ¿Deseas continuar?')
       if (!confirmReplace) {
         return
       }
@@ -89,7 +89,7 @@ export default function DocumentToolConfig({
 
       if (!response.ok) {
         const errorData = await response.json()
-        throw new Error(errorData.error || 'Upload failed')
+        throw new Error(errorData.error || 'Falló la carga')
       }
 
       const result = await response.json()
@@ -101,14 +101,14 @@ export default function DocumentToolConfig({
       
     } catch (error: any) {
       console.error('Upload error:', error)
-      alert(`Upload failed: ${error.message}`)
+      alert(`Falló la carga: ${error.message}`)
     } finally {
       setUploading(false)
     }
   }
 
   const handleDeleteDocument = async (documentId: string) => {
-    if (!confirm('Are you sure you want to delete this document? This action cannot be undone.')) {
+    if (!confirm('¿Seguro que deseas eliminar este documento? Esta acción no se puede deshacer.')) {
       return
     }
 
@@ -119,7 +119,7 @@ export default function DocumentToolConfig({
 
       if (!response.ok) {
         const errorData = await response.json()
-        throw new Error(errorData.error || 'Delete failed')
+        throw new Error(errorData.error || 'Falló la eliminación')
       }
 
       // Refresh documents list
@@ -128,7 +128,7 @@ export default function DocumentToolConfig({
       
     } catch (error: any) {
       console.error('Delete error:', error)
-      alert(`Delete failed: ${error.message}`)
+      alert(`Falló la eliminación: ${error.message}`)
     }
   }
 
@@ -136,7 +136,7 @@ export default function DocumentToolConfig({
     return (
       <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
         <p className="text-amber-800 text-sm">
-          Enable the Documents tool above to manage client document signing.
+          Activa la herramienta de Documentos para gestionar la firma de tus clientes.
         </p>
       </div>
     )
@@ -146,7 +146,7 @@ export default function DocumentToolConfig({
     <div className="border-t border-gray-200 pt-6">
       <div className="flex items-center gap-2 mb-4">
         <FileText className="w-5 h-5 text-blue-600" />
-        <h3 className="font-medium text-gray-900">Document Management</h3>
+        <h3 className="font-medium text-gray-900">Gestión de documentos</h3>
       </div>
       
       {/* Upload Section */}
@@ -163,14 +163,14 @@ export default function DocumentToolConfig({
             <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
             <p className="text-sm text-gray-600 mb-1">
               {uploading 
-                ? (documents.length > 0 ? 'Replacing...' : 'Uploading...') 
-                : (documents.length > 0 ? 'Click to replace PDF document' : 'Click to upload PDF document')
+                ? (documents.length > 0 ? 'Reemplazando...' : 'Subiendo...') 
+                : (documents.length > 0 ? 'Haz clic para reemplazar el PDF' : 'Haz clic para subir un PDF')
               }
             </p>
             <p className="text-xs text-gray-500">
               {documents.length > 0 
-                ? 'This will replace your current document • PDF files only, max 10MB'
-                : 'PDF files only, max 10MB'
+                ? 'Esto reemplazará tu documento actual • Solo archivos PDF, máximo 10MB'
+                : 'Solo archivos PDF, máximo 10MB'
               }
             </p>
           </div>
@@ -179,17 +179,17 @@ export default function DocumentToolConfig({
 
       {/* Documents List */}
       <div>
-        <h4 className="font-medium text-gray-900 mb-3">Uploaded Documents</h4>
+        <h4 className="font-medium text-gray-900 mb-3">Documentos cargados</h4>
         {documentLoading ? (
           <div className="text-center py-4">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="text-sm text-gray-500 mt-2">Loading documents...</p>
+            <p className="text-sm text-gray-500 mt-2">Cargando documentos...</p>
           </div>
         ) : documents.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             <FileText className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-sm">No documents uploaded yet</p>
-            <p className="text-xs">Upload PDF documents to enable client signing</p>
+            <p className="text-sm">Aún no subes documentos</p>
+            <p className="text-xs">Sube documentos PDF para habilitar la firma de clientes</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -213,7 +213,7 @@ export default function DocumentToolConfig({
                   <button
                     onClick={() => handleDeleteDocument(document.id)}
                     className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 rounded"
-                    title="Delete document"
+                    title="Eliminar documento"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>

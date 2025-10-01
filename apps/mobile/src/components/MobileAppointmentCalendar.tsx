@@ -56,11 +56,11 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
   // Set up navigation headers based on current state
   useEffect(() => {
     if (showBookingForm) {
-      setScreenHeader('Book Appointment', {
+      setScreenHeader('Reservar cita', {
         onBackPress: () => setShowBookingForm(false),
       });
     } else if (showTimeSlots) {
-      setScreenHeader('Select Time', {
+      setScreenHeader('Selecciona hora', {
         onBackPress: () => setShowTimeSlots(false),
       });
     } else {
@@ -101,7 +101,7 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
   };
 
   const formatDate = (date: Date) => {
-    return date.toLocaleDateString('en-US', {
+    return date.toLocaleDateString('es', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
@@ -161,7 +161,7 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
         clientEmail: user.email,
         appointmentDate: selectedDate ? formatDateForAPI(selectedDate) : '',
         appointmentTime: selectedTime,
-        serviceType: 'General Consultation',
+        serviceType: 'Consulta general',
         notes: appointmentDetails.notes,
       };
 
@@ -191,8 +191,8 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
 
       if (response.ok) {
         Alert.alert(
-          'Success!',
-          `Your appointment has been booked for ${formatDate(selectedDate!)} at ${selectedTime}.\n\nConfirmation will be sent to ${user.email}`,
+          '¡Listo!',
+          `Tu cita fue reservada para ${formatDate(selectedDate!)} a las ${selectedTime}.\n\nTe enviaremos la confirmación a ${user.email}.`,
           [
             {
               text: 'OK',
@@ -212,11 +212,11 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
           ]
         );
       } else {
-        Alert.alert('Error', result.error || 'Failed to book appointment. Please try again.');
+        Alert.alert('Error', result.error || 'No se pudo reservar la cita. Por favor intenta de nuevo.');
       }
     } catch (error) {
       console.error('Booking error:', error);
-      Alert.alert('Error', 'Network error. Please check your connection and try again.');
+      Alert.alert('Error', 'Error de red. Verifica tu conexión e intenta nuevamente.');
     } finally {
       setIsLoading(false);
     }
@@ -235,11 +235,11 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
   };
 
   const monthNames = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December',
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
   ];
 
-  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
   if (showBookingForm) {
     return (
@@ -258,14 +258,14 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
 
           <View style={[styles.form, { backgroundColor: theme.backgroundColor }]}>
             <View style={styles.inputGroup}>
-              <Text style={[styles.label, themedStyles.primaryText, { fontSize: fontSizes.sm }]}>Notes (Optional)</Text>
+              <Text style={[styles.label, themedStyles.primaryText, { fontSize: fontSizes.sm }]}>Notas (opcional)</Text>
               <TextInput
                 style={[styles.input, styles.textArea, { backgroundColor: theme.surfaceColor, color: theme.textColor, borderColor: theme.borderColor }]}
                 value={appointmentDetails.notes}
                 onChangeText={(text) =>
                   setAppointmentDetails(prev => ({ ...prev, notes: text }))
                 }
-                placeholder="Any additional information or special requests..."
+                placeholder="Información adicional o solicitudes especiales..."
                 placeholderTextColor={theme.placeholderColor}
                 multiline
                 numberOfLines={4}
@@ -277,8 +277,8 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
               tool="appointments"
               organizationId={config?.organizationId || organizationId}
               onAuthenticated={handleAuthenticatedBooking}
-              title="Sign in to book your appointment"
-              message={`Confirm your appointment for ${formatDate(selectedDate!)} at ${selectedTime}`}
+              title="Inicia sesión para reservar tu cita"
+              message={`Confirma tu cita para ${formatDate(selectedDate!)} a las ${selectedTime}`}
             >
               <TouchableOpacity
                 style={[styles.bookButton, { backgroundColor: theme.primaryColor }, isLoading && styles.bookButtonDisabled]}
@@ -291,7 +291,7 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
                     <AppointmentSkeleton />
                   </View>
                 ) : (
-                  <Text style={[styles.bookButtonText, { color: theme.backgroundColor, fontSize: fontSizes.base }]}>Book Appointment</Text>
+                  <Text style={[styles.bookButtonText, { color: theme.backgroundColor, fontSize: fontSizes.base }]}>Reservar cita</Text>
                 )}
               </TouchableOpacity>
             </AuthGate>
@@ -313,7 +313,7 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
         </View>
 
         <ScrollView style={[styles.timeSlotsContainer, { backgroundColor: theme.backgroundColor }]}>
-          <Text style={[styles.sectionTitle, { color: theme.textColor, fontSize: fontSizes.lg }]}>Available Times</Text>
+          <Text style={[styles.sectionTitle, { color: theme.textColor, fontSize: fontSizes.lg }]}>Horarios disponibles</Text>
           <View style={styles.timeSlotGrid}>
             {timeSlots.map((time) => (
               <TouchableOpacity

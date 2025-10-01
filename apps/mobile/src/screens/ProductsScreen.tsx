@@ -68,19 +68,20 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({ navigation }) =>
       setError(null);
       const response = await fetch(`${config.apiBaseUrl}/api/products?organizationId=${config.organizationId}&limit=50`);
       if (!response.ok) {
-        throw new Error('Failed to fetch products');
+        throw new Error(t('products.error.fetchFailure'));
       }
 
       const data = await response.json();
       setProducts(data.products || []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load products');
+      const fallbackMessage = t('products.error.subtitle');
+      setError(err instanceof Error ? err.message : fallbackMessage);
       console.error('Error fetching products:', err);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [config]);
+  }, [config, t]);
 
   useEffect(() => {
     fetchProducts();

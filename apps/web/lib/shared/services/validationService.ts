@@ -57,12 +57,12 @@ export class ValidationService {
     }
 
     // Validate locale
-    let locale = 'en'
+    let locale = 'es'
     if (data.locale !== undefined) {
       if (typeof data.locale !== 'string') {
         throw new Error('locale must be a string')
       }
-      const validLocales = ['en', 'es']
+      const validLocales = ['es']
       if (!validLocales.includes(data.locale)) {
         throw new Error(`locale must be one of: ${validLocales.join(', ')}`)
       }

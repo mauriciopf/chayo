@@ -96,7 +96,36 @@
     "signSuccess": "¡Tu documento ha sido firmado exitosamente!",
     "loadError": "Error al cargar documentos",
     "signing": "Firmando documento...",
-    "viewDocument": "Ver Documento"
+    "viewDocument": "Ver Documento",
+    "errors": {
+      "title": "No se pudieron cargar los documentos",
+      "message": "Ocurrió un problema al cargar tus documentos.",
+      "retry": "Intentar de nuevo"
+    },
+    "empty": {
+      "title": "No hay documentos disponibles",
+      "subtitle": "Aún no hay documentos para firmar en este momento."
+    },
+    "list": {
+      "title": "Documentos para firmar",
+      "subtitle": "{{count}} documento disponible",
+      "subtitle_plural": "{{count}} documentos disponibles"
+    },
+    "viewer": {
+      "loadFailed": "No se pudo cargar el documento",
+      "pdfMissing": "El PDF no se ha cargado. Por favor intenta nuevamente.",
+      "signSuccessTitle": "Documento firmado",
+      "signSuccessMessage": "¡Documento firmado con éxito!\n\nSe envió una copia a {{email}}.",
+      "signSuccessToast": "Documento firmado con éxito",
+      "signFailed": "No se pudo firmar el documento",
+      "errorTitle": "No se pudo cargar el documento",
+      "retry": "Intentar de nuevo",
+      "signInTitle": "Inicia sesión para firmar este documento",
+      "signInMessage": "Firma digitalmente \"{{name}}\"",
+      "signButton": "Firmar documento",
+      "headerTitle": "Documento",
+      "formTitle": "Firmar documento"
+    }
   },
   "faqs": {
     "title": "Preguntas Frecuentes",
@@ -121,7 +150,8 @@
     "error": {
       "title": "Error al cargar productos",
       "subtitle": "Por favor revisa tu conexión e intenta de nuevo",
-      "retry": "Intentar de Nuevo"
+      "retry": "Intentar de Nuevo",
+      "fetchFailure": "No se pudieron obtener los productos"
     },
     "detail": {
       "title": "Detalles del Producto",
@@ -144,6 +174,10 @@
     "about": "Acerca de",
     "signOut": "Cerrar Sesión",
     "version": "Versión"
+  },
+  "authGate": {
+    "authenticationFailed": "No se pudo autenticar. Por favor intenta de nuevo.",
+    "completeAuthenticationFailed": "No se pudo completar la autenticación. Por favor intenta de nuevo."
   },
   "onboarding": {
     "welcome": "Bienvenido a Chayo",

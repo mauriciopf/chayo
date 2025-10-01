@@ -2,9 +2,9 @@ import type { Metadata } from 'next'
 import '../../globals.css'
 
 export const metadata: Metadata = {
-  title: 'Chat with AI Assistant | Chayo AI',
-  description: 'Chat with your business AI assistant powered by Chayo AI',
-  robots: 'noindex, nofollow', // Keep client chats private
+  title: 'Chatea con tu asistente de IA | Chayo AI',
+  description: 'Habla con tu asistente de negocio impulsado por Chayo AI',
+  robots: 'noindex, nofollow', // Mantener privados los chats de clientes
 }
 
 export default function ClientChatLayout({
@@ -13,7 +13,7 @@ export default function ClientChatLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="es">
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
         <meta name="apple-mobile-web-app-capable" content="yes" />

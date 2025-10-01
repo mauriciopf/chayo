@@ -10,11 +10,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { message, organizationId, messages = [] } = body
     
-    // Only support 'en' (default) and 'es', everything else defaults to English
-    let locale = body.locale || 'en'
-    if (locale !== 'en' && locale !== 'es') {
-      console.warn(`🌍 Unsupported locale "${body.locale}" provided, falling back to English`)
-      locale = 'en'
+    // Force Spanish locale for all client conversations
+    let locale = 'es'
+    if (body.locale && body.locale !== 'es') {
+      console.warn(`🌍 Unsupported locale "${body.locale}" provided, falling back to Spanish`)
     }
 
     if (!message || !organizationId) {
@@ -90,9 +89,7 @@ export async function POST(request: NextRequest) {
         intents = structuredResponse.intents
       } else {
         // No tools enabled, use regular completion
-        const fallbackMessage = locale === 'es' 
-          ? 'Lo siento, no pude generar una respuesta.'
-          : 'Sorry, I could not generate a response.'
+        const fallbackMessage = 'Lo siento, no pude generar una respuesta.'
         const rawResponse = await openAIService.callCompletion(openAIMessages, {
           model: 'gpt-4o-mini',
           maxTokens: 500,
@@ -103,9 +100,7 @@ export async function POST(request: NextRequest) {
       }
     } catch (error) {
       console.error('❌ OpenAI API error:', error)
-      const errorMessage = locale === 'es' 
-        ? 'Lo siento, ocurrió un error. Por favor, intenta nuevamente.'
-        : 'Sorry, an error occurred. Please try again.'
+      const errorMessage = 'Lo siento, ocurrió un error. Por favor, intenta nuevamente.'
       return NextResponse.json({
         response: errorMessage
       })

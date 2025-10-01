@@ -209,8 +209,8 @@ export const SteppedForm: React.FC<SteppedFormProps> = ({
                 tool="intake_forms"
                 organizationId={organizationId || config?.organizationId || ''}
                 onAuthenticated={onAuthenticatedSubmit}
-                title="Sign in to submit your form"
-                message="We need your email to send you a copy of your submission"
+                title="Inicia sesión para enviar tu formulario"
+                message="Necesitamos tu correo para enviarte una copia de tu respuesta"
               >
                 <TouchableOpacity
                   style={[styles.accessoryButton, { backgroundColor: theme.primaryColor }]}

@@ -16,12 +16,12 @@ export class IntakeFormService {
       
       if (!response.ok) {
         if (response.status === 404) {
-          throw new Error('Form not found');
+          throw new Error('Formulario no encontrado');
         } else if (response.status === 400) {
           const errorData = await response.json();
-          throw new Error(errorData.error || 'This form is no longer available');
+          throw new Error(errorData.error || 'Este formulario ya no está disponible');
         }
-        throw new Error(`Failed to load form: ${response.statusText}`);
+        throw new Error(`No se pudo cargar el formulario: ${response.statusText}`);
       }
 
       const data = await response.json();
@@ -61,7 +61,7 @@ export class IntakeFormService {
       const responseData = await response.json();
 
       if (!response.ok) {
-        throw new Error(responseData.error || 'Failed to submit form');
+        throw new Error(responseData.error || 'No se pudo enviar el formulario');
       }
 
       return responseData;
@@ -80,9 +80,9 @@ export class IntakeFormService {
       
       if (!response.ok) {
         if (response.status === 404) {
-          throw new Error('Organization not found');
+          throw new Error('Organización no encontrada');
         }
-        throw new Error(`Failed to load forms: ${response.statusText}`);
+        throw new Error(`No se pudieron cargar los formularios: ${response.statusText}`);
       }
 
       const data = await response.json();

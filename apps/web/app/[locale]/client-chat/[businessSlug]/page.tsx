@@ -159,7 +159,7 @@ export default function ClientChatBusinessPage() {
         setAgent(agent)
         setLoading(false)
       } catch (err) {
-        setError('Failed to load chat')
+        setError('No se pudo cargar el chat')
         setLoading(false)
       }
     }
@@ -171,7 +171,7 @@ export default function ClientChatBusinessPage() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading chat...</p>
+          <p className="text-gray-600">Cargando chat...</p>
         </div>
       </div>
     )
@@ -181,9 +181,9 @@ export default function ClientChatBusinessPage() {
       <div className="min-h-screen bg-gradient-to-br from-red-50 to-pink-100 flex items-center justify-center">
         <div className="text-center">
           <div className="text-6xl mb-4">❌</div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Chat Not Available</h1>
-          <p className="text-gray-600 mb-4">{error || 'This chat link is not valid'}</p>
-          <p className="text-sm text-gray-500">Please contact the business for a valid chat link</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Chat no disponible</h1>
+          <p className="text-gray-600 mb-4">{error || 'Este enlace de chat no es válido'}</p>
+          <p className="text-sm text-gray-500">Por favor contacta al negocio para obtener un enlace válido</p>
         </div>
       </div>
     )

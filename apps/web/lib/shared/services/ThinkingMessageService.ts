@@ -72,10 +72,10 @@ export class ThinkingMessageService {
     // Simple fallback messages for when real data isn't available
     const defaultMessages = {
       default: [
-        "🤖 AI is thinking...",
-        "💭 Processing your request...",
-        "⚡ Working on it...",
-        "🔄 Analyzing information..."
+        "🤖 La IA está pensando...",
+        "💭 Procesando tu solicitud...",
+        "⚡ Trabajando en ello...",
+        "🔄 Analizando la información..."
       ]
     }
 
@@ -94,7 +94,7 @@ export class ThinkingMessageService {
     messages = this.getMessagesForContext(context)
     
     // Initialize with first message
-    this.currentMessages.set(instanceId, messages[0] || 'AI is thinking...')
+    this.currentMessages.set(instanceId, messages[0] || 'La IA está pensando...')
     this.currentIndices.set(instanceId, 0)
     this.messageArrays.set(instanceId, messages)
     this.messageCallbacks.set(instanceId, [])
@@ -104,7 +104,7 @@ export class ThinkingMessageService {
       this.stop(instanceId)
       // Use whatever is already in the message array
       // Set initial message
-      const initialMessage = messages[currentIndex] || 'AI is thinking...'
+      const initialMessage = messages[currentIndex] || 'La IA está pensando...'
       this.currentMessages.set(instanceId, initialMessage)
       this.notifyCallbacks(instanceId, initialMessage)
       
@@ -129,7 +129,7 @@ export class ThinkingMessageService {
     }
 
     const getCurrentMessage = () => {
-      return this.currentMessages.get(instanceId) || messages[0] || 'AI is thinking...'
+      return this.currentMessages.get(instanceId) || messages[0] || 'La IA está pensando...'
     }
 
     const getAllMessages = () => {
@@ -167,49 +167,49 @@ export class ThinkingMessageService {
       }
       
       const map: Record<string, string[]> = {
-        initializing: ['🤖 Getting things ready...', '🔧 Preparing context...'],
-        checkingExistingQuestion: ['🔎 Checking pending questions...', '🧭 Looking for where we left off...'],
-        buildingContext: ['🧠 Summarizing what we already know...', '📋 Reviewing your answers...'],
-        buildingPrompt: ['✍️ Framing the next question...', '🧩 Structuring the assistant prompt...'],
-        retrievingKnowledge: ['📚 Reviewing your previous answers...', '🔎 Retrieving relevant info...'],
-        callingAI: ['🤝 Talking to the assistant...', '📡 Generating the best next step...'],
-        parsingResponse: ['🔍 Interpreting the response...', '🧪 Validating result...'],
-        updatingProfile: ['💾 Saving your business info...', '📊 Updating your profile...'],
-        updatingProgress: ['📈 Updating progress...', '🗂️ Advancing your onboarding...'],
+        initializing: ['🤖 Preparando todo...', '🔧 Configurando el contexto...'],
+        checkingExistingQuestion: ['🔎 Revisando preguntas pendientes...', '🧭 Buscando dónde nos quedamos...'],
+        buildingContext: ['🧠 Resumiendo lo que ya sabemos...', '📋 Revisando tus respuestas...'],
+        buildingPrompt: ['✍️ Preparando la siguiente pregunta...', '🧩 Estructurando el mensaje del asistente...'],
+        retrievingKnowledge: ['📚 Repasando tus respuestas anteriores...', '🔎 Recuperando información relevante...'],
+        callingAI: ['🤝 Consultando al asistente...', '📡 Generando el mejor siguiente paso...'],
+        parsingResponse: ['🔍 Interpretando la respuesta...', '🧪 Validando el resultado...'],
+        updatingProfile: ['💾 Guardando la información de tu negocio...', '📊 Actualizando tu perfil...'],
+        updatingProgress: ['📈 Actualizando tu progreso...', '🗂️ Avanzando en tu onboarding...'],
         switchingMode: [
-          '🎉 Setup completed! Transitioning to business mode...',
-          '⚙️ Configuring your business assistant...',
-          '🔄 Training mode is starting...',
-          '✨ Getting ready to help with your business...'
+          '🎉 ¡Configuración completa! Entrando en modo negocio...',
+          '⚙️ Configurando tu asistente empresarial...',
+          '🔄 Iniciando modo de entrenamiento...',
+          '✨ Preparando todo para ayudarte con tu negocio...'
         ],
         generatingVibeCard: [
-          '🎨 Creating your marketplace vibe card...',
-          '✨ Preparing your unique business story...'
+          '🎨 Creando tu tarjeta de vibra del marketplace...',
+          '✨ Preparando la historia única de tu negocio...'
         ],
         analyzingBusiness: [
-          '🔍 Analyzing your business information...',
-          '📊 Understanding your unique story and values...'
+          '🔍 Analizando la información de tu negocio...',
+          '📊 Entendiendo tu historia y valores únicos...'
         ],
         craftingStory: [
-          '📝 Crafting your compelling business narrative...',
-          '💫 Weaving together your story elements...'
+          '📝 Redactando una narrativa atractiva para tu negocio...',
+          '💫 Uniendo todos los elementos de tu historia...'
         ],
         selectingColors: [
-          '🎨 Selecting perfect colors for your brand...',
-          '🌈 Choosing colors that match your vibe...'
+          '🎨 Seleccionando los colores perfectos para tu marca...',
+          '🌈 Eligiendo tonos que reflejan tu vibra...'
         ],
         generatingVibeImage: [
-          '🖼️ AI is creating your unique vibe card image...',
-          '🎭 Painting your visual identity...',
-          '⏳ This may take 1-2 minutes for the best quality...'
+          '🖼️ La IA está creando la imagen de tu tarjeta de vibra...',
+          '🎭 Pintando tu identidad visual...',
+          '⏳ Esto puede tardar 1-2 minutos para lograr la mejor calidad...'
         ],
         finalizingVibeCard: [
-          '✨ Adding final touches to your vibe card...',
-          '🎯 Perfecting every detail...'
+          '✨ Dando los últimos toques a tu tarjeta de vibra...',
+          '🎯 Cuidando cada detalle...'
         ],
-        'auth-check': ['🔐 Verifying authentication...', '🛡️ Checking credentials...'],
-        'dashboard-loading': ['📊 Loading your business data...', '🏢 Initializing dashboard...'],
-        done: ['✅ Done', '🎉 Ready']
+        'auth-check': ['🔐 Verificando autenticación...', '🛡️ Revisando credenciales...'],
+        'dashboard-loading': ['📊 Cargando la información de tu negocio...', '🏢 Inicializando el panel...'],
+        done: ['✅ Listo', '🎉 Preparado']
       }
       const msgs = map[phaseName]
       if (msgs && msgs.length > 0) {

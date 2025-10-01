@@ -89,7 +89,7 @@ export async function signInWithApple(): Promise<AuthUser> {
   });
 
   if (!credential.identityToken) {
-    throw new Error('Apple Sign-In failed: no identityToken');
+    throw new Error('Inicio de sesión con Apple falló: no se recibió identityToken');
   }
 
   // Exchange with Supabase
@@ -125,7 +125,7 @@ export async function signInWithGoogle(): Promise<AuthUser> {
   const idToken = tokens.idToken || userInfo.data?.idToken;
   
   if (!idToken) {
-    throw new Error('Google Sign-In failed: no idToken');
+    throw new Error('Inicio de sesión con Google falló: no se recibió idToken');
   }
 
   // Exchange with Supabase

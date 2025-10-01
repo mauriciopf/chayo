@@ -273,7 +273,7 @@ export const MobileIntakeForm: React.FC<MobileIntakeFormProps> = ({
 
       onFormLoad?.(loadedForm);
     } catch (error) {
-      Alert.alert('Error', error instanceof Error ? error.message : 'Failed to load form');
+      Alert.alert('Error', error instanceof Error ? error.message : 'No se pudo cargar el formulario');
     } finally {
       setLoading(false);
     }
@@ -334,7 +334,7 @@ export const MobileIntakeForm: React.FC<MobileIntakeFormProps> = ({
         { anonymousUserId }
       );
 
-      Alert.alert('Success', result.message);
+      Alert.alert('Éxito', result.message);
       onSubmissionComplete?.(true, result.message);
 
       // Reset form
@@ -344,7 +344,7 @@ export const MobileIntakeForm: React.FC<MobileIntakeFormProps> = ({
       }
 
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to submit form';
+      const errorMessage = error instanceof Error ? error.message : 'No se pudo enviar el formulario';
       Alert.alert('Error', errorMessage);
       onSubmissionComplete?.(false, errorMessage);
     } finally {
@@ -396,7 +396,7 @@ export const MobileIntakeForm: React.FC<MobileIntakeFormProps> = ({
         { anonymousUserId }
       );
 
-      Alert.alert('Success', `Form submitted successfully!\n\nA copy has been sent to ${user.email}`);
+      Alert.alert('Éxito', `¡Formulario enviado con éxito!\n\nSe envió una copia a ${user.email}`);
       onSubmissionComplete?.(true, result.message);
 
       // Reset form
@@ -406,7 +406,7 @@ export const MobileIntakeForm: React.FC<MobileIntakeFormProps> = ({
       }
 
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to submit form';
+      const errorMessage = error instanceof Error ? error.message : 'No se pudo enviar el formulario';
       Alert.alert('Error', errorMessage);
       onSubmissionComplete?.(false, errorMessage);
     } finally {

@@ -13,7 +13,7 @@ interface UseClientModeChatProps {
 export function useClientModeChat({
   agent,
   organization,
-  locale = 'en'
+  locale = 'es'
 }: UseClientModeChatProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
@@ -174,13 +174,12 @@ export function useClientModeChat({
   }
 
   const generateFAQMessage = async (): Promise<Message | null> => {
-    const faqLanguage = locale === 'es' ? 'es' : 'en'
     return {
       id: `faq-${Date.now()}`,
       content: `❓ **Preguntas Frecuentes**\n\nPuedes consultar nuestras preguntas frecuentes para obtener respuestas rápidas a consultas comunes.`,
       role: 'ai', 
       timestamp: new Date(),
-      faqLink: `/${faqLanguage}/faqs/${organization.slug}`
+      faqLink: `/es/faqs/${organization.slug}`
     }
   }
 
@@ -298,7 +297,7 @@ export function useClientModeChat({
       })
 
       if (!response.ok) {
-        throw new Error('Failed to send message')
+        throw new Error('No se pudo enviar el mensaje')
       }
 
       const data = await response.json()
@@ -327,7 +326,7 @@ export function useClientModeChat({
       }
     } catch (err) {
       console.error('Error sending message:', err)
-      setError('Failed to send message. Please try again.')
+      setError('No se pudo enviar el mensaje. Por favor intenta de nuevo.')
       // Remove the user message on error
       setMessages(prev => prev.slice(0, -1))
     } finally {

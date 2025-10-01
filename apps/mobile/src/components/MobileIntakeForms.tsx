@@ -59,7 +59,7 @@ export const MobileIntakeForms: React.FC<MobileIntakeFormsProps> = ({ organizati
       setForms(activeForms);
     } catch (error) {
       console.error('Error loading forms:', error);
-      Alert.alert('Error', 'Failed to load intake forms');
+      Alert.alert('Error', 'No se pudieron cargar los formularios');
     } finally {
       setLoading(false);
     }

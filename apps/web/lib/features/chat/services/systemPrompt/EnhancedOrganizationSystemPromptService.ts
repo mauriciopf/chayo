@@ -14,7 +14,7 @@ export class EnhancedOrganizationSystemPromptService {
   constructor() {}
 
   async generateEnhancedPrompt(
-    locale: string = 'en'
+    locale: string = 'es'
   ): Promise<{ systemContent: string }> {
     try {
       // Build the enhanced system prompt using YAML configuration

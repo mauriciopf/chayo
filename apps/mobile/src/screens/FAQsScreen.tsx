@@ -48,7 +48,7 @@ export const FAQsScreen: React.FC<FAQsScreenProps> = ({ navigation }) => {
       const response = await fetch(`${config.apiBaseUrl}/api/faqs/${config.organizationSlug}`);
 
       if (!response.ok) {
-        throw new Error('Failed to fetch FAQs');
+        throw new Error('No se pudieron cargar las preguntas frecuentes');
       }
 
       const data = await response.json();
@@ -74,7 +74,7 @@ export const FAQsScreen: React.FC<FAQsScreenProps> = ({ navigation }) => {
       setError(null);
     } catch (err) {
       console.error('Error fetching FAQs:', err);
-      setError('Failed to load FAQs. Please try again.');
+      setError('No se pudieron cargar las preguntas frecuentes. Intenta de nuevo.');
     } finally {
       setLoading(false);
     }

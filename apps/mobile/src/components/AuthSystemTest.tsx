@@ -28,27 +28,27 @@ export default function AuthSystemTest() {
 
   const handleTestAppointment = (user: any, customerId: string) => {
     Alert.alert(
-      'Appointment Test Success!',
-      `User: ${user.fullName} (${user.email})\nCustomer ID: ${customerId}\nOrganization: ${config?.organizationId}`
+      '¡Prueba de citas exitosa!',
+      `Usuario: ${user.fullName} (${user.email})\nID de cliente: ${customerId}\nOrganización: ${config?.organizationId}`
     );
   };
 
   const handleTestForm = (user: any, customerId: string) => {
     Alert.alert(
-      'Form Test Success!',
-      `User: ${user.fullName} (${user.email})\nCustomer ID: ${customerId}\nOrganization: ${config?.organizationId}`
+      '¡Prueba de formularios exitosa!',
+      `Usuario: ${user.fullName} (${user.email})\nID de cliente: ${customerId}\nOrganización: ${config?.organizationId}`
     );
   };
 
   const handleTestDocument = (user: any, customerId: string) => {
     Alert.alert(
-      'Document Test Success!',
-      `User: ${user.fullName} (${user.email})\nCustomer ID: ${customerId}\nOrganization: ${config?.organizationId}`
+      '¡Prueba de documentos exitosa!',
+      `Usuario: ${user.fullName} (${user.email})\nID de cliente: ${customerId}\nOrganización: ${config?.organizationId}`
     );
   };
 
   const handleManualLoginSuccess = (user: any) => {
-    Alert.alert('Manual Login Success!', `Welcome ${user.fullName}!`);
+    Alert.alert('Inicio de sesión manual exitoso', `¡Bienvenido ${user.fullName}!`);
     setShowManualLogin(false);
   };
 
@@ -154,7 +154,7 @@ export default function AuthSystemTest() {
             message="Testing appointment booking authentication"
           >
             <TouchableOpacity style={styles.testButton}>
-              <Text style={[styles.testButtonText, { fontSize: fontSizes.base }]}>📅 Test Appointment Booking</Text>
+              <Text style={[styles.testButtonText, { fontSize: fontSizes.base }]}>📅 Probar reservas de citas</Text>
             </TouchableOpacity>
           </AuthGate>
 
@@ -183,7 +183,7 @@ export default function AuthSystemTest() {
           </AuthGate>
         </View>
 
-        {/* Sign Out */}
+        {/* Cerrar sesión */}
         {user && (
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, { fontSize: fontSizes.lg }]}>Session Management</Text>
@@ -191,7 +191,7 @@ export default function AuthSystemTest() {
               style={styles.signOutButton}
               onPress={signOut}
             >
-              <Text style={[styles.signOutButtonText, { fontSize: fontSizes.base }]}>Sign Out</Text>
+              <Text style={[styles.signOutButtonText, { fontSize: fontSizes.base }]}>Cerrar sesión</Text>
             </TouchableOpacity>
           </View>
         )}

@@ -4,8 +4,8 @@ import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
 
 const intlMiddleware = createIntlMiddleware({
-  locales: ["en", "es"],
-  defaultLocale: "en",
+  locales: ["es"],
+  defaultLocale: "es",
   localePrefix: "always",
   localeDetection: true,
 });

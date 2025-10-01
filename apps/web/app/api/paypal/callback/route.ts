@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
       headers: {
         'Authorization': `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
         'Accept': 'application/json',
-        'Accept-Language': 'en_US',
+        'Accept-Language': 'es_US',
         'Content-Type': 'application/x-www-form-urlencoded'
       },
       body: new URLSearchParams({

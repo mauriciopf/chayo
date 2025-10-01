@@ -50,7 +50,6 @@ export interface SystemPromptConfig {
   dynamics: string
   completion_signal: string
   language: {
-    en: string
     es: string
   }
   fallback_prompt: string
@@ -81,14 +80,14 @@ export class YamlPromptLoader {
   }
 
 
-  static async buildSystemPrompt(locale: string = 'en', trainingContext?: string, isSetupCompleted?: boolean): Promise<string> {
+  static async buildSystemPrompt(locale: string = 'es', trainingContext?: string, isSetupCompleted?: boolean): Promise<string> {
     const config = await this.loadConfig(isSetupCompleted)
     
     // Get simplified language instructions
     const localeInstructions = getLocaleInstructions(locale)
     
     // Use YAML language section as fallback, but prefer the generic i18n instructions
-    const languageSection = config.language?.[locale as keyof typeof config.language] || config.language?.en || localeInstructions.responseLanguage
+    const languageSection = config.language?.[locale as keyof typeof config.language] || config.language?.es || localeInstructions.responseLanguage
     
     // 🎯 STRUCTURED OUTPUTS: No longer need complex JSON formatting instructions
     // OpenAI's response_format parameter guarantees proper JSON structure

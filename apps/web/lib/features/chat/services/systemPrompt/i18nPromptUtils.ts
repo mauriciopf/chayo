@@ -10,10 +10,6 @@ export interface BusinessLocaleInstructions extends LocaleInstructions {}
 
 // Simplified locale instructions - focus only on language
 const LOCALE_INSTRUCTIONS = {
-  en: {
-    responseLanguage: 'ALWAYS respond in English. Use a professional but friendly tone.',
-    tone: 'professional but friendly'
-  },
   es: {
     responseLanguage: 'SIEMPRE responde en español. Usa un tono profesional pero amigable.',
     tone: 'profesional pero amigable'
@@ -21,17 +17,17 @@ const LOCALE_INSTRUCTIONS = {
 } as const
 
 export function getLocaleInstructions(locale: string): LocaleInstructions {
-  const instructions = LOCALE_INSTRUCTIONS[locale as keyof typeof LOCALE_INSTRUCTIONS] || LOCALE_INSTRUCTIONS.en
+  const instructions = LOCALE_INSTRUCTIONS[locale as keyof typeof LOCALE_INSTRUCTIONS] || LOCALE_INSTRUCTIONS.es
   return instructions
 }
 
 export function getOnboardingLocaleInstructions(locale: string): OnboardingLocaleInstructions {
-  const instructions = LOCALE_INSTRUCTIONS[locale as keyof typeof LOCALE_INSTRUCTIONS] || LOCALE_INSTRUCTIONS.en
+  const instructions = LOCALE_INSTRUCTIONS[locale as keyof typeof LOCALE_INSTRUCTIONS] || LOCALE_INSTRUCTIONS.es
   return instructions as OnboardingLocaleInstructions
 }
 
 export function getBusinessLocaleInstructions(locale: string): BusinessLocaleInstructions {
-  const instructions = LOCALE_INSTRUCTIONS[locale as keyof typeof LOCALE_INSTRUCTIONS] || LOCALE_INSTRUCTIONS.en
+  const instructions = LOCALE_INSTRUCTIONS[locale as keyof typeof LOCALE_INSTRUCTIONS] || LOCALE_INSTRUCTIONS.es
   return instructions as BusinessLocaleInstructions
 }
 

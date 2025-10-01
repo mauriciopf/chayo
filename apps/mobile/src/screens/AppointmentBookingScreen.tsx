@@ -82,8 +82,8 @@ export const AppointmentBookingScreen: React.FC = () => {
       );
 
       Alert.alert(
-        'Appointment Booked!',
-        `Your appointment has been scheduled for ${formatDate(selectedDate)} at ${selectedTime}.`,
+        '¡Cita reservada!',
+        `Tu cita ha sido programada para ${formatDate(selectedDate)} a las ${selectedTime}.`,
         [
           {
             text: 'OK',
@@ -97,8 +97,8 @@ export const AppointmentBookingScreen: React.FC = () => {
     } catch (error) {
       console.error('Error booking appointment:', error);
       Alert.alert(
-        'Booking Failed',
-        'There was an error booking your appointment. Please try again.',
+        'No se pudo reservar la cita',
+        'Ocurrió un error al reservar tu cita. Intenta de nuevo.',
         [{ text: 'OK' }]
       );
     } finally {
@@ -112,23 +112,19 @@ export const AppointmentBookingScreen: React.FC = () => {
         {/* Appointment Details */}
         <View style={styles.detailsContainer}>
           <Text style={[styles.sectionTitle, { color: theme.textColor, fontSize: fontSizes.lg }]}>
-            Appointment Details
+            Detalles de la cita
           </Text>
           
           <View style={[styles.detailCard, { backgroundColor: theme.surfaceColor }]}>
             <View style={styles.detailRow}>
-              <Text style={[styles.detailLabel, { color: theme.placeholderColor, fontSize: fontSizes.sm }]}>
-                Date
-              </Text>
+              <Text style={[styles.detailLabel, { color: theme.placeholderColor, fontSize: fontSizes.sm }]}>Fecha</Text>
               <Text style={[styles.detailValue, { color: theme.textColor, fontSize: fontSizes.base }]}>
                 {formatDate(selectedDate)}
               </Text>
             </View>
             
             <View style={styles.detailRow}>
-              <Text style={[styles.detailLabel, { color: theme.placeholderColor, fontSize: fontSizes.sm }]}>
-                Time
-              </Text>
+              <Text style={[styles.detailLabel, { color: theme.placeholderColor, fontSize: fontSizes.sm }]}>Hora</Text>
               <Text style={[styles.detailValue, { color: theme.textColor, fontSize: fontSizes.base }]}>
                 {selectedTime}
               </Text>
@@ -152,7 +148,7 @@ export const AppointmentBookingScreen: React.FC = () => {
                 fontSize: fontSizes.base,
               }
             ]}
-            placeholder="Any special requests or notes..."
+            placeholder="Solicitudes especiales o notas adicionales..."
             placeholderTextColor={theme.placeholderColor}
             value={notes}
             onChangeText={setNotes}
@@ -169,8 +165,8 @@ export const AppointmentBookingScreen: React.FC = () => {
           tool="appointments"
           organizationId={organizationId}
           onAuthenticated={handleAuthenticatedBooking}
-          title="Sign in to book your appointment"
-          message={`Confirm your appointment for ${formatDate(selectedDate)} at ${selectedTime}`}
+          title="Inicia sesión para reservar tu cita"
+          message={`Confirma tu cita para ${formatDate(selectedDate)} a las ${selectedTime}`}
         >
           <TouchableOpacity
             style={[
@@ -183,7 +179,7 @@ export const AppointmentBookingScreen: React.FC = () => {
             disabled={isLoading}
           >
             <Text style={[styles.bookButtonText, { fontSize: fontSizes.base }]}>
-              {isLoading ? 'Booking...' : 'Book Appointment'}
+              {isLoading ? 'Reservando...' : 'Reservar cita'}
             </Text>
           </TouchableOpacity>
         </AuthGate>

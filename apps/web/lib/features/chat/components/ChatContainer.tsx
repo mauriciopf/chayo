@@ -70,7 +70,7 @@ export default function ChatContainer({
   organizationId,
   agent,
   organization,
-  locale = 'en',
+  locale = 'es',
   chatMode: propChatMode,
   onModeSwitch
   , currentPhase

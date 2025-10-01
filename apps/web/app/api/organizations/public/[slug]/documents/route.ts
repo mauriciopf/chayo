@@ -40,7 +40,7 @@ export async function GET(
     // Add signing URLs to documents
     const documentsWithUrls = (documents || []).map(doc => ({
       ...doc,
-      signing_url: `/en/sign-document/${doc.id}`
+      signing_url: `/es/sign-document/${doc.id}`
     }));
 
     return NextResponse.json({ 

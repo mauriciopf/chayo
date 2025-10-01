@@ -87,7 +87,7 @@ function App(): React.JSX.Element {
       <View style={styles.loadingContainer}>
         <Text style={styles.brandText}>CHAYO</Text>
         <ActivityIndicator size="large" color="#007AFF" style={styles.loader} />
-        <Text style={styles.loadingText}>Loading...</Text>
+        <Text style={styles.loadingText}>Cargando...</Text>
       </View>
     );
   }

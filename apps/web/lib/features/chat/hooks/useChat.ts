@@ -235,14 +235,13 @@ export function useChat({
   useEffect(() => {
     if (previousLocale !== locale && messages.length > 0) {
       const languageNames = {
-        'en': 'English',
-        'es': 'Spanish (Español)'
+        'es': 'Español'
       }
       
       const languageMessage: Message = {
         id: Date.now().toString() + '-language-change',
         role: 'system',
-        content: `Language switched to ${languageNames[locale as keyof typeof languageNames] || locale}. Please continue the conversation in ${languageNames[locale as keyof typeof languageNames] || locale}.`,
+        content: `El idioma cambió a ${languageNames[locale as keyof typeof languageNames] || 'Español'}. Por favor continúa la conversación en ${languageNames[locale as keyof typeof languageNames] || 'Español'}.`,
         timestamp: new Date(),
       }
 

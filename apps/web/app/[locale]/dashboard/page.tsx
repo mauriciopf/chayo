@@ -33,7 +33,7 @@ import MainDashboardLayout from '@/lib/features/dashboard/components/layout/Main
 
 export default function Dashboard() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<div>Cargando...</div>}>
       
       <DashboardContent />
     </Suspense>

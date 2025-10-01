@@ -5,7 +5,7 @@ import { buildSystemPrompt, type SystemPromptResult } from './SystemPromptBuilde
 export class OrganizationSystemPromptService {
   async generateSystemPrompt(
     organizationId: string,
-    locale: string = 'en'
+    locale: string = 'es'
   ): Promise<SystemPromptResult> {
     const conversationKnowledge = await getConversationKnowledge(organizationId, 6000)
     return buildSystemPrompt(conversationKnowledge, locale)

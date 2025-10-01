@@ -177,7 +177,7 @@ export default function SignDocumentPage() {
       }
 
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load document')
+      setError(err instanceof Error ? err.message : 'No se pudo cargar el documento')
     } finally {
       setLoading(false)
     }
@@ -216,7 +216,7 @@ export default function SignDocumentPage() {
       // Fetch the original PDF
       const pdfResponse = await fetch(`/api/sign-document/${documentId}/pdf`)
       if (!pdfResponse.ok) {
-        throw new Error('Failed to load PDF')
+        throw new Error('No se pudo cargar el PDF')
       }
 
       const pdfBytes = await pdfResponse.arrayBuffer()
@@ -278,22 +278,22 @@ export default function SignDocumentPage() {
       })
 
       if (!submitResponse.ok) {
-        throw new Error('Failed to submit signed document')
+        throw new Error('No se pudo enviar el documento firmado')
       }
 
       // Success! Show confirmation
-      alert('¡Documento firmado exitosamente! The business owner will be notified.')
+      alert('¡Documento firmado exitosamente! La persona responsable del negocio recibirá una notificación.')
       
       // Redirect back to client chat
       if (document?.organization_slug) {
-        window.location.href = `/en/client-chat/${document.organization_slug}`
+        window.location.href = `/es/client-chat/${document.organization_slug}`
       } else {
         // Fallback: close window if no organization slug available
         window.close()
       }
       
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to sign document')
+      setError(err instanceof Error ? err.message : 'No se pudo firmar el documento')
     } finally {
       setSigning(false)
     }
@@ -348,7 +348,7 @@ export default function SignDocumentPage() {
               />
             ) : (
               <div className="w-full h-[600px] border rounded flex items-center justify-center bg-gray-50">
-                <p className="text-gray-500">Loading PDF...</p>
+                <p className="text-gray-500">Cargando PDF...</p>
               </div>
             )}
           </div>

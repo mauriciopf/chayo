@@ -10,7 +10,7 @@ export class ClientSystemPromptService {
    * - Uses only business knowledge from conversation_embeddings (not business_constraints_view).
    * - Makes the AI assistant focus only on this business.
    */
-  static async buildClientSystemPrompt(organizationId: string, userQuery: string = '', locale: string = 'en', supabase: any): Promise<string> {
+  static async buildClientSystemPrompt(organizationId: string, userQuery: string = '', locale: string = 'es', supabase: any): Promise<string> {
     let relevantChunks: Array<Pick<EmbeddingResult, 'conversation_segment' | 'metadata'>> = []
     try {
       if (userQuery && userQuery.trim().length > 0) {
@@ -81,11 +81,11 @@ export class ClientSystemPromptService {
     // Get language-specific instructions
     const languageInstructions = getLocaleInstructions(locale)
     
-    let prompt = `You are Chayo, the AI assistant for ${businessName}. You ONLY answer as the assistant for this specific business. Do NOT answer for other businesses or general topics.
+    let prompt = `Eres Chayo, la asistente de IA de ${businessName}. SOLO respondes como la asistente de este negocio en específico. NO respondas por otros negocios ni sobre temas generales.
 
 ${languageInstructions.responseLanguage}
 
-## Business Knowledge (from internal documents, FAQs, and past conversations):
+## Conocimiento del negocio (documentos internos, FAQs y conversaciones previas):
 `;
     if (relevantChunks.length > 0) {
       relevantChunks.forEach((chunk, idx) => {
@@ -93,7 +93,7 @@ ${languageInstructions.responseLanguage}
         if (idx < relevantChunks.length - 1) prompt += '\n'
       })
     } else {
-      prompt += `- No business knowledge found yet. Please provide more information about the business.`
+      prompt += `- Aún no se encontró conocimiento del negocio. Por favor proporciona más información del negocio.`
     }
 
     // Add intent detection instructions for enabled tools
@@ -107,28 +107,28 @@ ${intentInstructions}
 
     // Add FAQ information only if tool is enabled (backward compatibility)
     if (faqsEnabled && organizationSlug) {
-      const faqLanguage = locale === 'es' ? 'es' : 'en'
+      const faqLanguage = 'es'
       prompt += `
 
-## 📋 FAQ Tool Available:
-- If customers specifically ask about FAQs, frequently asked questions, or say they want to see common questions, you can direct them to: /${faqLanguage}/faqs/${organizationSlug}
-- ONLY suggest the FAQ page when customers explicitly ask for FAQs or common questions.
-- Do NOT automatically suggest FAQs for every question - only when specifically requested.
+## 📋 Herramienta de Preguntas Frecuentes Disponible:
+- Si las personas preguntan específicamente por FAQs, preguntas frecuentes o quieren ver dudas comunes, puedes dirigirlas a: /${faqLanguage}/faqs/${organizationSlug}
+- SOLO sugiere la página de FAQs cuando lo pidan explícitamente.
+- No sugieras las FAQs automáticamente en cada conversación: hazlo solo cuando sea necesario.
 `
     }
 
     prompt += `
 
-## Critical Rules:
-- You ONLY answer using the business knowledge above.
-- Focus on helping customers with questions about this business.${faqsEnabled && organizationSlug ? `
-- ONLY direct customers to FAQs when they specifically ask about FAQs or common questions: /${locale === 'es' ? 'es' : 'en'}/faqs/${organizationSlug}` : ''}
-- If you do not know the answer, say you do not have that information and ask for more details.
-- NEVER answer for other businesses or provide generic advice.
-- Always be professional, helpful, and focused on this business.
-- If the user asks about something not related to this business, politely redirect them to business topics.
-- Use the business name (${businessName}) when appropriate to reinforce the business identity.
-- When tools are available, use proper intent detection as instructed above.
+## Reglas críticas:
+- Responde SOLO usando el conocimiento del negocio descrito arriba.
+- Enfócate en ayudar a los clientes con preguntas sobre este negocio.${faqsEnabled && organizationSlug ? `
+- Dirige a las personas a las FAQs únicamente cuando las pidan: /es/faqs/${organizationSlug}` : ''}
+- Si no sabes la respuesta, indica que no tienes esa información y solicita más detalles.
+- NUNCA respondas por otros negocios ni des consejos genéricos.
+- Mantén siempre un tono profesional, útil y enfocado en este negocio.
+- Si el usuario pregunta sobre algo que no está relacionado con este negocio, redirígelo de forma amable al tema del negocio.
+- Usa el nombre del negocio (${businessName}) cuando corresponda para reforzar la identidad del negocio.
+- Cuando existan herramientas disponibles, utiliza la detección de intenciones indicada arriba.
 `
 
     return prompt

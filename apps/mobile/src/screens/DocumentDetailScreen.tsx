@@ -39,7 +39,7 @@ export const DocumentDetailScreen: React.FC = () => {
     if (success) {
       Alert.alert(
         t('common.success'),
-        t('documents.signSuccess', { defaultValue: 'Your document has been signed successfully!' }),
+        t('documents.signSuccess', { defaultValue: '¡Tu documento ha sido firmado exitosamente!' }),
         [{ text: t('common.ok'), onPress: handleBackToList }]
       );
     } else {

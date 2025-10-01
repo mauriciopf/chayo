@@ -127,7 +127,7 @@ export async function POST(
         file_size: document.file_size,
         created_at: document.created_at,
         // Generate signing URL for client chat
-        signing_url: `/en/sign-document/${document.id}`
+        signing_url: `/es/sign-document/${document.id}`
       }
     })
 
@@ -178,7 +178,7 @@ export async function GET(
     // Add signing URLs to documents
     const documentsWithUrls = documents.map(doc => ({
       ...doc,
-      signing_url: `/en/sign-document/${doc.id}`
+      signing_url: `/es/sign-document/${doc.id}`
     }))
 
     return NextResponse.json({

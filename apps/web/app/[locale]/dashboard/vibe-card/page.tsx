@@ -14,7 +14,7 @@ export default function VibeCardPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
-          <p className="mt-2 text-gray-600">Loading...</p>
+          <p className="mt-2 text-gray-600">Cargando...</p>
         </div>
       </div>
     );

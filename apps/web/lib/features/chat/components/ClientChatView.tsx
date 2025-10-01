@@ -20,7 +20,7 @@ interface ClientChatViewProps {
 export default function ClientChatView({ 
   agent, 
   organization, 
-  locale = 'en', 
+  locale = 'es', 
   className = '',
   onModeSwitch
 }: ClientChatViewProps) {

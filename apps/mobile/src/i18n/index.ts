@@ -3,7 +3,6 @@ import { initReactI18next } from 'react-i18next';
 import * as RNLocalize from 'react-native-localize';
 
 // Import translation files
-import en from './locales/en.json';
 import es from './locales/es.json';
 
 // Get device locale with fallback
@@ -23,23 +22,20 @@ const getDeviceLocale = (): string => {
         }
       }
       
-      // If no Spanish found, default to English
-      console.log('🌍 Device locale detected: English (default)');
-      return 'en';
+      // Default to Spanish when no explicit match is found
+      console.log('🌍 Device locale detected but defaulting to Spanish');
+      return 'es';
     }
   } catch (error) {
     console.warn('Failed to detect device locale:', error);
   }
   
-  // Fallback to English if no locale detected or error occurred
-  console.log('🌍 Using fallback locale: English');
-  return 'en';
+  // Fallback to Spanish if no locale detected or error occurred
+  console.log('🌍 Using fallback locale: Spanish');
+  return 'es';
 };
 
 const resources = {
-  en: {
-    translation: en,
-  },
   es: {
     translation: es,
   },
@@ -50,7 +46,7 @@ i18n
   .init({
     resources,
     lng: getDeviceLocale(),
-    fallbackLng: 'en',
+    fallbackLng: 'es',
     
     // Debug mode - set to false in production
     debug: __DEV__,

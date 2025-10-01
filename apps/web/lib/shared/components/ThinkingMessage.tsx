@@ -64,7 +64,7 @@ export default function ThinkingMessage({
       }
     } catch (error) {
       console.error('ThinkingMessage error:', error)
-      setCurrentMessage('AI is thinking...')
+      setCurrentMessage('La IA está pensando...')
     }
 
     // Cleanup function

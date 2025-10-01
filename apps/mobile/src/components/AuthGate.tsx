@@ -3,6 +3,7 @@ import { Alert } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import LoginModal from './LoginModal';
 import { AuthUser } from '../services/authService';
+import { useTranslation } from '../hooks/useTranslation';
 
 interface AuthGateProps {
   children: ReactNode;
@@ -23,6 +24,7 @@ export default function AuthGate({
 }: AuthGateProps) {
   const { user, customer, createCustomerForOrganization } = useAuth();
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const { t } = useTranslation();
 
   const handlePress = async () => {
     if (!organizationId) {
@@ -49,7 +51,7 @@ export default function AuthGate({
       onAuthenticated(user, currentCustomer.id);
     } catch (error) {
       console.error('AuthGate error:', error);
-      Alert.alert('Error', 'Authentication failed. Please try again.');
+      Alert.alert(t('common.error'), t('authGate.authenticationFailed'));
     }
   };
 
@@ -69,7 +71,7 @@ export default function AuthGate({
       onAuthenticated(authenticatedUser, newCustomer.id);
     } catch (error) {
       console.error('AuthGate login success error:', error);
-      Alert.alert('Error', 'Failed to complete authentication. Please try again.');
+      Alert.alert(t('common.error'), t('authGate.completeAuthenticationFailed'));
     }
   };
 

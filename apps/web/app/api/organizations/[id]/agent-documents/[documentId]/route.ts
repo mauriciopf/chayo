@@ -118,7 +118,7 @@ export async function GET(
     // Add signing URL to document
     const documentWithUrl = {
       ...document,
-      signing_url: `/en/sign-document/${document.id}`
+      signing_url: `/es/sign-document/${document.id}`
     }
 
     return NextResponse.json({

@@ -65,7 +65,7 @@ export default function OffersBannerComponent({
         setInternalOffers(result.offers || [])
         console.log('🎯 OffersBannerComponent: Set offers:', result.offers?.length || 0, 'offers')
       } else {
-        console.error('Failed to fetch offers:', result.error)
+        console.error('No se pudieron obtener las ofertas:', result.error)
       }
     } catch (error) {
       console.error('Error fetching offers:', error)
@@ -106,10 +106,10 @@ export default function OffersBannerComponent({
           [{ text: 'Awesome!', style: 'default' }]
         )
       } else {
-        Alert.alert('Error', result.error || 'Failed to activate offer')
+        Alert.alert('Error', result.error || 'No se pudo activar la oferta')
       }
     } catch (error) {
-      Alert.alert('Error', 'Network error. Please try again.')
+      Alert.alert('Error', 'Error de red. Intenta de nuevo.')
     } finally {
       setActivating(null)
     }
@@ -143,10 +143,10 @@ export default function OffersBannerComponent({
               if (result.success) {
                 Alert.alert('Offer Deactivated', 'The offer has been removed from your account.')
               } else {
-                Alert.alert('Error', result.error || 'Failed to deactivate offer')
+                Alert.alert('Error', result.error || 'No se pudo desactivar la oferta')
               }
             } catch (error) {
-              Alert.alert('Error', 'Failed to deactivate offer')
+              Alert.alert('Error', 'No se pudo desactivar la oferta')
             }
           }
         }
@@ -593,8 +593,8 @@ export default function OffersBannerComponent({
           // Refresh offers after login to update activation status
           fetchActiveOffers()
         }}
-        title="Sign In Required"
-        message="Please sign in to activate this exclusive offer and start saving!"
+        title="Se requiere iniciar sesión"
+        message="Inicia sesión para activar esta oferta exclusiva y comenzar a ahorrar"
       />
     </View>
   )

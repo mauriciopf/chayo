@@ -55,7 +55,7 @@ export default function LoginModal({
 
   const handleAppleSignIn = async () => {
     if (Platform.OS !== 'ios') {
-      Alert.alert('Error', 'Apple Sign-In is only available on iOS');
+      Alert.alert('Error', 'El inicio de sesión con Apple solo está disponible en iOS');
       return;
     }
 
@@ -65,7 +65,7 @@ export default function LoginModal({
       onSuccess(user);
       onClose();
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Apple Sign-In failed');
+    Alert.alert('Error', error.message || 'No se pudo iniciar sesión con Apple');
     } finally {
       setLoading(false);
     }
@@ -78,7 +78,7 @@ export default function LoginModal({
       onSuccess(user);
       onClose();
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Google Sign-In failed');
+    Alert.alert('Error', error.message || 'No se pudo iniciar sesión con Google');
     } finally {
       setLoading(false);
     }
@@ -86,12 +86,12 @@ export default function LoginModal({
 
   const handleEmailAuth = async () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
+    Alert.alert('Error', 'Por favor completa todos los campos');
       return;
     }
 
     if (authMode === 'signup' && !fullName) {
-      Alert.alert('Error', 'Please enter your full name');
+    Alert.alert('Error', 'Por favor ingresa tu nombre completo');
       return;
     }
 
@@ -108,7 +108,7 @@ export default function LoginModal({
       onSuccess(user);
       onClose();
     } catch (error: any) {
-      Alert.alert('Error', error.message || `Email ${authMode} failed`);
+      Alert.alert('Error', error.message || 'No se pudo completar la autenticación por correo');
     } finally {
       setLoading(false);
     }
@@ -314,7 +314,7 @@ export default function LoginModal({
                   disabled={loading}
                 >
                   <Text style={[styles.socialButtonText, { fontSize: fontSizes.base }]}>
-                    🍎 Continue with Apple
+                    🍎 Continuar con Apple
                   </Text>
                 </TouchableOpacity>
               )}
@@ -326,7 +326,7 @@ export default function LoginModal({
                   disabled={loading}
                 >
                   <Text style={[styles.socialButtonText, { fontSize: fontSizes.base }]}>
-                    📧 Continue with Google
+                    📧 Continuar con Google
                   </Text>
                 </TouchableOpacity>
               )}
@@ -334,7 +334,7 @@ export default function LoginModal({
 
             <View style={styles.divider}>
               <View style={styles.dividerLine} />
-              <Text style={[styles.dividerText, { fontSize: fontSizes.sm }]}>or</Text>
+              <Text style={[styles.dividerText, { fontSize: fontSizes.sm }]}>o</Text>
               <View style={styles.dividerLine} />
             </View>
 
@@ -342,7 +342,7 @@ export default function LoginModal({
               {authMode === 'signup' && (
                 <TextInput
                   style={styles.input}
-                  placeholder="Full Name"
+                  placeholder="Nombre completo"
                   value={fullName}
                   onChangeText={setFullName}
                   autoCapitalize="words"
@@ -352,7 +352,7 @@ export default function LoginModal({
 
               <TextInput
                 style={styles.input}
-                placeholder="Email"
+                placeholder="Correo electrónico"
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
@@ -362,7 +362,7 @@ export default function LoginModal({
 
               <TextInput
                 style={styles.input}
-                placeholder="Password"
+                placeholder="Contraseña"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
@@ -375,7 +375,7 @@ export default function LoginModal({
                 disabled={loading}
               >
                 <Text style={[styles.emailButtonText, { fontSize: fontSizes.base }]}>
-                  {authMode === 'signup' ? 'Create Account' : 'Sign In'}
+                  {authMode === 'signup' ? 'Crear cuenta' : 'Iniciar sesión'}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -383,14 +383,14 @@ export default function LoginModal({
             <View style={styles.switchMode}>
               <Text style={[styles.switchModeText, { fontSize: fontSizes.sm }]}>
                 {authMode === 'signup' 
-                  ? 'Already have an account? ' 
-                  : "Don't have an account? "
+                  ? '¿Ya tienes una cuenta? ' 
+                  : '¿No tienes cuenta? '
                 }
                 <Text 
                   style={styles.switchModeButton}
                   onPress={() => setAuthMode(authMode === 'signup' ? 'signin' : 'signup')}
                 >
-                  {authMode === 'signup' ? 'Sign In' : 'Sign Up'}
+                  {authMode === 'signup' ? 'Iniciar sesión' : 'Crear cuenta'}
                 </Text>
               </Text>
             </View>

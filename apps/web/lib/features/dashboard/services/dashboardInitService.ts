@@ -34,7 +34,7 @@ export class DashboardInitService {
   /**
    * Initialize all dashboard data on load
    */
-  async initializeDashboard(locale: string = 'en'): Promise<DashboardInitData> {
+  async initializeDashboard(locale: string = 'es'): Promise<DashboardInitData> {
     try {
       // Get current user
       const { data: { user }, error: authError } = await this.supabaseClient.auth.getUser()

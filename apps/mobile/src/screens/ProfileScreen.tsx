@@ -45,9 +45,9 @@ export const ProfileScreen: React.FC = () => {
     setLoading(true);
     try {
       await signInWithApple();
-      Alert.alert('Success', 'Signed in successfully!');
+      Alert.alert('Éxito', 'Inicio de sesión completado');
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Apple Sign-In failed');
+      Alert.alert('Error', error.message || 'No se pudo iniciar sesión con Apple');
     } finally {
       setLoading(false);
     }
@@ -57,9 +57,9 @@ export const ProfileScreen: React.FC = () => {
     setLoading(true);
     try {
       await signInWithGoogle();
-      Alert.alert('Success', 'Signed in successfully!');
+      Alert.alert('Éxito', 'Inicio de sesión completado');
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Google Sign-In failed');
+      Alert.alert('Error', error.message || 'No se pudo iniciar sesión con Google');
     } finally {
       setLoading(false);
     }
@@ -67,12 +67,12 @@ export const ProfileScreen: React.FC = () => {
 
   const handleEmailAuth = async () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
+      Alert.alert('Error', 'Por favor completa todos los campos');
       return;
     }
 
     if (authMode === 'signup' && password !== confirmPassword) {
-      Alert.alert('Error', 'Passwords do not match');
+      Alert.alert('Error', 'Las contraseñas no coinciden');
       return;
     }
 
@@ -84,14 +84,14 @@ export const ProfileScreen: React.FC = () => {
         await signInWithEmail(email, password);
       }
       
-      Alert.alert('Success', `${authMode === 'signup' ? 'Account created' : 'Signed in'} successfully!`);
+      Alert.alert('Éxito', authMode === 'signup' ? 'Cuenta creada correctamente' : 'Inicio de sesión completado');
       
       // Clear form
       setEmail('');
       setPassword('');
       setConfirmPassword('');
     } catch (error: any) {
-      Alert.alert('Error', error.message || `Email ${authMode} failed`);
+      Alert.alert('Error', error.message || 'No se pudo completar la autenticación por correo');
     } finally {
       setLoading(false);
     }
@@ -100,9 +100,9 @@ export const ProfileScreen: React.FC = () => {
   const handleSignOut = async () => {
     try {
       await signOut();
-      Alert.alert('Success', 'Signed out successfully!');
+      Alert.alert('Éxito', 'Sesión cerrada correctamente');
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Sign out failed');
+      Alert.alert('Error', error.message || 'No se pudo cerrar la sesión');
     }
   };
 
@@ -127,9 +127,7 @@ export const ProfileScreen: React.FC = () => {
             <View style={[styles.avatarContainer, { backgroundColor: theme.primaryColor }]}>
               <Icon name="user" size={40} color="#FFFFFF" />
             </View>
-            <Text style={[styles.welcomeText, { color: theme.textColor, fontSize: fontSizes.lg }]}>
-              Welcome back!
-            </Text>
+            <Text style={[styles.welcomeText, { color: theme.textColor, fontSize: fontSizes.lg }]}>¡Bienvenido de nuevo!</Text>
             <Text style={[styles.emailText, { color: theme.placeholderColor, fontSize: fontSizes.base }]}>
               {user.email}
             </Text>
@@ -141,7 +139,7 @@ export const ProfileScreen: React.FC = () => {
               onPress={handleSignOut}
             >
               <Icon name="log-out" size={20} color="#FFFFFF" style={styles.buttonIcon} />
-              <Text style={[styles.signOutButtonText, { fontSize: fontSizes.base }]}>Sign Out</Text>
+              <Text style={[styles.signOutButtonText, { fontSize: fontSizes.base }]}>Cerrar sesión</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -159,12 +157,12 @@ export const ProfileScreen: React.FC = () => {
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
           <View style={styles.header}>
             <Text style={[styles.title, { color: theme.textColor, fontSize: fontSizes.xl }]}>
-              {authMode === 'signin' ? 'Sign In' : 'Create Account'}
+              {authMode === 'signin' ? 'Iniciar sesión' : 'Crear cuenta'}
             </Text>
             <Text style={[styles.subtitle, { color: theme.placeholderColor, fontSize: fontSizes.sm }]}>
               {authMode === 'signin' 
-                ? 'Welcome back! Please sign in to continue.' 
-                : 'Create your account to get started.'
+                ? '¡Bienvenido de nuevo! Inicia sesión para continuar.' 
+                : 'Crea tu cuenta para comenzar.'
               }
             </Text>
           </View>
@@ -178,9 +176,7 @@ export const ProfileScreen: React.FC = () => {
                 disabled={loading}
               >
                 <Icon name="smartphone" size={20} color="#FFFFFF" style={styles.buttonIcon} />
-                <Text style={[styles.socialButtonText, { fontSize: fontSizes.base }]}>
-                  Continue with Apple
-                </Text>
+                <Text style={[styles.socialButtonText, { fontSize: fontSizes.base }]}>Continuar con Apple</Text>
               </TouchableOpacity>
             )}
 
@@ -191,9 +187,7 @@ export const ProfileScreen: React.FC = () => {
                 disabled={loading}
               >
                 <Icon name="globe" size={20} color="#FFFFFF" style={styles.buttonIcon} />
-                <Text style={[styles.socialButtonText, { fontSize: fontSizes.base }]}>
-                  Continue with Google
-                </Text>
+                <Text style={[styles.socialButtonText, { fontSize: fontSizes.base }]}>Continuar con Google</Text>
               </TouchableOpacity>
             )}
           </View>
@@ -202,7 +196,7 @@ export const ProfileScreen: React.FC = () => {
           {(providerAvailability.apple || providerAvailability.google) && (
             <View style={styles.dividerContainer}>
               <View style={[styles.divider, { backgroundColor: theme.borderColor }]} />
-              <Text style={[styles.dividerText, { color: theme.placeholderColor, fontSize: fontSizes.sm }]}>or</Text>
+              <Text style={[styles.dividerText, { color: theme.placeholderColor, fontSize: fontSizes.sm }]}>o</Text>
               <View style={[styles.divider, { backgroundColor: theme.borderColor }]} />
             </View>
           )}
@@ -221,7 +215,7 @@ export const ProfileScreen: React.FC = () => {
                     fontSize: fontSizes.base,
                   }
                 ]}
-                placeholder="Enter your email"
+                placeholder="Ingresa tu correo"
                 placeholderTextColor={theme.placeholderColor}
                 value={email}
                 onChangeText={setEmail}
@@ -243,7 +237,7 @@ export const ProfileScreen: React.FC = () => {
                     fontSize: fontSizes.base,
                   }
                 ]}
-                placeholder="Enter your password"
+                placeholder="Ingresa tu contraseña"
                 placeholderTextColor={theme.placeholderColor}
                 value={password}
                 onChangeText={setPassword}
@@ -265,7 +259,7 @@ export const ProfileScreen: React.FC = () => {
                       color: theme.textColor,
                     }
                   ]}
-                  placeholder="Confirm your password"
+                  placeholder="Confirma tu contraseña"
                   placeholderTextColor={theme.placeholderColor}
                   value={confirmPassword}
                   onChangeText={setConfirmPassword}
@@ -282,7 +276,7 @@ export const ProfileScreen: React.FC = () => {
               disabled={loading}
             >
               <Text style={[styles.primaryButtonText, { fontSize: fontSizes.base }]}>
-                {authMode === 'signin' ? 'Sign In' : 'Create Account'}
+                {authMode === 'signin' ? 'Iniciar sesión' : 'Crear cuenta'}
               </Text>
             </TouchableOpacity>
           </View>
@@ -291,15 +285,15 @@ export const ProfileScreen: React.FC = () => {
           <View style={styles.toggleSection}>
             <Text style={[styles.toggleText, { color: theme.placeholderColor, fontSize: fontSizes.sm }]}>
               {authMode === 'signin' 
-                ? "Don't have an account? " 
-                : "Already have an account? "
+                ? "¿No tienes cuenta? " 
+                : "¿Ya tienes una cuenta? "
               }
             </Text>
             <TouchableOpacity
               onPress={() => setAuthMode(authMode === 'signin' ? 'signup' : 'signin')}
             >
               <Text style={[styles.toggleLink, { color: theme.primaryColor, fontSize: fontSizes.sm }]}>
-                {authMode === 'signin' ? 'Sign Up' : 'Sign In'}
+                  {authMode === 'signin' ? 'Crear cuenta' : 'Iniciar sesión'}
               </Text>
             </TouchableOpacity>
           </View>

@@ -16,7 +16,7 @@ export interface UseDashboardInitReturn {
 }
 
 export function useDashboardInit(
-  locale: string = 'en', 
+  locale: string = 'es', 
   authState: AuthState, 
   user: any,
   authPromptMessage?: string,
@@ -111,9 +111,7 @@ export function useDashboardInit(
             console.log('❌ Organization-chat API failed, using fallback message')
             // Fallback message if API fails
             setInitialMessage({
-              content: locale === 'es'
-                ? '¡Hola! Soy Chayo, tu asistente digital personalizada. Permíteme ayudarte a configurar tu negocio.'
-                : 'Hello! I\'m Chayo, your personalized digital assistant. Let me help you set up your business profile.'
+              content: '¡Hola! Soy Chayo, tu asistente digital personalizada. Permíteme ayudarte a configurar tu negocio.'
             })
           }
         } catch (error) {
@@ -132,9 +130,7 @@ export function useDashboardInit(
         // Only show auth prompt if not loading and no user
         setShouldShowAuthPrompt(true)
         setInitialMessage({
-          content: authPromptMessage || (locale === 'es' 
-            ? "¡Hola! Soy Chayo, tu asistente digital para empresas. Para comenzar, necesito que te autentiques. ¿Cuál es tu nombre?"
-            : "Hello! I'm Chayo, your digital business assistant. To get started, I need you to authenticate. What's your name?")
+          content: authPromptMessage || '¡Hola! Soy Chayo, tu asistente digital para empresas. Para comenzar, necesito que te autentiques. ¿Cuál es tu nombre?'
         })
         setIsLoading(false)
       } else {

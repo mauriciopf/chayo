@@ -180,6 +180,16 @@ export default function CustomerSupportTool({
     }
   }, [selectedConversation]);
 
+  const statusLabel = (status: Conversation['status']) => {
+    const mapping: Record<Conversation['status'], string> = {
+      open: t('status.open'),
+      in_progress: t('status.inProgress'),
+      resolved: t('status.resolved'),
+      closed: t('status.closed')
+    }
+    return mapping[status]
+  }
+
   if (!isEnabled) {
     return (
       <div className="p-6 text-center">
@@ -190,16 +200,16 @@ export default function CustomerSupportTool({
             </svg>
           </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            Customer Support Tool
+            {t('toolDisabledTitle')}
           </h3>
           <p className="text-sm text-gray-600 mb-4">
-            Enable real-time customer support chat to help your customers instantly through the mobile app.
+            {t('toolDisabledDescription')}
           </p>
           <button
             onClick={() => onSettingsChange({ enabled: true })}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
-            Enable Customer Support
+            {t('enableButton')}
           </button>
         </div>
       </div>
@@ -212,15 +222,15 @@ export default function CustomerSupportTool({
       <div className="border-b border-gray-200 p-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">Customer Support</h2>
-            <p className="text-sm text-gray-600">Real-time customer conversations</p>
+            <h2 className="text-lg font-semibold text-gray-900">{t('title')}</h2>
+            <p className="text-sm text-gray-600">{t('subtitle')}</p>
           </div>
           <div className="flex items-center gap-2">
             <span className="text-sm text-gray-500">
-              {conversations.length} conversations
+              {t('conversationCount', { count: conversations.length })}
             </span>
             <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-            <span className="text-xs text-gray-400">Live</span>
+            <span className="text-xs text-gray-400">{t('statusLive')}</span>
           </div>
         </div>
       </div>
@@ -229,20 +239,20 @@ export default function CustomerSupportTool({
         {/* Conversations List */}
         <div className="w-1/3 border-r border-gray-200 flex flex-col">
           <div className="p-4 border-b border-gray-200">
-            <h3 className="text-sm font-medium text-gray-900 mb-2">Conversations</h3>
+            <h3 className="text-sm font-medium text-gray-900 mb-2">{t('conversations')}</h3>
             <div className="flex gap-2">
               <button className="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded-full">
-                All ({conversations.length})
+                {t('filters.all', { count: conversations.length })}
               </button>
               <button className="px-3 py-1 text-xs bg-gray-100 text-gray-600 rounded-full">
-                Unread ({conversations.filter(c => c.unread_count > 0).length})
+                {t('filters.unread', { count: conversations.filter(c => c.unread_count > 0).length })}
               </button>
             </div>
           </div>
           
           <div className="flex-1 overflow-y-auto">
             {loading ? (
-              <div className="p-4 text-center text-gray-500">Loading conversations...</div>
+              <div className="p-4 text-center text-gray-500">{t('loading')}</div>
             ) : conversations.length === 0 ? (
               <div className="p-4 text-center text-gray-500">
                 <div className="w-12 h-12 mx-auto mb-3 bg-gray-100 rounded-full flex items-center justify-center">
@@ -250,9 +260,9 @@ export default function CustomerSupportTool({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                   </svg>
                 </div>
-                <p className="text-sm">No conversations yet</p>
+                <p className="text-sm">{t('noConversations')}</p>
                 <p className="text-xs text-gray-400 mt-1">
-                  Conversations will appear when customers start chatting
+                  {t('emptyDescription')}
                 </p>
               </div>
             ) : (
@@ -281,13 +291,13 @@ export default function CustomerSupportTool({
                       </p>
                     </div>
                     <div className="flex flex-col items-end gap-1">
-                      <span className={`px-2 py-0.5 text-xs rounded-full ${
+                     <span className={`px-2 py-0.5 text-xs rounded-full ${
                         conversation.status === 'open' ? 'bg-green-100 text-green-700' :
                         conversation.status === 'in_progress' ? 'bg-yellow-100 text-yellow-700' :
                         conversation.status === 'resolved' ? 'bg-blue-100 text-blue-700' :
                         'bg-gray-100 text-gray-700'
                       }`}>
-                        {conversation.status}
+                        {statusLabel(conversation.status)}
                       </span>
                       <span className="text-xs text-gray-400">
                         {new Date(conversation.last_message_at).toLocaleTimeString([], { 
@@ -301,7 +311,7 @@ export default function CustomerSupportTool({
                     <span className={`font-medium ${
                       conversation.last_message_sender_type === 'customer' ? 'text-blue-600' : 'text-gray-900'
                     }`}>
-                      {conversation.last_message_sender_type === 'customer' ? 'Customer: ' : 'You: '}
+                      {conversation.last_message_sender_type === 'customer' ? `${t('customerPrefix')} ` : `${t('agentPrefix')} `}
                     </span>
                     {conversation.last_message_content}
                   </p>
@@ -338,12 +348,12 @@ export default function CustomerSupportTool({
                         setSelectedConversation(prev => prev ? { ...prev, status: newStatus as any } : null);
                         // TODO: API call to update status
                       }}
-                      className="px-3 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="open">Open</option>
-                      <option value="in_progress">In Progress</option>
-                      <option value="resolved">Resolved</option>
-                      <option value="closed">Closed</option>
+                     className="px-3 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                   >
+                      <option value="open">{t('status.open')}</option>
+                      <option value="in_progress">{t('status.inProgress')}</option>
+                      <option value="resolved">{t('status.resolved')}</option>
+                      <option value="closed">{t('status.closed')}</option>
                     </select>
                     <select
                       value={selectedConversation.priority}
@@ -353,12 +363,12 @@ export default function CustomerSupportTool({
                         setSelectedConversation(prev => prev ? { ...prev, priority: newPriority as any } : null);
                         // TODO: API call to update priority
                       }}
-                      className="px-3 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                     className="px-3 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     >
-                      <option value="low">Low</option>
-                      <option value="normal">Normal</option>
-                      <option value="high">High</option>
-                      <option value="urgent">Urgent</option>
+                      <option value="low">{t('priority.low')}</option>
+                      <option value="normal">{t('priority.normal')}</option>
+                      <option value="high">{t('priority.high')}</option>
+                      <option value="urgent">{t('priority.urgent')}</option>
                     </select>
                   </div>
                 </div>
@@ -396,7 +406,7 @@ export default function CustomerSupportTool({
                   <textarea
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder="Type your reply..."
+                    placeholder={t('typing')}
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
                     rows={3}
                     onKeyDown={(e) => {
@@ -430,9 +440,9 @@ export default function CustomerSupportTool({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                   </svg>
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Select a Conversation</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">{t('selectConversationTitle')}</h3>
                 <p className="text-sm text-gray-600">
-                  Choose a conversation from the left to start chatting with your customers
+                  {t('selectConversation')}
                 </p>
               </div>
             </div>

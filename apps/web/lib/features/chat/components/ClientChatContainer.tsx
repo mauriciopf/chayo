@@ -13,7 +13,7 @@ interface ClientChatContainerProps {
   className?: string
 }
 
-export default function ClientChatContainer({ agent, organization, locale = 'en', className = '' }: ClientChatContainerProps) {
+export default function ClientChatContainer({ agent, organization, locale = 'es', className = '' }: ClientChatContainerProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const chatScrollContainerRef = useRef<HTMLDivElement>(null)

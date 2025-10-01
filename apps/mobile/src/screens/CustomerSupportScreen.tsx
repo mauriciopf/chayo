@@ -178,19 +178,19 @@ export const CustomerSupportScreen: React.FC = () => {
 
         if (createError) {
           console.error('Error creating conversation:', createError);
-          Alert.alert('Error', 'Failed to start conversation. Please try again.');
+          Alert.alert('Error', 'No se pudo iniciar la conversación. Intenta de nuevo.');
           return;
         }
 
         setConversation(newConversation);
         
         // Send welcome message
-        const displayName = user.fullName || user.email?.split('@')[0] || 'there';
+        const displayName = user.fullName || user.email?.split('@')[0] || 'amiga';
         const welcomeMessage = {
           id: 'welcome',
-          content: `Hello ${displayName}! How can we help you today?`,
+          content: `¡Hola ${displayName}! ¿Cómo podemos ayudarte hoy?`,
           sender_type: 'system' as const,
-          sender_name: 'Customer Support',
+          sender_name: 'Soporte al cliente',
           sender_email: 'support@chayo.ai',
           created_at: new Date().toISOString(),
           isUser: false
@@ -200,7 +200,7 @@ export const CustomerSupportScreen: React.FC = () => {
       }
     } catch (error) {
       console.error('Error initializing customer support:', error);
-      Alert.alert('Error', 'Failed to initialize customer support. Please try again.');
+      Alert.alert('Error', 'No se pudo iniciar el soporte al cliente. Intenta de nuevo.');
     } finally {
       setLoading(false);
     }
@@ -258,7 +258,7 @@ export const CustomerSupportScreen: React.FC = () => {
       id: `temp-${Date.now()}`,
       content: inputText.trim(),
       sender_type: 'customer',
-      sender_name: user.fullName || user.email?.split('@')[0] || 'Customer',
+      sender_name: user.fullName || user.email?.split('@')[0] || 'Cliente',
       sender_email: user.email || '',
       created_at: new Date().toISOString(),
       isUser: true
@@ -280,7 +280,7 @@ export const CustomerSupportScreen: React.FC = () => {
           conversation_id: conversation.id,
           sender_id: user.id,
           sender_type: 'customer',
-          sender_name: user.fullName || user.email?.split('@')[0] || 'Customer',
+          sender_name: user.fullName || user.email?.split('@')[0] || 'Cliente',
           sender_email: user.email,
           content: inputText.trim(),
           message_type: 'text'
@@ -297,7 +297,7 @@ export const CustomerSupportScreen: React.FC = () => {
 
       if (error) {
         console.error('Error sending message:', error);
-        Alert.alert('Error', 'Failed to send message. Please try again.');
+        Alert.alert('Error', 'No se pudo enviar el mensaje. Intenta de nuevo.');
         // Remove the temporary message
         setMessages(prev => prev.filter(msg => msg.id !== userMessage.id));
         return;
@@ -312,7 +312,7 @@ export const CustomerSupportScreen: React.FC = () => {
 
     } catch (error) {
       console.error('Error sending message:', error);
-      Alert.alert('Error', 'Failed to send message. Please try again.');
+      Alert.alert('Error', 'No se pudo enviar el mensaje. Intenta de nuevo.');
       // Remove the temporary message
       setMessages(prev => prev.filter(msg => msg.id !== userMessage.id));
     } finally {
@@ -379,7 +379,7 @@ export const CustomerSupportScreen: React.FC = () => {
         >
           <View style={styles.authLoadingContent}>
             <Text style={[styles.authLoadingText, { color: theme.placeholderColor, fontSize: fontSizes.base }]}>
-              {showLoginModal ? 'Preparing Support Chat...' : 'Tap to Sign In for Support'}
+              {showLoginModal ? 'Preparando el chat de soporte...' : 'Toca para iniciar sesión y recibir soporte'}
             </Text>
           </View>
         </TouchableOpacity>
@@ -392,8 +392,8 @@ export const CustomerSupportScreen: React.FC = () => {
             // They can tap anywhere to try again
           }}
           onSuccess={handleLoginSuccess}
-          title="Sign in for Support"
-          message="Sign in to start a conversation with our support team"
+          title="Inicia sesión para recibir soporte"
+          message="Inicia sesión para comenzar una conversación con nuestro equipo de soporte"
         />
       </View>
     );
@@ -416,7 +416,7 @@ export const CustomerSupportScreen: React.FC = () => {
       <View style={[styles.container, themedStyles.container]}>
         <View style={styles.errorContainer}>
           <Text style={[styles.errorText, { color: theme.textColor, fontSize: fontSizes.base }]}>
-            Customer support is not available
+            El soporte al cliente no está disponible
           </Text>
         </View>
       </View>
@@ -462,7 +462,7 @@ export const CustomerSupportScreen: React.FC = () => {
           style={[styles.textInput, { backgroundColor: theme.surfaceColor, color: theme.textColor, borderColor: theme.borderColor, fontSize: fontSizes.base }]}
           value={inputText}
           onChangeText={setInputText}
-          placeholder="Type your message..."
+          placeholder="Escribe tu mensaje..."
           placeholderTextColor={theme.placeholderColor}
           multiline
           maxLength={1000}
@@ -493,8 +493,8 @@ export const CustomerSupportScreen: React.FC = () => {
         visible={showLoginModal}
         onClose={() => setShowLoginModal(false)}
         onSuccess={handleLoginSuccess}
-        title="Sign in for Support"
-        message="Sign in to start a conversation with our support team"
+        title="Inicia sesión para recibir soporte"
+        message="Inicia sesión para comenzar una conversación con nuestro equipo de soporte"
       />
     </KeyboardAvoidingView>
   );

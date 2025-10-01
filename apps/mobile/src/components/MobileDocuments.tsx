@@ -39,13 +39,14 @@ const MobileDocuments: React.FC<MobileDocumentsProps> = ({
       setDocuments(docs);
       onDocumentsLoaded?.(docs);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : t('documents.loadError', { defaultValue: 'Failed to load documents' });
+      const fallbackMessage = t('documents.errors.message');
+      const errorMessage = err instanceof Error ? err.message : fallbackMessage;
       setError(errorMessage);
       Alert.alert(t('common.error'), errorMessage);
     } finally {
       setLoading(false);
     }
-  }, [organizationSlug, onDocumentsLoaded]);
+  }, [organizationSlug, onDocumentsLoaded, t]);
 
   useEffect(() => {
     fetchDocuments();
@@ -55,17 +56,17 @@ const MobileDocuments: React.FC<MobileDocumentsProps> = ({
 
   const formatFileSize = (bytes: number): string => {
     if (bytes === 0) {
-      return '0 Bytes';
+      return '0 bytes';
     }
     const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const sizes = ['bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
+    return date.toLocaleDateString('es', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -112,10 +113,14 @@ const MobileDocuments: React.FC<MobileDocumentsProps> = ({
       <SafeAreaView style={[styles.container, themedStyles.container]}>
         <View style={styles.errorContainer}>
           <Text style={[styles.errorIcon, { fontSize: fontSizes.xxxl }]}>📄</Text>
-          <Text style={[styles.errorTitle, themedStyles.primaryText, { fontSize: fontSizes.lg }]}>Unable to Load Documents</Text>
+          <Text style={[styles.errorTitle, themedStyles.primaryText, { fontSize: fontSizes.lg }]}>
+            {t('documents.errors.title')}
+          </Text>
           <Text style={[styles.errorMessage, themedStyles.secondaryText, { fontSize: fontSizes.base }]}>{error}</Text>
           <TouchableOpacity style={[styles.retryButton, { backgroundColor: theme.primaryColor }]} onPress={fetchDocuments}>
-            <Text style={[styles.retryButtonText, { fontSize: fontSizes.base }]}>Try Again</Text>
+            <Text style={[styles.retryButtonText, { fontSize: fontSizes.base }]}>
+              {t('documents.errors.retry')}
+            </Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -127,9 +132,11 @@ const MobileDocuments: React.FC<MobileDocumentsProps> = ({
       <SafeAreaView style={[styles.container, themedStyles.container]}>
         <View style={styles.emptyContainer}>
           <Text style={[styles.emptyIcon, { fontSize: fontSizes.xxxl }]}>📄</Text>
-          <Text style={[styles.emptyTitle, themedStyles.primaryText, { fontSize: fontSizes.lg }]}>No Documents Available</Text>
+          <Text style={[styles.emptyTitle, themedStyles.primaryText, { fontSize: fontSizes.lg }]}>
+            {t('documents.empty.title')}
+          </Text>
           <Text style={[styles.emptyMessage, themedStyles.secondaryText, { fontSize: fontSizes.base }]}>
-            There are no documents available for signing at this time.
+            {t('documents.empty.subtitle')}
           </Text>
         </View>
       </SafeAreaView>
@@ -139,9 +146,11 @@ const MobileDocuments: React.FC<MobileDocumentsProps> = ({
   return (
     <SafeAreaView style={[styles.container, themedStyles.container]}>
       <View style={styles.header}>
-        <Text style={[styles.headerTitle, themedStyles.primaryText, { fontSize: fontSizes.xl }]}>Documents to Sign</Text>
+        <Text style={[styles.headerTitle, themedStyles.primaryText, { fontSize: fontSizes.xl }]}>
+          {t('documents.list.title')}
+        </Text>
         <Text style={[styles.headerSubtitle, themedStyles.secondaryText, { fontSize: fontSizes.base }]}>
-          {documents.length} document{documents.length !== 1 ? 's' : ''} available
+          {t('documents.list.subtitle', { count: documents.length })}
         </Text>
       </View>
       <FlatList

@@ -24,39 +24,39 @@ export interface ToolIntentDefinitions {
 export class ToolIntentService {
   private static readonly intents: ToolIntentDefinitions = {
     appointments: {
-      intent: "If the user wants to schedule an appointment, book a consultation, ask about availability, or needs to set up a meeting, return intent 'appointments'. This includes requests for booking, scheduling, calendar access, or time-related inquiries.",
-      triggerWords: ["schedule", "appointment", "book", "meeting", "consultation", "calendar", "availability", "time", "date", "reserve"],
-      description: "Scheduling and appointment booking"
+      intent: "Si la persona desea agendar una cita, reservar una consulta, preguntar por disponibilidad o necesita programar una reunión, devuelve la intención 'appointments'. Incluye solicitudes de agenda, programación, acceso al calendario o preguntas sobre fechas y horarios.",
+      triggerWords: ["agendar", "cita", "reservar", "agenda", "calendario", "disponibilidad", "horario", "fecha", "consulta", "reunión", "schedule", "appointment", "book", "meeting"],
+      description: "Agendado y reserva de citas"
     },
     
     payments: {
-      intent: "If the user wants to make a payment, asks about pricing, costs, billing, or needs to complete a financial transaction, return intent 'payments'. This includes payment processing, invoicing, or cost inquiries.",
-      triggerWords: ["pay", "payment", "price", "cost", "bill", "invoice", "charge", "fee", "money", "purchase"],
-      description: "Payment processing and billing"
+      intent: "Si la persona quiere realizar un pago, pregunta por precios, costos, facturación o necesita completar una transacción, devuelve la intención 'payments'. Incluye cobros, facturas y preguntas sobre tarifas.",
+      triggerWords: ["pago", "pagar", "precio", "costo", "factura", "cobro", "tarifa", "dinero", "transacción", "comprar", "pay", "payment", "price", "billing"],
+      description: "Procesamiento de pagos y facturación"
     },
     
     documents: {
-      intent: "If the user needs to sign documents, review contracts, complete paperwork, or handle any document-related tasks, return intent 'documents'. This includes digital signatures, contract reviews, or document processing.",
-      triggerWords: ["sign", "document", "contract", "paperwork", "agreement", "form", "signature", "review", "terms"],
-      description: "Document signing and processing"
+      intent: "Si la persona necesita firmar documentos, revisar contratos, completar formularios o manejar tareas relacionadas a documentos, devuelve la intención 'documents'. Incluye firmas digitales, revisión de contratos y procesamiento de archivos.",
+      triggerWords: ["documento", "contrato", "firmar", "firma", "papelería", "formulario", "acuerdo", "document", "contract", "signature"],
+      description: "Firma y gestión de documentos"
     },
     
     intake_forms: {
-      intent: "If the user needs to fill out forms, provide personal information, complete an intake process, or submit details for onboarding, return intent 'intake_forms'. This includes information gathering and form completion.",
-      triggerWords: ["form", "information", "intake", "details", "fill", "complete", "submit", "questionnaire", "survey"],
-      description: "Information collection and form completion"
+      intent: "Si la persona debe llenar formularios, proporcionar información, completar un proceso de admisión u onboarding, devuelve la intención 'intake_forms'. Incluye recopilación de información y llenado de formularios.",
+      triggerWords: ["formulario", "información", "registro", "ingreso", "admisión", "llenar", "completar", "enviar", "form", "intake", "questionnaire"],
+      description: "Recopilación de información y formularios"
     },
     
     faqs: {
-      intent: "If the user asks general questions, needs help understanding services, wants frequently asked information, or requires general assistance, return intent 'faqs'. This includes general inquiries and common questions.",
-      triggerWords: ["help", "question", "faq", "information", "explain", "what", "how", "why", "general"],
-      description: "Frequently asked questions and general help"
+      intent: "Si la persona hace preguntas generales, necesita ayuda para entender los servicios o quiere información frecuente, devuelve la intención 'faqs'. Incluye dudas comunes y solicitudes de orientación.",
+      triggerWords: ["ayuda", "pregunta", "faq", "información", "explicar", "qué", "cómo", "por qué", "general", "help", "question"],
+      description: "Preguntas frecuentes y ayuda general"
     },
     
     'mobile-branding': {
-      intent: "If the user wants to customize their mobile app appearance, change colors, upload logos, modify branding, or configure the white-label mobile app settings, return intent 'mobile-branding'. This includes app customization and branding requests.",
-      triggerWords: ["branding", "customize", "colors", "logo", "theme", "appearance", "mobile app", "white label", "brand"],
-      description: "Mobile app branding and customization"
+      intent: "Si la persona quiere personalizar la app móvil, cambiar colores, subir logos, modificar la marca o configurar la versión white-label, devuelve la intención 'mobile-branding'. Incluye solicitudes de personalización y branding.",
+      triggerWords: ["branding", "personalizar", "colores", "logo", "tema", "apariencia", "app móvil", "white label", "marca"],
+      description: "Branding y personalización de la app móvil"
     }
   }
 
@@ -104,17 +104,17 @@ export class ToolIntentService {
       .join('\n')
 
     return `
-INTENT DETECTION:
-You must analyze each user message and detect if they need specific tools. When a user's message matches any of these conditions, include the corresponding intent in your response:
+DETECCION DE INTENCIONES:
+Debes analizar cada mensaje y detectar si la persona necesita herramientas especificas. Cuando el mensaje coincida con alguna de estas condiciones, incluye la intención correspondiente en tu respuesta:
 
 ${intentInstructions}
 
-RESPONSE REQUIREMENTS:
-- Provide a helpful, natural response to the user
-- Detect any tool intents that clearly match the user's request
-- Multiple intents are allowed if the user asks for multiple things
-- If no intents match, return an empty intents array
-- Always be conversational and helpful regardless of intents detected
+REQUISITOS DE RESPUESTA:
+- Proporciona una respuesta natural y útil.
+- Detecta cualquier intención que coincida claramente con la solicitud.
+- Puedes devolver múltiples intenciones si piden varias cosas.
+- Si no hay coincidencias, devuelve un arreglo de intenciones vacío.
+- Mantén un tono conversacional y servicial sin importar las intenciones detectadas.
 `
   }
 

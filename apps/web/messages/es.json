@@ -54,6 +54,47 @@
       "backToAI": "← Volver a Sugerencias IA"
     }
   },
+  "vibe-card": {
+    "title": "Tarjeta de Vibra del Mercado",
+    "subtitle": "Tu historia única que atrae a clientes ideales",
+    "disabled": "Completa tu onboarding para crear tu tarjeta de vibra",
+    "loading": "Cargando tu tarjeta de vibra...",
+    "edit": "Editar Vibra",
+    "cancel": "Cancelar",
+    "save": "Guardar Cambios",
+    "saving": "Guardando...",
+    "regenerate": "Regenerar con IA",
+    "regenerating": "Regenerando...",
+    "noVibeCard": {
+      "title": "Todavía no tienes una tarjeta de vibra",
+      "description": "Completa tu onboarding para crear tu tarjeta de vibra única del mercado.",
+      "instruction": "Tu tarjeta de vibra mostrará tu historia, valores y personalidad para atraer a tus clientes ideales."
+    },
+    "preview": {
+      "title": "Vista previa de tu tarjeta de vibra"
+    },
+    "editor": {
+      "title": "Edita tu vibra"
+    },
+    "info": {
+      "title": "Sobre las tarjetas de vibra",
+      "howItWorks": {
+        "title": "Cómo funciona",
+        "point1": "La IA crea tu tarjeta de vibra con tus respuestas del onboarding",
+        "point2": "Muestra tu historia, valores y personalidad",
+        "point3": "Atrae a clientes que conectan con tu vibra",
+        "point4": "Aparece en el mercado cuando completas tu configuración"
+      },
+      "marketplace": {
+        "title": "Presencia en el mercado",
+        "description": "Tu tarjeta de vibra ayuda a que tus clientes ideales descubran y conecten con tu negocio en nuestro marketplace bohemio."
+      }
+    },
+    "aiRegenerate": {
+      "title": "Mejora con IA",
+      "description": "Deja que la IA recree tu tarjeta de vibra con narrativa mejorada y colores perfectos."
+    }
+  },
   "footer": {
     "brand": "Chayo",
     "tagline": "Tu App Todo-en-Uno",
@@ -310,7 +351,16 @@
     "dismiss": "Descartar",
     "skipForNow": "Omitir por Ahora",
     "tryAgain": "Intentar de Nuevo",
-    "enterMarketplace": "Entrar al Mercado"
+    "enterMarketplace": "Entrar al Mercado",
+    "analyzingBusiness": "Entendiendo tu negocio único...",
+    "craftingStory": "Tejiendo tu historia...",
+    "selectingColors": "Eligiendo los colores perfectos...",
+    "generatingImage": "Creando tu identidad visual...",
+    "finalizing": "Agregando los toques finales...",
+    "completed": "¡Tu tarjeta de vibra está lista!",
+    "error": "Algo salió mal",
+    "estimatedTime": "Esto normalmente toma 1-2 minutos",
+    "funFact": "Las tarjetas de vibra generadas por IA ayudan a que los clientes encuentren negocios que coinciden con sus valores y estilo."
   },
   "common": {
     "loading": "Cargando...",
@@ -409,9 +459,15 @@
       "customerSupport": {
         "title": "Soporte al Cliente",
         "description": "Gestiona conversaciones de soporte al cliente y proporciona asistencia en tiempo real",
+        "toolDisabledTitle": "Herramienta de Soporte al Cliente",
+        "toolDisabledDescription": "Activa el chat de soporte para atender a tus clientes en tiempo real desde la app móvil.",
+        "enableButton": "Activar soporte al cliente",
+        "subtitle": "Conversaciones de clientes en tiempo real",
         "conversations": "Conversaciones",
         "noConversations": "Aún no hay conversaciones",
         "selectConversation": "Selecciona una conversación para empezar a chatear",
+        "selectConversationTitle": "Selecciona una conversación",
+        "emptyDescription": "Las conversaciones aparecerán cuando tus clientes comiencen a chatear",
         "loading": "Cargando conversaciones...",
         "sendMessage": "Enviar mensaje",
         "typing": "Escribe tu mensaje...",
@@ -422,7 +478,27 @@
         "newConversation": "Nueva conversación iniciada",
         "conversationResolved": "Conversación resuelta",
         "customerOnline": "Cliente está en línea",
-        "customerOffline": "Cliente se desconectó"
+        "customerOffline": "Cliente se desconectó",
+        "statusLive": "En vivo",
+        "conversationCount": "{count, plural, one {# conversación} other {# conversaciones}}",
+        "filters": {
+          "all": "Todas ({count})",
+          "unread": "Sin leer ({count})"
+        },
+        "status": {
+          "open": "Abierta",
+          "inProgress": "En progreso",
+          "resolved": "Resuelta",
+          "closed": "Cerrada"
+        },
+        "priority": {
+          "low": "Baja",
+          "normal": "Normal",
+          "high": "Alta",
+          "urgent": "Urgente"
+        },
+        "customerPrefix": "Cliente:",
+        "agentPrefix": "Tú:"
       }
     },
     "upgradePlan": "Mejorar Plan",
@@ -1111,20 +1187,6 @@
     "backToHome": "← Volver al Inicio",
     "effectiveAsOf": "Efectivo a partir de"
   },
-  "languageSelector": {
-    "selectLanguage": "Seleccionar Idioma",
-    "currentLanguage": "Idioma Actual",
-    "languages": {
-      "en": {
-        "name": "Inglés",
-        "nativeName": "English"
-      },
-      "es": {
-        "name": "Español",
-        "nativeName": "Español"
-      }
-    }
-  },
   "chat": {
     "aiAssistant": "Asistente de IA",
     "readyToHelp": "Listo para ayudarte con tu negocio",
@@ -1286,6 +1348,16 @@
       "toCompleteSetup": "Para completar la configuración:",
       "toolConfigured": "✨ ¡Esta herramienta está completamente configurada y lista para usar!",
       "featuresIncluded": "Características incluidas:",
+      "vibeCard": {
+        "title": "Tarjeta de Vibra del Mercado",
+        "description": "Crea tu tarjeta de vibra única para atraer clientes ideales en el marketplace.",
+        "features": [
+          "Historia y personalidad generadas por IA",
+          "Diseño visual hermoso con colores personalizados",
+          "Insignias de valor y rasgos de personalidad",
+          "Visibilidad en el mercado para el descubrimiento de clientes"
+        ]
+      },
       "appointments": {
         "title": "Reserva de Citas",
         "description": "Permite a los clientes programar citas directamente a través de tu interfaz de chat.",

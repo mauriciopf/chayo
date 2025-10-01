@@ -1,23 +1,15 @@
 "use client"
 
 import { motion } from "framer-motion";
-import { useTranslations, useLocale } from 'next-intl';
-import { useRouter, usePathname } from "next/navigation";
+import { useTranslations } from 'next-intl';
+import { useRouter } from "next/navigation";
 
 export default function NewFooter() {
   const t = useTranslations('footer');
-  const locale = useLocale();
   const router = useRouter();
-  const pathname = usePathname();
-
-  const handleLanguageChange = (newLocale: string) => {
-    // Get current path without locale prefix
-    const pathWithoutLocale = (pathname || '').replace(/^\/[a-z]{2}/, '') || '/';
-    router.push(`/${newLocale}${pathWithoutLocale}`);
-  };
 
   const handleBookDemo = () => {
-    router.push(`/${locale}/auth`);
+    router.push('/es/auth');
   };
 
   return (
@@ -47,33 +39,6 @@ export default function NewFooter() {
             <p className="text-gray-300 text-lg mb-6 leading-relaxed">
               {t('description')}
             </p>
-
-            {/* Language Toggle */}
-            <div className="flex items-center space-x-4 mb-6">
-              <span className="text-gray-400 text-sm">{t('language')}</span>
-              <div className="flex bg-gray-800 rounded-full p-1">
-                <button
-                  onClick={() => handleLanguageChange('en')}
-                  className={`px-3 py-1 rounded-full text-sm font-medium transition-all duration-300 ${
-                    locale === 'en' 
-                      ? 'bg-white text-gray-900' 
-                      : 'text-gray-400 hover:text-white'
-                  }`}
-                >
-                  🇺🇸 EN
-                </button>
-                <button
-                  onClick={() => handleLanguageChange('es')}
-                  className={`px-3 py-1 rounded-full text-sm font-medium transition-all duration-300 ${
-                    locale === 'es' 
-                      ? 'bg-white text-gray-900' 
-                      : 'text-gray-400 hover:text-white'
-                  }`}
-                >
-                  🇲🇽 ES
-                </button>
-              </div>
-            </div>
 
             {/* Social Links */}
             <div className="flex space-x-4">

@@ -30,7 +30,7 @@ interface MobileDocumentViewerProps {
 export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
   documentId,
   onBack,
-  backButtonText = '‹ Back',
+  backButtonText = null,
   onSigningComplete,
 }) => {
   const { theme, fontSizes, themedStyles } = useThemedStyles();
@@ -46,9 +46,10 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
   const [showSigningForm, setShowSigningForm] = useState(false);
   const [webViewKey, setWebViewKey] = useState(0); // Force WebView reload
 
-
   // PDF processing
   const [pdfBytes, setPdfBytes] = useState<ArrayBuffer | null>(null);
+
+  const resolvedBackButtonText = backButtonText ?? t('common.back');
 
   const loadDocument = useCallback(async () => {
     try {
@@ -69,11 +70,12 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
 
     } catch (err: any) {
       console.error('Error loading document:', err);
-      setError(err.message || 'Failed to load document');
+      const fallbackMessage = t('documents.viewer.loadFailed');
+      setError(err.message || fallbackMessage);
     } finally {
       setLoading(false);
     }
-  }, [documentId]);
+  }, [documentId, t]);
 
   useEffect(() => {
     loadDocument();
@@ -101,7 +103,7 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
 
   const handleAuthenticatedSigning = async (user: any, customerId: string) => {
     if (!pdfBytes) {
-      Alert.alert('Error', 'PDF not loaded. Please try again.');
+      Alert.alert(t('common.error'), t('documents.viewer.pdfMissing'));
       return;
     }
 
@@ -141,13 +143,13 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
       );
 
       Alert.alert(
-        'Success',
-        `Document signed successfully!\n\nA copy has been sent to ${user.email}`,
+        t('documents.viewer.signSuccessTitle'),
+        t('documents.viewer.signSuccessMessage', { email: user.email }),
         [
           {
-            text: 'OK',
+            text: t('common.ok'),
             onPress: () => {
-              onSigningComplete?.(true, 'Document signed successfully');
+              onSigningComplete?.(true, t('documents.viewer.signSuccessToast'));
               setShowSigningForm(false);
             },
           },
@@ -156,8 +158,8 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
 
     } catch (signingError: any) {
       console.error('Error signing document:', signingError);
-      const errorMessage = signingError.message || 'Failed to sign document';
-      Alert.alert('Error', errorMessage);
+      const errorMessage = signingError.message || t('documents.viewer.signFailed');
+      Alert.alert(t('common.error'), errorMessage);
       onSigningComplete?.(false, errorMessage);
     } finally {
       setSigning(false);
@@ -182,10 +184,14 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
     return (
       <SafeAreaView style={[styles.container, themedStyles.container]}>
         <View style={styles.errorContainer}>
-          <Text style={[styles.errorTitle, { color: theme.errorColor, fontSize: fontSizes.lg }]}>Error Loading Document</Text>
+          <Text style={[styles.errorTitle, { color: theme.errorColor, fontSize: fontSizes.lg }]}>
+            {t('documents.viewer.errorTitle')}
+          </Text>
           <Text style={[styles.errorMessage, themedStyles.secondaryText, { fontSize: fontSizes.base }]}>{error}</Text>
           <TouchableOpacity style={[styles.retryButton, { backgroundColor: theme.primaryColor }]} onPress={loadDocument}>
-            <Text style={[styles.retryButtonText, { fontSize: fontSizes.base }]}>Retry</Text>
+            <Text style={[styles.retryButtonText, { fontSize: fontSizes.base }]}>
+              {t('documents.viewer.retry')}
+            </Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -201,7 +207,9 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
         >
           <ScrollView style={styles.formContainer}>
             <View style={styles.formHeader}>
-              <Text style={[styles.formTitle, { fontSize: fontSizes.xl }]}>Sign Document</Text>
+              <Text style={[styles.formTitle, { fontSize: fontSizes.xl }]}>
+                {t('documents.viewer.formTitle')}
+              </Text>
               <Text style={[styles.formSubtitle, { fontSize: fontSizes.sm }]}>
                 {document?.file_name}
               </Text>
@@ -214,15 +222,17 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
                   onPress={handleCancelSigning}
                   disabled={signing}
                 >
-                  <Text style={[styles.cancelButtonText, { fontSize: fontSizes.base }]}>Cancel</Text>
+                  <Text style={[styles.cancelButtonText, { fontSize: fontSizes.base }]}>
+                    {t('common.cancel')}
+                  </Text>
                 </TouchableOpacity>
 
                 <AuthGate
                   tool="documents"
                   organizationId={config?.organizationId}
                   onAuthenticated={handleAuthenticatedSigning}
-                  title="Sign in to sign this document"
-                  message={`Digitally sign "${document?.file_name}"`}
+                  title={t('documents.viewer.signInTitle')}
+                  message={t('documents.viewer.signInMessage', { name: document?.file_name ?? '' })}
                 >
                   <TouchableOpacity
                     style={[styles.signButton, signing && styles.signButtonDisabled]}
@@ -235,7 +245,9 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
         <SkeletonBox width={120} height={44} borderRadius={8} />
       </View>
                     ) : (
-                      <Text style={[styles.signButtonText, { fontSize: fontSizes.base }]}>Sign Document</Text>
+                      <Text style={[styles.signButtonText, { fontSize: fontSizes.base }]}>
+                        {t('documents.viewer.signButton')}
+                      </Text>
                     )}
                   </TouchableOpacity>
                 </AuthGate>
@@ -251,13 +263,17 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
     <SafeAreaView style={[styles.container, themedStyles.container]}>
       <View style={styles.header}>
         <View style={styles.headerTop}>
-          {onBack && backButtonText && (
+          {onBack && resolvedBackButtonText && (
             <TouchableOpacity style={[styles.backButton, { backgroundColor: theme.surfaceColor }]} onPress={onBack}>
-              <Text style={[styles.backButtonText, { color: theme.primaryColor, fontSize: fontSizes.base }]}>{backButtonText}</Text>
+              <Text style={[styles.backButtonText, { color: theme.primaryColor, fontSize: fontSizes.base }]}>
+                {resolvedBackButtonText}
+              </Text>
             </TouchableOpacity>
           )}
           <View style={styles.headerTitleContainer}>
-            <Text style={[styles.headerTitle, themedStyles.primaryText, { fontSize: fontSizes.lg }]}>Document</Text>
+            <Text style={[styles.headerTitle, themedStyles.primaryText, { fontSize: fontSizes.lg }]}>
+              {t('documents.viewer.headerTitle')}
+            </Text>
           </View>
         </View>
         <Text style={[styles.headerSubtitle, themedStyles.secondaryText, { fontSize: fontSizes.sm }]}>{document?.file_name}</Text>
@@ -272,7 +288,7 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
             onError={(syntheticEvent) => {
               const { nativeEvent } = syntheticEvent;
               console.error('WebView Error:', nativeEvent);
-              setError('Failed to load document');
+              setError(t('documents.viewer.loadFailed'));
             }}
             startInLoadingState={true}
             renderLoading={() => (
@@ -314,7 +330,9 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
           onPress={handleSignDocument}
           disabled={signing}
         >
-          <Text style={[styles.signDocumentButtonText, { fontSize: fontSizes.base }]}>Sign Document</Text>
+          <Text style={[styles.signDocumentButtonText, { fontSize: fontSizes.base }]}>
+            {t('documents.viewer.signButton')}
+          </Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

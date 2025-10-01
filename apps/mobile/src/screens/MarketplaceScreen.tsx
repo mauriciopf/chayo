@@ -103,7 +103,7 @@ export default function MarketplaceScreen() {
       const response = await fetch(`${apiUrl}/api/marketplace/vibe-cards?${params}`);
       
       if (!response.ok) {
-        throw new Error('Failed to fetch vibe cards');
+        throw new Error('No se pudieron cargar las tarjetas de vibra');
       }
 
       const data = await response.json();
@@ -407,7 +407,7 @@ export default function MarketplaceScreen() {
           <Text style={styles.searchIcon}>🔍</Text>
           <TextInput
             style={styles.searchInput}
-            placeholder="Search businesses, services..."
+            placeholder="Buscar negocios, servicios..."
             placeholderTextColor="#8E8E93"
             value={searchQuery}
             onChangeText={setSearchQuery}

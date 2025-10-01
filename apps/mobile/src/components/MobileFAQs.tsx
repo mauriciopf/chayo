@@ -50,7 +50,7 @@ const MobileFAQs: React.FC<MobileFAQsProps> = ({
       const response = await fetch(`${baseUrl}/api/faqs/${organizationSlug}`);
 
       if (!response.ok) {
-        throw new Error('Failed to fetch FAQs');
+        throw new Error('No se pudieron cargar las preguntas frecuentes');
       }
 
       const data = await response.json();
@@ -58,7 +58,7 @@ const MobileFAQs: React.FC<MobileFAQsProps> = ({
       setError(null);
     } catch (err) {
       console.error('Error fetching FAQs:', err);
-      setError('Failed to load FAQs. Please try again.');
+      setError('No se pudieron cargar las preguntas frecuentes. Intenta de nuevo.');
     } finally {
       setLoading(false);
     }
@@ -135,7 +135,7 @@ const MobileFAQs: React.FC<MobileFAQsProps> = ({
             <FAQSkeleton />
             <FAQSkeleton />
           </View>
-          <Text style={[styles.loadingText, themedStyles.primaryText, { fontSize: fontSizes.base }]}>Loading FAQs...</Text>
+          <Text style={[styles.loadingText, themedStyles.primaryText, { fontSize: fontSizes.base }]}>Cargando preguntas frecuentes...</Text>
         </View>
       </SafeAreaView>
     );

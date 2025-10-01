@@ -78,7 +78,7 @@ export default function CalendlyAppointmentPage({ params }: CalendlyAppointmentP
       }
     } catch (error: any) {
       console.error('Error fetching data:', error)
-      setError(error.message || 'Failed to load appointment booking')
+      setError(error.message || 'No se pudo cargar la agenda de citas')
     } finally {
       setLoading(false)
     }
@@ -93,7 +93,7 @@ export default function CalendlyAppointmentPage({ params }: CalendlyAppointmentP
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading appointment booking...</p>
+          <p className="text-gray-600">Cargando agenda de citas...</p>
         </div>
       </div>
     )
@@ -106,16 +106,16 @@ export default function CalendlyAppointmentPage({ params }: CalendlyAppointmentP
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Calendar className="w-8 h-8 text-red-600" />
           </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Booking Not Available</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Agenda no disponible</h2>
           <p className="text-gray-600 mb-6">
-            {error || 'Appointment booking is not configured for this business.'}
+            {error || 'La reserva de citas no está configurada para este negocio.'}
           </p>
           <button
             onClick={handleBackToChat}
             className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to Chat
+            Volver al chat
           </button>
         </div>
       </div>
