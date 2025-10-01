@@ -75,13 +75,13 @@ export default function BusinessSummary() {
                 className="text-4xl font-bold mb-2"
                 style={{ color: 'var(--text-primary)' }}
               >
-                Chayo's Brain
+                Cerebro de Chayo
               </h1>
               <p 
                 className="text-xl"
                 style={{ color: 'var(--text-secondary)' }}
               >
-                See everything Chayo knows about your business - all the information she has learned from your conversations
+                Ve todo lo que Chayo sabe sobre tu negocio - toda la información que ha aprendido de tus conversaciones
               </p>
             </div>
           </div>
@@ -112,13 +112,13 @@ export default function BusinessSummary() {
               className="text-2xl font-bold mb-3"
               style={{ color: 'var(--text-primary)' }}
             >
-              Loading Business Intelligence
+              Cargando Inteligencia de Negocio
             </h3>
             <p 
               className="text-lg"
               style={{ color: 'var(--text-secondary)' }}
             >
-              Analyzing your business data...
+              Analizando los datos de tu negocio...
             </p>
           </div>
         </motion.div>
@@ -149,13 +149,13 @@ export default function BusinessSummary() {
                 className="text-4xl font-bold mb-2"
                 style={{ color: 'var(--text-primary)' }}
               >
-                Chayo's Brain
+                Cerebro de Chayo
               </h1>
               <p 
                 className="text-xl"
                 style={{ color: 'var(--text-secondary)' }}
               >
-                See everything Chayo knows about your business - all the information she has learned from your conversations
+                Ve todo lo que Chayo sabe sobre tu negocio - toda la información que ha aprendido de tus conversaciones
               </p>
             </div>
           </div>
@@ -191,7 +191,7 @@ export default function BusinessSummary() {
               className="text-2xl font-bold mb-3"
               style={{ color: 'var(--text-primary)' }}
             >
-              Unable to Load Summary
+              No se Pudo Cargar el Resumen
             </h3>
             <p 
               className="text-lg mb-8"
@@ -211,7 +211,7 @@ export default function BusinessSummary() {
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--accent-primary)'}
             >
-              Try Again
+              Intentar de Nuevo
             </motion.button>
           </div>
         </motion.div>
@@ -267,7 +267,7 @@ export default function BusinessSummary() {
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
-          <span>Refresh</span>
+          <span>Actualizar</span>
         </motion.button>
       </motion.div>
 
@@ -299,13 +299,13 @@ export default function BusinessSummary() {
                     className="text-2xl font-bold"
                     style={{ color: 'var(--text-primary)' }}
                   >
-                    {showRawData ? 'Raw Business Data' : 'Business Intelligence Summary'}
+                    {showRawData ? 'Datos Crudos del Negocio' : 'Resumen de Inteligencia de Negocio'}
                   </h2>
                   <p 
                     className="text-lg"
                     style={{ color: 'var(--text-secondary)' }}
                   >
-                    {showRawData ? 'Technical data structure' : 'Everything Chayo knows about your business'}
+                    {showRawData ? 'Estructura de datos técnicos' : 'Todo lo que Chayo sabe sobre tu negocio'}
                   </p>
                 </div>
               </div>
@@ -326,7 +326,7 @@ export default function BusinessSummary() {
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={showRawData ? "M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" : "M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"} />
                   </svg>
-                  <span>{showRawData ? 'Show Summary' : 'Show Raw Data'}</span>
+                  <span>{showRawData ? 'Mostrar Resumen' : 'Mostrar Datos Crudos'}</span>
                 </motion.button>
               )}
             </div>
@@ -380,7 +380,7 @@ export default function BusinessSummary() {
               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              Last updated: {new Date().toLocaleDateString()}
+              Última actualización: {new Date().toLocaleDateString()}
             </div>
           </div>
         ) : (
@@ -403,12 +403,12 @@ export default function BusinessSummary() {
               <h3 
                 className="text-2xl font-semibold mb-3"
                 style={{ color: 'var(--text-primary)' }}
-              >No Business Information Yet</h3>
+              >Aún No Hay Información del Negocio</h3>
               <p 
                 className="mb-8 max-w-md mx-auto"
                 style={{ color: 'var(--text-secondary)' }}
               >
-                Start a conversation with your AI assistant to begin collecting your business details. Chayo will learn about your business as you chat.
+                Inicia una conversación con tu asistente IA para comenzar a recopilar los detalles de tu negocio. Chayo aprenderá sobre tu negocio mientras chateas.
               </p>
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -422,7 +422,7 @@ export default function BusinessSummary() {
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--accent-primary)'}
               >
-                Refresh Summary
+                Actualizar Resumen
               </motion.button>
             </div>
           </div>

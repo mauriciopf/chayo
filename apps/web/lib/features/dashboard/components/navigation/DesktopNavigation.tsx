@@ -84,7 +84,7 @@ export default function DesktopNavigation({
     },
     {
       id: 'qrcode' as ActiveView,
-      label: 'Client QR Code',
+      label: 'Código QR de Clientes',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 16a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H4a1 1 0 01-1-1v-4zM15 4a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V4zM13 13h1.5v1.5H13V13zM15.5 13H17v1.5h-1.5V13zM13 15.5h1.5V17H13v-1.5zM15.5 15.5H17V17h-1.5v-1.5z" />
@@ -225,7 +225,7 @@ export default function DesktopNavigation({
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--text-muted)' }}>
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
           </svg>
-          <span className="font-medium">Sign Out</span>
+          <span className="font-medium">Cerrar Sesión</span>
         </button>
       </div>
       </div>

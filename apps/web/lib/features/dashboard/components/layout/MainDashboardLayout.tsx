@@ -65,7 +65,9 @@ export default function MainDashboardLayout({
           subscription={auth.subscription}
         />
 
-        <div className={`flex-1 flex flex-col items-center w-full min-h-0 overflow-hidden ${
+        <div className={`flex-1 flex flex-col items-center w-full min-h-0 ${
+          activeView === 'chat' ? 'overflow-hidden' : 'overflow-y-auto'
+        } ${
           activeView === 'chat' && mobile.isMobile
             ? 'px-0 py-0' 
             : 'px-4 sm:px-6 lg:px-8 py-4 md:px-8 md:py-8'
