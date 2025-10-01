@@ -610,17 +610,6 @@ export default function ProductsManager({ organizationId }: ProductsManagerProps
               Manage your products and services catalog
             </p>
           </div>
-          <button
-            onClick={() => setShowProductForm(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:scale-105"
-            style={{ 
-              backgroundColor: 'var(--accent-secondary)',
-              color: 'white'
-            }}
-          >
-            <Plus className="h-4 w-4" />
-            Add Product/Service
-          </button>
         </div>
 
       {/* Search */}
