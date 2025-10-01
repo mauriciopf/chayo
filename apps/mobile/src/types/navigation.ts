@@ -27,8 +27,10 @@ interface Product {
 // Define the parameter list for stack navigation
 export type RootStackParamList = {
   Marketplace: undefined;
+  BusinessInitialView: undefined;
   BusinessDetail: {
-    organizationId: string;
+    organizationSlug: string;
+    businessName: string;
   };
   MainTabs: undefined;
   Login: undefined;

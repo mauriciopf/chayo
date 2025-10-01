@@ -46,22 +46,16 @@ export class DeepLinkService {
   }
 
   /**
-   * Convert organization slug to organization ID using API
+   * Verify organization slug exists using API
    */
-  static async getOrganizationIdFromSlug(slug: string): Promise<string | null> {
+  static async verifyOrganizationSlug(slug: string): Promise<boolean> {
     try {
-      // Use the app-config endpoint to get organization data
-      const response = await fetch(`https://chayo.vercel.app/api/app-config/${slug}`);
-
-      if (response.ok) {
-        const data = await response.json();
-        return data.organizationId || null;
-      }
-
-      return null;
+      // Use the vibe-card endpoint to verify organization exists
+      const response = await fetch(`https://chayo.vercel.app/api/vibe-card/${slug}`);
+      return response.ok;
     } catch (error) {
-      console.error('Error converting slug to organization ID:', error);
-      return null;
+      console.error('Error verifying organization slug:', error);
+      return false;
     }
   }
 
@@ -70,7 +64,7 @@ export class DeepLinkService {
    */
   static async handleDeepLink(
     url: string,
-    onOrganizationIdDetected: (organizationId: string) => void
+    onOrganizationSlugDetected: (organizationSlug: string) => void
   ): Promise<boolean> {
     const linkData = this.parseDeepLink(url);
 
@@ -79,13 +73,13 @@ export class DeepLinkService {
     }
 
     if (linkData.organizationSlug) {
-      // Convert slug to organizationId
-      const organizationId = await this.getOrganizationIdFromSlug(linkData.organizationSlug);
+      // Verify slug exists
+      const isValid = await this.verifyOrganizationSlug(linkData.organizationSlug);
 
-      if (organizationId) {
-        // Store organizationId in local storage
-        await StorageService.setOrganizationId(organizationId);
-        onOrganizationIdDetected(organizationId);
+      if (isValid) {
+        // Store organizationSlug in local storage
+        await StorageService.setOrganizationSlug(linkData.organizationSlug);
+        onOrganizationSlugDetected(linkData.organizationSlug);
         return true;
       }
     }
@@ -97,10 +91,10 @@ export class DeepLinkService {
    * Set up deep link listener
    */
   static setupDeepLinkListener(
-    onOrganizationIdDetected: (organizationId: string) => void
+    onOrganizationSlugDetected: (organizationSlug: string) => void
   ): () => void {
     const handleUrl = (event: { url: string }) => {
-      this.handleDeepLink(event.url, onOrganizationIdDetected);
+      this.handleDeepLink(event.url, onOrganizationSlugDetected);
     };
 
     // Listen for incoming links when app is already open
@@ -109,7 +103,7 @@ export class DeepLinkService {
     // Check if app was opened with a deep link
     Linking.getInitialURL().then((url) => {
       if (url) {
-        this.handleDeepLink(url, onOrganizationIdDetected);
+        this.handleDeepLink(url, onOrganizationSlugDetected);
       }
     });
 

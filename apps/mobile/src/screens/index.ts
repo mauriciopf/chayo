@@ -1,4 +1,5 @@
 // Export all screens for easier imports
+export { default as BusinessInitialView } from './BusinessInitialView';
 export { ChatScreen } from './ChatScreen';
 export { AppointmentsScreen } from './AppointmentsScreen';
 export { PaymentsScreen } from './PaymentsScreen';

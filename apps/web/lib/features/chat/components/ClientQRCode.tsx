@@ -16,9 +16,8 @@ export default function ClientQRCode({ organizationSlug, isOnboardingCompleted =
 
   useEffect(() => {
     if (organizationSlug) {
-      // Generate the client chat URL using the business slug
-      const baseUrl = window.location.origin
-      const chatUrl = `${baseUrl}/client-chat/${organizationSlug}`
+      // Generate mobile app deep link for business
+      const chatUrl = `chayo://business/${organizationSlug}`
       setClientChatUrl(chatUrl)
       // Generate QR code with better error handling
       QRCode.toDataURL(chatUrl, {
@@ -92,14 +91,31 @@ export default function ClientQRCode({ organizationSlug, isOnboardingCompleted =
           className="text-xl font-bold mb-2"
           style={{ color: 'var(--text-primary)' }}
         >
-          🎯 Código QR de Chat con Clientes
+          🎯 Código QR para Clientes
         </h3>
         <p 
-          className="mb-6"
+          className="mb-4 text-base"
           style={{ color: 'var(--text-secondary)' }}
         >
-          Comparte este código QR con tus clientes para que puedan chatear directamente con tu asistente Chayo personalizada
+          Este código abre tu negocio directamente en la app móvil de Chayo. Tus clientes pueden:
         </p>
+        <ul 
+          className="mb-6 space-y-2 text-sm"
+          style={{ color: 'var(--text-secondary)' }}
+        >
+          <li className="flex items-start">
+            <span className="mr-2">📱</span>
+            <span>Escanear el QR y acceder instantáneamente a tu negocio en la app</span>
+          </li>
+          <li className="flex items-start">
+            <span className="mr-2">💬</span>
+            <span>Chatear con tu asistente IA personalizada, hacer citas, ver productos y más</span>
+          </li>
+          <li className="flex items-start">
+            <span className="mr-2">🔄</span>
+            <span>La app recordará tu negocio - cada vez que la abran, verán tu información</span>
+          </li>
+        </ul>
 
         {/* Setup Status Indicator */}
         <div className="mb-6">
@@ -218,17 +234,29 @@ export default function ClientQRCode({ organizationSlug, isOnboardingCompleted =
               }}
             >
               <h4 
-                className="font-medium mb-2"
+                className="font-medium mb-3"
                 style={{ color: 'var(--text-primary)' }}
-              >Cómo usar:</h4>
+              >📋 Cómo usar:</h4>
               <ul 
-                className="text-sm space-y-1"
+                className="text-sm space-y-2"
                 style={{ color: 'var(--text-secondary)' }}
               >
-                <li>• Imprime y muestra el código QR en tu negocio</li>
-                <li>• Comparte el enlace por redes sociales o correo electrónico</li>
-                <li>• Los clientes pueden escanear para chatear instantáneamente con Chayo</li>
-                <li>• Chayo representará tu negocio profesionalmente</li>
+                <li className="flex items-start">
+                  <span className="mr-2 font-bold">1.</span>
+                  <span>Imprime el QR y colócalo en tu negocio (mostrador, entrada, mesas)</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="mr-2 font-bold">2.</span>
+                  <span>Comparte el enlace por WhatsApp, Instagram o redes sociales</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="mr-2 font-bold">3.</span>
+                  <span>Los clientes escanean con su cámara y se abre la app de Chayo</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="mr-2 font-bold">4.</span>
+                  <span>Acceso instantáneo a tu negocio - sin necesidad de buscar o registrarse</span>
+                </li>
               </ul>
             </div>
           </div>

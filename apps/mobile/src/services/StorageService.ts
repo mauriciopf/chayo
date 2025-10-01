@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const STORAGE_KEYS = {
   ORGANIZATION_ID: '@chayo:organization_id',
+  ORGANIZATION_SLUG: '@chayo:organization_slug',
   USER_EMAIL: '@chayo:user_email',
 } as const;
 
@@ -38,6 +39,42 @@ export class StorageService {
       await AsyncStorage.removeItem(STORAGE_KEYS.ORGANIZATION_ID);
     } catch (error) {
       console.error('Error clearing organization ID:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Store organization slug
+   */
+  static async setOrganizationSlug(slug: string): Promise<void> {
+    try {
+      await AsyncStorage.setItem(STORAGE_KEYS.ORGANIZATION_SLUG, slug);
+    } catch (error) {
+      console.error('Error storing organization slug:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get stored organization slug
+   */
+  static async getOrganizationSlug(): Promise<string | null> {
+    try {
+      return await AsyncStorage.getItem(STORAGE_KEYS.ORGANIZATION_SLUG);
+    } catch (error) {
+      console.error('Error retrieving organization slug:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Clear organization slug
+   */
+  static async clearOrganizationSlug(): Promise<void> {
+    try {
+      await AsyncStorage.removeItem(STORAGE_KEYS.ORGANIZATION_SLUG);
+    } catch (error) {
+      console.error('Error clearing organization slug:', error);
       throw error;
     }
   }
@@ -87,6 +124,7 @@ export class StorageService {
     try {
       await AsyncStorage.multiRemove([
         STORAGE_KEYS.ORGANIZATION_ID,
+        STORAGE_KEYS.ORGANIZATION_SLUG,
         STORAGE_KEYS.USER_EMAIL,
       ]);
     } catch (error) {
@@ -101,8 +139,9 @@ export class StorageService {
   static async hasCompletedSetup(): Promise<boolean> {
     try {
       const organizationId = await this.getOrganizationId();
+      const slug = await this.getOrganizationSlug();
       const email = await this.getUserEmail();
-      return !!(organizationId || email);
+      return !!(organizationId || slug || email);
     } catch (error) {
       console.error('Error checking setup status:', error);
       return false;
