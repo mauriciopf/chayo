@@ -102,7 +102,7 @@ export default function VibeCardGenerationModal({
   const [progress, setProgress] = useState<GenerationProgress>({
     stage: 'initializing',
     progress: 0,
-    message: 'Starting vibe card generation...'
+    message: t('initializing')
   })
   const [startTime] = useState(Date.now())
 
@@ -128,7 +128,7 @@ export default function VibeCardGenerationModal({
       setProgress({
         stage: stageInfo.stage,
         progress: stageInfo.progress,
-        message: STAGE_MESSAGES[stageInfo.stage]?.subtitle || 'Processing...'
+        message: t(`phases.${stageInfo.stage}`) || t('processing')
       })
     }
   }, [currentPhase, isVisible])
@@ -143,7 +143,7 @@ export default function VibeCardGenerationModal({
         setProgress({
           stage: 'completed',
           progress: 100,
-          message: 'Vibe card generated successfully!'
+          message: t('completed')
         })
         // The actual imageUrl would be available from the vibe card service
         // For now, we'll complete without the image URL and let the onComplete handler handle it
@@ -237,7 +237,7 @@ export default function VibeCardGenerationModal({
               transition={{ delay: 0.2 }}
               className="text-2xl font-bold text-white mb-3"
             >
-              {currentStage.title}
+              {t(`stages.${progress.stage}.title`) || currentStage.title}
             </motion.h2>
             
             {/* Subtitle */}
@@ -248,7 +248,7 @@ export default function VibeCardGenerationModal({
               transition={{ delay: 0.3 }}
               className="text-white text-opacity-90 text-sm leading-relaxed"
             >
-              {currentStage.subtitle}
+              {t(`stages.${progress.stage}.subtitle`) || currentStage.subtitle}
             </motion.p>
           </div>
 
@@ -280,9 +280,9 @@ export default function VibeCardGenerationModal({
             {/* Time Information */}
             {progress.stage !== 'completed' && progress.stage !== 'error' && (
               <div className="flex justify-between items-center text-sm text-gray-500 mb-6">
-                <span>Elapsed: {elapsedTime}s</span>
+                <span>{t('elapsed')}: {elapsedTime}s</span>
                 {progress.estimatedTimeRemaining && (
-                  <span>~{progress.estimatedTimeRemaining}s remaining</span>
+                  <span>~{progress.estimatedTimeRemaining}s {t('remaining')}</span>
                 )}
               </div>
             )}
@@ -297,7 +297,7 @@ export default function VibeCardGenerationModal({
                 <div className="flex items-center space-x-3">
                   <div className="w-3 h-3 bg-purple-500 rounded-full animate-pulse" />
                   <p className="text-sm text-purple-700">
-                    <strong>AI is painting your vibe card...</strong> This usually takes 30-60 seconds for the best quality.
+                    <strong>{t('aiPainting')}</strong> {t('estimatedTime')}
                   </p>
                 </div>
               </motion.div>
@@ -317,7 +317,7 @@ export default function VibeCardGenerationModal({
                   transition={{ delay: 0.5 }}
                   className="text-gray-600 text-sm mb-6"
                 >
-                  Your unique vibe card is ready to attract ideal customers in the marketplace!
+                  {t('completedDescription')}
                 </motion.p>
 
                 <motion.button
@@ -377,7 +377,7 @@ export default function VibeCardGenerationModal({
                 className="text-center"
               >
                 <p className="text-xs text-gray-400 italic">
-                  💡 Did you know? AI-generated vibe cards help customers find businesses that match their values and aesthetic preferences.
+                  💡 {t('funFact')}
                 </p>
               </motion.div>
             )}

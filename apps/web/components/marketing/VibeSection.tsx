@@ -66,7 +66,7 @@ export default function VibeSection() {
                   className="text-white rounded-lg px-4 py-3 max-w-xs"
                   style={{ backgroundColor: 'var(--marketing-accent-primary)' }}
                 >
-                  Chayo, can you help me with my health and book appointments?
+                  Chayo, ¿puedes ayudarme con mi negocio y reservar citas?
                 </div>
               </motion.div>
 
@@ -85,7 +85,7 @@ export default function VibeSection() {
                     color: 'var(--text-primary)'
                   }}
                 >
-                  Absolutely! Name me, pick my tone, and tell me what you need. 🏥
+                  ¡Absolutamente! Ponme un nombre, elige mi tono y dime qué necesitas. 🚀
                 </div>
               </motion.div>
 
@@ -104,7 +104,7 @@ export default function VibeSection() {
                     color: 'var(--text-primary)'
                   }}
                 >
-                  I'll become your digital health companion — caring, supportive, and never tired.
+                  Me convertiré en tu compañera digital de negocios — atenta, solidaria y siempre disponible.
                 </div>
               </motion.div>
 
@@ -121,7 +121,7 @@ export default function VibeSection() {
                 className="text-lg italic"
                 style={{ color: 'var(--text-secondary)' }}
               >
-                "She learns your health needs instantly and supports you like she's been your wellness partner for years."
+                "Ella aprende las necesidades de tu negocio instantáneamente y te apoya como si hubiera sido tu socia por años."
               </p>
             </motion.div>
 
@@ -144,7 +144,7 @@ export default function VibeSection() {
               <h3 
                 className="text-2xl font-bold mb-6"
                 style={{ color: 'var(--text-primary)' }}
-              >Health Assistant Setup</h3>
+              >Configuración del Asistente de Negocios</h3>
               
               {/* Name Field */}
               <div className="mb-6">
@@ -152,7 +152,7 @@ export default function VibeSection() {
                   className="block text-sm font-medium mb-2"
                   style={{ color: 'var(--text-primary)' }}
                 >
-                  Health Assistant Name
+                  Nombre del Asistente de Negocios
                 </label>
                 <div className="relative">
                   <input 
@@ -176,7 +176,7 @@ export default function VibeSection() {
                   className="block text-sm font-medium mb-2"
                   style={{ color: 'var(--text-primary)' }}
                 >
-                  Personality & Tone
+                  Personalidad y Tono
                 </label>
                 <div className="grid grid-cols-2 gap-3">
                   <div 
@@ -189,25 +189,25 @@ export default function VibeSection() {
                     <span 
                       className="text-sm font-medium"
                       style={{ color: 'var(--text-primary)' }}
-                    >Friendly & Professional</span>
+                    >Amigable y Profesional</span>
                   </div>
                   <div className="border border-gray-200 rounded-lg p-3 text-center">
                     <span 
                       className="text-sm"
                       style={{ color: 'var(--text-secondary)' }}
-                    >Casual & Fun</span>
+                    >Casual y Divertido</span>
                   </div>
                   <div className="border border-gray-200 rounded-lg p-3 text-center">
                     <span 
                       className="text-sm"
                       style={{ color: 'var(--text-secondary)' }}
-                    >Formal & Expert</span>
+                    >Formal y Experto</span>
                   </div>
                   <div className="border border-gray-200 rounded-lg p-3 text-center">
                     <span 
                       className="text-sm"
                       style={{ color: 'var(--text-secondary)' }}
-                    >Custom Tone</span>
+                    >Tono Personalizado</span>
                   </div>
                 </div>
               </div>
@@ -218,14 +218,14 @@ export default function VibeSection() {
                   className="block text-sm font-medium mb-2"
                   style={{ color: 'var(--text-primary)' }}
                 >
-                  What should Chayo help you with?
+                  ¿En qué debería ayudarte Chayo?
                 </label>
                 <div className="space-y-3">
                   {[
-                    { text: "Book appointments & consultations", checked: true },
-                    { text: "Answer health questions", checked: true },
-                    { text: "Monitor wellness goals", checked: true },
-                    { text: "Provide health reminders", checked: false }
+                    { text: "Reservar citas y consultas", checked: true },
+                    { text: "Responder preguntas de negocios", checked: true },
+                    { text: "Monitorear objetivos de negocio", checked: true },
+                    { text: "Proporcionar recordatorios de negocios", checked: false }
                   ].map((goal, index) => (
                     <div key={index} className="flex items-center space-x-3">
                       <div 
@@ -259,7 +259,7 @@ export default function VibeSection() {
                 whileTap={{ scale: 0.98 }}
                 className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
               >
-                Deploy Chayo 🏥
+                Desplegar Chayo 🚀
               </motion.button>
 
             </div>

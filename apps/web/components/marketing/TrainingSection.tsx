@@ -12,9 +12,9 @@ export default function TrainingSection() {
   const t = useTranslations('training');
 
   const trainingSteps = [
-    { icon: "📂", text: "Dragging business documents" },
-    { icon: "🌐", text: "Pasting business website links" },
-    { icon: "📝", text: "Adding business preferences" }
+    { icon: "📂", text: "Arrastrando documentos de negocio" },
+    { icon: "🌐", text: "Pegando enlaces del sitio web de negocio" },
+    { icon: "📝", text: "Agregando preferencias de negocio" }
   ];
 
   useEffect(() => {
@@ -144,7 +144,7 @@ export default function TrainingSection() {
                     color: 'var(--text-primary)'
                   }}
                 >
-                  Here's my business information and preferences.
+                  Aquí está la información y preferencias de mi negocio.
                 </div>
               </motion.div>
 
@@ -163,7 +163,7 @@ export default function TrainingSection() {
                     color: 'var(--text-primary)'
                   }}
                 >
-                  Got it! I'm already learning. 🧠 I'll support you like I've been your business partner for years.
+                  ¡Entendido! Ya estoy aprendiendo. 🧠 Te apoyaré como si hubiera sido tu socia de negocios por años.
                 </div>
               </motion.div>
 
@@ -179,13 +179,13 @@ export default function TrainingSection() {
               <h3 
                 className="text-2xl font-bold"
                 style={{ color: 'var(--text-primary)' }}
-              >What Chayo learns:</h3>
+              >Lo que Chayo aprende:</h3>
               <div className="grid grid-cols-1 gap-3">
                 {[
-                  { icon: "📋", text: "Your business history & preferences" },
-                  { icon: "🎯", text: "Your business goals & style" },
-                  { icon: "❓", text: "Common business questions" },
-                  { icon: "📞", text: "Your appointment preferences" }
+                  { icon: "📋", text: "Tu historial y preferencias de negocio" },
+                  { icon: "🎯", text: "Tus objetivos y estilo de negocio" },
+                  { icon: "❓", text: "Preguntas comunes de negocio" },
+                  { icon: "📞", text: "Tus preferencias de citas" }
                 ].map((item, index) => (
                   <motion.div
                     key={index}
@@ -223,12 +223,12 @@ export default function TrainingSection() {
                 }}
               >
                 <span>⚡</span>
-                <span>Powered by ChatGPT</span>
+                <span>Impulsado por ChatGPT</span>
               </div>
               <p 
                 className="text-sm mt-2"
                 style={{ color: 'var(--text-secondary)' }}
-              >Learns your business needs instantly</p>
+              >Aprende las necesidades de tu negocio instantáneamente</p>
             </motion.div>
 
           </motion.div>

@@ -11,11 +11,11 @@ export default function SimpleChayoSection() {
   const t = useTranslations('marketing')
 
   const features = [
-    { icon: "📅", title: "Appointments", desc: "Automated scheduling & reminders" },
-    { icon: "💳", title: "Payments", desc: "Secure checkout & subscriptions" },
-    { icon: "📄", title: "Documents", desc: "Upload, sign & share instantly" },
-    { icon: "💬", title: "Support", desc: "AI-driven answers & FAQs" },
-    { icon: "📊", title: "Analytics", desc: "Clear business insights" }
+    { icon: "📅", title: "Citas", desc: "Programación automática y recordatorios" },
+    { icon: "💳", title: "Pagos", desc: "Checkout seguro y suscripciones" },
+    { icon: "📄", title: "Documentos", desc: "Sube, firma y comparte al instante" },
+    { icon: "💬", title: "Soporte", desc: "Respuestas impulsadas por IA y FAQs" },
+    { icon: "📊", title: "Analíticas", desc: "Información clara del negocio" }
   ]
 
   return (
@@ -37,14 +37,14 @@ export default function SimpleChayoSection() {
             className="text-4xl lg:text-5xl font-bold mb-6"
             style={{ color: 'var(--text-primary)' }}
           >
-            Your ALL-Business App
+            Tu App TODO-en-Uno para Negocios
           </h2>
           <p 
             className="text-xl lg:text-2xl max-w-4xl mx-auto leading-relaxed"
             style={{ color: 'var(--text-secondary)' }}
           >
-            One seamless, chat-first workspace where service businesses run their entire operation. 
-            No more juggling multiple tools—everything your business needs, unified.
+            Un espacio de trabajo único y fluido, basado en chat, donde los negocios de servicios administran toda su operación. 
+            No más malabarismos con múltiples herramientas—todo lo que tu negocio necesita, unificado.
           </p>
         </motion.div>
 

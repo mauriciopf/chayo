@@ -346,7 +346,14 @@
     "cta": "Comienza tu Prueba Gratuita"
   },
   "vibeGeneration": {
-    "initializing": "Iniciando tu viaje de tarjeta de personalidad...",
+    "initializing": "Iniciando la generación de tu tarjeta de vibra...",
+    "processing": "Procesando...",
+    "completed": "¡Tarjeta de vibra generada exitosamente!",
+    "elapsed": "Transcurrido",
+    "remaining": "restante",
+    "aiPainting": "La IA está pintando tu tarjeta de vibra...",
+    "estimatedTime": "Esto usualmente toma 30-60 segundos para la mejor calidad.",
+    "completedDescription": "¡Tu tarjeta de vibra única está lista para atraer clientes ideales en el mercado!",
     "close": "Cerrar",
     "dismiss": "Descartar",
     "skipForNow": "Omitir por Ahora",
@@ -357,10 +364,61 @@
     "selectingColors": "Eligiendo los colores perfectos...",
     "generatingImage": "Creando tu identidad visual...",
     "finalizing": "Agregando los toques finales...",
-    "completed": "¡Tu tarjeta de vibra está lista!",
     "error": "Algo salió mal",
-    "estimatedTime": "Esto normalmente toma 1-2 minutos",
-    "funFact": "Las tarjetas de vibra generadas por IA ayudan a que los clientes encuentren negocios que coinciden con sus valores y estilo."
+    "funFact": "¿Sabías que las tarjetas de vibra generadas por IA ayudan a los clientes a encontrar negocios que coinciden con sus valores y preferencias estéticas?",
+    "startingVibeCardGeneration": "Comenzando a crear tu tarjeta de vibra...",
+    "generatingVisuals": "Generando visuales únicos...",
+    "title": "Creando tu Tarjeta de Vibra",
+    "subtitle": "Esto puede tomar unos minutos mientras nuestra IA crea algo especial para ti",
+    "phases": {
+      "initializing": "Preparando la magia de IA para tu negocio...",
+      "analyzing_business": "La IA está analizando tu historia y valores únicos...",
+      "crafting_story": "Tejiendo tu narrativa empresarial...",
+      "selecting_colors": "Seleccionando colores que combinen con tu vibra...",
+      "generating_image": "La IA está pintando tu tarjeta de vibra única...",
+      "finalizing": "Perfeccionando cada detalle...",
+      "completed": "¡Bienvenido al mercado de Chayo!",
+      "error": "No te preocupes, podemos intentar de nuevo u omitir por ahora"
+    },
+    "stages": {
+      "initializing": {
+        "title": "Iniciando tu Viaje de Tarjeta de Vibra",
+        "subtitle": "Preparando la magia de IA para tu negocio..."
+      },
+      "analyzing_business": {
+        "title": "Entendiendo tu Negocio",
+        "subtitle": "La IA está analizando tu historia y valores únicos..."
+      },
+      "crafting_story": {
+        "title": "Creando tu Historia",
+        "subtitle": "Tejiendo tu narrativa empresarial..."
+      },
+      "selecting_colors": {
+        "title": "Eligiendo Colores Perfectos",
+        "subtitle": "Seleccionando colores que combinen con tu vibra..."
+      },
+      "generating_image": {
+        "title": "Creando tu Identidad Visual",
+        "subtitle": "La IA está pintando tu tarjeta de vibra única..."
+      },
+      "finalizing": {
+        "title": "Agregando Toques Finales",
+        "subtitle": "Perfeccionando cada detalle..."
+      },
+      "completed": {
+        "title": "¡Tu Tarjeta de Vibra Está Lista!",
+        "subtitle": "Bienvenido al mercado de Chayo"
+      },
+      "error": {
+        "title": "Algo Salió Mal",
+        "subtitle": "No te preocupes, podemos intentar de nuevo u omitir por ahora"
+      }
+    },
+    "tips": {
+      "patience": "La creatividad toma tiempo - estamos creando algo único para ti",
+      "quality": "Las mejores tarjetas de vibra requieren atención al detalle",
+      "uniqueness": "Tu historia es única, y tu tarjeta también lo será"
+    }
   },
   "chatErrors": {
     "welcome": "¡Bienvenido! Soy Chayo, tu asistente de IA para negocios. 🎉\n\nPara empezar rápidamente, puedo extraer información del sitio web de tu negocio para personalizar tu experiencia y acelerar el proceso de configuración.\n\n¿Tienes un sitio web de tu negocio que me gustaría analizar? Si lo tienes, te proporcionaré una forma sencilla de compartirlo conmigo. Si no, no te preocupes - te guiaré a través de nuestras preguntas de configuración estándar.",
