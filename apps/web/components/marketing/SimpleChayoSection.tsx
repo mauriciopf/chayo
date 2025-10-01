@@ -102,7 +102,7 @@ export default function SimpleChayoSection() {
               className="text-lg font-medium"
               style={{ color: 'var(--text-primary)' }}
             >
-              One place where owners, teams, and customers meet—as simple as chat.
+              Un lugar donde dueños, equipos y clientes se conectan—tan simple como un chat.
             </p>
           </div>
         </motion.div>

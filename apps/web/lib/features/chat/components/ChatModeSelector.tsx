@@ -31,8 +31,8 @@ const ChatModeSelector: React.FC<ChatModeSelectorProps> = ({
   }, []);
 
   const modeItems = [
-    { key: 'business', label: 'Business Mode', icon: '⚙️', description: 'Configure your business' },
-    { key: 'client', label: 'Client Mode', icon: '👥', description: 'Preview client view' },
+    { key: 'business', label: 'Modo Negocio', icon: '⚙️', description: 'Configura tu negocio' },
+    { key: 'client', label: 'Modo Cliente', icon: '👥', description: 'Vista previa del cliente' },
   ];
 
   const handleModeSelect = (mode: ChatMode) => {
@@ -107,7 +107,7 @@ const ChatModeSelector: React.FC<ChatModeSelectorProps> = ({
           onClick={() => onSelect('business_setup')}
           className="ml-3 px-4 py-2 rounded-lg bg-gray-600 hover:bg-gray-500 text-white text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md"
         >
-          Continue business setup
+          Continuar configuración del negocio
         </button>
       )}
     </div>

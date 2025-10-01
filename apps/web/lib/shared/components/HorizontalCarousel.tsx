@@ -53,7 +53,7 @@ export default function HorizontalCarousel({
       {/* Swipe Hint */}
       <div className="text-center mt-2">
         <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-          ← Swipe to see more tools →
+          ← Desliza para ver más herramientas →
         </p>
       </div>
     </div>

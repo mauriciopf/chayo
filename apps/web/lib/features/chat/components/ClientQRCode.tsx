@@ -52,8 +52,8 @@ export default function ClientQRCode({ organizationSlug, isOnboardingCompleted =
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `Chat with your business` ,
-          text: `Chat directly with our AI assistant` ,
+          title: `Chatea con tu negocio` ,
+          text: `Chatea directamente con nuestro asistente IA` ,
           url: clientChatUrl
         })
       } catch (err) {
@@ -92,13 +92,13 @@ export default function ClientQRCode({ organizationSlug, isOnboardingCompleted =
           className="text-xl font-bold mb-2"
           style={{ color: 'var(--text-primary)' }}
         >
-          🎯 Client Chat QR Code
+          🎯 Código QR de Chat con Clientes
         </h3>
         <p 
           className="mb-6"
           style={{ color: 'var(--text-secondary)' }}
         >
-          Share this QR code with your customers so they can chat directly with your personalized Chayo assistant
+          Comparte este código QR con tus clientes para que puedan chatear directamente con tu asistente Chayo personalizada
         </p>
 
         {/* Setup Status Indicator */}
@@ -108,13 +108,13 @@ export default function ClientQRCode({ organizationSlug, isOnboardingCompleted =
               className="text-sm font-medium"
               style={{ color: 'var(--text-primary)' }}
             >
-              Business Setup Status
+              Estado de Configuración del Negocio
             </span>
             <span 
               className="text-sm"
               style={{ color: 'var(--text-secondary)' }}
             >
-              {isOnboardingCompleted ? 'Complete' : 'In Progress'}
+              {isOnboardingCompleted ? 'Completo' : 'En Progreso'}
             </span>
           </div>
           <div 
@@ -122,9 +122,9 @@ export default function ClientQRCode({ organizationSlug, isOnboardingCompleted =
             style={{ color: 'var(--text-secondary)' }}
           >
             {isOnboardingCompleted ? (
-              <span className="font-medium" style={{ color: '#22c55e' }}>✅ QR Code is ready to share!</span>
+              <span className="font-medium" style={{ color: '#22c55e' }}>✅ ¡El código QR está listo para compartir!</span>
             ) : (
-              <span style={{ color: '#f59e0b' }}>⚙️ Setup in progress</span>
+              <span style={{ color: '#f59e0b' }}>⚙️ Configuración en progreso</span>
             )}
           </div>
         </div>
@@ -152,7 +152,7 @@ export default function ClientQRCode({ organizationSlug, isOnboardingCompleted =
                 className="block text-sm font-medium mb-2"
                 style={{ color: 'var(--text-primary)' }}
               >
-                Direct Chat Link:
+                Enlace Directo de Chat:
               </label>
               <div className="flex">
                 <input
@@ -176,7 +176,7 @@ export default function ClientQRCode({ organizationSlug, isOnboardingCompleted =
                   onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
                   onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--accent-primary)'}
                 >
-                  {copied ? '✓ Copied!' : 'Copy'}
+                  {copied ? '✓ ¡Copiado!' : 'Copiar'}
                 </button>
               </div>
             </div>
@@ -193,7 +193,7 @@ export default function ClientQRCode({ organizationSlug, isOnboardingCompleted =
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--accent-primary)'}
               >
-                📱 Share QR Code
+                📱 Compartir Código QR
               </button>
               <button
                 onClick={downloadQR}
@@ -205,7 +205,7 @@ export default function ClientQRCode({ organizationSlug, isOnboardingCompleted =
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--accent-primary)'}
               >
-                💾 Download QR
+                💾 Descargar QR
               </button>
             </div>
 
@@ -220,15 +220,15 @@ export default function ClientQRCode({ organizationSlug, isOnboardingCompleted =
               <h4 
                 className="font-medium mb-2"
                 style={{ color: 'var(--text-primary)' }}
-              >How to use:</h4>
+              >Cómo usar:</h4>
               <ul 
                 className="text-sm space-y-1"
                 style={{ color: 'var(--text-secondary)' }}
               >
-                <li>• Print and display the QR code in your business</li>
-                <li>• Share the link via social media or email</li>
-                <li>• Customers can scan to chat instantly with Chayo</li>
-                <li>• Chayo will represent your business professionally</li>
+                <li>• Imprime y muestra el código QR en tu negocio</li>
+                <li>• Comparte el enlace por redes sociales o correo electrónico</li>
+                <li>• Los clientes pueden escanear para chatear instantáneamente con Chayo</li>
+                <li>• Chayo representará tu negocio profesionalmente</li>
               </ul>
             </div>
           </div>
@@ -240,9 +240,9 @@ export default function ClientQRCode({ organizationSlug, isOnboardingCompleted =
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z" />
                 </svg>
               </div>
-              <h4 className="font-medium text-yellow-900 mb-2">QR Code Not Ready Yet</h4>
+              <h4 className="font-medium text-yellow-900 mb-2">Código QR Aún No Disponible</h4>
               <p className="text-sm text-yellow-800">
-                Complete your business setup to unlock the QR code. Finish the onboarding process to continue.
+                Completa la configuración de tu negocio para desbloquear el código QR. Finaliza el proceso de incorporación para continuar.
               </p>
             </div>
           </div>

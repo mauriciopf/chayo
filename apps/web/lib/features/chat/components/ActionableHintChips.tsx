@@ -53,56 +53,56 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
       id: 'vibe_card',
       label: '💖 Vibe Card',
       icon: '💖',
-      description: 'Create your unique marketplace vibe card to attract ideal customers.',
+      description: 'Crea tu tarjeta vibe única para atraer clientes ideales.',
       category: 'vibe-card'
     },
     {
       id: 'customer_support',
-      label: '💬 Customer Support',
+      label: '💬 Soporte al Cliente',
       icon: '💬',
-      description: 'Manage real-time customer conversations and support tickets.',
+      description: 'Gestiona conversaciones de clientes y tickets de soporte en tiempo real.',
       category: 'customer_support'
     },
     {
       id: 'schedule_appointment',
-      label: '📅 Schedule appointment',
+      label: '📅 Agendar cita',
       icon: '📅',
-      description: 'Book a meeting, reservation, or service time slot.',
+      description: 'Reserva una reunión, reservación o espacio de servicio.',
       category: 'appointments'
     },
     {
       id: 'share_document',
-      label: '📝 Share document',
+      label: '📝 Compartir documento',
       icon: '📝',
-      description: 'Send intake forms, agreements, or information sheets.',
+      description: 'Envía formularios, acuerdos u hojas de información.',
       category: 'documents'
     },
     {
       id: 'collect_payment',
-      label: '💳 Collect payment',
+      label: '💳 Cobrar pago',
       icon: '💳',
-      description: 'Send a payment link or confirm payment details.',
+      description: 'Envía un enlace de pago o confirma detalles de pago.',
       category: 'payments'
     },
     {
       id: 'products_services',
-      label: '🛍️ Products & Services',
+      label: '🛍️ Productos y Servicios',
       icon: '🛍️',
-      description: 'Share your product catalog, services list, or pricing information.',
+      description: 'Comparte tu catálogo de productos, lista de servicios o información de precios.',
       category: 'products'
     },
     {
       id: 'collect_intake_form',
-      label: '📋 Intake form',
+      label: '📋 Formulario de ingreso',
       icon: '📋',
-      description: 'Send custom forms to collect client information, preferences, or requirements.',
+      description: 'Envía formularios personalizados para recopilar información, preferencias o requisitos del cliente.',
       category: 'intake_forms'
     },
     {
       id: 'answer_faqs',
-      label: '❓ Answer FAQ',
+      label: '❓ Responder FAQ',
       icon: '❓',
-      description: 'Business hours, location, pricing, policies.',
+      description: 'Horarios de negocio, ubicación, precios, políticas.',
       category: 'faqs'
     }
   ]

@@ -98,8 +98,8 @@ export default function NewFooter() {
             <ul className="space-y-3">
               <li className="flex items-center space-x-3">
                 <span className="text-purple-400">📧</span>
-                <a href="mailto:hello@chayo.ai" className="text-gray-400 hover:text-white transition-colors duration-300">
-                  hello@chayo.ai
+                <a href="mailto:support@chayo.ai" className="text-gray-400 hover:text-white transition-colors duration-300">
+                support@chayo.ai
                 </a>
               </li>
               <li className="flex items-center space-x-3">
