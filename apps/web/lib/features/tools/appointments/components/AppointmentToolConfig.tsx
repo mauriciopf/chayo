@@ -28,6 +28,7 @@ export default function AppointmentToolConfig({
   const [providerUrl, setProviderUrl] = useState('')
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [autoSaving, setAutoSaving] = useState(false)
 
   const providers: AppointmentProvider[] = [
     {
@@ -116,7 +117,7 @@ export default function AppointmentToolConfig({
 
       const { authUrl } = await response.json()
       
-      // Redirect to provider's OAuth page
+      // Redirect to provider's OAuth page (will auto-save on return)
       window.location.href = authUrl
       
     } catch (error) {
@@ -154,7 +155,7 @@ export default function AppointmentToolConfig({
     }
   }
 
-  const handleSaveSettings = async () => {
+  const handleSaveSettings = async (showAlert: boolean = false) => {
     // Validate based on provider type
     const provider = providers.find(p => p.id === selectedProvider)
     
@@ -162,19 +163,19 @@ export default function AppointmentToolConfig({
       if (provider?.hasOAuth) {
         // OAuth provider (Calendly) - URL should come from OAuth connection
         if (!providerUrl) {
-          alert('Conecta tu cuenta de Calendly primero')
+          if (showAlert) alert('Conecta tu cuenta de Calendly primero')
           return
         }
       } else {
         // Manual URL providers (Vagaro, Square) - URL is required
         if (!providerUrl) {
-          alert('Ingresa primero tu URL de reservas')
+          if (showAlert) alert('Ingresa primero tu URL de reservas')
           return
         }
       }
     }
 
-    setSaving(true)
+    setAutoSaving(true)
     try {
       const response = await fetch(`/api/organizations/${organizationId}/appointment-settings`, {
         method: 'POST',
@@ -192,14 +193,36 @@ export default function AppointmentToolConfig({
       }
 
       onSettingsChange?.()
-      alert('¡Configuración de citas guardada exitosamente!')
+      if (showAlert) alert('¡Configuración de citas guardada exitosamente!')
     } catch (error) {
       console.error('Error saving appointment settings:', error)
-      alert('No se pudo guardar la configuración. Intenta nuevamente.')
+      if (showAlert) alert('No se pudo guardar la configuración. Intenta nuevamente.')
     } finally {
-      setSaving(false)
+      setAutoSaving(false)
     }
   }
+
+  // Auto-save when custom provider is selected
+  useEffect(() => {
+    if (selectedProvider === 'custom' && isEnabled) {
+      handleSaveSettings(false)
+    }
+  }, [selectedProvider])
+
+  // Auto-save when providerUrl changes (for manual URL providers)
+  useEffect(() => {
+    if (providerUrl && selectedProvider !== 'custom' && isEnabled) {
+      const provider = providers.find(p => p.id === selectedProvider)
+      // Only auto-save for non-OAuth providers (manual URL providers)
+      if (provider && !provider.hasOAuth) {
+        const debounceTimer = setTimeout(() => {
+          handleSaveSettings(false)
+        }, 1000) // Debounce for 1 second
+
+        return () => clearTimeout(debounceTimer)
+      }
+    }
+  }, [providerUrl, selectedProvider])
 
   if (!isEnabled) {
     return (
@@ -577,32 +600,13 @@ export default function AppointmentToolConfig({
         </div>
       )}
 
-      {/* Save Button - Show based on provider requirements */}
-      {(() => {
-        const provider = providers.find(p => p.id === selectedProvider)
-        const showSaveButton = selectedProvider === 'custom' || 
-          (provider?.hasOAuth && providerUrl) || // OAuth provider connected
-          (!provider?.hasOAuth && providerUrl)   // Manual URL provider with URL entered
-        
-        return showSaveButton && (
-          <div className="flex justify-end">
-            <button
-              onClick={handleSaveSettings}
-              disabled={saving}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-            >
-              {saving ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  Guardando...
-                </>
-              ) : (
-                'Guardar configuración'
-              )}
-            </button>
-          </div>
-        )
-      })()}
+      {/* Auto-save indicator */}
+      {autoSaving && (
+        <div className="flex justify-end items-center gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
+          <div className="animate-spin rounded-full h-4 w-4 border-b-2" style={{ borderColor: 'var(--accent-primary)' }}></div>
+          <span>Guardando automáticamente...</span>
+        </div>
+      )}
     </div>
   )
 }
