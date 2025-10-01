@@ -42,6 +42,11 @@
   },
   "vibeGeneration": {
     "initializing": "Starting your vibe card journey...",
+    "close": "Close",
+    "dismiss": "Dismiss",
+    "skipForNow": "Skip for Now",
+    "tryAgain": "Try Again",
+    "enterMarketplace": "Enter the Marketplace",
     "analyzingBusiness": "Understanding your unique business...",
     "craftingStory": "Weaving your story together...",
     "selectingColors": "Choosing perfect colors...",

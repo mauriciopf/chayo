@@ -304,6 +304,14 @@
     "subtitle": "Despliega a Chayo en todos tus dispositivos y observa cómo florece tu viaje de negocios",
     "cta": "Comienza tu Prueba Gratuita"
   },
+  "vibeGeneration": {
+    "initializing": "Iniciando tu viaje de tarjeta de personalidad...",
+    "close": "Cerrar",
+    "dismiss": "Descartar",
+    "skipForNow": "Omitir por Ahora",
+    "tryAgain": "Intentar de Nuevo",
+    "enterMarketplace": "Entrar al Mercado"
+  },
   "common": {
     "loading": "Cargando...",
     "error": "Error",

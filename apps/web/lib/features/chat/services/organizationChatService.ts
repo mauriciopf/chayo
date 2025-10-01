@@ -138,22 +138,21 @@ export class OrganizationChatService {
         allowMultiple: aiResponse.allowMultiple
       })
       
-      // Handle onboarding-specific progress updates
-      if (isOnboarding && aiResponse.statusSignal) {
+      // Handle progress updates when there's a status signal
+      if (aiResponse.statusSignal) {
     
         const onboardingService = new IntegratedOnboardingService()
         
-        // Normalize completion signals coming from prompts
-        const completionSignals = new Set(['setup_complete', 'onboarding_complete', 'onboarding_completed', 'completed'])
+        // Check for completion signal from AI
         const signalLower = (aiResponse.statusSignal || '').toLowerCase()
-        const isCompletionSignal = completionSignals.has(signalLower)
+        const isCompletionSignal = signalLower === 'setup_complete'
 
         // If a completion signal, process it directly
         if (isCompletionSignal) {
           console.log('✅ Setup complete signal detected - marking onboarding as completed')
           await onboardingService.updateOnboardingProgress(
             context.organization.id,
-            { statusSignal: 'setup_complete', aiMessage: aiResponse.aiMessage },
+            { statusSignal: aiResponse.statusSignal, aiMessage: aiResponse.aiMessage },
             progressEmitter
           )
         } else {

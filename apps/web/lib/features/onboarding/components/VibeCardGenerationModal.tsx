@@ -12,7 +12,8 @@ import {
   Clock,
   Zap,
   Heart,
-  Star
+  Star,
+  X
 } from 'lucide-react'
 
 interface VibeCardGenerationModalProps {
@@ -97,6 +98,7 @@ export default function VibeCardGenerationModal({
   currentPhase
 }: VibeCardGenerationModalProps) {
   const t = useTranslations('vibeGeneration')
+  const tCommon = useTranslations('common')
   const [progress, setProgress] = useState<GenerationProgress>({
     stage: 'initializing',
     progress: 0,
@@ -180,6 +182,15 @@ export default function VibeCardGenerationModal({
           className="rounded-3xl shadow-2xl max-w-lg w-full mx-4 overflow-hidden backdrop-blur-xl"
           style={{ backgroundColor: 'var(--bg-secondary)' }}
         >
+          {/* Close Button */}
+          <button
+            onClick={handleDismiss}
+            className="absolute top-4 right-4 z-50 p-2 rounded-full bg-black bg-opacity-20 hover:bg-opacity-30 transition-all duration-200 text-white hover:scale-110"
+            aria-label={t('close')}
+          >
+            <X className="w-5 h-5" />
+          </button>
+
           {/* Animated Header */}
           <div className={`bg-gradient-to-r ${currentStage.color} px-8 py-10 text-center relative overflow-hidden`}>
             {/* Floating particles animation */}
@@ -318,7 +329,7 @@ export default function VibeCardGenerationModal({
                   onClick={handleDismiss}
                   className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2"
                 >
-                  <span>Enter the Marketplace</span>
+                  <span>{t('enterMarketplace')}</span>
                   <ArrowRight className="w-5 h-5" />
                 </motion.button>
               </motion.div>
@@ -342,7 +353,7 @@ export default function VibeCardGenerationModal({
                     onClick={() => window.location.reload()}
                     className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200"
                   >
-                    Try Again
+                    {t('tryAgain')}
                   </motion.button>
                   
                   <motion.button
@@ -351,7 +362,7 @@ export default function VibeCardGenerationModal({
                     onClick={handleDismiss}
                     className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-3 px-4 rounded-xl transition-all duration-200"
                   >
-                    Skip for Now
+                    {t('skipForNow')}
                   </motion.button>
                 </div>
               </motion.div>
