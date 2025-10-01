@@ -52,7 +52,7 @@ export function configureGoogleSignIn() {
 function randomString(length = 32): string {
   const chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
   const randomBytes = new Uint8Array(length);
-  
+
   // Use cryptographically secure random values
   // react-native-get-random-values polyfill is imported at app entry (index.js)
   if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
@@ -61,7 +61,7 @@ function randomString(length = 32): string {
     // Fallback for edge cases where crypto.getRandomValues is not available
     throw new Error('crypto.getRandomValues is not available - ensure react-native-get-random-values is imported at app entry');
   }
-  
+
   let result = '';
   for (let i = 0; i < length; i++) {
     result += chars[randomBytes[i] % chars.length];
@@ -77,7 +77,7 @@ export async function signInWithApple(): Promise<AuthUser> {
 
   // Generate nonce
   const rawNonce = randomString(32);
-  
+
   // Create SHA-256 hash using js-sha256 (getRandomValues polyfilled by react-native-get-random-values)
   const hashedNonce = sha256(rawNonce);
 
@@ -99,14 +99,14 @@ export async function signInWithApple(): Promise<AuthUser> {
     nonce: rawNonce,
   });
 
-  if (error) throw error;
-  if (!data.user) throw new Error('No user returned from Apple Sign-In');
+  if (error) {throw error;}
+  if (!data.user) {throw new Error('No user returned from Apple Sign-In');}
 
   return {
     id: data.user.id,
     email: data.user.email!,
-    fullName: credential.fullName ? 
-      `${credential.fullName.givenName || ''} ${credential.fullName.familyName || ''}`.trim() : 
+    fullName: credential.fullName ?
+      `${credential.fullName.givenName || ''} ${credential.fullName.familyName || ''}`.trim() :
       data.user.user_metadata?.full_name,
     avatarUrl: data.user.user_metadata?.avatar_url,
     provider: 'apple',
@@ -119,11 +119,11 @@ export async function signInWithGoogle(): Promise<AuthUser> {
   await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
 
   const userInfo = await GoogleSignin.signIn();
-  
+
   // Get tokens
   const tokens = await GoogleSignin.getTokens();
   const idToken = tokens.idToken || userInfo.data?.idToken;
-  
+
   if (!idToken) {
     throw new Error('Inicio de sesión con Google falló: no se recibió idToken');
   }
@@ -134,8 +134,8 @@ export async function signInWithGoogle(): Promise<AuthUser> {
     token: idToken,
   });
 
-  if (error) throw error;
-  if (!data.user) throw new Error('No user returned from Google Sign-In');
+  if (error) {throw error;}
+  if (!data.user) {throw new Error('No user returned from Google Sign-In');}
 
   return {
     id: data.user.id,
@@ -153,8 +153,8 @@ export async function signInWithEmail(email: string, password: string): Promise<
     password,
   });
 
-  if (error) throw error;
-  if (!data.user) throw new Error('No user returned from email sign-in');
+  if (error) {throw error;}
+  if (!data.user) {throw new Error('No user returned from email sign-in');}
 
   return {
     id: data.user.id,
@@ -167,8 +167,8 @@ export async function signInWithEmail(email: string, password: string): Promise<
 
 // Email Sign-Up
 export async function signUpWithEmail(
-  email: string, 
-  password: string, 
+  email: string,
+  password: string,
   fullName?: string
 ): Promise<AuthUser> {
   const { data, error } = await supabase.auth.signUp({
@@ -181,8 +181,8 @@ export async function signUpWithEmail(
     },
   });
 
-  if (error) throw error;
-  if (!data.user) throw new Error('No user returned from email sign-up');
+  if (error) {throw error;}
+  if (!data.user) {throw new Error('No user returned from email sign-up');}
 
   return {
     id: data.user.id,
@@ -196,7 +196,7 @@ export async function signUpWithEmail(
 // Sign Out
 export async function signOut(): Promise<void> {
   const { error } = await supabase.auth.signOut();
-  if (error) throw error;
+  if (error) {throw error;}
 
   // Sign out from Google if signed in
   try {
@@ -212,7 +212,7 @@ export async function signOut(): Promise<void> {
 // Get current session
 export async function getCurrentSession() {
   const { data: { session }, error } = await supabase.auth.getSession();
-  if (error) throw error;
+  if (error) {throw error;}
   return session;
 }
 
@@ -225,7 +225,7 @@ export async function createOrUpdateCustomer(
   if (!organizationId) {
     throw new Error('Organization ID is required');
   }
-  
+
   if (!user.email) {
     throw new Error('User email is required');
   }
@@ -245,11 +245,11 @@ export async function createOrUpdateCustomer(
     console.error('Database error creating customer:', error);
     throw new Error('Failed to create customer record');
   }
-  
+
   if (!data) {
     throw new Error('No customer data returned from database');
   }
-  
+
   return data;
 }
 
@@ -275,6 +275,6 @@ export async function createCustomerInteraction(
     console.error('Database error creating interaction:', error);
     throw new Error('Failed to track customer interaction');
   }
-  
+
   return data;
 }

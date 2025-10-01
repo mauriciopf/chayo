@@ -274,7 +274,6 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
             </View>
 
             <AuthGate
-              tool="appointments"
               organizationId={config?.organizationId || organizationId}
               onAuthenticated={handleAuthenticatedBooking}
               title="Inicia sesión para reservar tu cita"

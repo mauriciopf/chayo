@@ -29,7 +29,7 @@ export default class AuthErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error, errorInfo: any) {
     // Log error for debugging
     console.error('AuthErrorBoundary caught an error:', error, errorInfo);
-    
+
     // You could send this to your error reporting service
     // ErrorReportingService.captureException(error, { context: 'AuthErrorBoundary' });
   }
@@ -61,12 +61,12 @@ export default class AuthErrorBoundary extends Component<Props, State> {
           <Text style={styles.message}>
             Something went wrong with the authentication system.
           </Text>
-          
+
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.retryButton} onPress={this.handleRetry}>
               <Text style={styles.retryButtonText}>Try Again</Text>
             </TouchableOpacity>
-            
+
             <TouchableOpacity style={styles.reportButton} onPress={this.handleReportError}>
               <Text style={styles.reportButtonText}>View Details</Text>
             </TouchableOpacity>

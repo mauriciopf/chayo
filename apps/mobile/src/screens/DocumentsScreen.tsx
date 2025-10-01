@@ -16,9 +16,9 @@ export const DocumentsScreen: React.FC<DocumentsScreenProps> = ({ navigation }) 
   const [totalDocuments, setTotalDocuments] = useState<number>(0);
 
   const handleDocumentSelect = (document: DocumentData) => {
-    navigation.navigate('DocumentDetail', { 
-      document, 
-      totalDocuments 
+    navigation.navigate('DocumentDetail', {
+      document,
+      totalDocuments,
     });
   };
 

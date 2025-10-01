@@ -51,12 +51,12 @@ export const SteppedForm: React.FC<SteppedFormProps> = ({
   const { config } = useAppConfig();
   const [currentStep, setCurrentStep] = useState(0);
   const inputRef = useRef<TextInput>(null);
-  
+
   const totalSteps = components.length;
   const currentComponent = components[currentStep];
   const isLastStep = currentStep === totalSteps - 1;
   const isFirstStep = currentStep === 0;
-  
+
   const progress = ((currentStep + 1) / totalSteps) * 100;
 
   const goToNextStep = () => {
@@ -78,7 +78,7 @@ export const SteppedForm: React.FC<SteppedFormProps> = ({
     const timer = setTimeout(() => {
       inputRef.current?.focus();
     }, 300); // Small delay for smooth transition
-    
+
     return () => clearTimeout(timer);
   }, [currentStep]);
 
@@ -87,7 +87,7 @@ export const SteppedForm: React.FC<SteppedFormProps> = ({
     const timer = setTimeout(() => {
       inputRef.current?.focus();
     }, 500); // Delay for component to fully mount
-    
+
     return () => clearTimeout(timer);
   }, []);
 
@@ -97,7 +97,7 @@ export const SteppedForm: React.FC<SteppedFormProps> = ({
       const timer = setTimeout(() => {
         inputRef.current?.focus();
       }, 300);
-      
+
       return () => clearTimeout(timer);
     }, [])
   );
@@ -111,10 +111,11 @@ export const SteppedForm: React.FC<SteppedFormProps> = ({
         const timer = setTimeout(() => {
           goToNextStep();
         }, 800); // Give user time to see their selection
-        
+
         return () => clearTimeout(timer);
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData, currentComponent, isLastStep]);
 
   return (
@@ -127,18 +128,18 @@ export const SteppedForm: React.FC<SteppedFormProps> = ({
             {description}
           </Text>
         )}
-        
+
         {/* Progress Bar */}
         <View style={styles.progressContainer}>
           <View style={[styles.progressTrack, { backgroundColor: theme.borderColor }]}>
-            <View 
+            <View
               style={[
                 styles.progressFill,
-                { 
+                {
                   backgroundColor: theme.primaryColor,
                   width: `${progress}%`,
-                }
-              ]} 
+                },
+              ]}
             />
           </View>
           <Text style={[styles.progressText, { color: theme.placeholderColor, fontSize: fontSizes.sm }]}>
@@ -148,7 +149,7 @@ export const SteppedForm: React.FC<SteppedFormProps> = ({
       </View>
 
       {/* Current Step Content */}
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         style={styles.content}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
@@ -170,7 +171,7 @@ export const SteppedForm: React.FC<SteppedFormProps> = ({
           <View style={styles.fieldContainer}>
             {renderField(currentComponent, inputRef)}
           </View>
-          
+
           {/* Auto-advance hint for non-input fields */}
           {(currentComponent?.type === 'select' || currentComponent?.type === 'radio') && (
             <View style={styles.hintContainer}>
@@ -182,7 +183,7 @@ export const SteppedForm: React.FC<SteppedFormProps> = ({
         </View>
 
       </KeyboardAvoidingView>
-      
+
       {/* iOS Input Accessory View - Navigation above keyboard for ALL fields */}
       {Platform.OS === 'ios' && (
         <InputAccessoryView nativeID="formNavigation">
@@ -197,16 +198,15 @@ export const SteppedForm: React.FC<SteppedFormProps> = ({
                 </Text>
               </TouchableOpacity>
             )}
-            
+
             <View style={styles.accessoryProgress}>
               <Text style={[styles.accessoryProgressText, { color: theme.placeholderColor, fontSize: fontSizes.sm }]}>
                 {currentStep + 1} of {totalSteps}
               </Text>
             </View>
-            
+
             {isLastStep && onAuthenticatedSubmit ? (
               <AuthGate
-                tool="intake_forms"
                 organizationId={organizationId || config?.organizationId || ''}
                 onAuthenticated={onAuthenticatedSubmit}
                 title="Inicia sesión para enviar tu formulario"

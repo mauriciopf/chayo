@@ -31,7 +31,7 @@ function BusinessDetailContent() {
   const navigation = useNavigation();
   const { fontSizes } = useThemedStyles();
   const { organizationId } = route.params as BusinessDetailScreenProps;
-  const [isLoadingConfig, setIsLoadingConfig] = useState(true);
+  const [_isLoadingConfig, setIsLoadingConfig] = useState(true);
   const [configError, setConfigError] = useState<string | null>(null);
   const [organizationData, setOrganizationData] = useState<OrganizationData | null>(null);
 
@@ -41,7 +41,7 @@ function BusinessDetailContent() {
       try {
         setIsLoadingConfig(true);
         setConfigError(null);
-        
+
         // Fetch organization data
         const { data: businessData, error } = await supabase
           .from('organizations')
@@ -57,7 +57,7 @@ function BusinessDetailContent() {
 
         // Small delay to show the beautiful loading animation
         await new Promise(resolve => setTimeout(resolve, 1000));
-        
+
         setIsLoadingConfig(false);
       } catch (error) {
         console.error('Error loading business config:', error);
@@ -97,7 +97,7 @@ function BusinessDetailContent() {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#1C1C1E" />
-      
+
       {/* Business App Content - Loads app-config for selected business */}
       <AppConfigProvider organizationId={organizationId} organizationSlug={organizationData?.slug || ''}>
         {/* Smart Header - automatically switches between business and nested headers */}
@@ -105,9 +105,9 @@ function BusinessDetailContent() {
           businessName={organizationData?.name || 'Loading...'}
           onBackToMarketplace={handleBackToMarketplace}
         />
-        
+
         <View style={styles.appContainer}>
-          <BusinessTabNavigator 
+          <BusinessTabNavigator
             businessName={organizationData?.name || 'Loading...'}
             onBackToMarketplace={handleBackToMarketplace}
           />

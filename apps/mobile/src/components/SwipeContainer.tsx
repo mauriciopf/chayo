@@ -28,7 +28,7 @@ export const SwipeContainer: React.FC<SwipeContainerProps> = ({
     },
     onPanResponderRelease: (_, gestureState) => {
       const { dx } = gestureState;
-      
+
       if (dx > swipeThreshold) {
         // Swipe right
         onSwipeRight?.();

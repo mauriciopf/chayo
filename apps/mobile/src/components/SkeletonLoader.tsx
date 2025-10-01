@@ -16,11 +16,11 @@ interface SkeletonLoaderProps {
   style?: any;
 }
 
-export const SkeletonBox: React.FC<SkeletonLoaderProps> = ({ 
-  width: boxWidth = 100, 
-  height = 20, 
+export const SkeletonBox: React.FC<SkeletonLoaderProps> = ({
+  width: boxWidth = 100,
+  height = 20,
   borderRadius = 8,
-  style 
+  style,
 }) => {
   const { theme } = useThemedStyles();
   const translateX = useRef(new Animated.Value(-boxWidth)).current;
@@ -80,33 +80,33 @@ export const ProductCardSkeleton: React.FC = () => {
   return (
     <View style={[styles.productCard, themedStyles.surface, { width: cardWidth }]}>
       {/* Product Image Skeleton */}
-      <SkeletonBox 
-        width={cardWidth - 24} 
-        height={120} 
+      <SkeletonBox
+        width={cardWidth - 24}
+        height={120}
         borderRadius={12}
         style={styles.imageSkeleton}
       />
-      
+
       {/* Product Title Skeleton */}
-      <SkeletonBox 
-        width={cardWidth - 40} 
-        height={18} 
+      <SkeletonBox
+        width={cardWidth - 40}
+        height={18}
         borderRadius={4}
         style={styles.titleSkeleton}
       />
-      
+
       {/* Product Description Skeleton */}
-      <SkeletonBox 
-        width={cardWidth - 60} 
-        height={14} 
+      <SkeletonBox
+        width={cardWidth - 60}
+        height={14}
         borderRadius={4}
         style={styles.descriptionSkeleton}
       />
-      
+
       {/* Price Skeleton */}
-      <SkeletonBox 
-        width={60} 
-        height={20} 
+      <SkeletonBox
+        width={60}
+        height={20}
         borderRadius={6}
         style={styles.priceSkeleton}
       />

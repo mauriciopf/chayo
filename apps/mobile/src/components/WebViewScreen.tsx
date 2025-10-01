@@ -20,14 +20,14 @@ interface WebViewScreenProps {
 
 export const WebViewScreen: React.FC<WebViewScreenProps> = ({
   url,
-  title,
+  title: _title,
   onNavigationStateChange,
   showRefreshControl = true,
 }) => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [_error, setError] = useState<string | null>(null);
   const webViewRef = useRef<WebView>(null);
 
   const handleLoadStart = () => {
@@ -45,7 +45,7 @@ export const WebViewScreen: React.FC<WebViewScreenProps> = ({
     setLoading(false);
     setRefreshing(false);
     setError(nativeEvent.description || t('errors.networkError'));
-    
+
     Alert.alert(
       t('common.error'),
       t('errors.networkError'),
@@ -120,7 +120,7 @@ export const WebViewScreen: React.FC<WebViewScreenProps> = ({
           />
         </ScrollView>
       )}
-      
+
       {!showRefreshControl && (
         <WebView
           ref={webViewRef}

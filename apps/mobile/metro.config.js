@@ -49,34 +49,34 @@ if (isEASBuild) {
   // Full monorepo config for development
   config = {
     ...defaultConfig,
-    
+
     // Watch the entire monorepo for changes (dev only)
     watchFolders: [monorepoRoot],
-    
+
     resolver: {
       ...defaultConfig.resolver,
-      
+
       // Node modules paths for both app and monorepo (dev only)
       nodeModulesPaths: [
         path.resolve(projectRoot, 'node_modules'),
         path.resolve(monorepoRoot, 'node_modules'),
       ],
-      
+
       // Platform extensions
       platforms: ['ios', 'android', 'native', 'web'],
-      
+
       // Block the monorepo root from being resolved as a module (dev only)
       blockList: [
         // Block any attempt to resolve the root's index.* as a module
         new RegExp(`^${monorepoRoot.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}/index\\.(js|jsx|ts|tsx|mjs|cjs)$`),
       ],
-      
+
       // Path aliases
       alias: {
         '@': path.resolve(projectRoot, 'src'),
       },
     },
-    
+
     // Transformer settings
     transformer: {
       ...defaultConfig.transformer,

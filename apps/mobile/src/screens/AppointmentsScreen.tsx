@@ -27,7 +27,7 @@ export const AppointmentsScreen: React.FC<AppointmentsScreenProps> = ({ navigati
       try {
         // Get appointment settings for this organization
         const settings = await appointmentService.getAppointmentSettings(config.organizationId);
-        
+
         // Determine if we should use native calendar or WebView
         const shouldUseNative = appointmentService.shouldUseNativeCalendar(settings);
         setUseNativeCalendar(shouldUseNative);

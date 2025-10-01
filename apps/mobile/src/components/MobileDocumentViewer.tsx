@@ -90,7 +90,7 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
         const timer = setTimeout(() => {
           setWebViewKey(prev => prev + 1);
         }, 100);
-        
+
         return () => clearTimeout(timer);
       }
     }, [pdfUrl, loading, error])
@@ -228,7 +228,6 @@ export const MobileDocumentViewer: React.FC<MobileDocumentViewerProps> = ({
                 </TouchableOpacity>
 
                 <AuthGate
-                  tool="documents"
                   organizationId={config?.organizationId}
                   onAuthenticated={handleAuthenticatedSigning}
                   title={t('documents.viewer.signInTitle')}

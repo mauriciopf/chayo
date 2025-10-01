@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  ScrollView,
 } from 'react-native';
 import { useThemedStyles } from '../context/ThemeContext';
 import { useAppConfig } from '../hooks/useAppConfig';
@@ -20,15 +19,15 @@ interface UnifiedDocumentsSectionProps {
 type DocumentsTab = 'documents' | 'forms';
 
 export const UnifiedDocumentsSection: React.FC<UnifiedDocumentsSectionProps> = ({ navigation }) => {
-  const { theme, fontSizes, themedStyles } = useThemedStyles();
+  const { theme, fontSizes } = useThemedStyles();
   const { config } = useAppConfig();
   const [activeTab, setActiveTab] = useState<DocumentsTab>('documents');
   const [totalDocuments, setTotalDocuments] = useState<number>(0);
 
   const handleDocumentSelect = (document: DocumentData) => {
-    navigation.navigate('DocumentDetail', { 
-      document, 
-      totalDocuments 
+    navigation.navigate('DocumentDetail', {
+      document,
+      totalDocuments,
     });
   };
 
@@ -47,19 +46,19 @@ export const UnifiedDocumentsSection: React.FC<UnifiedDocumentsSectionProps> = (
         <TouchableOpacity
           style={[
             styles.tabButton,
-            activeTab === 'documents' && [styles.activeTabButton, { backgroundColor: theme.primaryColor }]
+            activeTab === 'documents' && [styles.activeTabButton, { backgroundColor: theme.primaryColor }],
           ]}
           onPress={() => setActiveTab('documents')}
         >
-          <Icon 
-            name="file-text" 
-            size={16} 
-            color={activeTab === 'documents' ? '#FFFFFF' : theme.placeholderColor} 
+          <Icon
+            name="file-text"
+            size={16}
+            color={activeTab === 'documents' ? '#FFFFFF' : theme.placeholderColor}
             style={styles.tabIcon}
           />
           <Text style={[
             styles.tabButtonText,
-            { color: activeTab === 'documents' ? '#FFFFFF' : theme.placeholderColor, fontSize: fontSizes.sm }
+            { color: activeTab === 'documents' ? '#FFFFFF' : theme.placeholderColor, fontSize: fontSizes.sm },
           ]}>
             Documents
           </Text>
@@ -68,19 +67,19 @@ export const UnifiedDocumentsSection: React.FC<UnifiedDocumentsSectionProps> = (
         <TouchableOpacity
           style={[
             styles.tabButton,
-            activeTab === 'forms' && [styles.activeTabButton, { backgroundColor: theme.primaryColor }]
+            activeTab === 'forms' && [styles.activeTabButton, { backgroundColor: theme.primaryColor }],
           ]}
           onPress={() => setActiveTab('forms')}
         >
-          <Icon 
-            name="clipboard" 
-            size={16} 
-            color={activeTab === 'forms' ? '#FFFFFF' : theme.placeholderColor} 
+          <Icon
+            name="clipboard"
+            size={16}
+            color={activeTab === 'forms' ? '#FFFFFF' : theme.placeholderColor}
             style={styles.tabIcon}
           />
           <Text style={[
             styles.tabButtonText,
-            { color: activeTab === 'forms' ? '#FFFFFF' : theme.placeholderColor, fontSize: fontSizes.sm }
+            { color: activeTab === 'forms' ? '#FFFFFF' : theme.placeholderColor, fontSize: fontSizes.sm },
           ]}>
             Forms
           </Text>

@@ -10,9 +10,7 @@ import {
 } from 'react-native';
 import { IntakeForm } from '../formio';
 import { intakeFormService } from '../services/IntakeFormService';
-import { MobileIntakeForm } from './MobileIntakeForm';
 import { useThemedStyles } from '../context/ThemeContext';
-import { useTranslation } from '../hooks/useTranslation';
 import { useCallback } from 'react';
 import { SkeletonBox } from './SkeletonLoader';
 

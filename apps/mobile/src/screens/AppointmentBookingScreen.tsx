@@ -18,10 +18,10 @@ import AuthGate from '../components/AuthGate';
 export const AppointmentBookingScreen: React.FC = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { selectedDate: selectedDateString, selectedTime, organizationId } = route.params as { 
-    selectedDate: string; 
-    selectedTime: string; 
-    organizationId: string; 
+  const { selectedDate: selectedDateString, selectedTime, organizationId } = route.params as {
+    selectedDate: string;
+    selectedTime: string;
+    organizationId: string;
   };
   const selectedDate = new Date(selectedDateString); // Parse string back to Date
   const { theme, fontSizes, themedStyles } = useThemedStyles();
@@ -114,7 +114,7 @@ export const AppointmentBookingScreen: React.FC = () => {
           <Text style={[styles.sectionTitle, { color: theme.textColor, fontSize: fontSizes.lg }]}>
             Detalles de la cita
           </Text>
-          
+
           <View style={[styles.detailCard, { backgroundColor: theme.surfaceColor }]}>
             <View style={styles.detailRow}>
               <Text style={[styles.detailLabel, { color: theme.placeholderColor, fontSize: fontSizes.sm }]}>Fecha</Text>
@@ -122,7 +122,7 @@ export const AppointmentBookingScreen: React.FC = () => {
                 {formatDate(selectedDate)}
               </Text>
             </View>
-            
+
             <View style={styles.detailRow}>
               <Text style={[styles.detailLabel, { color: theme.placeholderColor, fontSize: fontSizes.sm }]}>Hora</Text>
               <Text style={[styles.detailValue, { color: theme.textColor, fontSize: fontSizes.base }]}>
@@ -137,7 +137,7 @@ export const AppointmentBookingScreen: React.FC = () => {
           <Text style={[styles.sectionTitle, { color: theme.textColor, fontSize: fontSizes.lg }]}>
             Additional Notes (Optional)
           </Text>
-          
+
           <TextInput
             style={[
               styles.notesInput,
@@ -146,7 +146,7 @@ export const AppointmentBookingScreen: React.FC = () => {
                 borderColor: theme.borderColor,
                 color: theme.textColor,
                 fontSize: fontSizes.base,
-              }
+              },
             ]}
             placeholder="Solicitudes especiales o notas adicionales..."
             placeholderTextColor={theme.placeholderColor}
@@ -162,7 +162,6 @@ export const AppointmentBookingScreen: React.FC = () => {
       {/* Book Button */}
       <View style={styles.footer}>
         <AuthGate
-          tool="appointments"
           organizationId={organizationId}
           onAuthenticated={handleAuthenticatedBooking}
           title="Inicia sesión para reservar tu cita"
@@ -171,10 +170,10 @@ export const AppointmentBookingScreen: React.FC = () => {
           <TouchableOpacity
             style={[
               styles.bookButton,
-              { 
+              {
                 backgroundColor: theme.primaryColor,
                 opacity: isLoading ? 0.6 : 1,
-              }
+              },
             ]}
             disabled={isLoading}
           >

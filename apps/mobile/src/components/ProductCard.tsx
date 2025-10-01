@@ -97,7 +97,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             source={{ uri: item.image_url }}
             style={[
               styles.productImage,
-              { 
+              {
                 backgroundColor: theme.surfaceColor,
                 opacity: imageOpacity,
               },

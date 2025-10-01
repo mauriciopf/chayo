@@ -1,5 +1,5 @@
-import { useState, useEffect, useContext } from 'react';
-import { AppConfig, ConfigLoader, ToolUrlGenerator } from '../lib/config';
+import { useContext } from 'react';
+import { AppConfig, ToolUrlGenerator } from '../lib/config';
 import { AppConfigContext } from '../context/AppConfigContext';
 
 export interface UseAppConfigReturn {
@@ -15,7 +15,7 @@ export interface UseAppConfigReturn {
  */
 export const useAppConfig = (): UseAppConfigReturn => {
   const context = useContext(AppConfigContext);
-  
+
   if (!context) {
     throw new Error('useAppConfig must be used within AppConfigProvider');
   }

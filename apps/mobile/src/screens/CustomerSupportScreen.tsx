@@ -43,7 +43,7 @@ export const CustomerSupportScreen: React.FC = () => {
   const { theme, fontSizes, themedStyles } = useThemedStyles();
   const { user } = useAuth();
   const isAuthenticated = !!user;
-  
+
   const [messages, setMessages] = useState<SupportMessage[]>([]);
   const [inputText, setInputText] = useState('');
   const [conversation, setConversation] = useState<Conversation | null>(null);
@@ -51,7 +51,7 @@ export const CustomerSupportScreen: React.FC = () => {
   const [sending, setSending] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [waitingForAgent, setWaitingForAgent] = useState(false);
-  
+
   const flatListRef = useRef<FlatList>(null);
   const textInputRef = useRef<TextInput>(null);
 
@@ -63,12 +63,12 @@ export const CustomerSupportScreen: React.FC = () => {
         const timer = setTimeout(() => {
           setShowLoginModal(true);
         }, 300);
-        
+
         return () => clearTimeout(timer);
       }
     }, [isAuthenticated])
   );
-  
+
   // Use existing SSE system for loading states
   const sseProgress = useSSEProgress(config?.organizationId);
 
@@ -122,7 +122,7 @@ export const CustomerSupportScreen: React.FC = () => {
 
       const formattedMessages: SupportMessage[] = messageData?.map(msg => ({
         ...msg,
-        isUser: msg.sender_type === 'customer'
+        isUser: msg.sender_type === 'customer',
       })) || [];
 
       setMessages(formattedMessages);
@@ -132,7 +132,7 @@ export const CustomerSupportScreen: React.FC = () => {
   }, []);
 
   const initializeCustomerSupport = useCallback(async () => {
-    if (!user || !config) return;
+    if (!user || !config) {return;}
 
     setLoading(true);
     try {
@@ -157,7 +157,7 @@ export const CustomerSupportScreen: React.FC = () => {
         // Use existing conversation
         currentConversation = existingConversations[0];
         setConversation(currentConversation);
-        
+
         // Load message history
         await loadMessages(currentConversation.id);
       } else {
@@ -171,7 +171,7 @@ export const CustomerSupportScreen: React.FC = () => {
             customer_name: user.fullName || null, // Optional name
             subject: 'Customer Support Request',
             status: 'open',
-            priority: 'normal'
+            priority: 'normal',
           })
           .select()
           .single();
@@ -183,7 +183,7 @@ export const CustomerSupportScreen: React.FC = () => {
         }
 
         setConversation(newConversation);
-        
+
         // Send welcome message
         const displayName = user.fullName || user.email?.split('@')[0] || 'amiga';
         const welcomeMessage = {
@@ -193,9 +193,9 @@ export const CustomerSupportScreen: React.FC = () => {
           sender_name: 'Soporte al cliente',
           sender_email: 'support@chayo.ai',
           created_at: new Date().toISOString(),
-          isUser: false
+          isUser: false,
         };
-        
+
         setMessages([welcomeMessage]);
       }
     } catch (error) {
@@ -207,26 +207,26 @@ export const CustomerSupportScreen: React.FC = () => {
   }, [user, config, loadMessages]);
 
   const setupRealtimeSubscription = useCallback(() => {
-    if (!conversation) return;
+    if (!conversation) {return;}
 
     const channel = supabase
       .channel(`conversation_${conversation.id}`)
       .on('broadcast', { event: 'new_message' }, (payload) => {
         const newMessage: SupportMessage = {
           ...payload.payload,
-          isUser: payload.payload.sender_type === 'customer'
+          isUser: payload.payload.sender_type === 'customer',
         };
-        
+
         // If it's an agent message, stop the waiting state and SSE
         if (newMessage.sender_type === 'agent') {
           setWaitingForAgent(false);
           sseProgress.disconnect();
         }
-        
+
         // Avoid duplicate messages
         setMessages(prev => {
           const exists = prev.some(msg => msg.id === newMessage.id);
-          if (exists) return prev;
+          if (exists) {return prev;}
           return [...prev, newMessage];
         });
         scrollToBottom();
@@ -251,7 +251,7 @@ export const CustomerSupportScreen: React.FC = () => {
       return;
     }
 
-    if (!inputText.trim() || !conversation || sending) return;
+    if (!inputText.trim() || !conversation || sending) {return;}
 
     // Add user message immediately
     const userMessage: SupportMessage = {
@@ -261,7 +261,7 @@ export const CustomerSupportScreen: React.FC = () => {
       sender_name: user.fullName || user.email?.split('@')[0] || 'Cliente',
       sender_email: user.email || '',
       created_at: new Date().toISOString(),
-      isUser: true
+      isUser: true,
     };
 
     setMessages(prev => [...prev, userMessage]);
@@ -283,7 +283,7 @@ export const CustomerSupportScreen: React.FC = () => {
           sender_name: user.fullName || user.email?.split('@')[0] || 'Cliente',
           sender_email: user.email,
           content: inputText.trim(),
-          message_type: 'text'
+          message_type: 'text',
         })
         .select(`
           id,
@@ -304,10 +304,10 @@ export const CustomerSupportScreen: React.FC = () => {
       }
 
       // Update the temporary message with real ID
-      setMessages(prev => prev.map(msg => 
+      setMessages(prev => prev.map(msg =>
         msg.id === userMessage.id ? { ...message, isUser: true } : msg
       ));
-      
+
       scrollToBottom();
 
     } catch (error) {
@@ -335,13 +335,13 @@ export const CustomerSupportScreen: React.FC = () => {
   const renderMessage = ({ item }: { item: SupportMessage }) => (
     <View style={[
       styles.messageContainer,
-      item.isUser ? styles.userMessage : styles.agentMessage
+      item.isUser ? styles.userMessage : styles.agentMessage,
     ]}>
       <View style={[
         styles.messageBubble,
-        item.isUser 
+        item.isUser
           ? [styles.userBubble, { backgroundColor: theme.primaryColor }]
-          : [styles.agentBubble, { backgroundColor: theme.surfaceColor }]
+          : [styles.agentBubble, { backgroundColor: theme.surfaceColor }],
       ]}>
         {!item.isUser && (
           <Text style={[styles.senderName, { color: theme.placeholderColor, fontSize: fontSizes.xs }]}>
@@ -350,17 +350,17 @@ export const CustomerSupportScreen: React.FC = () => {
         )}
         <Text style={[
           styles.messageText,
-          { color: item.isUser ? '#FFFFFF' : theme.textColor, fontSize: fontSizes.base }
+          { color: item.isUser ? '#FFFFFF' : theme.textColor, fontSize: fontSizes.base },
         ]}>
           {item.content}
         </Text>
         <Text style={[
           styles.timestamp,
-          { color: item.isUser ? 'rgba(255,255,255,0.7)' : theme.placeholderColor, fontSize: fontSizes.xs }
+          { color: item.isUser ? 'rgba(255,255,255,0.7)' : theme.placeholderColor, fontSize: fontSizes.xs },
         ]}>
-          {new Date(item.created_at).toLocaleTimeString([], { 
-            hour: '2-digit', 
-            minute: '2-digit' 
+          {new Date(item.created_at).toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
           })}
         </Text>
       </View>
@@ -372,7 +372,7 @@ export const CustomerSupportScreen: React.FC = () => {
     return (
       <View style={[styles.container, themedStyles.container]}>
         {/* Clean background while login modal is shown - tappable to reopen modal */}
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.authLoadingContainer}
           onPress={() => setShowLoginModal(true)}
           activeOpacity={1}
@@ -424,7 +424,7 @@ export const CustomerSupportScreen: React.FC = () => {
   }
 
   return (
-    <KeyboardAvoidingView 
+    <KeyboardAvoidingView
       style={[styles.container, themedStyles.container]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}

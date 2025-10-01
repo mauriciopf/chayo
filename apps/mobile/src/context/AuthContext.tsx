@@ -1,11 +1,11 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { 
-  AuthUser, 
-  Customer, 
-  configureGoogleSignIn, 
+import {
+  AuthUser,
+  Customer,
+  configureGoogleSignIn,
   getCurrentSession,
   createOrUpdateCustomer,
-  supabase
+  supabase,
 } from '../services/authService';
 import { Session } from '@supabase/supabase-js';
 
@@ -15,12 +15,12 @@ interface AuthContextType {
   customer: Customer | null;
   session: Session | null;
   loading: boolean;
-  
+
   // Actions
   setUser: (user: AuthUser | null) => void;
   setCustomer: (customer: Customer | null) => void;
   signOut: () => Promise<void>;
-  
+
   // Helper methods
   requireAuth: (callback: (user: AuthUser, customer: Customer) => void) => void;
   createCustomerForOrganization: (organizationId: string, additionalData?: any) => Promise<Customer>;
@@ -68,9 +68,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         if (__DEV__) {
           console.log('Auth state changed:', event, session?.user?.email);
         }
-        
+
         setSession(session);
-        
+
         if (session?.user) {
           setUser({
             id: session.user.id,
@@ -83,7 +83,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           setUser(null);
           setCustomer(null);
         }
-        
+
         setLoading(false);
       }
     );
@@ -112,7 +112,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   const createCustomerForOrganization = async (
-    organizationId: string, 
+    organizationId: string,
     additionalData?: any
   ): Promise<Customer> => {
     if (!user) {

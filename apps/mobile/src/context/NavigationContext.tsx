@@ -63,12 +63,12 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   const popNavigationContext = useCallback(() => {
     setNavigationState(prev => {
-      const newStack = prev.contextStack.length > 1 
+      const newStack = prev.contextStack.length > 1
         ? prev.contextStack.slice(0, -1)
         : prev.contextStack;
-      
+
       const currentContext = newStack[newStack.length - 1];
-      
+
       return {
         ...prev,
         contextStack: newStack,
@@ -85,7 +85,7 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   const setRootNavigation = useCallback(() => {
     const currentContext = getCurrentContext();
-    
+
     setNavigationState(prev => {
       if (currentContext === 'hub') {
         // If we're in Hub context, try to restore previous screen from stack
@@ -93,8 +93,8 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           // Pop the last screen from stack and restore it
           const previousScreen = prev.screenStack[prev.screenStack.length - 1];
           const newScreenStack = prev.screenStack.slice(0, -1);
-          
-          
+
+
           return {
             ...prev,
             hideBusinessHeader: true,
@@ -133,12 +133,12 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         showBackButton: true,
         ...screenInfo,
       };
-      
+
       // Push current screen to stack if it exists
-      const newScreenStack = prev.currentScreen 
+      const newScreenStack = prev.currentScreen
         ? [...prev.screenStack, prev.currentScreen]
         : prev.screenStack;
-      
+
       return {
         ...prev,
         hideBusinessHeader: true,
@@ -219,13 +219,13 @@ export const useNavigationHeader = (
   }
 ) => {
   const { setScreenHeader, setRootNavigation } = useScreenNavigation();
-  
+
   // Extract primitive values to avoid object reference issues
   const showBackButton = options?.showBackButton;
   const backButtonText = options?.backButtonText;
   const autoCleanup = options?.autoCleanup;
   const onBackPress = options?.onBackPress;
-  
+
   React.useEffect(() => {
     // Set header when component mounts
     setScreenHeader(title, {
@@ -234,7 +234,7 @@ export const useNavigationHeader = (
       backButtonText,
       autoCleanup,
     });
-    
+
     // Cleanup when component unmounts (if autoCleanup is enabled)
     return () => {
       if (autoCleanup !== false) {

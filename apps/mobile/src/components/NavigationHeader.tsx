@@ -36,29 +36,29 @@ export const NavigationHeader: React.FC<NavigationHeaderProps> = ({
       {
         backgroundColor: headerBackgroundColor,
         borderBottomColor: headerBorderColor,
-      }
+      },
     ]}>
       <StatusBar barStyle="light-content" backgroundColor={headerBackgroundColor} />
-      
+
       {showBackButton && (
         <CustomBackButton
           onPress={onBackPress}
           style={styles.backButtonContainer}
         />
       )}
-      
+
       <View style={[styles.titleContainer, !showBackButton && styles.titleContainerCentered]}>
         <Text style={[styles.title, { color: theme.textColor, fontSize: fontSizes.xl }]} numberOfLines={1}>
           {title}
         </Text>
       </View>
-      
+
       {rightComponent && (
         <View style={styles.rightContainer}>
           {rightComponent}
         </View>
       )}
-      
+
       {/* Spacer to balance the back button and center the title when no right component */}
       {showBackButton && !rightComponent && <View style={styles.headerSpacer} />}
     </View>

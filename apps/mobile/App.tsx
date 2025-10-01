@@ -38,7 +38,7 @@ import './src/i18n';
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function App(): React.JSX.Element {
-  const [isUpdateAvailable, setIsUpdateAvailable] = useState(false);
+  const [_isUpdateAvailable, setIsUpdateAvailable] = useState(false);
   const [appReady, setAppReady] = useState(false);
 
 
@@ -107,15 +107,15 @@ function App(): React.JSX.Element {
                 animation: 'slide_from_right',
               }}
             >
-              <Stack.Screen 
-                name="Marketplace" 
+              <Stack.Screen
+                name="Marketplace"
                 component={MarketplaceScreen}
                 options={{
                   title: 'Discover Businesses',
                 }}
               />
-              <Stack.Screen 
-                name="BusinessDetail" 
+              <Stack.Screen
+                name="BusinessDetail"
                 component={BusinessDetailScreen}
                 options={{
                   title: 'Business',

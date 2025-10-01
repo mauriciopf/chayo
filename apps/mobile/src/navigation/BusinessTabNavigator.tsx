@@ -1,7 +1,7 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Platform, View } from 'react-native';
+import { Platform } from 'react-native';
 import { useAppConfig } from '../hooks/useAppConfig';
 import { useThemedStyles } from '../context/ThemeContext';
 import { ChatScreen } from '../screens/ChatScreen';
@@ -74,7 +74,7 @@ function HubStackNavigator({ businessName, onBackToMarketplace, enabledTools }: 
           />
         )}
       </HubStack.Screen>
-      
+
       {/* Universal Detail Screens - All tool detail screens */}
       <HubStack.Screen name="ProductDetail" component={ProductDetailScreen} />
       <HubStack.Screen name="DocumentDetail" component={DocumentDetailScreen} />
@@ -113,10 +113,10 @@ function MainTabNavigator({ businessName, onBackToMarketplace }: BusinessTabNavi
   const renderTabIcon = ({ route, color, focused }: any) => {
     const tab = tabs.find(t => t.name === route.name);
     const iconName = getTabIconName(tab?.icon || 'circle');
-    
+
     return (
-      <Icon 
-        name={iconName} 
+      <Icon
+        name={iconName}
         size={focused ? 26 : 24} // Slightly larger when active
         color={color}
         style={{

@@ -64,6 +64,7 @@ export const PremiumProductCardSkeleton: React.FC<PremiumProductCardSkeletonProp
       shimmer.stop();
       pulse.stop();
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const shimmerTranslateX = shimmerAnimation.interpolate({
@@ -90,7 +91,7 @@ export const PremiumProductCardSkeleton: React.FC<PremiumProductCardSkeletonProp
     >
       {/* Base gradient background */}
       <View style={[styles.baseGradient, { backgroundColor: theme.surfaceColor || '#2C2C2E' }]} />
-      
+
       {/* Primary shimmer overlay */}
       <Animated.View
         style={[
@@ -102,7 +103,7 @@ export const PremiumProductCardSkeleton: React.FC<PremiumProductCardSkeletonProp
           },
         ]}
       />
-      
+
       {/* Secondary shimmer for depth */}
       <Animated.View
         style={[
@@ -291,6 +292,7 @@ export const PremiumImageSkeleton: React.FC<PremiumProductCardSkeletonProps> = (
       wave.stop();
       breathe.stop();
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const waveTranslateY = waveAnimation.interpolate({
@@ -320,10 +322,10 @@ export const PremiumImageSkeleton: React.FC<PremiumProductCardSkeletonProps> = (
           },
         ]}
       />
-      
+
       {/* Overlay pattern */}
       <View style={premiumStyles.patternOverlay} />
-      
+
       {/* Center loading indicator */}
       <View style={premiumStyles.centerIndicator}>
         <View

@@ -56,11 +56,11 @@ export class OffersService {
     try {
       const params = new URLSearchParams({
         organizationId,
-        ...(userId && { userId })
+        ...(userId && { userId }),
       });
 
       const response = await fetch(`${this.baseUrl}/api/offers/active?${params}`);
-      
+
       if (!response.ok) {
         if (response.status === 404) {
           return { success: false, error: 'Organization not found' };
@@ -69,16 +69,16 @@ export class OffersService {
       }
 
       const data = await response.json();
-      return { 
-        success: true, 
-        offers: data.offers || [], 
-        total: data.total || 0 
+      return {
+        success: true,
+        offers: data.offers || [],
+        total: data.total || 0,
       };
     } catch (error) {
       console.error('Error fetching available offers:', error);
-      return { 
-        success: false, 
-        error: 'Failed to load offers. Please check your connection.' 
+      return {
+        success: false,
+        error: 'Failed to load offers. Please check your connection.',
       };
     }
   }
@@ -93,8 +93,8 @@ export class OffersService {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           userId,
-          organizationId
-        })
+          organizationId,
+        }),
       });
 
       const data = await response.json();
@@ -106,9 +106,9 @@ export class OffersService {
       }
     } catch (error) {
       console.error('Error activating offer:', error);
-      return { 
-        success: false, 
-        error: 'Network error. Please try again.' 
+      return {
+        success: false,
+        error: 'Network error. Please try again.',
       };
     }
   }
@@ -119,7 +119,7 @@ export class OffersService {
   async deactivateOffer(offerId: string, userId: string): Promise<ActivateOfferResponse> {
     try {
       const response = await fetch(`${this.baseUrl}/api/offers/${offerId}/activate?userId=${userId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
       });
 
       if (response.ok) {
@@ -130,9 +130,9 @@ export class OffersService {
       }
     } catch (error) {
       console.error('Error deactivating offer:', error);
-      return { 
-        success: false, 
-        error: 'Network error. Please try again.' 
+      return {
+        success: false,
+        error: 'Network error. Please try again.',
       };
     }
   }

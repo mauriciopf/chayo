@@ -46,13 +46,13 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({ navigation }) =>
   const [error, setError] = useState<string | null>(null);
 
   // Use the offers hook to fetch offers data
-  const { 
-    offers, 
-    loading: offersLoading, 
-    activateOffer, 
+  const {
+    offers,
+    loading: offersLoading,
+    activateOffer,
     deactivateOffer,
     refetch: refetchOffers,
-    getOffersForProduct 
+    getOffersForProduct,
   } = useOffers(config?.organizationId, user?.id);
 
   const screenWidth = Dimensions.get('window').width;
@@ -91,26 +91,22 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({ navigation }) =>
     setRefreshing(true);
     Promise.all([
       fetchProducts(),
-      refetchOffers()
+      refetchOffers(),
     ]).finally(() => {
       setRefreshing(false);
     });
   };
 
   const handleProductPress = (product: Product) => {
-    navigation.navigate('ProductDetail', { 
+    navigation.navigate('ProductDetail', {
       product,
       offers,
       activateOffer,
       deactivateOffer,
-      getOffersForProduct 
+      getOffersForProduct,
     });
   };
 
-  const handleLoginRequired = () => {
-    // Navigate to login or show login modal
-    navigation.navigate('Profile'); // Assuming Profile screen handles login
-  };
 
   // Generate a consistent gradient based on product name
   const getProductGradient = (productName: string): [string, string] => {

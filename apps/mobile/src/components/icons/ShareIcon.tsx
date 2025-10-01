@@ -6,9 +6,9 @@ interface ShareIconProps {
   color?: string;
 }
 
-export const ShareIcon: React.FC<ShareIconProps> = ({ 
-  size = 24, 
-  color = '#FFFFFF' 
+export const ShareIcon: React.FC<ShareIconProps> = ({
+  size = 24,
+  color = '#FFFFFF',
 }) => {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">

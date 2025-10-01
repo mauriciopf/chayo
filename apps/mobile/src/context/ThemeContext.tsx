@@ -5,7 +5,7 @@ interface ThemeContextType {
   theme: ThemeColors;
   fontSizes: {
     xs: number;      // 10px - Extra small
-    sm: number;      // 12px - Small  
+    sm: number;      // 12px - Small
     base: number;    // 14px - Base (reduced from 16)
     md: number;      // 16px - Medium (reduced from 18)
     lg: number;      // 18px - Large (reduced from 20)
@@ -35,11 +35,11 @@ interface ThemeProviderProps {
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const theme = useTheme();
-  
+
   // Reduced font sizes for better mobile density
   const fontSizes = {
     xs: 10,      // Extra small - captions, small labels
-    sm: 12,      // Small - secondary text, metadata  
+    sm: 12,      // Small - secondary text, metadata
     base: 14,    // Base - body text, default (reduced from 16)
     md: 16,      // Medium - primary text, inputs (reduced from 18)
     lg: 18,      // Large - headings, titles (reduced from 20)
@@ -47,7 +47,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     xxl: 22,     // XX Large - page titles (reduced from 28)
     xxxl: 24,    // XXX Large - main headers (reduced from 32)
   };
-  
+
   // Create reusable style objects based on theme
   const styles = {
     container: {

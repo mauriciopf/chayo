@@ -26,7 +26,7 @@ class AppointmentService {
   async getAppointmentSettings(organizationId: string): Promise<AppointmentSettings | null> {
     try {
       const response = await fetch(`${this.baseUrl}/api/organizations/${organizationId}/appointment-settings`);
-      
+
       if (!response.ok) {
         console.error('Failed to fetch appointment settings:', response.status);
         return null;

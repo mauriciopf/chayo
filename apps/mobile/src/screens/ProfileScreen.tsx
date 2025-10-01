@@ -11,17 +11,15 @@ import {
   ScrollView,
   SafeAreaView,
 } from 'react-native';
-import { useTranslation } from 'react-i18next';
 import { useTheme } from '../hooks/useTheme';
 import { useThemedStyles } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { getAuthProviderAvailability } from '../utils/authConfig';
-import { 
-  signInWithApple, 
-  signInWithGoogle, 
-  signInWithEmail, 
+import {
+  signInWithApple,
+  signInWithGoogle,
+  signInWithEmail,
   signUpWithEmail,
-  AuthUser 
 } from '../services/authService';
 import { SkeletonBox } from '../components/SkeletonLoader';
 import Icon from 'react-native-vector-icons/Feather';
@@ -35,7 +33,7 @@ export const ProfileScreen: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [authMode, setAuthMode] = useState<AuthMode>('signin');
   const [providerAvailability] = useState(() => getAuthProviderAvailability());
-  
+
   // Email form state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -83,9 +81,9 @@ export const ProfileScreen: React.FC = () => {
       } else {
         await signInWithEmail(email, password);
       }
-      
+
       Alert.alert('Éxito', authMode === 'signup' ? 'Cuenta creada correctamente' : 'Inicio de sesión completado');
-      
+
       // Clear form
       setEmail('');
       setPassword('');
@@ -160,8 +158,8 @@ export const ProfileScreen: React.FC = () => {
               {authMode === 'signin' ? 'Iniciar sesión' : 'Crear cuenta'}
             </Text>
             <Text style={[styles.subtitle, { color: theme.placeholderColor, fontSize: fontSizes.sm }]}>
-              {authMode === 'signin' 
-                ? '¡Bienvenido de nuevo! Inicia sesión para continuar.' 
+              {authMode === 'signin'
+                ? '¡Bienvenido de nuevo! Inicia sesión para continuar.'
                 : 'Crea tu cuenta para comenzar.'
               }
             </Text>
@@ -213,7 +211,7 @@ export const ProfileScreen: React.FC = () => {
                     borderColor: theme.borderColor,
                     color: theme.textColor,
                     fontSize: fontSizes.base,
-                  }
+                  },
                 ]}
                 placeholder="Ingresa tu correo"
                 placeholderTextColor={theme.placeholderColor}
@@ -235,7 +233,7 @@ export const ProfileScreen: React.FC = () => {
                     borderColor: theme.borderColor,
                     color: theme.textColor,
                     fontSize: fontSizes.base,
-                  }
+                  },
                 ]}
                 placeholder="Ingresa tu contraseña"
                 placeholderTextColor={theme.placeholderColor}
@@ -257,7 +255,7 @@ export const ProfileScreen: React.FC = () => {
                       backgroundColor: theme.surfaceColor,
                       borderColor: theme.borderColor,
                       color: theme.textColor,
-                    }
+                    },
                   ]}
                   placeholder="Confirma tu contraseña"
                   placeholderTextColor={theme.placeholderColor}
@@ -284,9 +282,9 @@ export const ProfileScreen: React.FC = () => {
           {/* Toggle Auth Mode */}
           <View style={styles.toggleSection}>
             <Text style={[styles.toggleText, { color: theme.placeholderColor, fontSize: fontSizes.sm }]}>
-              {authMode === 'signin' 
-                ? "¿No tienes cuenta? " 
-                : "¿Ya tienes una cuenta? "
+              {authMode === 'signin'
+                ? '¿No tienes cuenta? '
+                : '¿Ya tienes una cuenta? '
               }
             </Text>
             <TouchableOpacity

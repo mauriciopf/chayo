@@ -61,14 +61,14 @@ export const CustomBackButton: React.FC<CustomBackButtonProps> = ({
         activeOpacity={0.8}
       >
         <View style={styles.iconContainer}>
-          <Icon 
-            name="chevron-left" 
-            size={size} 
+          <Icon
+            name="chevron-left"
+            size={size}
             color="#F4E4BC" // Warm cream color for icon
             style={styles.icon}
           />
         </View>
-        
+
         {/* Mystical gradient overlay for depth */}
         <View style={[styles.gradientOverlay, { backgroundColor: 'rgba(212, 165, 116, 0.1)' }]} />
       </TouchableOpacity>
@@ -160,10 +160,10 @@ export const MinimalBackButton: React.FC<CustomBackButtonProps> = ({
         ]}
         activeOpacity={0.7}
       >
-        <Icon 
-          name="chevron-left" 
-          size={size} 
-          color={theme.primaryColor || '#007AFF'} 
+        <Icon
+          name="chevron-left"
+          size={size}
+          color={theme.primaryColor || '#007AFF'}
           style={{ marginLeft: -1 }}
         />
       </TouchableOpacity>

@@ -11,7 +11,7 @@ export {
   type FormioSubmission,
   type IntakeForm,
   type IntakeFormResponse,
-  FORMIO_FIELD_TYPES
+  FORMIO_FIELD_TYPES,
 } from './types';
 
 export {
@@ -22,5 +22,5 @@ export {
   shouldShowComponent,
   getVisibleComponents,
   convertLegacyFieldsToFormio,
-  createFormioComponent
+  createFormioComponent,
 } from './utils';

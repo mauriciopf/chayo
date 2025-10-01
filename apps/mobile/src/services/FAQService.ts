@@ -68,7 +68,7 @@ class FAQService {
   async getFAQStats(organizationSlug: string): Promise<{ totalFAQs: number; totalItems: number }> {
     try {
       const result = await this.getFAQs(organizationSlug);
-      
+
       if (!result.success || !result.data) {
         return { totalFAQs: 0, totalItems: 0 };
       }

@@ -11,27 +11,27 @@ export const SSETestUtils = {
     try {
       const baseUrl = process.env.EXPO_PUBLIC_API_BASE_URL || 'https://chayo.vercel.app';
       const url = `${baseUrl}/api/sse/chat-progress/${organizationId}/${sessionId}`;
-      
+
       console.log('🧪 Testing SSE connection to:', url);
-      
+
       // Try to create EventSource connection
       const EventSource = require('react-native-sse').EventSource;
       const testEventSource = new EventSource(url);
-      
+
       return new Promise((resolve) => {
         const timeout = setTimeout(() => {
           testEventSource.close();
           console.log('❌ SSE connection test timed out');
           resolve(false);
         }, 5000);
-        
+
         testEventSource.addEventListener('open', () => {
           console.log('✅ SSE connection test successful');
           clearTimeout(timeout);
           testEventSource.close();
           resolve(true);
         });
-        
+
         testEventSource.addEventListener('error', (error: any) => {
           console.log('❌ SSE connection test failed:', error);
           clearTimeout(timeout);
@@ -59,12 +59,12 @@ export const SSETestUtils = {
    */
   async testSlugValidationFlow(testSlug: string): Promise<void> {
     console.log('🧪 Testing slug validation flow with:', testSlug);
-    
+
     try {
       // Test API endpoint
       const response = await fetch(`https://chayo.vercel.app/api/app-config/${testSlug}`);
       console.log('  - API Response Status:', response.status);
-      
+
       if (response.ok) {
         const data = await response.json();
         console.log('  - Organization ID:', data.organizationId);
@@ -76,7 +76,7 @@ export const SSETestUtils = {
     } catch (error) {
       console.error('❌ Slug validation test error:', error);
     }
-  }
+  },
 };
 
 /**
@@ -85,21 +85,21 @@ export const SSETestUtils = {
  */
 export const runSSEIntegrationTest = async () => {
   console.log('🚀 Starting SSE Integration Test...');
-  
+
   SSETestUtils.logEnvironmentConfig();
-  
+
   // Test with a sample organization ID and session ID
   const testOrgId = 'test-org-123';
   const testSessionId = `test-${Date.now()}`;
-  
+
   const connectionTest = await SSETestUtils.testSSEConnection(testOrgId, testSessionId);
-  
+
   if (connectionTest) {
     console.log('🎉 SSE Integration Test: PASSED');
   } else {
     console.log('⚠️ SSE Integration Test: FAILED - Check server endpoints');
   }
-  
+
   console.log('📝 Next steps:');
   console.log('  1. Ensure SSE endpoints exist on server');
   console.log('  2. Test with real organization ID');

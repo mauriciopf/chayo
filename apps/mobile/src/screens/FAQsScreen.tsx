@@ -3,7 +3,6 @@ import { View, Text, StyleSheet } from 'react-native';
 import { FAQSkeleton } from '../components/SkeletonLoader';
 import { SwipeFAQCards } from '../components/SwipeFAQCards';
 import { useAppConfig } from '../hooks/useAppConfig';
-import { useTranslation } from '../hooks/useTranslation';
 import { useThemedStyles } from '../context/ThemeContext';
 
 interface FAQItem {
@@ -32,17 +31,16 @@ interface FAQsScreenProps {
   navigation?: any;
 }
 
-export const FAQsScreen: React.FC<FAQsScreenProps> = ({ navigation }) => {
+export const FAQsScreen: React.FC<FAQsScreenProps> = ({ navigation: _navigation }) => {
   const { config } = useAppConfig();
-  const { t } = useTranslation();
   const { theme, fontSizes, themedStyles } = useThemedStyles();
   const [swipeFAQs, setSwipeFAQs] = useState<SwipeFAQ[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchFAQs = useCallback(async () => {
-    if (!config) return;
-    
+    if (!config) {return;}
+
     try {
       setLoading(true);
       const response = await fetch(`${config.apiBaseUrl}/api/faqs/${config.organizationSlug}`);
@@ -53,10 +51,10 @@ export const FAQsScreen: React.FC<FAQsScreenProps> = ({ navigation }) => {
 
       const data = await response.json();
       const faqs: FAQ[] = data.faqs || [];
-      
+
       // Transform FAQ structure for SwipeFAQCards
       const transformedFAQs: SwipeFAQ[] = [];
-      
+
       faqs.forEach((faq) => {
         faq.faq_items
           .sort((a, b) => a.order - b.order)
@@ -69,7 +67,7 @@ export const FAQsScreen: React.FC<FAQsScreenProps> = ({ navigation }) => {
             });
           });
       });
-      
+
       setSwipeFAQs(transformedFAQs);
       setError(null);
     } catch (err) {
@@ -134,7 +132,7 @@ export const FAQsScreen: React.FC<FAQsScreenProps> = ({ navigation }) => {
           {config.organizationName || 'Our Business'}
         </Text>
       </View>
-      
+
       <SwipeFAQCards
         faqs={swipeFAQs}
         onSwipeLeft={handleSwipeLeft}

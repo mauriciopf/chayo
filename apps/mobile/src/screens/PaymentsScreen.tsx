@@ -7,7 +7,7 @@ interface PaymentsScreenProps {
   navigation?: any;
 }
 
-export const PaymentsScreen: React.FC<PaymentsScreenProps> = ({ navigation }) => {
+export const PaymentsScreen: React.FC<PaymentsScreenProps> = ({ navigation: _navigation }) => {
   const { config, urlGenerator } = useAppConfig();
   const { t } = useTranslation();
 

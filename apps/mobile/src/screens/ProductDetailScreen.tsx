@@ -31,7 +31,7 @@ interface Product {
 export const ProductDetailScreen: React.FC = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { product, offers, activateOffer, deactivateOffer, getOffersForProduct } = route.params as { 
+  const { product, offers, activateOffer, deactivateOffer, getOffersForProduct } = route.params as {
     product: Product;
     offers?: any[];
     activateOffer?: (offerId: string, userId: string) => Promise<{ success: boolean; error?: string }>;
@@ -62,7 +62,7 @@ export const ProductDetailScreen: React.FC = () => {
       ['#ff9a9e', '#fecfef'], // Coral to Pink
       ['#ffecd2', '#fcb69f'], // Cream to Orange
     ];
-    
+
     const hash = productName.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
     return gradients[hash % gradients.length];
   };
@@ -98,9 +98,9 @@ export const ProductDetailScreen: React.FC = () => {
               />
               {imageLoading && (
                 <View style={styles.imageLoadingOverlay}>
-                  <SkeletonBox 
-                    width={screenWidth} 
-                    height={300} 
+                  <SkeletonBox
+                    width={screenWidth}
+                    height={300}
                     borderRadius={0}
                   />
                 </View>
@@ -108,14 +108,14 @@ export const ProductDetailScreen: React.FC = () => {
             </View>
           ) : (
             <View style={[styles.gradientContainer, { backgroundColor: startColor }]}>
-              <View 
+              <View
                 style={[
                   styles.gradientOverlay,
-                  { 
+                  {
                     backgroundColor: endColor,
                     opacity: 0.6,
-                  }
-                ]} 
+                  },
+                ]}
               />
               <View style={styles.gradientContent}>
                 <Text style={[styles.gradientTitle, { fontSize: fontSizes.xl }]}>
@@ -136,12 +136,12 @@ export const ProductDetailScreen: React.FC = () => {
         {/* 🎯 OFFERS BANNER - Show relevant offers for this product */}
         {config?.organizationId && (() => {
           // Get offers that apply to this specific product
-          const productOffers = getOffersForProduct ? 
-            getOffersForProduct(product.id) : 
-            offers?.filter(offer => 
+          const productOffers = getOffersForProduct ?
+            getOffersForProduct(product.id) :
+            offers?.filter(offer =>
               offer.products?.some((p: any) => p.id === product.id)
             ) || [];
-          
+
           return productOffers.length > 0 ? (
             <OffersBannerComponent
               organizationId={config.organizationId}
@@ -175,24 +175,24 @@ export const ProductDetailScreen: React.FC = () => {
           {product.price && (
             <TouchableOpacity
               style={[
-                styles.purchaseButton, 
-                { 
-                  backgroundColor: product.payment_transaction_id 
-                    ? theme.primaryColor 
-                    : theme.placeholderColor 
-                }
+                styles.purchaseButton,
+                {
+                  backgroundColor: product.payment_transaction_id
+                    ? theme.primaryColor
+                    : theme.placeholderColor,
+                },
               ]}
               onPress={product.payment_transaction_id ? handlePurchase : undefined}
               disabled={!product.payment_transaction_id}
               activeOpacity={product.payment_transaction_id ? 0.8 : 1}
             >
-              <Icon 
-                name={product.payment_transaction_id ? "shopping-cart" : "lock"} 
-                size={20} 
-                color="#FFFFFF" 
+              <Icon
+                name={product.payment_transaction_id ? 'shopping-cart' : 'lock'}
+                size={20}
+                color="#FFFFFF"
               />
               <Text style={[styles.purchaseButtonText, { fontSize: fontSizes.base }]}>
-                {product.payment_transaction_id 
+                {product.payment_transaction_id
                   ? `${t('products.detail.purchase')} $${product.price}`
                   : t('products.detail.paymentNotConfigured')
                 }
@@ -205,7 +205,7 @@ export const ProductDetailScreen: React.FC = () => {
             <Text style={[styles.sectionTitle, { color: theme.textColor, fontSize: fontSizes.md }]}>
               {t('products.detail.details')}
             </Text>
-            
+
             <View style={styles.infoRow}>
               <Icon name="calendar" size={16} color={theme.placeholderColor} />
               <Text style={[styles.infoText, { color: theme.placeholderColor, fontSize: fontSizes.sm }]}>

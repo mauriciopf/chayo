@@ -49,7 +49,7 @@ export const AppointmentTimeSelectionScreen: React.FC = () => {
 
   const handleTimeSelect = (time: string) => {
     setSelectedTime(time);
-    
+
     // Small delay to show selection before navigating
     setTimeout(() => {
       navigation.navigate('AppointmentBooking', {
@@ -74,7 +74,7 @@ export const AppointmentTimeSelectionScreen: React.FC = () => {
         <Text style={[styles.sectionTitle, { color: theme.textColor, fontSize: fontSizes.lg }]}>
           Available Times
         </Text>
-        
+
         <ScrollView style={styles.timeSlotsContainer} showsVerticalScrollIndicator={false}>
           <View style={styles.timeSlotsGrid}>
             {timeSlots.map((time) => {
@@ -84,21 +84,21 @@ export const AppointmentTimeSelectionScreen: React.FC = () => {
                   key={time}
                   style={[
                     styles.timeSlot,
-                    { 
+                    {
                       backgroundColor: isSelected ? '#4A9B8E' : theme.surfaceColor,
                       borderColor: isSelected ? '#4A9B8E' : theme.borderColor,
-                    }
+                    },
                   ]}
                   onPress={() => handleTimeSelect(time)}
                   activeOpacity={0.7}
                 >
                   <Text style={[
-                    styles.timeSlotText, 
-                    { 
+                    styles.timeSlotText,
+                    {
                       color: isSelected ? '#FFFFFF' : theme.textColor,
                       fontWeight: isSelected ? '700' : '600',
                       fontSize: fontSizes.base,
-                    }
+                    },
                   ]}>
                     {time}
                   </Text>

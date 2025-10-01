@@ -79,7 +79,7 @@ export const SwipeFAQCards: React.FC<SwipeFAQCardsProps> = ({
             backgroundColor: theme.surfaceColor,
             borderColor: theme.borderColor,
             shadowColor: theme.textColor,
-          }
+          },
         ]}>
           {nextFAQ.category && (
             <View style={[styles.categoryBadge, { backgroundColor: theme.primaryColor }]}>
@@ -88,12 +88,12 @@ export const SwipeFAQCards: React.FC<SwipeFAQCardsProps> = ({
               </Text>
             </View>
           )}
-          
+
           <View style={styles.cardContent}>
             <Text style={[styles.question, { color: theme.textColor, fontSize: fontSizes.lg }]}>
               {nextFAQ.question}
             </Text>
-            
+
             <Text style={[styles.answer, { color: theme.placeholderColor, fontSize: fontSizes.base }]}>
               {nextFAQ.answer}
             </Text>
@@ -108,7 +108,7 @@ export const SwipeFAQCards: React.FC<SwipeFAQCardsProps> = ({
             backgroundColor: theme.surfaceColor,
             borderColor: theme.borderColor,
             shadowColor: theme.textColor,
-          }
+          },
         ]}>
           {currentFAQ.category && (
             <View style={[styles.categoryBadge, { backgroundColor: theme.primaryColor }]}>
@@ -117,17 +117,17 @@ export const SwipeFAQCards: React.FC<SwipeFAQCardsProps> = ({
               </Text>
             </View>
           )}
-          
+
           <View style={styles.cardContent}>
             <Text style={[styles.question, { color: theme.textColor, fontSize: fontSizes.lg }]}>
               {currentFAQ.question}
             </Text>
-            
+
             <Text style={[styles.answer, { color: theme.placeholderColor, fontSize: fontSizes.base }]}>
               {currentFAQ.answer}
             </Text>
           </View>
-          
+
           <View style={styles.cardFooter}>
             <View style={styles.swipeHints}>
               <Text style={[styles.hintText, { color: theme.placeholderColor, fontSize: fontSizes.sm }]}>
@@ -138,7 +138,7 @@ export const SwipeFAQCards: React.FC<SwipeFAQCardsProps> = ({
         </View>
       </View>
       </SwipeContainer>
-      
+
       {/* Progress indicator */}
       <View style={styles.progressContainer}>
         <Text style={[styles.progressText, { color: theme.placeholderColor, fontSize: fontSizes.sm }]}>

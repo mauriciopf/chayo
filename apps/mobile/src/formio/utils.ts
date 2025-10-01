@@ -1,12 +1,12 @@
-import { 
-  FormioComponent, 
-  FormioFormDefinition, 
+import {
+  FormioComponent,
+  FormioFormDefinition,
   FormioSubmission,
   FORMIO_FIELD_TYPES,
   FormioSelectOption,
   isSelectField,
   isRadioField,
-  isSelectBoxesField
+  isSelectBoxesField,
 } from './types';
 
 /**
@@ -70,7 +70,7 @@ export function validateFormSubmission(
 
   return {
     isValid: errors.length === 0,
-    errors
+    errors,
   };
 }
 
@@ -115,16 +115,16 @@ export function getFieldOptions(component: FormioComponent): FormioSelectOption[
   if (isSelectField(component)) {
     return component.values || component.data?.values || [];
   }
-  
+
   if (isRadioField(component)) {
     return component.values || [];
   }
-  
+
   if (isSelectBoxesField(component)) {
     const values = component.values || {};
     return Object.entries(values).map(([key, option]) => ({
       label: option.label,
-      value: key
+      value: key,
     }));
   }
 
@@ -181,7 +181,7 @@ export function formatFieldValue(component: FormioComponent, value: any): string
  * Checks if a component should be shown based on conditional logic
  */
 export function shouldShowComponent(
-  component: FormioComponent, 
+  component: FormioComponent,
   formData: { [key: string]: any }
 ): boolean {
   if (!component.conditional) {
@@ -189,7 +189,7 @@ export function shouldShowComponent(
   }
 
   const { show, when, eq } = component.conditional;
-  
+
   if (when && eq !== undefined) {
     const conditionValue = formData[when];
     const shouldShow = conditionValue === eq;
@@ -206,7 +206,7 @@ export function getVisibleComponents(
   formDefinition: FormioFormDefinition,
   formData: { [key: string]: any }
 ): FormioComponent[] {
-  return formDefinition.components.filter(component => 
+  return formDefinition.components.filter(component =>
     shouldShowComponent(component, formData)
   );
 }
@@ -230,44 +230,44 @@ export function convertLegacyFieldsToFormio(legacyFields: any[]): FormioFormDefi
       label: field.label || 'Untitled Field',
       placeholder: field.placeholder || '',
       validate: {
-        required: field.required || false
-      }
+        required: field.required || false,
+      },
     };
 
     switch (field.type) {
       case 'text':
         return {
           ...baseComponent,
-          type: FORMIO_FIELD_TYPES.TEXTFIELD
+          type: FORMIO_FIELD_TYPES.TEXTFIELD,
         } as FormioComponent;
 
       case 'email':
         return {
           ...baseComponent,
-          type: FORMIO_FIELD_TYPES.EMAIL
+          type: FORMIO_FIELD_TYPES.EMAIL,
         } as FormioComponent;
 
       case 'phone':
         return {
           ...baseComponent,
-          type: FORMIO_FIELD_TYPES.PHONE_NUMBER
+          type: FORMIO_FIELD_TYPES.PHONE_NUMBER,
         } as FormioComponent;
 
       case 'textarea':
         return {
           ...baseComponent,
           type: FORMIO_FIELD_TYPES.TEXTAREA,
-          rows: 3
+          rows: 3,
         } as FormioComponent;
 
       case 'select':
         return {
           ...baseComponent,
           type: FORMIO_FIELD_TYPES.SELECT,
-          values: (field.options || []).map((option: string, idx: number) => ({
+          values: (field.options || []).map((option: string, _idx: number) => ({
             label: option,
-            value: option.toLowerCase().replace(/\s+/g, '_')
-          }))
+            value: option.toLowerCase().replace(/\s+/g, '_'),
+          })),
         } as FormioComponent;
 
       case 'radio':
@@ -276,20 +276,20 @@ export function convertLegacyFieldsToFormio(legacyFields: any[]): FormioFormDefi
           type: FORMIO_FIELD_TYPES.RADIO,
           values: (field.options || []).map((option: string) => ({
             label: option,
-            value: option.toLowerCase().replace(/\s+/g, '_')
-          }))
+            value: option.toLowerCase().replace(/\s+/g, '_'),
+          })),
         } as FormioComponent;
 
       case 'checkbox':
         return {
           ...baseComponent,
-          type: FORMIO_FIELD_TYPES.CHECKBOX
+          type: FORMIO_FIELD_TYPES.CHECKBOX,
         } as FormioComponent;
 
       default:
         return {
           ...baseComponent,
-          type: FORMIO_FIELD_TYPES.TEXTFIELD
+          type: FORMIO_FIELD_TYPES.TEXTFIELD,
         } as FormioComponent;
     }
   });
@@ -297,7 +297,7 @@ export function convertLegacyFieldsToFormio(legacyFields: any[]): FormioFormDefi
   return {
     type: 'form',
     display: 'form',
-    components
+    components,
   };
 }
 
@@ -316,8 +316,8 @@ export function createFormioComponent(
     type,
     placeholder: '',
     validate: {
-      required: false
-    }
+      required: false,
+    },
   };
 
   switch (type) {
@@ -325,28 +325,28 @@ export function createFormioComponent(
       return {
         ...baseComponent,
         type: FORMIO_FIELD_TYPES.SELECT,
-        values: []
+        values: [],
       } as FormioComponent;
 
     case FORMIO_FIELD_TYPES.RADIO:
       return {
         ...baseComponent,
         type: FORMIO_FIELD_TYPES.RADIO,
-        values: []
+        values: [],
       } as FormioComponent;
 
     case FORMIO_FIELD_TYPES.SELECTBOXES:
       return {
         ...baseComponent,
         type: FORMIO_FIELD_TYPES.SELECTBOXES,
-        values: {}
+        values: {},
       } as FormioComponent;
 
     case FORMIO_FIELD_TYPES.TEXTAREA:
       return {
         ...baseComponent,
         type: FORMIO_FIELD_TYPES.TEXTAREA,
-        rows: 3
+        rows: 3,
       } as FormioComponent;
 
     case FORMIO_FIELD_TYPES.DATETIME:
@@ -354,7 +354,7 @@ export function createFormioComponent(
         ...baseComponent,
         type: FORMIO_FIELD_TYPES.DATETIME,
         enableDate: true,
-        enableTime: false
+        enableTime: false,
       } as FormioComponent;
 
     default:

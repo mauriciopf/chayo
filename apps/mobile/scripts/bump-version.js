@@ -7,7 +7,7 @@ function getCurrentVersion() {
     // Read current version from app.config.js (handle ES modules)
     const appConfigPath = path.join(__dirname, '../app.config.js');
     const content = fs.readFileSync(appConfigPath, 'utf8');
-    
+
     // Extract version using regex since it's ES module syntax
     const versionMatch = content.match(/version:\s*["']([^"']+)["']/);
     if (versionMatch) {
@@ -15,7 +15,7 @@ function getCurrentVersion() {
       console.log(`📋 Found current version: ${version}`);
       return version;
     }
-    
+
     console.log('Could not parse version from app.config.js, using 1.0.0');
     return '1.0.0';
   } catch (error) {
@@ -26,7 +26,7 @@ function getCurrentVersion() {
 
 function incrementVersion(version, type = 'patch') {
   const [major, minor, patch] = version.split('.').map(Number);
-  
+
   switch (type) {
     case 'major':
       return `${major + 1}.0.0`;
@@ -41,11 +41,11 @@ function incrementVersion(version, type = 'patch') {
 function updateAppConfig(newVersion) {
   const appConfigPath = path.join(__dirname, '../app.config.js');
   let content = fs.readFileSync(appConfigPath, 'utf8');
-  
+
   // Update version and runtimeVersion
   content = content.replace(/version: "[^"]*"/, `version: "${newVersion}"`);
   content = content.replace(/runtimeVersion: "[^"]*"/, `runtimeVersion: "${newVersion}"`);
-  
+
   fs.writeFileSync(appConfigPath, content);
   console.log(`✅ Updated app.config.js version to ${newVersion}`);
 }
@@ -57,7 +57,7 @@ function updateiOSVersion(newVersion) {
     console.log(`✅ Updated iOS MARKETING_VERSION to ${newVersion}`);
   } catch (error) {
     console.log('⚠️  agvtool not available, updating project.pbxproj directly');
-    
+
     // Fallback: Update project.pbxproj directly
     const pbxprojPath = path.join(__dirname, '../ios/ChayoMobile.xcodeproj/project.pbxproj');
     let content = fs.readFileSync(pbxprojPath, 'utf8');
@@ -70,27 +70,27 @@ function updateiOSVersion(newVersion) {
 function main() {
   try {
     console.log('🚀 Starting version bump...');
-    
+
     // Get current version
     const currentVersion = getCurrentVersion();
     console.log(`📋 Current version: ${currentVersion}`);
-    
+
     // Determine bump type from environment variable or default to patch
     const bumpType = process.env.VERSION_BUMP_TYPE || 'patch';
     console.log(`📈 Bump type: ${bumpType}`);
-    
+
     // Calculate new version
     const newVersion = incrementVersion(currentVersion, bumpType);
     console.log(`🎯 New version: ${newVersion}`);
-    
+
     // Update app.config.js
     updateAppConfig(newVersion);
-    
+
     // Update iOS native version
     updateiOSVersion(newVersion);
-    
+
     console.log(`✅ Version bump complete! ${currentVersion} → ${newVersion}`);
-    
+
   } catch (error) {
     console.error('❌ Version bump failed:', error.message);
     process.exit(1);

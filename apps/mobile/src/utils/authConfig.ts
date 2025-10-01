@@ -55,7 +55,7 @@ export function validateAuthConfig(): AuthConfig {
 
 export function getAuthProviderAvailability() {
   const config = validateAuthConfig();
-  
+
   return {
     email: true, // Always available
     apple: true, // Available on iOS
@@ -67,7 +67,7 @@ export function logAuthConfigStatus() {
   try {
     const config = validateAuthConfig();
     const availability = getAuthProviderAvailability();
-    
+
     // Only log in development mode
     if (__DEV__) {
       console.log('🔐 Auth Configuration Status:');
@@ -76,7 +76,7 @@ export function logAuthConfigStatus() {
       console.log('  🍎 Apple Auth: Available on iOS');
       console.log('  📧 Google Auth:', availability.google ? 'Configured' : 'Missing client IDs');
     }
-    
+
     return true;
   } catch (error) {
     if (__DEV__) {

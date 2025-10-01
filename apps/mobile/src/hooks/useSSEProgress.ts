@@ -31,12 +31,12 @@ export const useSSEProgress = (organizationId?: string): UseSSEProgressReturn =>
       eventSourceRef.current.close();
       eventSourceRef.current = null;
     }
-    
+
     if (reconnectTimeoutRef.current) {
       clearTimeout(reconnectTimeoutRef.current);
       reconnectTimeoutRef.current = null;
     }
-    
+
     setIsConnected(false);
     reconnectAttempts.current = 0;
   }, []);
@@ -57,11 +57,11 @@ export const useSSEProgress = (organizationId?: string): UseSSEProgressReturn =>
     try {
       const baseUrl = process.env.EXPO_PUBLIC_API_BASE_URL || 'https://chayo.vercel.app';
       const url = `${baseUrl}/api/sse/chat-progress/${organizationId}/${sessionId}`;
-      
+
       if (__DEV__) {
         console.log('SSE: Connecting to', url);
       }
-      
+
       eventSourceRef.current = new EventSource(url, {
         headers: {
           'Accept': 'text/event-stream',
@@ -83,16 +83,16 @@ export const useSSEProgress = (organizationId?: string): UseSSEProgressReturn =>
           if (__DEV__) {
             console.log('SSE: Received message', data);
           }
-          
+
           // Update existing ThinkingMessageService stream
           // Use getOrCreateMessageStream to avoid overwriting existing streams
           const existingStream = thinkingMessageService.getOrCreateMessageStream(context as any, sessionId);
-          
+
           if (data.message) {
             // Direct message override
             existingStream.updatePhase({
               name: data.phase,
-              message: data.message
+              message: data.message,
             });
           } else {
             // Use predefined phase messages
@@ -110,16 +110,16 @@ export const useSSEProgress = (organizationId?: string): UseSSEProgressReturn =>
           console.error('SSE: Connection error', error);
         }
         setIsConnected(false);
-        
+
         // Implement exponential backoff for reconnection
         if (reconnectAttempts.current < maxReconnectAttempts) {
           const delay = Math.pow(2, reconnectAttempts.current) * 1000; // 1s, 2s, 4s, 8s, 16s
           reconnectAttempts.current++;
-          
+
           if (__DEV__) {
             console.log(`SSE: Attempting reconnection ${reconnectAttempts.current}/${maxReconnectAttempts} in ${delay}ms`);
           }
-          
+
           reconnectTimeoutRef.current = setTimeout(() => {
             if (sessionIdRef.current) {
               connect(sessionIdRef.current, contextRef.current);
@@ -166,7 +166,7 @@ export const useSSEProgress = (organizationId?: string): UseSSEProgressReturn =>
     };
 
     const subscription = AppState.addEventListener('change', handleAppStateChange);
-    
+
     return () => {
       subscription?.remove();
     };

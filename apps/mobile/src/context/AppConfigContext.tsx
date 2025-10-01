@@ -2,12 +2,6 @@ import React, { createContext, useState, useEffect, useCallback, ReactNode } fro
 import { AppConfig, ConfigLoader } from '../lib/config';
 import { UseAppConfigReturn } from '../hooks/useAppConfig';
 
-// Configuration constants
-const CONFIG = {
-  WEB_BASE_URL: 'https://chayo.vercel.app',
-  API_BASE_URL: 'https://chayo.vercel.app',
-};
-
 export const AppConfigContext = createContext<UseAppConfigReturn | null>(null);
 
 interface AppConfigProviderProps {
@@ -19,10 +13,10 @@ interface AppConfigProviderProps {
 export const AppConfigProvider: React.FC<AppConfigProviderProps> = ({
   children,
   organizationSlug,
-  organizationId,
+  organizationId: _organizationId,
 }) => {
   const [config, setConfig] = useState<AppConfig | null>(null);
-  const [urlGenerator, setUrlGenerator] = useState<ToolUrlGenerator | null>(null);
+  const [urlGenerator, _setUrlGenerator] = useState<ToolUrlGenerator | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -51,7 +45,7 @@ export const AppConfigProvider: React.FC<AppConfigProviderProps> = ({
     } finally {
       setLoading(false);
     }
-  }, [organizationId, organizationSlug]);
+  }, [organizationSlug]);
 
   const refetch = async () => {
     await loadConfig();
@@ -61,7 +55,8 @@ export const AppConfigProvider: React.FC<AppConfigProviderProps> = ({
     if (organizationSlug) {
       loadConfig();
     }
-  }, [organizationSlug, loadConfig]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [organizationSlug]);
 
   const value: UseAppConfigReturn = {
     config,

@@ -48,7 +48,7 @@ export const ModernFloatingInput = forwardRef<TextInput, ModernFloatingInputProp
   onSubmitEditing,
   returnKeyType = 'done',
   blurOnSubmit = true,
-  inputAccessoryView,
+  inputAccessoryView: _inputAccessoryView,
   showSoftInputOnFocus = true,
 }, ref) => {
   const { theme, fontSizes } = useThemedStyles();
@@ -95,10 +95,10 @@ export const ModernFloatingInput = forwardRef<TextInput, ModernFloatingInputProp
   const containerStyle = [
     styles.container,
     {
-      borderColor: error 
-        ? theme.errorColor 
-        : isFocused 
-          ? theme.primaryColor 
+      borderColor: error
+        ? theme.errorColor
+        : isFocused
+          ? theme.primaryColor
           : 'rgba(255, 255, 255, 0.1)',
       backgroundColor: 'rgba(255, 255, 255, 0.08)',
       shadowColor: 'rgba(255, 255, 255, 0.1)',
@@ -126,19 +126,19 @@ export const ModernFloatingInput = forwardRef<TextInput, ModernFloatingInputProp
             {label}
             {required && <Text style={{ color: theme.errorColor, fontSize: fontSizes.base }}> *</Text>}
           </Animated.Text>
-          
+
           <View style={[styles.input, { paddingTop: 20, justifyContent: 'center' }]}>
             <Text style={[
-              styles.selectText, 
-              { 
+              styles.selectText,
+              {
                 color: value ? theme.textColor : theme.placeholderColor,
                 fontSize: fontSizes.base,
-              }
+              },
             ]}>
               {value || placeholder || 'Select an option'}
             </Text>
           </View>
-          
+
           {icon && (
             <View style={styles.iconContainer}>
               <Text style={[styles.icon, { color: theme.placeholderColor, fontSize: fontSizes.base }]}>
@@ -147,7 +147,7 @@ export const ModernFloatingInput = forwardRef<TextInput, ModernFloatingInputProp
             </View>
           )}
         </TouchableOpacity>
-        
+
         {error && (
           <Text style={[styles.errorText, { color: theme.errorColor, fontSize: fontSizes.xs }]}>
             {error}
@@ -165,7 +165,7 @@ export const ModernFloatingInput = forwardRef<TextInput, ModernFloatingInputProp
           {label}
           {required && <Text style={{ color: theme.errorColor }}> *</Text>}
         </Animated.Text>
-        
+
         <TextInput
           ref={ref}
           style={inputStyle}
@@ -189,7 +189,7 @@ export const ModernFloatingInput = forwardRef<TextInput, ModernFloatingInputProp
           inputAccessoryViewID={Platform.OS === 'ios' ? 'formNavigation' : undefined}
           showSoftInputOnFocus={showSoftInputOnFocus}
         />
-        
+
         {icon && (
           <View style={styles.iconContainer}>
             <Text style={[styles.icon, { color: theme.placeholderColor }]}>
@@ -198,7 +198,7 @@ export const ModernFloatingInput = forwardRef<TextInput, ModernFloatingInputProp
           </View>
         )}
       </View>
-      
+
       {error && (
         <Text style={[styles.errorText, { color: theme.errorColor }]}>
           {error}

@@ -30,11 +30,11 @@ export const useOffers = (organizationId?: string, userId?: string): UseOffersRe
     try {
       setLoading(true);
       setError(null);
-      
+
       console.log('🎯 useOffers: Fetching offers for organizationId:', organizationId, 'userId:', userId);
-      
+
       const result = await offersService.getActiveOffers(organizationId, userId);
-      
+
       console.log('🎯 useOffers: Service response:', result);
 
       if (result.success) {
@@ -60,12 +60,12 @@ export const useOffers = (organizationId?: string, userId?: string): UseOffersRe
 
     try {
       const result = await offersService.activateOffer(offerId, currentUserId, organizationId);
-      
+
       if (result.success) {
         // Refresh offers after activation
         await fetchOffers();
       }
-      
+
       return result;
     } catch (error) {
       console.error('useOffers: Error activating offer:', error);
@@ -76,12 +76,12 @@ export const useOffers = (organizationId?: string, userId?: string): UseOffersRe
   const deactivateOffer = useCallback(async (offerId: string, currentUserId: string) => {
     try {
       const result = await offersService.deactivateOffer(offerId, currentUserId);
-      
+
       if (result.success) {
         // Refresh offers after deactivation
         await fetchOffers();
       }
-      
+
       return result;
     } catch (error) {
       console.error('useOffers: Error deactivating offer:', error);
@@ -90,7 +90,7 @@ export const useOffers = (organizationId?: string, userId?: string): UseOffersRe
   }, [fetchOffers]);
 
   const getOffersForProduct = useCallback((productId: string): Offer[] => {
-    return offers.filter(offer => 
+    return offers.filter(offer =>
       offer.products?.some(product => product.id === productId)
     );
   }, [offers]);

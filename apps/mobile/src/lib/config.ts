@@ -37,7 +37,7 @@ export class ConfigLoader {
         appName: 'Chayo',
         enabledTools: [], // Will be populated by app-config endpoint
         webBaseUrl: 'https://chayo.vercel.app',
-        apiBaseUrl: 'https://chayo.vercel.app'
+        apiBaseUrl: 'https://chayo.vercel.app',
       };
     } catch (error) {
       console.error('Failed to load app config:', error);
@@ -71,7 +71,7 @@ export class ToolUrlGenerator {
 
   generateToolUrl(toolType: string, toolId?: string): string {
     const base = `${this.baseUrl}/${this.organizationId}`;
-    
+
     switch (toolType) {
       case 'appointments':
         return `${base}/appointments${toolId ? `/${toolId}` : ''}`;

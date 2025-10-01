@@ -97,15 +97,15 @@ const SelectFieldComponent: React.FC<FieldComponentProps> = ({ component, value,
               {
                 backgroundColor: value === option.value ? theme.primaryColor : theme.surfaceColor,
                 borderColor: theme.borderColor,
-              }
+              },
             ]}
             onPress={() => onChange(option.value)}
           >
             <Text style={[
               styles.optionText,
-              { 
+              {
                 color: value === option.value ? '#FFFFFF' : theme.textColor,
-              }
+              },
             ]}>
               {option.label}
             </Text>
@@ -250,7 +250,7 @@ export const MobileIntakeForm: React.FC<MobileIntakeFormProps> = ({
   onSubmissionComplete,
   onFormLoad,
 }) => {
-  const { theme, fontSizes, themedStyles } = useThemedStyles();
+  const { theme, themedStyles } = useThemedStyles();
   const { config } = useAppConfig();
   const [form, setForm] = useState<IntakeForm | null>(null);
   const [formData, setFormData] = useState<{ [key: string]: any }>({});
@@ -361,7 +361,7 @@ export const MobileIntakeForm: React.FC<MobileIntakeFormProps> = ({
         Alert.alert('Error', 'Form not loaded properly');
         return;
       }
-      
+
       const validation = validateFormSubmission(form.formio_definition, { data: formData });
       if (!validation.isValid) {
         Alert.alert('Validation Error', validation.errors.join('\n'));
@@ -385,13 +385,13 @@ export const MobileIntakeForm: React.FC<MobileIntakeFormProps> = ({
       // Submit form with customer information
       const result = await intakeFormService.submitForm(
         formId,
-        { 
+        {
           data: {
             ...formData,
             customerName: user.fullName,
             customerEmail: user.email,
             customerId,
-          }
+          },
         },
         { anonymousUserId }
       );

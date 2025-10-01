@@ -15,12 +15,12 @@ import { useTranslation } from 'react-i18next';
 import { useTheme } from '../hooks/useTheme';
 import { useThemedStyles } from '../context/ThemeContext';
 import { getAuthProviderAvailability } from '../utils/authConfig';
-import { 
-  signInWithApple, 
-  signInWithGoogle, 
-  signInWithEmail, 
+import {
+  signInWithApple,
+  signInWithGoogle,
+  signInWithEmail,
   signUpWithEmail,
-  AuthUser 
+  AuthUser,
 } from '../services/authService';
 import { SkeletonBox } from './SkeletonLoader';
 
@@ -34,12 +34,12 @@ interface LoginModalProps {
 
 type AuthMode = 'signin' | 'signup';
 
-export default function LoginModal({ 
-  visible, 
-  onClose, 
-  onSuccess, 
-  title, 
-  message 
+export default function LoginModal({
+  visible,
+  onClose,
+  onSuccess,
+  title,
+  message,
 }: LoginModalProps) {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -47,7 +47,7 @@ export default function LoginModal({
   const [loading, setLoading] = useState(false);
   const [authMode, setAuthMode] = useState<AuthMode>('signin');
   const [providerAvailability] = useState(() => getAuthProviderAvailability());
-  
+
   // Email form state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -98,13 +98,13 @@ export default function LoginModal({
     setLoading(true);
     try {
       let user: AuthUser;
-      
+
       if (authMode === 'signup') {
         user = await signUpWithEmail(email, password, fullName);
       } else {
         user = await signInWithEmail(email, password);
       }
-      
+
       onSuccess(user);
       onClose();
     } catch (error: any) {
@@ -270,26 +270,26 @@ export default function LoginModal({
       animationType="fade"
       onRequestClose={handleClose}
     >
-      <TouchableOpacity 
-        style={styles.overlay} 
+      <TouchableOpacity
+        style={styles.overlay}
         activeOpacity={1}
         onPress={handleClose}
       >
-        <KeyboardAvoidingView 
-          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }} 
+        <KeyboardAvoidingView
+          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
-        <ScrollView 
+        <ScrollView
           contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}
           keyboardShouldPersistTaps="handled"
         >
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.container}
             activeOpacity={1}
             onPress={(e) => e.stopPropagation()}
           >
-            <TouchableOpacity 
-              style={styles.closeButton} 
+            <TouchableOpacity
+              style={styles.closeButton}
               onPress={handleClose}
               activeOpacity={0.7}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
@@ -382,11 +382,11 @@ export default function LoginModal({
 
             <View style={styles.switchMode}>
               <Text style={[styles.switchModeText, { fontSize: fontSizes.sm }]}>
-                {authMode === 'signup' 
-                  ? '¿Ya tienes una cuenta? ' 
+                {authMode === 'signup'
+                  ? '¿Ya tienes una cuenta? '
                   : '¿No tienes cuenta? '
                 }
-                <Text 
+                <Text
                   style={styles.switchModeButton}
                   onPress={() => setAuthMode(authMode === 'signup' ? 'signin' : 'signup')}
                 >

@@ -27,7 +27,7 @@ interface Product {
 // Define the parameter list for stack navigation
 export type RootStackParamList = {
   Marketplace: undefined;
-  BusinessDetail: { 
+  BusinessDetail: {
     organizationId: string;
   };
   MainTabs: undefined;
@@ -36,14 +36,14 @@ export type RootStackParamList = {
   Signup: undefined;
   Onboarding: undefined;
   AppointmentDetails: { appointmentId: string };
-  AppointmentTimeSelection: { 
+  AppointmentTimeSelection: {
     selectedDate: string; // Date as ISO string for navigation
-    organizationId: string; 
+    organizationId: string;
   };
-  AppointmentBooking: { 
+  AppointmentBooking: {
     selectedDate: string; // Date as ISO string for navigation
-    selectedTime: string; 
-    organizationId: string; 
+    selectedTime: string;
+    organizationId: string;
   };
   DocumentDetail: {
     document: any;
@@ -63,7 +63,7 @@ export type TabScreenProps<T extends keyof TabParamList> = CompositeScreenProps<
 >;
 
 // Screen props for stack screens
-export type StackScreenProps<T extends keyof RootStackParamList> = 
+export type StackScreenProps<T extends keyof RootStackParamList> =
   NativeStackScreenProps<RootStackParamList, T>;
 
 // Navigation prop types

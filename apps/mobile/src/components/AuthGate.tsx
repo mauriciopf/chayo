@@ -7,7 +7,6 @@ import { useTranslation } from '../hooks/useTranslation';
 
 interface AuthGateProps {
   children: ReactNode;
-  tool: string;
   organizationId?: string;
   onAuthenticated: (user: AuthUser, customerId: string) => void;
   title?: string;
@@ -16,7 +15,6 @@ interface AuthGateProps {
 
 export default function AuthGate({
   children,
-  tool,
   organizationId,
   onAuthenticated,
   title,
@@ -41,7 +39,7 @@ export default function AuthGate({
     try {
       // User is authenticated, check if we have customer record for this organization
       let currentCustomer = customer;
-      
+
       if (!currentCustomer || currentCustomer.organizationId !== organizationId) {
         // Create or get customer for this organization
         currentCustomer = await createCustomerForOrganization(organizationId);
@@ -57,7 +55,7 @@ export default function AuthGate({
 
   const handleLoginSuccess = async (authenticatedUser: AuthUser) => {
     setShowLoginModal(false);
-    
+
     if (!organizationId) {
       console.error('AuthGate: organizationId is required for customer creation');
       return;
@@ -66,7 +64,7 @@ export default function AuthGate({
     try {
       // Create customer record for this organization
       const newCustomer = await createCustomerForOrganization(organizationId);
-      
+
       // Proceed with the protected action
       onAuthenticated(authenticatedUser, newCustomer.id);
     } catch (error) {
@@ -80,7 +78,7 @@ export default function AuthGate({
       {React.cloneElement(children as React.ReactElement, {
         onPress: handlePress,
       })}
-      
+
       <LoginModal
         visible={showLoginModal}
         onClose={() => setShowLoginModal(false)}

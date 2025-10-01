@@ -152,7 +152,7 @@ export interface FormioButtonField extends FormioBaseComponent {
 }
 
 // Union type for all field types
-export type FormioComponent = 
+export type FormioComponent =
   | FormioTextField
   | FormioEmailField
   | FormioNumberField
@@ -294,35 +294,35 @@ export const FORMIO_FIELD_TYPES = {
 export type FormioFieldType = typeof FORMIO_FIELD_TYPES[keyof typeof FORMIO_FIELD_TYPES];
 
 // Helper type guards
-export const isTextField = (component: FormioComponent): component is FormioTextField => 
+export const isTextField = (component: FormioComponent): component is FormioTextField =>
   component.type === FORMIO_FIELD_TYPES.TEXTFIELD;
 
-export const isEmailField = (component: FormioComponent): component is FormioEmailField => 
+export const isEmailField = (component: FormioComponent): component is FormioEmailField =>
   component.type === FORMIO_FIELD_TYPES.EMAIL;
 
-export const isNumberField = (component: FormioComponent): component is FormioNumberField => 
+export const isNumberField = (component: FormioComponent): component is FormioNumberField =>
   component.type === FORMIO_FIELD_TYPES.NUMBER;
 
-export const isPhoneNumberField = (component: FormioComponent): component is FormioPhoneNumberField => 
+export const isPhoneNumberField = (component: FormioComponent): component is FormioPhoneNumberField =>
   component.type === FORMIO_FIELD_TYPES.PHONE_NUMBER;
 
-export const isTextAreaField = (component: FormioComponent): component is FormioTextAreaField => 
+export const isTextAreaField = (component: FormioComponent): component is FormioTextAreaField =>
   component.type === FORMIO_FIELD_TYPES.TEXTAREA;
 
-export const isSelectField = (component: FormioComponent): component is FormioSelectField => 
+export const isSelectField = (component: FormioComponent): component is FormioSelectField =>
   component.type === FORMIO_FIELD_TYPES.SELECT;
 
-export const isRadioField = (component: FormioComponent): component is FormioRadioField => 
+export const isRadioField = (component: FormioComponent): component is FormioRadioField =>
   component.type === FORMIO_FIELD_TYPES.RADIO;
 
-export const isCheckboxField = (component: FormioComponent): component is FormioCheckboxField => 
+export const isCheckboxField = (component: FormioComponent): component is FormioCheckboxField =>
   component.type === FORMIO_FIELD_TYPES.CHECKBOX;
 
-export const isSelectBoxesField = (component: FormioComponent): component is FormioSelectBoxesField => 
+export const isSelectBoxesField = (component: FormioComponent): component is FormioSelectBoxesField =>
   component.type === FORMIO_FIELD_TYPES.SELECTBOXES;
 
-export const isDateTimeField = (component: FormioComponent): component is FormioDateTimeField => 
+export const isDateTimeField = (component: FormioComponent): component is FormioDateTimeField =>
   component.type === FORMIO_FIELD_TYPES.DATETIME;
 
-export const isButtonField = (component: FormioComponent): component is FormioButtonField => 
+export const isButtonField = (component: FormioComponent): component is FormioButtonField =>
   component.type === FORMIO_FIELD_TYPES.BUTTON;

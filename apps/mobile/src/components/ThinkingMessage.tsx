@@ -7,7 +7,6 @@ import {
   Animated,
 } from 'react-native';
 import { thinkingMessageService, ThinkingContext } from '../services/ThinkingMessageService';
-import { useTranslation } from '../hooks/useTranslation';
 import { useThemedStyles } from '../context/ThemeContext';
 
 interface ThinkingMessageProps {
@@ -26,7 +25,6 @@ export const ThinkingMessage: React.FC<ThinkingMessageProps> = ({
   visible = true,
   style,
 }) => {
-  const { t } = useTranslation();
   const { fontSizes } = useThemedStyles();
   const [currentMessage, setCurrentMessage] = useState<string>('');
   const [messageIndex, setMessageIndex] = useState<number>(0);
@@ -34,7 +32,7 @@ export const ThinkingMessage: React.FC<ThinkingMessageProps> = ({
   const [fadeAnim] = useState(new Animated.Value(0));
 
   useEffect(() => {
-    if (!visible) return;
+    if (!visible) {return;}
 
     // Create or get existing message stream
     const messageStream = thinkingMessageService.getOrCreateMessageStream(
@@ -48,7 +46,7 @@ export const ThinkingMessage: React.FC<ThinkingMessageProps> = ({
       setCurrentMessage(message);
       setMessageIndex(index);
       setTotalMessages(total);
-      
+
       // Animate message change
       Animated.sequence([
         Animated.timing(fadeAnim, {
@@ -89,23 +87,23 @@ export const ThinkingMessage: React.FC<ThinkingMessageProps> = ({
     <View style={[styles.container, style]}>
       <View style={styles.messageContainer}>
         <View style={styles.iconContainer}>
-          <ActivityIndicator 
-            size="small" 
-            color="#8E8E93" 
+          <ActivityIndicator
+            size="small"
+            color="#8E8E93"
             style={styles.spinner}
           />
         </View>
-        
-        <Animated.View 
+
+        <Animated.View
           style={[
             styles.textContainer,
-            { opacity: fadeAnim }
+            { opacity: fadeAnim },
           ]}
         >
           <Text style={[styles.messageText, { fontSize: fontSizes.base }]}>
             {currentMessage}
           </Text>
-          
+
           {totalMessages > 1 && (
             <View style={styles.progressIndicator}>
               {Array.from({ length: totalMessages }).map((_, index) => (

@@ -1,4 +1,4 @@
-import { IntakeForm, IntakeFormResponse, FormioSubmission } from '../formio';
+import { IntakeForm, FormioSubmission } from '../formio';
 
 export class IntakeFormService {
   private baseUrl: string;
@@ -13,7 +13,7 @@ export class IntakeFormService {
   async getForm(formId: string): Promise<IntakeForm> {
     try {
       const response = await fetch(`${this.baseUrl}/api/intake-forms/${formId}`);
-      
+
       if (!response.ok) {
         if (response.status === 404) {
           throw new Error('Formulario no encontrado');
@@ -77,7 +77,7 @@ export class IntakeFormService {
   async getOrganizationForms(organizationSlug: string): Promise<IntakeForm[]> {
     try {
       const response = await fetch(`${this.baseUrl}/api/intake-forms/org/${organizationSlug}`);
-      
+
       if (!response.ok) {
         if (response.status === 404) {
           throw new Error('Organización no encontrada');

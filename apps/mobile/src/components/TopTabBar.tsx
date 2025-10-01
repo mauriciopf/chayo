@@ -26,7 +26,7 @@ export const TopTabBar: React.FC<TopTabBarProps> = ({ tabs, initialTab }) => {
 
   const handleTabPress = (tabKey: string, index: number) => {
     setActiveTab(tabKey);
-    
+
     // Animate indicator to new position
     Animated.timing(indicatorPosition, {
       toValue: index,
@@ -55,14 +55,14 @@ export const TopTabBar: React.FC<TopTabBarProps> = ({ tabs, initialTab }) => {
                   color: activeTab === tab.key ? theme.primaryColor : theme.placeholderColor,
                   fontWeight: activeTab === tab.key ? '600' : '400',
                   fontSize: fontSizes.base,
-                }
+                },
               ]}
             >
               {tab.title}
             </Text>
           </TouchableOpacity>
         ))}
-        
+
         {/* Animated Indicator */}
         <Animated.View
           style={[
@@ -75,7 +75,7 @@ export const TopTabBar: React.FC<TopTabBarProps> = ({ tabs, initialTab }) => {
                 extrapolate: 'clamp',
               }),
               width: `${100 / tabs.length}%`,
-            }
+            },
           ]}
         />
       </View>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,16 +8,16 @@ import {
   Dimensions,
   Alert,
   ActivityIndicator,
-  Modal
-} from 'react-native'
-import Icon from 'react-native-vector-icons/Feather'
-import { useTheme } from '../hooks/useTheme'
-import { useAuth } from '../context/AuthContext'
-import { useThemedStyles } from '../context/ThemeContext'
-import { offersService, Offer } from '../services/OffersService'
-import LoginModal from './LoginModal'
+  Modal,
+} from 'react-native';
+import Icon from 'react-native-vector-icons/Feather';
+import { useTheme } from '../hooks/useTheme';
+import { useAuth } from '../context/AuthContext';
+import { useThemedStyles } from '../context/ThemeContext';
+import { offersService, Offer } from '../services/OffersService';
+import LoginModal from './LoginModal';
 
-const { width: screenWidth } = Dimensions.get('window')
+const { width: screenWidth } = Dimensions.get('window');
 
 interface OffersBannerComponentProps {
   organizationId: string
@@ -27,75 +27,75 @@ interface OffersBannerComponentProps {
   onDeactivateOffer?: (offerId: string, userId: string) => Promise<{ success: boolean; error?: string }>
 }
 
-export default function OffersBannerComponent({ 
+export default function OffersBannerComponent({
   organizationId,
   offers: propsOffers,
   loading: propsLoading,
   onActivateOffer: propsActivateOffer,
-  onDeactivateOffer: propsDeactivateOffer
+  onDeactivateOffer: propsDeactivateOffer,
 }: OffersBannerComponentProps) {
-  const theme = useTheme()
-  const { fontSizes } = useThemedStyles()
-  const { user } = useAuth()
-  const [internalOffers, setInternalOffers] = useState<Offer[]>([])
-  const [internalLoading, setInternalLoading] = useState(true)
-  const [activating, setActivating] = useState<string | null>(null)
-  const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null)
-  const [showOfferModal, setShowOfferModal] = useState(false)
-  const [showLoginModal, setShowLoginModal] = useState(false)
+  const theme = useTheme();
+  const { fontSizes } = useThemedStyles();
+  const { user } = useAuth();
+  const [internalOffers, setInternalOffers] = useState<Offer[]>([]);
+  const [internalLoading, setInternalLoading] = useState(true);
+  const [activating, setActivating] = useState<string | null>(null);
+  const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
+  const [showOfferModal, setShowOfferModal] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   // Use props if provided, otherwise use internal state
-  const offers = propsOffers || internalOffers
-  const loading = propsLoading !== undefined ? propsLoading : internalLoading
+  const offers = propsOffers || internalOffers;
+  const loading = propsLoading !== undefined ? propsLoading : internalLoading;
 
   const fetchActiveOffers = useCallback(async () => {
     // Only fetch internally if no props are provided
-    if (propsOffers) return
-    
+    if (propsOffers) {return;}
+
     try {
-      setInternalLoading(true)
-      
-      console.log('🎯 OffersBannerComponent: Fetching available offers for organizationId:', organizationId, 'userId:', user?.id)
-      
-      const result = await offersService.getActiveOffers(organizationId, user?.id)
-      
-      console.log('🎯 OffersBannerComponent: Service response:', result)
+      setInternalLoading(true);
+
+      console.log('🎯 OffersBannerComponent: Fetching available offers for organizationId:', organizationId, 'userId:', user?.id);
+
+      const result = await offersService.getActiveOffers(organizationId, user?.id);
+
+      console.log('🎯 OffersBannerComponent: Service response:', result);
 
       if (result.success) {
-        setInternalOffers(result.offers || [])
-        console.log('🎯 OffersBannerComponent: Set offers:', result.offers?.length || 0, 'offers')
+        setInternalOffers(result.offers || []);
+        console.log('🎯 OffersBannerComponent: Set offers:', result.offers?.length || 0, 'offers');
       } else {
-        console.error('No se pudieron obtener las ofertas:', result.error)
+        console.error('No se pudieron obtener las ofertas:', result.error);
       }
     } catch (error) {
-      console.error('Error fetching offers:', error)
+      console.error('Error fetching offers:', error);
     } finally {
-      setInternalLoading(false)
+      setInternalLoading(false);
     }
-  }, [organizationId, user?.id, propsOffers])
+  }, [organizationId, user?.id, propsOffers]);
 
   useEffect(() => {
-    fetchActiveOffers()
-  }, [fetchActiveOffers])
+    fetchActiveOffers();
+  }, [fetchActiveOffers]);
 
   const handleActivateOffer = async (offerId: string) => {
     if (!user) {
-      setShowLoginModal(true)
-      return
+      setShowLoginModal(true);
+      return;
     }
 
-    setActivating(offerId)
+    setActivating(offerId);
 
     try {
-      let result
-      
+      let result;
+
       // Use props function if provided, otherwise use service directly
       if (propsActivateOffer) {
-        result = await propsActivateOffer(offerId, user.id)
+        result = await propsActivateOffer(offerId, user.id);
       } else {
-        result = await offersService.activateOffer(offerId, user.id, organizationId)
+        result = await offersService.activateOffer(offerId, user.id, organizationId);
         if (result.success) {
-          fetchActiveOffers() // Refresh offers only if using internal state
+          fetchActiveOffers(); // Refresh offers only if using internal state
         }
       }
 
@@ -104,19 +104,19 @@ export default function OffersBannerComponent({
           '🎉 Offer Activated!',
           'Your discount has been applied to all eligible products. Happy shopping!',
           [{ text: 'Awesome!', style: 'default' }]
-        )
+        );
       } else {
-        Alert.alert('Error', result.error || 'No se pudo activar la oferta')
+        Alert.alert('Error', result.error || 'No se pudo activar la oferta');
       }
     } catch (error) {
-      Alert.alert('Error', 'Error de red. Intenta de nuevo.')
+      Alert.alert('Error', 'Error de red. Intenta de nuevo.');
     } finally {
-      setActivating(null)
+      setActivating(null);
     }
-  }
+  };
 
   const handleDeactivateOffer = async (offerId: string) => {
-    if (!user) return
+    if (!user) {return;}
 
     Alert.alert(
       'Deactivate Offer',
@@ -128,44 +128,44 @@ export default function OffersBannerComponent({
           style: 'destructive',
           onPress: async () => {
             try {
-              let result
-              
+              let result;
+
               // Use props function if provided, otherwise use service directly
               if (propsDeactivateOffer) {
-                result = await propsDeactivateOffer(offerId, user.id)
+                result = await propsDeactivateOffer(offerId, user.id);
               } else {
-                result = await offersService.deactivateOffer(offerId, user.id)
+                result = await offersService.deactivateOffer(offerId, user.id);
                 if (result.success) {
-                  fetchActiveOffers() // Refresh offers only if using internal state
+                  fetchActiveOffers(); // Refresh offers only if using internal state
                 }
               }
 
               if (result.success) {
-                Alert.alert('Offer Deactivated', 'The offer has been removed from your account.')
+                Alert.alert('Offer Deactivated', 'The offer has been removed from your account.');
               } else {
-                Alert.alert('Error', result.error || 'No se pudo desactivar la oferta')
+                Alert.alert('Error', result.error || 'No se pudo desactivar la oferta');
               }
             } catch (error) {
-              Alert.alert('Error', 'No se pudo desactivar la oferta')
+              Alert.alert('Error', 'No se pudo desactivar la oferta');
             }
-          }
-        }
+          },
+        },
       ]
-    )
-  }
+    );
+  };
 
   const formatDiscount = (offer: Offer) => {
-    return offer.offer_type === 'percentage' 
+    return offer.offer_type === 'percentage'
       ? `${offer.offer_value}% OFF`
-      : `$${offer.offer_value} OFF`
-  }
+      : `$${offer.offer_value} OFF`;
+  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       month: 'short',
-      day: 'numeric'
-    })
-  }
+      day: 'numeric',
+    });
+  };
 
   const styles = {
     container: {
@@ -395,24 +395,24 @@ export default function OffersBannerComponent({
       fontSize: 10,
       fontWeight: 'bold' as const,
     },
-  }
+  };
 
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={theme.primaryColor} />
       </View>
-    )
+    );
   }
 
   if (offers.length === 0) {
-    return null // Don't show anything if no offers
+    return null; // Don't show anything if no offers
   }
 
   return (
     <View style={styles.container}>
-      <ScrollView 
-        horizontal 
+      <ScrollView
+        horizontal
         showsHorizontalScrollIndicator={false}
         pagingEnabled
         decelerationRate="fast"
@@ -433,7 +433,7 @@ export default function OffersBannerComponent({
                 <Text style={[styles.fallbackDescription, { fontSize: fontSizes.base }]}>{formatDiscount(offer)}</Text>
               </View>
             )}
-            
+
             <View style={styles.bannerContent}>
               <View style={styles.bannerHeader}>
                 <View style={styles.discountBadge}>
@@ -457,13 +457,13 @@ export default function OffersBannerComponent({
                 <Text style={[styles.expiryText, { fontSize: fontSizes.xs }]}>
                   Expires {formatDate(offer.end_date)}
                 </Text>
-                
+
                 <View style={{ flexDirection: 'row', gap: 8 }}>
                   <TouchableOpacity
                     style={[styles.actionButton, styles.viewButton]}
                     onPress={() => {
-                      setSelectedOffer(offer)
-                      setShowOfferModal(true)
+                      setSelectedOffer(offer);
+                      setShowOfferModal(true);
                     }}
                   >
                     <Icon name="eye" size={16} color="white" />
@@ -527,11 +527,11 @@ export default function OffersBannerComponent({
                 {selectedOffer?.description}
               </Text>
 
-              <Text style={{ 
-                fontSize: fontSizes.md, 
-                fontWeight: '600', 
-                color: theme.textColor, 
-                marginBottom: 12 
+              <Text style={{
+                fontSize: fontSizes.md,
+                fontWeight: '600',
+                color: theme.textColor,
+                marginBottom: 12,
               }}>
                 Products in this offer ({selectedOffer?.product_count})
               </Text>
@@ -540,23 +540,23 @@ export default function OffersBannerComponent({
                 {selectedOffer?.products?.map((product) => (
                   <View key={product.id} style={styles.productCard}>
                     {product.image_url ? (
-                      <Image 
-                        source={{ uri: product.image_url }} 
-                        style={styles.productImage} 
+                      <Image
+                        source={{ uri: product.image_url }}
+                        style={styles.productImage}
                       />
                     ) : (
                       <View style={[
-                        styles.productImage, 
-                        { backgroundColor: theme.borderColor, justifyContent: 'center', alignItems: 'center' }
+                        styles.productImage,
+                        { backgroundColor: theme.borderColor, justifyContent: 'center', alignItems: 'center' },
                       ]}>
                         <Icon name="package" size={24} color={theme.placeholderColor} />
                       </View>
                     )}
-                    
+
                     <Text style={[styles.productName, { fontSize: fontSizes.sm }]} numberOfLines={2}>
                       {product.name}
                     </Text>
-                    
+
                     {product.price && (
                       <View>
                         <View style={styles.priceContainer}>
@@ -589,13 +589,13 @@ export default function OffersBannerComponent({
         visible={showLoginModal}
         onClose={() => setShowLoginModal(false)}
         onSuccess={() => {
-          setShowLoginModal(false)
+          setShowLoginModal(false);
           // Refresh offers after login to update activation status
-          fetchActiveOffers()
+          fetchActiveOffers();
         }}
         title="Se requiere iniciar sesión"
         message="Inicia sesión para activar esta oferta exclusiva y comenzar a ahorrar"
       />
     </View>
-  )
+  );
 }

@@ -57,13 +57,13 @@ export const GlassMorphBackButton: React.FC<GlassMorphBackButtonProps> = ({
   };
 
   return (
-    <Animated.View 
+    <Animated.View
       style={[
-        { 
+        {
           transform: [{ scale: scaleValue }],
           opacity: opacityValue,
-        }, 
-        style
+        },
+        style,
       ]}
     >
       <TouchableOpacity
@@ -83,26 +83,26 @@ export const GlassMorphBackButton: React.FC<GlassMorphBackButtonProps> = ({
         <View style={[
           styles.backdrop,
           {
-            backgroundColor: Platform.OS === 'ios' 
-              ? 'rgba(255, 255, 255, 0.05)' 
+            backgroundColor: Platform.OS === 'ios'
+              ? 'rgba(255, 255, 255, 0.05)'
               : 'rgba(255, 255, 255, 0.03)',
-          }
+          },
         ]} />
-        
+
         {/* Icon */}
         <View style={styles.iconContainer}>
-          <Icon 
-            name="chevron-left" 
-            size={size} 
-            color={theme.primaryColor || '#007AFF'} 
+          <Icon
+            name="chevron-left"
+            size={size}
+            color={theme.primaryColor || '#007AFF'}
             style={styles.icon}
           />
         </View>
-        
+
         {/* Subtle highlight */}
         <View style={[
           styles.highlight,
-          { backgroundColor: `${theme.primaryColor || '#007AFF'}08` }
+          { backgroundColor: `${theme.primaryColor || '#007AFF'}08` },
         ]} />
       </TouchableOpacity>
     </Animated.View>
@@ -197,14 +197,14 @@ export const UltraMinimalBackButton: React.FC<GlassMorphBackButtonProps> = ({
         onPress={onPress}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
-        style={styles.ultraMinimal}
+        style={ultraMinimalStyles.ultraMinimal}
         activeOpacity={0.6}
         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
       >
-        <Icon 
-          name="chevron-left" 
-          size={size} 
-          color={theme.primaryColor || '#007AFF'} 
+        <Icon
+          name="chevron-left"
+          size={size}
+          color={theme.primaryColor || '#007AFF'}
           style={{ opacity: 0.9 }}
         />
       </TouchableOpacity>

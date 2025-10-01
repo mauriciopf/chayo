@@ -81,33 +81,33 @@ export default function MarketplaceScreen() {
 
   const loadVibeCards = useCallback(async (refresh = false) => {
     try {
-      if (refresh) setRefreshing(true);
-      else setLoading(true);
+      if (refresh) {setRefreshing(true);}
+      else {setLoading(true);}
 
       console.log('✨ Loading vibe cards...', { searchQuery, selectedCategory });
 
       // Build API URL with filters
       const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL || 'https://chayo.vercel.app';
       const params = new URLSearchParams();
-      
+
       if (selectedCategory !== 'all') {
         params.append('business_type', selectedCategory);
       }
-      
+
       if (searchQuery.trim()) {
         params.append('search', searchQuery);
       }
-      
+
       params.append('limit', '50');
 
       const response = await fetch(`${apiUrl}/api/marketplace/vibe-cards?${params}`);
-      
+
       if (!response.ok) {
         throw new Error('No se pudieron cargar las tarjetas de vibra');
       }
 
       const data = await response.json();
-      
+
       if (data.vibe_cards) {
         setVibeCards(data.vibe_cards);
       }
@@ -129,7 +129,7 @@ export default function MarketplaceScreen() {
   const handleVibeCardSelect = (vibeCard: MarketplaceVibeCard) => {
     // Navigate to business detail screen with only the organization ID
     navigation.navigate('BusinessDetail', {
-      organizationId: vibeCard.organization_id
+      organizationId: vibeCard.organization_id,
     });
   };
 
@@ -142,7 +142,7 @@ export default function MarketplaceScreen() {
     const { vibe_data } = vibeCard;
     const scaleAnim = new Animated.Value(1);
     const showFullStory = expandedStories[vibeCard.organization_id] || false;
-    
+
     const handlePressIn = () => {
       Animated.spring(scaleAnim, {
         toValue: 0.98,
@@ -168,14 +168,14 @@ export default function MarketplaceScreen() {
     const toggleStory = () => {
       setExpandedStories(prev => ({
         ...prev,
-        [vibeCard.organization_id]: !prev[vibeCard.organization_id]
+        [vibeCard.organization_id]: !prev[vibeCard.organization_id],
       }));
     };
 
     const toggleLike = () => {
       setLikedCards(prev => ({
         ...prev,
-        [vibeCard.organization_id]: !prev[vibeCard.organization_id]
+        [vibeCard.organization_id]: !prev[vibeCard.organization_id],
       }));
     };
 
@@ -184,13 +184,13 @@ export default function MarketplaceScreen() {
     // Check if story is long enough to need truncation
     const originStory = vibe_data.origin_story || '';
     const isLongStory = originStory.length > 150;
-    const displayStory = showFullStory || !isLongStory 
-      ? originStory 
+    const displayStory = showFullStory || !isLongStory
+      ? originStory
       : originStory.substring(0, 150) + '...';
-    
+
     return (
       <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[styles.vibeCard, styles.interactiveCard]}
           onPress={handlePress}
           onPressIn={handlePressIn}
@@ -200,7 +200,7 @@ export default function MarketplaceScreen() {
         {/* AI Generated Image Header */}
         {vibe_data.ai_generated_image_url ? (
           <View style={styles.imageHeader}>
-            <Image 
+            <Image
               source={{ uri: vibe_data.ai_generated_image_url }}
               style={styles.aiGeneratedImage}
               resizeMode="cover"
@@ -222,11 +222,11 @@ export default function MarketplaceScreen() {
           /* Fallback: Gradient Header - Pure React Native */
           <View style={[styles.vibeCardHeader, { backgroundColor: vibe_data.vibe_colors?.primary }]}>
           {/* Gradient overlay effect */}
-          <View 
+          <View
             style={[
-              styles.gradientOverlay, 
-              { backgroundColor: vibe_data.vibe_colors?.secondary }
-            ]} 
+              styles.gradientOverlay,
+              { backgroundColor: vibe_data.vibe_colors?.secondary },
+            ]}
           />
           <View style={styles.vibeCardHeaderContent}>
                <Text style={styles.vibeAesthetic}>✨ {vibe_data.vibe_aesthetic}</Text>
@@ -249,7 +249,7 @@ export default function MarketplaceScreen() {
               {displayStory}
             </Text>
             {isLongStory && (
-              <TouchableOpacity 
+              <TouchableOpacity
                 onPress={toggleStory}
                 style={styles.readMoreButton}
               >
@@ -266,8 +266,8 @@ export default function MarketplaceScreen() {
               <TouchableOpacity
                 key={index}
                 style={[
-                  styles.valueBadge, 
-                  { backgroundColor: vibe_data.vibe_colors?.primary + '20' }
+                  styles.valueBadge,
+                  { backgroundColor: vibe_data.vibe_colors?.primary + '20' },
                 ]}
                 onPress={() => {
                   // Could show badge details or highlight related businesses
@@ -305,7 +305,7 @@ export default function MarketplaceScreen() {
 
           {/* Instagram Style Action Buttons */}
           <View style={styles.socialActions}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.socialButton}
               onPress={() => {
                 toggleLike();
@@ -315,8 +315,8 @@ export default function MarketplaceScreen() {
                 {isLiked ? '★' : '☆'}
               </Text>
             </TouchableOpacity>
-            
-            <TouchableOpacity 
+
+            <TouchableOpacity
               style={styles.socialButton}
               onPress={() => {
                 // Handle share action
@@ -324,8 +324,8 @@ export default function MarketplaceScreen() {
             >
               <ShareIcon size={22} color="#FFFFFF" />
             </TouchableOpacity>
-            
-            <TouchableOpacity 
+
+            <TouchableOpacity
               style={styles.socialButton}
               onPress={() => {
                 // Handle save/bookmark action
@@ -344,14 +344,14 @@ export default function MarketplaceScreen() {
     <TouchableOpacity
       style={[
         styles.categoryPill,
-        selectedCategory === category.name && styles.categoryPillSelected
+        selectedCategory === category.name && styles.categoryPillSelected,
       ]}
       onPress={() => handleCategorySelect(category.name)}
     >
       <Text style={styles.categoryIcon}>{category.icon}</Text>
       <Text style={[
         styles.categoryLabel,
-        selectedCategory === category.name && styles.categoryLabelSelected
+        selectedCategory === category.name && styles.categoryLabelSelected,
       ]}>
         {category.label}
       </Text>
@@ -374,13 +374,13 @@ export default function MarketplaceScreen() {
           <View style={[styles.skeletonText, { width: '50%', height: 14, marginTop: 4 }]} />
         </View>
       </View>
-      
+
       {/* Skeleton Content */}
       <View style={styles.vibeCardContent}>
         <View style={[styles.skeletonText, { width: '100%', height: 16 }]} />
         <View style={[styles.skeletonText, { width: '90%', height: 16, marginTop: 4 }]} />
         <View style={[styles.skeletonText, { width: '70%', height: 16, marginTop: 4 }]} />
-        
+
         {/* Skeleton Badges */}
         <View style={[styles.badgesContainer, { marginTop: 12 }]}>
           <View style={[styles.skeletonBadge]} />
@@ -394,7 +394,7 @@ export default function MarketplaceScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#000000" />
-      
+
       {/* Header */}
       <View style={styles.header}>
         <Text style={[styles.headerTitle, { fontSize: fontSizes.xxl }]}>✨ Vibe Marketplace</Text>
@@ -421,7 +421,7 @@ export default function MarketplaceScreen() {
         </View>
       </View>
 
-      <ScrollView 
+      <ScrollView
         style={styles.content}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={() => loadVibeCards(true)} />

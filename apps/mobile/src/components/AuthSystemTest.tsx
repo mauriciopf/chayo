@@ -145,9 +145,8 @@ export default function AuthSystemTest() {
         {/* Progressive Auth Tests */}
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { fontSize: fontSizes.lg }]}>Progressive Auth Tests</Text>
-          
+
           <AuthGate
-            tool="appointments"
             organizationId={config?.organizationId || 'test-org'}
             onAuthenticated={handleTestAppointment}
             title="Test Appointment Auth"
@@ -159,7 +158,6 @@ export default function AuthSystemTest() {
           </AuthGate>
 
           <AuthGate
-            tool="intake_forms"
             organizationId={config?.organizationId || 'test-org'}
             onAuthenticated={handleTestForm}
             title="Test Form Auth"
@@ -171,7 +169,6 @@ export default function AuthSystemTest() {
           </AuthGate>
 
           <AuthGate
-            tool="documents"
             organizationId={config?.organizationId || 'test-org'}
             onAuthenticated={handleTestDocument}
             title="Test Document Auth"

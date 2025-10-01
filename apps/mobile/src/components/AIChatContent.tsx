@@ -8,7 +8,6 @@ import {
   StyleSheet,
   Platform,
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
 } from 'react-native';
 import { useAppConfig } from '../hooks/useAppConfig';
@@ -49,7 +48,7 @@ export const AIChatContent: React.FC = () => {
   }, [config, t]);
 
   const sendMessage = async () => {
-    if (!inputText.trim() || isTyping) return;
+    if (!inputText.trim() || isTyping) {return;}
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -69,7 +68,7 @@ export const AIChatContent: React.FC = () => {
     setMessages(prev => [...prev, userMessage, loadingMessage]);
     setInputText('');
     setIsTyping(true);
-    
+
     // Keep input focused after sending message
     setTimeout(() => {
       textInputRef.current?.focus();
@@ -97,7 +96,7 @@ export const AIChatContent: React.FC = () => {
       }
 
       const data = await response.json();
-      
+
       const assistantMessage: Message = {
         id: `assistant-${Date.now()}`,
         text: data.response || t('errors.serverError'),
@@ -113,7 +112,7 @@ export const AIChatContent: React.FC = () => {
 
     } catch (error) {
       console.error('Chat error:', error);
-      
+
       const errorMessage: Message = {
         id: `error-${Date.now()}`,
         text: t('errors.networkError'),
@@ -192,14 +191,14 @@ export const AIChatContent: React.FC = () => {
                   <SkeletonBox width={150} height={16} borderRadius={4} />
                 </View>
               </View>
-              
+
               {/* User message skeleton */}
               <View style={[styles.messageContainer, styles.userMessage]}>
                 <View style={styles.skeletonMessageBubble}>
                   <SkeletonBox width={120} height={16} borderRadius={4} />
                 </View>
               </View>
-              
+
               {/* AI response skeleton */}
               <View style={[styles.messageContainer, styles.assistantMessage]}>
                 <View style={styles.skeletonMessageBubble}>
@@ -208,7 +207,7 @@ export const AIChatContent: React.FC = () => {
                   <SkeletonBox width={100} height={16} borderRadius={4} />
                 </View>
               </View>
-              
+
               {/* Another user message skeleton */}
               <View style={[styles.messageContainer, styles.userMessage]}>
                 <View style={styles.skeletonMessageBubble}>

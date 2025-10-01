@@ -7,10 +7,10 @@ interface BookmarkIconProps {
   filled?: boolean;
 }
 
-export const BookmarkIcon: React.FC<BookmarkIconProps> = ({ 
-  size = 24, 
+export const BookmarkIcon: React.FC<BookmarkIconProps> = ({
+  size = 24,
   color = '#FFFFFF',
-  filled = false
+  filled = false,
 }) => {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">

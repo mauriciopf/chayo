@@ -49,7 +49,7 @@ export const DocumentDetailScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <MobileDocumentViewer 
+      <MobileDocumentViewer
         documentId={document.id}
         onBack={totalDocuments && totalDocuments > 1 ? handleBackToList : undefined}
         backButtonText={getBackButtonText()}

@@ -1,7 +1,7 @@
 // Static theme colors for the mobile app (no customization)
 const STATIC_THEME = {
   primary: '#2F5D62',
-  secondary: '#2C2C2E', 
+  secondary: '#2C2C2E',
   accent: '#FF9500',
   background: '#1C1C1E',
   surface: '#2C2C2E',
@@ -39,7 +39,7 @@ export const useTheme = (): ThemeColors => {
   // Generate derived colors for dark theme
   const derivedColors = {
     surfaceColor: '#2C2C2E',
-    borderColor: '#3A3A3C', 
+    borderColor: '#3A3A3C',
     placeholderColor: '#8E8E93',
     errorColor: '#FF453A', // iOS system red
     successColor: '#30D158', // iOS system green
