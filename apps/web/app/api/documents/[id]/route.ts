@@ -13,7 +13,7 @@ export async function DELETE(
     // Check if user is authenticated
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
     const documentId = id
@@ -27,7 +27,7 @@ export async function DELETE(
       .single()
 
     if (fetchError || !document) {
-      return NextResponse.json({ error: 'Document not found' }, { status: 404 })
+      return NextResponse.json({ error: 'Documento no encontrado' }, { status: 404 })
     }
 
     // Delete file from storage

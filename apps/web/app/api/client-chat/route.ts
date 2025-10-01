@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
 
     if (!message || !organizationId) {
       return NextResponse.json(
-        { error: 'Message and organizationId are required' },
+        { error: 'Se requiere mensaje e ID de organización' },
         { status: 400 }
       )
     }
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
     if (orgError || !organization) {
       console.error('Organization not found:', orgError)
       return NextResponse.json(
-        { error: 'Organization not found' },
+        { error: 'Organización no encontrada' },
         { status: 404 }
       )
     }

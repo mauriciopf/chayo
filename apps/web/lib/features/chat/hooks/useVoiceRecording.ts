@@ -138,7 +138,7 @@ export function useVoiceRecording({
         console.log('💬 Transcribed speech (placing in input):', transcribedText)
         onTranscription(transcribedText)
       } else {
-        onError('No speech detected. Please try speaking more clearly.')
+        onError('No se detectó voz. Por favor habla más claramente.')
       }
 
     } catch (error) {
@@ -148,7 +148,7 @@ export function useVoiceRecording({
         onError(error.message)
       } else {
         console.error('Unknown transcription error:', error)
-        onError('Speech recognition failed. Please try again.')
+        onError('Reconocimiento de voz falló. Por favor intenta de nuevo.')
       }
     } finally {
       setIsProcessing(false)
@@ -323,7 +323,7 @@ export function useVoiceRecording({
 
       mediaRecorder.onerror = (event) => {
         console.error('MediaRecorder error:', event)
-        onError('Recording failed. Please try again.')
+        onError('Grabación falló. Por favor intenta de nuevo.')
       }
 
       // Start recording with data collection every second
@@ -333,7 +333,7 @@ export function useVoiceRecording({
       console.log('🎤 Resumed recording - ready for next speech segment')
     } catch (error) {
       console.error('Failed to resume recording:', error)
-      onError('Failed to resume recording. Please try again.')
+      onError('No se pudo reanudar la grabación. Por favor intenta de nuevo.')
     }
   }, [onError, transcribeAudio, isProcessing])
 
@@ -431,7 +431,7 @@ export function useVoiceRecording({
 
       mediaRecorder.onerror = (event) => {
         console.error('MediaRecorder error:', event)
-        onError('Recording failed. Please try again.')
+        onError('Grabación falló. Por favor intenta de nuevo.')
         setIsRecording(false)
       }
 
@@ -454,11 +454,11 @@ export function useVoiceRecording({
     } catch (error) {
       console.error('Failed to start recording:', error)
       if (error instanceof Error && error.name === 'NotAllowedError') {
-        onError('Microphone permission denied. Please allow microphone access and try again.')
+        onError('Permiso de micrófono denegado. Por favor permite el acceso al micrófono e intenta de nuevo.')
       } else if (error instanceof Error && error.name === 'NotFoundError') {
-        onError('No microphone found. Please check your device settings.')
+        onError('No se encontró micrófono. Por favor verifica la configuración de tu dispositivo.')
       } else {
-        onError('Failed to access microphone. Please try again.')
+        onError('Error al acceder al micrófono. Por favor intenta de nuevo.')
       }
     }
   }, [onError, detectVoiceActivity])
