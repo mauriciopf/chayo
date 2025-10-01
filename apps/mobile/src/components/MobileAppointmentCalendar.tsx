@@ -402,7 +402,7 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
 
       <View style={[styles.footer, { backgroundColor: theme.surfaceColor }]}>
         <Text style={[styles.footerText, themedStyles.secondaryText, { fontSize: fontSizes.sm }]}>
-          Select a date to view available appointment times
+          Selecciona una fecha para ver los horarios disponibles
         </Text>
       </View>
     </SafeAreaView>

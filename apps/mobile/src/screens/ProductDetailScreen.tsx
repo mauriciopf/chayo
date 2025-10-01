@@ -45,7 +45,7 @@ export const ProductDetailScreen: React.FC = () => {
   const [imageLoading, setImageLoading] = useState(true);
 
   // Use auto-cleanup navigation header
-  useNavigationHeader('Product Details', {
+  useNavigationHeader('Detalles del Producto', {
     onBackPress: () => navigation.goBack(),
     autoCleanup: true, // Automatically return to business header when component unmounts
   });

@@ -60,7 +60,7 @@ export const UnifiedDocumentsSection: React.FC<UnifiedDocumentsSectionProps> = (
             styles.tabButtonText,
             { color: activeTab === 'documents' ? '#FFFFFF' : theme.placeholderColor, fontSize: fontSizes.sm },
           ]}>
-            Documents
+            Documentos
           </Text>
         </TouchableOpacity>
 
@@ -81,7 +81,7 @@ export const UnifiedDocumentsSection: React.FC<UnifiedDocumentsSectionProps> = (
             styles.tabButtonText,
             { color: activeTab === 'forms' ? '#FFFFFF' : theme.placeholderColor, fontSize: fontSizes.sm },
           ]}>
-            Forms
+            Formularios
           </Text>
         </TouchableOpacity>
       </View>

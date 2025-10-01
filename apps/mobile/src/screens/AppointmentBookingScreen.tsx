@@ -34,7 +34,7 @@ export const AppointmentBookingScreen: React.FC = () => {
   }, [navigation]);
 
   // Use navigation header with auto-cleanup (original behavior)
-  useNavigationHeader('Book Appointment', {
+  useNavigationHeader('Reservar Cita', {
     onBackPress: handleBackPress,
     autoCleanup: true,
   });
@@ -135,7 +135,7 @@ export const AppointmentBookingScreen: React.FC = () => {
         {/* Notes Section */}
         <View style={styles.notesContainer}>
           <Text style={[styles.sectionTitle, { color: theme.textColor, fontSize: fontSizes.lg }]}>
-            Additional Notes (Optional)
+            Notas Adicionales (Opcional)
           </Text>
 
           <TextInput

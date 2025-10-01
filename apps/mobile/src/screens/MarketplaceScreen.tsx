@@ -58,14 +58,14 @@ interface Category {
 }
 
 const CATEGORIES: Category[] = [
-  { id: 'all', name: 'all', label: 'All', icon: '✨', color: '#8B7355' },
-  { id: 'wellness', name: 'wellness', label: 'Wellness', icon: '🌿', color: '#A8956F' },
-  { id: 'beauty', name: 'beauty', label: 'Beauty', icon: '✨', color: '#E6D7C3' },
+  { id: 'all', name: 'all', label: 'Todos', icon: '✨', color: '#8B7355' },
+  { id: 'wellness', name: 'wellness', label: 'Bienestar', icon: '🌿', color: '#A8956F' },
+  { id: 'beauty', name: 'beauty', label: 'Belleza', icon: '✨', color: '#E6D7C3' },
   { id: 'fitness', name: 'fitness', label: 'Fitness', icon: '🧘‍♀️', color: '#D4B896' },
-  { id: 'food', name: 'food', label: 'Food', icon: '🌱', color: '#C9A876' },
-  { id: 'services', name: 'services', label: 'Services', icon: '🤲', color: '#B8A082' },
-  { id: 'creative', name: 'creative', label: 'Creative', icon: '🎨', color: '#A8956F' },
-  { id: 'lifestyle', name: 'lifestyle', label: 'Lifestyle', icon: '🌙', color: '#8B7355' },
+  { id: 'food', name: 'food', label: 'Comida', icon: '🌱', color: '#C9A876' },
+  { id: 'services', name: 'services', label: 'Servicios', icon: '🤲', color: '#B8A082' },
+  { id: 'creative', name: 'creative', label: 'Creativo', icon: '🎨', color: '#A8956F' },
+  { id: 'lifestyle', name: 'lifestyle', label: 'Estilo de Vida', icon: '🌙', color: '#8B7355' },
 ];
 
 export default function MarketplaceScreen() {
@@ -254,7 +254,7 @@ export default function MarketplaceScreen() {
                 style={styles.readMoreButton}
               >
                 <Text style={styles.readMoreText}>
-                  {showFullStory ? 'Read Less' : 'Read More'}
+                  {showFullStory ? 'Leer Menos' : 'Leer Más'}
                 </Text>
               </TouchableOpacity>
             )}
@@ -290,7 +290,7 @@ export default function MarketplaceScreen() {
           {(vibe_data.perfect_for || []).length > 0 && (
             <View style={styles.perfectForContainer}>
               <Text style={[styles.perfectForLabel, { color: vibe_data.vibe_colors?.primary }]}>
-                Perfect for:
+                Perfecto para:
               </Text>
               <Text style={styles.perfectForText}>
                 {(vibe_data.perfect_for || []).join(', ')}
@@ -360,7 +360,7 @@ export default function MarketplaceScreen() {
 
   const getCategoryLabel = (category: string): string => {
     const cat = CATEGORIES.find(c => c.name === category);
-    return cat?.label || 'Business';
+    return cat?.label || 'Negocio';
   };
 
   const renderSkeletonCard = () => (
@@ -397,8 +397,8 @@ export default function MarketplaceScreen() {
 
       {/* Header */}
       <View style={styles.header}>
-        <Text style={[styles.headerTitle, { fontSize: fontSizes.xxl }]}>✨ Vibe Marketplace</Text>
-        <Text style={[styles.headerSubtitle, { fontSize: fontSizes.base }]}>Discover businesses that match your energy</Text>
+        <Text style={[styles.headerTitle, { fontSize: fontSizes.xxl }]}>✨ Mercado Vibe</Text>
+        <Text style={[styles.headerSubtitle, { fontSize: fontSizes.base }]}>Descubre negocios que coincidan con tu energía</Text>
       </View>
 
       {/* Search Bar */}
@@ -443,7 +443,7 @@ export default function MarketplaceScreen() {
         {/* Vibe Cards */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
-            {selectedCategory === 'all' ? '✨ Discover Amazing Vibes' : `✨ ${getCategoryLabel(selectedCategory)} Vibes`}
+            {selectedCategory === 'all' ? '✨ Descubre Vibes Increíbles' : `✨ Vibes de ${getCategoryLabel(selectedCategory)}`}
           </Text>
           {loading && vibeCards.length === 0 ? (
             <View style={styles.vibeCardGrid}>
@@ -456,9 +456,9 @@ export default function MarketplaceScreen() {
           ) : vibeCards.length === 0 ? (
             <View style={styles.emptyContainer}>
               <Text style={[styles.emptyIcon, { fontSize: fontSizes.xxxl }]}>💫</Text>
-              <Text style={[styles.emptyTitle, { fontSize: fontSizes.xl }]}>No Vibe Cards Yet</Text>
+              <Text style={[styles.emptyTitle, { fontSize: fontSizes.xl }]}>Aún No Hay Tarjetas Vibe</Text>
               <Text style={[styles.emptyText, { fontSize: fontSizes.base }]}>
-                Be the first to complete your onboarding and create your unique vibe card!
+                ¡Sé el primero en completar tu incorporación y crear tu tarjeta vibe única!
               </Text>
             </View>
           ) : (

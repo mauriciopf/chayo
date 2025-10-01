@@ -101,9 +101,9 @@ export default function OffersBannerComponent({
 
       if (result.success) {
         Alert.alert(
-          '🎉 Offer Activated!',
-          'Your discount has been applied to all eligible products. Happy shopping!',
-          [{ text: 'Awesome!', style: 'default' }]
+          '🎉 ¡Oferta Activada!',
+          '¡Tu descuento ha sido aplicado a todos los productos elegibles. Felices compras!',
+          [{ text: '¡Genial!', style: 'default' }]
         );
       } else {
         Alert.alert('Error', result.error || 'No se pudo activar la oferta');
@@ -119,12 +119,12 @@ export default function OffersBannerComponent({
     if (!user) {return;}
 
     Alert.alert(
-      'Deactivate Offer',
-      'Are you sure you want to deactivate this offer? You can reactivate it anytime.',
+      'Desactivar Oferta',
+      '¿Estás seguro de que quieres desactivar esta oferta? Puedes reactivarla en cualquier momento.',
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: 'Cancelar', style: 'cancel' },
         {
-          text: 'Deactivate',
+          text: 'Desactivar',
           style: 'destructive',
           onPress: async () => {
             try {
@@ -141,7 +141,7 @@ export default function OffersBannerComponent({
               }
 
               if (result.success) {
-                Alert.alert('Offer Deactivated', 'The offer has been removed from your account.');
+                Alert.alert('Oferta Desactivada', 'La oferta ha sido removida de tu cuenta.');
               } else {
                 Alert.alert('Error', result.error || 'No se pudo desactivar la oferta');
               }
@@ -441,7 +441,7 @@ export default function OffersBannerComponent({
                 </View>
                 {offer.is_activated_by_user && (
                   <View style={styles.activatedBadge}>
-                    <Text style={[styles.activatedText, { fontSize: fontSizes.xs }]}>✓ ACTIVE</Text>
+                    <Text style={[styles.activatedText, { fontSize: fontSizes.xs }]}>✓ ACTIVA</Text>
                   </View>
                 )}
               </View>
@@ -455,7 +455,7 @@ export default function OffersBannerComponent({
 
               <View style={styles.bannerFooter}>
                 <Text style={[styles.expiryText, { fontSize: fontSizes.xs }]}>
-                  Expires {formatDate(offer.end_date)}
+                  Expira {formatDate(offer.end_date)}
                 </Text>
 
                 <View style={{ flexDirection: 'row', gap: 8 }}>
@@ -467,7 +467,7 @@ export default function OffersBannerComponent({
                     }}
                   >
                     <Icon name="eye" size={16} color="white" />
-                    <Text style={[styles.buttonText, { fontSize: fontSizes.sm }]}>View</Text>
+                    <Text style={[styles.buttonText, { fontSize: fontSizes.sm }]}>Ver</Text>
                   </TouchableOpacity>
 
                   {offer.is_activated_by_user ? (
@@ -476,7 +476,7 @@ export default function OffersBannerComponent({
                       onPress={() => handleDeactivateOffer(offer.id)}
                     >
                       <Icon name="x" size={16} color="white" />
-                      <Text style={[styles.buttonText, { fontSize: fontSizes.sm }]}>Remove</Text>
+                      <Text style={[styles.buttonText, { fontSize: fontSizes.sm }]}>Remover</Text>
                     </TouchableOpacity>
                   ) : (
                     <TouchableOpacity
@@ -490,7 +490,7 @@ export default function OffersBannerComponent({
                         <Icon name="check" size={16} color="white" />
                       )}
                       <Text style={[styles.buttonText, { fontSize: fontSizes.sm }]}>
-                        {activating === offer.id ? 'Activating...' : 'Activate'}
+                        {activating === offer.id ? 'Activando...' : 'Activar'}
                       </Text>
                     </TouchableOpacity>
                   )}
@@ -533,7 +533,7 @@ export default function OffersBannerComponent({
                 color: theme.textColor,
                 marginBottom: 12,
               }}>
-                Products in this offer ({selectedOffer?.product_count})
+                Productos en esta oferta ({selectedOffer?.product_count})
               </Text>
 
               <View style={styles.productGrid}>
@@ -571,7 +571,7 @@ export default function OffersBannerComponent({
                         </View>
                         {product.discounted_price && (
                           <View style={styles.saleTag}>
-                            <Text style={[styles.saleTagText, { fontSize: fontSizes.xs }]}>ON SALE</Text>
+                            <Text style={[styles.saleTagText, { fontSize: fontSizes.xs }]}>EN OFERTA</Text>
                           </View>
                         )}
                       </View>

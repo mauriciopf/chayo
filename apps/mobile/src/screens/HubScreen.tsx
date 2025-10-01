@@ -38,11 +38,11 @@ interface ToolConfig {
 }
 
 const toolConfigs: ToolConfig[] = [
-  { name: 'products', label: 'Products', icon: 'shopping-bag', component: ProductsScreen },
-  { name: 'appointments', label: 'Appointments', icon: 'calendar', component: AppointmentsScreen },
-  { name: 'documents_unified', label: 'Documents', icon: 'file-text', component: UnifiedDocumentsSection },
-  { name: 'faqs', label: 'FAQs', icon: 'help-circle', component: FAQsScreen },
-  { name: 'payments', label: 'Payments', icon: 'credit-card', component: PaymentsScreen },
+  { name: 'products', label: 'Productos', icon: 'shopping-bag', component: ProductsScreen },
+  { name: 'appointments', label: 'Citas', icon: 'calendar', component: AppointmentsScreen },
+  { name: 'documents_unified', label: 'Documentos', icon: 'file-text', component: UnifiedDocumentsSection },
+  { name: 'faqs', label: 'Preguntas', icon: 'help-circle', component: FAQsScreen },
+  { name: 'payments', label: 'Pagos', icon: 'credit-card', component: PaymentsScreen },
 ];
 
 export const HubScreen: React.FC<HubScreenProps> = ({
@@ -146,10 +146,10 @@ export const HubScreen: React.FC<HubScreenProps> = ({
         <View style={styles.emptyContainer}>
           <Icon name="grid" size={48} color={theme.textColor + '60'} />
           <Text style={[styles.emptyTitle, { color: theme.textColor, fontSize: fontSizes.xl }]}>
-            No tools available
+            No hay herramientas disponibles
           </Text>
           <Text style={[styles.emptySubtitle, { color: theme.textColor + '80', fontSize: fontSizes.base }]}>
-            Contact support to enable business tools
+            Contacta a soporte para habilitar herramientas de negocio
           </Text>
         </View>
       </View>
@@ -211,7 +211,7 @@ export const HubScreen: React.FC<HubScreenProps> = ({
             </View>
             <View>
               <Text style={[styles.sectionTitle, { fontSize: fontSizes.lg }]}>{item.label}</Text>
-              <Text style={[styles.sectionSubtitle, { fontSize: fontSizes.sm }]}>Explore {item.label.toLowerCase()}</Text>
+              <Text style={[styles.sectionSubtitle, { fontSize: fontSizes.sm }]}>Explora {item.label.toLowerCase()}</Text>
             </View>
           </View>
           <View style={styles.sectionHeaderRight}>

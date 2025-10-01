@@ -20,7 +20,7 @@ export const FormDetailScreen: React.FC = () => {
   }, [navigation]);
 
   // Use auto-cleanup navigation header (same pattern as ProductDetailScreen)
-  useNavigationHeader('Form Details', {
+  useNavigationHeader('Detalles del Formulario', {
     onBackPress: handleBackPress,
     autoCleanup: true, // Automatically return to business header when component unmounts
   });

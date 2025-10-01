@@ -90,7 +90,7 @@ const generateTabs = (enabledTools: string[], businessName: string, onBackToMark
   return [
     { name: 'chat', label: 'Chat', icon: 'message-circle', businessName, onBackToMarketplace },
     { name: 'hub', label: 'Hub', icon: 'grid', businessName, onBackToMarketplace, enabledTools },
-    { name: 'profile', label: 'Profile', icon: 'user', businessName, onBackToMarketplace },
+    { name: 'profile', label: 'Perfil', icon: 'user', businessName, onBackToMarketplace },
   ];
 };
 

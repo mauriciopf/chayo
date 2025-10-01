@@ -26,7 +26,7 @@ export const AppointmentTimeSelectionScreen: React.FC = () => {
   }, [navigation]);
 
   // Use navigation header with auto-cleanup (original behavior)
-  useNavigationHeader('Select Time', {
+  useNavigationHeader('Seleccionar Hora', {
     onBackPress: handleBackPress,
     autoCleanup: true,
   });
@@ -72,7 +72,7 @@ export const AppointmentTimeSelectionScreen: React.FC = () => {
       {/* Available Times */}
       <View style={styles.content}>
         <Text style={[styles.sectionTitle, { color: theme.textColor, fontSize: fontSizes.lg }]}>
-          Available Times
+          Horarios Disponibles
         </Text>
 
         <ScrollView style={styles.timeSlotsContainer} showsVerticalScrollIndicator={false}>

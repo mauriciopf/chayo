@@ -22,7 +22,7 @@ export const DocumentDetailScreen: React.FC = () => {
   }, [navigation]);
 
   // Use auto-cleanup navigation header (same pattern as ProductDetailScreen)
-  useNavigationHeader('Document Details', {
+  useNavigationHeader('Detalles del Documento', {
     onBackPress: handleBackPress,
     autoCleanup: true, // Automatically return to business header when component unmounts
   });

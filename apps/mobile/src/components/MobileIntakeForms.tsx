@@ -105,9 +105,9 @@ export const MobileIntakeForms: React.FC<MobileIntakeFormsProps> = ({ organizati
   return (
     <SafeAreaView style={[styles.container, themedStyles.container]}>
       <View style={styles.header}>
-        <Text style={[styles.headerTitle, themedStyles.primaryText, { fontSize: fontSizes.xl }]}>Intake Forms</Text>
+        <Text style={[styles.headerTitle, themedStyles.primaryText, { fontSize: fontSizes.xl }]}>Formularios de Ingreso</Text>
         <Text style={[styles.headerSubtitle, themedStyles.secondaryText, { fontSize: fontSizes.base }]}>
-          Select a form to fill out
+          Selecciona un formulario para completar
         </Text>
       </View>
 
