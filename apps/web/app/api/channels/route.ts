@@ -27,17 +27,6 @@ export async function GET(request: NextRequest) {
           widget_id: 'web-widget-123'
         },
         created_at: new Date().toISOString()
-      },
-      {
-        id: 'whatsapp-business',
-        agent_id: request.nextUrl.searchParams.get('agent_id'),
-        channel_type: 'whatsapp',
-        name: 'WhatsApp Business',
-        connected: false,
-        status: 'disconnected',
-        last_activity: null,
-        credentials: null,
-        created_at: new Date().toISOString()
       }
     ]
 
@@ -175,7 +164,6 @@ export async function DELETE(request: NextRequest) {
 
 function getChannelName(channelType: string): string {
   const names = {
-    whatsapp: 'WhatsApp Business',
     instagram: 'Instagram Direct',
     facebook: 'Facebook Messenger',
     web: 'Web Chat',

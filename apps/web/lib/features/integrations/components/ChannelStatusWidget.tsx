@@ -42,14 +42,6 @@ export default function ChannelStatusWidget({ agentId }: ChannelStatusWidgetProp
         // Build channel status based on real data
         const channelStatuses: ChannelStatus[] = [
           {
-            id: 'whatsapp',
-            name: 'WhatsApp AI Agent',
-            type: 'whatsapp',
-            icon: '📱',
-            connected: agentChannels.some((ch: any) => ch.channel_type === 'whatsapp'),
-            lastActivity: agentChannels.find((ch: any) => ch.channel_type === 'whatsapp')?.last_activity || undefined
-          },
-          {
             id: 'web',
             name: 'Web AI Widget',
             type: 'web',
@@ -80,13 +72,6 @@ export default function ChannelStatusWidget({ agentId }: ChannelStatusWidgetProp
         console.error('Error fetching channel status:', error)
         // Fallback to show no connections on error
         setChannels([
-          {
-            id: 'whatsapp',
-            name: 'WhatsApp AI Agent',
-            type: 'whatsapp',
-            icon: '📱',
-            connected: false
-          },
           {
             id: 'web',
             name: 'Web AI Widget',

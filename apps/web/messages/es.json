@@ -734,79 +734,6 @@
       "deleteFailed": "Error al eliminar documento"
     }
   },
-  "whatsAppOnboarding": {
-    "title": "Configuración de WhatsApp para",
-    "subtitle": "Conecta tu agente a WhatsApp en solo unos pasos",
-    "step1Title": "Elige Opción de Número Telefónico",
-    "step2Title": "Selecciona Tu Número Telefónico",
-    "step3Title": "Información del Negocio",
-    "newNumberOption": "Obtener un nuevo número a través de Chayo",
-    "newNumberDescription": "Te proporcionaremos un número de WhatsApp Business",
-    "existingNumberOption": "Usar tu número de WhatsApp existente",
-    "existingNumberDescription": "Conecta tu número actual de WhatsApp Business",
-    "selectCountry": "Seleccionar País",
-    "phoneNumber": "Número Telefónico",
-    "phoneNumberPlaceholder": "Ingresa tu número telefónico",
-    "businessName": "Nombre del Negocio",
-    "businessNamePlaceholder": "Ingresa el nombre de tu negocio",
-    "businessDescription": "Descripción del Negocio",
-    "businessDescriptionPlaceholder": "Describe qué hace tu negocio...",
-    "selectNumber": "Seleccionar Número",
-    "loadingNumbers": "Cargando números disponibles...",
-    "noNumbersAvailable": "No hay números disponibles para este país",
-    "refreshNumbers": "Actualizar Números",
-    "backButton": "Atrás",
-    "nextButton": "Siguiente",
-    "setupWhatsApp": "Configurar WhatsApp",
-    "processing": "Configurando...",
-    "cancel": "Cancelar",
-    "recommended": "Recomendado",
-    "instantSetup": "✅ Configuración instantánea • ✅ Sin tiempo de inactividad • ✅ Listo para usar inmediatamente",
-    "freeTrialTitle": "Prueba Gratis de 3 Días",
-    "freeTrialDescription": "Tu número incluye una prueba gratis de 3 días. Después de eso, necesitarás actualizar para continuar usando WhatsApp.",
-    "migrationWarning": "⚠️ Requiere eliminación de cuenta de WhatsApp • ⚠️ Posible tiempo de inactividad de 24-48h",
-    "setupSummary": "Resumen de Configuración",
-    "agent": "Agente",
-    "phone": "Teléfono",
-    "business": "Negocio",
-    "countries": {
-      "unitedStates": "Estados Unidos",
-      "canada": "Canadá",
-      "mexico": "México",
-      "spain": "España",
-      "argentina": "Argentina",
-      "brazil": "Brasil",
-      "chile": "Chile",
-      "colombia": "Colombia",
-      "venezuela": "Venezuela",
-      "peru": "Perú",
-      "ecuador": "Ecuador",
-      "unitedKingdom": "Reino Unido",
-      "france": "Francia",
-      "germany": "Alemania",
-      "italy": "Italia"
-    },
-    "errors": {
-      "phoneRequired": "El número telefónico es requerido",
-      "phoneMinLength": "El número telefónico debe tener al menos 10 dígitos",
-      "selectNumber": "Por favor selecciona un número telefónico",
-      "businessNameRequired": "El nombre del negocio es requerido",
-      "businessDescriptionRequired": "La descripción del negocio es requerida",
-      "fetchNumbers": "Error al obtener números disponibles",
-      "purchaseNumber": "Error al comprar número telefónico",
-      "setupFailed": "Error al configurar WhatsApp"
-    },
-    "migration": {
-      "ownNumber": "Poseer el número",
-      "ownNumberDesc": "Debe ser capaz de SMS/voz, no compartido con otra cuenta Meta Business",
-      "deleteAccount": "Eliminar Cuenta de WhatsApp",
-      "deleteAccountDesc": "Abrir WhatsApp Business → Configuración → Cuenta → Eliminar Mi Cuenta",
-      "waitSystems": "Esperar sistemas de Meta",
-      "waitSystemsDesc": "Puede tomar 24-48 horas para que el número sea liberado",
-      "duringMigration": "Durante la migración",
-      "duringMigrationDesc": "El número no puede recibir mensajes"
-    }
-  },
   "subscriptionPlans": {
     "title": "Elige Tu Plan de Chayo",
     "subtitle": "IA de WhatsApp disponible ahora • Otros canales próximamente",
@@ -870,21 +797,6 @@
     "never": "Nunca",
     "yes": "Sí",
     "pending": "Pendiente"
-  },
-  "whatsAppStatusCard": {
-    "title": "WhatsApp Business",
-    "connected": "Conectado",
-    "notConnected": "No conectado",
-    "active": "Activo",
-    "inactive": "Inactivo",
-    "phoneNumber": "Número Telefónico:",
-    "businessName": "Nombre del Negocio:",
-    "status": "Estado:",
-    "messagesHandled": "Mensajes Gestionados:",
-    "lastMessage": "Último Mensaje:",
-    "refreshStatus": "Actualizar Estado",
-    "setupDescription": "Conecta tu cuenta de WhatsApp Business para comenzar a recibir y responder mensajes automáticamente.",
-    "setupWhatsApp": "Configurar WhatsApp"
   },
   "planBadge": {
     "free": "Gratis",
@@ -959,28 +871,6 @@
       "getNotified": "Ser Notificado"
     },
     "channels": {
-      "whatsapp": {
-        "name": "WhatsApp Business",
-        "description": "Conecta tu cuenta de WhatsApp Business para manejar consultas de clientes automáticamente. ¡Disponible ahora!",
-        "features": [
-          "Respuestas automatizadas a clientes",
-          "Soporte de medios enriquecidos (imágenes, documentos)",
-          "Integración de perfil comercial",
-          "Plantillas de mensajes",
-          "Análisis e insights",
-          "Soporte multiidioma",
-          "Horarios comerciales personalizados",
-          "Respuestas rápidas y flujos de trabajo"
-        ],
-        "setupSteps": [
-          "Verifica tu cuenta de WhatsApp Business",
-          "Conecta vía integración API",
-          "Configura plantillas de mensajes",
-          "Configura respuestas automatizadas",
-          "Prueba la integración",
-          "Haz público tu agente de IA"
-        ]
-      },
       "web": {
         "name": "Widget de IA Web",
         "description": "Integra un widget de chat inteligente en tu sitio web para soporte instantáneo al cliente",
