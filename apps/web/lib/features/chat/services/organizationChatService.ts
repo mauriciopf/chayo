@@ -113,7 +113,7 @@ export class OrganizationChatService {
         
         if (progress.isCompleted) {
           console.log('✅ [FLOW] Onboarding completed - transitioning to business mode')
-          return await this.handleChatFlow(messages, context, false) // Recursive call for business mode
+          return await this.handleChatFlow(messages, context, false, progressEmitter)
         }
       } else {
          // 🌐 NEW: Check if this is a brand new organization that should start with website scraping
