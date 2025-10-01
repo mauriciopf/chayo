@@ -153,8 +153,8 @@ export default function ChatContainer({
               <h3 className="text-lg font-medium mb-2" style={{ color: 'var(--text-primary)' }}>Client Mode Setup Required</h3>
               <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>
                 {!organization 
-                  ? "To use client mode, please set up your business first. This creates your organization and AI agent that clients can interact with."
-                  : "Your business is set up, but your AI agent is still being created. Please complete your business onboarding to activate client mode."
+                ? "Para usar el modo cliente, por favor configura tu negocio primero. Esto crea tu organización y agente de IA con el que los clientes pueden interactuar."
+                : "Tu negocio está configurado, pero tu agente de IA aún se está creando. Por favor completa la incorporación de tu negocio para activar el modo cliente."
                 }
               </p>
               <div className="space-y-2">
@@ -165,11 +165,11 @@ export default function ChatContainer({
                   <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                   </svg>
-                  {!organization ? "Start Business Setup" : "Continue Business Setup"}
+                  {!organization ? "Iniciar Configuración del Negocio" : "Continuar Configuración del Negocio"}
                 </button>
                 {organization && (
                   <p className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>
-                    Once you complete the onboarding questions, your AI agent will be automatically created and ready for client interactions.
+                    Una vez que completes las preguntas de incorporación, tu agente de IA se creará automáticamente y estará listo para interacciones con clientes.
                   </p>
                 )}
               </div>

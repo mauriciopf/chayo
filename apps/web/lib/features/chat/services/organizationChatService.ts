@@ -121,9 +121,9 @@ export class OrganizationChatService {
          if (shouldOfferWebsiteScraping) {
            console.log('🌐 [FLOW] Brand new organization - offering website scraping option')
            return {
-             aiMessage: "Welcome! I'm Chayo, your AI business assistant. 🎉\n\nTo get started quickly, I can extract information from your business website to personalize your experience and speed up the setup process.\n\nDo you have a business website you'd like me to analyze? If you do, I'll provide you with a simple way to share it with me. If not, no worries - I'll guide you through our standard setup questions.",
-             statusSignal: 'website_scraping_offered'
-           }
+            aiMessage: "¡Bienvenido! Soy Chayo, tu asistente de IA para negocios. 🎉\n\nPara empezar rápidamente, puedo extraer información del sitio web de tu negocio para personalizar tu experiencia y acelerar el proceso de configuración.\n\n¿Tienes un sitio web de tu negocio que me gustaría analizar? Si lo tienes, te proporcionaré una forma sencilla de compartirlo conmigo. Si no, no te preocupes - te guiaré a través de nuestras preguntas de configuración estándar.",
+            statusSignal: 'website_scraping_offered'
+          }
          }
         console.log('💼 [FLOW] Business mode - generating business conversation')
       }
@@ -608,7 +608,7 @@ export class OrganizationChatService {
       else {
         console.error('❌ Invalid JSON format: missing required "message" field')
         console.error('📋 Received:', jsonResponse)
-        aiMessage = 'I apologize, but there was a formatting error in my response. Please try again.'
+        aiMessage = 'Disculpa, hubo un error de formato en mi respuesta. Por favor intenta de nuevo.'
           }
         } catch (error) {
           // Not JSON or invalid JSON - treat as regular text response
@@ -691,7 +691,7 @@ export class OrganizationChatService {
     } catch (error) {
       console.warn('Failed to get enhanced system prompt, aborting chat:', error)
       return {
-        aiMessage: "I'm sorry, but I couldn't retrieve your business knowledge at this time. Please try again later or contact support if the problem persists."
+        aiMessage: "Lo siento, pero no pude recuperar el conocimiento de tu negocio en este momento. Por favor intenta más tarde o contacta a soporte si el problema persiste."
       }
     }
       
@@ -793,7 +793,7 @@ export class OrganizationChatService {
     } catch (error) {
       console.error('Error in AI response generation:', error)
       return {
-        aiMessage: error instanceof Error ? error.message : "I apologize, but I'm experiencing technical difficulties right now. Please try again in a moment."
+        aiMessage: error instanceof Error ? error.message : "Disculpa, pero estoy experimentando dificultades técnicas en este momento. Por favor intenta de nuevo en un momento."
       }
     }
   }

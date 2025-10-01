@@ -362,6 +362,29 @@
     "estimatedTime": "Esto normalmente toma 1-2 minutos",
     "funFact": "Las tarjetas de vibra generadas por IA ayudan a que los clientes encuentren negocios que coinciden con sus valores y estilo."
   },
+  "chatErrors": {
+    "welcome": "¡Bienvenido! Soy Chayo, tu asistente de IA para negocios. 🎉\n\nPara empezar rápidamente, puedo extraer información del sitio web de tu negocio para personalizar tu experiencia y acelerar el proceso de configuración.\n\n¿Tienes un sitio web de tu negocio que me gustaría analizar? Si lo tienes, te proporcionaré una forma sencilla de compartirlo conmigo. Si no, no te preocupes - te guiaré a través de nuestras preguntas de configuración estándar.",
+    "formattingError": "Disculpa, hubo un error de formato en mi respuesta. Por favor intenta de nuevo.",
+    "knowledgeError": "Lo siento, pero no pude recuperar el conocimiento de tu negocio en este momento. Por favor intenta más tarde o contacta a soporte si el problema persiste.",
+    "technicalError": "Disculpa, pero estoy experimentando dificultades técnicas en este momento. Por favor intenta de nuevo en un momento."
+  },
+  "clientMode": {
+    "setupRequired": "Para usar el modo cliente, por favor configura tu negocio primero. Esto crea tu organización y agente de IA con el que los clientes pueden interactuar.",
+    "agentCreating": "Tu negocio está configurado, pero tu agente de IA aún se está creando. Por favor completa la incorporación de tu negocio para activar el modo cliente.",
+    "startSetup": "Iniciar Configuración del Negocio",
+    "continueSetup": "Continuar Configuración del Negocio"
+  },
+  "apiErrors": {
+    "pdfOnly": "Solo se permiten archivos PDF",
+    "fileSize": "El tamaño del archivo debe ser menor a 10MB",
+    "documentNotFound": "Documento no encontrado",
+    "unauthorized": "No autorizado",
+    "organizationNotFound": "Organización no encontrada",
+    "fileRequired": "Se requiere archivo",
+    "authRequired": "Se requiere autenticación",
+    "internalError": "Error interno del servidor",
+    "documentDeleted": "Documento eliminado exitosamente"
+  },
   "common": {
     "loading": "Cargando...",
     "error": "Error",
@@ -384,6 +407,7 @@
     "tagline": "Tu App Todo-en-Uno"
   },
   "auth": {
+    "vibeCardAuthRequired": "Por favor autentícate para acceder a la configuración de la tarjeta de vibra.",
     "signIn": "Iniciar Sesión",
     "signUp": "Registrarse",
     "email": "Correo electrónico",

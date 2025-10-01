@@ -66,7 +66,7 @@ export async function DELETE(
 
     return NextResponse.json({
       success: true,
-      message: 'Document deleted successfully'
+      message: 'Documento eliminado exitosamente'
     })
 
   } catch (error) {

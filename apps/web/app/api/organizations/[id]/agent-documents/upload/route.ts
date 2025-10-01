@@ -53,18 +53,18 @@ export async function POST(
     const file = formData.get('file') as File
 
     if (!file) {
-      return NextResponse.json({ error: 'File is required' }, { status: 400 })
+      return NextResponse.json({ error: 'Se requiere archivo' }, { status: 400 })
     }
 
     // Validate file type
     if (file.type !== 'application/pdf') {
-      return NextResponse.json({ error: 'Only PDF files are allowed' }, { status: 400 })
+      return NextResponse.json({ error: 'Solo se permiten archivos PDF' }, { status: 400 })
     }
 
     // Validate file size (max 10MB)
     const maxSize = 10 * 1024 * 1024 // 10MB
     if (file.size > maxSize) {
-      return NextResponse.json({ error: 'File size must be less than 10MB' }, { status: 400 })
+      return NextResponse.json({ error: 'El tamaño del archivo debe ser menor a 10MB' }, { status: 400 })
     }
 
     // Verify organization access

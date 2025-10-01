@@ -25,7 +25,7 @@ export default function VibeCardPage() {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
-          <p className="text-red-600">Please authenticate to access vibe card settings.</p>
+          <p className="text-red-600">Por favor autentícate para acceder a la configuración de la tarjeta de vibra.</p>
         </div>
       </div>
     );
