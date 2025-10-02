@@ -24,7 +24,7 @@ export default function ClientChatContainer({ agent, organization, locale = 'es'
     loading,
     error,
     setInput,
-    handleSend,
+    sendMessage,
     handleKeyPress
   } = useClientModeChat({
     agent,
@@ -114,7 +114,7 @@ export default function ClientChatContainer({ agent, organization, locale = 'es'
               />
             </div>
             <button
-              onClick={handleSend}
+              onClick={() => sendMessage()}
               disabled={!input.trim() || loading}
               className="px-4 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium touch-manipulation min-h-[44px] flex items-center"
             >
