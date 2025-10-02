@@ -34,7 +34,7 @@ export default function ClientChatView({
     loading,
     error,
     setInput,
-    handleSend,
+    sendMessage,
     handleKeyPress
   } = useClientModeChat({
     agent,
@@ -112,7 +112,7 @@ export default function ClientChatView({
       <ChatInput
         input={input}
         setInput={setInput}
-        handleSend={handleSend}
+        handleSend={sendMessage}
         handleInputFocus={() => {}} // No special focus logic needed for client mode
         handleOTPFlow={async () => {}} // No OTP needed for client mode
         inputRef={inputRef}
