@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ListRenderItem,
+  Keyboard,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useKeyboardVisibility } from '../screens/BusinessDetailScreen';
@@ -132,8 +133,9 @@ export function KeyboardAwareChat<T>({
             placeholderTextColor={placeholderColor}
             multiline
             maxLength={1000}
-            returnKeyType="default"
-            blurOnSubmit={false}
+            returnKeyType="done"
+            blurOnSubmit={true}
+            onSubmitEditing={() => Keyboard.dismiss()}
             enablesReturnKeyAutomatically={false}
           />
           <TouchableOpacity
