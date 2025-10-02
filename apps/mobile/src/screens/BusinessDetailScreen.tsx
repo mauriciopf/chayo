@@ -177,7 +177,7 @@ function BusinessDetailContent() {
   return (
     <KeyboardVisibilityContext.Provider value={{ isKeyboardVisible, headerOpacity, headerTranslateY }}>
       <View style={styles.container}>
-        <StatusBar barStyle="light-content" backgroundColor="#000000" />
+        <StatusBar barStyle="light-content" backgroundColor="#1A1A1A" />
 
         {/* Business App Content - Loads app-config for selected business */}
         <AppConfigProvider organizationId={organizationId} organizationSlug={organizationData?.slug || ''}>
@@ -220,10 +220,11 @@ export default function BusinessDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#1A1A1A', // Match NavigationHeader background for smooth animation
   },
   appContainer: {
     flex: 1,
+    backgroundColor: '#1A1A1A', // Match theme for smooth transition
   },
   errorContainer: {
     flex: 1,
