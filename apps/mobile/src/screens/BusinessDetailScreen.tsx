@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, createContext, useContext } from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,10 @@ import {
   TouchableOpacity,
   SafeAreaView,
   StatusBar,
+  Animated,
+  Keyboard,
+  Platform,
+  EmitterSubscription,
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { AppConfigProvider } from '../context/AppConfigContext';
@@ -14,6 +18,15 @@ import { SmartHeader } from '../components/SmartHeader';
 import { useThemedStyles } from '../context/ThemeContext';
 import BusinessTabNavigator from '../navigation/BusinessTabNavigator';
 import { supabase } from '../services/authService';
+
+// Keyboard visibility context
+const KeyboardVisibilityContext = createContext({
+  isKeyboardVisible: false,
+  headerOpacity: new Animated.Value(1),
+  headerTranslateY: new Animated.Value(0),
+});
+
+export const useKeyboardVisibility = () => useContext(KeyboardVisibilityContext);
 
 interface BusinessDetailScreenProps {
   organizationId: string;
@@ -34,6 +47,11 @@ function BusinessDetailContent() {
   const [_isLoadingConfig, setIsLoadingConfig] = useState(true);
   const [configError, setConfigError] = useState<string | null>(null);
   const [organizationData, setOrganizationData] = useState<OrganizationData | null>(null);
+  
+  // Keyboard visibility state
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const headerOpacity = useState(new Animated.Value(1))[0];
+  const headerTranslateY = useState(new Animated.Value(0))[0];
 
   useEffect(() => {
     // Load business configuration
@@ -69,6 +87,68 @@ function BusinessDetailContent() {
     loadBusinessConfig();
   }, [organizationId]);
 
+  // Keyboard listeners
+  useEffect(() => {
+    let keyboardWillShowListener: EmitterSubscription;
+    let keyboardWillHideListener: EmitterSubscription;
+    let keyboardDidShowListener: EmitterSubscription;
+    let keyboardDidHideListener: EmitterSubscription;
+
+    const handleKeyboardShow = () => {
+      // Delay state update to prevent immediate re-render that closes keyboard
+      setTimeout(() => {
+        setIsKeyboardVisible(true);
+      }, 100);
+      
+      Animated.parallel([
+        Animated.timing(headerOpacity, {
+          toValue: 0,
+          duration: Platform.OS === 'ios' ? 250 : 0,
+          useNativeDriver: true,
+        }),
+        Animated.timing(headerTranslateY, {
+          toValue: -100,
+          duration: Platform.OS === 'ios' ? 250 : 0,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    };
+
+    const handleKeyboardHide = () => {
+      setIsKeyboardVisible(false);
+      Animated.parallel([
+        Animated.timing(headerOpacity, {
+          toValue: 1,
+          duration: Platform.OS === 'ios' ? 250 : 0,
+          useNativeDriver: true,
+        }),
+        Animated.timing(headerTranslateY, {
+          toValue: 0,
+          duration: Platform.OS === 'ios' ? 250 : 0,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    };
+
+    if (Platform.OS === 'ios') {
+      keyboardWillShowListener = Keyboard.addListener('keyboardWillShow', handleKeyboardShow);
+      keyboardWillHideListener = Keyboard.addListener('keyboardWillHide', handleKeyboardHide);
+    } else {
+      keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', handleKeyboardShow);
+      keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', handleKeyboardHide);
+    }
+
+    return () => {
+      if (Platform.OS === 'ios') {
+        keyboardWillShowListener?.remove();
+        keyboardWillHideListener?.remove();
+      } else {
+        keyboardDidShowListener?.remove();
+        keyboardDidHideListener?.remove();
+      }
+    };
+  }, [headerOpacity, headerTranslateY]);
+
   const handleBackToMarketplace = () => {
     navigation.navigate('Marketplace');
   };
@@ -95,25 +175,36 @@ function BusinessDetailContent() {
   }
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#1C1C1E" />
+    <KeyboardVisibilityContext.Provider value={{ isKeyboardVisible, headerOpacity, headerTranslateY }}>
+      <View style={styles.container}>
+        <StatusBar barStyle="light-content" backgroundColor="#000000" />
 
-      {/* Business App Content - Loads app-config for selected business */}
-      <AppConfigProvider organizationId={organizationId} organizationSlug={organizationData?.slug || ''}>
-        {/* Smart Header - automatically switches between business and nested headers */}
-        <SmartHeader
-          businessName={organizationData?.name || 'Loading...'}
-          onBackToMarketplace={handleBackToMarketplace}
-        />
+        {/* Business App Content - Loads app-config for selected business */}
+        <AppConfigProvider organizationId={organizationId} organizationSlug={organizationData?.slug || ''}>
+          {/* Animated Smart Header */}
+          {!isKeyboardVisible && (
+            <Animated.View
+              style={{
+                opacity: headerOpacity,
+                transform: [{ translateY: headerTranslateY }],
+              }}
+            >
+              <SmartHeader
+                businessName={organizationData?.name || 'Loading...'}
+                onBackToMarketplace={handleBackToMarketplace}
+              />
+            </Animated.View>
+          )}
 
-        <View style={styles.appContainer}>
-          <BusinessTabNavigator
-            businessName={organizationData?.name || 'Loading...'}
-            onBackToMarketplace={handleBackToMarketplace}
-          />
-        </View>
-      </AppConfigProvider>
-    </View>
+          <View style={styles.appContainer}>
+            <BusinessTabNavigator
+              businessName={organizationData?.name || 'Loading...'}
+              onBackToMarketplace={handleBackToMarketplace}
+            />
+          </View>
+        </AppConfigProvider>
+      </View>
+    </KeyboardVisibilityContext.Provider>
   );
 }
 
@@ -133,8 +224,6 @@ const styles = StyleSheet.create({
   },
   appContainer: {
     flex: 1,
-    marginTop: 0,
-    paddingTop: 0,
   },
   errorContainer: {
     flex: 1,

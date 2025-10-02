@@ -6,14 +6,16 @@ import {
   TouchableOpacity,
   FlatList,
   StyleSheet,
-  Platform,
   ActivityIndicator,
   KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppConfig } from '../hooks/useAppConfig';
 import { useThemedStyles } from '../context/ThemeContext';
 import { useTranslation } from '../hooks/useTranslation';
 import { SkeletonBox } from './SkeletonLoader';
+import { useKeyboardVisibility } from '../screens/BusinessDetailScreen';
 
 interface Message {
   id: string;
@@ -27,6 +29,8 @@ export const AIChatContent: React.FC = () => {
   const { config } = useAppConfig();
   const { theme, fontSizes, themedStyles } = useThemedStyles();
   const { t, i18n } = useTranslation();
+  const keyboardContext = useKeyboardVisibility();
+  const isKeyboardVisible = keyboardContext?.isKeyboardVisible || false;
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -75,14 +79,14 @@ export const AIChatContent: React.FC = () => {
     }, 100);
 
     try {
-      const response = await fetch(`${config.apiBaseUrl}/api/client-chat`, {
+      const response = await fetch(`${config?.apiBaseUrl}/api/client-chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           message: inputText.trim(),
-          organizationId: config.organizationId,
+          organizationId: config?.organizationId,
           locale: i18n.language, // Use current language
           messages: messages.filter(m => !m.isLoading).map(m => ({
             role: m.isUser ? 'user' : 'assistant',
@@ -175,133 +179,190 @@ export const AIChatContent: React.FC = () => {
 
   if (!config) {
     return (
-      <View style={[styles.container, themedStyles.container]}>
-        <KeyboardAvoidingView
-          style={styles.keyboardContainer}
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          keyboardVerticalOffset={0}
-        >
-          <View style={[styles.chatContainer, { paddingBottom: 100 }]}>
-            {/* Skeleton for chat messages */}
-            <View style={styles.skeletonMessagesContainer}>
-              {/* AI welcome message skeleton */}
-              <View style={[styles.messageContainer, styles.assistantMessage]}>
-                <View style={styles.skeletonMessageBubble}>
-                  <SkeletonBox width={200} height={16} borderRadius={4} style={{ marginBottom: 8 }} />
-                  <SkeletonBox width={150} height={16} borderRadius={4} />
-                </View>
-              </View>
-
-              {/* User message skeleton */}
-              <View style={[styles.messageContainer, styles.userMessage]}>
-                <View style={styles.skeletonMessageBubble}>
-                  <SkeletonBox width={120} height={16} borderRadius={4} />
-                </View>
-              </View>
-
-              {/* AI response skeleton */}
-              <View style={[styles.messageContainer, styles.assistantMessage]}>
-                <View style={styles.skeletonMessageBubble}>
-                  <SkeletonBox width={180} height={16} borderRadius={4} style={{ marginBottom: 8 }} />
-                  <SkeletonBox width={220} height={16} borderRadius={4} style={{ marginBottom: 8 }} />
-                  <SkeletonBox width={100} height={16} borderRadius={4} />
-                </View>
-              </View>
-
-              {/* Another user message skeleton */}
-              <View style={[styles.messageContainer, styles.userMessage]}>
-                <View style={styles.skeletonMessageBubble}>
-                  <SkeletonBox width={90} height={16} borderRadius={4} />
-                </View>
-              </View>
-            </View>
-
-            {/* Skeleton for input area */}
-            <View style={[styles.inputContainer, { backgroundColor: theme.backgroundColor, borderTopColor: theme.borderColor }]}>
-              <SkeletonBox width="75%" height={44} borderRadius={22} style={{ marginRight: 12 }} />
-              <SkeletonBox width={60} height={44} borderRadius={22} />
+      <KeyboardAvoidingView
+        style={[
+          styles.container,
+          { backgroundColor: theme.backgroundColor }
+        ]}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+      >
+        <View style={styles.skeletonMessagesContainer}>
+          {/* AI welcome message skeleton */}
+          <View style={[styles.messageContainer, styles.assistantMessage]}>
+            <View style={styles.skeletonMessageBubble}>
+              <SkeletonBox width={200} height={16} borderRadius={4} style={{ marginBottom: 8 }} />
+              <SkeletonBox width={150} height={16} borderRadius={4} />
             </View>
           </View>
-        </KeyboardAvoidingView>
-      </View>
+
+          {/* User message skeleton */}
+          <View style={[styles.messageContainer, styles.userMessage]}>
+            <View style={styles.skeletonMessageBubble}>
+              <SkeletonBox width={120} height={16} borderRadius={4} />
+            </View>
+          </View>
+
+          {/* AI response skeleton */}
+          <View style={[styles.messageContainer, styles.assistantMessage]}>
+            <View style={styles.skeletonMessageBubble}>
+              <SkeletonBox width={180} height={16} borderRadius={4} style={{ marginBottom: 8 }} />
+              <SkeletonBox width={220} height={16} borderRadius={4} style={{ marginBottom: 8 }} />
+              <SkeletonBox width={100} height={16} borderRadius={4} />
+            </View>
+          </View>
+
+          {/* Another user message skeleton */}
+          <View style={[styles.messageContainer, styles.userMessage]}>
+            <View style={styles.skeletonMessageBubble}>
+              <SkeletonBox width={90} height={16} borderRadius={4} />
+            </View>
+          </View>
+        </View>
+
+        {/* Input Container */}
+        <View style={[styles.inputContainer, { backgroundColor: theme.backgroundColor, borderTopColor: theme.borderColor }]}>
+          <TextInput
+            ref={textInputRef}
+            style={[
+              styles.textInput,
+              {
+                backgroundColor: theme.surfaceColor,
+                color: theme.textColor,
+                borderColor: isInputFocused ? '#2F5D62' : theme.borderColor,
+                borderWidth: isInputFocused ? 2 : 1,
+                fontSize: fontSizes.base,
+              },
+            ]}
+            value={inputText}
+            onChangeText={setInputText}
+            onFocus={() => setIsInputFocused(true)}
+            onBlur={() => setIsInputFocused(false)}
+            placeholder={t('chat.placeholder')}
+            placeholderTextColor={theme.placeholderColor}
+            multiline
+            maxLength={1000}
+            returnKeyType="default"
+            blurOnSubmit={false}
+            enablesReturnKeyAutomatically={false}
+          />
+          <TouchableOpacity
+            style={[
+              styles.sendButton,
+              {
+                backgroundColor: theme.surfaceColor,
+                borderColor: inputText.trim() ? '#2F5D62' : theme.borderColor,
+                borderWidth: 2,
+              },
+            ]}
+            onPress={sendMessage}
+            disabled={!inputText.trim() || isTyping}
+            activeOpacity={0.7}
+          >
+            <Text
+              style={[
+                styles.sendButtonText,
+                {
+                  color: inputText.trim() ? '#2F5D62' : theme.placeholderColor,
+                  fontSize: fontSizes.base,
+                },
+              ]}
+            >
+              {t('chat.send')}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
     );
   }
 
   return (
-    <View style={[styles.container, themedStyles.container]}>
+    <SafeAreaView 
+      style={[
+        styles.container, 
+        { 
+          backgroundColor: theme.backgroundColor,
+          paddingTop: isKeyboardVisible ? 0 : undefined, // Remove top padding when keyboard is visible to let SafeAreaView handle it
+        }
+      ]} 
+      edges={isKeyboardVisible ? ['top'] : []} // Only apply safe area to top when keyboard visible
+    >
       <KeyboardAvoidingView
-        style={styles.keyboardContainer}
+        style={styles.container}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={0}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? (isKeyboardVisible ? 0 : 90) : 0}
       >
-        <View style={[styles.chatContainer, { paddingBottom: 100 }]}>
-          <FlatList
-            ref={flatListRef}
-            data={messages}
-            renderItem={renderMessage}
-            keyExtractor={(item) => item.id}
-            style={styles.messagesList}
-            contentContainerStyle={styles.messagesContainer}
-            showsVerticalScrollIndicator={false}
-            onContentSizeChange={scrollToBottom}
-            keyboardShouldPersistTaps="handled"
-          />
+        {/* Messages */}
+        <FlatList
+          ref={flatListRef}
+          data={messages}
+          renderItem={renderMessage}
+          keyExtractor={(item) => item.id}
+          style={styles.messagesList}
+          contentContainerStyle={[
+            styles.messagesContainer,
+            { paddingTop: isKeyboardVisible ? 16 : 72 } // Space for tab bar when visible
+          ]}
+          showsVerticalScrollIndicator={false}
+          onContentSizeChange={scrollToBottom}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive"
+        />
 
-          <View style={[styles.inputContainer, { backgroundColor: theme.backgroundColor, borderTopColor: theme.borderColor }]}>
-            <TextInput
-              ref={textInputRef}
+        {/* Input Container */}
+        <View style={[styles.inputContainer, { backgroundColor: theme.backgroundColor, borderTopColor: theme.borderColor }]}>
+          <TextInput
+            ref={textInputRef}
+            style={[
+              styles.textInput,
+              {
+                backgroundColor: theme.surfaceColor,
+                color: theme.textColor,
+                borderColor: isInputFocused ? '#2F5D62' : theme.borderColor,
+                borderWidth: isInputFocused ? 2 : 1,
+                fontSize: fontSizes.base,
+              },
+            ]}
+            value={inputText}
+            onChangeText={setInputText}
+            onFocus={() => setIsInputFocused(true)}
+            onBlur={() => setIsInputFocused(false)}
+            placeholder={t('chat.placeholder')}
+            placeholderTextColor={theme.placeholderColor}
+            multiline
+            maxLength={1000}
+            returnKeyType="default"
+            blurOnSubmit={false}
+            enablesReturnKeyAutomatically={false}
+          />
+          <TouchableOpacity
+            style={[
+              styles.sendButton,
+              {
+                backgroundColor: theme.surfaceColor,
+                borderColor: inputText.trim() ? '#2F5D62' : theme.borderColor,
+                borderWidth: 2,
+              },
+            ]}
+            onPress={sendMessage}
+            disabled={!inputText.trim() || isTyping}
+            activeOpacity={0.7}
+          >
+          <Text
               style={[
-                styles.textInput,
+                styles.sendButtonText,
                 {
-                  backgroundColor: theme.surfaceColor,
-                  color: theme.textColor,
-                  borderColor: isInputFocused ? '#2F5D62' : theme.borderColor,
-                  borderWidth: isInputFocused ? 2 : 1,
+                  color: inputText.trim() ? '#2F5D62' : theme.placeholderColor,
                   fontSize: fontSizes.base,
                 },
               ]}
-              value={inputText}
-              onChangeText={setInputText}
-              onFocus={() => setIsInputFocused(true)}
-              onBlur={() => setIsInputFocused(false)}
-              placeholder={t('chat.placeholder')}
-              placeholderTextColor={theme.placeholderColor}
-              multiline
-              maxLength={1000}
-              returnKeyType="done"
-              onSubmitEditing={() => textInputRef.current?.blur()}
-              blurOnSubmit={false}
-              enablesReturnKeyAutomatically={false}
-            />
-            <TouchableOpacity
-              style={[
-                styles.sendButton,
-                {
-                  backgroundColor: theme.surfaceColor,
-                  borderColor: inputText.trim() ? '#2F5D62' : theme.borderColor,
-                  borderWidth: 2,
-                },
-              ]}
-              onPress={sendMessage}
-              disabled={!inputText.trim() || isTyping}
-              activeOpacity={0.7}
             >
-              <Text
-                style={[
-                  styles.sendButtonText,
-                  {
-                    color: inputText.trim() ? '#2F5D62' : theme.placeholderColor,
-                    fontSize: fontSizes.base,
-                  },
-                ]}
-              >
-                {t('chat.send')}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+            {t('chat.send')}
+          </Text>
+        </TouchableOpacity>
+      </View>
       </KeyboardAvoidingView>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -309,18 +370,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  keyboardContainer: {
-    flex: 1,
-  },
-  chatContainer: {
-    flex: 1,
-  },
   messagesList: {
     flex: 1,
     paddingHorizontal: 16,
   },
   messagesContainer: {
-    paddingTop: 16,
+    paddingTop: 16, // Removed fixed padding - will be dynamic
     paddingBottom: 16,
   },
   messageContainer: {
@@ -358,10 +413,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderTopWidth: 1,
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
   },
   textInput: {
     flex: 1,
@@ -383,16 +434,6 @@ const styles = StyleSheet.create({
   sendButtonText: {
     fontSize: 16,
     fontWeight: '600',
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 32,
-  },
-  emptyText: {
-    fontSize: 16,
-    textAlign: 'center',
   },
   skeletonMessagesContainer: {
     flex: 1,

@@ -1,7 +1,6 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { useAppConfig } from '../hooks/useAppConfig';
-import { useThemedStyles } from '../context/ThemeContext';
 import { useTranslation } from '../hooks/useTranslation';
 import { TopTabBar } from '../components/TopTabBar';
 import { AIChatContent } from '../components/AIChatContent';
@@ -9,7 +8,6 @@ import { CustomerSupportScreen } from './CustomerSupportScreen';
 
 export const ChatScreen: React.FC = () => {
   const { config } = useAppConfig();
-  const { themedStyles } = useThemedStyles();
   const { t } = useTranslation();
 
   // Build tabs based on enabled tools
@@ -35,12 +33,7 @@ export const ChatScreen: React.FC = () => {
     });
   }
 
-
-  return (
-    <View style={[styles.container, themedStyles.container]}>
-      <TopTabBar tabs={tabs} initialTab="ai-chat" />
-    </View>
-  );
+  return <TopTabBar tabs={tabs} initialTab="ai-chat" />;
 };
 
 const styles = StyleSheet.create({

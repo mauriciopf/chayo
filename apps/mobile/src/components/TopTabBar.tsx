@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   Animated,
 } from 'react-native';
 import { useThemedStyles } from '../context/ThemeContext';
+import { useKeyboardVisibility } from '../screens/BusinessDetailScreen';
 
 interface TabItem {
   key: string;
@@ -23,6 +24,10 @@ export const TopTabBar: React.FC<TopTabBarProps> = ({ tabs, initialTab }) => {
   const { theme, fontSizes } = useThemedStyles();
   const [activeTab, setActiveTab] = useState(initialTab || tabs[0]?.key || '');
   const [indicatorPosition] = useState(new Animated.Value(0));
+  const keyboardContext = useKeyboardVisibility();
+  const headerOpacity = keyboardContext?.headerOpacity || useRef(new Animated.Value(1)).current;
+  const headerTranslateY = keyboardContext?.headerTranslateY || useRef(new Animated.Value(0)).current;
+  const isKeyboardVisible = keyboardContext?.isKeyboardVisible || false;
 
   const handleTabPress = (tabKey: string, index: number) => {
     setActiveTab(tabKey);
@@ -39,8 +44,29 @@ export const TopTabBar: React.FC<TopTabBarProps> = ({ tabs, initialTab }) => {
 
   return (
     <View style={styles.container}>
-      {/* Tab Bar */}
-      <View style={[styles.tabBar, { backgroundColor: theme.backgroundColor, borderBottomColor: theme.borderColor }]}>
+      {/* Tab Content */}
+      <View style={styles.content}>
+        {activeTabContent?.component}
+      </View>
+
+      {/* Animated Tab Bar - Positioned Absolutely */}
+      <Animated.View
+        style={[
+          styles.tabBar,
+          {
+            backgroundColor: theme.backgroundColor,
+            borderBottomColor: theme.borderColor,
+            opacity: headerOpacity,
+            transform: [{ translateY: headerTranslateY }],
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            zIndex: 10,
+          },
+        ]}
+        pointerEvents={isKeyboardVisible ? 'none' : 'auto'}
+      >
         {tabs.map((tab, index) => (
           <TouchableOpacity
             key={tab.key}
@@ -78,12 +104,7 @@ export const TopTabBar: React.FC<TopTabBarProps> = ({ tabs, initialTab }) => {
             },
           ]}
         />
-      </View>
-
-      {/* Tab Content */}
-      <View style={styles.content}>
-        {activeTabContent?.component}
-      </View>
+      </Animated.View>
     </View>
   );
 };
@@ -95,7 +116,7 @@ const styles = StyleSheet.create({
   tabBar: {
     flexDirection: 'row',
     borderBottomWidth: 1,
-    position: 'relative',
+    height: 56,
   },
   tabButton: {
     flex: 1,

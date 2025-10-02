@@ -12,6 +12,7 @@ import {
   Alert,
   Keyboard,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useThemedStyles } from '../context/ThemeContext';
 import { useAppConfig } from '../hooks/useAppConfig';
 import { useAuth } from '../context/AuthContext';
@@ -20,6 +21,7 @@ import LoginModal from '../components/LoginModal';
 import { SkeletonBox } from '../components/SkeletonLoader';
 import { ThinkingMessage } from '../components/ThinkingMessage';
 import { supabase } from '../services/authService';
+import { useKeyboardVisibility } from './BusinessDetailScreen';
 
 interface SupportMessage {
   id: string;
@@ -43,6 +45,8 @@ export const CustomerSupportScreen: React.FC = () => {
   const { theme, fontSizes, themedStyles } = useThemedStyles();
   const { user } = useAuth();
   const isAuthenticated = !!user;
+  const keyboardContext = useKeyboardVisibility();
+  const isKeyboardVisible = keyboardContext?.isKeyboardVisible || false;
 
   const [messages, setMessages] = useState<SupportMessage[]>([]);
   const [inputText, setInputText] = useState('');
@@ -424,19 +428,26 @@ export const CustomerSupportScreen: React.FC = () => {
   }
 
   return (
-    <KeyboardAvoidingView
-      style={[styles.container, themedStyles.container]}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+    <SafeAreaView 
+      style={[styles.container, themedStyles.container]} 
+      edges={isKeyboardVisible ? ['top'] : []} // Only apply safe area to top when keyboard visible
     >
-      {/* Messages */}
-      <FlatList
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? (isKeyboardVisible ? 0 : 90) : 0}
+      >
+        {/* Messages */}
+        <FlatList
         ref={flatListRef}
         data={messages}
         renderItem={renderMessage}
         keyExtractor={(item) => item.id}
         style={styles.messagesList}
-        contentContainerStyle={styles.messagesContainer}
+        contentContainerStyle={[
+          styles.messagesContainer,
+          { paddingTop: isKeyboardVisible ? 16 : 72 } // Space for tab bar when visible
+        ]}
         showsVerticalScrollIndicator={false}
         onContentSizeChange={scrollToBottom}
         keyboardShouldPersistTaps="handled"
@@ -488,7 +499,8 @@ export const CustomerSupportScreen: React.FC = () => {
           )}
         </TouchableOpacity>
       </View>
-
+      </KeyboardAvoidingView>
+      
       <LoginModal
         visible={showLoginModal}
         onClose={() => setShowLoginModal(false)}
@@ -496,7 +508,7 @@ export const CustomerSupportScreen: React.FC = () => {
         title="Inicia sesión para recibir soporte"
         message="Inicia sesión para comenzar una conversación con nuestro equipo de soporte"
       />
-    </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
