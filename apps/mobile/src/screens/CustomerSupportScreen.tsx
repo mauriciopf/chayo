@@ -8,11 +8,9 @@ import {
   TouchableOpacity,
   StyleSheet,
   Platform,
-  KeyboardAvoidingView,
   Alert,
   Keyboard,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useThemedStyles } from '../context/ThemeContext';
 import { useAppConfig } from '../hooks/useAppConfig';
 import { useAuth } from '../context/AuthContext';
@@ -21,7 +19,7 @@ import LoginModal from '../components/LoginModal';
 import { SkeletonBox } from '../components/SkeletonLoader';
 import { ThinkingMessage } from '../components/ThinkingMessage';
 import { supabase } from '../services/authService';
-import { useKeyboardVisibility } from './BusinessDetailScreen';
+import { KeyboardAwareChat } from '../components/KeyboardAwareChat';
 
 interface SupportMessage {
   id: string;
@@ -45,8 +43,6 @@ export const CustomerSupportScreen: React.FC = () => {
   const { theme, fontSizes, themedStyles } = useThemedStyles();
   const { user } = useAuth();
   const isAuthenticated = !!user;
-  const keyboardContext = useKeyboardVisibility();
-  const isKeyboardVisible = keyboardContext?.isKeyboardVisible || false;
 
   const [messages, setMessages] = useState<SupportMessage[]>([]);
   const [inputText, setInputText] = useState('');
@@ -374,7 +370,7 @@ export const CustomerSupportScreen: React.FC = () => {
   // Show clean loading state while login modal is presented
   if (!isAuthenticated) {
     return (
-      <View style={[styles.container, themedStyles.container]}>
+      <View style={{ flex: 1, backgroundColor: theme.backgroundColor }}>
         {/* Clean background while login modal is shown - tappable to reopen modal */}
         <TouchableOpacity
           style={styles.authLoadingContainer}
@@ -405,19 +401,19 @@ export const CustomerSupportScreen: React.FC = () => {
 
   if (loading) {
     return (
-      <View style={[styles.container, themedStyles.container]}>
+      <View style={{ flex: 1, backgroundColor: theme.backgroundColor, padding: 16 }}>
         <SkeletonBox width={200} height={20} borderRadius={8} style={{ marginBottom: 16 }} />
-        <SkeletonBox width="100%" height={60} borderRadius={12} style={{ marginBottom: 12 }} />
-        <SkeletonBox width="80%" height={60} borderRadius={12} style={{ marginBottom: 12 }} />
-        <SkeletonBox width="100%" height={60} borderRadius={12} style={{ marginBottom: 12 }} />
-        <SkeletonBox width="70%" height={60} borderRadius={12} />
+        <SkeletonBox width={'100%'} height={60} borderRadius={12} style={{ marginBottom: 12 }} />
+        <SkeletonBox width={'80%'} height={60} borderRadius={12} style={{ marginBottom: 12 }} />
+        <SkeletonBox width={'100%'} height={60} borderRadius={12} style={{ marginBottom: 12 }} />
+        <SkeletonBox width={'70%'} height={60} borderRadius={12} />
       </View>
     );
   }
 
   if (!config) {
     return (
-      <View style={[styles.container, themedStyles.container]}>
+      <View style={{ flex: 1, backgroundColor: theme.backgroundColor }}>
         <View style={styles.errorContainer}>
           <Text style={[styles.errorText, { color: theme.textColor, fontSize: fontSizes.base }]}>
             El soporte al cliente no está disponible
@@ -428,101 +424,59 @@ export const CustomerSupportScreen: React.FC = () => {
   }
 
   return (
-    <SafeAreaView 
-      style={[styles.container, themedStyles.container]} 
-      edges={isKeyboardVisible ? ['top'] : []} // Only apply safe area to top when keyboard visible
-    >
-      <KeyboardAvoidingView
-        style={styles.container}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? (isKeyboardVisible ? 0 : 90) : 0}
-      >
-        {/* Messages */}
-        <FlatList
-        ref={flatListRef}
-        data={messages}
-        renderItem={renderMessage}
-        keyExtractor={(item) => item.id}
-        style={styles.messagesList}
-        contentContainerStyle={[
-          styles.messagesContainer,
-          { paddingTop: isKeyboardVisible ? 16 : 72 } // Space for tab bar when visible
-        ]}
-        showsVerticalScrollIndicator={false}
-        onContentSizeChange={scrollToBottom}
-        keyboardShouldPersistTaps="handled"
-        keyboardDismissMode="interactive"
-        ListFooterComponent={
-          waitingForAgent ? (
-            <View style={styles.thinkingContainer}>
-              <ThinkingMessage
-                context="customer-support"
-                instanceId={conversation?.id || 'support'}
-                organizationId={config?.organizationId}
-                visible={waitingForAgent}
-              />
-            </View>
-          ) : null
-        }
-      />
-
-      {/* Input Container */}
-      <View style={[styles.inputContainer, { backgroundColor: theme.backgroundColor, borderTopColor: theme.borderColor }]}>
-        <TextInput
-          ref={textInputRef}
-          style={[styles.textInput, { backgroundColor: theme.surfaceColor, color: theme.textColor, borderColor: theme.borderColor, fontSize: fontSizes.base }]}
-          value={inputText}
-          onChangeText={setInputText}
-          placeholder="Escribe tu mensaje..."
-          placeholderTextColor={theme.placeholderColor}
-          multiline
-          maxLength={1000}
-          editable={!sending}
-          keyboardAppearance="dark"
-          blurOnSubmit={false}
-          returnKeyType="default"
-          onSubmitEditing={() => textInputRef.current?.blur()}
-          enablesReturnKeyAutomatically={false}
+    <KeyboardAwareChat
+      data={messages}
+      renderItem={renderMessage}
+      keyExtractor={(item) => item.id}
+      onContentSizeChange={scrollToBottom}
+      flatListRef={flatListRef}
+      ListFooterComponent={
+        waitingForAgent ? (
+          <View style={styles.thinkingContainer}>
+            <ThinkingMessage
+              context="customer-support"
+              instanceId={conversation?.id || 'support'}
+              organizationId={config?.organizationId}
+              visible={waitingForAgent}
+            />
+          </View>
+        ) : null
+      }
+      inputValue={inputText}
+      onChangeText={setInputText}
+      onSend={sendMessage}
+      inputRef={textInputRef}
+      placeholder="Escribe tu mensaje..."
+      sendDisabled={!inputText.trim() || sending}
+      sendButtonContent={
+        sending ? (
+          <Text style={[styles.sendButtonText, { fontSize: fontSizes.lg }]}>...</Text>
+        ) : (
+          <Text style={[styles.sendButtonText, { fontSize: fontSizes.lg }]}>↑</Text>
+        )
+      }
+      backgroundColor={theme.backgroundColor}
+      inputBackgroundColor={theme.surfaceColor}
+      textColor={theme.textColor}
+      borderColor={theme.borderColor}
+      focusBorderColor={theme.borderColor}
+      placeholderColor={theme.placeholderColor}
+      sendButtonColor={inputText.trim() ? theme.primaryColor : theme.borderColor}
+      sendButtonTextColor={theme.textColor}
+      additionalContent={
+        <LoginModal
+          visible={showLoginModal}
+          onClose={() => setShowLoginModal(false)}
+          onSuccess={handleLoginSuccess}
+          title="Inicia sesión para recibir soporte"
+          message="Inicia sesión para comenzar una conversación con nuestro equipo de soporte"
         />
-        <TouchableOpacity
-          style={[
-            styles.sendButton,
-            { backgroundColor: inputText.trim() ? theme.primaryColor : theme.borderColor },
-          ]}
-          onPress={sendMessage}
-          disabled={!inputText.trim() || sending}
-        >
-          {sending ? (
-            <Text style={[styles.sendButtonText, { fontSize: fontSizes.lg }]}>...</Text>
-          ) : (
-            <Text style={[styles.sendButtonText, { fontSize: fontSizes.lg }]}>↑</Text>
-          )}
-        </TouchableOpacity>
-      </View>
-      </KeyboardAvoidingView>
-      
-      <LoginModal
-        visible={showLoginModal}
-        onClose={() => setShowLoginModal(false)}
-        onSuccess={handleLoginSuccess}
-        title="Inicia sesión para recibir soporte"
-        message="Inicia sesión para comenzar una conversación con nuestro equipo de soporte"
-      />
-    </SafeAreaView>
+      }
+    />
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  messagesList: {
-    flex: 1,
-  },
-  messagesContainer: {
-    padding: 16,
-    paddingBottom: 32,
-  },
   messageContainer: {
     marginBottom: 16,
   },
@@ -556,31 +510,6 @@ const styles = StyleSheet.create({
     fontSize: 11,
     marginTop: 4,
     opacity: 0.7,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 12,
-    borderTopWidth: 1,
-  },
-  textInput: {
-    flex: 1,
-    borderWidth: 1.5,
-    borderRadius: 22,
-    paddingHorizontal: 18,
-    paddingVertical: 14,
-    fontSize: 16,
-    maxHeight: 120,
-    marginRight: 12,
-  },
-  sendButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   sendButtonText: {
     color: '#FFFFFF',

@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
   FlatList,
   StyleSheet,
   ActivityIndicator,
@@ -15,7 +14,7 @@ import { useAppConfig } from '../hooks/useAppConfig';
 import { useThemedStyles } from '../context/ThemeContext';
 import { useTranslation } from '../hooks/useTranslation';
 import { SkeletonBox } from './SkeletonLoader';
-import { useKeyboardVisibility } from '../screens/BusinessDetailScreen';
+import { KeyboardAwareChat } from './KeyboardAwareChat';
 
 interface Message {
   id: string;
@@ -29,12 +28,9 @@ export const AIChatContent: React.FC = () => {
   const { config } = useAppConfig();
   const { theme, fontSizes, themedStyles } = useThemedStyles();
   const { t, i18n } = useTranslation();
-  const keyboardContext = useKeyboardVisibility();
-  const isKeyboardVisible = keyboardContext?.isKeyboardVisible || false;
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [isInputFocused, setIsInputFocused] = useState(false);
   const flatListRef = useRef<FlatList>(null);
   const textInputRef = useRef<TextInput>(null);
 
@@ -179,14 +175,7 @@ export const AIChatContent: React.FC = () => {
 
   if (!config) {
     return (
-      <KeyboardAvoidingView
-        style={[
-          styles.container,
-          { backgroundColor: theme.backgroundColor }
-        ]}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
-      >
+      <View style={{ flex: 1, backgroundColor: theme.backgroundColor }}>
         <View style={styles.skeletonMessagesContainer}>
           {/* AI welcome message skeleton */}
           <View style={[styles.messageContainer, styles.assistantMessage]}>
@@ -219,165 +208,49 @@ export const AIChatContent: React.FC = () => {
             </View>
           </View>
         </View>
-
-        {/* Input Container */}
-        <View style={[styles.inputContainer, { backgroundColor: theme.backgroundColor, borderTopColor: theme.borderColor }]}>
-          <TextInput
-            ref={textInputRef}
-            style={[
-              styles.textInput,
-              {
-                backgroundColor: theme.surfaceColor,
-                color: theme.textColor,
-                borderColor: isInputFocused ? '#2F5D62' : theme.borderColor,
-                borderWidth: isInputFocused ? 2 : 1,
-                fontSize: fontSizes.base,
-              },
-            ]}
-            value={inputText}
-            onChangeText={setInputText}
-            onFocus={() => setIsInputFocused(true)}
-            onBlur={() => setIsInputFocused(false)}
-            placeholder={t('chat.placeholder')}
-            placeholderTextColor={theme.placeholderColor}
-            multiline
-            maxLength={1000}
-            returnKeyType="default"
-            blurOnSubmit={false}
-            enablesReturnKeyAutomatically={false}
-          />
-          <TouchableOpacity
-            style={[
-              styles.sendButton,
-              {
-                backgroundColor: theme.surfaceColor,
-                borderColor: inputText.trim() ? '#2F5D62' : theme.borderColor,
-                borderWidth: 2,
-              },
-            ]}
-            onPress={sendMessage}
-            disabled={!inputText.trim() || isTyping}
-            activeOpacity={0.7}
-          >
-            <Text
-              style={[
-                styles.sendButtonText,
-                {
-                  color: inputText.trim() ? '#2F5D62' : theme.placeholderColor,
-                  fontSize: fontSizes.base,
-                },
-              ]}
-            >
-              {t('chat.send')}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </KeyboardAvoidingView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView 
-      style={[
-        styles.container, 
-        { 
-          backgroundColor: theme.backgroundColor,
-          paddingTop: isKeyboardVisible ? 0 : undefined, // Remove top padding when keyboard is visible to let SafeAreaView handle it
-        }
-      ]} 
-      edges={isKeyboardVisible ? ['top'] : []} // Only apply safe area to top when keyboard visible
-    >
-      <KeyboardAvoidingView
-        style={styles.container}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? (isKeyboardVisible ? 0 : 90) : 0}
-      >
-        {/* Messages */}
-        <FlatList
-          ref={flatListRef}
-          data={messages}
-          renderItem={renderMessage}
-          keyExtractor={(item) => item.id}
-          style={styles.messagesList}
-          contentContainerStyle={[
-            styles.messagesContainer,
-            { paddingTop: isKeyboardVisible ? 16 : 72 } // Space for tab bar when visible
+    <KeyboardAwareChat
+      data={messages}
+      renderItem={renderMessage}
+      keyExtractor={(item) => item.id}
+      onContentSizeChange={scrollToBottom}
+      flatListRef={flatListRef}
+      inputValue={inputText}
+      onChangeText={setInputText}
+      onSend={sendMessage}
+      inputRef={textInputRef}
+      placeholder={t('chat.placeholder')}
+      sendDisabled={!inputText.trim() || isTyping}
+      sendButtonContent={
+        <Text
+          style={[
+            styles.sendButtonText,
+            {
+              color: inputText.trim() ? '#2F5D62' : theme.placeholderColor,
+              fontSize: fontSizes.base,
+            },
           ]}
-          showsVerticalScrollIndicator={false}
-          onContentSizeChange={scrollToBottom}
-          keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="interactive"
-        />
-
-        {/* Input Container */}
-        <View style={[styles.inputContainer, { backgroundColor: theme.backgroundColor, borderTopColor: theme.borderColor }]}>
-          <TextInput
-            ref={textInputRef}
-            style={[
-              styles.textInput,
-              {
-                backgroundColor: theme.surfaceColor,
-                color: theme.textColor,
-                borderColor: isInputFocused ? '#2F5D62' : theme.borderColor,
-                borderWidth: isInputFocused ? 2 : 1,
-                fontSize: fontSizes.base,
-              },
-            ]}
-            value={inputText}
-            onChangeText={setInputText}
-            onFocus={() => setIsInputFocused(true)}
-            onBlur={() => setIsInputFocused(false)}
-            placeholder={t('chat.placeholder')}
-            placeholderTextColor={theme.placeholderColor}
-            multiline
-            maxLength={1000}
-            returnKeyType="default"
-            blurOnSubmit={false}
-            enablesReturnKeyAutomatically={false}
-          />
-          <TouchableOpacity
-            style={[
-              styles.sendButton,
-              {
-                backgroundColor: theme.surfaceColor,
-                borderColor: inputText.trim() ? '#2F5D62' : theme.borderColor,
-                borderWidth: 2,
-              },
-            ]}
-            onPress={sendMessage}
-            disabled={!inputText.trim() || isTyping}
-            activeOpacity={0.7}
-          >
-          <Text
-              style={[
-                styles.sendButtonText,
-                {
-                  color: inputText.trim() ? '#2F5D62' : theme.placeholderColor,
-                  fontSize: fontSizes.base,
-                },
-              ]}
-            >
-            {t('chat.send')}
-          </Text>
-        </TouchableOpacity>
-      </View>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+        >
+          {t('chat.send')}
+        </Text>
+      }
+      backgroundColor={theme.backgroundColor}
+      inputBackgroundColor={theme.surfaceColor}
+      textColor={theme.textColor}
+      borderColor={theme.borderColor}
+      focusBorderColor="#2F5D62"
+      placeholderColor={theme.placeholderColor}
+      sendButtonColor={inputText.trim() ? '#2F5D62' : theme.borderColor}
+      sendButtonTextColor={inputText.trim() ? '#2F5D62' : theme.placeholderColor}
+    />
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  messagesList: {
-    flex: 1,
-    paddingHorizontal: 16,
-  },
-  messagesContainer: {
-    paddingTop: 16, // Removed fixed padding - will be dynamic
-    paddingBottom: 16,
-  },
   messageContainer: {
     marginVertical: 4,
   },
@@ -407,30 +280,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontStyle: 'italic',
   },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderTopWidth: 1,
-  },
-  textInput: {
-    flex: 1,
-    borderWidth: 1,
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    marginRight: 12,
-    maxHeight: 100,
-    fontSize: 16,
-  },
-  sendButton: {
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   sendButtonText: {
     fontSize: 16,
     fontWeight: '600',
@@ -438,7 +287,7 @@ const styles = StyleSheet.create({
   skeletonMessagesContainer: {
     flex: 1,
     paddingHorizontal: 16,
-    paddingTop: 16,
+    paddingTop: 72,
   },
   skeletonMessageBubble: {
     maxWidth: '80%',
