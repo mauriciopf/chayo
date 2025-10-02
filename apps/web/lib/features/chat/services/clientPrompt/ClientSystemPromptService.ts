@@ -1,7 +1,7 @@
 import { embeddingService } from '@/lib/shared/services/embeddingService'
 import type { EmbeddingResult } from '@/lib/shared/services/embedding/types'
 import { getLocaleInstructions } from '@/lib/features/chat/services/systemPrompt/i18nPromptUtils'
-import { ToolIntentService } from '@/lib/features/tools/shared/services/toolIntentService'
+import { ToolIntentService } from '@/lib/features/tools/shared/services/ToolIntentService'
 import { generateEmbeddings } from '@/lib/shared/services/embedding/EmbeddingGenerator'
 
 export class ClientSystemPromptService {
@@ -96,12 +96,27 @@ ${languageInstructions.responseLanguage}
       prompt += `- Aún no se encontró conocimiento del negocio. Por favor proporciona más información del negocio.`
     }
 
-    // Add intent detection instructions for enabled tools
+    // Add function calling instructions for enabled tools
     if (enabledTools.length > 0) {
-      const intentInstructions = ToolIntentService.buildIntentInstructions(enabledTools)
       prompt += `
 
-${intentInstructions}
+## Herramientas disponibles:
+Tienes acceso a las siguientes herramientas para ayudar a los clientes:
+
+${enabledTools.map(tool => {
+        switch (tool) {
+          case 'products':
+            return '- **Productos y Servicios**: Puedes buscar y mostrar información sobre productos, servicios, precios y ofertas disponibles.'
+          case 'appointments':
+            return '- **Citas y Reservas**: Puedes consultar disponibilidad, horarios y ayudar con el agendamiento de citas.'
+          case 'faqs':
+            return '- **Preguntas Frecuentes**: Puedes responder preguntas comunes usando la base de conocimiento de FAQs.'
+          default:
+            return `- **${tool}**: Herramienta disponible para asistencia.`
+        }
+      }).join('\n')}
+
+Usa estas herramientas automáticamente cuando los clientes pregunten sobre estos temas. No necesitas pedir permiso - simplemente usa la función apropiada para obtener la información más actualizada.
 `
     }
 

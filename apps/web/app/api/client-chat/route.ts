@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseServerClient } from "@/lib/shared/supabase/server"
 import { ClientSystemPromptService } from '@/lib/features/chat/services/clientPrompt/ClientSystemPromptService'
-import { embeddingService } from '@/lib/shared/services'
-import { ToolIntentService } from '@/lib/features/tools/shared/services'
-import { ToolIntentResponse, ToolIntentResponseSchema } from '@/lib/shared/schemas/toolIntentSchemas'
+import { ToolIntentService } from '@/lib/features/tools/shared/services/ToolIntentService'
+import { OpenAIService } from '@/lib/shared/services/OpenAIService'
 
 export async function POST(request: NextRequest) {
   try {
@@ -40,80 +39,112 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Get enabled tools for function calling
+    const enabledTools = await ToolIntentService.getEnabledTools(organizationId, supabase)
+    console.log(`🔧 Enabled tools: ${enabledTools.join(', ')}`)
+
     // Get client-facing system prompt (RAG-based) with locale support
     console.log(`🌍 Building system prompt with locale: ${locale}`)
     const systemPrompt = await ClientSystemPromptService.buildClientSystemPrompt(organizationId, message, locale, supabase)
-    // No ragMessages needed, all context is in the system prompt
 
     // Prepare messages for OpenAI
-    const openAIMessages = [
-      { role: 'system', content: systemPrompt },
+    const chatMessages = [
+      { role: 'system' as const, content: systemPrompt },
       ...messages.map((msg: any) => ({
-        role: msg.role === 'ai' ? 'assistant' : msg.role,
+        role: (msg.role === 'ai' ? 'assistant' : msg.role) as 'user' | 'assistant',
         content: msg.content
       })),
-      { role: 'user', content: message }
+      { role: 'user' as const, content: message }
     ]
 
-    // Get enabled tools first to determine if we need structured outputs
-    const { data: enabledToolsData } = await supabase
-      .from('agent_tools')
-      .select('tool_type')
-      .eq('organization_id', organizationId)
-      .eq('enabled', true)
-
-    const enabledTools = enabledToolsData?.map((tool: any) => tool.tool_type) || []
-    const hasEnabledTools = enabledTools.length > 0
-
-    // Call OpenAI using centralized service
-    console.log('🚀 Calling OpenAI API...')
     let assistantResponse: string
-    let intents: string[] = []
-    
-    try {
-      const { openAIService } = await import('@/lib/shared/services/OpenAIService')
+    const functionCalls: any[] = []
+
+    // Check if we have enabled tools for function calling
+    if (enabledTools.length > 0) {
+      console.log('🚀 Processing message with function calling...')
       
-      if (hasEnabledTools) {
-        // 🎯 STRUCTURED OUTPUTS: Use ToolIntentResponseSchema when tools are enabled
-        console.log('🎯 Using structured outputs for tool intent detection')
-        const structuredResponse = await openAIService.callStructuredCompletion<ToolIntentResponse>(
-          openAIMessages, 
-          ToolIntentResponseSchema, 
-          {
-            model: 'gpt-4o-mini',
-            maxTokens: 500,
-            temperature: 0.7,
-          }
-        )
-        assistantResponse = structuredResponse.response
-        intents = structuredResponse.intents
-      } else {
-        // No tools enabled, use regular completion
-        const fallbackMessage = 'Lo siento, no pude generar una respuesta.'
-        const rawResponse = await openAIService.callCompletion(openAIMessages, {
+      // Get function definitions
+      const functions = ToolIntentService.getFunctionDefinitions(enabledTools)
+      
+      // Convert to tool format
+      const tools = functions.map(func => ({
+        type: 'function' as const,
+        function: func
+      }))
+
+      // Call OpenAI with tools
+      const openAIService = OpenAIService.getInstance()
+      const response = await openAIService.callResponsesWithTools(chatMessages, tools, {
+        model: 'gpt-4o-mini',
+        temperature: 0.7,
+        maxTokens: 1000
+      })
+
+      // Process function calls if any
+      if (response.tool_calls && response.tool_calls.length > 0) {
+        console.log(`🔧 AI called ${response.tool_calls.length} functions`)
+        
+        // Execute each function call
+        for (const toolCall of response.tool_calls) {
+          const result = await ToolIntentService.handleFunctionCall(
+            toolCall.name,
+            toolCall.arguments,
+            organizationId,
+            supabase
+          )
+          
+          functionCalls.push({
+            name: toolCall.name,
+            arguments: toolCall.arguments,
+            success: result.success
+          })
+        }
+
+        // Add function results to conversation and get final response
+        const followUpMessages = [
+          ...chatMessages,
+          { 
+            role: 'assistant' as const, 
+            content: response.content || 'Déjame verificar esa información...' 
+          },
+          ...response.tool_calls.map((tc: any) => {
+            const funcResult = functionCalls.find(fc => fc.name === tc.name)
+            return {
+              role: 'function' as const,
+              name: tc.name,
+              content: JSON.stringify(funcResult)
+            }
+          })
+        ]
+
+        const finalResponse = await openAIService.callCompletion(followUpMessages, {
           model: 'gpt-4o-mini',
-          maxTokens: 500,
           temperature: 0.7,
-        }) || fallbackMessage
-        assistantResponse = rawResponse
-        intents = []
+          maxTokens: 1000
+        })
+
+        assistantResponse = finalResponse
+      } else {
+        // No function calls, use the response as-is
+        assistantResponse = response.content
       }
-    } catch (error) {
-      console.error('❌ OpenAI API error:', error)
-      const errorMessage = 'Lo siento, ocurrió un error. Por favor, intenta nuevamente.'
-      return NextResponse.json({
-        response: errorMessage
+    } else {
+      // No tools enabled, use regular completion
+      console.log('💬 Processing message without function calling')
+      const openAIService = OpenAIService.getInstance()
+      assistantResponse = await openAIService.callCompletion(chatMessages, {
+        model: 'gpt-4o-mini',
+        temperature: 0.7,
+        maxTokens: 1000
       })
     }
-
-    // Validate intents against enabled tools
-    const validatedIntents = ToolIntentService.validateIntents(intents, enabledTools)
 
     console.log('✅ Client chat response generated successfully:', {
       responseLength: assistantResponse.length,
       responsePreview: assistantResponse.substring(0, 100) + (assistantResponse.length > 100 ? '...' : ''),
-      detectedIntents: intents,
-      validatedIntents: validatedIntents
+      functionCallsExecuted: functionCalls.length,
+      functionsUsed: functionCalls.map(fc => fc.name)
     })
 
     // Store the conversation exchange for future reference
@@ -145,7 +176,11 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       response: assistantResponse,
-      intents: validatedIntents
+      functionCalls: functionCalls.map(fc => ({
+        name: fc.name,
+        arguments: fc.arguments,
+        success: fc.success
+      }))
     })
 
   } catch (error) {

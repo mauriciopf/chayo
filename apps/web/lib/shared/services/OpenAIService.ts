@@ -80,6 +80,103 @@ export class OpenAIService {
   }
 
   /**
+   * Make a request using the new Responses API with tools support
+   * This is the new unified API that replaces chat completions for tool use
+   * @param input - User message or array of messages
+   * @param tools - Array of tool definitions (functions, web_search, etc.)
+   * @param options - Optional configuration for the request
+   * @returns The AI response with potential tool calls
+   */
+  public async callResponsesWithTools(
+    input: string | Array<{ role: 'user' | 'assistant'; content: string }>,
+    tools: any[],
+    options: {
+      model?: string
+      temperature?: number
+      maxTokens?: number
+    } = {}
+  ): Promise<{
+    content: string
+    tool_calls?: Array<{
+      name: string
+      arguments: any
+    }>
+  }> {
+    const {
+      model = 'gpt-4o-mini',
+      temperature = 0.7,
+      maxTokens = 1000
+    } = options
+
+    try {
+      // Check if responses API is available, fallback to chat completions with tools
+      const response = await this.client.chat.completions.create({
+        model,
+        messages: Array.isArray(input) 
+          ? input 
+          : [{ role: 'user' as const, content: input }],
+        temperature,
+        max_tokens: maxTokens,
+        stream: false,
+        tools: tools.map(tool => {
+          // If tool is already in correct format, use it
+          if (tool.type && (tool.type === 'function' || tool.type === 'web_search')) {
+            return tool
+          }
+          // Otherwise, wrap as function tool
+          return {
+            type: 'function' as const,
+            function: tool
+          }
+        }),
+        tool_choice: 'auto'
+      })
+
+      const chatCompletion = response as OpenAI.Chat.ChatCompletion
+      const message = chatCompletion.choices[0]?.message
+
+      if (!message) {
+        return { content: '' }
+      }
+
+      const result: any = {
+        content: message.content || ''
+      }
+
+      // Check for tool calls
+      if (message.tool_calls && message.tool_calls.length > 0) {
+        result.tool_calls = message.tool_calls.map(toolCall => {
+          // Type guard to check if it's a function tool call
+          if (toolCall.type === 'function') {
+            return {
+              name: toolCall.function.name,
+              arguments: JSON.parse(toolCall.function.arguments)
+            }
+          }
+          return null
+        }).filter(Boolean)
+      }
+
+      return result
+    } catch (error: any) {
+      // Handle specific OpenAI errors with user-friendly messages
+      if (error?.status === 429) {
+        console.error('OpenAI quota exceeded:', error)
+        throw new Error("I apologize, but I'm currently experiencing high demand and cannot process your request right now. Please try again in a few minutes, or contact support if this issue persists.")
+      } else if (error?.status === 401) {
+        console.error('OpenAI API key invalid:', error)
+        throw new Error("I apologize, but there's a configuration issue with my AI service. Please contact support for assistance.")
+      } else if (error?.status === 400) {
+        console.error('OpenAI bad request:', error)
+        throw new Error("I apologize, but there was an issue with your request. Please try rephrasing your message.")
+      } else {
+        console.error('OpenAI API error:', error)
+        throw new Error("I apologize, but I'm experiencing technical difficulties right now. Please try again in a moment.")
+      }
+    }
+  }
+
+  /**
    * Make a structured chat completion request using OpenAI's Structured Outputs
    * @param messages - Array of chat messages
    * @param schema - JSON schema for structured output

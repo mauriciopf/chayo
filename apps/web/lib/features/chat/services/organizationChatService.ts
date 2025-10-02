@@ -3,7 +3,6 @@ import { generateSlugFromName } from '@/lib/shared/utils/text'
 import { validationService } from '@/lib/shared/services'
 import { IntegratedOnboardingService } from '@/lib/features/onboarding/services/integratedOnboardingService'
 import { agentService } from '@/lib/features/organizations/services/agentService'
-import { ToolIntentService } from '@/lib/features/tools/shared/services'
 import { embeddingService } from '@/lib/shared/services/embeddingService'
 import { YamlPromptLoader } from '@/lib/features/chat/services/systemPrompt/YamlPromptLoader'
 import { openAIService } from '@/lib/shared/services/OpenAIService'
@@ -266,63 +265,6 @@ export class OrganizationChatService {
       console.log(`🎯 Onboarding status: ${isOnboarding ? 'PROCESSING' : 'COMPLETED'}`)
       progressEmitter?.('phase', { name: 'checkingExistingQuestion' })
       
-      // ⭐ PRIORITY: Check for tool suggestions FIRST (before generating normal response)
-      if (!isOnboarding) { // Only suggest tools for completed onboarding
-        console.log('🔧 [SERVICE] Checking for tool suggestions (post-onboarding)')
-        try {
-          
-          // Get enabled tools for this organization
-          console.log('🛠️ [SERVICE] Getting enabled tools')
-          const enabledTools = await this.getEnabledTools(organization.id)
-          console.log('✅ [SERVICE] Enabled tools retrieved:', enabledTools)
-          
-          // Analyze conversation for tool opportunities FIRST
-          console.log('🤖 [SERVICE] Analyzing conversation for tool suggestions')
-          const toolSuggestion = await ToolIntentService.generateToolSuggestion(
-            messages,
-            organization.id,
-            enabledTools
-          )
-          console.log('🔍 [SERVICE] Tool suggestion analysis result:', {
-            hasSuggestion: !!toolSuggestion,
-            toolName: toolSuggestion?.toolName
-          })
-          
-          // If we have a suggestion, return it instead of generating normal response
-          if (toolSuggestion) {
-            console.log(`🔧 Tool suggestion found: ${toolSuggestion.toolName} - returning suggestion instead of normal response`)
-            
-            const suggestionResponse = {
-              aiMessage: toolSuggestion.content,
-              multipleChoices: undefined,
-              allowMultiple: undefined,
-              setupCompleted: true,
-              // Add metadata for UI styling
-              suggestionMeta: {
-                type: 'tool_suggestion',
-                toolName: toolSuggestion.toolName,
-                isToolSuggestion: true
-              }
-            }
-            
-            await this.storeConversation(messages, suggestionResponse.aiMessage, context)
-            progressEmitter?.('phase', { name: 'done' })
-            
-            return {
-              ...suggestionResponse,
-              organization
-            }
-          }
-        } catch (error) {
-          // If tool suggestion analysis fails, log error but continue with normal flow
-          console.error('🚨 [SERVICE] Tool suggestion analysis failed, falling back to normal response:', error)
-        }
-      } else {
-        console.log('⏭️ [SERVICE] Skipping tool suggestions - still in onboarding mode')
-      }
-      
-      // FALLBACK: Generate normal AI response only if no tool suggestion was found
-      console.log('💬 [SERVICE] No tool suggestion found - generating normal AI response')
       const response = await this.handleChatFlow(messages, context, isOnboarding, progressEmitter)
       console.log('✅ [SERVICE] handleChatFlow completed:', {
         hasAiMessage: !!response.aiMessage,
