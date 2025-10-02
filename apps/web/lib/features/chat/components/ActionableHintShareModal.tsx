@@ -13,7 +13,7 @@ import IntakeFormsToolConfig from '../../tools/intake-forms/components/IntakeFor
 import FAQToolConfig from '../../tools/faqs/components/FAQToolConfig'
 import { VibeCardConfig } from '../../tools/vibe-card/components/VibeCardConfig'
 import ProductsToolConfig from '../../tools/products/components/ProductsToolConfig'
-import CustomerSupportTool from '../../tools/customer-support/components/CustomerSupportTool'
+import CustomerSupportToolModal from '../../tools/customer-support/components/CustomerSupportToolModal'
 
 interface ActionableHintShareModalProps {
   isOpen: boolean
@@ -240,13 +240,13 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
         }
       case 'customer_support':
         return {
-          title: 'Customer Support',
-          description: 'Enable real-time customer support chat for your mobile app users',
+          title: 'Soporte al Cliente',
+          description: 'Habilita chat de soporte en tiempo real para los usuarios de tu aplicación móvil',
           features: [
-            'Real-time messaging with customers',
-            'Conversation management and history',
-            'Multiple agent support',
-            'Read receipts and status tracking'
+            'Mensajería en tiempo real con clientes',
+            'Gestión de conversaciones e historial',
+            'Soporte de múltiples agentes',
+            'Confirmaciones de lectura y seguimiento de estado'
           ]
         }
       default:
@@ -519,7 +519,7 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
               )}
 
               {hint?.category === 'customer_support' && (
-                <CustomerSupportTool 
+                <CustomerSupportToolModal 
                   organizationId={organizationId}
                   isEnabled={isCurrentToolEnabled}
                   onSettingsChange={onSettingsChange || (() => {})}

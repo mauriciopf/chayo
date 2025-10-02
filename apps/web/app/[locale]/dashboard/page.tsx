@@ -19,6 +19,7 @@ import { useOnboardingCompletion } from '@/lib/features/onboarding/hooks/useOnbo
 import ChatContainer from '@/lib/features/chat/components/ChatContainer'
 import ClientQRCode from '@/lib/features/chat/components/ClientQRCode'
 import AgentsView from '@/lib/features/dashboard/components/agents/AgentsView'
+import CustomerSupportTool from '@/lib/features/tools/customer-support/components/CustomerSupportTool'
 
 import BusinessSummary from '@/lib/features/dashboard/components/overview/BusinessSummary'
 import { ActiveView } from '@/lib/shared/types'
@@ -272,6 +273,16 @@ function DashboardContent() {
             onUserUpdate={() => {
               // Handle user update if needed
             }} 
+          />
+        ) : null
+      case 'customer-support':
+        return auth.currentOrganization ? (
+          <CustomerSupportTool
+            organizationId={auth.currentOrganization.id}
+            isEnabled={true}
+            onSettingsChange={(settings) => {
+              // Handle settings change if needed
+            }}
           />
         ) : null
       default:

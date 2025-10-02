@@ -66,9 +66,9 @@ export default function MainDashboardLayout({
         />
 
         <div className={`flex-1 flex flex-col items-center w-full min-h-0 ${
-          activeView === 'chat' ? 'overflow-hidden' : 'overflow-y-auto'
+          activeView === 'chat' || activeView === 'customer-support' ? 'overflow-hidden' : 'overflow-y-auto'
         } ${
-          activeView === 'chat' && mobile.isMobile
+          (activeView === 'chat' && mobile.isMobile) || activeView === 'customer-support'
             ? 'px-0 py-0' 
             : 'px-4 sm:px-6 lg:px-8 py-4 md:px-8 md:py-8'
         }`}>
