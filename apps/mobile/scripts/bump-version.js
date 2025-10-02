@@ -8,8 +8,8 @@ function getCurrentVersion() {
     const appConfigPath = path.join(__dirname, '../app.config.js');
     const content = fs.readFileSync(appConfigPath, 'utf8');
 
-    // Extract version using regex since it's ES module syntax
-    const versionMatch = content.match(/version:\s*["']([^"']+)["']/);
+    // Extract version using regex since it's ES module syntax (handle both single and double quotes)
+    const versionMatch = content.match(/version:\s*['"]([^'"]+)['"]/);
     if (versionMatch) {
       const version = versionMatch[1];
       console.log(`📋 Found current version: ${version}`);
@@ -42,9 +42,9 @@ function updateAppConfig(newVersion) {
   const appConfigPath = path.join(__dirname, '../app.config.js');
   let content = fs.readFileSync(appConfigPath, 'utf8');
 
-  // Update version and runtimeVersion
-  content = content.replace(/version: "[^"]*"/, `version: "${newVersion}"`);
-  content = content.replace(/runtimeVersion: "[^"]*"/, `runtimeVersion: "${newVersion}"`);
+  // Update version and runtimeVersion (handle both single and double quotes)
+  content = content.replace(/version:\s*['"][^'"]*['"]/, `version: '${newVersion}'`);
+  content = content.replace(/runtimeVersion:\s*['"][^'"]*['"]/, `runtimeVersion: '${newVersion}'`);
 
   fs.writeFileSync(appConfigPath, content);
   console.log(`✅ Updated app.config.js version to ${newVersion}`);
