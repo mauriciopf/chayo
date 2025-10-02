@@ -105,6 +105,18 @@ export default function BusinessChatView({
           scrollSnapType: 'none'
         }}
       >
+        {/* Always show banner at top - shows progress during onboarding or completion after */}
+        <OnboardingCompletionBanner
+          isOnboardingCompleted={isOnboardingCompleted}
+          onStartTutorial={() => setShowTutorial(true)}
+        />
+
+        {/* Tutorial Modal */}
+        <Tutorial
+          isOpen={showTutorial}
+          onClose={() => setShowTutorial(false)}
+        />
+        
         {messages.length === 0 && !chatLoading && <ChatEmptyState />}
         
         {/* Vibe Card Generation Modal */}
@@ -116,21 +128,6 @@ export default function BusinessChatView({
             console.log('❌ [MODAL-DEBUG] Modal dismissed')
             setShowVibeCardCompletion(false)
           }}
-        />
-        
-        {/* Debug info for modal visibility - moved to useEffect */}
-
-        {/* Show completion banner with tutorial button */}
-        <OnboardingCompletionBanner
-          isVisible={isOnboardingCompleted // Hide during mode switching for cleaner UX
-          }
-          onStartTutorial={() => setShowTutorial(true)}
-        />
-
-        {/* Tutorial Modal */}
-        <Tutorial
-          isOpen={showTutorial}
-          onClose={() => setShowTutorial(false)}
         />
         
         {(() => {

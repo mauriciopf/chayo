@@ -3,45 +3,64 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import { useTranslations } from 'next-intl'
-import { CheckCircle } from 'lucide-react'
+import { CheckCircle, Loader2 } from 'lucide-react'
 
 interface OnboardingCompletionBannerProps {
-  isVisible: boolean
+  isOnboardingCompleted: boolean
   onStartTutorial: () => void
 }
 
 export default function OnboardingCompletionBanner({
-  isVisible,
+  isOnboardingCompleted,
   onStartTutorial
 }: OnboardingCompletionBannerProps) {
   const tOnboarding = useTranslations('onboarding')
-
-  if (!isVisible) return null
 
   return (
     <motion.div
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4"
+      className="rounded-lg p-3 mb-4 border"
+      style={{ 
+        backgroundColor: 'var(--bg-secondary)',
+        borderColor: 'var(--border-secondary)'
+      }}
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+          {isOnboardingCompleted ? (
+            <CheckCircle 
+              className="w-5 h-5 flex-shrink-0" 
+              style={{ color: 'var(--accent-secondary)' }}
+            />
+          ) : (
+            <Loader2 
+              className="w-5 h-5 flex-shrink-0 animate-spin" 
+              style={{ color: 'var(--accent-secondary)' }}
+            />
+          )}
           <div>
-            <p className="text-sm text-green-800 font-medium">
-              {tOnboarding('completionBannerTitle')}
+            <p className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>
+              {isOnboardingCompleted 
+                ? tOnboarding('completionBannerTitle')
+                : tOnboarding('onboardingInProgressTitle')
+              }
             </p>
-            <p className="text-xs text-green-600 mt-0.5">
-              {tOnboarding('completionBannerDescription')}
+            <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
+              {isOnboardingCompleted 
+                ? tOnboarding('completionBannerDescription')
+                : tOnboarding('onboardingInProgressDescription')
+              }
             </p>
           </div>
         </div>
         <button
           onClick={onStartTutorial}
-          className="inline-flex items-center px-3 py-1.5 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 transition-colors flex-shrink-0 ml-4"
+          className="inline-flex items-center px-4 py-2 text-white text-base rounded-md transition-colors flex-shrink-0 ml-4"
+          style={{ backgroundColor: 'var(--accent-secondary)' }}
         >
           {tOnboarding('startTutorialCta')}
-          <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
         </button>

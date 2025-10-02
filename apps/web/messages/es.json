@@ -1225,6 +1225,8 @@
     "stageDefaultDescription": "Configurando tu negocio",
     "setupComplete": "🎉 ¡Todo listo!",
     "setupCompleteDescription": "Tu asistente digital está lista para ayudar a crecer tu negocio. ¡Empecemos a conectar con tus clientes!",
+    "onboardingInProgressTitle": "Configuración en progreso...",
+    "onboardingInProgressDescription": "Completa el proceso de configuración para crear tu perfil de negocio y tu Vibe Card única con IA.",
     "completionBannerTitle": "¡Configuración completa! ✨",
     "completionBannerDescription": "Ahora que terminaste la configuración, vamos a entrenar tu modelo de negocio con práctica real: yo actuaré como tu cliente y tú responderás como tu negocio. Cada respuesta entrena a tu IA y la hace mejor atendiendo a tus clientes.",
     "startUsing": "Comenzar a Usar Chayo",
@@ -1404,7 +1406,7 @@
   },
   "tutorial": {
     "title": "Cómo Usar Chayo",
-    "subtitle": "Aprende todo lo que necesitas saber sobre tu asistente de negocio con IA",
+    "subtitle": "Guía completa para crear y lanzar tu negocio digital con IA",
     "step": "Paso",
     "of": "de",
     "complete": "completo",
@@ -1415,68 +1417,76 @@
     "demoMessage1": "¡Hola! ¿Cómo puedo ayudarte con tu negocio hoy?",
     "demoMessage2": "Me gustaría programar una cita para la próxima semana.",
     "welcome": {
-      "title": "Bienvenido a Chayo",
-      "description": "Tu asistente de negocio con IA que trabaja 24/7 en español e inglés. Chayo te ayuda a gestionar clientes, programar citas, procesar pagos y hacer crecer tu negocio.",
-      "feature1": "Disponible 24/7 para tus clientes",
-      "feature2": "Soporte bilingüe (español e inglés)",
-      "feature3": "Aprende sobre tu negocio con el tiempo",
-      "feature4": "Se integra con tus herramientas existentes"
+      "title": "Bienvenido a Chayo 🎉",
+      "description": "Chayo es tu asistente de negocio con IA que te ayuda a crear, gestionar y hacer crecer tu negocio digital. En pocos pasos, tendrás un perfil profesional con herramientas para interactuar con tus clientes automáticamente.",
+      "feature1": "Configuración completa en minutos con IA conversacional",
+      "feature2": "Crea tu Vibe Card única con imagen generada por IA",
+      "feature3": "Herramientas profesionales para tu negocio (citas, pagos, documentos)",
+      "feature4": "App móvil para que tus clientes te encuentren y contacten"
     },
-    "chat": {
-      "title": "Conversaciones Inteligentes",
-      "description": "Chayo interactúa con tus clientes de manera natural, entendiendo sus necesidades y proporcionando respuestas útiles basadas en la información de tu negocio.",
-      "feature1": "Procesamiento de lenguaje natural",
-      "feature2": "Respuestas conscientes del contexto",
-      "feature3": "Personalidad que coincide con tu marca",
-      "feature4": "Escalamiento a humano cuando sea necesario"
+    "onboarding": {
+      "title": "Paso 1: Proceso de Onboarding 🚀",
+      "description": "El primer paso es completar el onboarding conversacional. Chayo te hará preguntas sobre ti y tu negocio para conocerte mejor y crear tu perfil personalizado.",
+      "feature1": "Cuéntale a Chayo sobre ti y tu negocio",
+      "feature2": "Define tu tono de comunicación y personalidad de marca",
+      "feature3": "Comparte tus servicios, productos y especialidades",
+      "feature4": "El proceso toma solo 5-10 minutos y es completamente conversacional"
     },
-    "businessTraining": {
-      "title": "Entrenando tu IA",
-      "description": "Mientras más interactúas con Chayo, mejor se vuelve representando tu negocio. Las conversaciones de práctica ayudan a mejorar la calidad de las respuestas.",
-      "feature1": "Escenarios de juego de roles para entrenamiento",
-      "feature2": "Retroalimentación y correcciones en tiempo real",
-      "feature3": "Aprendizaje continuo de las interacciones",
-      "feature4": "Expansión del conocimiento del negocio"
+    "vibeCard": {
+      "title": "Paso 2: Creación de tu Vibe Card ✨",
+      "description": "Después del onboarding, Chayo genera automáticamente tu Vibe Card con IA. Esta tarjeta es tu carta de presentación visual en la app móvil para clientes.",
+      "feature1": "Imagen única generada por IA basada en tu negocio",
+      "feature2": "Descripción profesional y atractiva de tus servicios",
+      "feature3": "Colores y estilo que reflejan la personalidad de tu marca",
+      "feature4": "Se crea automáticamente al finalizar el onboarding"
     },
     "tools": {
-      "title": "Herramientas de Negocio",
-      "description": "Chayo viene con herramientas integradas para ayudar a gestionar diferentes aspectos de tu negocio, desde programación hasta pagos.",
-      "feature1": "Sistema de programación de citas",
-      "feature2": "Gestión y firma de documentos",
-      "feature3": "Integración de procesamiento de pagos",
-      "feature4": "Formularios de admisión de clientes"
+      "title": "Paso 3: Habilitar Herramientas de Negocio 🛠️",
+      "description": "En la sección de Herramientas del dashboard, puedes habilitar y configurar las capacidades que necesitas para tu negocio. Solo las herramientas habilitadas estarán disponibles para tus clientes.",
+      "feature1": "Citas: Conecta tu calendario (Calendly, Google) para reservaciones",
+      "feature2": "Pagos: Configura Stripe para cobrar por tus servicios",
+      "feature3": "Documentos: Sube contratos, formularios y archivos importantes",
+      "feature4": "FAQs, Formularios de Admisión, Productos y más"
     },
-    "appointments": {
-      "title": "Gestión de Citas",
-      "description": "Deja que Chayo maneje tu programación. Los clientes pueden reservar citas directamente a través del chat, y recibirás notificaciones para confirmaciones.",
-      "feature1": "Integración de calendario (Calendly, Google)",
-      "feature2": "Confirmaciones automáticas de reservas",
-      "feature3": "Notificaciones de recordatorio",
-      "feature4": "Reprogramación y cancelaciones"
+    "mobileApp": {
+      "title": "Paso 4: Tu Negocio en la App Móvil 📱",
+      "description": "Tu Vibe Card aparece en la app móvil Chayo, donde clientes potenciales pueden descubrirte, ver tus servicios y contactarte directamente usando las herramientas que habilitaste.",
+      "feature1": "Tu negocio se muestra en el Marketplace de la app móvil",
+      "feature2": "Los clientes pueden ver tu Vibe Card y descripción completa",
+      "feature3": "Acceso directo a todas las herramientas que habilitaste",
+      "feature4": "Chat en vivo con tu asistente IA entrenado en tu negocio"
     },
-    "documents": {
-      "title": "Manejo de Documentos",
-      "description": "Sube documentos que Chayo puede referenciar, y permite a los clientes firmar documentos digitalmente directamente a través de la interfaz de chat.",
-      "feature1": "Carga y almacenamiento de documentos",
-      "feature2": "Búsqueda de documentos con IA",
-      "feature3": "Recolección de firmas digitales",
-      "feature4": "Entrega automática de documentos"
+    "qrCode": {
+      "title": "Paso 5: Comparte tu QR Code con Clientes 🔗",
+      "description": "En la sección 'Código QR del Cliente', encontrarás un QR code y deep link especial. Compártelo con tus clientes para que accedan directamente a tu negocio en la app móvil.",
+      "feature1": "Cada negocio tiene su propio QR code único y deep link",
+      "feature2": "Al escanear, los clientes abren tu perfil en la app móvil",
+      "feature3": "El link se guarda en su dispositivo para acceso futuro rápido",
+      "feature4": "Compártelo en redes sociales, flyers, tarjetas de presentación"
     },
-    "payments": {
-      "title": "Procesamiento de Pagos",
-      "description": "Recolecta pagos sin problemas a través de múltiples proveedores. Chayo puede crear enlaces de pago y guiar a los clientes a través del proceso de pago.",
-      "feature1": "Múltiples proveedores de pago (Stripe, PayPal, Square)",
-      "feature2": "Generación segura de enlaces de pago",
-      "feature3": "Seguimiento del estado de pagos",
-      "feature4": "Entrega automática de recibos"
+    "training": {
+      "title": "Paso 6: Entrena tu Asistente IA 🎓",
+      "description": "En el Chat del dashboard, puedes entrenar a tu asistente IA conversando con él. Simula conversaciones con clientes para enseñarle cómo responder y mejorar sus respuestas con el tiempo.",
+      "feature1": "Practica escenarios de conversación con tu IA",
+      "feature2": "Corrige y refina las respuestas de tu asistente",
+      "feature3": "Sube documentos para expandir su conocimiento",
+      "feature4": "Cuanto más entrenes, mejor atenderá a tus clientes"
     },
-    "insights": {
-      "title": "Perspectivas del Negocio",
-      "description": "Obtén perspectivas valiosas sobre las interacciones con clientes, preguntas populares y rendimiento del negocio a través del panel de análisis de Chayo.",
-      "feature1": "Análisis de conversaciones",
-      "feature2": "Patrones de interacción con clientes",
-      "feature3": "Seguimiento de preguntas populares",
-      "feature4": "Métricas de rendimiento y tendencias"
+    "clientExperience": {
+      "title": "Paso 7: Experiencia del Cliente 💬",
+      "description": "Cuando un cliente escanea tu QR o accede por el Marketplace, ve tu Vibe Card, puede usar las herramientas habilitadas (agendar citas, pagar, ver documentos) y chatear con tu asistente IA 24/7.",
+      "feature1": "Los clientes solo ven las herramientas que tú habilitaste",
+      "feature2": "Pueden agendar, pagar y acceder a información automáticamente",
+      "feature3": "El chat IA responde según tu entrenamiento y documentos",
+      "feature4": "Todo funciona 24/7 sin que estés presente"
+    },
+    "dashboard": {
+      "title": "Panel de Control y Gestión 📊",
+      "description": "Desde tu dashboard puedes ver estadísticas, gestionar conversaciones de clientes, actualizar herramientas, ver citas programadas, y controlar todos los aspectos de tu negocio digital.",
+      "feature1": "Soporte al Cliente: ve todas las conversaciones activas",
+      "feature2": "Cerebro de Chayo: análisis de tu negocio y tendencias",
+      "feature3": "Gestión de herramientas: habilita/deshabilita funciones",
+      "feature4": "Configuración de perfil y actualización de información"
     }
   }
 }

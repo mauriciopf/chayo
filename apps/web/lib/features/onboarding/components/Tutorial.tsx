@@ -16,7 +16,12 @@ import {
   BarChart3,
   X,
   CheckCircle,
-  Play
+  Play,
+  Sparkles,
+  Smartphone,
+  QrCode,
+  GraduationCap,
+  Zap
 } from 'lucide-react'
 
 interface TutorialProps {
@@ -51,27 +56,27 @@ export default function Tutorial({ isOpen, onClose }: TutorialProps) {
       ]
     },
     {
-      id: 'chat',
-      title: t('chat.title'),
-      description: t('chat.description'),
+      id: 'onboarding',
+      title: t('onboarding.title'),
+      description: t('onboarding.description'),
       icon: MessageSquare,
       features: [
-        t('chat.feature1'),
-        t('chat.feature2'),
-        t('chat.feature3'),
-        t('chat.feature4')
+        t('onboarding.feature1'),
+        t('onboarding.feature2'),
+        t('onboarding.feature3'),
+        t('onboarding.feature4')
       ]
     },
     {
-      id: 'business-training',
-      title: t('businessTraining.title'),
-      description: t('businessTraining.description'),
-      icon: Users,
+      id: 'vibeCard',
+      title: t('vibeCard.title'),
+      description: t('vibeCard.description'),
+      icon: Sparkles,
       features: [
-        t('businessTraining.feature1'),
-        t('businessTraining.feature2'),
-        t('businessTraining.feature3'),
-        t('businessTraining.feature4')
+        t('vibeCard.feature1'),
+        t('vibeCard.feature2'),
+        t('vibeCard.feature3'),
+        t('vibeCard.feature4')
       ]
     },
     {
@@ -87,51 +92,63 @@ export default function Tutorial({ isOpen, onClose }: TutorialProps) {
       ]
     },
     {
-      id: 'appointments',
-      title: t('appointments.title'),
-      description: t('appointments.description'),
-      icon: Calendar,
+      id: 'mobileApp',
+      title: t('mobileApp.title'),
+      description: t('mobileApp.description'),
+      icon: Smartphone,
       features: [
-        t('appointments.feature1'),
-        t('appointments.feature2'),
-        t('appointments.feature3'),
-        t('appointments.feature4')
+        t('mobileApp.feature1'),
+        t('mobileApp.feature2'),
+        t('mobileApp.feature3'),
+        t('mobileApp.feature4')
       ]
     },
     {
-      id: 'documents',
-      title: t('documents.title'),
-      description: t('documents.description'),
-      icon: FileText,
+      id: 'qrCode',
+      title: t('qrCode.title'),
+      description: t('qrCode.description'),
+      icon: QrCode,
       features: [
-        t('documents.feature1'),
-        t('documents.feature2'),
-        t('documents.feature3'),
-        t('documents.feature4')
+        t('qrCode.feature1'),
+        t('qrCode.feature2'),
+        t('qrCode.feature3'),
+        t('qrCode.feature4')
       ]
     },
     {
-      id: 'payments',
-      title: t('payments.title'),
-      description: t('payments.description'),
-      icon: CreditCard,
+      id: 'training',
+      title: t('training.title'),
+      description: t('training.description'),
+      icon: GraduationCap,
       features: [
-        t('payments.feature1'),
-        t('payments.feature2'),
-        t('payments.feature3'),
-        t('payments.feature4')
+        t('training.feature1'),
+        t('training.feature2'),
+        t('training.feature3'),
+        t('training.feature4')
       ]
     },
     {
-      id: 'insights',
-      title: t('insights.title'),
-      description: t('insights.description'),
+      id: 'clientExperience',
+      title: t('clientExperience.title'),
+      description: t('clientExperience.description'),
+      icon: Zap,
+      features: [
+        t('clientExperience.feature1'),
+        t('clientExperience.feature2'),
+        t('clientExperience.feature3'),
+        t('clientExperience.feature4')
+      ]
+    },
+    {
+      id: 'dashboard',
+      title: t('dashboard.title'),
+      description: t('dashboard.description'),
       icon: BarChart3,
       features: [
-        t('insights.feature1'),
-        t('insights.feature2'),
-        t('insights.feature3'),
-        t('insights.feature4')
+        t('dashboard.feature1'),
+        t('dashboard.feature2'),
+        t('dashboard.feature3'),
+        t('dashboard.feature4')
       ]
     }
   ]
@@ -168,40 +185,46 @@ export default function Tutorial({ isOpen, onClose }: TutorialProps) {
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
-          className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl"
+          className="rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl"
+          style={{ backgroundColor: 'var(--bg-primary)' }}
         >
           {/* Header */}
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 relative">
+          <div className="p-6 relative" style={{ backgroundColor: 'var(--bg-secondary)' }}>
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 text-white hover:text-gray-200 transition-colors"
+              className="absolute top-4 right-4 transition-colors"
+              style={{ color: 'var(--text-primary)' }}
             >
               <X size={24} />
             </button>
             <div className="flex items-center space-x-4">
-              <div className="bg-white bg-opacity-20 rounded-full p-3">
-                <IconComponent size={32} />
+              <div 
+                className="rounded-full p-3"
+                style={{ backgroundColor: 'var(--accent-secondary)' }}
+              >
+                <IconComponent size={32} style={{ color: 'white' }} />
               </div>
               <div>
-                <h1 className="text-2xl font-bold">{t('title')}</h1>
-                <p className="text-blue-100 text-sm">{t('subtitle')}</p>
+                <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{t('title')}</h1>
+                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{t('subtitle')}</p>
               </div>
             </div>
           </div>
 
           {/* Progress Bar */}
-          <div className="bg-gray-100 px-6 py-3">
+          <div className="px-6 py-3" style={{ backgroundColor: 'var(--bg-secondary)' }}>
             <div className="flex justify-between items-center mb-2">
-              <span className="text-sm text-gray-600">
+              <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
                 {t('step')} {currentStep + 1} {t('of')} {tutorialSteps.length}
               </span>
-              <span className="text-sm text-gray-600">
+              <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
                 {Math.round(((currentStep + 1) / tutorialSteps.length) * 100)}% {t('complete')}
               </span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="w-full rounded-full h-2" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
               <motion.div
-                className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full"
+                className="h-2 rounded-full"
+                style={{ backgroundColor: 'var(--accent-secondary)' }}
                 initial={{ width: 0 }}
                 animate={{ width: `${((currentStep + 1) / tutorialSteps.length) * 100}%` }}
                 transition={{ duration: 0.3 }}
@@ -220,14 +243,17 @@ export default function Tutorial({ isOpen, onClose }: TutorialProps) {
                 transition={{ duration: 0.3 }}
               >
                 <div className="flex items-start space-x-6">
-                  <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-4 flex-shrink-0">
-                    <IconComponent size={48} className="text-blue-600" />
+                  <div 
+                    className="rounded-2xl p-4 flex-shrink-0"
+                    style={{ backgroundColor: 'var(--bg-tertiary)' }}
+                  >
+                    <IconComponent size={48} style={{ color: 'var(--accent-secondary)' }} />
                   </div>
                   <div className="flex-1">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-3">
+                    <h2 className="text-2xl font-bold mb-3" style={{ color: 'var(--text-primary)' }}>
                       {currentTutorialStep.title}
                     </h2>
-                    <p className="text-gray-600 text-lg mb-6 leading-relaxed">
+                    <p className="text-lg mb-6 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
                       {currentTutorialStep.description}
                     </p>
                   </div>
@@ -241,35 +267,42 @@ export default function Tutorial({ isOpen, onClose }: TutorialProps) {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className="flex items-start space-x-3 bg-gray-50 rounded-lg p-4"
+                      className="flex items-start space-x-3 rounded-lg p-4"
+                      style={{ backgroundColor: 'var(--bg-secondary)' }}
                     >
-                      <CheckCircle size={20} className="text-green-500 flex-shrink-0 mt-0.5" />
-                      <span className="text-gray-700">{feature}</span>
+                      <CheckCircle size={20} className="flex-shrink-0 mt-0.5" style={{ color: 'var(--accent-secondary)' }} />
+                      <span style={{ color: 'var(--text-primary)' }}>{feature}</span>
                     </motion.div>
                   ))}
                 </div>
 
                 {/* Interactive Demo Section */}
                 {currentStep === 1 && (
-                  <div className="mt-8 bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                      <Play size={20} className="mr-2 text-blue-600" />
+                  <div className="mt-8 rounded-xl p-6" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+                    <h3 className="text-lg font-semibold mb-4 flex items-center" style={{ color: 'var(--text-primary)' }}>
+                      <Play size={20} className="mr-2" style={{ color: 'var(--accent-secondary)' }} />
                       {t('interactiveDemo')}
                     </h3>
-                    <div className="bg-white rounded-lg p-4 border shadow-sm">
+                    <div className="rounded-lg p-4 border" style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border-primary)' }}>
                       <div className="flex items-start space-x-3 mb-3">
-                        <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                        <div 
+                          className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold"
+                          style={{ backgroundColor: 'var(--accent-secondary)' }}
+                        >
                           C
                         </div>
-                        <div className="bg-blue-100 rounded-lg px-4 py-2 max-w-xs">
-                          <p className="text-sm text-blue-900">{t('demoMessage1')}</p>
+                        <div className="rounded-lg px-4 py-2 max-w-xs" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+                          <p className="text-sm" style={{ color: 'var(--text-primary)' }}>{t('demoMessage1')}</p>
                         </div>
                       </div>
                       <div className="flex items-start space-x-3 justify-end">
-                        <div className="bg-gray-100 rounded-lg px-4 py-2 max-w-xs">
-                          <p className="text-sm text-gray-900">{t('demoMessage2')}</p>
+                        <div className="rounded-lg px-4 py-2 max-w-xs" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
+                          <p className="text-sm" style={{ color: 'var(--text-primary)' }}>{t('demoMessage2')}</p>
                         </div>
-                        <div className="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                        <div 
+                          className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold"
+                          style={{ backgroundColor: 'var(--bg-hover)' }}
+                        >
                           U
                         </div>
                       </div>
@@ -281,11 +314,12 @@ export default function Tutorial({ isOpen, onClose }: TutorialProps) {
           </div>
 
           {/* Footer */}
-          <div className="bg-gray-50 px-6 py-4 flex justify-between items-center">
+          <div className="px-6 py-4 flex justify-between items-center" style={{ backgroundColor: 'var(--bg-secondary)' }}>
             <button
               onClick={prevStep}
               disabled={currentStep === 0}
-              className="flex items-center space-x-2 px-4 py-2 text-gray-600 hover:text-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="flex items-center space-x-2 px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              style={{ color: 'var(--text-secondary)' }}
             >
               <ChevronLeft size={20} />
               <span>{t('previous')}</span>
@@ -297,13 +331,14 @@ export default function Tutorial({ isOpen, onClose }: TutorialProps) {
                 <button
                   key={index}
                   onClick={() => goToStep(index)}
-                  className={`w-3 h-3 rounded-full transition-colors ${
-                    index === currentStep 
-                      ? 'bg-blue-600' 
+                  className="w-3 h-3 rounded-full transition-colors"
+                  style={{
+                    backgroundColor: index === currentStep 
+                      ? 'var(--accent-secondary)' 
                       : index < currentStep 
-                        ? 'bg-green-500' 
-                        : 'bg-gray-300'
-                  }`}
+                        ? 'var(--accent-secondary)' 
+                        : 'var(--bg-hover)'
+                  }}
                 />
               ))}
             </div>
@@ -311,7 +346,8 @@ export default function Tutorial({ isOpen, onClose }: TutorialProps) {
             {currentStep === tutorialSteps.length - 1 ? (
               <button
                 onClick={onClose}
-                className="flex items-center space-x-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                className="flex items-center space-x-2 px-6 py-2 text-white rounded-lg transition-colors"
+                style={{ backgroundColor: 'var(--accent-secondary)' }}
               >
                 <span>{t('getStarted')}</span>
                 <CheckCircle size={20} />
@@ -319,7 +355,8 @@ export default function Tutorial({ isOpen, onClose }: TutorialProps) {
             ) : (
               <button
                 onClick={nextStep}
-                className="flex items-center space-x-2 px-4 py-2 text-blue-600 hover:text-blue-800 transition-colors"
+                className="flex items-center space-x-2 px-4 py-2 transition-colors"
+                style={{ color: 'var(--accent-secondary)' }}
               >
                 <span>{t('next')}</span>
                 <ChevronRight size={20} />
