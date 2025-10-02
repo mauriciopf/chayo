@@ -1,7 +1,7 @@
 import { embeddingService } from '@/lib/shared/services/embeddingService'
 import type { EmbeddingResult } from '@/lib/shared/services/embedding/types'
 import { getLocaleInstructions } from '@/lib/features/chat/services/systemPrompt/i18nPromptUtils'
-import { ToolIntentService } from '@/lib/features/tools/shared/services/ToolIntentService'
+import { ToolIntentService } from '@/lib/features/tools/shared/services/toolIntentService'
 import { generateEmbeddings } from '@/lib/shared/services/embedding/EmbeddingGenerator'
 
 export class ClientSystemPromptService {

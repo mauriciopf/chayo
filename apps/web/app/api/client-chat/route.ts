@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseServerClient } from "@/lib/shared/supabase/server"
 import { ClientSystemPromptService } from '@/lib/features/chat/services/clientPrompt/ClientSystemPromptService'
-import { ToolIntentService } from '@/lib/features/tools/shared/services/ToolIntentService'
+import { ToolIntentService } from '@/lib/features/tools/shared/services/toolIntentService'
 import { OpenAIService } from '@/lib/shared/services/OpenAIService'
 
 export async function POST(request: NextRequest) {
