@@ -1,6 +1,7 @@
 "use client"
 
-import { ReactNode, useRef } from "react"
+import { ReactNode, useRef, useState, useEffect } from "react"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 
 interface HorizontalCarouselProps {
   children: ReactNode
@@ -16,8 +17,58 @@ export default function HorizontalCarousel({
   showGradients = true
 }: HorizontalCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
+  const [isHovered, setIsHovered] = useState(false)
+  const [canScrollLeft, setCanScrollLeft] = useState(false)
+  const [canScrollRight, setCanScrollRight] = useState(false)
+
+  const checkScroll = () => {
+    if (scrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current
+      setCanScrollLeft(scrollLeft > 0)
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 1)
+    }
+  }
+
+  useEffect(() => {
+    const scrollElement = scrollRef.current
+    if (scrollElement) {
+      // Initial check
+      checkScroll()
+      
+      // Add scroll event listener
+      scrollElement.addEventListener('scroll', checkScroll)
+      
+      // Add resize observer to handle content changes
+      const resizeObserver = new ResizeObserver(checkScroll)
+      resizeObserver.observe(scrollElement)
+      
+      return () => {
+        scrollElement.removeEventListener('scroll', checkScroll)
+        resizeObserver.disconnect()
+      }
+    }
+  }, [children])
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollRef.current) {
+      const scrollAmount = 300
+      const newScrollLeft = direction === 'left' 
+        ? scrollRef.current.scrollLeft - scrollAmount
+        : scrollRef.current.scrollLeft + scrollAmount
+      
+      scrollRef.current.scrollTo({
+        left: newScrollLeft,
+        behavior: 'smooth'
+      })
+    }
+  }
+
   return (
-    <div className="relative">
+    <div 
+      className="relative group"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       {/* Left Gradient Fade */}
       {showGradients && (
         <div 
@@ -36,6 +87,36 @@ export default function HorizontalCarousel({
             background: 'linear-gradient(to left, var(--bg-secondary), transparent)'
           }}
         />
+      )}
+
+      {/* Left Navigation Caret - Only visible on hover and when can scroll left */}
+      {isHovered && canScrollLeft && (
+        <button
+          onClick={() => scroll('left')}
+          className="absolute left-2 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full shadow-lg transition-all duration-200 hover:scale-110"
+          style={{
+            backgroundColor: 'var(--bg-tertiary)',
+            color: 'var(--text-primary)'
+          }}
+          aria-label="Scroll left"
+        >
+          <ChevronLeft size={20} />
+        </button>
+      )}
+
+      {/* Right Navigation Caret - Only visible on hover and when can scroll right */}
+      {isHovered && canScrollRight && (
+        <button
+          onClick={() => scroll('right')}
+          className="absolute right-2 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full shadow-lg transition-all duration-200 hover:scale-110"
+          style={{
+            backgroundColor: 'var(--bg-tertiary)',
+            color: 'var(--text-primary)'
+          }}
+          aria-label="Scroll right"
+        >
+          <ChevronRight size={20} />
+        </button>
       )}
 
       <div
