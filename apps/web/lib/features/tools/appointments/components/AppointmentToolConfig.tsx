@@ -376,15 +376,20 @@ export default function AppointmentToolConfig({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className={`w-3 h-3 rounded-full ${providerUrl ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-                    <span className="text-sm font-medium text-gray-900">
+                    <span 
+                      className="text-sm font-medium"
+                      style={{ color: 'var(--text-primary)' }}
+                    >
                       Cuenta de {selectedProvider.charAt(0).toUpperCase() + selectedProvider.slice(1)}
                     </span>
                   </div>
-                  <span className={`text-xs px-2 py-1 rounded-full ${
-                    providerUrl 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-gray-100 text-gray-600'
-                  }`}>
+                  <span 
+                    className="text-xs px-2 py-1 rounded-full"
+                    style={{
+                      backgroundColor: providerUrl ? 'var(--bg-secondary)' : 'var(--bg-tertiary)',
+                      color: providerUrl ? 'var(--accent-secondary)' : 'var(--text-muted)'
+                    }}
+                  >
                     {providerUrl ? 'Conectada' : 'Sin conexión'}
                   </span>
                 </div>
@@ -399,11 +404,14 @@ export default function AppointmentToolConfig({
               <button
                 onClick={() => handleConnectProvider(selectedProvider)}
                 disabled={saving}
-                className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
-                  providerUrl
-                    ? 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
-                    : 'bg-blue-600 text-white hover:bg-blue-700'
-                }`}
+                className="w-full py-3 px-4 rounded-lg font-medium transition-colors"
+                style={{
+                  backgroundColor: providerUrl ? 'var(--bg-tertiary)' : 'var(--accent-secondary)',
+                  color: providerUrl ? 'var(--text-primary)' : 'white',
+                  borderWidth: providerUrl ? '1px' : '0',
+                  borderStyle: 'solid',
+                  borderColor: providerUrl ? 'var(--border-primary)' : 'transparent'
+                }}
               >
                 {saving ? (
                   <div className="flex items-center justify-center gap-2">
@@ -440,14 +448,34 @@ export default function AppointmentToolConfig({
               <h4 className="font-medium text-gray-900 mb-3">Configura tu integración con {selectedProvider.charAt(0).toUpperCase() + selectedProvider.slice(1)}</h4>
               
               {/* Setup Instructions */}
-              <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div 
+                className="mb-4 p-4 border rounded-lg"
+                style={{ 
+                  backgroundColor: 'var(--bg-tertiary)', 
+                  borderColor: 'var(--border-primary)' 
+                }}
+              >
                 <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-blue-600 text-sm font-bold">!</span>
+                  <div 
+                    className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
+                    style={{ 
+                      backgroundColor: 'var(--bg-secondary)',
+                      color: 'var(--accent-secondary)'
+                    }}
+                  >
+                    <span className="text-sm font-bold">!</span>
                   </div>
                   <div>
-                    <h5 className="font-medium text-blue-900 mb-2">Instrucciones de configuración:</h5>
-                    <div className="text-sm text-blue-800 space-y-1">
+                    <h5 
+                      className="font-medium mb-2"
+                      style={{ color: 'var(--text-primary)' }}
+                    >
+                      Instrucciones de configuración:
+                    </h5>
+                    <div 
+                      className="text-sm space-y-1"
+                      style={{ color: 'var(--text-secondary)' }}
+                    >
                       {selectedProvider === 'vagaro' && (
                         <>
                           <p>1. Inicia sesión en tu cuenta empresarial de Vagaro</p>
@@ -556,12 +584,29 @@ export default function AppointmentToolConfig({
 
       {/* Square System Info */}
       {selectedProvider === 'square' && (
-        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <h4 className="font-medium text-yellow-900 mb-2">Integración con Square Appointments</h4>
-          <p className="text-sm text-yellow-800 mb-3">
+        <div 
+          className="mb-6 p-4 border rounded-lg"
+          style={{ 
+            backgroundColor: 'var(--bg-tertiary)', 
+            borderColor: 'var(--border-primary)' 
+          }}
+        >
+          <h4 
+            className="font-medium mb-2"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            Integración con Square Appointments
+          </h4>
+          <p 
+            className="text-sm mb-3"
+            style={{ color: 'var(--text-secondary)' }}
+          >
             Las personas serán redirigidas a tu página de Square Appointments para agendar sus citas.
           </p>
-          <div className="text-xs text-yellow-700">
+          <div 
+            className="text-xs"
+            style={{ color: 'var(--text-muted)' }}
+          >
             <div className="flex items-center gap-1 mb-1">
               <ExternalLink className="w-3 h-3" />
               <span>Redirige a tu página empresarial de Square</span>
@@ -577,13 +622,30 @@ export default function AppointmentToolConfig({
       {/* Custom System Info & Management */}
       {selectedProvider === 'custom' && (
         <div className="mb-6 space-y-6">
-          <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <h4 className="font-medium text-blue-900 mb-2">Chayo Appointments - Sistema Integrado</h4>
-            <p className="text-sm text-blue-800 mb-3">
+          <div 
+            className="p-4 border rounded-lg"
+            style={{ 
+              backgroundColor: 'var(--bg-tertiary)', 
+              borderColor: 'var(--border-primary)' 
+            }}
+          >
+            <h4 
+              className="font-medium mb-2"
+              style={{ color: 'var(--text-primary)' }}
+            >
+              Chayo Appointments - Sistema Integrado
+            </h4>
+            <p 
+              className="text-sm mb-3"
+              style={{ color: 'var(--text-secondary)' }}
+            >
               Sistema de calendario integrado con gestión automática de disponibilidad, 
               confirmaciones por email e integración perfecta con el chat.
             </p>
-            <div className="text-xs text-blue-700">
+            <div 
+              className="text-xs"
+              style={{ color: 'var(--text-muted)' }}
+            >
               <div className="flex items-center gap-1 mb-1">
                 <Calendar className="w-3 h-3" />
                 <span>Sin configuraciones externas necesarias</span>

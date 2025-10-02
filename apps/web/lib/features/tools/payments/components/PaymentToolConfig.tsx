@@ -284,7 +284,10 @@ export default function PaymentToolConfig({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div 
+          className="animate-spin rounded-full h-8 w-8 border-b-2"
+          style={{ borderColor: 'var(--accent-secondary)' }}
+        ></div>
       </div>
     )
   }
@@ -305,29 +308,67 @@ export default function PaymentToolConfig({
           // Empty state - clickable container
           <button
             onClick={() => setShowAddProvider(true)}
-            className="w-full text-center py-8 rounded-lg border-2 border-dashed border-gray-300 hover:border-blue-400 hover:bg-blue-50 transition-all group"
+            className="w-full text-center py-8 rounded-lg border-2 border-dashed transition-all group"
+            style={{ 
+              borderColor: 'var(--border-secondary)',
+              backgroundColor: 'var(--bg-secondary)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = 'var(--accent-secondary)'
+              e.currentTarget.style.backgroundColor = 'var(--bg-hover)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = 'var(--border-secondary)'
+              e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'
+            }}
           >
-            <CreditCard className="w-12 h-12 mx-auto mb-4 text-gray-400 group-hover:text-blue-500 transition-colors" />
-            <h4 className="text-lg font-medium text-gray-900 mb-2 group-hover:text-blue-900">Connect Payment Provider</h4>
-            <p className="text-gray-600 mb-4 group-hover:text-blue-700">
-              Connect payment providers (Stripe, PayPal, Square) to collect payments from clients through the chat.
+            <CreditCard 
+              className="w-12 h-12 mx-auto mb-4 transition-colors" 
+              style={{ color: 'var(--text-muted)' }}
+            />
+            <h4 
+              className="text-lg font-medium mb-2"
+              style={{ color: 'var(--text-primary)' }}
+            >
+              Conectar Proveedor de Pagos
+            </h4>
+            <p 
+              className="mb-4"
+              style={{ color: 'var(--text-secondary)' }}
+            >
+              Conecta proveedores de pago (Stripe, PayPal, Square) para cobrar a tus clientes a través del chat.
             </p>
-            <div className="flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg group-hover:bg-blue-700 transition-colors mx-auto w-fit">
+            <div 
+              className="flex items-center justify-center px-4 py-2 text-white rounded-lg transition-colors mx-auto w-fit"
+              style={{ backgroundColor: 'var(--accent-secondary)' }}
+            >
               <Plus className="w-4 h-4 mr-2" />
-              Add Payment Provider
+              Agregar Proveedor de Pagos
             </div>
           </button>
         ) : paymentProviders.length > 0 ? (
           // Connected providers list
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h4 className="font-medium text-gray-900">Connected Providers</h4>
+              <h4 
+                className="font-medium"
+                style={{ color: 'var(--text-primary)' }}
+              >
+                Proveedores Conectados
+              </h4>
               <button
                 onClick={() => setShowAddProvider(true)}
-                className="flex items-center gap-2 px-4 py-2 text-blue-600 hover:bg-blue-50 border border-blue-200 rounded-lg transition-colors"
+                className="flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors"
+                style={{ 
+                  color: 'var(--accent-secondary)',
+                  borderColor: 'var(--border-primary)',
+                  backgroundColor: 'transparent'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               >
                 <Plus className="w-4 h-4" />
-                Add Provider
+                Agregar Proveedor
               </button>
             </div>
             
@@ -342,21 +383,39 @@ export default function PaymentToolConfig({
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-gray-900">{providerInfo?.name || provider.provider_type}</span>
+                          <span 
+                            className="text-sm font-medium"
+                            style={{ color: 'var(--text-primary)' }}
+                          >
+                            {providerInfo?.name || provider.provider_type}
+                          </span>
                           {provider.is_default && (
-                            <span className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full">Default</span>
+                            <span 
+                              className="text-xs px-2 py-1 rounded-full"
+                              style={{ 
+                                backgroundColor: 'var(--bg-secondary)',
+                                color: 'var(--accent-secondary)'
+                              }}
+                            >
+                              Predeterminado
+                            </span>
                           )}
-                          <span className={`text-xs px-2 py-1 rounded-full ${
-                            provider.is_active 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-gray-100 text-gray-600'
-                          }`}>
-                            {provider.is_active ? 'Active' : 'Inactive'}
+                          <span 
+                            className="text-xs px-2 py-1 rounded-full"
+                            style={{
+                              backgroundColor: provider.is_active ? 'var(--bg-secondary)' : 'var(--bg-tertiary)',
+                              color: provider.is_active ? 'var(--accent-secondary)' : 'var(--text-muted)'
+                            }}
+                          >
+                            {provider.is_active ? 'Activo' : 'Inactivo'}
                           </span>
                         </div>
                         {provider.provider_account_id && (
-                          <div className="text-xs text-gray-500 mt-1">
-                            Account: {provider.provider_account_id}
+                          <div 
+                            className="text-xs mt-1"
+                            style={{ color: 'var(--text-muted)' }}
+                          >
+                            Cuenta: {provider.provider_account_id}
                           </div>
                         )}
                       </div>
@@ -372,9 +431,16 @@ export default function PaymentToolConfig({
                               body: JSON.stringify({ is_default: true })
                             }).then(() => loadPaymentProviders())
                           }}
-                          className="text-xs px-3 py-1 text-blue-600 hover:bg-blue-50 border border-blue-200 rounded-md"
+                          className="text-xs px-3 py-1 border rounded-md transition-colors"
+                          style={{ 
+                            color: 'var(--accent-secondary)',
+                            borderColor: 'var(--border-primary)',
+                            backgroundColor: 'transparent'
+                          }}
+                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                         >
-                          Set as Default
+                          Establecer como Predeterminado
                         </button>
                       )}
                       <button
@@ -474,7 +540,7 @@ export default function PaymentToolConfig({
                   ? 'bg-blue-100 text-blue-800' 
                   : 'bg-gray-100 text-gray-600'
               }`}>
-                {selectedProvider.is_default ? 'Default Provider' : 'Secondary Provider'}
+                {selectedProvider.is_default ? 'Proveedor Predeterminado' : 'Proveedor Secundario'}
               </span>
             </div>
 

@@ -29,10 +29,10 @@ const ProductsToolConfig: React.FC<ProductsToolConfigProps> = ({
       >
         <Package className="h-12 w-12 mx-auto mb-3" style={{ color: 'var(--text-muted)' }} />
         <h4 className="font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
-          Products & Services Tool
+          Herramienta de Productos y Servicios
         </h4>
         <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-          Enable this agent tool above to manage your products and services catalog that can be shared with clients.
+          Habilita esta herramienta de agente arriba para gestionar tu catálogo de productos y servicios que se puede compartir con los clientes.
         </p>
       </div>
     )
@@ -50,11 +50,11 @@ const ProductsToolConfig: React.FC<ProductsToolConfigProps> = ({
         <div className="flex items-center gap-3 mb-3">
           <Package className="h-5 w-5" style={{ color: 'var(--accent-secondary)' }} />
           <h4 className="font-medium" style={{ color: 'var(--text-primary)' }}>
-            Products & Services Management
+            Gestión de Productos y Servicios
           </h4>
         </div>
         <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-          Manage your product catalog, services, and promotional offers that can be shared with clients.
+          Gestiona tu catálogo de productos, servicios y ofertas promocionales que se pueden compartir con los clientes.
         </p>
       </div>
       

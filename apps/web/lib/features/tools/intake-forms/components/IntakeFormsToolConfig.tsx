@@ -557,8 +557,14 @@ export default function IntakeFormsToolConfig({ organizationId, isEnabled, onSet
 
   if (!isEnabled) {
     return (
-      <div className="p-4 text-center text-gray-500">
-        <FileText className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+      <div 
+        className="p-4 text-center"
+        style={{ color: 'var(--text-secondary)' }}
+      >
+        <FileText 
+          className="w-12 h-12 mx-auto mb-4" 
+          style={{ color: 'var(--text-muted)' }} 
+        />
         <p>La herramienta de formularios de admisión no está habilitada.</p>
       </div>
     )

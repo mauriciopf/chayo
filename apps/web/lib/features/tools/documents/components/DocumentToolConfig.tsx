@@ -145,8 +145,16 @@ export default function DocumentToolConfig({
   return (
     <div className="border-t border-gray-200 pt-6">
       <div className="flex items-center gap-2 mb-4">
-        <FileText className="w-5 h-5 text-blue-600" />
-        <h3 className="font-medium text-gray-900">Gestión de documentos</h3>
+        <FileText 
+          className="w-5 h-5" 
+          style={{ color: 'var(--accent-secondary)' }} 
+        />
+        <h3 
+          className="font-medium"
+          style={{ color: 'var(--text-primary)' }}
+        >
+          Gestión de documentos
+        </h3>
       </div>
       
       {/* Upload Section */}
@@ -159,15 +167,32 @@ export default function DocumentToolConfig({
             disabled={uploading}
             className="hidden"
           />
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors cursor-pointer">
-            <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-            <p className="text-sm text-gray-600 mb-1">
+          <div 
+            className="border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer"
+            style={{ 
+              borderColor: 'var(--border-secondary)',
+              backgroundColor: 'var(--bg-secondary)'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--accent-secondary)'}
+            onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-secondary)'}
+          >
+            <Upload 
+              className="w-8 h-8 mx-auto mb-2" 
+              style={{ color: 'var(--text-muted)' }} 
+            />
+            <p 
+              className="text-sm mb-1"
+              style={{ color: 'var(--text-secondary)' }}
+            >
               {uploading 
                 ? (documents.length > 0 ? 'Reemplazando...' : 'Subiendo...') 
                 : (documents.length > 0 ? 'Haz clic para reemplazar el PDF' : 'Haz clic para subir un PDF')
               }
             </p>
-            <p className="text-xs text-gray-500">
+            <p 
+              className="text-xs"
+              style={{ color: 'var(--text-muted)' }}
+            >
               {documents.length > 0 
                 ? 'Esto reemplazará tu documento actual • Solo archivos PDF, máximo 10MB'
                 : 'Solo archivos PDF, máximo 10MB'
@@ -179,11 +204,24 @@ export default function DocumentToolConfig({
 
       {/* Documents List */}
       <div>
-        <h4 className="font-medium text-gray-900 mb-3">Documentos cargados</h4>
+        <h4 
+          className="font-medium mb-3"
+          style={{ color: 'var(--text-primary)' }}
+        >
+          Documentos cargados
+        </h4>
         {documentLoading ? (
           <div className="text-center py-4">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="text-sm text-gray-500 mt-2">Cargando documentos...</p>
+            <div 
+              className="animate-spin rounded-full h-6 w-6 border-b-2 mx-auto"
+              style={{ borderColor: 'var(--accent-secondary)' }}
+            ></div>
+            <p 
+              className="text-sm mt-2"
+              style={{ color: 'var(--text-muted)' }}
+            >
+              Cargando documentos...
+            </p>
           </div>
         ) : documents.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
@@ -196,7 +234,10 @@ export default function DocumentToolConfig({
             {documents.map((document) => (
               <div key={document.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
                 <div className="flex items-center gap-3 flex-1">
-                  <FileText className="w-5 h-5 text-blue-600" />
+                  <FileText 
+                    className="w-5 h-5" 
+                    style={{ color: 'var(--accent-secondary)' }} 
+                  />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-900 truncate">
                       {document.file_name}

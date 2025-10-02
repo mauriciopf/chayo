@@ -72,18 +72,18 @@ export default function CreateOfferForm({
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
     
-    if (!formData.name.trim()) newErrors.name = 'Offer name is required'
-    if (!formData.description.trim()) newErrors.description = 'Description is required'
-    if (formData.offer_value <= 0) newErrors.offer_value = 'Offer value must be greater than 0'
+    if (!formData.name.trim()) newErrors.name = 'El nombre de la oferta es requerido'
+    if (!formData.description.trim()) newErrors.description = 'La descripción es requerida'
+    if (formData.offer_value <= 0) newErrors.offer_value = 'El valor de la oferta debe ser mayor a 0'
     if (formData.offer_type === 'percentage' && formData.offer_value > 100) {
-      newErrors.offer_value = 'Percentage cannot exceed 100%'
+      newErrors.offer_value = 'El porcentaje no puede exceder 100%'
     }
-    if (!formData.end_date) newErrors.end_date = 'End date is required'
+    if (!formData.end_date) newErrors.end_date = 'La fecha de finalización es requerida'
     if (new Date(formData.end_date) <= new Date(formData.start_date)) {
-      newErrors.end_date = 'End date must be after start date'
+      newErrors.end_date = 'La fecha de finalización debe ser después de la fecha de inicio'
     }
     if (formData.selectedProducts.length === 0) {
-      newErrors.selectedProducts = 'Please select at least one product'
+      newErrors.selectedProducts = 'Por favor selecciona al menos un producto'
     }
     
     setErrors(newErrors)
@@ -116,10 +116,10 @@ export default function CreateOfferForm({
         onSave()
       } else {
         const data = await response.json()
-        setErrors({ submit: data.error || 'Failed to save offer' })
+        setErrors({ submit: data.error || 'Error al guardar la oferta' })
       }
     } catch (error) {
-      setErrors({ submit: 'Network error. Please try again.' })
+      setErrors({ submit: 'Error de red. Por favor intenta de nuevo.' })
     } finally {
       setSaving(false)
     }
@@ -144,29 +144,44 @@ export default function CreateOfferForm({
         <div 
           className="px-8 py-6 border-b"
           style={{ 
-            background: 'linear-gradient(135deg, var(--accent-secondary) 0%, #8B5CF6 100%)',
+            backgroundColor: 'var(--bg-tertiary)',
             borderColor: 'var(--border-primary)'
           }}
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-white/20 rounded-lg">
-                <Sparkles className="h-6 w-6 text-white" />
+              <div 
+                className="p-2 rounded-lg"
+                style={{ backgroundColor: 'var(--bg-secondary)' }}
+              >
+                <Sparkles 
+                  className="h-6 w-6" 
+                  style={{ color: 'var(--accent-secondary)' }} 
+                />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-white">
-                  {offer ? 'Edit AI Offer' : 'Create AI-Powered Offer'}
+                <h2 
+                  className="text-2xl font-bold"
+                  style={{ color: 'var(--text-primary)' }}
+                >
+                  {offer ? 'Editar Oferta con IA' : 'Crear Oferta con IA'}
                 </h2>
-                <p className="text-white/80 text-sm">
-                  {offer ? 'Update your promotional offer' : 'Boost sales with AI-generated promotional banners'}
+                <p 
+                  className="text-sm"
+                  style={{ color: 'var(--text-secondary)' }}
+                >
+                  {offer ? 'Actualiza tu oferta promocional' : 'Impulsa ventas con banners promocionales generados por IA'}
                 </p>
               </div>
             </div>
             <button
               onClick={onCancel}
-              className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+              className="p-2 rounded-lg transition-colors"
+              style={{ color: 'var(--text-primary)' }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
             >
-              <Plus className="h-6 w-6 text-white rotate-45" />
+              <Plus className="h-6 w-6 rotate-45" />
             </button>
           </div>
         </div>
@@ -178,19 +193,19 @@ export default function CreateOfferForm({
             <div className="space-y-6">
               <h3 className="text-lg font-semibold flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
                 <Tag className="h-5 w-5" />
-                Offer Details
+                Detalles de la Oferta
               </h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
-                    Offer Name *
+                    Nombre de la Oferta *
                   </label>
                   <input
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                    placeholder="e.g., Summer Sale 2024"
+                    placeholder="ej., Venta de Verano 2024"
                     className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 transition-colors"
                     style={{ 
                       backgroundColor: 'var(--bg-secondary)',
@@ -203,32 +218,34 @@ export default function CreateOfferForm({
                 
                 <div>
                   <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
-                    Offer Type *
+                    Tipo de Oferta *
                   </label>
                   <div className="grid grid-cols-2 gap-3">
                     <button
                       type="button"
                       onClick={() => setFormData(prev => ({ ...prev, offer_type: 'percentage' }))}
-                      className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border transition-all ${
-                        formData.offer_type === 'percentage' 
-                          ? 'border-purple-500 bg-purple-50 text-purple-700' 
-                          : 'border-gray-300 hover:border-gray-400'
-                      }`}
+                      className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg border transition-all"
+                      style={{
+                        borderColor: formData.offer_type === 'percentage' ? 'var(--accent-secondary)' : 'var(--border-primary)',
+                        backgroundColor: formData.offer_type === 'percentage' ? 'var(--bg-secondary)' : 'transparent',
+                        color: formData.offer_type === 'percentage' ? 'var(--accent-secondary)' : 'var(--text-primary)'
+                      }}
                     >
                       <Percent className="h-4 w-4" />
-                      Percentage
+                      Porcentaje
                     </button>
                     <button
                       type="button"
                       onClick={() => setFormData(prev => ({ ...prev, offer_type: 'fixed_amount' }))}
-                      className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border transition-all ${
-                        formData.offer_type === 'fixed_amount' 
-                          ? 'border-purple-500 bg-purple-50 text-purple-700' 
-                          : 'border-gray-300 hover:border-gray-400'
-                      }`}
+                      className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg border transition-all"
+                      style={{
+                        borderColor: formData.offer_type === 'fixed_amount' ? 'var(--accent-secondary)' : 'var(--border-primary)',
+                        backgroundColor: formData.offer_type === 'fixed_amount' ? 'var(--bg-secondary)' : 'transparent',
+                        color: formData.offer_type === 'fixed_amount' ? 'var(--accent-secondary)' : 'var(--text-primary)'
+                      }}
                     >
                       <DollarSign className="h-4 w-4" />
-                      Fixed Amount
+                      Cantidad Fija
                     </button>
                   </div>
                 </div>
@@ -236,12 +253,12 @@ export default function CreateOfferForm({
 
               <div>
                 <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
-                  Description *
+                  Descripción *
                 </label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Describe your amazing offer..."
+                  placeholder="Describe tu increíble oferta..."
                   rows={3}
                   className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 transition-colors resize-none"
                   style={{ 
@@ -256,7 +273,7 @@ export default function CreateOfferForm({
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
                   <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
-                    {formData.offer_type === 'percentage' ? 'Discount Percentage *' : 'Discount Amount *'}
+                    {formData.offer_type === 'percentage' ? 'Porcentaje de Descuento *' : 'Monto de Descuento *'}
                   </label>
                   <div className="relative">
                     <input
@@ -287,7 +304,7 @@ export default function CreateOfferForm({
 
                 <div>
                   <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
-                    Start Date *
+                    Fecha de Inicio *
                   </label>
                   <input
                     type="date"
@@ -304,7 +321,7 @@ export default function CreateOfferForm({
 
                 <div>
                   <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
-                    End Date *
+                    Fecha de Finalización *
                   </label>
                   <input
                     type="date"
@@ -328,7 +345,7 @@ export default function CreateOfferForm({
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
                   <Package className="h-5 w-5" />
-                  Select Products & Services ({formData.selectedProducts.length} selected)
+                  Seleccionar Productos y Servicios ({formData.selectedProducts.length} seleccionados)
                 </h3>
                 <div className="flex gap-2">
                   <button
@@ -340,7 +357,7 @@ export default function CreateOfferForm({
                       color: 'var(--accent-secondary)'
                     }}
                   >
-                    Select All
+                    Seleccionar Todos
                   </button>
                   <button
                     type="button"
@@ -351,7 +368,7 @@ export default function CreateOfferForm({
                       color: 'var(--text-secondary)'
                     }}
                   >
-                    Clear All
+                    Limpiar Todo
                   </button>
                 </div>
               </div>
@@ -366,7 +383,7 @@ export default function CreateOfferForm({
                 >
                   <Package className="h-8 w-8 mx-auto mb-2" style={{ color: 'var(--text-muted)' }} />
                   <p style={{ color: 'var(--text-secondary)' }}>
-                    No products available. Create some products first to add them to offers.
+                    No hay productos disponibles. Crea primero algunos productos para agregarlos a las ofertas.
                   </p>
                 </div>
               ) : (
@@ -375,18 +392,20 @@ export default function CreateOfferForm({
                     <div
                       key={product.id}
                       onClick={() => toggleProductSelection(product.id)}
-                      className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                        formData.selectedProducts.includes(product.id)
-                          ? 'border-purple-500 bg-purple-50'
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
+                      className="p-4 rounded-lg border-2 cursor-pointer transition-all"
+                      style={{
+                        borderColor: formData.selectedProducts.includes(product.id) ? 'var(--accent-secondary)' : 'var(--border-primary)',
+                        backgroundColor: formData.selectedProducts.includes(product.id) ? 'var(--bg-secondary)' : 'transparent'
+                      }}
                     >
                       <div className="flex items-start gap-3">
-                        <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                          formData.selectedProducts.includes(product.id)
-                            ? 'border-purple-500 bg-purple-500'
-                            : 'border-gray-300'
-                        }`}>
+                        <div 
+                          className="w-5 h-5 rounded border-2 flex items-center justify-center"
+                          style={{
+                            borderColor: formData.selectedProducts.includes(product.id) ? 'var(--accent-secondary)' : 'var(--border-primary)',
+                            backgroundColor: formData.selectedProducts.includes(product.id) ? 'var(--accent-secondary)' : 'transparent'
+                          }}
+                        >
                           {formData.selectedProducts.includes(product.id) && (
                             <CheckCircle className="h-3 w-3 text-white" />
                           )}
@@ -441,7 +460,7 @@ export default function CreateOfferForm({
                   color: 'var(--text-secondary)'
                 }}
               >
-                Cancel
+                Cancelar
               </button>
               <button
                 type="submit"
@@ -455,12 +474,12 @@ export default function CreateOfferForm({
                 {saving ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    {offer ? 'Updating & Regenerating Banner...' : 'Creating & Generating Banner...'}
+                    {offer ? 'Actualizando y Regenerando Banner...' : 'Creando y Generando Banner...'}
                   </>
                 ) : (
                   <>
                     <Sparkles className="h-4 w-4" />
-                    {offer ? 'Update Offer' : 'Create AI Offer'}
+                    {offer ? 'Actualizar Oferta' : 'Crear Oferta con IA'}
                   </>
                 )}
               </button>

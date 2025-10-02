@@ -238,7 +238,11 @@ function SimpleFAQBuilder({ faqItems, onChange }: SimpleFAQBuilderProps) {
       <div className="flex justify-center">
         <button
           onClick={addNewItem}
-          className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg transition-colors"
+          style={{ 
+            backgroundColor: 'var(--accent-secondary)', 
+            color: 'white' 
+          }}
         >
           <Plus className="w-4 h-4" />
           {t('faqs.addQuestion')}
@@ -248,7 +252,7 @@ function SimpleFAQBuilder({ faqItems, onChange }: SimpleFAQBuilderProps) {
       {/* FAQ Items Preview */}
       <div className="border rounded-lg p-4 min-h-[400px]" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-primary)' }}>
         {faqItems.length === 0 ? (
-          <div className="flex items-center justify-center h-32 text-gray-500">
+          <div className="flex items-center justify-center h-32" style={{ color: 'var(--text-muted)' }}>
             <div className="text-center">
               <MessageCircle className="w-8 h-8 mx-auto mb-2 opacity-50" />
               <p className="text-sm">{t('faqs.addFrequentQuestions')}</p>
@@ -264,41 +268,72 @@ function SimpleFAQBuilder({ faqItems, onChange }: SimpleFAQBuilderProps) {
                 onDragOver={handleDragOver}
                 onDrop={(e) => handleDrop(e, index)}
                 onDragEnd={handleDragEnd}
-                className={`group relative border border-gray-200 rounded-lg p-3 hover:border-purple-400 hover:bg-purple-50 cursor-pointer transition-all ${
+                className={`group relative border rounded-lg p-3 cursor-pointer transition-all ${
                   draggedIndex === index ? 'opacity-50 scale-95' : ''
                 }`}
+                style={{ 
+                  borderColor: 'var(--border-primary)',
+                  backgroundColor: 'var(--bg-tertiary)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--accent-secondary)'
+                  e.currentTarget.style.backgroundColor = 'var(--bg-hover)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--border-primary)'
+                  e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)'
+                }}
                 onClick={() => startEditing(item)}
               >
                 {editingItem === item.id ? (
                   // Inline editing interface
                   <div className="space-y-3" onClick={(e) => e.stopPropagation()}>
-                    <div className="text-xs font-medium text-purple-600 mb-2">
+                    <div 
+                      className="text-xs font-medium mb-2"
+                      style={{ color: 'var(--accent-secondary)' }}
+                    >
                       ⚙️ Editando Q&A #{index + 1}
                     </div>
                     
                     {/* Question */}
                     <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                      <label 
+                        className="block text-xs font-medium mb-1"
+                        style={{ color: 'var(--text-primary)' }}
+                      >
                         {t('faqs.questionLabel')} *
                       </label>
                       <input
                         type="text"
                         value={itemConfig.question}
                         onChange={(e) => setItemConfig({ ...itemConfig, question: e.target.value })}
-                        className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-purple-500"
+                        className="w-full px-2 py-1 text-sm border rounded focus:outline-none focus:ring-1"
+                        style={{ 
+                          backgroundColor: 'var(--bg-primary)',
+                          borderColor: 'var(--border-secondary)',
+                          color: 'var(--text-primary)'
+                        }}
                         placeholder="Ej: ¿Cuáles son sus horarios?"
                       />
                     </div>
 
                     {/* Answer */}
                     <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                      <label 
+                        className="block text-xs font-medium mb-1"
+                        style={{ color: 'var(--text-primary)' }}
+                      >
                         {t('faqs.answerLabel')} *
                       </label>
                       <textarea
                         value={itemConfig.answer}
                         onChange={(e) => setItemConfig({ ...itemConfig, answer: e.target.value })}
-                        className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-purple-500"
+                        className="w-full px-2 py-1 text-sm border rounded focus:outline-none focus:ring-1"
+                        style={{ 
+                          backgroundColor: 'var(--bg-primary)',
+                          borderColor: 'var(--border-secondary)',
+                          color: 'var(--text-primary)'
+                        }}
                         placeholder="Ej: Estamos abiertos de lunes a viernes de 9:00 AM a 6:00 PM"
                         rows={3}
                       />
@@ -309,7 +344,8 @@ function SimpleFAQBuilder({ faqItems, onChange }: SimpleFAQBuilderProps) {
                       <button
                         onClick={saveItemConfig}
                         disabled={!itemConfig.question.trim() || !itemConfig.answer.trim()}
-                        className="px-3 py-1 bg-purple-600 text-white text-xs rounded hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-3 py-1 text-white text-xs rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                        style={{ backgroundColor: 'var(--accent-secondary)' }}
                       >
                         {t('common.save')}
                       </button>
@@ -319,23 +355,38 @@ function SimpleFAQBuilder({ faqItems, onChange }: SimpleFAQBuilderProps) {
                   // Normal item display
                   <div className="flex items-start gap-3">
                     {/* Drag Handle */}
-                    <div className="opacity-0 group-hover:opacity-100 cursor-grab active:cursor-grabbing transition-opacity mt-1">
-                      <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                    <div 
+                      className="opacity-0 group-hover:opacity-100 cursor-grab active:cursor-grabbing transition-opacity mt-1"
+                      style={{ color: 'var(--text-muted)' }}
+                    >
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M7 2a2 2 0 1 0-4 0 2 2 0 0 0 4 0zM7 8a2 2 0 1 0-4 0 2 2 0 0 0 4 0zM7 14a2 2 0 1 0-4 0 2 2 0 0 0 4 0zM17 2a2 2 0 1 0-4 0 2 2 0 0 0 4 0zM17 8a2 2 0 1 0-4 0 2 2 0 0 0 4 0zM17 14a2 2 0 1 0-4 0 2 2 0 0 0 4 0z"></path>
                       </svg>
                     </div>
                     
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="text-xs text-purple-600 bg-purple-100 px-2 py-1 rounded font-medium">
+                        <span 
+                          className="text-xs px-2 py-1 rounded font-medium"
+                          style={{ 
+                            color: 'var(--accent-secondary)',
+                            backgroundColor: 'var(--bg-secondary)'
+                          }}
+                        >
                           Q&A #{index + 1}
                         </span>
                       </div>
                       <div className="mb-2">
-                        <div className="text-sm font-medium text-gray-900 mb-1">
+                        <div 
+                          className="text-sm font-medium mb-1"
+                          style={{ color: 'var(--text-primary)' }}
+                        >
                           ❓ {item.question}
                         </div>
-                        <div className="text-sm text-gray-600">
+                        <div 
+                          className="text-sm"
+                          style={{ color: 'var(--text-secondary)' }}
+                        >
                           💬 {item.answer}
                         </div>
                       </div>
@@ -346,7 +397,10 @@ function SimpleFAQBuilder({ faqItems, onChange }: SimpleFAQBuilderProps) {
                         e.stopPropagation()
                         removeItem(item.id)
                       }}
-                      className="opacity-0 group-hover:opacity-100 p-1 text-red-500 hover:text-red-700 transition-opacity"
+                      className="opacity-0 group-hover:opacity-100 p-1 transition-opacity"
+                      style={{ color: '#ef4444' }}
+                      onMouseEnter={(e) => e.currentTarget.style.color = '#dc2626'}
+                      onMouseLeave={(e) => e.currentTarget.style.color = '#ef4444'}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -477,10 +531,18 @@ export default function FAQToolConfig({ organizationId, isEnabled, onSettingsCha
   if (!isEnabled) {
     return (
       <div className="text-center py-8">
-        <MessageCircle className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-        <h4 className="text-lg font-medium text-gray-900 mb-2">FAQ Tool Disabled</h4>
-        <p className="text-gray-600">
-          Enable the FAQ tool in your agent settings to start creating frequently asked questions.
+        <MessageCircle 
+          className="w-12 h-12 mx-auto mb-4" 
+          style={{ color: 'var(--text-muted)' }} 
+        />
+        <h4 
+          className="text-lg font-medium mb-2"
+          style={{ color: 'var(--text-primary)' }}
+        >
+          Herramienta de FAQ Deshabilitada
+        </h4>
+        <p style={{ color: 'var(--text-secondary)' }}>
+          Habilita la herramienta de FAQ en la configuración de tu agente para comenzar a crear preguntas frecuentes.
         </p>
       </div>
     )
@@ -490,7 +552,7 @@ export default function FAQToolConfig({ organizationId, isEnabled, onSettingsCha
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold">
+          <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
             {editingFAQ ? 'Editar FAQ' : 'Crear Nuevo FAQ'}
           </h3>
           <div className="flex gap-2">
@@ -510,9 +572,15 @@ export default function FAQToolConfig({ organizationId, isEnabled, onSettingsCha
         {!isPreview ? (
           <div className="space-y-4">
             {/* Helpful instructions */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h4 className="text-sm font-medium text-blue-900 mb-2">💡 Cómo usar el constructor</h4>
-              <div className="text-sm text-blue-800 space-y-1">
+            <div 
+              className="border rounded-lg p-4"
+              style={{ 
+                backgroundColor: 'var(--bg-tertiary)', 
+                borderColor: 'var(--border-primary)' 
+              }}
+            >
+              <h4 className="text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>💡 Cómo usar el constructor</h4>
+              <div className="text-sm space-y-1" style={{ color: 'var(--text-secondary)' }}>
                 <p><strong>1.</strong> {t('faqs.instructions.step1')}</p>
                 <p><strong>2.</strong> {t('faqs.instructions.step2')}</p>
                 <p><strong>3.</strong> {t('faqs.instructions.step3')}</p>
@@ -529,17 +597,24 @@ export default function FAQToolConfig({ organizationId, isEnabled, onSettingsCha
           <FAQPreview faqName={faqName} faqItems={faqItems} />
         )}
 
-        <div className="flex justify-end gap-3 pt-4 border-t">
+        <div 
+          className="flex justify-end gap-3 pt-4 border-t"
+          style={{ borderColor: 'var(--border-primary)' }}
+        >
           <button
             onClick={() => setIsCreating(false)}
-            className="px-4 py-2 text-gray-600 hover:text-gray-800"
+            className="px-4 py-2 transition-colors"
+            style={{ color: 'var(--text-secondary)' }}
+            onMouseEnter={(e) => e.currentTarget.style.color = 'var(--text-primary)'}
+            onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
           >
             {t('common.cancel')}
           </button>
           <button
             onClick={handleSaveFAQ}
-                            disabled={faqItems.length === 0 || saving}
-            className="flex items-center px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={faqItems.length === 0 || saving}
+            className="flex items-center px-4 py-2 text-white rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{ backgroundColor: 'var(--accent-secondary)' }}
           >
             {saving ? (
               <>
@@ -548,7 +623,7 @@ export default function FAQToolConfig({ organizationId, isEnabled, onSettingsCha
               </>
             ) : (
               <>
-                                        {t('common.save')} FAQ
+                {t('common.save')} FAQ
               </>
             )}
           </button>
@@ -565,20 +640,54 @@ export default function FAQToolConfig({ organizationId, isEnabled, onSettingsCha
 
       {loading ? (
         <div className="flex items-center justify-center py-8">
-          <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
-          <span className="ml-2 text-gray-600">Cargando FAQs...</span>
+          <Loader2 
+            className="w-8 h-8 animate-spin" 
+            style={{ color: 'var(--accent-secondary)' }} 
+          />
+          <span 
+            className="ml-2"
+            style={{ color: 'var(--text-secondary)' }}
+          >
+            Cargando FAQs...
+          </span>
         </div>
       ) : faqs.length === 0 ? (
         <button
           onClick={handleCreateFAQ}
-          className="w-full text-center py-8 rounded-lg border-2 border-dashed border-gray-300 hover:border-purple-400 hover:bg-purple-50 transition-all group"
+          className="w-full text-center py-8 rounded-lg border-2 border-dashed transition-all group"
+          style={{ 
+            borderColor: 'var(--border-secondary)',
+            backgroundColor: 'var(--bg-secondary)'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = 'var(--accent-secondary)'
+            e.currentTarget.style.backgroundColor = 'var(--bg-hover)'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = 'var(--border-secondary)'
+            e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'
+          }}
         >
-          <MessageCircle className="w-12 h-12 mx-auto mb-4 text-gray-400 group-hover:text-purple-500 transition-colors" />
-          <h4 className="text-lg font-medium text-gray-900 mb-2 group-hover:text-purple-900">{t('faqs.emptyState')}</h4>
-          <p className="text-gray-600 mb-4 group-hover:text-purple-700">
+          <MessageCircle 
+            className="w-12 h-12 mx-auto mb-4 transition-colors" 
+            style={{ color: 'var(--text-muted)' }}
+          />
+          <h4 
+            className="text-lg font-medium mb-2"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            {t('faqs.emptyState')}
+          </h4>
+          <p 
+            className="mb-4"
+            style={{ color: 'var(--text-secondary)' }}
+          >
             {t('faqs.emptyDescription')}
           </p>
-          <div className="flex items-center justify-center px-4 py-2 bg-purple-600 text-white rounded-lg group-hover:bg-purple-700 transition-colors mx-auto w-fit">
+          <div 
+            className="flex items-center justify-center px-4 py-2 text-white rounded-lg transition-colors mx-auto w-fit"
+            style={{ backgroundColor: 'var(--accent-secondary)' }}
+          >
             <Plus className="w-4 h-4 mr-2" />
             Crear FAQ
           </div>
@@ -588,7 +697,8 @@ export default function FAQToolConfig({ organizationId, isEnabled, onSettingsCha
           <div className="flex justify-end">
             <button
               onClick={handleCreateFAQ}
-              className="flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              className="flex items-center px-4 py-2 text-white rounded-lg transition-colors"
+              style={{ backgroundColor: 'var(--accent-secondary)' }}
             >
               <Plus className="w-4 h-4 mr-2" />
               Nuevo FAQ
@@ -596,14 +706,32 @@ export default function FAQToolConfig({ organizationId, isEnabled, onSettingsCha
           </div>
           
           {faqs.map((faq) => (
-            <div key={faq.id} className="border border-gray-200 rounded-lg p-4">
+            <div 
+              key={faq.id} 
+              className="border rounded-lg p-4"
+              style={{ 
+                borderColor: 'var(--border-primary)',
+                backgroundColor: 'var(--bg-secondary)'
+              }}
+            >
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <h4 className="text-lg font-medium text-gray-900">{faq.name}</h4>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <h4 
+                    className="text-lg font-medium"
+                    style={{ color: 'var(--text-primary)' }}
+                  >
+                    {faq.name}
+                  </h4>
+                  <p 
+                    className="text-sm mt-1"
+                    style={{ color: 'var(--text-secondary)' }}
+                  >
                     {faq.faq_items?.length || 0} pregunta{(faq.faq_items?.length || 0) !== 1 ? 's' : ''}
                   </p>
-                  <p className="text-xs text-gray-500 mt-2">
+                  <p 
+                    className="text-xs mt-2"
+                    style={{ color: 'var(--text-muted)' }}
+                  >
                     Actualizado: {new Date(faq.updated_at).toLocaleDateString()}
                   </p>
                 </div>
@@ -611,21 +739,30 @@ export default function FAQToolConfig({ organizationId, isEnabled, onSettingsCha
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setPreviewingFAQ(faq)}
-                    className="p-2 text-gray-500 hover:text-purple-600 transition-colors"
+                    className="p-2 transition-colors"
+                    style={{ color: 'var(--text-muted)' }}
+                    onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent-secondary)'}
+                    onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
                     title="Vista Previa"
                   >
                     <Eye className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => handleEditFAQ(faq)}
-                    className="p-2 text-gray-500 hover:text-blue-600 transition-colors"
+                    className="p-2 transition-colors"
+                    style={{ color: 'var(--text-muted)' }}
+                    onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent-secondary)'}
+                    onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
                     title="Editar FAQ"
                   >
                     <Edit className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => handleDeleteFAQ(faq.id)}
-                    className="p-2 text-gray-500 hover:text-red-600 transition-colors"
+                    className="p-2 transition-colors"
+                    style={{ color: 'var(--text-muted)' }}
+                    onMouseEnter={(e) => e.currentTarget.style.color = '#ef4444'}
+                    onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
                     title="Eliminar FAQ"
                   >
                     <Trash2 className="w-4 h-4" />

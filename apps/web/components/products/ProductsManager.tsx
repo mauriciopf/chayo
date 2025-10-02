@@ -273,38 +273,37 @@ export default function ProductsManager({ organizationId }: ProductsManagerProps
           </div>
         ) : offers.length === 0 ? (
           <div 
-            className="text-center py-12 rounded-xl border-2 border-dashed relative overflow-hidden"
+            className="text-center py-12 rounded-xl border-2 border-dashed"
             style={{ 
               backgroundColor: 'var(--bg-secondary)',
               borderColor: 'var(--border-secondary)'
             }}
           >
-            {/* Animated background gradient */}
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-50 to-pink-50 opacity-50"></div>
-            <div className="relative z-10">
-              <div className="flex justify-center mb-4">
-                <div className="p-4 rounded-full bg-gradient-to-br from-purple-500 to-pink-500">
-                  <Tag className="h-8 w-8 text-white" />
-                </div>
-              </div>
-              <h3 className="text-xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
-                Ready to Boost Your Sales? 🚀
-              </h3>
-              <p className="mb-6 max-w-md mx-auto" style={{ color: 'var(--text-secondary)' }}>
-                Create your first AI-powered promotional offer with stunning banners that convert visitors into customers
-              </p>
-              <button
-                onClick={handleCreateOffer}
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 hover:scale-105 shadow-lg"
-                style={{ 
-                  background: 'linear-gradient(135deg, var(--accent-secondary) 0%, #8B5CF6 100%)',
-                  color: 'white'
-                }}
+            <div className="flex justify-center mb-4">
+              <div 
+                className="p-4 rounded-full"
+                style={{ backgroundColor: 'var(--accent-secondary)' }}
               >
-                <Sparkles className="h-5 w-5" />
-                Create Your First Offer
-              </button>
+                <Tag className="h-8 w-8 text-white" />
+              </div>
             </div>
+            <h3 className="text-xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
+              ¿Listo para Impulsar tus Ventas? 🚀
+            </h3>
+            <p className="mb-6 max-w-md mx-auto" style={{ color: 'var(--text-secondary)' }}>
+              Crea tu primera oferta promocional con IA y banners impresionantes que convierten visitantes en clientes
+            </p>
+            <button
+              onClick={handleCreateOffer}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors"
+              style={{ 
+                backgroundColor: 'var(--accent-secondary)',
+                color: 'white'
+              }}
+            >
+              <Sparkles className="h-5 w-5" />
+              Crear Tu Primera Oferta
+            </button>
           </div>
         ) : (
           <div className="grid gap-6">
@@ -656,10 +655,10 @@ export default function ProductsManager({ organizationId }: ProductsManagerProps
             >
               <Package className="h-12 w-12 mx-auto mb-4" style={{ color: 'var(--text-muted)' }} />
               <h3 className="text-lg font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
-                No products or services yet
+                Aún no hay productos o servicios
               </h3>
               <p className="mb-4" style={{ color: 'var(--text-secondary)' }}>
-                {search ? 'No products match your search.' : 'Get started by adding your first product or service.'}
+                {search ? 'No hay productos que coincidan con tu búsqueda.' : 'Comienza agregando tu primer producto o servicio.'}
               </p>
               {!search && (
                 <button
@@ -670,7 +669,7 @@ export default function ProductsManager({ organizationId }: ProductsManagerProps
                     color: 'white'
                   }}
                 >
-                  Add your first product
+                  Agregar tu primer producto
                 </button>
               )}
             </div>
