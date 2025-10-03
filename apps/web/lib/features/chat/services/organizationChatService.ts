@@ -142,25 +142,11 @@ export class OrganizationChatService {
     
         const onboardingService = new IntegratedOnboardingService()
         
-        // Check for completion signal from AI
-        const signalLower = (aiResponse.statusSignal || '').toLowerCase()
-        const isCompletionSignal = signalLower === 'setup_complete'
-
-        // If a completion signal, process it directly
-        if (isCompletionSignal) {
-          console.log('✅ Setup complete signal detected - marking onboarding as completed')
-          await onboardingService.updateOnboardingProgress(
-            context.organization.id,
-            { statusSignal: aiResponse.statusSignal, aiMessage: aiResponse.aiMessage },
-            progressEmitter
-          )
-        } else {
-          await onboardingService.updateOnboardingProgress(
-            context.organization.id,
-            { statusSignal: aiResponse.statusSignal, aiMessage: aiResponse.aiMessage },
-            progressEmitter
-          )
-        }
+        await onboardingService.updateOnboardingProgress(
+          context.organization.id,
+          { statusSignal: aiResponse.statusSignal, aiMessage: aiResponse.aiMessage },
+          progressEmitter
+        )
         
         // After updating progress, re-check completion to avoid stale state until refresh
         try {
@@ -169,6 +155,26 @@ export class OrganizationChatService {
             console.log('🎯 Onboarding marked completed after update (no refresh required)')
             // Explicit phase to inform UI about mode switching
             progressEmitter?.('phase', { name: 'switchingMode', from: 'onboarding', to: 'business' })
+
+            try {
+              await agentService.maybeCreateAgentChatLinkIfThresholdMet({
+                id: context.organization.id,
+                slug: context.organization.slug
+              })
+              console.log('✅ Agent creation check completed for newly completed onboarding')
+            } catch (error) {
+              console.warn('⚠️ Failed to create agent during onboarding completion:', error)
+            }
+    
+            
+            // Generate a business-mode response right away so the user sees training begin immediately
+            const businessResponse = await this.generateAndStoreAIResponse(messages, context, 'business', progressEmitter)
+            return {
+              aiMessage: businessResponse.aiMessage,
+              multipleChoices: businessResponse.multipleChoices,
+              allowMultiple: businessResponse.allowMultiple,
+              setupCompleted: true
+            }
           }
         } catch (e) {
           console.warn('⚠️ Could not re-check onboarding progress after update:', e)
@@ -179,32 +185,6 @@ export class OrganizationChatService {
       const finalSetupCompleted = isOnboarding 
         ? (['setup_complete','onboarding_complete','onboarding_completed','completed'].includes((aiResponse.statusSignal || '').toLowerCase()))
         : setupCompleted
-
-      // If onboarding just completed in this turn, switch prompts immediately and respond in business mode
-      if (isOnboarding && finalSetupCompleted) {
-        progressEmitter?.('phase', { name: 'switchingMode', from: 'onboarding', to: 'business' })
-        
-        // Create agent for client mode if needed
-        try {
-          await agentService.maybeCreateAgentChatLinkIfThresholdMet({
-            id: context.organization.id,
-            slug: context.organization.slug
-          })
-          console.log('✅ Agent creation check completed for newly completed onboarding')
-        } catch (error) {
-          console.warn('⚠️ Failed to create agent during onboarding completion:', error)
-        }
-
-        
-        // Generate a business-mode response right away so the user sees training begin immediately
-        const businessResponse = await this.generateAndStoreAIResponse(messages, context, 'business', progressEmitter)
-        return {
-          aiMessage: businessResponse.aiMessage,
-          multipleChoices: businessResponse.multipleChoices,
-          allowMultiple: businessResponse.allowMultiple,
-          setupCompleted: true
-        }
-      }
 
       return {
         aiMessage: aiResponse.aiMessage,
