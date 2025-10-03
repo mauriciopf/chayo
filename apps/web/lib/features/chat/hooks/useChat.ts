@@ -1,5 +1,13 @@
 import { useState, useEffect, useRef } from 'react'
 import { Message, AuthState } from '@/lib/shared/types'
+import { 
+  SSEEventType, 
+  ModalEvent, 
+  ProgressEvent, 
+  StateEvent, 
+  ResultEvent, 
+  ErrorEvent 
+} from '@/lib/shared/types/sseEvents'
 
 interface UseChatProps {
   authState: AuthState
@@ -23,7 +31,11 @@ interface UseChatReturn {
   setUploading: (uploading: boolean) => void
   uploadProgress: number | null
   setUploadProgress: (progress: number | null) => void
-  currentPhase: string | null
+  
+  // SSE Event States
+  modalEvent: ModalEvent | null
+  progressEvent: ProgressEvent | null
+  statusEvent: StateEvent | null
   
   // Refs
   messagesEndRef: React.RefObject<HTMLDivElement | null>
@@ -53,7 +65,11 @@ export function useChat({
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState<number | null>(null)
   const [previousLocale, setPreviousLocale] = useState<string>(locale)
-  const [currentPhase, setCurrentPhase] = useState<string | null>(null)
+  
+  // SSE Event States
+  const [modalEvent, setModalEvent] = useState<ModalEvent | null>(null)
+  const [progressEvent, setProgressEvent] = useState<ProgressEvent | null>(null)
+  const [statusEvent, setStatusEvent] = useState<StateEvent | null>(null)
 
   // Simple URL detection helper
   const detectUrlInMessage = (content: string): string | null => {
@@ -123,65 +139,66 @@ export function useChat({
       const processBuffer = () => {
         const events = buffer.split('\n\n')
         buffer = events.pop() || ''
+        
         for (const evt of events) {
           const lines = evt.split('\n')
-          let eventName = 'message'
+          let eventType: SSEEventType = 'result' // Default
           let dataLine = ''
+          
           for (const line of lines) {
-            if (line.startsWith('event: ')) eventName = line.slice(7)
-            if (line.startsWith('data: ')) dataLine += line.slice(6)
+            if (line.startsWith('event: ')) {
+              eventType = line.slice(7) as SSEEventType
+            }
+            if (line.startsWith('data: ')) {
+              dataLine += line.slice(6)
+            }
           }
-          if (eventName === 'phase') {
-            try {
-              const data = JSON.parse(dataLine)
-              console.log('📡 SSE Phase:', data?.name)
-              setCurrentPhase(data?.name || null)
-            } catch {}
-          } else if (eventName === 'result') {
-            try {
-              const data = JSON.parse(dataLine)
-              console.log('🤖 SSE AI response received')
-              const aiMessage: Message = {
-                id: Date.now().toString() + '-ai',
-                role: 'ai',
-                content: data.aiMessage,
-                timestamp: new Date(),
-                multipleChoices: data.multipleChoices,
-                allowMultiple: data.allowMultiple,
-                // Add tool suggestion metadata if present
-                isToolSuggestion: data.suggestionMeta?.isToolSuggestion,
-                toolName: data.suggestionMeta?.toolName
-              }
-              setMessages((msgs) => [...msgs, aiMessage])
-              
-              // 🌐 Handle statusSignal for website scraping (only for authenticated users)
-              if (data.statusSignal === 'website_scraping_offered' && authState === 'authenticated') {
-                console.log('🌐 Website scraping offered to authenticated user - sending follow-up message')
+          
+          // Handle each event type
+          try {
+            const data = JSON.parse(dataLine)
+            
+            switch (eventType) {
+              case 'modal':
+                console.log('🎭 [SSE] Modal event:', data)
+                setModalEvent(data as ModalEvent)
+                break
                 
-                // Add a follow-up message asking for the website URL
-                const followUpMessage: Message = {
-                  id: Date.now().toString() + '-followup',
+              case 'progress':
+                console.log('📊 [SSE] Progress event:', data)
+                setProgressEvent(data as ProgressEvent)
+                break
+                
+              case 'state':
+                console.log('📡 [SSE] State event:', data)
+                setStatusEvent(data as StateEvent)
+                break
+                
+              case 'result':
+                console.log('🤖 [SSE] Result event received')
+                const resultData = data as ResultEvent
+                const aiMessage: Message = {
+                  id: Date.now().toString() + '-ai',
                   role: 'ai',
-                  content: "Please share your business website URL (e.g., https://yourbusiness.com) and I'll extract the information to speed up your setup. If you don't have a website, just type 'skip' and I'll guide you through our standard questions.",
+                  content: resultData.aiMessage,
                   timestamp: new Date(),
+                  multipleChoices: resultData.multipleChoices,
+                  allowMultiple: resultData.allowMultiple
                 }
-                setMessages((msgs) => [...msgs, followUpMessage])
-              }
-              
-              // Delay clearing the phase to allow switchingMode effects to trigger
-              setTimeout(() => {
-                setCurrentPhase(null)
-              }, 1000)
-            } catch (e) {
-              console.error('Failed to parse result data', e)
+                setMessages((msgs) => [...msgs, aiMessage])
+                break
+                
+              case 'error':
+                console.error('❌ [SSE] Error event:', data)
+                const errorData = data as ErrorEvent
+                setChatError(errorData.message || 'An error occurred')
+                break
+                
+              default:
+                console.warn('⚠️ [SSE] Unknown event type:', eventType, data)
             }
-          } else if (eventName === 'error') {
-            try {
-              const err = JSON.parse(dataLine)
-              setChatError(err.message || 'Error')
-            } catch {
-              setChatError('Error')
-            }
+          } catch (e) {
+            console.error(`❌ [SSE] Failed to parse ${eventType} event:`, e)
           }
         }
       }
@@ -197,7 +214,10 @@ export function useChat({
       setChatError('Failed to process request. Please try again.')
     } finally {
       setChatLoading(false)
-      setCurrentPhase(null)
+      // Clear all SSE events
+      setModalEvent(null)
+      setProgressEvent(null)
+      setStatusEvent(null)
     }
   }
 
@@ -534,7 +554,11 @@ export function useChat({
     setUploading,
     uploadProgress,
     setUploadProgress,
-    currentPhase,
+    
+    // SSE Event States
+    modalEvent,
+    progressEvent,
+    statusEvent,
     
     // Refs
     messagesEndRef,

@@ -189,7 +189,9 @@ function DashboardContent() {
             setHasUserInteracted={mobile.setHasUserInteracted}
             isMobile={mobile.isMobile}
             organizationId={auth.currentOrganization?.id}
-            currentPhase={chat.currentPhase}
+            modalEvent={chat.modalEvent}
+            statusEvent={chat.statusEvent}
+            progressEvent={chat.progressEvent}
             agent={auth.agents[0]}
             organization={auth.currentOrganization}
             locale={locale}
@@ -227,7 +229,9 @@ function DashboardContent() {
               setHasUserInteracted={mobile.setHasUserInteracted}
               isMobile={mobile.isMobile}
               organizationId={auth.currentOrganization?.id}
-              currentPhase={chat.currentPhase}
+              modalEvent={chat.modalEvent}
+              statusEvent={chat.statusEvent}
+              progressEvent={chat.progressEvent}
               agent={auth.agents[0]}
               organization={auth.currentOrganization}
               locale={locale}

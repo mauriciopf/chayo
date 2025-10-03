@@ -13,6 +13,7 @@ import Tutorial from '../../onboarding/components/Tutorial'
 import { useBusinessModeChat } from '../hooks/useBusinessModeChat'
 import { Message, AuthState } from '../../../shared/types'
 import { ThinkingContext } from '../../../shared/services/ThinkingMessageService'
+import { ModalEvent, StateEvent, ProgressEvent } from '../../../shared/types/sseEvents'
 
 type ChatMode = 'business' | 'client'
 
@@ -42,7 +43,9 @@ interface BusinessChatViewProps {
   isMobile: boolean
   organizationId?: string
   onModeSwitch?: (mode: ChatMode) => void
-  currentPhase?: string | null
+  modalEvent: ModalEvent | null
+  statusEvent: StateEvent | null
+  progressEvent: ProgressEvent | null
 }
 
 export default function BusinessChatView({
@@ -71,7 +74,9 @@ export default function BusinessChatView({
   isMobile,
   organizationId,
   onModeSwitch,
-  currentPhase
+  modalEvent,
+  statusEvent,
+  progressEvent
 }: BusinessChatViewProps) {
   const t = useTranslations('chat')
   const tOnboarding = useTranslations('onboarding')
@@ -88,7 +93,8 @@ export default function BusinessChatView({
     organizationId,
     setMessages,
     sendMessage,
-    currentPhase
+    modalEvent,
+    statusEvent
   })
 
   // Note: switchingMode phase is handled by SSE events - no manual refreshing needed
@@ -123,7 +129,7 @@ export default function BusinessChatView({
         <VibeCardGenerationModal 
           isVisible={showVibeCardCompletion}
           organizationId={organizationId || ''}
-          currentPhase={currentPhase}
+          progressEvent={progressEvent}
           onDismiss={() => {
             console.log('❌ [MODAL-DEBUG] Modal dismissed')
             setShowVibeCardCompletion(false)
@@ -149,7 +155,7 @@ export default function BusinessChatView({
               onOptionSelect={handleMultipleChoiceSelect}
               thinkingContext={getThinkingContext()}
               organizationId={organizationId}
-              currentPhase={currentPhase}
+              currentPhase={statusEvent?.change || null}
             />
           )
         })()}

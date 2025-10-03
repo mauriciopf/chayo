@@ -7,7 +7,6 @@ import { embeddingService } from '@/lib/shared/services/embeddingService'
 import { YamlPromptLoader } from '@/lib/features/chat/services/systemPrompt/YamlPromptLoader'
 import { openAIService } from '@/lib/shared/services/OpenAIService'
 import { businessInfoService } from '@/lib/features/organizations/services/businessInfoService'
-// Dynamic import for server-only scraping service
 import { 
   OnboardingQuestionResponse,
   OnboardingSchema
@@ -19,6 +18,9 @@ import {
   BusinessQuestionResponse,
   BusinessConversationResponse
 } from '@/lib/shared/schemas/businessConversationSchemas'
+import { VibeCardService } from '../../onboarding/services/vibeCardService'
+import { SSEEmitter } from '@/lib/shared/types/sseEvents'
+import { SSEService } from '@/lib/shared/services/SSEService'
 
 export interface ChatMessage {
   role: 'user' | 'assistant' | 'system'
@@ -58,7 +60,7 @@ export class OrganizationChatService {
     messages: ChatMessage[],
     context: ChatContext,
     isOnboarding: boolean,
-    progressEmitter?: (event: string, data?: any) => void
+    emit?: SSEEmitter
   ): Promise<ChatResponse> {
     const mode = isOnboarding ? 'ONBOARDING' : 'BUSINESS'
     const promptType = isOnboarding ? 'onboarding' : 'business'
@@ -112,7 +114,7 @@ export class OrganizationChatService {
         
         if (progress.isCompleted) {
           console.log('✅ [FLOW] Onboarding completed - transitioning to business mode')
-          return await this.handleChatFlow(messages, context, false, progressEmitter)
+          return await this.handleChatFlow(messages, context, false, emit)
         }
       } else {
          // 🌐 NEW: Check if this is a brand new organization that should start with website scraping
@@ -129,7 +131,7 @@ export class OrganizationChatService {
       
       // Generate new question/response
       console.log(`🤖 [FLOW] Generating new AI response (${promptType} mode)`)
-      const aiResponse = await this.generateAndStoreAIResponse(messages, context, promptType, progressEmitter)
+      const aiResponse = await this.generateAndStoreAIResponse(messages, context, promptType)
       console.log('✅ [FLOW] AI response generated:', {
         hasAiMessage: !!aiResponse.aiMessage,
         statusSignal: aiResponse.statusSignal,
@@ -145,7 +147,7 @@ export class OrganizationChatService {
         await onboardingService.updateOnboardingProgress(
           context.organization.id,
           { statusSignal: aiResponse.statusSignal, aiMessage: aiResponse.aiMessage },
-          progressEmitter
+          emit
         )
         
         // After updating progress, re-check completion to avoid stale state until refresh
@@ -153,8 +155,11 @@ export class OrganizationChatService {
           const progressAfter = await onboardingService.getOnboardingProgress(context.organization.id)
           if (progressAfter.isCompleted) {
             console.log('🎯 Onboarding marked completed after update (no refresh required)')
-            // Explicit phase to inform UI about mode switching
-            progressEmitter?.('phase', { name: 'switchingMode', from: 'onboarding', to: 'business' })
+            
+            // Emit mode switch notification
+            if (emit) {
+              SSEService.notifyModeSwitch(emit, 'onboarding', 'business')
+            }
 
             try {
               await agentService.maybeCreateAgentChatLinkIfThresholdMet({
@@ -168,7 +173,7 @@ export class OrganizationChatService {
     
             
             // Generate a business-mode response right away so the user sees training begin immediately
-            const businessResponse = await this.generateAndStoreAIResponse(messages, context, 'business', progressEmitter)
+            const businessResponse = await this.generateAndStoreAIResponse(messages, context, 'business')
             return {
               aiMessage: businessResponse.aiMessage,
               multipleChoices: businessResponse.multipleChoices,
@@ -201,15 +206,17 @@ export class OrganizationChatService {
   async processChat(
     messages: ChatMessage[],
     locale: string = 'es',
-    progressEmitter?: (event: string, data?: any) => void
+    emit?: SSEEmitter
   ): Promise<ChatResponse & { organization: any }> {
     try {
       console.log('🎯 [SERVICE] processChat started:', {
         messagesCount: messages.length,
         locale,
-        hasProgressEmitter: !!progressEmitter,
+        hasEmitter: !!emit,
         messageTypes: messages.map(m => m.role)
       })
+      
+      // SSE state events are emitted based on actual state changes in handleChatFlow
       
       // Get user and organization context
       console.log('👤 [SERVICE] Getting current user')
@@ -234,7 +241,6 @@ export class OrganizationChatService {
       // Get onboarding progress and determine chat flow
       console.log('🔍 [SERVICE] Checking onboarding status')
       const onboardingService = new IntegratedOnboardingService()
-      progressEmitter?.('phase', { name: 'initializing' })
       const progress = await onboardingService.getOnboardingProgress(organization.id)
       const isOnboarding = !progress.isCompleted
       console.log('📊 [SERVICE] Onboarding status:', {
@@ -242,10 +248,11 @@ export class OrganizationChatService {
         isOnboarding
       })
       
-      console.log(`🎯 Onboarding status: ${isOnboarding ? 'PROCESSING' : 'COMPLETED'}`)
-      progressEmitter?.('phase', { name: 'checkingExistingQuestion' })
+      // State is already emitted above, no need to emit again here
       
-      const response = await this.handleChatFlow(messages, context, isOnboarding, progressEmitter)
+      console.log(`🎯 Onboarding status: ${isOnboarding ? 'PROCESSING' : 'COMPLETED'}`)
+      
+      const response = await this.handleChatFlow(messages, context, isOnboarding, emit)
       console.log('✅ [SERVICE] handleChatFlow completed:', {
         hasAiMessage: !!response.aiMessage,
         hasMultipleChoices: !!response.multipleChoices,
@@ -255,8 +262,6 @@ export class OrganizationChatService {
       
       console.log('💾 [SERVICE] Storing conversation')
       await this.storeConversation(messages, response.aiMessage, context)
-      
-      progressEmitter?.('phase', { name: 'done' })
       
       console.log('🎉 [SERVICE] processChat completed successfully')
       return {
@@ -561,15 +566,13 @@ export class OrganizationChatService {
   public async generateAndStoreAIResponse(
     messages: ChatMessage[],
     context: ChatContext,
-    promptType: 'onboarding' | 'business' = 'onboarding',
-    progressEmitter?: (event: string, data?: any) => void
+    promptType: 'onboarding' | 'business' = 'onboarding'
   ): Promise<{ aiMessage: string; multipleChoices?: string[]; allowMultiple?: boolean; statusSignal?: string | null }> {
     console.log(`🔄 Starting AI response generation and storage with ${promptType} prompt...`)
     
     // 🎯 CRITICAL FIX: When messages is empty (browser refresh), add context about previous questions
     let enhancedMessages = messages
     if (messages.length === 0 && promptType === 'onboarding') {
-      progressEmitter?.('phase', { name: 'buildingContext' })
       console.log('🔍 DEBUG: Empty messages detected - adding context about previous questions')
       console.log('🔍 DEBUG: Original messages array:', JSON.stringify(messages, null, 2))
   
@@ -608,7 +611,6 @@ export class OrganizationChatService {
     // Generate enhanced system prompt with training hints
     let systemPrompt: string
     try {
-      progressEmitter?.('phase', { name: 'buildingPrompt', mode: promptType })
       systemPrompt = await this.buildSystemPrompt(context, promptType)
     } catch (error) {
       console.warn('Failed to get enhanced system prompt, aborting chat:', error)
@@ -621,8 +623,6 @@ export class OrganizationChatService {
       console.log('🤖 DEBUG: About to call OpenAI with:')
       console.log('📋 System Prompt Preview:', systemPrompt.substring(0, 200) + '...')
       console.log('📨 Messages being sent to OpenAI:', JSON.stringify(enhancedMessages, null, 2))
-      
-      progressEmitter?.('phase', { name: 'callingAI' })
       
       // 🎯 STRUCTURED OUTPUTS: Use appropriate schema based on prompt type
       let structuredResponse: OnboardingQuestionResponse | BusinessConversationResponse
@@ -702,7 +702,6 @@ export class OrganizationChatService {
         
         // Store the question if we have a valid business question
         if (businessQuestion) {
-          progressEmitter?.('phase', { name: 'updatingProfile', field: businessQuestion.field_name })
       
           await businessInfoService.storeBusinessQuestion(context.organization.id, businessQuestion)
           
@@ -942,7 +941,7 @@ export class OrganizationChatService {
   async handleWebsiteScraping(
     url: string, 
     organizationId: string,
-    progressEmitter?: (phase: string, data?: any) => void
+    emit?: SSEEmitter
   ): Promise<{
     success: boolean;
     hasEnoughInfo: boolean;
@@ -952,7 +951,8 @@ export class OrganizationChatService {
   }> {
     try {
       console.log('🌐 [SCRAPING] Starting website scraping for:', url);
-      progressEmitter?.('phase', { name: 'scrapingWebsite', url });
+      
+      // Note: Scraping status is shown via ThinkingMessageService, not SSE
 
       // Step 1: Scrape and extract business information (dynamic import for server-only)
       const { ScrapingService } = await import('@/lib/shared/services/scrapingService');
@@ -972,7 +972,8 @@ export class OrganizationChatService {
       console.log('📊 [SCRAPING] Extraction result:', { hasEnoughInfo, contentLength: scrapingResult.rawContent?.length });
 
       if (hasEnoughInfo && scrapingResult.rawContent) {
-        progressEmitter?.('phase', { name: 'storingBusinessInfo' });
+        
+        // Note: Storing status is shown via ThinkingMessageService, not SSE
         
         // Step 2: Store the extracted business information in embeddings
         const businessInfoContent = `Business Information extracted from website (${url}):\n\n${scrapingResult.rawContent}`;

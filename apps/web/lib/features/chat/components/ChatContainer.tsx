@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import BusinessChatView from './BusinessChatView'
 import ClientChatView from './ClientChatView'
 import { Message, AuthState, Agent, Organization } from '../../../shared/types'
+import { ModalEvent, StateEvent, ProgressEvent } from '../../../shared/types/sseEvents'
 
 type ChatMode = 'business' | 'client'
 
@@ -40,7 +41,9 @@ interface ChatContainerProps {
   // Mode switching prop
   chatMode?: ChatMode;
   onModeSwitch?: (mode: ChatMode) => void;
-  currentPhase?: string | null;
+  modalEvent: ModalEvent | null;
+  statusEvent: StateEvent | null;
+  progressEvent: ProgressEvent | null;
 }
 
 export default function ChatContainer({
@@ -72,8 +75,10 @@ export default function ChatContainer({
   organization,
   locale = 'es',
   chatMode: propChatMode,
-  onModeSwitch
-  , currentPhase
+  onModeSwitch,
+  modalEvent,
+  statusEvent,
+  progressEvent
 }: ChatContainerProps) {
   // Chat mode state - default to business mode, but allow override via props
   const [internalChatMode, setInternalChatMode] = useState<ChatMode>('business')
@@ -117,6 +122,9 @@ export default function ChatContainer({
           handleOTPFlow={handleOTPFlow}
           messagesEndRef={messagesEndRef}
           inputRef={inputRef}
+          modalEvent={modalEvent}
+          statusEvent={statusEvent}
+          progressEvent={progressEvent}
           chatScrollContainerRef={chatScrollContainerRef}
           fileInputRef={fileInputRef}
           handleFileChange={handleFileChange}
@@ -130,7 +138,6 @@ export default function ChatContainer({
           isMobile={isMobile}
           organizationId={organizationId}
           onModeSwitch={handleModeSwitch}
-          currentPhase={currentPhase}
         />
       ) : (
         // Client mode - requires agent and organization props

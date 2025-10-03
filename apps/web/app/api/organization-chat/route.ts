@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { OrganizationChatService } from '@/lib/features/chat/services/organizationChatService'
 import { validationService, errorHandlingService } from '@/lib/shared/services'
 import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
+import { SSEService } from '@/lib/shared/services/SSEService'
 import { cookies } from 'next/headers'
 
 // Using Node.js runtime to support fs for reading businessSystemPrompt.yaml
@@ -74,10 +75,9 @@ export async function POST(req: NextRequest) {
       const encoder = new TextEncoder()
       const stream = new ReadableStream({
         start: async (controller) => {
-          const emit = (event: string, data?: any) => {
-            const payload = `event: ${event}\n` + (data ? `data: ${JSON.stringify(data)}\n` : '') + '\n'
-            controller.enqueue(encoder.encode(payload))
-          }
+          // Create type-safe SSE emitter
+          const emit = SSEService.createEmitter(controller, encoder)
+          
           try {
             console.log('🎯 [API-SSE] Calling chatService.processChat')
             const response = await chatService.processChat(
@@ -90,15 +90,22 @@ export async function POST(req: NextRequest) {
               hasMultipleChoices: !!response.multipleChoices,
               allowMultiple: response.allowMultiple
             })
-            emit('result', {
+            
+            // Emit result using type-safe method
+            SSEService.emitResultEvent(emit, {
               aiMessage: response.aiMessage,
               multipleChoices: response.multipleChoices,
               allowMultiple: response.allowMultiple,
               agentChatLink: null
             })
             controller.close()
-          } catch (e:any) {
-            emit('error', { message: e?.message || 'Unknown error' })
+          } catch (e: any) {
+            // Emit error using type-safe method
+            SSEService.emitErrorEvent(emit, {
+              message: e?.message || 'Unknown error',
+              severity: 'error',
+              recoverable: false
+            })
             controller.close()
           }
         }

@@ -2,27 +2,29 @@
 
 import { useState, useEffect } from 'react'
 import { ChatContextType, getSystemMessageForContext } from '../services/chatContextMessages'
-import { useOnboardingCompletion } from '../../onboarding/hooks/useOnboardingCompletion'
 import { Message } from '@/lib/shared/types'
+import { ModalEvent, StateEvent } from '@/lib/shared/types/sseEvents'
 
 interface UseBusinessModeChatProps {
   organizationId?: string
   setMessages: (messages: Message[] | ((prev: Message[]) => Message[])) => void
   sendMessage: (messageContent: string) => Promise<void>
-  currentPhase?: string | null
+  modalEvent: ModalEvent | null
+  statusEvent: StateEvent | null
 }
 
 export function useBusinessModeChat({
   organizationId,
   setMessages,
   sendMessage,
-  currentPhase
+  modalEvent,
+  statusEvent
 }: UseBusinessModeChatProps) {
   // Chat context state
   const [chatContext, setChatContext] = useState<ChatContextType>('business_setup')
   
-  // Onboarding completion status using database + SSE-based hook
-  const { isCompleted: isOnboardingCompleted, loading: onboardingLoading } = useOnboardingCompletion(organizationId, currentPhase)
+  // Onboarding completion status using SSE status events
+  const [isOnboardingCompleted, setIsOnboardingCompleted] = useState(false)
   const [showVibeCardCompletion, setShowVibeCardCompletion] = useState(false)
   
   // Simple sendMessage wrapper - SSE events handle progress updates automatically
@@ -57,24 +59,47 @@ export function useBusinessModeChat({
     await wrappedSendMessage(finalInput)
   }
 
-  // Show vibe card generation modal when vibe card generation starts
+  // Listen to modal events from SSE
   useEffect(() => {
-    if (!organizationId || !currentPhase) return
+    if (!modalEvent || !organizationId) return
 
-    console.log('🔄 [MODAL-DEBUG] Current phase changed:', {
-      currentPhase,
-      organizationId,
-      showVibeCardCompletion
+    console.log('🎭 [MODAL-CONTROL] Modal event received:', {
+      action: modalEvent.action,
+      modal: modalEvent.modal,
+      organizationId
     })
     
-    // Show modal when vibe card generation starts
-    if (currentPhase === 'startingVibeCardGeneration' && organizationId) {
-      console.log('✅ [MODAL-DEBUG] startingVibeCardGeneration detected - showing vibe card modal!')
-      setShowVibeCardCompletion(true)
+    // Handle vibe card generation modal
+    if (modalEvent.modal === 'vibeCardGeneration') {
+      if (modalEvent.action === 'show') {
+        console.log('✅ [MODAL-CONTROL] Showing vibe card modal')
+        setShowVibeCardCompletion(true)
+      } else if (modalEvent.action === 'hide') {
+        console.log('❌ [MODAL-CONTROL] Hiding vibe card modal')
+        setShowVibeCardCompletion(false)
+      }
     }
-  }, [currentPhase, organizationId])
+  }, [modalEvent, organizationId])
 
-  // Note: SSE phase detection is now handled directly in useOnboardingCompletion hook
+  // Listen to status events from SSE
+  useEffect(() => {
+    if (!statusEvent) return
+
+    console.log('📡 [STATE] State event received:', {
+      change: statusEvent.change,
+      from: statusEvent.from,
+      to: statusEvent.to
+    })
+    
+    // Update onboarding completion status
+    if (statusEvent.change === 'onboarding_completed') {
+      console.log('✅ [STATE] Onboarding completed')
+      setIsOnboardingCompleted(true)
+    } else if (statusEvent.change === 'mode_switch' && statusEvent.from === 'onboarding') {
+      console.log('🔄 [STATE] Switching from onboarding to business mode')
+      setIsOnboardingCompleted(true)
+    }
+  }, [statusEvent])
 
   return {
     // State

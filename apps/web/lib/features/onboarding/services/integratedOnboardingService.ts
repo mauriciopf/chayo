@@ -1,6 +1,8 @@
 import { supabase } from '@/lib/shared/supabase/client'
 import { SetupCompletionService } from './setupCompletionService'
 import { BusinessInfoService } from '../../organizations/services/businessInfoService'
+import { SSEEmitter } from '@/lib/shared/types/sseEvents'
+import { SSEService } from '@/lib/shared/services/SSEService'
 
 export interface OnboardingQuestion {
   field_name: string
@@ -105,7 +107,7 @@ export class IntegratedOnboardingService {
   async updateOnboardingProgress(
     organizationId: string,
     params: { statusSignal?: string | null; aiMessage?: string },
-    progressEmitter?: (event: string, data?: any) => void
+    emit?: SSEEmitter
   ): Promise<{
     isCompleted: boolean
     progress: OnboardingProgress
@@ -115,8 +117,13 @@ export class IntegratedOnboardingService {
 
       // Handle full completion only
       const isCompleted = normalized === 'setup_complete'
-        ? await this.setupCompletionService.markAsCompleted(organizationId, { source: 'ai_signal' }, progressEmitter).then(() => true)
+        ? await this.setupCompletionService.markAsCompleted(organizationId, { source: 'ai_signal' }, emit).then(() => true)
         : false
+      
+      // Emit status event for onboarding completion
+      if (isCompleted && emit) {
+        SSEService.notifyOnboardingComplete(emit)
+      }
       
       // Return current progress
       const progress = await this.getOnboardingProgress(organizationId)

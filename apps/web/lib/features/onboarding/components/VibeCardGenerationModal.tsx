@@ -15,12 +15,13 @@ import {
   Star,
   X
 } from 'lucide-react'
+import { ProgressEvent } from '@/lib/shared/types/sseEvents'
 
 interface VibeCardGenerationModalProps {
   isVisible: boolean
   organizationId: string
   onDismiss: () => void
-  currentPhase?: string | null
+  progressEvent: ProgressEvent | null
 }
 
 type GenerationStage = 
@@ -95,7 +96,7 @@ export default function VibeCardGenerationModal({
   isVisible, 
   organizationId, 
   onDismiss,
-  currentPhase
+  progressEvent
 }: VibeCardGenerationModalProps) {
   const t = useTranslations('vibeGeneration')
   const tCommon = useTranslations('common')
@@ -106,52 +107,34 @@ export default function VibeCardGenerationModal({
   })
   const [startTime] = useState(Date.now())
 
-  // Listen to existing SSE system via currentPhase
+  // Listen to progress events from SSE
   useEffect(() => {
-    if (!isVisible || !currentPhase) return
+    if (!isVisible || !progressEvent) return
 
-    console.log('🎨 Vibe card modal listening to phase:', currentPhase)
+    console.log('📊 [VIBE-MODAL] Progress event received:', {
+      stage: progressEvent.stage,
+      percent: progressEvent.percent,
+      message: progressEvent.message
+    })
     
-    // Map SSE phases to modal stages and progress
-    const phaseToStageMap: Record<string, { stage: GenerationStage; progress: number }> = {
-      'switchingMode': { stage: 'initializing', progress: 5 },
-      'startingVibeCardGeneration': { stage: 'initializing', progress: 10 },
-      'analyzingBusiness': { stage: 'analyzing_business', progress: 20 },
-      'craftingStory': { stage: 'crafting_story', progress: 40 },
-      'selectingColors': { stage: 'selecting_colors', progress: 60 },
-      'generatingVibeImage': { stage: 'generating_image', progress: 75 },
-      'finalizingVibeCard': { stage: 'finalizing', progress: 95 }
+    // Update progress directly from SSE event
+    setProgress({
+      stage: progressEvent.stage,
+      progress: progressEvent.percent,
+      message: progressEvent.message,
+      estimatedTimeRemaining: progressEvent.estimatedTimeRemaining
+    })
+    
+    // Auto-dismiss modal on completion after a delay
+    if (progressEvent.stage === 'completed') {
+      const dismissTimer = setTimeout(() => {
+        console.log('✅ [VIBE-MODAL] Auto-dismissing completed modal')
+        onDismiss()
+      }, 3000) // 3 seconds after completion
+
+      return () => clearTimeout(dismissTimer)
     }
-
-    const stageInfo = phaseToStageMap[currentPhase]
-    if (stageInfo) {
-      setProgress({
-        stage: stageInfo.stage,
-        progress: stageInfo.progress,
-        message: t(`phases.${stageInfo.stage}`) || t('processing')
-      })
-    }
-  }, [currentPhase, isVisible])
-
-  // Detect completion when phases stop updating (vibe card generation finished)
-  useEffect(() => {
-    if (!isVisible) return
-
-    // If we're in the finalizing phase, show completion after a short delay
-    if (currentPhase === 'finalizingVibeCard') {
-      const completionTimer = setTimeout(() => {
-        setProgress({
-          stage: 'completed',
-          progress: 100,
-          message: t('completed')
-        })
-        // The actual imageUrl would be available from the vibe card service
-        // For now, we'll complete without the image URL and let the onComplete handler handle it
-      }, 2000) // 2 seconds after finalizing starts
-
-      return () => clearTimeout(completionTimer)
-    }
-  }, [currentPhase, isVisible])
+  }, [progressEvent, isVisible, onDismiss])
 
   const handleDismiss = () => {
     onDismiss()

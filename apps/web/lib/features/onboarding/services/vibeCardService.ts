@@ -1,6 +1,8 @@
 import { supabase } from '@/lib/shared/supabase/client'
 import { VibeCardData, VIBE_CARD_FIELDS, VIBE_AESTHETICS } from '@/lib/shared/types/vibeCardTypes'
 import { openAIService } from '@/lib/shared/services/OpenAIService'
+import { SSEEmitter } from '@/lib/shared/types/sseEvents'
+import { SSEService } from '@/lib/shared/services/SSEService'
 
 export class VibeCardService {
   private supabaseClient: any
@@ -205,43 +207,51 @@ Generate a complete vibe profile that will make this business irresistible to th
    */
   async completeOnboardingWithVibeCard(
     organizationId: string, 
-    progressEmitter?: (event: string, data?: any) => void
+    emit?: SSEEmitter
   ): Promise<boolean> {
     try {
-      console.log('🎨 [VIBE-CARD-SSE] progressEmitter available?', !!progressEmitter)
+      console.log('🎨 [VIBE-CARD] Starting vibe card generation for:', organizationId)
       
-      // Emit dedicated phase to trigger the vibe card generation modal
-      if (progressEmitter) {
-        console.log('📡 [VIBE-CARD-SSE] Emitting startingVibeCardGeneration phase')
-        progressEmitter('phase', { name: 'startingVibeCardGeneration' })
-      } else {
-        console.warn('⚠️ [VIBE-CARD-SSE] No progressEmitter - modal will not show!'  )
+      if (!emit) {
+        console.warn('⚠️ [VIBE-CARD] No emitter provided - progress updates will not be sent')
+        // Continue anyway - functionality should still work without SSE
       }
       
-      // Emit phase: Analyzing business information
-      progressEmitter?.('phase', { name: 'analyzingBusiness' })
+      // Show the vibe card generation modal
+      if (emit) {
+        SSEService.showVibeCardModal(emit)
+      }
       
-      // Generate vibe card data
+      // Phase 1: Analyzing business information
+      if (emit) {
+        SSEService.updateVibeCardProgress(emit, 'analyzing_business', 20, 'Analyzing your business information...')
+      }
+      
       const vibeCardData = await this.generateVibeCardFromBusinessInfo(organizationId)
       
       if (!vibeCardData) {
-        console.error('Failed to generate vibe card data')
+        console.error('❌ [VIBE-CARD] Failed to generate vibe card data')
         return false
       }
 
-      // Emit phase: Crafting brand story
-      progressEmitter?.('phase', { name: 'craftingStory' })
+      // Phase 2: Crafting brand story
+      if (emit) {
+        SSEService.updateVibeCardProgress(emit, 'crafting_story', 40, 'Crafting your unique brand story...')
+      }
 
-      // Emit phase: Selecting colors
-      progressEmitter?.('phase', { name: 'selectingColors' })
+      // Phase 3: Selecting colors
+      if (emit) {
+        SSEService.updateVibeCardProgress(emit, 'selecting_colors', 60, 'Choosing perfect colors for your vibe...')
+      }
 
-      // Generate AI image for the vibe card
+      // Phase 4: Generating AI image
       let aiGeneratedImageUrl: string | null = null
       try {
-        // Emit phase: Generating vibe card image
-        progressEmitter?.('phase', { name: 'generatingVibeImage' })
+        if (emit) {
+          SSEService.updateVibeCardProgress(emit, 'generating_image', 75, 'Creating your unique visual identity...')
+        }
         
-        console.log('🎨 Generating AI image for vibe card...')
+        console.log('🎨 [VIBE-CARD] Generating AI image for vibe card...')
         aiGeneratedImageUrl = await this.generateVibeCardImage({
           business_name: vibeCardData.business_name,
           business_type: vibeCardData.business_type,
@@ -256,8 +266,10 @@ Generate a complete vibe profile that will make this business irresistible to th
         // Continue without image - don't fail the entire onboarding
       }
 
-      // Emit phase: Finalizing vibe card
-      progressEmitter?.('phase', { name: 'finalizingVibeCard' })
+      // Phase 5: Finalizing
+      if (emit) {
+        SSEService.updateVibeCardProgress(emit, 'finalizing', 95, 'Adding final touches to your vibe card...')
+      }
 
       // Store vibe card in streamlined table (only essential columns)
       const { error: vibeCardError } = await this.supabaseClient
@@ -323,11 +335,27 @@ Generate a complete vibe profile that will make this business irresistible to th
         }
       }
 
-      console.log('✅ Onboarding completed with vibe card for organization:', organizationId)
+      // Phase 6: Completed
+      if (emit) {
+        SSEService.updateVibeCardProgress(emit, 'completed', 100, 'Your vibe card is ready!')
+      }
+      
+      console.log('✅ [VIBE-CARD] Onboarding completed with vibe card for:', organizationId)
       return true
 
     } catch (error) {
-      console.error('Error completing onboarding with vibe card:', error)
+      console.error('❌ [VIBE-CARD] Error completing onboarding with vibe card:', error)
+      
+      // Emit error to frontend
+      if (emit) {
+        SSEService.emitErrorEvent(emit, {
+          message: 'Failed to complete vibe card generation',
+          severity: 'error',
+          recoverable: true,
+          retryable: true
+        })
+      }
+      
       return false
     }
   }

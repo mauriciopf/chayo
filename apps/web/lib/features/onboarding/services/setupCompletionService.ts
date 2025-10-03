@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/shared/supabase/client'
 import { YamlPromptLoader } from '../../chat/services/systemPrompt/YamlPromptLoader'
 import { VibeCardService } from './vibeCardService'
+import { SSEEmitter } from '@/lib/shared/types/sseEvents'
 
 export interface SetupCompletionStatus {
   id: string
@@ -83,17 +84,17 @@ export class SetupCompletionService {
   async markAsCompleted(
     organizationId: string, 
     completionData: Record<string, any>,
-    progressEmitter?: (event: string, data?: any) => void
+    emit?: SSEEmitter
   ): Promise<void> {
     console.log('🎯 [SETUP-COMPLETION] markAsCompleted called for organization:', organizationId)
     console.log('🎯 [SETUP-COMPLETION] Completion data:', completionData)
-    console.log('🎯 [SETUP-COMPLETION] progressEmitter available?', !!progressEmitter)
+    console.log('🎯 [SETUP-COMPLETION] SSE emitter available?', !!emit)
     
     try {
       console.log('🎨 [SETUP-COMPLETION] Starting vibe card completion for organization:', organizationId)
       
       // Use vibe card service to complete onboarding with enhanced vibe data and SSE progress
-      const success = await this.vibeCardService.completeOnboardingWithVibeCard(organizationId, progressEmitter)
+      const success = await this.vibeCardService.completeOnboardingWithVibeCard(organizationId, emit)
       
       if (!success) {
         // Fallback to basic completion if vibe card generation fails
