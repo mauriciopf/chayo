@@ -130,12 +130,11 @@ export class ToolIntentService {
         }
       }
 
-      // Format products for AI
+      // Format products for AI (exclude image URLs to reduce token usage)
       const formattedProducts = (products || []).map(p => ({
         name: p.name,
         description: p.description,
-        price: p.price,
-        image_url: p.image_url
+        price: p.price
       }))
 
       return {
