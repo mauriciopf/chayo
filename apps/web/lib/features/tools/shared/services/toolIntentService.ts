@@ -20,9 +20,9 @@ export interface ToolFunction {
     type: 'object'
     properties: Record<string, any>
     required: string[]
-    additionalProperties: false
+    additionalProperties: boolean
   }
-  strict: true
+  strict: boolean
 }
 
 export interface FunctionCallResult {
@@ -88,21 +88,10 @@ export class ToolIntentService {
     return {
       type: 'function',
       name: 'get_products',
-      description: 'Obtener lista de productos y servicios disponibles. Usa esta función cuando el usuario pregunte sobre productos, servicios, precios, catálogo o quiera ver qué ofreces.',
+      description: 'Obtener lista completa de productos y servicios disponibles del negocio. Usa esta función cuando el usuario pregunte sobre productos, servicios, precios, catálogo o quiera ver qué ofreces.',
       parameters: {
         type: 'object',
-        properties: {
-          search_term: {
-            type: 'string',
-            description: 'Término de búsqueda para filtrar productos por nombre o descripción (opcional)'
-          },
-          limit: {
-            type: 'number',
-            description: 'Número máximo de productos a retornar (por defecto 10)',
-            minimum: 1,
-            maximum: 20
-          }
-        },
+        properties: {},
         required: [],
         additionalProperties: false
       },
@@ -173,7 +162,7 @@ export class ToolIntentService {
     return {
       type: 'function',
       name: 'get_appointments',
-      description: 'Obtener información sobre sistema de citas y reservas. Usa esta función cuando el usuario quiera agendar una cita, reservar, consultar disponibilidad o pregunte sobre horarios.',
+      description: 'Obtener información sobre el sistema de citas y reservas del negocio, incluyendo proveedor y URL de agendamiento. Usa esta función cuando el usuario quiera agendar una cita, reservar, consultar disponibilidad o pregunte sobre horarios.',
       parameters: {
         type: 'object',
         properties: {},
@@ -230,25 +219,10 @@ export class ToolIntentService {
     return {
       type: 'function',
       name: 'get_faqs',
-      description: 'Obtener respuestas a preguntas frecuentes. Usa esta función cuando el usuario haga preguntas generales, necesite información básica, o pregunte específicamente por FAQs.',
+      description: 'Obtener respuestas a preguntas frecuentes del negocio. Usa esta función cuando el usuario haga preguntas generales sobre el negocio, necesite información básica, políticas, o pregunte sobre temas comunes.',
       parameters: {
         type: 'object',
-        properties: {
-          question: {
-            type: 'string',
-            description: 'Pregunta específica del usuario para buscar en las FAQs'
-          },
-          category: {
-            type: 'string',
-            description: 'Categoría específica de FAQs a buscar (opcional)'
-          },
-          limit: {
-            type: 'number',
-            description: 'Número máximo de FAQs a retornar (por defecto 5)',
-            minimum: 1,
-            maximum: 20
-          }
-        },
+        properties: {},
         required: [],
         additionalProperties: false
       },
