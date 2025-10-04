@@ -85,7 +85,9 @@ export async function POST(request: NextRequest) {
       if (response.tool_calls && response.tool_calls.length > 0) {
         console.log(`🔧 AI called ${response.tool_calls.length} functions`)
         
-        // Execute each function call
+        // Execute each function call and store results
+        const functionResults: Record<string, any> = {}
+        
         for (const toolCall of response.tool_calls) {
           const result = await ToolIntentService.handleFunctionCall(
             toolCall.name,
@@ -94,6 +96,10 @@ export async function POST(request: NextRequest) {
             supabase
           )
           
+          // Store the actual result data for AI to use
+          functionResults[toolCall.name] = result
+          
+          // Track function calls for response metadata
           functionCalls.push({
             name: toolCall.name,
             arguments: toolCall.arguments,
@@ -109,11 +115,14 @@ export async function POST(request: NextRequest) {
             content: response.content || 'Déjame verificar esa información...' 
           },
           ...response.tool_calls.map((tc: any) => {
-            const funcResult = functionCalls.find(fc => fc.name === tc.name)
+            const result = functionResults[tc.name]
             return {
               role: 'function' as const,
               name: tc.name,
-              content: JSON.stringify(funcResult)
+              // Pass only the data to AI (not the success wrapper)
+              content: result.success 
+                ? JSON.stringify(result.data) 
+                : JSON.stringify({ error: result.error })
             }
           })
         ]
