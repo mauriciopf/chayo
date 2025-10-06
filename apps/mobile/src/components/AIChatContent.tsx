@@ -39,7 +39,7 @@ export const AIChatContent: React.FC = () => {
     if (config) {
       const welcomeMessage: Message = {
         id: 'welcome',
-        text: t('chat.emptyTitle') + ' ' + t('chat.emptySubtitle'),
+        text: t('chat.emptyTitle', { businessName: config.businessName }) + ' ' + t('chat.emptySubtitle'),
         isUser: false,
         timestamp: new Date(),
       };

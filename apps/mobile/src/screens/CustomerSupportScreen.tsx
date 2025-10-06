@@ -14,10 +14,8 @@ import {
 import { useThemedStyles } from '../context/ThemeContext';
 import { useAppConfig } from '../hooks/useAppConfig';
 import { useAuth } from '../context/AuthContext';
-import { useSSEProgress } from '../hooks/useSSEProgress';
 import LoginModal from '../components/LoginModal';
 import { SkeletonBox } from '../components/SkeletonLoader';
-import { ThinkingMessage } from '../components/ThinkingMessage';
 import { supabase } from '../services/authService';
 import { KeyboardAwareChat } from '../components/KeyboardAwareChat';
 
@@ -40,7 +38,7 @@ interface Conversation {
 
 export const CustomerSupportScreen: React.FC = () => {
   const { config } = useAppConfig();
-  const { theme, fontSizes, themedStyles } = useThemedStyles();
+  const { theme, fontSizes } = useThemedStyles();
   const { user } = useAuth();
   const isAuthenticated = !!user;
 
@@ -50,9 +48,8 @@ export const CustomerSupportScreen: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const [waitingForAgent, setWaitingForAgent] = useState(false);
 
-  const flatListRef = useRef<FlatList>(null);
+  const flatListRef = useRef<FlatList<SupportMessage>>(null);
   const textInputRef = useRef<TextInput>(null);
 
   // Automatically show login modal when screen is focused and user is not authenticated
@@ -69,37 +66,7 @@ export const CustomerSupportScreen: React.FC = () => {
     }, [isAuthenticated])
   );
 
-  // Use existing SSE system for loading states
-  const sseProgress = useSSEProgress(config?.organizationId);
-
-  // Initialize conversation when user is authenticated
-  useEffect(() => {
-    if (isAuthenticated && user && config) {
-      initializeCustomerSupport();
-    }
-  }, [isAuthenticated, user, config, initializeCustomerSupport]);
-
-  // Setup realtime subscription
-  useEffect(() => {
-    if (conversation && isAuthenticated) {
-      setupRealtimeSubscription();
-    }
-  }, [conversation, isAuthenticated, setupRealtimeSubscription]);
-
-  // Handle keyboard show/hide to scroll to bottom
-  useEffect(() => {
-    const keyboardWillShowListener = Keyboard.addListener(
-      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
-      () => {
-        scrollToBottom();
-      }
-    );
-
-    return () => {
-      keyboardWillShowListener.remove();
-    };
-  }, []);
-
+  // Declare functions first to avoid hoisting issues
   const loadMessages = useCallback(async (conversationId: string) => {
     try {
       const { data: messageData, error } = await supabase
@@ -130,6 +97,26 @@ export const CustomerSupportScreen: React.FC = () => {
       console.error('Error loading messages:', error);
     }
   }, []);
+
+  const scrollToBottom = useCallback(() => {
+    setTimeout(() => {
+      flatListRef.current?.scrollToEnd({ animated: true });
+    }, 100);
+  }, []);
+
+  // Handle keyboard show/hide to scroll to bottom
+  useEffect(() => {
+    const keyboardWillShowListener = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+      () => {
+        scrollToBottom();
+      }
+    );
+
+    return () => {
+      keyboardWillShowListener.remove();
+    };
+  }, [scrollToBottom]);
 
   const initializeCustomerSupport = useCallback(async () => {
     if (!user || !config) {return;}
@@ -217,12 +204,6 @@ export const CustomerSupportScreen: React.FC = () => {
           isUser: payload.payload.sender_type === 'customer',
         };
 
-        // If it's an agent message, stop the waiting state and SSE
-        if (newMessage.sender_type === 'agent') {
-          setWaitingForAgent(false);
-          sseProgress.disconnect();
-        }
-
         // Avoid duplicate messages
         setMessages(prev => {
           const exists = prev.some(msg => msg.id === newMessage.id);
@@ -242,7 +223,21 @@ export const CustomerSupportScreen: React.FC = () => {
     return () => {
       channel.unsubscribe();
     };
-  }, [conversation, sseProgress]);
+  }, [conversation, scrollToBottom]);
+
+  // Initialize conversation when user is authenticated
+  useEffect(() => {
+    if (isAuthenticated && user && config) {
+      initializeCustomerSupport();
+    }
+  }, [isAuthenticated, user, config, initializeCustomerSupport]);
+
+  // Setup realtime subscription
+  useEffect(() => {
+    if (conversation && isAuthenticated) {
+      setupRealtimeSubscription();
+    }
+  }, [conversation, isAuthenticated, setupRealtimeSubscription]);
 
   const sendMessage = async () => {
     // Check authentication first
@@ -267,11 +262,6 @@ export const CustomerSupportScreen: React.FC = () => {
     setMessages(prev => [...prev, userMessage]);
     setInputText('');
     setSending(true);
-    setWaitingForAgent(true);
-
-    // Start SSE for agent response loading
-    const sessionId = `support-${conversation.id}-${Date.now()}`;
-    sseProgress.connect(sessionId, 'customer-support');
 
     try {
       const { data: message, error } = await supabase
@@ -317,14 +307,7 @@ export const CustomerSupportScreen: React.FC = () => {
       setMessages(prev => prev.filter(msg => msg.id !== userMessage.id));
     } finally {
       setSending(false);
-      // Keep waiting for agent state until we get a response
     }
-  };
-
-  const scrollToBottom = () => {
-    setTimeout(() => {
-      flatListRef.current?.scrollToEnd({ animated: true });
-    }, 100);
   };
 
   const handleLoginSuccess = (_authUser: any) => {
@@ -401,19 +384,19 @@ export const CustomerSupportScreen: React.FC = () => {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, backgroundColor: theme.backgroundColor, padding: 16 }}>
-        <SkeletonBox width={200} height={20} borderRadius={8} style={{ marginBottom: 16 }} />
-        <SkeletonBox width={'100%'} height={60} borderRadius={12} style={{ marginBottom: 12 }} />
-        <SkeletonBox width={'80%'} height={60} borderRadius={12} style={{ marginBottom: 12 }} />
-        <SkeletonBox width={'100%'} height={60} borderRadius={12} style={{ marginBottom: 12 }} />
-        <SkeletonBox width={'70%'} height={60} borderRadius={12} />
+      <View style={[styles.loadingContainer, { backgroundColor: theme.backgroundColor }]}>
+        <SkeletonBox width={200} height={20} borderRadius={8} style={styles.skeletonMargin16} />
+        <SkeletonBox width={350} height={60} borderRadius={12} style={styles.skeletonMargin12} />
+        <SkeletonBox width={280} height={60} borderRadius={12} style={styles.skeletonMargin12} />
+        <SkeletonBox width={350} height={60} borderRadius={12} style={styles.skeletonMargin12} />
+        <SkeletonBox width={245} height={60} borderRadius={12} />
       </View>
     );
   }
 
   if (!config) {
     return (
-      <View style={{ flex: 1, backgroundColor: theme.backgroundColor }}>
+      <View style={[styles.errorOuterContainer, { backgroundColor: theme.backgroundColor }]}>
         <View style={styles.errorContainer}>
           <Text style={[styles.errorText, { color: theme.textColor, fontSize: fontSizes.base }]}>
             El soporte al cliente no está disponible
@@ -430,18 +413,6 @@ export const CustomerSupportScreen: React.FC = () => {
       keyExtractor={(item) => item.id}
       onContentSizeChange={scrollToBottom}
       flatListRef={flatListRef}
-      ListFooterComponent={
-        waitingForAgent ? (
-          <View style={styles.thinkingContainer}>
-            <ThinkingMessage
-              context="customer-support"
-              instanceId={conversation?.id || 'support'}
-              organizationId={config?.organizationId}
-              visible={waitingForAgent}
-            />
-          </View>
-        ) : null
-      }
       inputValue={inputText}
       onChangeText={setInputText}
       onSend={sendMessage}
@@ -516,6 +487,19 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
   },
+  loadingContainer: {
+    flex: 1,
+    padding: 16,
+  },
+  skeletonMargin16: {
+    marginBottom: 16,
+  },
+  skeletonMargin12: {
+    marginBottom: 12,
+  },
+  errorOuterContainer: {
+    flex: 1,
+  },
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -525,10 +509,6 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: 16,
     textAlign: 'center',
-  },
-  thinkingContainer: {
-    paddingVertical: 16,
-    paddingHorizontal: 16,
   },
   authLoadingContainer: {
     flex: 1,
