@@ -5,7 +5,8 @@
   },
   "build": {
     "development": { 
-      "developmentClient": true, 
+      "developmentClient": true,
+      "channel": "development",
       "ios": {
         "simulator": true
       }, 
@@ -13,7 +14,8 @@
         "buildType": "apk"
       }
     },
-    "preview": { 
+    "preview": {
+      "channel": "preview",
       "ios": {
         "simulator": false,
         "distribution": "internal"
@@ -24,6 +26,7 @@
     },
     "production": { 
       "autoIncrement": true,
+      "channel": "production",
       "env": {
         "VERSION_BUMP_TYPE": "minor"
       },
@@ -38,6 +41,7 @@
     },
     "production-patch": { 
       "autoIncrement": true,
+      "channel": "production",
       "env": {
         "VERSION_BUMP_TYPE": "patch"
       },

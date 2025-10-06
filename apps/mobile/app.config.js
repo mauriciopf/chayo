@@ -30,7 +30,7 @@ export default {
     },
     plugins: ['expo-updates'],
     updates: {
-      url: 'https://u.expo.dev/4ec6342b-7cd8-45e0-9ce1-2c1da5e1b694',
+      url: 'https://u.expo.dev/74f0a115-1928-4581-86d2-a81a2f76d355',
     },
     runtimeVersion: '1.1.5',
     extra: {

@@ -10,14 +10,15 @@ const path = require('path');
 const projectRoot = __dirname;
 const monorepoRoot = path.resolve(projectRoot, '../..');
 
-// Check if we're in an EAS build environment
+// Check if we're in an EAS build environment or export
 const isEASBuild = process.env.EAS_BUILD === 'true' || process.env.CI === 'true';
+const isExport = process.argv.includes('export');
 
 // Get the appropriate Metro config based on environment
 let getDefaultConfig;
-if (isEASBuild) {
-  // Use Expo Metro config for EAS builds
-  console.log('📦 Using @expo/metro-config for EAS build');
+if (isEASBuild || isExport) {
+  // Use Expo Metro config for EAS builds and exports
+  console.log('📦 Using @expo/metro-config for EAS build/export');
   getDefaultConfig = require('@expo/metro-config').getDefaultConfig;
 } else {
   // Use React Native Metro config for development
@@ -29,7 +30,7 @@ const defaultConfig = getDefaultConfig(projectRoot);
 
 let config;
 
-if (isEASBuild) {
+if (isEASBuild || isExport) {
   // Simplified config for EAS builds - avoid monorepo complexity
   config = {
     ...defaultConfig,
