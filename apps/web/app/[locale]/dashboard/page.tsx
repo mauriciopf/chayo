@@ -43,6 +43,7 @@ export default function Dashboard() {
 
 function DashboardContent() {
   const t = useTranslations('chat')
+  const tAuth = useTranslations('auth.otp')
   const locale = useLocale()
   const searchParams = useSearchParams()
   
@@ -65,6 +66,18 @@ function DashboardContent() {
     inputRef: chat.inputRef,
     messages: chat.messages,
     setMessages: chat.setMessages,
+    translations: {
+      askEmail: tAuth('askEmail'),
+      codeSent: tAuth('codeSent'),
+      codeInvalid: tAuth('codeInvalid'),
+      codeFailed: tAuth('codeFailed'),
+      sendFailed: tAuth('sendFailed'),
+      resendFailed: tAuth('resendFailed'),
+      resendSuccess: tAuth('resendSuccess'),
+      nameRequired: tAuth('nameRequired'),
+      emailRequired: tAuth('emailRequired'),
+      codeRequired: tAuth('codeRequired'),
+    }
   })
 
   const dashboardInit = useDashboardInit(locale, auth.authState, auth.user, t('authPrompt'), auth.loading)

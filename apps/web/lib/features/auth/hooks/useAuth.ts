@@ -4,7 +4,7 @@ import type { User } from '@supabase/supabase-js'
 import { AuthState, OtpLoadingState, Agent, UserSubscription, Organization, Message } from '@/lib/shared/types'
 import { organizationService } from '@/lib/features/organizations/services/organizationService'
 import { agentService } from '@/lib/features/organizations/services/agentService'
-import { OTPService } from '@/lib/features/auth/services/otpService'
+import { OTPService, OTPTranslations } from '@/lib/features/auth/services/otpService'
 
 
 export function useAuth() {
@@ -33,11 +33,12 @@ export function useAuth() {
     inputRef: React.RefObject<HTMLTextAreaElement | null>
     messages: Message[]
     setMessages: (messages: Message[] | ((prev: Message[]) => Message[])) => void
+    translations: OTPTranslations
   }) => {
     return {
       handleOTPFlow: async () => {
         if (authState === 'awaitingName') {
-          const result = OTPService.handleNameInput(chatDeps.input)
+          const result = OTPService.handleNameInput(chatDeps.input, chatDeps.translations)
           if (result.success) {
             setPendingName(chatDeps.input.trim())
             executeActions(result.actions, chatDeps)
@@ -46,7 +47,7 @@ export function useAuth() {
         }
 
         if (authState === 'awaitingEmail') {
-          const result = await OTPService.handleEmailInput(chatDeps.input)
+          const result = await OTPService.handleEmailInput(chatDeps.input, chatDeps.translations)
           if (result.success) {
             setPendingEmail(chatDeps.input.trim())
           }
@@ -55,13 +56,13 @@ export function useAuth() {
         }
 
         if (authState === 'awaitingOTP') {
-          const result = await OTPService.handleOTPVerification(chatDeps.input, pendingEmail)
+          const result = await OTPService.handleOTPVerification(chatDeps.input, pendingEmail, chatDeps.translations)
           executeActions(result.actions, chatDeps)
           return
         }
       },
       handleResendOTP: async () => {
-        const result = await OTPService.handleResendOTP(pendingEmail)
+        const result = await OTPService.handleResendOTP(pendingEmail, chatDeps.translations)
         executeActions(result.actions, chatDeps)
       }
     }

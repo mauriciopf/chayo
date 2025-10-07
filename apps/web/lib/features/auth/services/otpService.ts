@@ -11,13 +11,26 @@ export interface OTPFlowResult {
   error?: string
 }
 
+export interface OTPTranslations {
+  askEmail: string
+  codeSent: string
+  codeInvalid: string
+  codeFailed: string
+  sendFailed: string
+  resendFailed: string
+  resendSuccess: string
+  nameRequired: string
+  emailRequired: string
+  codeRequired: string
+}
+
 export class OTPService {
   /**
    * Handle name input during auth flow
    */
-  static handleNameInput(name: string): OTPFlowResult {
+  static handleNameInput(name: string, t: OTPTranslations): OTPFlowResult {
     if (!name.trim()) {
-      return { success: false, actions: [], error: 'Name is required' }
+      return { success: false, actions: [], error: t.nameRequired }
     }
 
     return {
@@ -35,7 +48,7 @@ export class OTPService {
             {
               id: Date.now().toString() + '-ai',
               role: 'ai',
-              content: 'Great! What is your email address?',
+              content: t.askEmail,
               timestamp: new Date(),
             }
           ]
@@ -50,9 +63,9 @@ export class OTPService {
   /**
    * Handle email input and send OTP
    */
-  static async handleEmailInput(email: string): Promise<OTPFlowResult> {
+  static async handleEmailInput(email: string, t: OTPTranslations): Promise<OTPFlowResult> {
     if (!email.trim()) {
-      return { success: false, actions: [], error: 'Email is required' }
+      return { success: false, actions: [], error: t.emailRequired }
     }
 
     const actions: OTPAction[] = [
@@ -88,13 +101,13 @@ export class OTPService {
             payload: [{
               id: Date.now().toString() + '-ai',
               role: 'ai',
-              content: data.error || 'Failed to send verification code. Please enter a valid email.',
+              content: data.error || t.sendFailed,
               timestamp: new Date(),
             }]
           },
           { type: 'set_auth_state', payload: 'awaitingEmail' },
           { type: 'set_loading', payload: 'none' },
-          { type: 'set_error', payload: data.error || 'Failed to send verification code.' }
+          { type: 'set_error', payload: data.error || t.sendFailed }
         )
         return { success: false, actions, error: data.error }
       }
@@ -106,7 +119,7 @@ export class OTPService {
           payload: [{
             id: Date.now().toString() + '-ai',
             role: 'ai',
-            content: 'I just sent a 6-digit code to your email. Please enter it below to continue.',
+            content: t.codeSent,
             timestamp: new Date(),
           }]
         },
@@ -122,13 +135,13 @@ export class OTPService {
           payload: [{
             id: Date.now().toString() + '-ai',
             role: 'ai',
-            content: 'Failed to send verification code. Please enter a valid email.',
+            content: t.sendFailed,
             timestamp: new Date(),
           }]
         },
         { type: 'set_auth_state', payload: 'awaitingEmail' },
         { type: 'set_loading', payload: 'none' },
-        { type: 'set_error', payload: 'Failed to send verification code.' }
+        { type: 'set_error', payload: t.sendFailed }
       )
       return { success: false, actions, error: 'Network error' }
     }
@@ -137,9 +150,9 @@ export class OTPService {
   /**
    * Handle OTP verification
    */
-  static async handleOTPVerification(otp: string, pendingEmail: string): Promise<OTPFlowResult> {
+  static async handleOTPVerification(otp: string, pendingEmail: string, t: OTPTranslations): Promise<OTPFlowResult> {
     if (!otp.trim()) {
-      return { success: false, actions: [], error: 'Verification code is required' }
+      return { success: false, actions: [], error: t.codeRequired }
     }
 
     const actions: OTPAction[] = [
@@ -171,12 +184,12 @@ export class OTPService {
             payload: [{
               id: Date.now().toString() + '-ai',
               role: 'ai',
-              content: 'Invalid verification code. Please try again.',
+              content: t.codeInvalid,
               timestamp: new Date(),
             }]
           },
           { type: 'set_loading', payload: 'none' },
-          { type: 'set_error', payload: 'Invalid verification code' }
+          { type: 'set_error', payload: t.codeInvalid }
         )
         return { success: false, actions, error: error.message }
       }
@@ -196,12 +209,12 @@ export class OTPService {
           payload: [{
             id: Date.now().toString() + '-ai',
             role: 'ai',
-            content: 'Failed to verify code. Please try again.',
+            content: t.codeFailed,
             timestamp: new Date(),
           }]
         },
         { type: 'set_loading', payload: 'none' },
-        { type: 'set_error', payload: 'Verification failed' }
+        { type: 'set_error', payload: t.codeFailed }
       )
       return { success: false, actions, error: 'Verification failed' }
     }
@@ -210,7 +223,7 @@ export class OTPService {
   /**
    * Resend OTP code
    */
-  static async handleResendOTP(email: string): Promise<OTPFlowResult> {
+  static async handleResendOTP(email: string, t: OTPTranslations): Promise<OTPFlowResult> {
     const actions: OTPAction[] = [
       { type: 'set_loading', payload: 'sending' },
       { type: 'set_error', payload: null }
@@ -232,12 +245,12 @@ export class OTPService {
             payload: [{
               id: Date.now().toString() + '-ai',
               role: 'ai',
-              content: data.error || 'Failed to resend verification code.',
+              content: data.error || t.resendFailed,
               timestamp: new Date(),
             }]
           },
           { type: 'set_loading', payload: 'none' },
-          { type: 'set_error', payload: data.error || 'Failed to resend verification code.' }
+          { type: 'set_error', payload: data.error || t.resendFailed }
         )
         return { success: false, actions, error: data.error }
       }
@@ -249,7 +262,7 @@ export class OTPService {
           payload: [{
             id: Date.now().toString() + '-ai',
             role: 'ai',
-            content: 'New verification code sent! Please check your email.',
+            content: t.resendSuccess,
             timestamp: new Date(),
           }]
         },
@@ -265,12 +278,12 @@ export class OTPService {
           payload: [{
             id: Date.now().toString() + '-ai',
             role: 'ai',
-            content: 'Failed to resend verification code.',
+            content: t.resendFailed,
             timestamp: new Date(),
           }]
         },
         { type: 'set_loading', payload: 'none' },
-        { type: 'set_error', payload: 'Failed to resend verification code.' }
+        { type: 'set_error', payload: t.resendFailed }
       )
       return { success: false, actions, error: 'Network error' }
     }

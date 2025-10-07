@@ -486,7 +486,19 @@
     "processing": "Procesando...",
     "continueWithGoogle": "Continuar con Google",
     "completingAuth": "Completando autenticación...",
-    "redirectingToDashboard": "Por favor espera mientras te redirigimos al panel de control"
+    "redirectingToDashboard": "Por favor espera mientras te redirigimos al panel de control",
+    "otp": {
+      "askEmail": "¡Genial! ¿Cuál es tu dirección de correo electrónico?",
+      "codeSent": "Acabo de enviar un código de 6 dígitos a tu correo. Por favor ingrésalo abajo para continuar.",
+      "codeInvalid": "Código de verificación inválido. Por favor intenta de nuevo.",
+      "codeFailed": "Error al verificar el código. Por favor intenta de nuevo.",
+      "sendFailed": "Error al enviar el código de verificación. Por favor ingresa un correo válido.",
+      "resendFailed": "Error al reenviar el código de verificación.",
+      "resendSuccess": "¡Nuevo código de verificación enviado! Por favor revisa tu correo.",
+      "nameRequired": "El nombre es requerido",
+      "emailRequired": "El correo electrónico es requerido",
+      "codeRequired": "El código de verificación es requerido"
+    }
   },
   "dashboard": {
     "title": "Panel de Control",
