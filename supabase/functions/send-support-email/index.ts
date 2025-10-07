@@ -29,11 +29,15 @@ interface WebhookPayload {
 
 serve(async (req) => {
   try {
+    console.log('🚀 Edge Function triggered')
+    
     // Parse the webhook payload
     const payload: WebhookPayload = await req.json()
+    console.log('📦 Payload received:', JSON.stringify(payload, null, 2))
 
     // Only process customer messages
     if (payload.record.sender_type !== 'customer') {
+      console.log('⏭️ Skipping: Not a customer message')
       return new Response(
         JSON.stringify({ message: 'Not a customer message, skipping' }),
         { headers: { 'Content-Type': 'application/json' }, status: 200 }
@@ -115,9 +119,13 @@ serve(async (req) => {
       { headers: { 'Content-Type': 'application/json' }, status: 200 }
     )
   } catch (error) {
-    console.error('Edge function error:', error)
+    console.error('❌ Edge function error:', error)
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace')
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined 
+      }),
       { headers: { 'Content-Type': 'application/json' }, status: 500 }
     )
   }
