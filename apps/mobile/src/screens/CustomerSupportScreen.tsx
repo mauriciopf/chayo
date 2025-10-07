@@ -34,6 +34,10 @@ interface Conversation {
   subject: string;
   status: string;
   created_at: string;
+  organization_id: string;
+  organizations?: Array<{
+    name: string;
+  }>;
 }
 
 export const CustomerSupportScreen: React.FC = () => {
@@ -126,7 +130,16 @@ export const CustomerSupportScreen: React.FC = () => {
       // Check if user has an existing conversation
       const { data: existingConversations, error: fetchError } = await supabase
         .from('customer_support_conversations')
-        .select('id, subject, status, created_at')
+        .select(`
+          id,
+          subject,
+          status,
+          created_at,
+          organization_id,
+          organizations (
+            name
+          )
+        `)
         .eq('organization_id', config.organizationId)
         .eq('customer_id', user.id)
         .eq('status', 'open')
@@ -160,7 +173,16 @@ export const CustomerSupportScreen: React.FC = () => {
             status: 'open',
             priority: 'normal',
           })
-          .select()
+          .select(`
+            id,
+            subject,
+            status,
+            created_at,
+            organization_id,
+            organizations (
+              name
+            )
+          `)
           .single();
 
         if (createError) {
@@ -315,22 +337,30 @@ export const CustomerSupportScreen: React.FC = () => {
     // Will trigger useEffect to initialize customer support
   };
 
-  const renderMessage = ({ item }: { item: SupportMessage }) => (
-    <View style={[
-      styles.messageContainer,
-      item.isUser ? styles.userMessage : styles.agentMessage,
-    ]}>
+  const renderMessage = ({ item }: { item: SupportMessage }) => {
+    // For agent/system messages, show organization name or sender name
+    const displayName = !item.isUser
+      ? (item.sender_type === 'agent'
+          ? conversation?.organizations?.[0]?.name || item.sender_name || 'Soporte'
+          : item.sender_name || 'Sistema')
+      : null;
+
+    return (
       <View style={[
-        styles.messageBubble,
-        item.isUser
-          ? [styles.userBubble, { backgroundColor: theme.primaryColor }]
-          : [styles.agentBubble, { backgroundColor: theme.surfaceColor }],
+        styles.messageContainer,
+        item.isUser ? styles.userMessage : styles.agentMessage,
       ]}>
-        {!item.isUser && (
-          <Text style={[styles.senderName, { color: theme.placeholderColor, fontSize: fontSizes.xs }]}>
-            {item.sender_name}
-          </Text>
-        )}
+        <View style={[
+          styles.messageBubble,
+          item.isUser
+            ? [styles.userBubble, { backgroundColor: theme.primaryColor }]
+            : [styles.agentBubble, { backgroundColor: theme.surfaceColor }],
+        ]}>
+          {!item.isUser && displayName && (
+            <Text style={[styles.senderName, { color: theme.placeholderColor, fontSize: fontSizes.xs }]}>
+              {displayName}
+            </Text>
+          )}
         <Text style={[
           styles.messageText,
           { color: item.isUser ? '#FFFFFF' : theme.textColor, fontSize: fontSizes.base },
@@ -348,12 +378,13 @@ export const CustomerSupportScreen: React.FC = () => {
         </Text>
       </View>
     </View>
-  );
+    );
+  };
 
   // Show clean loading state while login modal is presented
   if (!isAuthenticated) {
     return (
-      <View style={{ flex: 1, backgroundColor: theme.backgroundColor }}>
+      <View style={[styles.flex1, { backgroundColor: theme.backgroundColor }]}>
         {/* Clean background while login modal is shown - tappable to reopen modal */}
         <TouchableOpacity
           style={styles.authLoadingContainer}
@@ -412,11 +443,11 @@ export const CustomerSupportScreen: React.FC = () => {
       renderItem={renderMessage}
       keyExtractor={(item) => item.id}
       onContentSizeChange={scrollToBottom}
-      flatListRef={flatListRef}
+      flatListRef={flatListRef as React.RefObject<FlatList<SupportMessage>>}
       inputValue={inputText}
       onChangeText={setInputText}
       onSend={sendMessage}
-      inputRef={textInputRef}
+      inputRef={textInputRef as React.RefObject<TextInput>}
       placeholder="Escribe tu mensaje..."
       sendDisabled={!inputText.trim() || sending}
       sendButtonContent={
@@ -448,6 +479,9 @@ export const CustomerSupportScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+  flex1: {
+    flex: 1,
+  },
   messageContainer: {
     marginBottom: 16,
   },
