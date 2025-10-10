@@ -1,5 +1,5 @@
 import React from 'react';
-import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerItem } from '@react-navigation/drawer';
+import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useAppConfig } from '../hooks/useAppConfig';
@@ -31,8 +31,36 @@ interface BusinessDrawerNavigatorProps {
 }
 
 // Custom header component with hamburger menu
-function CustomDrawerHeader({ navigation, title, onBackToMarketplace }: any) {
+interface CustomDrawerHeaderProps {
+  navigation: any;
+  businessName: string;
+  currentRouteName?: string;
+  onBackToMarketplace: () => void;
+}
+
+function CustomDrawerHeader({ navigation, businessName, currentRouteName, onBackToMarketplace }: CustomDrawerHeaderProps) {
   const { theme, fontSizes } = useThemedStyles();
+
+  // Map route names to display titles
+  const getHeaderTitle = (routeName?: string): string => {
+    if (!routeName || routeName === 'Chat') {
+      return businessName; // Chat shows business name
+    }
+
+    const titleMap: Record<string, string> = {
+      'Products': 'Productos',
+      'Appointments': 'Citas',
+      'Documents': 'Documentos',
+      'FAQs': 'Preguntas Frecuentes',
+      'Payments': 'Pagos',
+      'CustomerSupport': 'Soporte al Cliente',
+      'Profile': 'Perfil',
+    };
+
+    return titleMap[routeName] || businessName;
+  };
+
+  const title = getHeaderTitle(currentRouteName);
 
   return (
     <View style={[styles.header, { backgroundColor: theme.backgroundColor, borderBottomColor: theme.borderColor }]}>
@@ -221,36 +249,40 @@ export default function BusinessDrawerNavigator({ businessName, onBackToMarketpl
     ...availableTools.filter(t => t.systemName !== 'chat'),
   ].filter(Boolean);
 
+  // Memoize screen options to avoid recreating on every render
+  const screenOptions = React.useMemo(() => ({ navigation, route }: any) => ({
+    headerShown: true,
+    header: () => (
+      <CustomDrawerHeader
+        navigation={navigation}
+        businessName={businessName}
+        currentRouteName={route.name}
+        onBackToMarketplace={onBackToMarketplace}
+      />
+    ),
+    drawerActiveBackgroundColor: `${theme.primaryColor}20`,
+    drawerActiveTintColor: theme.primaryColor,
+    drawerInactiveTintColor: theme.placeholderColor,
+    drawerLabelStyle: {
+      fontSize: fontSizes.base,
+      fontWeight: '500' as const,
+    },
+    drawerItemStyle: {
+      borderRadius: 8,
+      marginHorizontal: 8,
+      marginVertical: 2,
+    },
+    drawerStyle: {
+      backgroundColor: theme.backgroundColor,
+      width: 280,
+    },
+  }), [businessName, onBackToMarketplace, theme, fontSizes]);
+
   return (
     <Drawer.Navigator
       initialRouteName="Chat"
       drawerContent={(props) => <CustomDrawerContent {...props} />}
-      screenOptions={({ navigation }) => ({
-        headerShown: true,
-        header: () => (
-          <CustomDrawerHeader
-            navigation={navigation}
-            title={businessName}
-            onBackToMarketplace={onBackToMarketplace}
-          />
-        ),
-        drawerActiveBackgroundColor: `${theme.primaryColor}20`,
-        drawerActiveTintColor: theme.primaryColor,
-        drawerInactiveTintColor: theme.placeholderColor,
-        drawerLabelStyle: {
-          fontSize: fontSizes.base,
-          fontWeight: '500',
-        },
-        drawerItemStyle: {
-          borderRadius: 8,
-          marginHorizontal: 8,
-          marginVertical: 2,
-        },
-        drawerStyle: {
-          backgroundColor: theme.backgroundColor,
-          width: 280,
-        },
-      })}
+      screenOptions={screenOptions}
     >
       {sortedTools.map(tool => {
         const StackComponent = getToolStack(tool.name);
@@ -279,7 +311,7 @@ export default function BusinessDrawerNavigator({ businessName, onBackToMarketpl
             <Icon name="user" size={size} color={color} />
           ),
           drawerItemStyle: {
-            marginTop: 'auto', // Push to bottom
+            marginTop: 'auto',
           },
         }}
       />
