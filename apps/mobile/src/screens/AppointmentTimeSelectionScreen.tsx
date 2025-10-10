@@ -36,16 +36,21 @@ export const AppointmentTimeSelectionScreen: React.FC = () => {
   };
 
   const handleTimeSelect = (time: string) => {
+    console.log('🔵 Time selected:', time);
+    console.log('🔵 Navigation object:', navigation);
     setSelectedTime(time);
 
-    // Small delay to show selection before navigating
-    setTimeout(() => {
-      navigation.navigate('AppointmentBooking', {
+    try {
+      // Use push for stack navigation to add a new screen
+      (navigation as any).push('AppointmentBooking', {
         selectedDate: selectedDate.toISOString(), // Convert Date to string for navigation
         selectedTime: time,
         organizationId,
       });
-    }, 150);
+      console.log('✅ Navigation called successfully');
+    } catch (error) {
+      console.error('❌ Navigation error:', error);
+    }
   };
 
   return (
