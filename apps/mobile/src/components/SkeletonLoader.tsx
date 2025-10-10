@@ -73,16 +73,21 @@ export const SkeletonBox: React.FC<SkeletonLoaderProps> = ({
 };
 
 // Product Card Skeleton
-export const ProductCardSkeleton: React.FC = () => {
+interface ProductCardSkeletonProps {
+  itemSize?: number;
+}
+
+export const ProductCardSkeleton: React.FC<ProductCardSkeletonProps> = ({ itemSize }) => {
   const { themedStyles } = useThemedStyles();
-  const cardWidth = (width - 48) / 2; // Same as marketplace cards
+  const numColumns = 2;
+  const cardWidth = itemSize || (width - 32 - 12) / numColumns; // Match ProductsScreen calculation
 
   return (
-    <View style={[styles.productCard, themedStyles.surface, { width: cardWidth }]}>
+    <View style={[styles.productCard, themedStyles.surface, { width: cardWidth, height: cardWidth }]}>
       {/* Product Image Skeleton */}
       <SkeletonBox
         width={cardWidth - 24}
-        height={120}
+        height={cardWidth - 24}
         borderRadius={12}
         style={styles.imageSkeleton}
       />
@@ -120,10 +125,23 @@ interface ProductsSkeletonProps {
 }
 
 export const ProductsSkeleton: React.FC<ProductsSkeletonProps> = ({ count = 6 }) => {
+  const numColumns = 2;
+  const itemSize = (width - 32 - 12) / numColumns;
+  
+  // Group items into rows
+  const rows: number[][] = [];
+  for (let i = 0; i < count; i += numColumns) {
+    rows.push(Array.from({ length: Math.min(numColumns, count - i) }, (_, j) => i + j));
+  }
+
   return (
     <View style={styles.skeletonGrid}>
-      {Array.from({ length: count }).map((_, index) => (
-        <ProductCardSkeleton key={index} />
+      {rows.map((row, rowIndex) => (
+        <View key={rowIndex} style={styles.skeletonRow}>
+          {row.map((index) => (
+            <ProductCardSkeleton key={index} itemSize={itemSize} />
+          ))}
+        </View>
       ))}
     </View>
   );
@@ -176,8 +194,6 @@ const styles = StyleSheet.create({
   productCard: {
     borderRadius: 16,
     padding: 12,
-    marginBottom: 16,
-    marginHorizontal: 8,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -200,11 +216,12 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   skeletonGrid: {
+    padding: 16,
+  },
+  skeletonRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingTop: 16,
+    marginBottom: 12,
   },
   faqItem: {
     borderRadius: 12,

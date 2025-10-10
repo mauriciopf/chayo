@@ -14,9 +14,8 @@ import {
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { AppConfigProvider } from '../context/AppConfigContext';
 import { NavigationProvider } from '../context/NavigationContext';
-import { SmartHeader } from '../components/SmartHeader';
 import { useThemedStyles } from '../context/ThemeContext';
-import BusinessTabNavigator from '../navigation/BusinessTabNavigator';
+import BusinessDrawerNavigator from '../navigation/BusinessDrawerNavigator';
 import { supabase } from '../services/authService';
 
 // Keyboard visibility context
@@ -47,7 +46,7 @@ function BusinessDetailContent() {
   const [_isLoadingConfig, setIsLoadingConfig] = useState(true);
   const [configError, setConfigError] = useState<string | null>(null);
   const [organizationData, setOrganizationData] = useState<OrganizationData | null>(null);
-  
+
   // Keyboard visibility state
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const headerOpacity = useState(new Animated.Value(1))[0];
@@ -99,7 +98,7 @@ function BusinessDetailContent() {
       setTimeout(() => {
         setIsKeyboardVisible(true);
       }, 100);
-      
+
       Animated.parallel([
         Animated.timing(headerOpacity, {
           toValue: 0,
@@ -181,23 +180,8 @@ function BusinessDetailContent() {
 
         {/* Business App Content - Loads app-config for selected business */}
         <AppConfigProvider organizationId={organizationId} organizationSlug={organizationData?.slug || ''}>
-          {/* Animated Smart Header */}
-          {!isKeyboardVisible && (
-            <Animated.View
-              style={{
-                opacity: headerOpacity,
-                transform: [{ translateY: headerTranslateY }],
-              }}
-            >
-              <SmartHeader
-                businessName={organizationData?.name || 'Loading...'}
-                onBackToMarketplace={handleBackToMarketplace}
-              />
-            </Animated.View>
-          )}
-
           <View style={styles.appContainer}>
-            <BusinessTabNavigator
+            <BusinessDrawerNavigator
               businessName={organizationData?.name || 'Loading...'}
               onBackToMarketplace={handleBackToMarketplace}
             />
