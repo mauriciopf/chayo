@@ -72,49 +72,51 @@ export const SkeletonBox: React.FC<SkeletonLoaderProps> = ({
   );
 };
 
-// Product Card Skeleton
+// Product Card Skeleton - Premium Design
 interface ProductCardSkeletonProps {
   itemSize?: number;
 }
 
 export const ProductCardSkeleton: React.FC<ProductCardSkeletonProps> = ({ itemSize }) => {
-  const { themedStyles } = useThemedStyles();
   const numColumns = 2;
-  const cardWidth = itemSize || (width - 32 - 12) / numColumns; // Match ProductsScreen calculation
+  const cardWidth = itemSize || (width - 32 - 12) / numColumns;
 
   return (
-    <View style={[styles.productCard, themedStyles.surface, { width: cardWidth, height: cardWidth }]}>
-      {/* Product Image Skeleton */}
-      <SkeletonBox
-        width={cardWidth - 24}
-        height={cardWidth - 24}
-        borderRadius={12}
-        style={styles.imageSkeleton}
-      />
+    <View style={[styles.productCard, { width: cardWidth, height: cardWidth }]}>
+      {/* Main card skeleton with rounded corners and shadow */}
+      <View style={styles.productCardInner}>
+        {/* Full card shimmer effect */}
+        <SkeletonBox
+          width={cardWidth}
+          height={cardWidth}
+          borderRadius={16}
+          style={styles.productCardShimmer}
+        />
 
-      {/* Product Title Skeleton */}
-      <SkeletonBox
-        width={cardWidth - 40}
-        height={18}
-        borderRadius={4}
-        style={styles.titleSkeleton}
-      />
-
-      {/* Product Description Skeleton */}
-      <SkeletonBox
-        width={cardWidth - 60}
-        height={14}
-        borderRadius={4}
-        style={styles.descriptionSkeleton}
-      />
-
-      {/* Price Skeleton */}
-      <SkeletonBox
-        width={60}
-        height={20}
-        borderRadius={6}
-        style={styles.priceSkeleton}
-      />
+        {/* Bottom info section overlay (darker) */}
+        <View style={styles.productCardBottomInfo}>
+          {/* Title lines */}
+          <SkeletonBox
+            width={cardWidth * 0.7}
+            height={14}
+            borderRadius={4}
+            style={styles.productTitleLine}
+          />
+          <SkeletonBox
+            width={cardWidth * 0.5}
+            height={14}
+            borderRadius={4}
+            style={styles.productTitleLine}
+          />
+          {/* Price */}
+          <SkeletonBox
+            width={60}
+            height={16}
+            borderRadius={6}
+            style={styles.productPriceLine}
+          />
+        </View>
+      </View>
     </View>
   );
 };
@@ -127,7 +129,7 @@ interface ProductsSkeletonProps {
 export const ProductsSkeleton: React.FC<ProductsSkeletonProps> = ({ count = 6 }) => {
   const numColumns = 2;
   const itemSize = (width - 32 - 12) / numColumns;
-  
+
   // Group items into rows
   const rows: number[][] = [];
   for (let i = 0; i < count; i += numColumns) {
@@ -193,27 +195,46 @@ export const DocumentSkeleton: React.FC = () => {
 const styles = StyleSheet.create({
   productCard: {
     borderRadius: 16,
-    padding: 12,
+    overflow: 'hidden',
+    backgroundColor: '#2C2C2E',
+    borderWidth: 1,
+    borderColor: '#3A3A3C',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 4,
     },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.15,
     shadowRadius: 8,
-    elevation: 4,
+    elevation: 6,
   },
-  imageSkeleton: {
-    marginBottom: 12,
+  productCardInner: {
+    position: 'relative',
+    width: '100%',
+    height: '100%',
   },
-  titleSkeleton: {
-    marginBottom: 8,
+  productCardShimmer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
-  descriptionSkeleton: {
-    marginBottom: 12,
+  productCardBottomInfo: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: 12,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    gap: 6,
   },
-  priceSkeleton: {
-    alignSelf: 'flex-start',
+  productTitleLine: {
+    alignSelf: 'center',
+  },
+  productPriceLine: {
+    alignSelf: 'center',
+    marginTop: 4,
   },
   skeletonGrid: {
     padding: 16,

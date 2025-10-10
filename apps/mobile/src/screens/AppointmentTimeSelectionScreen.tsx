@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -17,7 +17,6 @@ export const AppointmentTimeSelectionScreen: React.FC = () => {
   const { selectedDate: selectedDateString, organizationId } = route.params as { selectedDate: string; organizationId: string };
   const selectedDate = new Date(selectedDateString); // Parse string back to Date
   const { theme, fontSizes, themedStyles } = useThemedStyles();
-  const [selectedTime, setSelectedTime] = useState<string | null>(null);
 
   // Available time slots (9 AM to 5 PM)
   const timeSlots = [
@@ -36,21 +35,12 @@ export const AppointmentTimeSelectionScreen: React.FC = () => {
   };
 
   const handleTimeSelect = (time: string) => {
-    console.log('🔵 Time selected:', time);
-    console.log('🔵 Navigation object:', navigation);
-    setSelectedTime(time);
-
-    try {
-      // Use push for stack navigation to add a new screen
-      (navigation as any).push('AppointmentBooking', {
-        selectedDate: selectedDate.toISOString(), // Convert Date to string for navigation
-        selectedTime: time,
-        organizationId,
-      });
-      console.log('✅ Navigation called successfully');
-    } catch (error) {
-      console.error('❌ Navigation error:', error);
-    }
+    // Navigate immediately without updating state to avoid re-render issues
+    (navigation as any).navigate('AppointmentBooking', {
+      selectedDate: selectedDate.toISOString(),
+      selectedTime: time,
+      organizationId,
+    });
   };
 
   return (
@@ -70,34 +60,30 @@ export const AppointmentTimeSelectionScreen: React.FC = () => {
 
         <ScrollView style={styles.timeSlotsContainer} showsVerticalScrollIndicator={false}>
           <View style={styles.timeSlotsGrid}>
-            {timeSlots.map((time) => {
-              const isSelected = selectedTime === time;
-              return (
-                <TouchableOpacity
-                  key={time}
-                  style={[
-                    styles.timeSlot,
-                    {
-                      backgroundColor: isSelected ? '#4A9B8E' : theme.surfaceColor,
-                      borderColor: isSelected ? '#4A9B8E' : theme.borderColor,
-                    },
-                  ]}
-                  onPress={() => handleTimeSelect(time)}
-                  activeOpacity={0.7}
-                >
-                  <Text style={[
-                    styles.timeSlotText,
-                    {
-                      color: isSelected ? '#FFFFFF' : theme.textColor,
-                      fontWeight: isSelected ? '700' : '600',
-                      fontSize: fontSizes.base,
-                    },
-                  ]}>
-                    {time}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
+            {timeSlots.map((time) => (
+              <TouchableOpacity
+                key={time}
+                style={[
+                  styles.timeSlot,
+                  {
+                    backgroundColor: theme.surfaceColor,
+                    borderColor: theme.borderColor,
+                  },
+                ]}
+                onPress={() => handleTimeSelect(time)}
+                activeOpacity={0.7}
+              >
+                <Text style={[
+                  styles.timeSlotText,
+                  {
+                    color: theme.textColor,
+                    fontSize: fontSizes.base,
+                  },
+                ]}>
+                  {time}
+                </Text>
+              </TouchableOpacity>
+            ))}
           </View>
         </ScrollView>
       </View>
