@@ -6,6 +6,7 @@ import { useAppConfig } from '../hooks/useAppConfig';
 import { useThemedStyles } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import Icon from 'react-native-vector-icons/Feather';
+import { DrawerHeader } from '../components/DrawerHeader';
 
 // Import screens
 import { ChatScreen } from '../screens/ChatScreen';
@@ -30,57 +31,24 @@ interface BusinessDrawerNavigatorProps {
   onBackToMarketplace: () => void;
 }
 
-// Custom header component with hamburger menu
-interface CustomDrawerHeaderProps {
-  navigation: any;
-  businessName: string;
-  currentRouteName?: string;
-  onBackToMarketplace: () => void;
-}
+// Helper function to map route names to display titles
+const getHeaderTitle = (routeName: string | undefined, businessName: string): string => {
+  if (!routeName || routeName === 'Chat') {
+    return businessName; // Chat shows business name
+  }
 
-function CustomDrawerHeader({ navigation, businessName, currentRouteName, onBackToMarketplace }: CustomDrawerHeaderProps) {
-  const { theme, fontSizes } = useThemedStyles();
-
-  // Map route names to display titles
-  const getHeaderTitle = (routeName?: string): string => {
-    if (!routeName || routeName === 'Chat') {
-      return businessName; // Chat shows business name
-    }
-
-    const titleMap: Record<string, string> = {
-      'Products': 'Productos',
-      'Appointments': 'Citas',
-      'Documents': 'Documentos',
-      'FAQs': 'Preguntas Frecuentes',
-      'Payments': 'Pagos',
-      'CustomerSupport': 'Soporte al Cliente',
-      'Profile': 'Perfil',
-    };
-
-    return titleMap[routeName] || businessName;
+  const titleMap: Record<string, string> = {
+    'Products': 'Productos',
+    'Appointments': 'Citas',
+    'Documents': 'Documentos',
+    'FAQs': 'Preguntas Frecuentes',
+    'Payments': 'Pagos',
+    'CustomerSupport': 'Soporte al Cliente',
+    'Profile': 'Perfil',
   };
 
-  const title = getHeaderTitle(currentRouteName);
-
-  return (
-    <View style={[styles.header, { backgroundColor: theme.backgroundColor, borderBottomColor: theme.borderColor }]}>
-      {/* Back button */}
-      <TouchableOpacity onPress={onBackToMarketplace} style={styles.backButton} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-        <Icon name="arrow-left" size={24} color={theme.textColor} />
-      </TouchableOpacity>
-
-      {/* Title */}
-      <Text style={[styles.headerTitle, { color: theme.textColor, fontSize: fontSizes.xl }]} numberOfLines={1}>
-        {title}
-      </Text>
-
-      {/* Hamburger menu button */}
-      <TouchableOpacity onPress={() => navigation.openDrawer()} style={styles.hamburgerButton} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-        <Icon name="menu" size={24} color={theme.textColor} />
-      </TouchableOpacity>
-    </View>
-  );
-}
+  return titleMap[routeName] || businessName;
+};
 
 // Tool configuration with icons
 interface ToolConfig {
@@ -105,6 +73,7 @@ const toolConfigs: ToolConfig[] = [
 function CustomDrawerContent(props: any) {
   const { theme, fontSizes } = useThemedStyles();
   const { user } = useAuth();
+  const { onBackToMarketplace } = props;
 
   return (
     <DrawerContentScrollView
@@ -126,6 +95,17 @@ function CustomDrawerContent(props: any) {
           {user?.email || ''}
         </Text>
       </View>
+
+      {/* Back to Marketplace button */}
+      <TouchableOpacity
+        style={[styles.backToMarketplaceButton, { borderBottomColor: theme.borderColor }]}
+        onPress={onBackToMarketplace}
+      >
+        <Icon name="arrow-left" size={20} color={theme.primaryColor} />
+        <Text style={[styles.backToMarketplaceText, { color: theme.primaryColor, fontSize: fontSizes.base }]}>
+          Volver al Marketplace
+        </Text>
+      </TouchableOpacity>
 
       {/* Drawer items */}
       <View style={styles.drawerItems}>
@@ -253,11 +233,9 @@ export default function BusinessDrawerNavigator({ businessName, onBackToMarketpl
   const screenOptions = React.useMemo(() => ({ navigation, route }: any) => ({
     headerShown: true,
     header: () => (
-      <CustomDrawerHeader
+      <DrawerHeader
         navigation={navigation}
-        businessName={businessName}
-        currentRouteName={route.name}
-        onBackToMarketplace={onBackToMarketplace}
+        title={getHeaderTitle(route.name, businessName)}
       />
     ),
     drawerActiveBackgroundColor: `${theme.primaryColor}20`,
@@ -276,12 +254,12 @@ export default function BusinessDrawerNavigator({ businessName, onBackToMarketpl
       backgroundColor: theme.backgroundColor,
       width: 280,
     },
-  }), [businessName, onBackToMarketplace, theme, fontSizes]);
+  }), [businessName, theme, fontSizes]);
 
   return (
     <Drawer.Navigator
       initialRouteName="Chat"
-      drawerContent={(props) => <CustomDrawerContent {...props} />}
+      drawerContent={(props) => <CustomDrawerContent {...props} onBackToMarketplace={onBackToMarketplace} />}
       screenOptions={screenOptions}
     >
       {sortedTools.map(tool => {
@@ -320,27 +298,6 @@ export default function BusinessDrawerNavigator({ businessName, onBackToMarketpl
 }
 
 const styles = StyleSheet.create({
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingTop: 54,
-    paddingBottom: 16,
-    borderBottomWidth: 1,
-  },
-  backButton: {
-    padding: 8,
-    marginRight: 8,
-  },
-  headerTitle: {
-    flex: 1,
-    fontWeight: '700',
-    textAlign: 'center',
-  },
-  hamburgerButton: {
-    padding: 8,
-    marginLeft: 8,
-  },
   drawerContent: {
     flex: 1,
   },
@@ -371,6 +328,17 @@ const styles = StyleSheet.create({
   drawerItems: {
     flex: 1,
     paddingTop: 8,
+  },
+  backToMarketplaceButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    gap: 12,
+  },
+  backToMarketplaceText: {
+    fontWeight: '600',
   },
 });
 
