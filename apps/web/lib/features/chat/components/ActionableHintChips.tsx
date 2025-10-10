@@ -9,7 +9,7 @@ export type ActionableHint = {
   label: string
   icon: string
   description: string
-  category: 'documents' | 'payments' | 'products' | 'intake_forms' | 'faqs' | 'vibe-card' | 'customer_support'
+  category: 'documents' | 'payments' | 'products' | 'intake_forms' | 'faqs' | 'vibe-card' | 'customer_support' | 'reminders'
 }
 
 interface ActionableHintChipsProps {
@@ -43,7 +43,8 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
     products: false,
     intake_forms: false,
     faqs: false,
-    customer_support: false
+    customer_support: false,
+    reminders: false
   })
 
   // Define the actionable hints
@@ -68,6 +69,13 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
       icon: '💬',
       description: 'Gestiona conversaciones de clientes y tickets de soporte en tiempo real.',
       category: 'customer_support'
+    },
+    {
+      id: 'send_reminders',
+      label: '📧 Recordatorios',
+      icon: '📧',
+      description: 'Envía recordatorios personalizados a tus clientes por email con IA.',
+      category: 'reminders'
     },
     {
       id: 'share_document',

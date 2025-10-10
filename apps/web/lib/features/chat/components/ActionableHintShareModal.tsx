@@ -13,6 +13,7 @@ import FAQToolConfig from '../../tools/faqs/components/FAQToolConfig'
 import { VibeCardConfig } from '../../tools/vibe-card/components/VibeCardConfig'
 import ProductsToolConfig from '../../tools/products/components/ProductsToolConfig'
 import CustomerSupportToolModal from '../../tools/customer-support/components/CustomerSupportToolModal'
+import RemindersToolConfig from '../../tools/reminders/components/RemindersToolConfig'
 
 interface ActionableHintShareModalProps {
   isOpen: boolean
@@ -49,7 +50,8 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
     products: false,
     intake_forms: false,
     faqs: false,
-    customer_support: false
+    customer_support: false,
+    reminders: false
   })
   const [toolConstraints, setToolConstraints] = useState<{ [key: string]: ToolConstraint }>({})
   const [loading, setLoading] = useState(false)
@@ -234,6 +236,17 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
             'Gestión de conversaciones e historial',
             'Soporte de múltiples agentes',
             'Confirmaciones de lectura y seguimiento de estado'
+          ]
+        }
+      case 'reminders':
+        return {
+          title: 'Recordatorios por Email',
+          description: 'Envía recordatorios personalizados a tus clientes con plantillas generadas por IA',
+          features: [
+            'Plantillas de email generadas por IA',
+            'Programación de recordatorios (una vez, diario, semanal, mensual)',
+            'Selección de clientes desde tu lista',
+            'Vista previa de emails antes de enviar'
           ]
         }
       default:
@@ -505,7 +518,14 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
                 />
               )}
 
-              {!isCurrentToolEnabled && !['documents', 'payments', 'products', 'intake_forms', 'faqs', 'vibe-card', 'customer_support'].includes(hint?.category || '') && (
+              {hint?.category === 'reminders' && isCurrentToolEnabled && (
+                <RemindersToolConfig 
+                  organizationId={organizationId}
+                  businessName={content.title}
+                />
+              )}
+
+              {!isCurrentToolEnabled && !['documents', 'payments', 'products', 'intake_forms', 'faqs', 'vibe-card', 'customer_support', 'reminders'].includes(hint?.category || '') && (
                 <div 
                   className="p-4 rounded-lg border"
                   style={{ 
