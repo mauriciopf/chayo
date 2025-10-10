@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -11,7 +11,6 @@ import {
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useThemedStyles } from '../context/ThemeContext';
-import { useNavigationHeader } from '../context/NavigationContext';
 import { createCustomerInteraction } from '../services/authService';
 import AuthGate from '../components/AuthGate';
 
@@ -27,17 +26,6 @@ export const AppointmentBookingScreen: React.FC = () => {
   const { theme, fontSizes, themedStyles } = useThemedStyles();
   const [notes, setNotes] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
-  // Memoize the back press handler to prevent infinite re-renders
-  const handleBackPress = useCallback(() => {
-    navigation.goBack();
-  }, [navigation]);
-
-  // Use navigation header with auto-cleanup (original behavior)
-  useNavigationHeader('Reservar Cita', {
-    onBackPress: handleBackPress,
-    autoCleanup: true,
-  });
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString('en-US', {
@@ -77,8 +65,7 @@ export const AppointmentBookingScreen: React.FC = () => {
         customerId,
         organizationId,
         'appointment_booking',
-        `Appointment booked for ${formatDate(selectedDate)} at ${selectedTime}`,
-        { appointmentData }
+        `Appointment booked for ${formatDate(selectedDate)} at ${selectedTime}`
       );
 
       Alert.alert(
@@ -88,8 +75,8 @@ export const AppointmentBookingScreen: React.FC = () => {
           {
             text: 'OK',
             onPress: () => {
-              // Navigate back to Hub
-              navigation.navigate('HubMain');
+              // Navigate back to Appointments
+              navigation.goBack();
             },
           },
         ]

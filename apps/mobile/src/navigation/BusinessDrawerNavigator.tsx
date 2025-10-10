@@ -8,6 +8,84 @@ import { useAuth } from '../context/AuthContext';
 import Icon from 'react-native-vector-icons/Feather';
 import { DrawerHeader } from '../components/DrawerHeader';
 
+// Main screen header component (with hamburger menu for drawer)
+interface MainScreenHeaderProps {
+  navigation: any;
+  title: string;
+}
+
+function MainScreenHeader({ navigation, title }: MainScreenHeaderProps) {
+  const { theme, fontSizes } = useThemedStyles();
+  
+  return (
+    <View style={{
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 16,
+      paddingTop: 54,
+      paddingBottom: 16,
+      backgroundColor: theme.backgroundColor,
+      borderBottomWidth: 1,
+      borderBottomColor: theme.borderColor,
+    }}>
+      <TouchableOpacity
+        onPress={() => navigation.openDrawer()}
+        style={{ padding: 8, marginRight: 12 }}
+        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+      >
+        <Icon name="menu" size={24} color={theme.textColor} />
+      </TouchableOpacity>
+      <Text style={{
+        fontWeight: '700',
+        flex: 1,
+        color: theme.textColor,
+        fontSize: fontSizes.xl,
+      }}>
+        {title}
+      </Text>
+    </View>
+  );
+}
+
+// Nested screen header component (for detail screens with back button)
+interface NestedScreenHeaderProps {
+  navigation: any;
+  title: string;
+}
+
+function NestedScreenHeader({ navigation, title }: NestedScreenHeaderProps) {
+  const { theme, fontSizes } = useThemedStyles();
+  
+  return (
+    <View style={{
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 16,
+      paddingTop: 54,
+      paddingBottom: 16,
+      backgroundColor: theme.backgroundColor,
+      borderBottomWidth: 1,
+      borderBottomColor: theme.borderColor,
+    }}>
+      <TouchableOpacity
+        onPress={() => navigation.goBack()}
+        style={{ padding: 8, marginRight: 12 }}
+        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+      >
+        <Icon name="arrow-left" size={24} color={theme.textColor} />
+      </TouchableOpacity>
+      <Text style={{
+        fontWeight: '700',
+        flex: 1,
+        color: theme.textColor,
+        fontSize: fontSizes.xl,
+      }}>
+        {title}
+      </Text>
+    </View>
+  );
+}
+
 // Import screens
 import { ChatScreen } from '../screens/ChatScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
@@ -116,71 +194,162 @@ function CustomDrawerContent(props: any) {
 }
 
 // Stack navigator for each tool (to handle detail screens)
-function ChatStack() {
+function ChatStack({ businessName }: { businessName: string }) {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="ChatMain" component={ChatScreen} />
+    <Stack.Navigator>
+      <Stack.Screen 
+        name="ChatMain" 
+        component={ChatScreen}
+        options={{
+          headerShown: true,
+          header: ({ navigation }) => <MainScreenHeader navigation={navigation} title={businessName} />,
+        }}
+      />
     </Stack.Navigator>
   );
 }
 
 function ProductsStack() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="ProductsMain" component={ProductsScreen} />
-      <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
+    <Stack.Navigator>
+      <Stack.Screen 
+        name="ProductsMain" 
+        component={ProductsScreen}
+        options={{
+          headerShown: true,
+          header: ({ navigation }) => <MainScreenHeader navigation={navigation} title="Productos" />,
+        }}
+      />
+      <Stack.Screen 
+        name="ProductDetail" 
+        component={ProductDetailScreen}
+        options={{
+          headerShown: true,
+          header: ({ navigation }) => <NestedScreenHeader navigation={navigation} title="Detalle del Producto" />,
+        }}
+      />
     </Stack.Navigator>
   );
 }
 
 function AppointmentsStack() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="AppointmentsMain" component={AppointmentsScreen} />
-      <Stack.Screen name="AppointmentTimeSelection" component={AppointmentTimeSelectionScreen} />
-      <Stack.Screen name="AppointmentBooking" component={AppointmentBookingScreen} />
+    <Stack.Navigator>
+      <Stack.Screen 
+        name="AppointmentsMain" 
+        component={AppointmentsScreen}
+        options={{
+          headerShown: true,
+          header: ({ navigation }) => <MainScreenHeader navigation={navigation} title="Citas" />,
+        }}
+      />
+      <Stack.Screen 
+        name="AppointmentTimeSelection" 
+        component={AppointmentTimeSelectionScreen}
+        options={{
+          headerShown: true,
+          header: ({ navigation }) => <NestedScreenHeader navigation={navigation} title="Seleccionar Horario" />,
+        }}
+      />
+      <Stack.Screen 
+        name="AppointmentBooking" 
+        component={AppointmentBookingScreen}
+        options={{
+          headerShown: true,
+          header: ({ navigation }) => <NestedScreenHeader navigation={navigation} title="Reservar Cita" />,
+        }}
+      />
     </Stack.Navigator>
   );
 }
 
 function DocumentsStack() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="DocumentsMain" component={UnifiedDocumentsSection} />
-      <Stack.Screen name="DocumentDetail" component={DocumentDetailScreen} />
-      <Stack.Screen name="FormDetail" component={FormDetailScreen} />
+    <Stack.Navigator>
+      <Stack.Screen 
+        name="DocumentsMain" 
+        component={UnifiedDocumentsSection}
+        options={{
+          headerShown: true,
+          header: ({ navigation }) => <MainScreenHeader navigation={navigation} title="Documentos" />,
+        }}
+      />
+      <Stack.Screen 
+        name="DocumentDetail" 
+        component={DocumentDetailScreen}
+        options={{
+          headerShown: true,
+          header: ({ navigation }) => <NestedScreenHeader navigation={navigation} title="Detalle del Documento" />,
+        }}
+      />
+      <Stack.Screen 
+        name="FormDetail" 
+        component={FormDetailScreen}
+        options={{
+          headerShown: true,
+          header: ({ navigation }) => <NestedScreenHeader navigation={navigation} title="Formulario" />,
+        }}
+      />
     </Stack.Navigator>
   );
 }
 
 function FAQsStack() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="FAQsMain" component={FAQsScreen} />
+    <Stack.Navigator>
+      <Stack.Screen 
+        name="FAQsMain" 
+        component={FAQsScreen}
+        options={{
+          headerShown: true,
+          header: ({ navigation }) => <MainScreenHeader navigation={navigation} title="Preguntas Frecuentes" />,
+        }}
+      />
     </Stack.Navigator>
   );
 }
 
 function PaymentsStack() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="PaymentsMain" component={PaymentsScreen} />
+    <Stack.Navigator>
+      <Stack.Screen 
+        name="PaymentsMain" 
+        component={PaymentsScreen}
+        options={{
+          headerShown: true,
+          header: ({ navigation }) => <MainScreenHeader navigation={navigation} title="Pagos" />,
+        }}
+      />
     </Stack.Navigator>
   );
 }
 
 function CustomerSupportStack() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="CustomerSupportMain" component={CustomerSupportScreen} />
+    <Stack.Navigator>
+      <Stack.Screen 
+        name="CustomerSupportMain" 
+        component={CustomerSupportScreen}
+        options={{
+          headerShown: true,
+          header: ({ navigation }) => <MainScreenHeader navigation={navigation} title="Soporte al Cliente" />,
+        }}
+      />
     </Stack.Navigator>
   );
 }
 
 function ProfileStack() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="ProfileMain" component={ProfileScreen} />
+    <Stack.Navigator>
+      <Stack.Screen 
+        name="ProfileMain" 
+        component={ProfileScreen}
+        options={{
+          headerShown: true,
+          header: ({ navigation }) => <MainScreenHeader navigation={navigation} title="Perfil" />,
+        }}
+      />
     </Stack.Navigator>
   );
 }
@@ -203,6 +372,12 @@ const getToolStack = (toolName: string) => {
 export default function BusinessDrawerNavigator({ businessName, onBackToMarketplace }: BusinessDrawerNavigatorProps) {
   const { config } = useAppConfig();
   const { theme, fontSizes } = useThemedStyles();
+
+  // Create a wrapper for ChatStack with businessName
+  const ChatStackWithProps = React.useMemo(
+    () => (props: any) => <ChatStack {...props} businessName={businessName} />,
+    [businessName]
+  );
 
   // Filter enabled tools based on config
   const enabledTools = config?.enabledTools || [];
@@ -231,13 +406,7 @@ export default function BusinessDrawerNavigator({ businessName, onBackToMarketpl
 
   // Memoize screen options to avoid recreating on every render
   const screenOptions = React.useMemo(() => ({ navigation, route }: any) => ({
-    headerShown: true,
-    header: () => (
-      <DrawerHeader
-        navigation={navigation}
-        title={getHeaderTitle(route.name, businessName)}
-      />
-    ),
+    headerShown: false, // Hide drawer header - each stack will manage its own header
     drawerActiveBackgroundColor: `${theme.primaryColor}20`,
     drawerActiveTintColor: theme.primaryColor,
     drawerInactiveTintColor: theme.placeholderColor,
@@ -254,7 +423,7 @@ export default function BusinessDrawerNavigator({ businessName, onBackToMarketpl
       backgroundColor: theme.backgroundColor,
       width: 280,
     },
-  }), [businessName, theme, fontSizes]);
+  }), [theme, fontSizes]);
 
   return (
     <Drawer.Navigator
@@ -263,7 +432,7 @@ export default function BusinessDrawerNavigator({ businessName, onBackToMarketpl
       screenOptions={screenOptions}
     >
       {sortedTools.map(tool => {
-        const StackComponent = getToolStack(tool.name);
+        const StackComponent = tool.name === 'Chat' ? ChatStackWithProps : getToolStack(tool.name);
         return (
           <Drawer.Screen
             key={tool.name}

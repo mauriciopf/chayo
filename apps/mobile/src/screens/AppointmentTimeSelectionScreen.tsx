@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -9,7 +9,6 @@ import {
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useThemedStyles } from '../context/ThemeContext';
-import { useNavigationHeader } from '../context/NavigationContext';
 
 
 export const AppointmentTimeSelectionScreen: React.FC = () => {
@@ -19,17 +18,6 @@ export const AppointmentTimeSelectionScreen: React.FC = () => {
   const selectedDate = new Date(selectedDateString); // Parse string back to Date
   const { theme, fontSizes, themedStyles } = useThemedStyles();
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
-
-  // Memoize the back press handler to prevent infinite re-renders
-  const handleBackPress = useCallback(() => {
-    navigation.goBack();
-  }, [navigation]);
-
-  // Use navigation header with auto-cleanup (original behavior)
-  useNavigationHeader('Seleccionar Hora', {
-    onBackPress: handleBackPress,
-    autoCleanup: true,
-  });
 
   // Available time slots (9 AM to 5 PM)
   const timeSlots = [

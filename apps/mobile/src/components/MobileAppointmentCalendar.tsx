@@ -126,7 +126,7 @@ const MobileAppointmentCalendar: React.FC<MobileAppointmentCalendarProps> = ({
 
     // Navigate to time selection screen instead of showing internal state
     if (navigation) {
-      navigation.push('AppointmentTimeSelection', {
+      navigation.navigate('AppointmentTimeSelection', {
         selectedDate: date.toISOString(), // Convert Date to string for navigation
         organizationId,
       });

@@ -12,7 +12,7 @@ interface NavigationState {
   };
   // Navigation context stack to track where we are
   contextStack: Array<{
-    context: 'root' | 'hub' | 'chat';
+    context: 'root' | 'chat';
     title?: string;
   }>;
   // Screen history stack to restore previous screen headers
@@ -37,12 +37,12 @@ interface NavigationContextType {
   }) => void;
   // Reset to root navigation
   resetNavigation: () => void;
-  // Push a navigation context (e.g., entering Hub)
-  pushNavigationContext: (context: 'root' | 'hub' | 'chat', title?: string) => void;
+  // Push a navigation context (e.g., entering Chat)
+  pushNavigationContext: (context: 'root' | 'chat', title?: string) => void;
   // Pop navigation context (return to previous context)
   popNavigationContext: () => void;
   // Get current navigation context
-  getCurrentContext: () => 'root' | 'hub' | 'chat';
+  getCurrentContext: () => 'root' | 'chat';
 }
 
 const NavigationContext = createContext<NavigationContextType | undefined>(undefined);
@@ -54,7 +54,7 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     screenStack: [],
   });
 
-  const pushNavigationContext = useCallback((context: 'root' | 'hub' | 'chat', title?: string) => {
+  const pushNavigationContext = useCallback((context: 'root' | 'chat', title?: string) => {
     setNavigationState(prev => ({
       ...prev,
       contextStack: [...prev.contextStack, { context, title }],
@@ -87,8 +87,8 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     const currentContext = getCurrentContext();
 
     setNavigationState(prev => {
-      if (currentContext === 'hub') {
-        // If we're in Hub context, try to restore previous screen from stack
+      if (currentContext === 'chat') {
+        // If we're in Chat context, try to restore previous screen from stack
         if (prev.screenStack.length > 0) {
           // Pop the last screen from stack and restore it
           const previousScreen = prev.screenStack[prev.screenStack.length - 1];

@@ -1,16 +1,4 @@
-import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import type { CompositeScreenProps } from '@react-navigation/native';
-
-// Define the parameter list for each tab
-export type TabParamList = {
-  Home: undefined;
-  Chat: undefined;
-  Appointments: { appointmentId?: string };
-  Payments: { paymentId?: string };
-  Products: undefined;
-  Profile: undefined;
-};
 
 // Product interface for navigation
 interface Product {
@@ -32,7 +20,6 @@ export type RootStackParamList = {
     organizationSlug: string;
     businessName: string;
   };
-  MainTabs: undefined;
   Login: undefined;
   ProductDetail: { product: Product };
   Signup: undefined;
@@ -58,18 +45,11 @@ export type RootStackParamList = {
   ChatDetails: { chatId: string };
 };
 
-// Screen props for tab screens
-export type TabScreenProps<T extends keyof TabParamList> = CompositeScreenProps<
-  BottomTabScreenProps<TabParamList, T>,
-  NativeStackScreenProps<RootStackParamList>
->;
-
 // Screen props for stack screens
 export type StackScreenProps<T extends keyof RootStackParamList> =
   NativeStackScreenProps<RootStackParamList, T>;
 
 // Navigation prop types
-export type TabNavigationProp = TabScreenProps<keyof TabParamList>['navigation'];
 export type StackNavigationProp = StackScreenProps<keyof RootStackParamList>['navigation'];
 
 declare global {
