@@ -161,21 +161,6 @@ export const FAQSkeleton: React.FC = () => {
   );
 };
 
-// Appointment Card Skeleton
-export const AppointmentSkeleton: React.FC = () => {
-  const { themedStyles } = useThemedStyles();
-  return (
-    <View style={[styles.appointmentCard, themedStyles.surface]}>
-      <View style={styles.appointmentHeader}>
-        <SkeletonBox width={120} height={18} borderRadius={4} />
-        <SkeletonBox width={60} height={16} borderRadius={4} />
-      </View>
-      <SkeletonBox width={width - 80} height={14} borderRadius={4} style={{ marginTop: 8 }} />
-      <SkeletonBox width={100} height={14} borderRadius={4} style={{ marginTop: 4 }} />
-    </View>
-  );
-};
-
 // Document Item Skeleton
 export const DocumentSkeleton: React.FC = () => {
   const { themedStyles } = useThemedStyles();
@@ -257,25 +242,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
-  },
-  appointmentCard: {
-    borderRadius: 12,
-    padding: 16,
-    marginHorizontal: 16,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  appointmentHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
   },
   documentItem: {
     flexDirection: 'row',

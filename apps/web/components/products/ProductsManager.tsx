@@ -32,6 +32,7 @@ interface Product {
   discounted_price?: number
   has_active_offer: boolean
   payment_transaction_id?: string
+  supports_reservations?: boolean
   created_at: string
   updated_at: string
 }

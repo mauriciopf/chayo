@@ -38,7 +38,7 @@ export class ToolIntentService {
   static getFunctionDefinitions(enabledTools: string[]): ToolFunction[] {
     const allFunctions: Record<string, ToolFunction> = {
       products: this.getProductsFunctionDefinition(),
-      appointments: this.getAppointmentsFunctionDefinition(),
+      reservations: this.getReservationsFunctionDefinition(),
       faqs: this.getFAQsFunctionDefinition(),
     }
 
@@ -61,8 +61,8 @@ export class ToolIntentService {
       switch (functionName) {
         case 'get_products':
           return await this.handleGetProducts(arguments_, organizationId, supabase)
-        case 'get_appointments':
-          return await this.handleGetAppointments(arguments_, organizationId, supabase)
+        case 'get_reservations':
+          return await this.handleGetReservations(arguments_, organizationId, supabase)
         case 'get_faqs':
           return await this.handleGetFAQs(arguments_, organizationId, supabase)
         default:
@@ -154,17 +154,22 @@ export class ToolIntentService {
   }
 
   // ============================================================================
-  // APPOINTMENTS TOOL
+  // RESERVATIONS TOOL
   // ============================================================================
 
-  private static getAppointmentsFunctionDefinition(): ToolFunction {
+  private static getReservationsFunctionDefinition(): ToolFunction {
     return {
       type: 'function',
-      name: 'get_appointments',
-      description: 'Obtener información sobre el sistema de citas y reservas del negocio, incluyendo proveedor y URL de agendamiento. Usa esta función cuando el usuario quiera agendar una cita, reservar, consultar disponibilidad o pregunte sobre horarios.',
+      name: 'get_reservations',
+      description: 'Obtener información sobre reservaciones disponibles y productos/servicios que se pueden reservar. Usa esta función cuando el usuario pregunte sobre reservar servicios, disponibilidad de horarios o agendar citas.',
       parameters: {
         type: 'object',
-        properties: {},
+        properties: {
+          product_id: {
+            type: 'string',
+            description: 'ID opcional del producto/servicio específico a consultar'
+          }
+        },
         required: [],
         additionalProperties: false
       },
@@ -172,40 +177,53 @@ export class ToolIntentService {
     }
   }
 
-  private static async handleGetAppointments(
+  private static async handleGetReservations(
     args: any,
     organizationId: string,
     supabase: SupabaseClient
   ): Promise<FunctionCallResult> {
     try {
-      // Get appointment settings from appointment_settings table
-      const { data: appointmentSettings, error: settingsError } = await supabase
-        .from('appointment_settings')
-        .select('provider, provider_url')
+      // Get products that support reservations
+      const { data: products, error: productsError } = await supabase
+        .from('products_list_tool')
+        .select('id, name, description, price')
         .eq('organization_id', organizationId)
-        .single()
 
-      if (settingsError || !appointmentSettings?.provider_url) {
+      if (productsError || !products || products.length === 0) {
         return {
           success: false,
-          error: 'El sistema de citas no está configurado.'
+          error: 'No hay productos o servicios disponibles para reservar en este momento.'
         }
       }
 
+      // If specific product requested
+      if (args.product_id) {
+        const product = products.find(p => p.id === args.product_id)
+        if (product) {
+          return {
+            success: true,
+            data: {
+              product,
+              message: `Puedes reservar "${product.name}". Los horarios disponibles son de 9 AM a 5 PM, con intervalos de 30 minutos.`
+            }
+          }
+        }
+      }
+
+      // Return all available products for reservation
       return {
         success: true,
         data: {
-          configured: true,
-          provider: appointmentSettings.provider,
-          provider_url: appointmentSettings.provider_url,
-          message: 'Para agendar una cita, puedes usar nuestro sistema de reservas.'
+          products,
+          count: products.length,
+          message: `Tenemos ${products.length} servicio(s) disponible(s) para reservar. Los horarios son de 9 AM a 5 PM.`
         }
       }
     } catch (error) {
-      console.error('Error in handleGetAppointments:', error)
+      console.error('Error in handleGetReservations:', error)
       return {
         success: false,
-        error: 'Error al consultar información de citas'
+        error: 'Error al consultar información de reservaciones'
       }
     }
   }

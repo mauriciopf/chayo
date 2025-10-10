@@ -24,6 +24,7 @@ interface Product {
   image_url?: string;
   price?: number;
   payment_transaction_id?: string;
+  supports_reservations?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -74,6 +75,13 @@ export const ProductDetailScreen: React.FC = () => {
     console.log('Purchase product:', product.id);
   };
 
+  const handleReservation = () => {
+    // Navigate to reservation flow with product context
+    (navigation as any).navigate('ReservationCalendar', {
+      product,
+      organizationId: config?.organizationId,
+    });
+  };
 
   return (
     <View style={[styles.container, themedStyles.container]}>
@@ -169,6 +177,20 @@ export const ProductDetailScreen: React.FC = () => {
                 ${product.price}
               </Text>
             </View>
+          )}
+
+          {/* Reservation Button - Only if product supports reservations */}
+          {product.supports_reservations && (
+            <TouchableOpacity
+              style={[styles.reservationButton, { backgroundColor: theme.primaryColor }]}
+              onPress={handleReservation}
+              activeOpacity={0.8}
+            >
+              <Icon name="calendar" size={20} color="#FFFFFF" />
+              <Text style={[styles.reservationButtonText, { fontSize: fontSizes.base }]}>
+                Reservar
+              </Text>
+            </TouchableOpacity>
           )}
 
           {/* Purchase Button */}
@@ -317,6 +339,21 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: '800',
     letterSpacing: 0.5,
+  },
+  reservationButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    marginBottom: 16,
+    gap: 8,
+  },
+  reservationButtonText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '700',
   },
   purchaseButton: {
     flexDirection: 'row',

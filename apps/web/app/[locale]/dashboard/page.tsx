@@ -20,6 +20,7 @@ import ChatContainer from '@/lib/features/chat/components/ChatContainer'
 import ClientQRCode from '@/lib/features/chat/components/ClientQRCode'
 import AgentsView from '@/lib/features/dashboard/components/agents/AgentsView'
 import CustomerSupportTool from '@/lib/features/tools/customer-support/components/CustomerSupportTool'
+import ReservationsManagementView from '@/lib/features/tools/reservations/components/ReservationsManagementView'
 
 import BusinessSummary from '@/lib/features/dashboard/components/overview/BusinessSummary'
 import { ActiveView } from '@/lib/shared/types'
@@ -142,6 +143,27 @@ function DashboardContent() {
   const [showManageDocsModal, setShowManageDocsModal] = useState(false)
   const [targetPlan, setTargetPlan] = useState<string | null>(null)
   const [showHamburgerMenu, setShowHamburgerMenu] = useState(false)
+  const [hasReservableProducts, setHasReservableProducts] = useState(false)
+
+  // Check if any products have reservations enabled
+  useEffect(() => {
+    const checkReservableProducts = async () => {
+      if (!auth.currentOrganization?.id) return
+      
+      try {
+        const response = await fetch(`/api/products?organizationId=${auth.currentOrganization.id}`)
+        if (response.ok) {
+          const products = await response.json()
+          const hasReservable = products.some((product: any) => product.supports_reservations === true)
+          setHasReservableProducts(hasReservable)
+        }
+      } catch (error) {
+        console.error('Error checking reservable products:', error)
+      }
+    }
+
+    checkReservableProducts()
+  }, [auth.currentOrganization?.id])
 
   // Handle URL params for plans
   useEffect(() => {
@@ -302,6 +324,12 @@ function DashboardContent() {
             }}
           />
         ) : null
+      case 'reservations':
+        return auth.currentOrganization ? (
+          <ReservationsManagementView
+            organizationId={auth.currentOrganization.id}
+          />
+        ) : null
       default:
         return null
     }
@@ -376,6 +404,7 @@ function DashboardContent() {
       showManageDocsModal={showManageDocsModal}
       setShowManageDocsModal={setShowManageDocsModal}
       handleManageDocsModalClose={() => setShowManageDocsModal(false)}
+      hasReservableProducts={hasReservableProducts}
     />
   )
 }

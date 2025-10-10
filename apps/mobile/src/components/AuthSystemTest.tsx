@@ -149,8 +149,8 @@ export default function AuthSystemTest() {
           <AuthGate
             organizationId={config?.organizationId || 'test-org'}
             onAuthenticated={handleTestAppointment}
-            title="Test Appointment Auth"
-            message="Testing appointment booking authentication"
+            title="Test Reservation Auth"
+            message="Testing reservation booking authentication"
           >
             <TouchableOpacity style={styles.testButton}>
               <Text style={[styles.testButtonText, { fontSize: fontSizes.base }]}>📅 Probar reservas de citas</Text>

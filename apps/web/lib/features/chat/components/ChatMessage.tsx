@@ -208,7 +208,7 @@ export default function ChatMessage({ role, content, timestamp, appointmentLink,
                   {cleanContent}
                 </div>
                 
-                {/* Appointment Button - Mobile Optimized */}
+                {/* Reservation Button - Mobile Optimized */}
                 {appointmentLink && (
                   <div className="mt-3">
                     <a
@@ -216,7 +216,7 @@ export default function ChatMessage({ role, content, timestamp, appointmentLink,
                       className="inline-flex items-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-base font-medium rounded-lg transition-colors touch-manipulation min-h-[44px]"
                     >
                       <Calendar className="w-5 h-5" />
-                      📱 Agendar Cita
+                      📱 Reservar
                     </a>
                   </div>
                 )}

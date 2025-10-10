@@ -69,7 +69,8 @@ export async function POST(request: NextRequest) {
       description,
       imageUrl,
       price,
-      paymentTransactionId
+      paymentTransactionId,
+      supportsReservations
     } = body
 
     if (!organizationId || !name) {
@@ -89,7 +90,8 @@ export async function POST(request: NextRequest) {
         description,
         image_url: imageUrl,
         price,
-        payment_transaction_id: paymentTransactionId
+        payment_transaction_id: paymentTransactionId,
+        supports_reservations: supportsReservations || false
       })
       .select()
       .single()

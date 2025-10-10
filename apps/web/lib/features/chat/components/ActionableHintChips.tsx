@@ -9,7 +9,7 @@ export type ActionableHint = {
   label: string
   icon: string
   description: string
-  category: 'appointments' | 'documents' | 'payments' | 'products' | 'intake_forms' | 'faqs' | 'vibe-card' | 'customer_support'
+  category: 'documents' | 'payments' | 'products' | 'intake_forms' | 'faqs' | 'vibe-card' | 'customer_support'
 }
 
 interface ActionableHintChipsProps {
@@ -38,7 +38,6 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
   }
 
   const [agentToolSettings, setAgentToolSettings] = useState<AgentToolSettings>({
-    appointments: false,
     documents: false,
     payments: false,
     products: false,
@@ -62,13 +61,6 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
       icon: '💬',
       description: 'Gestiona conversaciones de clientes y tickets de soporte en tiempo real.',
       category: 'customer_support'
-    },
-    {
-      id: 'schedule_appointment',
-      label: '📅 Agendar cita',
-      icon: '📅',
-      description: 'Reserva una reunión, reservación o espacio de servicio.',
-      category: 'appointments'
     },
     {
       id: 'share_document',

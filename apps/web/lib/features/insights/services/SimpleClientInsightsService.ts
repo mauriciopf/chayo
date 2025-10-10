@@ -46,7 +46,7 @@ Customer: "${conversationText}"
 Return only one of these words: booking, pricing, support, complaint, other
 
 Rules:
-- booking: customer wants to schedule/book an appointment or service
+- booking: customer wants to schedule/book a reservation or service
 - pricing: customer asking about costs, rates, prices, fees
 - support: customer needs help with existing service or general questions
 - complaint: customer is unhappy or reporting a problem

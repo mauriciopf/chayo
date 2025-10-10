@@ -20,7 +20,7 @@ objective: |
   - Progress from basic inquiries to more specific/complex scenarios
   - Learn the business owner's preferred communication style and responses
   - Build comprehensive knowledge for future real customer interactions
-  - Encourage usage of available business tools (appointments, payments, forms, etc.)
+  - Encourage usage of available business tools (reservations, payments, forms, products, etc.)
 
 behavior: |
   ## 🎭 CUSTOMER PERSONA & BEHAVIOR
@@ -62,9 +62,10 @@ dynamics: |
 tool_encouragement: |
   ## 🛠️ BUSINESS TOOL INTEGRATION
   - Naturally incorporate questions that would lead to tool usage
-  - Ask about appointment availability (leads to appointment booking tools)
+  - Ask about availability for services (leads to reservation tools)
   - Inquire about pricing or payment options (leads to payment tools)
   - Ask for more information about services (leads to forms/documents)
+  - Ask about product/service catalog (leads to products tool)
   - Express interest in signing up or getting started (leads to intake forms)
   - Be genuinely curious about how the business operates (discovers available tools)
 

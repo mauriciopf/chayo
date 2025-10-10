@@ -89,17 +89,18 @@ function NestedScreenHeader({ navigation, title }: NestedScreenHeaderProps) {
 // Import screens
 import { ChatScreen } from '../screens/ChatScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
-import { AppointmentsScreen } from '../screens/AppointmentsScreen';
 import { PaymentsScreen } from '../screens/PaymentsScreen';
 import { FAQsScreen } from '../screens/FAQsScreen';
 import { ProductsScreen } from '../screens/ProductsScreen';
 import { ProductDetailScreen } from '../screens/ProductDetailScreen';
 import { DocumentDetailScreen } from '../screens/DocumentDetailScreen';
 import { FormDetailScreen } from '../screens/FormDetailScreen';
-import { AppointmentTimeSelectionScreen } from '../screens/AppointmentTimeSelectionScreen';
-import { AppointmentBookingScreen } from '../screens/AppointmentBookingScreen';
 import { UnifiedDocumentsSection } from '../components/UnifiedDocumentsSection';
 import { CustomerSupportScreen } from '../screens/CustomerSupportScreen';
+import { ReservationsScreen } from '../screens/ReservationsScreen';
+import { ReservationCalendarScreen } from '../screens/ReservationCalendarScreen';
+import { ReservationTimeSelectionScreen } from '../screens/ReservationTimeSelectionScreen';
+import { ReservationBookingScreen } from '../screens/ReservationBookingScreen';
 
 const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
@@ -117,7 +118,7 @@ const getHeaderTitle = (routeName: string | undefined, businessName: string): st
 
   const titleMap: Record<string, string> = {
     'Products': 'Productos',
-    'Appointments': 'Citas',
+    'Reservations': 'Reservaciones',
     'Documents': 'Documentos',
     'FAQs': 'Preguntas Frecuentes',
     'Payments': 'Pagos',
@@ -140,7 +141,7 @@ interface ToolConfig {
 const toolConfigs: ToolConfig[] = [
   { name: 'Chat', label: 'Chat', icon: 'message-circle', component: ChatScreen, systemName: 'chat' },
   { name: 'Products', label: 'Productos', icon: 'shopping-bag', component: ProductsScreen, systemName: 'products' },
-  { name: 'Appointments', label: 'Citas', icon: 'calendar', component: AppointmentsScreen, systemName: 'appointments' },
+  { name: 'Reservations', label: 'Reservaciones', icon: 'calendar', component: ReservationsScreen, systemName: 'reservations' },
   { name: 'Documents', label: 'Documentos', icon: 'file-text', component: UnifiedDocumentsSection, systemName: 'documents_unified' },
   { name: 'FAQs', label: 'Preguntas', icon: 'help-circle', component: FAQsScreen, systemName: 'faqs' },
   { name: 'Payments', label: 'Pagos', icon: 'credit-card', component: PaymentsScreen, systemName: 'payments' },
@@ -228,35 +229,43 @@ function ProductsStack() {
           header: ({ navigation }) => <NestedScreenHeader navigation={navigation} title="Detalle del Producto" />,
         }}
       />
+      <Stack.Screen 
+        name="ReservationCalendar" 
+        component={ReservationCalendarScreen}
+        options={{
+          headerShown: true,
+          header: ({ navigation }) => <NestedScreenHeader navigation={navigation} title="Seleccionar Fecha" />,
+        }}
+      />
+      <Stack.Screen 
+        name="ReservationTimeSelection" 
+        component={ReservationTimeSelectionScreen}
+        options={{
+          headerShown: true,
+          header: ({ navigation }) => <NestedScreenHeader navigation={navigation} title="Seleccionar Hora" />,
+        }}
+      />
+      <Stack.Screen 
+        name="ReservationBooking" 
+        component={ReservationBookingScreen}
+        options={{
+          headerShown: true,
+          header: ({ navigation }) => <NestedScreenHeader navigation={navigation} title="Confirmar Reservación" />,
+        }}
+      />
     </Stack.Navigator>
   );
 }
 
-function AppointmentsStack() {
+function ReservationsStack() {
   return (
     <Stack.Navigator>
       <Stack.Screen 
-        name="AppointmentsMain" 
-        component={AppointmentsScreen}
+        name="ReservationsMain" 
+        component={ReservationsScreen}
         options={{
           headerShown: true,
-          header: ({ navigation }) => <MainScreenHeader navigation={navigation} title="Citas" />,
-        }}
-      />
-      <Stack.Screen 
-        name="AppointmentTimeSelection" 
-        component={AppointmentTimeSelectionScreen}
-        options={{
-          headerShown: true,
-          header: ({ navigation }) => <NestedScreenHeader navigation={navigation} title="Seleccionar Horario" />,
-        }}
-      />
-      <Stack.Screen 
-        name="AppointmentBooking" 
-        component={AppointmentBookingScreen}
-        options={{
-          headerShown: true,
-          header: ({ navigation }) => <NestedScreenHeader navigation={navigation} title="Reservar Cita" />,
+          header: ({ navigation }) => <MainScreenHeader navigation={navigation} title="Reservaciones" />,
         }}
       />
     </Stack.Navigator>
@@ -359,7 +368,7 @@ const getToolStack = (toolName: string) => {
   const stackMap: Record<string, React.ComponentType<any>> = {
     Chat: ChatStack,
     Products: ProductsStack,
-    Appointments: AppointmentsStack,
+    Reservations: ReservationsStack,
     Documents: DocumentsStack,
     FAQs: FAQsStack,
     Payments: PaymentsStack,
@@ -510,4 +519,5 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
+
 

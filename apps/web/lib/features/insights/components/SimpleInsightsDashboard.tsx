@@ -192,7 +192,7 @@ export default function SimpleInsightsDashboard({ organizationId }: SimpleInsigh
 
 function getIntentDisplayName(intent: string): string {
   const displayNames: Record<string, string> = {
-    'booking': 'appointment booking',
+    'booking': 'reservations & booking',
     'pricing': 'pricing information',
     'support': 'support & help',
     'complaint': 'complaints & issues',

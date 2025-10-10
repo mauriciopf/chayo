@@ -17,7 +17,7 @@ export async function GET(
     }
 
     // Validate tool type
-    const validToolTypes = ['appointments', 'documents', 'payments', 'intake_forms', 'faqs', 'products', 'customer_support']
+    const validToolTypes = ['reservations', 'documents', 'payments', 'intake_forms', 'faqs', 'products', 'customer_support']
     if (!validToolTypes.includes(toolType)) {
       return NextResponse.json({ error: 'Invalid tool type' }, { status: 400 })
     }

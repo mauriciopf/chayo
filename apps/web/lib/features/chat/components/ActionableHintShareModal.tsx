@@ -6,7 +6,6 @@ import { X, Check, Settings, AlertCircle, Info } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { ActionableHint } from './ActionableHintChips'
 import Switch from '../../../shared/ui/Switch'
-import AppointmentToolConfig from '../../tools/appointments/components/AppointmentToolConfig'
 import DocumentToolConfig from '../../tools/documents/components/DocumentToolConfig'
 import PaymentToolConfig from '../../tools/payments/components/PaymentToolConfig'
 import IntakeFormsToolConfig from '../../tools/intake-forms/components/IntakeFormsToolConfig'
@@ -45,7 +44,6 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
   const t = useTranslations('agentTools')
 
   const [agentToolSettings, setAgentToolSettings] = useState<AgentToolSettings>({
-    appointments: false,
     documents: false,
     payments: false,
     products: false,
@@ -161,17 +159,6 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
 
   const getCategoryContent = (category: ActionableHint['category']) => {
     switch (category) {
-      case 'appointments':
-        return {
-          title: t('modal.appointments.title'),
-          description: t('modal.appointments.description'),
-          features: [
-            t('modal.appointments.features.0'),
-            t('modal.appointments.features.1'),
-            t('modal.appointments.features.2'),
-            t('modal.appointments.features.3')
-          ]
-        }
       case 'documents':
         return {
           title: t('modal.documents.title'),
@@ -462,14 +449,6 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
               </div>
 
               {/* Tool-specific configuration components */}
-              {hint?.category === 'appointments' && (
-                <AppointmentToolConfig 
-                  organizationId={organizationId}
-                  isEnabled={isCurrentToolEnabled}
-                  onSettingsChange={onSettingsChange}
-                />
-              )}
-
               {hint?.category === 'documents' && (
                 <DocumentToolConfig 
                   organizationId={organizationId}
@@ -526,7 +505,7 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
                 />
               )}
 
-              {!isCurrentToolEnabled && !['appointments', 'documents', 'payments', 'products', 'intake_forms', 'faqs', 'vibe-card', 'customer_support'].includes(hint?.category || '') && (
+              {!isCurrentToolEnabled && !['documents', 'payments', 'products', 'intake_forms', 'faqs', 'vibe-card', 'customer_support'].includes(hint?.category || '') && (
                 <div 
                   className="p-4 rounded-lg border"
                   style={{ 

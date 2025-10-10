@@ -12,6 +12,7 @@ interface DesktopNavigationProps {
   user: any
   subscription: any
   businessName: string
+  hasReservableProducts?: boolean
 }
 
 export default function DesktopNavigation({
@@ -22,12 +23,13 @@ export default function DesktopNavigation({
   user,
   subscription,
   businessName,
+  hasReservableProducts,
 }: DesktopNavigationProps) {
   const t = useTranslations('dashboard')
   const [copied, setCopied] = useState(false)
 
-
-  const menuItems = [
+  // Base menu items (always visible)
+  const baseMenuItems = [
     {
       id: 'chat' as ActiveView,
       label: t('navigation.chat'),
@@ -73,6 +75,25 @@ export default function DesktopNavigation({
         </svg>
       )
     },
+  ]
+
+  // Conditional menu items
+  const conditionalMenuItems = []
+
+  // Add Reservations menu if any product has reservations enabled
+  if (hasReservableProducts) {
+    conditionalMenuItems.push({
+      id: 'reservations' as ActiveView,
+      label: 'Reservaciones',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+      )
+    })
+  }
+
+  const systemMenuItems = [
     {
       id: 'performance' as ActiveView,
       label: t('navigation.performance'),
@@ -102,6 +123,9 @@ export default function DesktopNavigation({
       )
     }
   ]
+
+  // Combine all menu items
+  const menuItems = [...baseMenuItems, ...conditionalMenuItems, ...systemMenuItems]
 
   return (
     <div className="hidden md:block md:w-64 md:flex-shrink-0" style={{ backgroundColor: 'var(--bg-secondary)', borderRight: '1px solid var(--border-primary)' }}>

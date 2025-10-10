@@ -18,8 +18,8 @@ export class AgentToolConstraintsService {
     supabase: any
   ): Promise<ToolConstraintResult> {
     switch (toolType) {
-      case 'appointments':
-        return this.checkAppointmentConstraints(organizationId, supabase)
+      case 'reservations':
+        return this.checkReservationConstraints(organizationId, supabase)
       
       case 'documents':
         return this.checkDocumentConstraints(organizationId, supabase)
@@ -47,39 +47,30 @@ export class AgentToolConstraintsService {
     }
   }
 
-  private static async checkAppointmentConstraints(
+  private static async checkReservationConstraints(
     organizationId: string, 
     supabase: any
   ): Promise<ToolConstraintResult> {
     try {
-      // Check if appointment settings are configured
-      const { data: settings, error } = await supabase
-        .from('appointment_settings')
-        .select('*')
+      // Reservations require at least one product/service in the catalog
+      const { data: products, error } = await supabase
+        .from('products_list_tool')
+        .select('id')
         .eq('organization_id', organizationId)
-        .single()
+        .limit(1)
 
-      if (error || !settings) {
+      if (error) {
         return {
           canEnable: false,
-          reason: 'Appointment settings not configured',
-          missingConfig: ['Configure appointment provider']
+          reason: 'Error checking products for reservations'
         }
       }
 
-      const missing = []
-      if (!settings.provider) missing.push('Appointment provider')
-      
-      // For external providers, check if URL is configured
-      if (settings.provider && settings.provider !== 'custom' && !settings.provider_url) {
-        missing.push('Provider URL')
-      }
-
-      if (missing.length > 0) {
+      if (!products || products.length === 0) {
         return {
           canEnable: false,
-          reason: 'Incomplete appointment configuration',
-          missingConfig: missing
+          reason: 'Reservations require at least one product or service',
+          missingConfig: ['Add at least one product/service to enable reservations']
         }
       }
 
@@ -87,7 +78,7 @@ export class AgentToolConstraintsService {
     } catch (error) {
       return {
         canEnable: false,
-        reason: 'Error checking appointment configuration'
+        reason: 'Error checking reservation configuration'
       }
     }
   }

@@ -1344,14 +1344,14 @@
           "Visibilidad en el mercado para el descubrimiento de clientes"
         ]
       },
-      "appointments": {
-        "title": "Reserva de Citas",
-        "description": "Permite a los clientes programar citas directamente a través de tu interfaz de chat.",
+      "reservations": {
+        "title": "Sistema de Reservaciones",
+        "description": "Permite a los clientes reservar productos y servicios directamente desde el marketplace.",
         "features": [
           "Verificación de disponibilidad en tiempo real",
-          "Integración automática de calendario",
-          "Confirmaciones por email y SMS",
-          "Capacidades de reprogramación"
+          "Reservaciones vinculadas a productos/servicios",
+          "Confirmaciones por email",
+          "Gestión de estado de reservaciones"
         ]
       },
       "documents": {
@@ -1494,11 +1494,44 @@
     },
     "dashboard": {
       "title": "Panel de Control y Gestión 📊",
-      "description": "Desde tu dashboard puedes ver estadísticas, gestionar conversaciones de clientes, actualizar herramientas, ver citas programadas, y controlar todos los aspectos de tu negocio digital.",
+      "description": "Desde tu dashboard puedes ver estadísticas, gestionar conversaciones de clientes, actualizar herramientas, ver reservaciones programadas, y controlar todos los aspectos de tu negocio digital.",
       "feature1": "Soporte al Cliente: ve todas las conversaciones activas",
       "feature2": "Cerebro de Chayo: análisis de tu negocio y tendencias",
       "feature3": "Gestión de herramientas: habilita/deshabilita funciones",
       "feature4": "Configuración de perfil y actualización de información"
     }
+  },
+  "reservations": {
+    "title": "Reservaciones",
+    "makeReservation": "Reservar",
+    "selectDate": "Selecciona una fecha",
+    "selectTime": "Selecciona un horario",
+    "confirmReservation": "Confirmar Reservación",
+    "reservationDetails": "Detalles de la Reservación",
+    "product": "Producto/Servicio",
+    "date": "Fecha",
+    "time": "Hora",
+    "notes": "Notas adicionales",
+    "notesPlaceholder": "Información adicional o solicitudes especiales...",
+    "status": {
+      "pending": "Pendiente",
+      "confirmed": "Confirmada",
+      "cancelled": "Cancelada",
+      "completed": "Completada",
+      "no_show": "No se presentó"
+    },
+    "success": "¡Reservación creada exitosamente!",
+    "successMessage": "Tu reservación ha sido confirmada. Recibirás un email de confirmación.",
+    "error": "Error al crear la reservación",
+    "errorMessage": "No se pudo crear la reservación. Por favor intenta de nuevo.",
+    "availableTimes": "Horarios Disponibles",
+    "loginToReserve": "Inicia sesión para reservar",
+    "loginMessage": "Confirma tu reservación",
+    "reserving": "Reservando...",
+    "myReservations": "Mis Reservaciones",
+    "noReservations": "No tienes reservaciones",
+    "viewDetails": "Ver Detalles",
+    "cancel": "Cancelar Reservación",
+    "confirmCancel": "¿Estás seguro de que deseas cancelar esta reservación?"
   }
 }

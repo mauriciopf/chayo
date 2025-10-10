@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { X, Upload, DollarSign, Package, Image as ImageIcon } from 'lucide-react'
+import { X, Upload, DollarSign, Package, Image as ImageIcon, Calendar } from 'lucide-react'
 
 interface Product {
   id: string
@@ -10,6 +10,7 @@ interface Product {
   image_url?: string
   price?: number
   payment_transaction_id?: string
+  supports_reservations?: boolean
 }
 
 interface ProductFormProps {
@@ -25,14 +26,15 @@ export default function ProductForm({ organizationId, product, onSave, onCancel 
     description: product?.description || '',
     imageUrl: product?.image_url || '',
     price: product?.price?.toString() || '',
-    paymentTransactionId: product?.payment_transaction_id || ''
+    paymentTransactionId: product?.payment_transaction_id || '',
+    supportsReservations: product?.supports_reservations || false
   })
   
   const [uploading, setUploading] = useState(false)
   const [saving, setSaving] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 
@@ -95,7 +97,8 @@ export default function ProductForm({ organizationId, product, onSave, onCancel 
         description: formData.description.trim() || undefined,
         imageUrl: formData.imageUrl || undefined,
         price: formData.price ? parseFloat(formData.price) : undefined,
-        paymentTransactionId: formData.paymentTransactionId || undefined
+        paymentTransactionId: formData.paymentTransactionId || undefined,
+        supportsReservations: formData.supportsReservations
       }
 
       const url = product ? `/api/products/${product.id}` : '/api/products'
@@ -296,6 +299,42 @@ export default function ProductForm({ organizationId, product, onSave, onCancel 
             <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
               Connect this product/service to a payment link created by the Payment Tool
             </p>
+          </div>
+
+          {/* Supports Reservations Toggle */}
+          <div 
+            className="p-4 rounded-lg border"
+            style={{ 
+              backgroundColor: 'var(--bg-tertiary)',
+              borderColor: 'var(--border-secondary)'
+            }}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Calendar className="h-5 w-5" style={{ color: 'var(--accent-secondary)' }} />
+                <div>
+                  <label className="block text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
+                    Habilitar Reservaciones
+                  </label>
+                  <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
+                    Permite a los clientes reservar citas para este producto/servicio
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleInputChange('supportsReservations', !formData.supportsReservations)}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                  formData.supportsReservations ? 'bg-purple-600' : 'bg-gray-300'
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    formData.supportsReservations ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </div>
           </div>
 
           {/* Actions */}

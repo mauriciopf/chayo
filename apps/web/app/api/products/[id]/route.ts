@@ -8,7 +8,7 @@ export async function PUT(
   try {
     const { id } = await params
     const body = await request.json()
-    const { name, description, imageUrl, price, paymentTransactionId } = body
+    const { name, description, imageUrl, price, paymentTransactionId, supportsReservations } = body
 
     if (!name) {
       return NextResponse.json(
@@ -26,7 +26,8 @@ export async function PUT(
         description,
         image_url: imageUrl,
         price,
-        payment_transaction_id: paymentTransactionId
+        payment_transaction_id: paymentTransactionId,
+        supports_reservations: supportsReservations
       })
       .eq('id', id)
       .select()
