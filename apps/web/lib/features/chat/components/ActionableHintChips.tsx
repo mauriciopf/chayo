@@ -56,6 +56,13 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
       category: 'vibe-card'
     },
     {
+      id: 'products_services',
+      label: '🛍️ Productos y Servicios',
+      icon: '🛍️',
+      description: 'Comparte tu catálogo de productos, lista de servicios o información de precios.',
+      category: 'products'
+    },
+    {
       id: 'customer_support',
       label: '💬 Soporte al Cliente',
       icon: '💬',
@@ -75,13 +82,6 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
       icon: '💳',
       description: 'Envía un enlace de pago o confirma detalles de pago.',
       category: 'payments'
-    },
-    {
-      id: 'products_services',
-      label: '🛍️ Productos y Servicios',
-      icon: '🛍️',
-      description: 'Comparte tu catálogo de productos, lista de servicios o información de precios.',
-      category: 'products'
     },
     {
       id: 'collect_intake_form',

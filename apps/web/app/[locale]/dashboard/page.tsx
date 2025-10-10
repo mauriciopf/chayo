@@ -153,7 +153,8 @@ function DashboardContent() {
       try {
         const response = await fetch(`/api/products?organizationId=${auth.currentOrganization.id}`)
         if (response.ok) {
-          const products = await response.json()
+          const data = await response.json()
+          const products = data.products || []
           const hasReservable = products.some((product: any) => product.supports_reservations === true)
           setHasReservableProducts(hasReservable)
         }
