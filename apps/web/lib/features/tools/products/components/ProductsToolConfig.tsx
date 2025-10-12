@@ -39,28 +39,7 @@ const ProductsToolConfig: React.FC<ProductsToolConfigProps> = ({
   }
 
   return (
-    <div className="space-y-6">
-      <div 
-        className="p-4 rounded-lg border"
-        style={{ 
-          backgroundColor: 'var(--bg-tertiary)',
-          borderColor: 'var(--border-primary)'
-        }}
-      >
-        <div className="flex items-center gap-3 mb-3">
-          <Package className="h-5 w-5" style={{ color: 'var(--accent-secondary)' }} />
-          <h4 className="font-medium" style={{ color: 'var(--text-primary)' }}>
-            Gestión de Productos y Servicios
-          </h4>
-        </div>
-        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-          Gestiona tu catálogo de productos, servicios y ofertas promocionales que se pueden compartir con los clientes.
-        </p>
-      </div>
-      
-      {/* Products Manager with integrated offers */}
-      <ProductsManager organizationId={organizationId} />
-    </div>
+    <ProductsManager organizationId={organizationId} />
   )
 }
 

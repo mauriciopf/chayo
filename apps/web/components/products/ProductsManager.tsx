@@ -145,29 +145,13 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
       {/* 📦 PRODUCTS & SERVICES SECTION */}
       <div className="space-y-6">
         {/* Products Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h2 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
-              Productos y Servicios
-            </h2>
-            <p style={{ color: 'var(--text-secondary)' }}>
-              Gestiona tu catálogo de productos y servicios
-            </p>
-          </div>
-          <button
-            onClick={() => {
-              setEditingProduct(null)
-              setShowProductForm(true)
-            }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors"
-            style={{ 
-              backgroundColor: 'var(--accent-primary)',
-              color: 'white'
-            }}
-          >
-            <Plus className="h-5 w-5" />
-            Agregar Producto
-          </button>
+        <div>
+          <h2 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
+            Productos y Servicios
+          </h2>
+          <p style={{ color: 'var(--text-secondary)' }}>
+            Gestiona tu catálogo de productos y servicios
+          </p>
         </div>
 
         {/* Search */}
