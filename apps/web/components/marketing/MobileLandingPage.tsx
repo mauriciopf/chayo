@@ -9,6 +9,8 @@ interface MobileLandingPageProps {
 
 export default function MobileLandingPage({ videoUrl }: MobileLandingPageProps) {
   const [isPlaying, setIsPlaying] = useState(true)
+  const [isMuted, setIsMuted] = useState(true)
+  const [showUnmuteOverlay, setShowUnmuteOverlay] = useState(true)
   const videoRef = useRef<HTMLVideoElement>(null)
 
   // Auto-play on mount
@@ -29,6 +31,17 @@ export default function MobileLandingPage({ videoUrl }: MobileLandingPageProps) 
         videoRef.current.play()
       }
       setIsPlaying(!isPlaying)
+    }
+  }
+
+  const handleUnmuteClick = () => {
+    if (videoRef.current) {
+      // Restart video from beginning with sound
+      videoRef.current.currentTime = 0
+      videoRef.current.muted = false
+      videoRef.current.play()
+      setIsMuted(false)
+      setShowUnmuteOverlay(false)
     }
   }
 
@@ -99,8 +112,27 @@ export default function MobileLandingPage({ videoUrl }: MobileLandingPageProps) 
                     </div>
                   )}
 
-                  {/* Tap to Pause when playing */}
-                  {isPlaying && (
+                  {/* Unmute Overlay - Shows when video is muted */}
+                  {showUnmuteOverlay && isMuted && isPlaying && (
+                    <div
+                      onClick={handleUnmuteClick}
+                      className="absolute inset-0 bg-black bg-opacity-20 cursor-pointer flex items-center justify-center"
+                    >
+                      <div className="flex flex-col items-center space-y-3 animate-pulse">
+                        <div className="w-16 h-16 rounded-full bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center">
+                          <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                          </svg>
+                        </div>
+                        <p className="text-white text-sm font-medium bg-black bg-opacity-60 px-4 py-2 rounded-full backdrop-blur-sm">
+                          Toca para activar sonido
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Tap to Pause when playing and not muted */}
+                  {isPlaying && !showUnmuteOverlay && (
                     <div
                       onClick={handlePlayPause}
                       className="absolute inset-0 cursor-pointer"
