@@ -18,11 +18,25 @@ interface EmailRequest {
 }
 
 serve(async (req) => {
+  // CORS headers
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  }
+
+  // Handle CORS preflight
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
+
   // Only allow POST
   if (req.method !== 'POST') {
     return new Response(
       JSON.stringify({ error: 'Method not allowed' }),
-      { headers: { 'Content-Type': 'application/json' }, status: 405 }
+      { 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
+        status: 405 
+      }
     )
   }
 
@@ -34,7 +48,7 @@ serve(async (req) => {
     if (!authHeader) {
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
-        { headers: { 'Content-Type': 'application/json' }, status: 401 }
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
       )
     }
 
@@ -54,7 +68,7 @@ serve(async (req) => {
       console.error('Auth error:', authError)
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
-        { headers: { 'Content-Type': 'application/json' }, status: 401 }
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
       )
     }
 
@@ -66,14 +80,14 @@ serve(async (req) => {
     if (!emails || !Array.isArray(emails) || emails.length === 0) {
       return new Response(
         JSON.stringify({ error: 'At least one email is required' }),
-        { headers: { 'Content-Type': 'application/json' }, status: 400 }
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
       )
     }
 
     if (!organizationSlug || !qrCodeDataUrl) {
       return new Response(
         JSON.stringify({ error: 'Missing required fields' }),
-        { headers: { 'Content-Type': 'application/json' }, status: 400 }
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
       )
     }
 
@@ -83,7 +97,7 @@ serve(async (req) => {
     if (invalidEmails.length > 0) {
       return new Response(
         JSON.stringify({ error: 'Invalid email format', invalidEmails }),
-        { headers: { 'Content-Type': 'application/json' }, status: 400 }
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
       )
     }
 
@@ -138,7 +152,7 @@ serve(async (req) => {
         failed: failed,
         message: `Successfully sent ${successful} email(s)${failed > 0 ? `, ${failed} failed` : ''}`
       }),
-      { headers: { 'Content-Type': 'application/json' }, status: 200 }
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
     )
 
   } catch (error) {
@@ -148,7 +162,7 @@ serve(async (req) => {
         error: 'Failed to send emails',
         details: error instanceof Error ? error.message : String(error)
       }),
-      { headers: { 'Content-Type': 'application/json' }, status: 500 }
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     )
   }
 })
