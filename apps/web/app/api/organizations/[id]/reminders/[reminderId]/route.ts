@@ -1,6 +1,5 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
@@ -9,13 +8,12 @@ export const dynamic = 'force-dynamic'
  * Update a reminder
  */
 export async function PUT(
-  request: Request,
-  { params }: { params: { id: string; reminderId: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string; reminderId: string }> }
 ) {
   try {
-    const supabase = createRouteHandlerClient({ cookies })
-    const organizationId = params.id
-    const reminderId = params.reminderId
+    const { id: organizationId, reminderId } = await params
+    const supabase = await getSupabaseServerClient()
 
     // Verify user has access
     const { data: { user } } = await supabase.auth.getUser()
@@ -33,11 +31,11 @@ export async function PUT(
 
     const { data: organization } = await supabase
       .from('organizations')
-      .select('owner_user_id')
+      .select('owner_id')
       .eq('id', organizationId)
       .single()
 
-    if (!organization || (organization.owner_user_id !== user.id && !membership)) {
+    if (!organization || (organization.owner_id !== user.id && !membership)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
@@ -94,13 +92,12 @@ export async function PUT(
  * Delete a reminder
  */
 export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string; reminderId: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string; reminderId: string }> }
 ) {
   try {
-    const supabase = createRouteHandlerClient({ cookies })
-    const organizationId = params.id
-    const reminderId = params.reminderId
+    const { id: organizationId, reminderId } = await params
+    const supabase = await getSupabaseServerClient()
 
     // Verify user has access
     const { data: { user } } = await supabase.auth.getUser()
@@ -118,11 +115,11 @@ export async function DELETE(
 
     const { data: organization } = await supabase
       .from('organizations')
-      .select('owner_user_id')
+      .select('owner_id')
       .eq('id', organizationId)
       .single()
 
-    if (!organization || (organization.owner_user_id !== user.id && !membership)) {
+    if (!organization || (organization.owner_id !== user.id && !membership)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 

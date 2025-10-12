@@ -1,6 +1,5 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
@@ -9,12 +8,12 @@ export const dynamic = 'force-dynamic'
  * Fetch all reminders for an organization
  */
 export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = createRouteHandlerClient({ cookies })
-    const organizationId = params.id
+    const { id: organizationId } = await params
+    const supabase = await getSupabaseServerClient()
 
     // Verify user has access
     const { data: { user } } = await supabase.auth.getUser()
@@ -32,11 +31,11 @@ export async function GET(
 
     const { data: organization } = await supabase
       .from('organizations')
-      .select('owner_user_id')
+      .select('owner_id')
       .eq('id', organizationId)
       .single()
 
-    if (!organization || (organization.owner_user_id !== user.id && !membership)) {
+    if (!organization || (organization.owner_id !== user.id && !membership)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
@@ -67,12 +66,12 @@ export async function GET(
  * Create a new reminder
  */
 export async function POST(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = createRouteHandlerClient({ cookies })
-    const organizationId = params.id
+    const { id: organizationId } = await params
+    const supabase = await getSupabaseServerClient()
 
     // Verify user has access
     const { data: { user } } = await supabase.auth.getUser()
@@ -90,11 +89,11 @@ export async function POST(
 
     const { data: organization } = await supabase
       .from('organizations')
-      .select('owner_user_id')
+      .select('owner_id')
       .eq('id', organizationId)
       .single()
 
-    if (!organization || (organization.owner_user_id !== user.id && !membership)) {
+    if (!organization || (organization.owner_id !== user.id && !membership)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 

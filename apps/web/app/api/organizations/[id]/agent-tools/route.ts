@@ -45,11 +45,11 @@ export async function POST(
     const supabase = await getSupabaseServerClient()
     const { toolType, enabled } = await request.json()
 
-    // Validate tool type
-    const validToolTypes = ['appointments', 'documents', 'payments', 'intake_forms', 'faqs', 'products', 'customer_support']
-    if (!validToolTypes.includes(toolType)) {
-      return NextResponse.json({ error: 'Invalid tool type' }, { status: 400 })
+    if (!toolType) {
+      return NextResponse.json({ error: 'Tool type required' }, { status: 400 })
     }
+    
+    // Database constraint will validate if tool type is valid
 
     // Check constraints before enabling a tool
     if (enabled) {

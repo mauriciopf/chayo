@@ -16,13 +16,8 @@ export async function GET(
       return NextResponse.json({ error: 'Tool type required' }, { status: 400 })
     }
 
-    // Validate tool type
-    const validToolTypes = ['reservations', 'documents', 'payments', 'intake_forms', 'faqs', 'products', 'customer_support']
-    if (!validToolTypes.includes(toolType)) {
-      return NextResponse.json({ error: 'Invalid tool type' }, { status: 400 })
-    }
-
     // Check constraints for the specified tool
+    // Database constraint will validate if tool type is valid
     const constraintResult = await AgentToolConstraintsService.checkToolConstraints(
       organizationId, 
       toolType, 
