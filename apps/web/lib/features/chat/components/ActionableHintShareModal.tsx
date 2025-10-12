@@ -13,7 +13,7 @@ import FAQToolConfig from '../../tools/faqs/components/FAQToolConfig'
 import { VibeCardConfig } from '../../tools/vibe-card/components/VibeCardConfig'
 import ProductsToolConfig from '../../tools/products/components/ProductsToolConfig'
 import CustomerSupportToolModal from '../../tools/customer-support/components/CustomerSupportToolModal'
-import RemindersToolConfig from '../../tools/reminders/components/RemindersToolConfig'
+import RemindersToolConfigWizard from '../../tools/reminders/components/RemindersToolConfigWizard'
 
 interface ActionableHintShareModalProps {
   isOpen: boolean
@@ -519,7 +519,7 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
               )}
 
               {hint?.category === 'reminders' && isCurrentToolEnabled && (
-                <RemindersToolConfig 
+                <RemindersToolConfigWizard 
                   organizationId={organizationId}
                   businessName={content.title}
                 />
