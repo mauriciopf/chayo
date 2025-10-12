@@ -2,6 +2,16 @@ import React, { useState, useRef } from 'react'
 import ActionableHintChips, { ActionableHint } from './ActionableHintChips'
 import ActionableHintShareModal from './ActionableHintShareModal'
 
+type AgentToolSettings = {
+  documents: boolean
+  payments: boolean
+  products: boolean
+  intake_forms: boolean
+  faqs: boolean
+  customer_support: boolean
+  reminders: boolean
+}
+
 interface ChatActionableHintsProps {
   organizationId: string
 }
@@ -10,15 +20,18 @@ const ChatActionableHints: React.FC<ChatActionableHintsProps> = ({ organizationI
   const [selectedHint, setSelectedHint] = useState<ActionableHint | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
+  const [toolSettings, setToolSettings] = useState<AgentToolSettings | null>(null)
 
-  const handleHintSelect = (hint: ActionableHint) => {
+  const handleHintSelect = (hint: ActionableHint, currentSettings: AgentToolSettings) => {
     setSelectedHint(hint)
+    setToolSettings(currentSettings)
     setIsModalOpen(true)
   }
 
   const handleCloseModal = () => {
     setIsModalOpen(false)
     setSelectedHint(null)
+    setToolSettings(null)
   }
 
   const handleSettingsChange = () => {
@@ -51,6 +64,7 @@ const ChatActionableHints: React.FC<ChatActionableHintsProps> = ({ organizationI
         hint={selectedHint}
         organizationId={organizationId}
         onSettingsChange={handleSettingsChange}
+        initialToolSettings={toolSettings || undefined}
       />
     </>
   )

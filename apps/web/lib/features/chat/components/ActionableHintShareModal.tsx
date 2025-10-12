@@ -21,6 +21,7 @@ interface ActionableHintShareModalProps {
   hint: ActionableHint | null
   organizationId: string
   onSettingsChange?: () => void
+  initialToolSettings?: AgentToolSettings
 }
 
 type AgentToolSettings = {
@@ -40,7 +41,8 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
   onClose,
   hint,
   organizationId,
-  onSettingsChange
+  onSettingsChange,
+  initialToolSettings
 }) => {
   const t = useTranslations('agentTools')
 
@@ -56,26 +58,19 @@ const ActionableHintShareModal: React.FC<ActionableHintShareModalProps> = ({
   const [toolConstraints, setToolConstraints] = useState<{ [key: string]: ToolConstraint }>({})
   const [loading, setLoading] = useState(false)
 
-  // Load agent tool settings and constraints when modal opens
+  // Initialize with passed settings or load from API
+  useEffect(() => {
+    if (initialToolSettings) {
+      setAgentToolSettings(initialToolSettings)
+    }
+  }, [initialToolSettings])
+
+  // Load tool constraints when modal opens (but not settings - they're passed as props)
   useEffect(() => {
     if (isOpen && organizationId && hint?.category) {
-      loadAgentToolSettings()
       loadToolConstraints(hint.category)
     }
   }, [isOpen, organizationId, hint?.category])
-
-  const loadAgentToolSettings = async () => {
-    try {
-      const response = await fetch(`/api/organizations/${organizationId}/agent-tools`)
-      if (response.ok) {
-        const settings = await response.json()
-
-        setAgentToolSettings(settings)
-      }
-    } catch (error) {
-      console.error('Error loading agent tool settings:', error)
-    }
-  }
 
   const loadToolConstraints = async (toolType: string) => {
     // Skip constraint loading for vibe-card (it's not a database tool)

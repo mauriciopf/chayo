@@ -13,7 +13,7 @@ export type ActionableHint = {
 }
 
 interface ActionableHintChipsProps {
-  onHintSelect: (hint: ActionableHint) => void
+  onHintSelect: (hint: ActionableHint, settings: AgentToolSettings) => void
   organizationId: string
   className?: string
 }
@@ -127,8 +127,8 @@ const ActionableHintChips: React.FC<ActionableHintChipsProps> = ({
   }
 
   const handleHintClick = (hint: ActionableHint) => {
-    // Always open the modal when a hint is clicked
-    onHintSelect(hint)
+    // Always open the modal when a hint is clicked, passing current settings
+    onHintSelect(hint, agentToolSettings)
   }
 
   return (
