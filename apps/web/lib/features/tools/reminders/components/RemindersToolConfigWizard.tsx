@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
-import { Calendar, Clock, User, Mail, Loader2, Sparkles, RefreshCw, Trash2, Eye, Repeat } from 'lucide-react'
+import { Calendar, Clock, User, Mail, Loader2, Sparkles, RefreshCw, Eye, Repeat } from 'lucide-react'
 import MultiStepWizard, { WizardStep } from '@/lib/shared/components/MultiStepWizard'
 
 interface Customer {
@@ -9,26 +9,6 @@ interface Customer {
   email: string
   full_name: string | null
   avatar_url: string | null
-  created_at: string
-}
-
-interface Reminder {
-  id: string
-  customer_id: string
-  customer: {
-    id: string
-    email: string
-    full_name: string | null
-    avatar_url: string | null
-  }
-  original_message: string
-  ai_generated_html: string | null
-  subject: string
-  scheduled_at: string
-  recurrence: 'once' | 'daily' | 'weekly' | 'monthly'
-  status: 'pending' | 'sent' | 'failed' | 'cancelled'
-  sent_count: number
-  last_sent_at: string | null
   created_at: string
 }
 
@@ -40,7 +20,6 @@ interface RemindersToolConfigWizardProps {
 export default function RemindersToolConfigWizard({ organizationId, businessName }: RemindersToolConfigWizardProps) {
   // State
   const [customers, setCustomers] = useState<Customer[]>([])
-  const [reminders, setReminders] = useState<Reminder[]>([])
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
   const [subject, setSubject] = useState('')
   const [message, setMessage] = useState('')
@@ -58,7 +37,6 @@ export default function RemindersToolConfigWizard({ organizationId, businessName
   const [generatingTemplate, setGeneratingTemplate] = useState(false)
   const [sendingReminder, setSendingReminder] = useState(false)
   const [customersLoading, setCustomersLoading] = useState(true)
-  const [remindersLoading, setRemindersLoading] = useState(true)
 
   // Search
   const [searchQuery, setSearchQuery] = useState('')
@@ -86,28 +64,7 @@ export default function RemindersToolConfigWizard({ organizationId, businessName
     }
   }, [organizationId])
 
-  // Load reminders
-  useEffect(() => {
-    const loadReminders = async () => {
-      try {
-        const response = await fetch(`/api/organizations/${organizationId}/reminders`)
-        if (response.ok) {
-          const data = await response.json()
-          setReminders(data.reminders || [])
-        } else if (response.status === 401) {
-          console.error('Not authenticated. Please log in to access reminders.')
-        }
-      } catch (error) {
-        console.error('Error loading reminders:', error)
-      } finally {
-        setRemindersLoading(false)
-      }
-    }
-
-    if (organizationId) {
-      loadReminders()
-    }
-  }, [organizationId])
+  // Removed reminders loading - now handled by RemindersManagementView
 
   // Generate AI template
   const handleGenerateTemplate = async (regenerate = false) => {
@@ -168,14 +125,11 @@ export default function RemindersToolConfigWizard({ organizationId, businessName
       })
 
       if (response.ok) {
-        const data = await response.json()
-        setReminders([data.reminder, ...reminders])
-        
         // Reset form
         resetWizard()
         setShowWizard(false)
         
-        alert('✅ Recordatorio programado exitosamente!')
+        alert('✅ Recordatorio programado exitosamente! Ve a la sección de Recordatorios en el menú lateral para administrarlo.')
       } else {
         alert('Error al programar recordatorio')
       }
@@ -201,25 +155,7 @@ export default function RemindersToolConfigWizard({ organizationId, businessName
     setSearchQuery('')
   }
 
-  // Delete reminder
-  const handleDeleteReminder = async (reminderId: string) => {
-    if (!confirm('¿Estás seguro de eliminar este recordatorio?')) return
-
-    try {
-      const response = await fetch(`/api/organizations/${organizationId}/reminders/${reminderId}`, {
-        method: 'DELETE'
-      })
-
-      if (response.ok) {
-        setReminders(reminders.filter(r => r.id !== reminderId))
-      } else {
-        alert('Error al eliminar recordatorio')
-      }
-    } catch (error) {
-      console.error('Error deleting reminder:', error)
-      alert('Error al eliminar recordatorio')
-    }
-  }
+  // Reminder management now handled by RemindersManagementView
 
   // Filter customers
   const filteredCustomers = customers.filter(c =>
@@ -583,156 +519,52 @@ export default function RemindersToolConfigWizard({ organizationId, businessName
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left: Create Reminder Wizard */}
-        <div>
-          <div 
-            className="p-6 rounded-lg border min-h-[600px]"
-            style={{ 
-              backgroundColor: 'var(--bg-secondary)',
-              borderColor: 'var(--border-primary)'
-            }}
-          >
-            {!showWizard ? (
-              <div className="flex flex-col items-center justify-center h-full text-center py-12">
-                <Sparkles className="h-16 w-16 mb-4" style={{ color: 'var(--accent-secondary)' }} />
-                <h4 className="text-xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
-                  Crear Nuevo Recordatorio
-                </h4>
-                <p className="text-sm mb-6 max-w-md" style={{ color: 'var(--text-secondary)' }}>
-                  Sigue los pasos para crear un recordatorio personalizado con plantilla generada por IA
-                </p>
-                <button
-                  onClick={() => setShowWizard(true)}
-                  className="px-6 py-3 rounded-lg font-semibold"
-                  style={{
-                    backgroundColor: 'var(--accent-secondary)',
-                    color: 'white'
-                  }}
-                >
-                  Comenzar
-                </button>
-              </div>
-            ) : (
-              <MultiStepWizard
-                steps={wizardSteps}
-                currentStep={currentStep}
-                onStepChange={setCurrentStep}
-                onComplete={handleSendReminder}
-                onCancel={() => {
-                  resetWizard()
-                  setShowWizard(false)
+      <div className="max-w-3xl mx-auto">
+        <div 
+          className="p-6 rounded-lg border min-h-[600px]"
+          style={{ 
+            backgroundColor: 'var(--bg-secondary)',
+            borderColor: 'var(--border-primary)'
+          }}
+        >
+          {!showWizard ? (
+            <div className="flex flex-col items-center justify-center h-full text-center py-12">
+              <Sparkles className="h-16 w-16 mb-4" style={{ color: 'var(--accent-secondary)' }} />
+              <h4 className="text-xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
+                Crear Nuevo Recordatorio
+              </h4>
+              <p className="text-sm mb-4 max-w-md" style={{ color: 'var(--text-secondary)' }}>
+                Sigue los pasos para crear un recordatorio personalizado con plantilla generada por IA
+              </p>
+              <p className="text-xs mb-6 max-w-md" style={{ color: 'var(--text-muted)' }}>
+                💡 Una vez creado, podrás administrarlo desde la sección de Recordatorios en el menú lateral
+              </p>
+              <button
+                onClick={() => setShowWizard(true)}
+                className="px-6 py-3 rounded-lg font-semibold"
+                style={{
+                  backgroundColor: 'var(--accent-secondary)',
+                  color: 'white'
                 }}
-                isSubmitting={sendingReminder}
-                submitLabel="Programar Recordatorio"
-                cancelLabel="Cancelar"
-              />
-            )}
-          </div>
-        </div>
-
-        {/* Right: Reminders List */}
-        <div>
-          <div 
-            className="p-4 rounded-lg border"
-            style={{ 
-              backgroundColor: 'var(--bg-secondary)',
-              borderColor: 'var(--border-primary)'
-            }}
-          >
-            <h4 className="font-medium mb-4" style={{ color: 'var(--text-primary)' }}>
-              Recordatorios Programados
-            </h4>
-
-            <div className="space-y-3 max-h-[600px] overflow-y-auto">
-              {remindersLoading ? (
-                <div className="text-center py-8">
-                  <Loader2 className="h-6 w-6 animate-spin mx-auto" style={{ color: 'var(--text-muted)' }} />
-                </div>
-              ) : reminders.length === 0 ? (
-                <div className="text-center py-8">
-                  <Calendar className="h-12 w-12 mx-auto mb-3" style={{ color: 'var(--text-muted)' }} />
-                  <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                    No hay recordatorios programados
-                  </p>
-                </div>
-              ) : (
-                reminders.map((reminder) => (
-                  <div
-                    key={reminder.id}
-                    className="p-3 rounded-lg border"
-                    style={{
-                      backgroundColor: 'var(--bg-tertiary)',
-                      borderColor: 'var(--border-secondary)'
-                    }}
-                  >
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm truncate" style={{ color: 'var(--text-primary)' }}>
-                          {reminder.subject}
-                        </p>
-                        <p className="text-xs truncate" style={{ color: 'var(--text-muted)' }}>
-                          Para: {reminder.customer.full_name || reminder.customer.email}
-                        </p>
-                      </div>
-                      <button
-                        onClick={() => handleDeleteReminder(reminder.id)}
-                        className="ml-2 p-1 rounded-md hover:bg-red-500/10 transition-colors"
-                        style={{ color: 'var(--text-danger)' }}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-
-                    <div className="flex items-center gap-2 text-xs" style={{ color: 'var(--text-muted)' }}>
-                      <Calendar className="h-3 w-3" />
-                      {new Date(reminder.scheduled_at).toLocaleDateString('es', {
-                        day: 'numeric',
-                        month: 'short',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </div>
-
-                    <div className="flex items-center gap-2 mt-2">
-                      <span 
-                        className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                          reminder.status === 'pending' ? 'bg-yellow-500/20 text-yellow-600' :
-                          reminder.status === 'sent' ? 'bg-green-500/20 text-green-600' :
-                          reminder.status === 'failed' ? 'bg-red-500/20 text-red-600' :
-                          'bg-gray-500/20 text-gray-600'
-                        }`}
-                      >
-                        {reminder.status === 'pending' && '⏳ Pendiente'}
-                        {reminder.status === 'sent' && '✅ Enviado'}
-                        {reminder.status === 'failed' && '❌ Fallido'}
-                        {reminder.status === 'cancelled' && '🚫 Cancelado'}
-                      </span>
-                      <span 
-                        className="text-xs px-2 py-0.5 rounded-full"
-                        style={{ 
-                          backgroundColor: 'var(--bg-secondary)',
-                          color: 'var(--text-muted)'
-                        }}
-                      >
-                        {reminder.recurrence === 'once' && '📅 Una vez'}
-                        {reminder.recurrence === 'daily' && '🔄 Diario'}
-                        {reminder.recurrence === 'weekly' && '📅 Semanal'}
-                        {reminder.recurrence === 'monthly' && '📆 Mensual'}
-                      </span>
-                    </div>
-
-                    {reminder.sent_count > 0 && (
-                      <p className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>
-                        Enviado {reminder.sent_count} {reminder.sent_count === 1 ? 'vez' : 'veces'}
-                      </p>
-                    )}
-                  </div>
-                ))
-              )}
+              >
+                Comenzar
+              </button>
             </div>
-          </div>
+          ) : (
+            <MultiStepWizard
+              steps={wizardSteps}
+              currentStep={currentStep}
+              onStepChange={setCurrentStep}
+              onComplete={handleSendReminder}
+              onCancel={() => {
+                resetWizard()
+                setShowWizard(false)
+              }}
+              isSubmitting={sendingReminder}
+              submitLabel="Programar Recordatorio"
+              cancelLabel="Cancelar"
+            />
+          )}
         </div>
       </div>
     </div>

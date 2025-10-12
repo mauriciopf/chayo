@@ -21,6 +21,7 @@ import ClientQRCode from '@/lib/features/chat/components/ClientQRCode'
 import AgentsView from '@/lib/features/dashboard/components/agents/AgentsView'
 import CustomerSupportTool from '@/lib/features/tools/customer-support/components/CustomerSupportTool'
 import ReservationsManagementView from '@/lib/features/tools/reservations/components/ReservationsManagementView'
+import RemindersManagementView from '@/lib/features/tools/reminders/components/RemindersManagementView'
 
 import BusinessSummary from '@/lib/features/dashboard/components/overview/BusinessSummary'
 import { ActiveView } from '@/lib/shared/types'
@@ -144,6 +145,7 @@ function DashboardContent() {
   const [targetPlan, setTargetPlan] = useState<string | null>(null)
   const [showHamburgerMenu, setShowHamburgerMenu] = useState(false)
   const [hasReservableProducts, setHasReservableProducts] = useState(false)
+  const [hasReminders, setHasReminders] = useState(false)
 
   // Check if any products have reservations enabled
   useEffect(() => {
@@ -164,6 +166,25 @@ function DashboardContent() {
     }
 
     checkReservableProducts()
+  }, [auth.currentOrganization?.id])
+
+  // Check if organization has any reminders
+  useEffect(() => {
+    const checkReminders = async () => {
+      if (!auth.currentOrganization?.id) return
+      
+      try {
+        const response = await fetch(`/api/organizations/${auth.currentOrganization.id}/reminders`)
+        if (response.ok) {
+          const data = await response.json()
+          setHasReminders(data.reminders && data.reminders.length > 0)
+        }
+      } catch (error) {
+        console.error('Error checking reminders:', error)
+      }
+    }
+
+    checkReminders()
   }, [auth.currentOrganization?.id])
 
   // Handle URL params for plans
@@ -331,6 +352,18 @@ function DashboardContent() {
             organizationId={auth.currentOrganization.id}
           />
         ) : null
+      case 'reminders':
+        return auth.currentOrganization ? (
+          <RemindersManagementView
+            organizationId={auth.currentOrganization.id}
+            businessName={auth.currentOrganization.name}
+            onCreateNew={() => {
+              // Switch to chat view to open the reminders modal
+              setActiveView('chat')
+              // TODO: Trigger the reminders modal from ActionableHintChips
+            }}
+          />
+        ) : null
       default:
         return null
     }
@@ -406,6 +439,7 @@ function DashboardContent() {
       setShowManageDocsModal={setShowManageDocsModal}
       handleManageDocsModalClose={() => setShowManageDocsModal(false)}
       hasReservableProducts={hasReservableProducts}
+      hasReminders={hasReminders}
     />
   )
 }

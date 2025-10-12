@@ -24,7 +24,8 @@ export default function MainDashboardLayout({
   showManageDocsModal,
   setShowManageDocsModal,
   handleManageDocsModalClose,
-  hasReservableProducts
+  hasReservableProducts,
+  hasReminders
 }: any) {
   return (
     <div className="flex flex-col h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
@@ -42,6 +43,7 @@ export default function MainDashboardLayout({
         subscription={auth.subscription}
         businessName={auth.currentOrganization?.name || ''}
         hasReservableProducts={hasReservableProducts}
+        hasReminders={hasReminders}
       />
 
       {/* Main Content Area */}
@@ -68,11 +70,11 @@ export default function MainDashboardLayout({
         />
 
         <div className={`flex-1 flex flex-col items-center w-full min-h-0 ${
-          activeView === 'chat' || activeView === 'customer-support' || activeView === 'reservations' ? 'overflow-hidden' : 'overflow-y-auto'
+          activeView === 'chat' || activeView === 'customer-support' || activeView === 'reservations' || activeView === 'reminders' ? 'overflow-hidden' : 'overflow-y-auto'
         } ${
           (activeView === 'chat' && mobile.isMobile) || activeView === 'customer-support'
             ? 'px-0 py-0' 
-            : activeView === 'reservations'
+            : activeView === 'reservations' || activeView === 'reminders'
             ? 'px-0 py-0'
             : 'px-4 sm:px-6 lg:px-8 py-4 md:px-8 md:py-8'
         }`}>

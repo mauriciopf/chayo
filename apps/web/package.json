@@ -21,6 +21,7 @@
     "@supabase/supabase-js": "^2.50.3",
     "@types/qrcode": "^1.5.5",
     "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
     "dotenv": "^17.2.1",
     "formiojs": "^4.21.7",
     "framer-motion": "^12.23.12",
