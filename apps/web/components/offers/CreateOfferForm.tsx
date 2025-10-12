@@ -60,7 +60,7 @@ export default function CreateOfferForm({
     name: offer?.name || '',
     description: offer?.description || '',
     offer_type: offer?.offer_type || 'percentage' as 'percentage' | 'fixed_amount',
-    offer_value: offer?.offer_value || 0,
+    offer_value: offer?.offer_value?.toString() || '',
     start_date: offer?.start_date ? offer.start_date.split('T')[0] : new Date().toISOString().split('T')[0],
     end_date: offer?.end_date ? offer.end_date.split('T')[0] : '',
     selectedProducts: offer?.assigned_products || []
@@ -74,8 +74,12 @@ export default function CreateOfferForm({
     
     if (!formData.name.trim()) newErrors.name = 'El nombre de la oferta es requerido'
     if (!formData.description.trim()) newErrors.description = 'La descripción es requerida'
-    if (formData.offer_value <= 0) newErrors.offer_value = 'El valor de la oferta debe ser mayor a 0'
-    if (formData.offer_type === 'percentage' && formData.offer_value > 100) {
+    
+    const offerValue = parseFloat(formData.offer_value)
+    if (!formData.offer_value || isNaN(offerValue) || offerValue <= 0) {
+      newErrors.offer_value = 'El valor de la oferta debe ser mayor a 0'
+    }
+    if (formData.offer_type === 'percentage' && offerValue > 100) {
       newErrors.offer_value = 'El porcentaje no puede exceder 100%'
     }
     if (!formData.end_date) newErrors.end_date = 'La fecha de finalización es requerida'
@@ -106,6 +110,7 @@ export default function CreateOfferForm({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
+          offer_value: parseFloat(formData.offer_value),
           organizationId,
           start_date: new Date(formData.start_date).toISOString(),
           end_date: new Date(formData.end_date).toISOString(),
@@ -279,8 +284,19 @@ export default function CreateOfferForm({
                     <input
                       type="number"
                       value={formData.offer_value}
-                      onChange={(e) => setFormData(prev => ({ ...prev, offer_value: parseFloat(e.target.value) || 0 }))}
-                      placeholder={formData.offer_type === 'percentage' ? '20' : '50'}
+                      onChange={(e) => {
+                        const value = e.target.value
+                        // If percentage mode, prevent values over 100
+                        if (formData.offer_type === 'percentage' && value !== '') {
+                          const numValue = parseFloat(value)
+                          if (!isNaN(numValue) && numValue > 100) {
+                            return // Don't update if over 100%
+                          }
+                        }
+                        setFormData(prev => ({ ...prev, offer_value: value }))
+                      }}
+                      onFocus={(e) => e.target.select()}
+                      placeholder={"0"}
                       min="0"
                       max={formData.offer_type === 'percentage' ? '100' : undefined}
                       step={formData.offer_type === 'percentage' ? '1' : '0.01'}

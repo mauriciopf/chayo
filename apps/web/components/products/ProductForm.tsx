@@ -268,6 +268,7 @@ export default function ProductForm({ organizationId, product, onSave, onCancel 
                 min="0"
                 value={formData.price}
                 onChange={(e) => handleInputChange('price', e.target.value)}
+                onFocus={(e) => e.target.select()}
                 placeholder="0.00"
                 className="w-full pl-10 pr-4 py-3 rounded-lg border focus:outline-none focus:ring-2 transition-colors"
                 style={{ 

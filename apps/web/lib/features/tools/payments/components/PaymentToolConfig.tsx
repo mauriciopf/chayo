@@ -648,6 +648,7 @@ export default function PaymentToolConfig({
                         type="number"
                         value={serviceAmount}
                         onChange={(e) => setServiceAmount(e.target.value)}
+                        onFocus={(e) => e.target.select()}
                         placeholder="80.00"
                         step="0.01"
                         min="0"
