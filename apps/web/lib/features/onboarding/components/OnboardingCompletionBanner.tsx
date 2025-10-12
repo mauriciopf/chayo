@@ -3,7 +3,7 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import { useTranslations } from 'next-intl'
-import { CheckCircle, Loader2 } from 'lucide-react'
+import { CheckCircle, AlertCircle } from 'lucide-react'
 
 interface OnboardingCompletionBannerProps {
   isOnboardingCompleted: boolean
@@ -34,9 +34,9 @@ export default function OnboardingCompletionBanner({
               style={{ color: 'var(--accent-secondary)' }}
             />
           ) : (
-            <Loader2 
-              className="w-5 h-5 flex-shrink-0 animate-spin" 
-              style={{ color: 'var(--accent-secondary)' }}
+            <AlertCircle 
+              className="w-5 h-5 flex-shrink-0" 
+              style={{ color: 'var(--accent-primary)' }}
             />
           )}
           <div>
