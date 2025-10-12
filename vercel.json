@@ -1,9 +1,8 @@
 {
   "buildCommand": "pnpm run build",
   "devCommand": "pnpm run dev",
-  "installCommand": "pnpm install",
+  "installCommand": "cd ../.. && pnpm install",
   "outputDirectory": ".next",
-  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- .",
-  "framework": "nextjs",
-  "rootDirectory": "apps/web"
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD .",
+  "framework": "nextjs"
 }

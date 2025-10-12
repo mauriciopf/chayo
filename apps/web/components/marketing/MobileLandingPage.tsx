@@ -194,7 +194,7 @@ export default function MobileLandingPage({ videoUrl }: MobileLandingPageProps) 
         >
           {/* iOS Button - Available */}
           <a
-            href="https://apps.apple.com/app/chayo/id6738549096"
+            href="https://apps.apple.com/us/app/chayo/id6738549096"
             target="_blank"
             rel="noopener noreferrer"
             className="block w-full"
@@ -234,7 +234,7 @@ export default function MobileLandingPage({ videoUrl }: MobileLandingPageProps) 
 
           {/* Desktop Version Link */}
           <a
-            href="https://www.chayo.ai"
+            href="https://www.chayo.ai/es?forceDesktop=true"
             className="block w-full"
           >
             <div className="bg-[#111111] rounded-2xl px-6 py-4 border border-gray-800 hover:border-purple-500 transition-all duration-200 active:scale-95">

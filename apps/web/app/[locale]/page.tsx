@@ -10,8 +10,12 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Detect device on client side
-    setIsMobile(isMobileDevice())
+    // Check if user wants to force desktop view
+    const params = new URLSearchParams(window.location.search)
+    const forceDesktop = params.get('forceDesktop') === 'true'
+    
+    // Detect device on client side (but respect forceDesktop override)
+    setIsMobile(!forceDesktop && isMobileDevice())
     setIsLoading(false)
   }, [])
 
@@ -30,7 +34,7 @@ export default function HomePage() {
     )
   }
 
-  // Show mobile experience for mobile devices
+  // Show mobile experience for mobile devices (unless forceDesktop is set)
   if (isMobile) {
     return (
       <Suspense fallback={<div>Cargando...</div>}>
