@@ -63,7 +63,7 @@ export default function ProductForm({ organizationId, product, onSave, onCancel 
         }))
       } else {
         console.error('Upload failed:', data.error)
-        alert('Failed to upload image')
+        alert('Error al subir la imagen')
       }
     } catch (error) {
       console.error('Upload error:', error)
@@ -84,7 +84,7 @@ export default function ProductForm({ organizationId, product, onSave, onCancel 
     e.preventDefault()
     
     if (!formData.name.trim()) {
-      alert('Product name is required')
+      alert('El nombre del producto es requerido')
       return
     }
 
@@ -117,7 +117,7 @@ export default function ProductForm({ organizationId, product, onSave, onCancel 
       } else {
         const data = await response.json()
         console.error('Save failed:', data.error)
-        alert('Failed to save product')
+        alert('Error al guardar el producto')
       }
     } catch (error) {
       console.error('Save error:', error)
@@ -141,7 +141,7 @@ export default function ProductForm({ organizationId, product, onSave, onCancel 
           <div className="flex items-center gap-3">
             <Package className="h-6 w-6" style={{ color: 'var(--accent-secondary)' }} />
             <h2 className="text-xl font-semibold" style={{ color: 'var(--text-primary)' }}>
-              {product ? 'Edit Product/Service' : 'Add New Product or Service'}
+              {product ? 'Editar Producto/Servicio' : 'Agregar Nuevo Producto o Servicio'}
             </h2>
           </div>
           <button 
@@ -160,7 +160,7 @@ export default function ProductForm({ organizationId, product, onSave, onCancel 
           {/* Image Upload */}
           <div className="space-y-3">
             <label className="block text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-              Product Image (Optional)
+              Imagen del Producto (Opcional)
             </label>
             <div className="flex flex-col gap-4">
               {formData.imageUrl ? (
@@ -196,10 +196,10 @@ export default function ProductForm({ organizationId, product, onSave, onCancel 
                     <>
                       <ImageIcon className="h-12 w-12 mb-3" style={{ color: 'var(--text-muted)' }} />
                       <p className="text-sm font-medium mb-1" style={{ color: 'var(--text-primary)' }}>
-                        Click to upload image
+                        Haz clic para subir imagen
                       </p>
                       <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-                        Great for products, optional for services
+                        Ideal para productos, opcional para servicios
                       </p>
                     </>
                   )}
@@ -218,13 +218,13 @@ export default function ProductForm({ organizationId, product, onSave, onCancel 
           {/* Product/Service Name */}
           <div className="space-y-2">
             <label className="block text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-              Name *
+              Nombre *
             </label>
             <input
               type="text"
               value={formData.name}
               onChange={(e) => handleInputChange('name', e.target.value)}
-              placeholder="Enter product or service name"
+              placeholder="Ingresa el nombre del producto o servicio"
               required
               className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 transition-colors"
               style={{ 
@@ -238,12 +238,12 @@ export default function ProductForm({ organizationId, product, onSave, onCancel 
           {/* Description */}
           <div className="space-y-2">
             <label className="block text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-              Description
+              Descripción
             </label>
             <textarea
               value={formData.description}
               onChange={(e) => handleInputChange('description', e.target.value)}
-              placeholder="Describe your product or service"
+              placeholder="Describe tu producto o servicio"
               rows={3}
               className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 transition-colors resize-none"
               style={{ 
@@ -257,7 +257,7 @@ export default function ProductForm({ organizationId, product, onSave, onCancel 
           {/* Price */}
           <div className="space-y-2">
             <label className="block text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-              Price (Optional)
+              Precio (Opcional)
             </label>
             <div className="relative">
               <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5" 
@@ -282,13 +282,13 @@ export default function ProductForm({ organizationId, product, onSave, onCancel 
           {/* Payment Link */}
           <div className="space-y-2">
             <label className="block text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-              Payment Link (Optional)
+              Enlace de Pago (Opcional)
             </label>
             <input
               type="text"
               value={formData.paymentTransactionId}
               onChange={(e) => handleInputChange('paymentTransactionId', e.target.value)}
-              placeholder="Link to payment created by Payment Tool"
+              placeholder="Enlace al pago creado por la Herramienta de Pagos"
               className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 transition-colors"
               style={{ 
                 backgroundColor: 'var(--bg-tertiary)',
@@ -297,7 +297,7 @@ export default function ProductForm({ organizationId, product, onSave, onCancel 
               }}
             />
             <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-              Connect this product/service to a payment link created by the Payment Tool
+              Conecta este producto/servicio a un enlace de pago creado por la Herramienta de Pagos
             </p>
           </div>
 
@@ -309,32 +309,24 @@ export default function ProductForm({ organizationId, product, onSave, onCancel 
               borderColor: 'var(--border-secondary)'
             }}
           >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Calendar className="h-5 w-5" style={{ color: 'var(--accent-secondary)' }} />
-                <div>
-                  <label className="block text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-                    Habilitar Reservaciones
-                  </label>
-                  <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
-                    Permite a los clientes reservar citas para este producto/servicio
-                  </p>
-                </div>
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={formData.supportsReservations}
+                onChange={(e) => handleInputChange('supportsReservations', e.target.checked)}
+                className="w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                style={{ accentColor: 'var(--accent-secondary)' }}
+              />
+              <Calendar className="h-5 w-5" style={{ color: 'var(--accent-secondary)' }} />
+              <div>
+                <span className="block text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
+                  Habilitar Reservaciones
+                </span>
+                <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
+                  Permite a los clientes reservar citas para este producto/servicio
+                </p>
               </div>
-              <button
-                type="button"
-                onClick={() => handleInputChange('supportsReservations', !formData.supportsReservations)}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                  formData.supportsReservations ? 'bg-purple-600' : 'bg-gray-300'
-                }`}
-              >
-                <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                    formData.supportsReservations ? 'translate-x-6' : 'translate-x-1'
-                  }`}
-                />
-              </button>
-            </div>
+            </label>
           </div>
 
           {/* Actions */}
@@ -349,7 +341,7 @@ export default function ProductForm({ organizationId, product, onSave, onCancel 
                 color: 'var(--text-primary)'
               }}
             >
-              Cancel
+              Cancelar
             </button>
             <button 
               type="submit" 
@@ -363,10 +355,10 @@ export default function ProductForm({ organizationId, product, onSave, onCancel 
               {saving ? (
                 <div className="flex items-center gap-2">
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  Saving...
+                  Guardando...
                 </div>
               ) : (
-                product ? 'Update Product' : 'Create Product'
+                product ? 'Actualizar Producto' : 'Crear Producto'
               )}
             </button>
           </div>
