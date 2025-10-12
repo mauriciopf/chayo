@@ -194,7 +194,7 @@ export default function MobileLandingPage({ videoUrl }: MobileLandingPageProps) 
         >
           {/* iOS Button - Available */}
           <a
-            href="https://apps.apple.com/us/app/chayo/id6738549096"
+            href="https://apps.apple.com/app/chayo/id6751903645"
             target="_blank"
             rel="noopener noreferrer"
             className="block w-full"
