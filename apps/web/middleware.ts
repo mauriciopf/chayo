@@ -6,7 +6,7 @@ import type { NextRequest } from "next/server";
 const intlMiddleware = createIntlMiddleware({
   locales: ["es"],
   defaultLocale: "es",
-  localePrefix: "always",
+  localePrefix: "as-needed",
   localeDetection: true,
 });
 
@@ -36,7 +36,7 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Match all routes except static files (with extensions), API routes, and Next.js internals
-    "/((?!_next/|_vercel/|api/|.*\\.[^/]+$).*)",
+    // Match all routes except static files, API routes, and Next.js internals
+    "/((?!_next|_vercel|api|.*\\..*).*)",
   ],
 };
