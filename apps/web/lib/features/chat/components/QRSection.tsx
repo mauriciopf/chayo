@@ -10,6 +10,7 @@ export default function QRSection({ show, dashboardInit }: { show: boolean, dash
       <ClientQRCode 
         organizationSlug={dashboardInit.initData.business.slug || ''} 
         isOnboardingCompleted={isOnboardingCompleted}
+        businessName={dashboardInit.initData.business.business_name || dashboardInit.initData.business.name}
       />
     </div>
   )

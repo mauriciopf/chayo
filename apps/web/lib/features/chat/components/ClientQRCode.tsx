@@ -2,17 +2,27 @@
 
 import { useState, useEffect } from 'react'
 import QRCode from 'qrcode'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 
 interface ClientQRCodeProps {
   organizationSlug: string
   isOnboardingCompleted?: boolean
+  businessName?: string
 }
 
-export default function ClientQRCode({ organizationSlug, isOnboardingCompleted = false }: ClientQRCodeProps) {
+export default function ClientQRCode({ 
+  organizationSlug, 
+  isOnboardingCompleted = false,
+  businessName 
+}: ClientQRCodeProps) {
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('')
   const [clientChatUrl, setClientChatUrl] = useState<string>('')
   const [copied, setCopied] = useState(false)
+  const [showEmailModal, setShowEmailModal] = useState(false)
+  const [emailInput, setEmailInput] = useState('')
+  const [emailList, setEmailList] = useState<string[]>([])
+  const [isSending, setIsSending] = useState(false)
+  const [sendStatus, setSendStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null)
 
   useEffect(() => {
     if (organizationSlug) {
@@ -47,29 +57,116 @@ export default function ClientQRCode({ organizationSlug, isOnboardingCompleted =
     }
   }
 
-  const shareQR = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: `Chatea con tu negocio` ,
-          text: `Chatea directamente con nuestro asistente IA` ,
-          url: clientChatUrl
-        })
-      } catch (err) {
-        console.error('Error sharing:', err)
-      }
-    } else {
-      // Fallback to copy
-      copyToClipboard()
-    }
-  }
-
   const downloadQR = () => {
     if (qrCodeUrl) {
       const link = document.createElement('a')
       link.download = `business-qr-code.png`
       link.href = qrCodeUrl
       link.click()
+    }
+  }
+
+  const addEmail = () => {
+    const trimmedEmail = emailInput.trim()
+    if (!trimmedEmail) return
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(trimmedEmail)) {
+      setSendStatus({ type: 'error', message: 'Formato de email inválido' })
+      return
+    }
+    
+    if (emailList.includes(trimmedEmail)) {
+      setSendStatus({ type: 'error', message: 'Este email ya está en la lista' })
+      return
+    }
+    
+    setEmailList([...emailList, trimmedEmail])
+    setEmailInput('')
+    setSendStatus(null)
+  }
+
+  const removeEmail = (emailToRemove: string) => {
+    setEmailList(emailList.filter(email => email !== emailToRemove))
+  }
+
+  const sendEmails = async () => {
+    if (emailList.length === 0) {
+      setSendStatus({ type: 'error', message: 'Agrega al menos un email' })
+      return
+    }
+
+    setIsSending(true)
+    setSendStatus(null)
+
+    try {
+      // Get Supabase client with session
+      const { createBrowserClient } = await import('@supabase/ssr')
+      const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      )
+
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      if (!session) {
+        setSendStatus({ 
+          type: 'error', 
+          message: 'No autenticado. Por favor inicia sesión.' 
+        })
+        return
+      }
+
+      // Call Supabase Edge Function
+      const { data, error } = await supabase.functions.invoke('send-qr-code-email', {
+        body: {
+          emails: emailList,
+          organizationSlug,
+          businessName: businessName || 'Tu Negocio',
+          qrCodeDataUrl: qrCodeUrl,
+        },
+      })
+
+      if (error) {
+        console.error('Edge function error:', error)
+        setSendStatus({ 
+          type: 'error', 
+          message: error.message || 'Error al enviar emails' 
+        })
+        return
+      }
+
+      if (data?.success) {
+        setSendStatus({ 
+          type: 'success', 
+          message: `✓ Enviado exitosamente a ${data.sent} destinatario(s)` 
+        })
+        setEmailList([])
+        setTimeout(() => {
+          setShowEmailModal(false)
+          setSendStatus(null)
+        }, 2000)
+      } else {
+        setSendStatus({ 
+          type: 'error', 
+          message: data?.error || 'Error al enviar emails' 
+        })
+      }
+    } catch (error) {
+      console.error('Error sending emails:', error)
+      setSendStatus({ 
+        type: 'error', 
+        message: 'Error de conexión. Intenta de nuevo.' 
+      })
+    } finally {
+      setIsSending(false)
+    }
+  }
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      addEmail()
     }
   }
 
@@ -198,19 +295,7 @@ export default function ClientQRCode({ organizationSlug, isOnboardingCompleted =
             </div>
 
             {/* Action Buttons */}
-            <div className="flex space-x-3">
-              <button
-                onClick={shareQR}
-                className="flex items-center px-4 py-2 rounded-lg transition-colors font-medium"
-                style={{
-                  backgroundColor: 'var(--accent-primary)',
-                  color: 'var(--text-primary)'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--accent-primary)'}
-              >
-                📱 Compartir Código QR
-              </button>
+            <div className="flex flex-wrap gap-3 justify-center">
               <button
                 onClick={downloadQR}
                 className="flex items-center px-4 py-2 rounded-lg transition-colors font-medium"
@@ -222,6 +307,18 @@ export default function ClientQRCode({ organizationSlug, isOnboardingCompleted =
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--accent-primary)'}
               >
                 💾 Descargar QR
+              </button>
+              <button
+                onClick={() => setShowEmailModal(true)}
+                className="flex items-center px-4 py-2 rounded-lg transition-colors font-medium"
+                style={{
+                  backgroundColor: 'var(--accent-primary)',
+                  color: 'var(--text-primary)'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--accent-primary)'}
+              >
+                ✉️ Enviar por Email
               </button>
             </div>
 
@@ -384,6 +481,229 @@ export default function ClientQRCode({ organizationSlug, isOnboardingCompleted =
           </div>
         )}
       </div>
+
+      {/* Email Modal */}
+      <AnimatePresence>
+        {showEmailModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+            onClick={() => setShowEmailModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-lg rounded-xl shadow-2xl border"
+              style={{
+                backgroundColor: 'var(--bg-secondary)',
+                borderColor: 'var(--border-primary)'
+              }}
+            >
+              {/* Modal Header */}
+              <div 
+                className="px-6 py-4 border-b"
+                style={{ borderColor: 'var(--border-primary)' }}
+              >
+                <div className="flex items-center justify-between">
+                  <h3 
+                    className="text-xl font-bold"
+                    style={{ color: 'var(--text-primary)' }}
+                  >
+                    ✉️ Enviar QR por Email
+                  </h3>
+                  <button
+                    onClick={() => setShowEmailModal(false)}
+                    className="p-2 rounded-lg transition-colors"
+                    style={{ color: 'var(--text-secondary)' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                <p 
+                  className="mt-2 text-sm"
+                  style={{ color: 'var(--text-secondary)' }}
+                >
+                  Envía el código QR y enlaces de la app directamente a tus clientes
+                </p>
+              </div>
+
+              {/* Modal Body */}
+              <div className="px-6 py-4 max-h-[60vh] overflow-y-auto">
+                {/* Email Input */}
+                <div className="mb-4">
+                  <label 
+                    className="block text-sm font-medium mb-2"
+                    style={{ color: 'var(--text-primary)' }}
+                  >
+                    Correos electrónicos
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="email"
+                      value={emailInput}
+                      onChange={(e) => setEmailInput(e.target.value)}
+                      onKeyPress={handleKeyPress}
+                      placeholder="ejemplo@correo.com"
+                      className="flex-1 px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2"
+                      style={{
+                        backgroundColor: 'var(--bg-tertiary)',
+                        borderColor: 'var(--border-primary)',
+                        color: 'var(--text-primary)'
+                      }}
+                    />
+                    <button
+                      onClick={addEmail}
+                      className="px-4 py-2 rounded-lg font-medium transition-colors"
+                      style={{
+                        backgroundColor: 'var(--accent-primary)',
+                        color: 'var(--text-primary)'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--accent-primary)'}
+                    >
+                      Agregar
+                    </button>
+                  </div>
+                  <p 
+                    className="mt-1 text-xs"
+                    style={{ color: 'var(--text-muted)' }}
+                  >
+                    Presiona Enter o haz clic en Agregar para añadir un correo
+                  </p>
+                </div>
+
+                {/* Email List */}
+                {emailList.length > 0 && (
+                  <div className="mb-4">
+                    <p 
+                      className="text-sm font-medium mb-2"
+                      style={{ color: 'var(--text-primary)' }}
+                    >
+                      Destinatarios ({emailList.length})
+                    </p>
+                    <div className="space-y-2 max-h-40 overflow-y-auto">
+                      {emailList.map((email, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center justify-between px-3 py-2 rounded-lg border"
+                          style={{
+                            backgroundColor: 'var(--bg-tertiary)',
+                            borderColor: 'var(--border-primary)'
+                          }}
+                        >
+                          <span 
+                            className="text-sm"
+                            style={{ color: 'var(--text-primary)' }}
+                          >
+                            {email}
+                          </span>
+                          <button
+                            onClick={() => removeEmail(email)}
+                            className="p-1 rounded transition-colors"
+                            style={{ color: 'var(--text-muted)' }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.color = '#ef4444'
+                              e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.1)'
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.color = 'var(--text-muted)'
+                              e.currentTarget.style.backgroundColor = 'transparent'
+                            }}
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Status Message */}
+                {sendStatus && (
+                  <div
+                    className="mb-4 px-4 py-3 rounded-lg text-sm"
+                    style={{
+                      backgroundColor: sendStatus.type === 'success' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                      color: sendStatus.type === 'success' ? '#16a34a' : '#dc2626',
+                      border: `1px solid ${sendStatus.type === 'success' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)'}`
+                    }}
+                  >
+                    {sendStatus.message}
+                  </div>
+                )}
+
+                {/* Preview Info */}
+                <div 
+                  className="p-4 rounded-lg border"
+                  style={{
+                    backgroundColor: 'var(--bg-tertiary)',
+                    borderColor: 'var(--border-primary)'
+                  }}
+                >
+                  <p 
+                    className="text-sm font-medium mb-2"
+                    style={{ color: 'var(--text-primary)' }}
+                  >
+                    📧 El email incluirá:
+                  </p>
+                  <ul 
+                    className="text-xs space-y-1"
+                    style={{ color: 'var(--text-secondary)' }}
+                  >
+                    <li>✓ Código QR adjunto</li>
+                    <li>✓ Enlaces de descarga de la app (iOS y Android)</li>
+                    <li>✓ Instrucciones para conectar con tu negocio</li>
+                    <li>✓ Diseño profesional con tu nombre de negocio</li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* Modal Footer */}
+              <div 
+                className="px-6 py-4 border-t flex justify-end gap-3"
+                style={{ borderColor: 'var(--border-primary)' }}
+              >
+                <button
+                  onClick={() => setShowEmailModal(false)}
+                  className="px-4 py-2 rounded-lg font-medium transition-colors"
+                  style={{
+                    backgroundColor: 'var(--bg-tertiary)',
+                    color: 'var(--text-secondary)'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)'}
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={sendEmails}
+                  disabled={isSending || emailList.length === 0}
+                  className="px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{
+                    backgroundColor: 'var(--accent-primary)',
+                    color: 'var(--text-primary)'
+                  }}
+                  onMouseEnter={(e) => !isSending && emailList.length > 0 && (e.currentTarget.style.backgroundColor = 'var(--bg-hover)')}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--accent-primary)'}
+                >
+                  {isSending ? '⏳ Enviando...' : `📤 Enviar${emailList.length > 0 ? ` (${emailList.length})` : ''}`}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   )
 } 
