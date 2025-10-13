@@ -5,11 +5,9 @@ import { useTranslations } from 'next-intl'
 import ChatMessages from './ChatMessages'
 import ChatInput from './ChatInput'
 import ChatEmptyState from './ChatEmptyState'
-import ChatActionableHints from './ChatActionableHints'
 
 import VibeCardGenerationModal from '../../onboarding/components/VibeCardGenerationModal'
 import OnboardingCompletionBanner from '../../onboarding/components/OnboardingCompletionBanner'
-import Tutorial from '../../onboarding/components/Tutorial'
 import { useBusinessModeChat } from '../hooks/useBusinessModeChat'
 import { Message, AuthState } from '../../../shared/types'
 import { ThinkingContext } from '../../../shared/services/ThinkingMessageService'
@@ -80,7 +78,6 @@ export default function BusinessChatView({
 }: BusinessChatViewProps) {
   const t = useTranslations('chat')
   const tOnboarding = useTranslations('onboarding')
-  const [showTutorial, setShowTutorial] = React.useState(false)
 
   const {
     chatContext,
@@ -114,13 +111,6 @@ export default function BusinessChatView({
         {/* Always show banner at top - shows progress during onboarding or completion after */}
         <OnboardingCompletionBanner
           isOnboardingCompleted={isOnboardingCompleted}
-          onStartTutorial={() => setShowTutorial(true)}
-        />
-
-        {/* Tutorial Modal */}
-        <Tutorial
-          isOpen={showTutorial}
-          onClose={() => setShowTutorial(false)}
         />
         
         {messages.length === 0 && !chatLoading && <ChatEmptyState />}
@@ -161,10 +151,6 @@ export default function BusinessChatView({
         })()}
         <div ref={messagesEndRef as React.RefObject<HTMLDivElement>} />
       </div>
-
-
-
-      <ChatActionableHints organizationId={organizationId || ''} />
 
       <ChatInput
         input={input}

@@ -19,12 +19,22 @@ import { useOnboardingCompletion } from '@/lib/features/onboarding/hooks/useOnbo
 import ChatContainer from '@/lib/features/chat/components/ChatContainer'
 import ClientQRCode from '@/lib/features/chat/components/ClientQRCode'
 import AgentsView from '@/lib/features/dashboard/components/agents/AgentsView'
-import CustomerSupportTool from '@/lib/features/tools/customer-support/components/CustomerSupportTool'
-import ReservationsManagementView from '@/lib/features/tools/reservations/components/ReservationsManagementView'
 import RemindersManagementView from '@/lib/features/tools/reminders/components/RemindersManagementView'
+import DashboardCardGrid from '@/lib/features/dashboard/components/DashboardCardGrid'
+import BackToDashboardButton from '@/lib/features/dashboard/components/BackToDashboardButton'
+
+// Import inline tool configuration components
+import DocumentToolConfig from '@/lib/features/tools/documents/components/DocumentToolConfig'
+import PaymentToolConfig from '@/lib/features/tools/payments/components/PaymentToolConfig'
+import ProductsManager from '@/components/products/ProductsManager'
+import IntakeFormsToolConfig from '@/lib/features/tools/intake-forms/components/IntakeFormsToolConfig'
+import CustomerSupportTool from '@/lib/features/tools/customer-support/components/CustomerSupportTool'
+import RemindersToolConfigWizard from '@/lib/features/tools/reminders/components/RemindersToolConfigWizard'
+import ReservationsManagementView from '@/lib/features/tools/reservations/components/ReservationsManagementView'
 
 import BusinessSummary from '@/lib/features/dashboard/components/overview/BusinessSummary'
 import { ActiveView } from '@/lib/shared/types'
+import Tutorial from '@/lib/features/onboarding/components/Tutorial'
 
 // Import existing dashboard components
 import SimpleInsightsDashboard from '@/lib/features/insights/components/SimpleInsightsDashboard'
@@ -139,33 +149,51 @@ function DashboardContent() {
   const { isCompleted: isOnboardingCompleted, loading: onboardingLoading } = useOnboardingCompletion(auth.currentOrganization?.id)
 
   // Dashboard UI state
-  const [activeView, setActiveView] = useState<ActiveView>(mobile.isMobile ? 'agents' : 'chat')
+  const [activeView, setActiveView] = useState<ActiveView>(mobile.isMobile ? 'agents' : 'dashboard')
+  const [activeTool, setActiveTool] = useState<string | null>(null) // For inline tool rendering
   const [showPlansModal, setShowPlansModal] = useState(false)
   const [showManageDocsModal, setShowManageDocsModal] = useState(false)
   const [targetPlan, setTargetPlan] = useState<string | null>(null)
   const [showHamburgerMenu, setShowHamburgerMenu] = useState(false)
-  const [hasReservableProducts, setHasReservableProducts] = useState(false)
   const [hasReminders, setHasReminders] = useState(false)
+  const [showTutorial, setShowTutorial] = useState(false)
+  const [agentToolsSettings, setAgentToolsSettings] = useState<{
+    products: boolean
+    payments: boolean
+    reminders: boolean
+    forms: boolean
+    reservations: boolean
+  }>({
+    products: false,
+    payments: false,
+    reminders: false,
+    forms: false,
+    reservations: false,
+  })
 
-  // Check if any products have reservations enabled
+  // Fetch agent tools settings
   useEffect(() => {
-    const checkReservableProducts = async () => {
+    const fetchAgentTools = async () => {
       if (!auth.currentOrganization?.id) return
       
       try {
-        const response = await fetch(`/api/products?organizationId=${auth.currentOrganization.id}`)
+        const response = await fetch(`/api/organizations/${auth.currentOrganization.id}/agent-tools`)
         if (response.ok) {
           const data = await response.json()
-          const products = data.products || []
-          const hasReservable = products.some((product: any) => product.supports_reservations === true)
-          setHasReservableProducts(hasReservable)
+          setAgentToolsSettings({
+            products: data.products || false,
+            payments: data.payments || false,
+            reminders: data.reminders || false,
+            forms: data.forms || false,
+            reservations: data.reservations || false,
+          })
         }
       } catch (error) {
-        console.error('Error checking reservable products:', error)
+        console.error('Error fetching agent tools:', error)
       }
     }
 
-    checkReservableProducts()
+    fetchAgentTools()
   }, [auth.currentOrganization?.id])
 
   // Check if organization has any reminders
@@ -258,9 +286,122 @@ function DashboardContent() {
     }
 
     switch (activeView) {
+      case 'dashboard':
+        // If a tool is active, render it inline
+        if (activeTool) {
+          return (
+            <div className="h-full w-full flex flex-col bg-gray-50">
+              <div className="px-6 py-4 bg-white border-b border-gray-200">
+                <BackToDashboardButton onClick={() => setActiveTool(null)} />
+              </div>
+              <div className="flex-1 overflow-auto p-6">
+                {activeTool === 'chat' && (
+                  <ChatContainer
+                      messages={chat.messages}
+                      setMessages={chat.setMessages}
+                      chatLoading={chat.chatLoading}
+                      chatError={chat.chatError}
+                      input={chat.input}
+                      setInput={chat.setInput}
+                      handleSend={chat.handleSend}
+                      sendMessage={chat.sendMessage}
+                      handleInputFocus={chat.handleInputFocus}
+                      handleOTPFlow={otpFlow.handleOTPFlow}
+                      messagesEndRef={chat.messagesEndRef}
+                      inputRef={chat.inputRef}
+                      chatScrollContainerRef={chat.chatScrollContainerRef}
+                      fileInputRef={chat.fileInputRef}
+                      handleFileChange={chat.handleFileChange}
+                      uploading={chat.uploading}
+                      uploadProgress={chat.uploadProgress}
+                      user={auth.user}
+                      authState={auth.authState}
+                      otpLoading={auth.otpLoading}
+                      hasUserInteracted={mobile.hasUserInteracted}
+                      setHasUserInteracted={mobile.setHasUserInteracted}
+                      isMobile={mobile.isMobile}
+                      organizationId={auth.currentOrganization?.id}
+                      modalEvent={chat.modalEvent}
+                      statusEvent={chat.statusEvent}
+                      progressEvent={chat.progressEvent}
+                      agent={auth.agents[0]}
+                      organization={auth.currentOrganization}
+                      locale={locale}
+                    />
+                )}
+                
+                {activeTool === 'products' && auth.currentOrganization && (
+                  <ProductsManager organizationId={auth.currentOrganization.id} />
+                )}
+                
+                {activeTool === 'payments' && auth.currentOrganization && (
+                  <PaymentToolConfig
+                    organizationId={auth.currentOrganization.id}
+                    isEnabled={true}
+                    onSettingsChange={() => {}}
+                  />
+                )}
+                
+                {activeTool === 'reminders' && auth.currentOrganization && (
+                  <RemindersToolConfigWizard
+                    organizationId={auth.currentOrganization.id}
+                    businessName={auth.currentOrganization.name}
+                  />
+                )}
+                
+                {activeTool === 'forms' && auth.currentOrganization && (
+                  <IntakeFormsToolConfig
+                    organizationId={auth.currentOrganization.id}
+                    isEnabled={true}
+                    onSettingsChange={() => {}}
+                  />
+                )}
+                
+                {activeTool === 'reservations' && auth.currentOrganization && (
+                  <ReservationsManagementView
+                    organizationId={auth.currentOrganization.id}
+                  />
+                )}
+                
+                {activeTool === 'documents' && auth.currentOrganization && (
+                  <DocumentToolConfig
+                    organizationId={auth.currentOrganization.id}
+                    isEnabled={true}
+                    onSettingsChange={() => {}}
+                  />
+                )}
+                
+                {activeTool === 'support' && auth.currentOrganization && (
+                  <CustomerSupportTool
+                    organizationId={auth.currentOrganization.id}
+                    isEnabled={true}
+                    onSettingsChange={() => {}}
+                  />
+                )}
+              </div>
+            </div>
+          )
+        }
+        
+        // Otherwise show the card grid
+        return (
+          <DashboardCardGrid
+            onCardClick={(category) => {
+              setActiveTool(category)
+            }}
+            onStartTutorial={() => {
+              setShowTutorial(true)
+            }}
+            enabledTools={agentToolsSettings}
+            isOnboardingComplete={isOnboardingCompleted}
+          />
+        )
       case 'chat':
         return (
           <div className="w-full max-w-7xl mx-auto h-full flex flex-col">
+            <div className="px-4 py-3">
+              <BackToDashboardButton onClick={() => setActiveView('dashboard')} />
+            </div>
             <ChatContainer
               messages={chat.messages}
               setMessages={chat.setMessages}
@@ -336,33 +477,22 @@ function DashboardContent() {
             }} 
           />
         ) : null
-      case 'customer-support':
-        return auth.currentOrganization ? (
-          <CustomerSupportTool
-            organizationId={auth.currentOrganization.id}
-            isEnabled={true}
-            onSettingsChange={(settings) => {
-              // Handle settings change if needed
-            }}
-          />
-        ) : null
-      case 'reservations':
-        return auth.currentOrganization ? (
-          <ReservationsManagementView
-            organizationId={auth.currentOrganization.id}
-          />
-        ) : null
       case 'reminders':
         return auth.currentOrganization ? (
-          <RemindersManagementView
-            organizationId={auth.currentOrganization.id}
-            businessName={auth.currentOrganization.name}
-            onCreateNew={() => {
-              // Switch to chat view to open the reminders modal
-              setActiveView('chat')
-              // TODO: Trigger the reminders modal from ActionableHintChips
-            }}
-          />
+          <div className="h-full flex flex-col">
+            <div className="px-4 py-3">
+              <BackToDashboardButton onClick={() => setActiveView('dashboard')} />
+            </div>
+            <RemindersManagementView
+              organizationId={auth.currentOrganization.id}
+              businessName={auth.currentOrganization.name}
+              onCreateNew={() => {
+                // Switch to chat view to open the reminders modal
+                setActiveView('chat')
+                // TODO: Trigger the reminders modal from ActionableHintChips
+              }}
+            />
+          </div>
         ) : null
       default:
         return null
@@ -420,26 +550,33 @@ function DashboardContent() {
 
   // Main dashboard view (authenticated, initialized)
   return (
-    <MainDashboardLayout
-      activeView={activeView}
-      setActiveView={setActiveView}
-      handleLogout={handleLogout}
-      handleManageBilling={handleManageBilling}
-      auth={auth}
-      mobile={mobile}
-      showHamburgerMenu={showHamburgerMenu}
-      setShowHamburgerMenu={setShowHamburgerMenu}
-      renderCurrentView={renderCurrentView}
-      dashboardInit={dashboardInit}
-      showPlansModal={showPlansModal}
-      setShowPlansModal={setShowPlansModal}
-      targetPlan={targetPlan}
-      setTargetPlan={setTargetPlan}
-      showManageDocsModal={showManageDocsModal}
-      setShowManageDocsModal={setShowManageDocsModal}
-      handleManageDocsModalClose={() => setShowManageDocsModal(false)}
-      hasReservableProducts={hasReservableProducts}
-      hasReminders={hasReminders}
-    />
+    <>
+      <MainDashboardLayout
+        activeView={activeView}
+        setActiveView={setActiveView}
+        handleLogout={handleLogout}
+        handleManageBilling={handleManageBilling}
+        auth={auth}
+        mobile={mobile}
+        showHamburgerMenu={showHamburgerMenu}
+        setShowHamburgerMenu={setShowHamburgerMenu}
+        renderCurrentView={renderCurrentView}
+        dashboardInit={dashboardInit}
+        showPlansModal={showPlansModal}
+        setShowPlansModal={setShowPlansModal}
+        targetPlan={targetPlan}
+        setTargetPlan={setTargetPlan}
+        showManageDocsModal={showManageDocsModal}
+        setShowManageDocsModal={setShowManageDocsModal}
+        handleManageDocsModalClose={() => setShowManageDocsModal(false)}
+        hasReminders={hasReminders}
+      />
+      
+      {/* Tutorial Modal */}
+      <Tutorial
+        isOpen={showTutorial}
+        onClose={() => setShowTutorial(false)}
+      />
+    </>
   )
 }

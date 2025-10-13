@@ -24,7 +24,6 @@ export default function MainDashboardLayout({
   showManageDocsModal,
   setShowManageDocsModal,
   handleManageDocsModalClose,
-  hasReservableProducts,
   hasReminders
 }: any) {
   return (
@@ -42,7 +41,6 @@ export default function MainDashboardLayout({
         user={auth.user}
         subscription={auth.subscription}
         businessName={auth.currentOrganization?.name || ''}
-        hasReservableProducts={hasReservableProducts}
         hasReminders={hasReminders}
       />
 
