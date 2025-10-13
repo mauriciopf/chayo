@@ -146,36 +146,24 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
       <div className="space-y-6">
         {/* Products Header */}
         <div>
-          <h2 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
+          <h2 className="text-2xl font-bold text-gray-900">
             Productos y Servicios
           </h2>
-          <p style={{ color: 'var(--text-secondary)' }}>
+          <p className="text-gray-600">
             Gestiona tu catálogo de productos y servicios
           </p>
         </div>
 
         {/* Search */}
-        <div 
-          className="p-4 rounded-lg border"
-          style={{ 
-            backgroundColor: 'var(--bg-secondary)',
-            borderColor: 'var(--border-primary)'
-          }}
-        >
+        <div className="p-4 rounded-lg border border-gray-200 bg-white">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4" 
-                    style={{ color: 'var(--text-muted)' }} />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <input
               type="text"
               placeholder="Buscar productos y servicios..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-lg border focus:outline-none focus:ring-2 transition-colors"
-              style={{ 
-                backgroundColor: 'var(--bg-tertiary)',
-                borderColor: 'var(--border-secondary)',
-                color: 'var(--text-primary)'
-              }}
+              className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors"
             />
           </div>
         </div>
@@ -189,28 +177,18 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
         ) : (
           <>
             {filteredProducts.length === 0 ? (
-              <div 
-                className="text-center py-12 rounded-xl border-2 border-dashed"
-                style={{ 
-                  backgroundColor: 'var(--bg-secondary)',
-                  borderColor: 'var(--border-secondary)'
-                }}
-              >
-                <Package className="h-12 w-12 mx-auto mb-4" style={{ color: 'var(--text-muted)' }} />
-                <h3 className="text-lg font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
+              <div className="text-center py-12 rounded-xl border-2 border-dashed border-gray-300 bg-white">
+                <Package className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                <h3 className="text-lg font-semibold mb-2 text-gray-900">
                   {search ? 'No se encontraron productos' : 'Aún no hay productos'}
                 </h3>
-                <p className="mb-6" style={{ color: 'var(--text-secondary)' }}>
+                <p className="mb-6 text-gray-600">
                   {search ? 'Intenta con otro término de búsqueda' : 'Crea tu primer producto o servicio'}
                 </p>
                 {!search && (
                   <button
                     onClick={() => setShowProductForm(true)}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors"
-                    style={{ 
-                      backgroundColor: 'var(--accent-primary)',
-                      color: 'white'
-                    }}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors bg-purple-600 text-white hover:bg-purple-700"
                   >
                     <Plus className="h-5 w-5" />
                     Agregar Producto
@@ -222,11 +200,7 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
                 {filteredProducts.map((product) => (
                   <div
                     key={product.id}
-                    className="p-6 rounded-xl border transition-all duration-200 hover:shadow-lg"
-                    style={{ 
-                      backgroundColor: 'var(--bg-primary)',
-                      borderColor: 'var(--border-primary)'
-                    }}
+                    className="p-6 rounded-xl border border-gray-200 bg-white transition-all duration-200 hover:shadow-lg"
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
@@ -238,40 +212,35 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
                               className="w-16 h-16 rounded-lg object-cover"
                             />
                           ) : (
-                            <div 
-                              className="w-16 h-16 rounded-lg flex items-center justify-center"
-                              style={{ backgroundColor: 'var(--bg-tertiary)' }}
-                            >
-                              <Package className="h-8 w-8" style={{ color: 'var(--text-muted)' }} />
+                            <div className="w-16 h-16 rounded-lg flex items-center justify-center bg-gray-100">
+                              <Package className="h-8 w-8 text-gray-400" />
                             </div>
                           )}
                           <div>
-                            <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
+                            <h3 className="text-lg font-semibold text-gray-900">
                               {product.name}
                             </h3>
                             {product.price && (
-                              <p className="text-lg font-bold" style={{ color: 'var(--accent-primary)' }}>
+                              <p className="text-lg font-bold text-purple-600">
                                 ${product.price.toFixed(2)}
                               </p>
                             )}
                           </div>
                         </div>
                         {product.description && (
-                          <p className="text-sm mb-3" style={{ color: 'var(--text-secondary)' }}>
+                          <p className="text-sm mb-3 text-gray-600">
                             {product.description}
                           </p>
                         )}
                         <div className="flex flex-wrap gap-2">
                           {product.supports_reservations && (
-                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border"
-                                  style={{ color: 'var(--accent-secondary)', backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--accent-secondary)' }}>
+                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border border-teal-500 bg-teal-50 text-teal-700">
                               <Calendar className="h-3 w-3" />
                               Reservaciones habilitadas
                             </span>
                           )}
                           {product.payment_transaction_id && (
-                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border"
-                                  style={{ color: 'var(--accent-primary)', backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--accent-primary)' }}>
+                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border border-purple-500 bg-purple-50 text-purple-700">
                               <DollarSign className="h-3 w-3" />
                               Enlace de pago conectado
                             </span>
@@ -284,21 +253,13 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
                             setEditingProduct(product)
                             setShowProductForm(true)
                           }}
-                          className="p-2 rounded-lg transition-colors"
-                          style={{ 
-                            backgroundColor: 'var(--bg-tertiary)',
-                            color: 'var(--text-secondary)'
-                          }}
+                          className="p-2 rounded-lg transition-colors bg-gray-100 text-gray-600 hover:bg-gray-200"
                         >
                           <Edit className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => handleDeleteProduct(product.id)}
-                          className="p-2 rounded-lg transition-colors"
-                          style={{ 
-                            backgroundColor: 'var(--bg-tertiary)',
-                            color: 'var(--text-secondary)'
-                          }}
+                          className="p-2 rounded-lg transition-colors bg-gray-100 text-gray-600 hover:bg-red-50 hover:text-red-600"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
@@ -313,34 +274,24 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
       </div>
 
       {/* 🎯 PROMOTIONAL OFFERS - SIMPLIFIED SECTION */}
-      <div 
-        className="p-6 rounded-xl border"
-        style={{ 
-          backgroundColor: 'var(--bg-secondary)',
-          borderColor: 'var(--border-primary)'
-        }}
-      >
+      <div className="p-6 rounded-xl border border-gray-200 bg-white">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg" style={{ backgroundColor: 'var(--accent-secondary)' }}>
+            <div className="p-2 rounded-lg bg-teal-500">
               <Sparkles className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
+              <h3 className="text-lg font-bold text-gray-900">
                 Ofertas Promocionales
               </h3>
-              <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+              <p className="text-sm text-gray-600">
                 Crea ofertas con IA y banners impresionantes
               </p>
             </div>
           </div>
           <button
             onClick={handleCreateOffer}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors text-sm"
-            style={{ 
-              backgroundColor: 'var(--accent-secondary)',
-              color: 'white'
-            }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors text-sm bg-teal-500 text-white hover:bg-teal-600"
           >
             <Plus className="h-4 w-4" />
             Crear Oferta
@@ -355,8 +306,8 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
           </div>
         ) : offers.length === 0 ? (
           <div className="text-center py-6">
-            <Tag className="h-8 w-8 mx-auto mb-2" style={{ color: 'var(--text-muted)' }} />
-            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+            <Tag className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+            <p className="text-sm text-gray-600">
               Aún no hay ofertas. ¡Crea tu primera oferta promocional para impulsar tus ventas! 🚀
             </p>
           </div>
@@ -365,16 +316,14 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
             {offers.map((offer) => (
               <div
                 key={offer.id}
-                className="p-4 rounded-lg border transition-all"
-                style={{ 
-                  backgroundColor: 'var(--bg-primary)',
-                  borderColor: offer.status === 'active' ? 'var(--accent-secondary)' : 'var(--border-secondary)'
-                }}
+                className={`p-4 rounded-lg border transition-all bg-gray-50 ${
+                  offer.status === 'active' ? 'border-teal-500' : 'border-gray-200'
+                }`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <h4 className="font-semibold" style={{ color: 'var(--text-primary)' }}>
+                      <h4 className="font-semibold text-gray-900">
                         {offer.name}
                       </h4>
                       <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border ${getOfferStatusColor(offer.status)}`}>
@@ -384,7 +333,7 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
                         {offer.status}
                       </span>
                     </div>
-                    <div className="flex items-center gap-4 text-sm" style={{ color: 'var(--text-secondary)' }}>
+                    <div className="flex items-center gap-4 text-sm text-gray-600">
                       <span className="flex items-center gap-1">
                         {offer.offer_type === 'percentage' ? <Percent className="h-3 w-3" /> : <DollarSign className="h-3 w-3" />}
                         {offer.offer_type === 'percentage' ? `${offer.offer_value}% OFF` : `$${offer.offer_value} OFF`}
@@ -401,11 +350,7 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
                   </div>
                   <button
                     onClick={() => handleEditOffer(offer)}
-                    className="p-2 rounded-lg transition-colors ml-2"
-                    style={{ 
-                      backgroundColor: 'var(--bg-tertiary)',
-                      color: 'var(--text-secondary)'
-                    }}
+                    className="p-2 rounded-lg transition-colors ml-2 bg-gray-100 text-gray-600 hover:bg-gray-200"
                   >
                     <Eye className="h-4 w-4" />
                   </button>
