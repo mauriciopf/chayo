@@ -21,8 +21,11 @@ import { supabase } from '../services/authService';
 // Keyboard visibility context
 const KeyboardVisibilityContext = createContext({
   isKeyboardVisible: false,
+  keyboardHeight: 0,
   headerOpacity: new Animated.Value(1),
   headerTranslateY: new Animated.Value(0),
+  headerHeight: 0,
+  setHeaderHeight: (_height: number) => {},
 });
 
 export const useKeyboardVisibility = () => useContext(KeyboardVisibilityContext);
@@ -49,6 +52,8 @@ function BusinessDetailContent() {
 
   // Keyboard visibility state
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [headerHeight, setHeaderHeight] = useState(0);
   const headerOpacity = useState(new Animated.Value(1))[0];
   const headerTranslateY = useState(new Animated.Value(0))[0];
 
@@ -93,7 +98,10 @@ function BusinessDetailContent() {
     let keyboardDidShowListener: EmitterSubscription;
     let keyboardDidHideListener: EmitterSubscription;
 
-    const handleKeyboardShow = () => {
+    const handleKeyboardShow = (event: any) => {
+      const height = event?.endCoordinates?.height || 0;
+      setKeyboardHeight(height);
+
       // Delay state update to prevent immediate re-render that closes keyboard
       setTimeout(() => {
         setIsKeyboardVisible(true);
@@ -102,12 +110,12 @@ function BusinessDetailContent() {
       Animated.parallel([
         Animated.timing(headerOpacity, {
           toValue: 0,
-          duration: Platform.OS === 'ios' ? 250 : 0,
+          duration: 250,
           useNativeDriver: true,
         }),
         Animated.timing(headerTranslateY, {
-          toValue: -100,
-          duration: Platform.OS === 'ios' ? 250 : 0,
+          toValue: -(headerHeight || 130),
+          duration: 250,
           useNativeDriver: true,
         }),
       ]).start();
@@ -115,15 +123,16 @@ function BusinessDetailContent() {
 
     const handleKeyboardHide = () => {
       setIsKeyboardVisible(false);
+      setKeyboardHeight(0);
       Animated.parallel([
         Animated.timing(headerOpacity, {
           toValue: 1,
-          duration: Platform.OS === 'ios' ? 250 : 0,
+          duration: 250,
           useNativeDriver: true,
         }),
         Animated.timing(headerTranslateY, {
           toValue: 0,
-          duration: Platform.OS === 'ios' ? 250 : 0,
+          duration: 250,
           useNativeDriver: true,
         }),
       ]).start();
@@ -146,7 +155,7 @@ function BusinessDetailContent() {
         keyboardDidHideListener?.remove();
       }
     };
-  }, [headerOpacity, headerTranslateY]);
+  }, [headerOpacity, headerTranslateY, headerHeight]);
 
   const handleBackToMarketplace = () => {
     navigation.navigate('Marketplace');
@@ -174,7 +183,7 @@ function BusinessDetailContent() {
   }
 
   return (
-    <KeyboardVisibilityContext.Provider value={{ isKeyboardVisible, headerOpacity, headerTranslateY }}>
+    <KeyboardVisibilityContext.Provider value={{ isKeyboardVisible, keyboardHeight, headerOpacity, headerTranslateY, headerHeight, setHeaderHeight }}>
       <View style={styles.container}>
         <StatusBar barStyle="light-content" backgroundColor="#1A1A1A" />
 

@@ -6,12 +6,9 @@ import {
   TouchableOpacity,
   Text,
   StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
   ListRenderItem,
   Keyboard,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useKeyboardVisibility } from '../screens/BusinessDetailScreen';
 
 interface KeyboardAwareChatProps<T> {
@@ -22,7 +19,7 @@ interface KeyboardAwareChatProps<T> {
   onContentSizeChange?: () => void;
   flatListRef?: React.RefObject<FlatList<T>>;
   ListFooterComponent?: ReactNode;
-  
+
   // Input props
   inputValue: string;
   onChangeText: (text: string) => void;
@@ -33,7 +30,7 @@ interface KeyboardAwareChatProps<T> {
   placeholder?: string;
   sendDisabled?: boolean;
   sendButtonContent?: ReactNode;
-  
+
   // Theme props
   backgroundColor: string;
   inputBackgroundColor: string;
@@ -43,7 +40,7 @@ interface KeyboardAwareChatProps<T> {
   placeholderColor: string;
   sendButtonColor: string;
   sendButtonTextColor: string;
-  
+
   // Additional content
   additionalContent?: ReactNode;
 }
@@ -76,38 +73,36 @@ export function KeyboardAwareChat<T>({
 }: KeyboardAwareChatProps<T>) {
   const keyboardContext = useKeyboardVisibility();
   const isKeyboardVisible = keyboardContext?.isKeyboardVisible || false;
+  const keyboardHeight = keyboardContext?.keyboardHeight || 0;
   const [isFocused, setIsFocused] = React.useState(false);
 
   return (
-    <SafeAreaView 
-      style={[styles.container, { backgroundColor }]} 
-      edges={isKeyboardVisible ? ['top'] : []}
-    >
-      <KeyboardAvoidingView
-        style={styles.container}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? (isKeyboardVisible ? 0 : 90) : 0}
-      >
-        {/* Messages */}
-        <FlatList
-          ref={flatListRef}
-          data={data}
-          renderItem={renderItem}
-          keyExtractor={keyExtractor}
-          style={styles.messagesList}
-          contentContainerStyle={[
-            styles.messagesContainer,
-            { paddingTop: isKeyboardVisible ? 16 : 72 }
-          ]}
-          showsVerticalScrollIndicator={false}
-          onContentSizeChange={onContentSizeChange}
-          keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="interactive"
-          ListFooterComponent={ListFooterComponent}
-        />
+    <View style={[styles.container, { backgroundColor }]}>
+      {/* Messages - takes full height */}
+      <FlatList
+        ref={flatListRef}
+        data={data}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+        style={styles.messagesList}
+        contentContainerStyle={styles.messagesContainer}
+        showsVerticalScrollIndicator={false}
+        onContentSizeChange={onContentSizeChange}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
+        ListFooterComponent={ListFooterComponent}
+      />
 
-        {/* Input Container */}
-        <View style={[styles.inputContainer, { backgroundColor, borderTopColor: borderColor }]}>
+      {/* Input Container - Simple: absolute position based on keyboard height */}
+      <View style={[
+        styles.inputContainer,
+        {
+          backgroundColor,
+          borderTopColor: borderColor,
+          bottom: keyboardHeight,
+          paddingBottom: isKeyboardVisible ? 12 : 50,
+        }
+      ]}>
           <TextInput
             ref={inputRef}
             style={[
@@ -158,10 +153,10 @@ export function KeyboardAwareChat<T>({
             )}
           </TouchableOpacity>
         </View>
-      </KeyboardAvoidingView>
-      
+
+
       {additionalContent}
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -177,11 +172,15 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   inputContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
     flexDirection: 'row',
     alignItems: 'flex-end',
     paddingHorizontal: 16,
     paddingTop: 12,
-    paddingBottom: Platform.OS === 'ios' ? 34 : 16,
+    // paddingBottom is applied dynamically based on keyboard state
     borderTopWidth: 1,
   },
   textInput: {

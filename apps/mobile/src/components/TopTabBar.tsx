@@ -24,9 +24,11 @@ export const TopTabBar: React.FC<TopTabBarProps> = ({ tabs, initialTab }) => {
   const { theme, fontSizes } = useThemedStyles();
   const [activeTab, setActiveTab] = useState(initialTab || tabs[0]?.key || '');
   const [indicatorPosition] = useState(new Animated.Value(0));
+  const defaultHeaderOpacity = useRef(new Animated.Value(1));
+  const defaultHeaderTranslateY = useRef(new Animated.Value(0));
   const keyboardContext = useKeyboardVisibility();
-  const headerOpacity = keyboardContext?.headerOpacity || useRef(new Animated.Value(1)).current;
-  const headerTranslateY = keyboardContext?.headerTranslateY || useRef(new Animated.Value(0)).current;
+  const headerOpacity = keyboardContext?.headerOpacity || defaultHeaderOpacity.current;
+  const headerTranslateY = keyboardContext?.headerTranslateY || defaultHeaderTranslateY.current;
   const isKeyboardVisible = keyboardContext?.isKeyboardVisible || false;
 
   const handleTabPress = (tabKey: string, index: number) => {
@@ -42,27 +44,25 @@ export const TopTabBar: React.FC<TopTabBarProps> = ({ tabs, initialTab }) => {
 
   const activeTabContent = tabs.find(tab => tab.key === activeTab);
 
-  return (
-    <View style={styles.container}>
-      {/* Tab Content */}
-      <View style={styles.content}>
-        {activeTabContent?.component}
-      </View>
+  // Remove padding when keyboard opens so content fills the space
+  const contentPaddingTop = isKeyboardVisible ? 0 : 56;
 
-      {/* Animated Tab Bar - Positioned Absolutely */}
+  return (
+    <View style={[styles.container, { backgroundColor: theme.backgroundColor }]}>
+      {/* Tab Bar - Absolute positioned so it doesn't take flex space */}
       <Animated.View
         style={[
           styles.tabBar,
           {
-            backgroundColor: theme.backgroundColor,
-            borderBottomColor: theme.borderColor,
-            opacity: headerOpacity,
-            transform: [{ translateY: headerTranslateY }],
             position: 'absolute',
             top: 0,
             left: 0,
             right: 0,
             zIndex: 10,
+            backgroundColor: theme.backgroundColor,
+            borderBottomColor: theme.borderColor,
+            opacity: headerOpacity,
+            transform: [{ translateY: headerTranslateY }],
           },
         ]}
         pointerEvents={isKeyboardVisible ? 'none' : 'auto'}
@@ -105,6 +105,11 @@ export const TopTabBar: React.FC<TopTabBarProps> = ({ tabs, initialTab }) => {
           ]}
         />
       </Animated.View>
+
+      {/* Tab Content - Dynamic padding based on keyboard state */}
+      <View style={[styles.content, { paddingTop: contentPaddingTop, backgroundColor: theme.backgroundColor }]}>
+        {activeTabContent?.component}
+      </View>
     </View>
   );
 };

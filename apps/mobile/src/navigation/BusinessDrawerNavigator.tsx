@@ -1,12 +1,13 @@
 import React from 'react';
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
 import { useAppConfig } from '../hooks/useAppConfig';
 import { useThemedStyles } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import Icon from 'react-native-vector-icons/Feather';
 import { DrawerHeader } from '../components/DrawerHeader';
+import { useKeyboardVisibility } from '../screens/BusinessDetailScreen';
 
 // Main screen header component (with hamburger menu for drawer)
 interface MainScreenHeaderProps {
@@ -16,22 +17,43 @@ interface MainScreenHeaderProps {
 
 function MainScreenHeader({ navigation, title }: MainScreenHeaderProps) {
   const { theme, fontSizes } = useThemedStyles();
-  
+  const defaultHeaderOpacity = React.useRef(new Animated.Value(1));
+  const defaultHeaderTranslateY = React.useRef(new Animated.Value(0));
+  const keyboardContext = useKeyboardVisibility();
+  const headerOpacity = keyboardContext?.headerOpacity || defaultHeaderOpacity.current;
+  const headerTranslateY = keyboardContext?.headerTranslateY || defaultHeaderTranslateY.current;
+  const isKeyboardVisible = keyboardContext?.isKeyboardVisible || false;
+  const setHeaderHeight = keyboardContext?.setHeaderHeight;
+
+  const handleLayout = (event: any) => {
+    const { height } = event.nativeEvent.layout;
+    if (setHeaderHeight) {
+      // Add tab bar height (56px) to the main header height
+      setHeaderHeight(height + 56);
+    }
+  };
+
   return (
-    <View style={{
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingHorizontal: 16,
-      paddingTop: 54,
-      paddingBottom: 16,
-      backgroundColor: theme.backgroundColor,
-      borderBottomWidth: 1,
-      borderBottomColor: theme.borderColor,
-    }}>
+    <Animated.View 
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingTop: 54,
+        paddingBottom: 16,
+        backgroundColor: theme.backgroundColor,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.borderColor,
+        opacity: headerOpacity,
+        transform: [{ translateY: headerTranslateY }],
+      }}
+      onLayout={handleLayout}
+    >
       <TouchableOpacity
         onPress={() => navigation.openDrawer()}
         style={{ padding: 8, marginRight: 12 }}
         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        disabled={isKeyboardVisible}
       >
         <Icon name="menu" size={24} color={theme.textColor} />
       </TouchableOpacity>
@@ -43,7 +65,7 @@ function MainScreenHeader({ navigation, title }: MainScreenHeaderProps) {
       }}>
         {title}
       </Text>
-    </View>
+    </Animated.View>
   );
 }
 
@@ -197,7 +219,11 @@ function CustomDrawerContent(props: any) {
 // Stack navigator for each tool (to handle detail screens)
 function ChatStack({ businessName }: { businessName: string }) {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator
+      screenOptions={{
+        contentStyle: { backgroundColor: '#1A1A1A' },
+      }}
+    >
       <Stack.Screen 
         name="ChatMain" 
         component={ChatScreen}
