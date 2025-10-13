@@ -27,6 +27,7 @@ export default function DesktopNavigation({
 }: DesktopNavigationProps) {
   const t = useTranslations('dashboard')
   const [copied, setCopied] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(false)
 
   // Base menu items (always visible)
   const baseMenuItems = [
@@ -119,63 +120,67 @@ export default function DesktopNavigation({
   const menuItems = [...baseMenuItems, ...conditionalMenuItems, ...systemMenuItems]
 
   return (
-    <div className="hidden md:block md:w-64 md:flex-shrink-0" style={{ backgroundColor: 'var(--bg-secondary)', borderRight: '1px solid var(--border-primary)' }}>
+    <div 
+      className={`hidden md:block md:flex-shrink-0 transition-all duration-300 ease-in-out ${isExpanded ? 'md:w-64' : 'md:w-20'}`}
+      style={{ backgroundColor: 'var(--bg-secondary)', borderRight: '1px solid var(--border-primary)' }}
+      onMouseEnter={() => setIsExpanded(true)}
+      onMouseLeave={() => setIsExpanded(false)}
+    >
       <div className="flex flex-col h-full overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between p-6" style={{ borderBottom: '1px solid var(--border-primary)' }}>
-        <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'var(--accent-primary)' }}>
-            <span className="text-white font-bold text-sm">C</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>Chayo</span>
-            <span className="text-white text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: 'var(--accent-primary)' }}>
+      <div className="flex items-center justify-center p-6" style={{ borderBottom: '1px solid var(--border-primary)' }}>
+        <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'var(--accent-primary)' }}>
+          <span className="text-white font-bold text-sm">C</span>
+        </div>
+        {isExpanded && (
+          <div className="flex items-center gap-2 ml-3 overflow-hidden">
+            <span className="font-semibold whitespace-nowrap" style={{ color: 'var(--text-primary)' }}>Chayo</span>
+            <span className="text-white text-xs font-bold px-2 py-0.5 rounded-full whitespace-nowrap" style={{ background: 'var(--accent-primary)' }}>
               BETA
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto">
-        {/* User Profile */}
-        <div className="p-6" style={{ borderBottom: '1px solid var(--border-primary)' }}>
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'var(--accent-primary)' }}>
-            <span className="text-white font-semibold text-sm">
-              {user?.user_metadata?.name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
-            </span>
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate" style={{ color: 'var(--text-primary)' }}>
-              {user?.user_metadata?.name || 'User'}
-            </p>
-            <p className="text-xs truncate" style={{ color: 'var(--text-muted)' }}>
-              {subscription?.plan_name || 'Free Plan'}
-            </p>
-          </div>
-        </div>
-        {/* Business Name Label */}
-        {businessName && (
-          <div className="mt-4 mb-2">
-            <span
-              className="block max-w-full font-bold text-base tracking-wide truncate"
-              style={{ letterSpacing: '0.02em', color: 'var(--text-primary)' }}
-              title={businessName}
-            >
-              {businessName}
             </span>
           </div>
         )}
       </div>
 
+      {/* Scrollable Content */}
+      <div className="flex-1 overflow-y-auto">
+        {/* User Profile */}
+        <div className="p-4 flex flex-col items-center" style={{ borderBottom: '1px solid var(--border-primary)' }}>
+          <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'var(--accent-primary)' }}>
+            <span className="text-white font-semibold text-sm">
+              {user?.user_metadata?.name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
+            </span>
+          </div>
+          {isExpanded && (
+            <div className="mt-3 w-full overflow-hidden">
+              <p className="text-sm font-medium truncate text-center" style={{ color: 'var(--text-primary)' }}>
+                {user?.user_metadata?.name || 'User'}
+              </p>
+              <p className="text-xs truncate text-center" style={{ color: 'var(--text-muted)' }}>
+                {subscription?.plan_name || 'Free Plan'}
+              </p>
+              {businessName && (
+                <div className="mt-3">
+                  <span
+                    className="block max-w-full font-bold text-sm tracking-wide truncate text-center"
+                    style={{ letterSpacing: '0.02em', color: 'var(--text-primary)' }}
+                    title={businessName}
+                  >
+                    {businessName}
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
         {/* Navigation Menu */}
-        <nav className="p-4 space-y-2">
+        <nav className="p-2 space-y-1">
         {menuItems.map((item) => (
           <button
             key={item.id}
             onClick={() => onViewChange(item.id)}
-            className="w-full flex items-center space-x-3 px-4 py-3 text-left rounded-lg transition-all duration-200"
+            className={`w-full flex items-center rounded-lg transition-all duration-200 ${isExpanded ? 'px-4 py-3 space-x-3' : 'p-3 justify-center'}`}
             style={{
               backgroundColor: activeView === item.id ? 'var(--bg-active)' : 'transparent',
               border: activeView === item.id ? '1px solid var(--border-focus)' : '1px solid transparent',
@@ -193,21 +198,22 @@ export default function DesktopNavigation({
                 e.currentTarget.style.color = 'var(--text-secondary)';
               }
             }}
+            title={!isExpanded ? item.label : undefined}
           >
-            <span style={{ color: activeView === item.id ? 'var(--accent-primary)' : 'var(--text-muted)' }}>
+            <span className="flex-shrink-0" style={{ color: activeView === item.id ? 'var(--accent-primary)' : 'var(--text-muted)' }}>
               {item.icon}
             </span>
-            <span className="font-medium">{item.label}</span>
+            {isExpanded && <span className="font-medium whitespace-nowrap">{item.label}</span>}
           </button>
         ))}
         </nav>
       </div>
 
       {/* Bottom Actions */}
-      <div className="p-4 space-y-2" style={{ borderTop: '1px solid var(--border-primary)' }}>
+      <div className="p-2 space-y-1" style={{ borderTop: '1px solid var(--border-primary)' }}>
         <button
           onClick={onManageBilling}
-          className="w-full flex items-center space-x-3 px-4 py-3 text-left rounded-lg transition-all duration-200"
+          className={`w-full flex items-center rounded-lg transition-all duration-200 ${isExpanded ? 'px-4 py-3 space-x-3' : 'p-3 justify-center'}`}
           style={{ color: 'var(--text-secondary)' }}
           onMouseEnter={(e) => {
             e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
@@ -217,16 +223,17 @@ export default function DesktopNavigation({
             e.currentTarget.style.backgroundColor = 'transparent';
             e.currentTarget.style.color = 'var(--text-secondary)';
           }}
+          title={!isExpanded ? t('navigation.billingPlans') : undefined}
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--text-muted)' }}>
+          <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--text-muted)' }}>
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
           </svg>
-          <span className="font-medium">{t('navigation.billingPlans')}</span>
+          {isExpanded && <span className="font-medium whitespace-nowrap">{t('navigation.billingPlans')}</span>}
         </button>
         
         <button
           onClick={onLogout}
-          className="w-full flex items-center space-x-3 px-4 py-3 text-left rounded-lg transition-all duration-200"
+          className={`w-full flex items-center rounded-lg transition-all duration-200 ${isExpanded ? 'px-4 py-3 space-x-3' : 'p-3 justify-center'}`}
           style={{ color: 'var(--text-secondary)' }}
           onMouseEnter={(e) => {
             e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
@@ -236,11 +243,12 @@ export default function DesktopNavigation({
             e.currentTarget.style.backgroundColor = 'transparent';
             e.currentTarget.style.color = 'var(--text-secondary)';
           }}
+          title={!isExpanded ? 'Cerrar Sesión' : undefined}
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--text-muted)' }}>
+          <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--text-muted)' }}>
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
           </svg>
-          <span className="font-medium">Cerrar Sesión</span>
+          {isExpanded && <span className="font-medium whitespace-nowrap">Cerrar Sesión</span>}
         </button>
       </div>
       </div>
