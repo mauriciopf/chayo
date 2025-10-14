@@ -18,7 +18,7 @@ interface KeyboardAwareChatProps<T> {
   keyExtractor: (item: T, index: number) => string;
   onContentSizeChange?: () => void;
   flatListRef?: React.RefObject<FlatList<T>>;
-  ListFooterComponent?: ReactNode;
+  ListFooterComponent?: React.ComponentType<any> | React.ReactElement | null;
 
   // Input props
   inputValue: string;
@@ -76,6 +76,12 @@ export function KeyboardAwareChat<T>({
   const keyboardHeight = keyboardContext?.keyboardHeight || 0;
   const [isFocused, setIsFocused] = React.useState(false);
 
+  // Content moves UP 56px (negative margin in TopTabBar)
+  // Input (absolute inside content) moves UP with it
+  // To keep input above keyboard, we need MORE bottom value to push it down
+  // bottom: keyboardHeight + 56 compensates for the upward movement
+  const inputBottom = isKeyboardVisible ? keyboardHeight : 0;
+
   return (
     <View style={[styles.container, { backgroundColor }]}>
       {/* Messages - takes full height */}
@@ -93,13 +99,13 @@ export function KeyboardAwareChat<T>({
         ListFooterComponent={ListFooterComponent}
       />
 
-      {/* Input Container - Simple: absolute position based on keyboard height */}
+      {/* Input Container - Compensate for content movement */}
       <View style={[
         styles.inputContainer,
         {
           backgroundColor,
           borderTopColor: borderColor,
-          bottom: keyboardHeight,
+          bottom: inputBottom,
           paddingBottom: isKeyboardVisible ? 12 : 50,
         }
       ]}>

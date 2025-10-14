@@ -44,21 +44,16 @@ export const TopTabBar: React.FC<TopTabBarProps> = ({ tabs, initialTab }) => {
 
   const activeTabContent = tabs.find(tab => tab.key === activeTab);
 
-  // Remove padding when keyboard opens so content fills the space
-  const contentPaddingTop = isKeyboardVisible ? 0 : 56;
+  // Move content up to fill tab bar space when keyboard opens
+  const contentMarginTop = isKeyboardVisible ? -56 : 0;
 
   return (
     <View style={[styles.container, { backgroundColor: theme.backgroundColor }]}>
-      {/* Tab Bar - Absolute positioned so it doesn't take flex space */}
+      {/* Tab Bar - Normal flex layout, animates with transform */}
       <Animated.View
         style={[
           styles.tabBar,
           {
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            zIndex: 10,
             backgroundColor: theme.backgroundColor,
             borderBottomColor: theme.borderColor,
             opacity: headerOpacity,
@@ -106,8 +101,8 @@ export const TopTabBar: React.FC<TopTabBarProps> = ({ tabs, initialTab }) => {
         />
       </Animated.View>
 
-      {/* Tab Content - Dynamic padding based on keyboard state */}
-      <View style={[styles.content, { paddingTop: contentPaddingTop, backgroundColor: theme.backgroundColor }]}>
+      {/* Tab Content - Moves up with negative margin to fill tab bar space */}
+      <View style={[styles.content, { marginTop: contentMarginTop, backgroundColor: theme.backgroundColor }]}>
         {activeTabContent?.component}
       </View>
     </View>
