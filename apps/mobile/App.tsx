@@ -15,14 +15,7 @@ import {
   Text,
 } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-// Conditional import for expo-updates (only available in Expo-managed workflow)
-let Updates: any = null;
-try {
-  Updates = require('expo-updates');
-} catch (error) {
-  // expo-updates not available in React Native CLI
-  console.log('expo-updates not available, OTA updates disabled');
-}
+import * as Updates from 'expo-updates';
 import { AuthProvider } from './src/context/AuthContext';
 import AuthErrorBoundary from './src/components/AuthErrorBoundary';
 import { ThemeProvider } from './src/context/ThemeContext';
@@ -60,29 +53,33 @@ function App(): React.JSX.Element {
           setInitialRoute('Marketplace');
         }
 
-        // Check for updates in production (only if Updates is available)
-        if (!__DEV__ && Updates) {
-          const update = await Updates.checkForUpdateAsync();
-          if (update.isAvailable) {
-            setIsUpdateAvailable(true);
-            Alert.alert(
-              'Update Available',
-              'A new version of the app is available. Would you like to update now?',
-              [
-                { text: 'Later', style: 'cancel' },
-                {
-                  text: 'Update',
-                  onPress: async () => {
-                    try {
-                      await Updates.fetchUpdateAsync();
-                      await Updates.reloadAsync();
-                    } catch (error) {
-                      Alert.alert('Update Failed', 'Please try again later.');
-                    }
+        // Check for updates in production
+        if (!__DEV__) {
+          try {
+            const update = await Updates.checkForUpdateAsync();
+            if (update.isAvailable) {
+              setIsUpdateAvailable(true);
+              Alert.alert(
+                'Update Available',
+                'A new version of the app is available. Would you like to update now?',
+                [
+                  { text: 'Later', style: 'cancel' },
+                  {
+                    text: 'Update',
+                    onPress: async () => {
+                      try {
+                        await Updates.fetchUpdateAsync();
+                        await Updates.reloadAsync();
+                      } catch (error) {
+                        Alert.alert('Update Failed', 'Please try again later.');
+                      }
+                    },
                   },
-                },
-              ]
-            );
+                ]
+              );
+            }
+          } catch (error) {
+            console.log('Error checking for updates:', error);
           }
         }
       } catch (error) {
