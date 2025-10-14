@@ -8,9 +8,6 @@ require Pod::Executable.execute_command('node', ['-p',
 # Explicit requires for monorepo
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 
-# Specify the Xcode project explicitly
-project 'ChayoMobile.xcodeproj'
-
 platform :ios, '15.1'
 prepare_react_native_project!
 
