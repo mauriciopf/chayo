@@ -31,6 +31,9 @@ export const TopTabBar: React.FC<TopTabBarProps> = ({ tabs, initialTab }) => {
   const headerTranslateY = keyboardContext?.headerTranslateY || defaultHeaderTranslateY.current;
   const isKeyboardVisible = keyboardContext?.isKeyboardVisible || false;
 
+  // Measure tab bar height dynamically
+  const [tabBarHeight, setTabBarHeight] = useState(56);
+
   const handleTabPress = (tabKey: string, index: number) => {
     setActiveTab(tabKey);
 
@@ -44,8 +47,10 @@ export const TopTabBar: React.FC<TopTabBarProps> = ({ tabs, initialTab }) => {
 
   const activeTabContent = tabs.find(tab => tab.key === activeTab);
 
-  // Move content up to fill tab bar space when keyboard opens
-  const contentMarginTop = isKeyboardVisible ? -56 : 0;
+  // Move content to the very top (where MainScreenHeader started)
+  // headerHeight includes both MainScreenHeader + TopTabBar (56px)
+  // So we move content up by the full headerHeight to reach the top
+  const contentMarginTop = isKeyboardVisible ? -tabBarHeight - 40 : 0;
 
   return (
     <View style={[styles.container, { backgroundColor: theme.backgroundColor }]}>
@@ -61,6 +66,12 @@ export const TopTabBar: React.FC<TopTabBarProps> = ({ tabs, initialTab }) => {
           },
         ]}
         pointerEvents={isKeyboardVisible ? 'none' : 'auto'}
+        onLayout={(event) => {
+          const { height } = event.nativeEvent.layout;
+          if (height !== tabBarHeight) {
+            setTabBarHeight(height);
+          }
+        }}
       >
         {tabs.map((tab, index) => (
           <TouchableOpacity
