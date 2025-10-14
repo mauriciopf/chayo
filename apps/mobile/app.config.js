@@ -1,6 +1,6 @@
 export default {
   expo: {
-    name: 'Chayo',
+    name: 'ChayoMobile',
     slug: 'chayo-mobile',
     owner: 'chayo-ai',
     version: '1.1.9',
