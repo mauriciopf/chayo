@@ -1,12 +1,11 @@
 import React from 'react';
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Animated, Dimensions } from 'react-native';
 import { useAppConfig } from '../hooks/useAppConfig';
 import { useThemedStyles } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import Icon from 'react-native-vector-icons/Feather';
-import { DrawerHeader } from '../components/DrawerHeader';
 import { useKeyboardVisibility } from '../screens/BusinessDetailScreen';
 
 // Main screen header component (with hamburger menu for drawer)
@@ -34,7 +33,7 @@ function MainScreenHeader({ navigation, title }: MainScreenHeaderProps) {
   };
 
   return (
-    <Animated.View 
+    <Animated.View
       style={{
         flexDirection: 'row',
         alignItems: 'center',
@@ -77,7 +76,7 @@ interface NestedScreenHeaderProps {
 
 function NestedScreenHeader({ navigation, title }: NestedScreenHeaderProps) {
   const { theme, fontSizes } = useThemedStyles();
-  
+
   return (
     <View style={{
       flexDirection: 'row',
@@ -131,25 +130,6 @@ interface BusinessDrawerNavigatorProps {
   businessName: string;
   onBackToMarketplace: () => void;
 }
-
-// Helper function to map route names to display titles
-const getHeaderTitle = (routeName: string | undefined, businessName: string): string => {
-  if (!routeName || routeName === 'Chat') {
-    return businessName; // Chat shows business name
-  }
-
-  const titleMap: Record<string, string> = {
-    'Products': 'Productos',
-    'Reservations': 'Reservaciones',
-    'Documents': 'Documentos',
-    'FAQs': 'Preguntas Frecuentes',
-    'Payments': 'Pagos',
-    'CustomerSupport': 'Soporte al Cliente',
-    'Profile': 'Perfil',
-  };
-
-  return titleMap[routeName] || businessName;
-};
 
 // Tool configuration with icons
 interface ToolConfig {
@@ -224,8 +204,8 @@ function ChatStack({ businessName }: { businessName: string }) {
         contentStyle: { backgroundColor: '#1A1A1A' },
       }}
     >
-      <Stack.Screen 
-        name="ChatMain" 
+      <Stack.Screen
+        name="ChatMain"
         component={ChatScreen}
         options={{
           headerShown: true,
@@ -239,40 +219,40 @@ function ChatStack({ businessName }: { businessName: string }) {
 function ProductsStack() {
   return (
     <Stack.Navigator>
-      <Stack.Screen 
-        name="ProductsMain" 
+      <Stack.Screen
+        name="ProductsMain"
         component={ProductsScreen}
         options={{
           headerShown: true,
           header: ({ navigation }) => <MainScreenHeader navigation={navigation} title="Productos" />,
         }}
       />
-      <Stack.Screen 
-        name="ProductDetail" 
+      <Stack.Screen
+        name="ProductDetail"
         component={ProductDetailScreen}
         options={{
           headerShown: true,
           header: ({ navigation }) => <NestedScreenHeader navigation={navigation} title="Detalle del Producto" />,
         }}
       />
-      <Stack.Screen 
-        name="ReservationCalendar" 
+      <Stack.Screen
+        name="ReservationCalendar"
         component={ReservationCalendarScreen}
         options={{
           headerShown: true,
           header: ({ navigation }) => <NestedScreenHeader navigation={navigation} title="Seleccionar Fecha" />,
         }}
       />
-      <Stack.Screen 
-        name="ReservationTimeSelection" 
+      <Stack.Screen
+        name="ReservationTimeSelection"
         component={ReservationTimeSelectionScreen}
         options={{
           headerShown: true,
           header: ({ navigation }) => <NestedScreenHeader navigation={navigation} title="Seleccionar Hora" />,
         }}
       />
-      <Stack.Screen 
-        name="ReservationBooking" 
+      <Stack.Screen
+        name="ReservationBooking"
         component={ReservationBookingScreen}
         options={{
           headerShown: true,
@@ -286,8 +266,8 @@ function ProductsStack() {
 function ReservationsStack() {
   return (
     <Stack.Navigator>
-      <Stack.Screen 
-        name="ReservationsMain" 
+      <Stack.Screen
+        name="ReservationsMain"
         component={ReservationsScreen}
         options={{
           headerShown: true,
@@ -301,24 +281,24 @@ function ReservationsStack() {
 function DocumentsStack() {
   return (
     <Stack.Navigator>
-      <Stack.Screen 
-        name="DocumentsMain" 
+      <Stack.Screen
+        name="DocumentsMain"
         component={UnifiedDocumentsSection}
         options={{
           headerShown: true,
           header: ({ navigation }) => <MainScreenHeader navigation={navigation} title="Documentos" />,
         }}
       />
-      <Stack.Screen 
-        name="DocumentDetail" 
+      <Stack.Screen
+        name="DocumentDetail"
         component={DocumentDetailScreen}
         options={{
           headerShown: true,
           header: ({ navigation }) => <NestedScreenHeader navigation={navigation} title="Detalle del Documento" />,
         }}
       />
-      <Stack.Screen 
-        name="FormDetail" 
+      <Stack.Screen
+        name="FormDetail"
         component={FormDetailScreen}
         options={{
           headerShown: true,
@@ -332,8 +312,8 @@ function DocumentsStack() {
 function FAQsStack() {
   return (
     <Stack.Navigator>
-      <Stack.Screen 
-        name="FAQsMain" 
+      <Stack.Screen
+        name="FAQsMain"
         component={FAQsScreen}
         options={{
           headerShown: true,
@@ -347,8 +327,8 @@ function FAQsStack() {
 function PaymentsStack() {
   return (
     <Stack.Navigator>
-      <Stack.Screen 
-        name="PaymentsMain" 
+      <Stack.Screen
+        name="PaymentsMain"
         component={PaymentsScreen}
         options={{
           headerShown: true,
@@ -362,8 +342,8 @@ function PaymentsStack() {
 function CustomerSupportStack() {
   return (
     <Stack.Navigator>
-      <Stack.Screen 
-        name="CustomerSupportMain" 
+      <Stack.Screen
+        name="CustomerSupportMain"
         component={CustomerSupportScreen}
         options={{
           headerShown: true,
@@ -377,8 +357,8 @@ function CustomerSupportStack() {
 function ProfileStack() {
   return (
     <Stack.Navigator>
-      <Stack.Screen 
-        name="ProfileMain" 
+      <Stack.Screen
+        name="ProfileMain"
         component={ProfileScreen}
         options={{
           headerShown: true,
@@ -439,9 +419,14 @@ export default function BusinessDrawerNavigator({ businessName, onBackToMarketpl
     ...availableTools.filter(t => t.systemName !== 'chat'),
   ].filter(Boolean);
 
+  // Get screen width for swipe gesture
+  const screenWidth = Dimensions.get('window').width;
+
   // Memoize screen options to avoid recreating on every render
-  const screenOptions = React.useMemo(() => ({ navigation, route }: any) => ({
+  const screenOptions = React.useMemo(() => () => ({
     headerShown: false, // Hide drawer header - each stack will manage its own header
+    swipeEnabled: true, // Enable swipe gesture to open drawer
+    swipeEdgeWidth: screenWidth, // Allow swipe from anywhere on screen
     drawerActiveBackgroundColor: `${theme.primaryColor}20`,
     drawerActiveTintColor: theme.primaryColor,
     drawerInactiveTintColor: theme.placeholderColor,
@@ -458,7 +443,7 @@ export default function BusinessDrawerNavigator({ businessName, onBackToMarketpl
       backgroundColor: theme.backgroundColor,
       width: 280,
     },
-  }), [theme, fontSizes]);
+  }), [theme, fontSizes, screenWidth]);
 
   return (
     <Drawer.Navigator
