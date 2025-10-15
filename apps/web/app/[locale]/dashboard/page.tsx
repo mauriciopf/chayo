@@ -289,7 +289,7 @@ function DashboardContent() {
         // If a tool is active, render it inline
         if (activeTool) {
           // Determine if tool should use light theme
-          const lightThemeTools = ['products', 'payments', 'forms', 'documents', 'reminders', 'reservations']
+          const lightThemeTools = ['products', 'payments', 'forms', 'documents', 'reminders', 'reservations', 'chat']
           const isLightTheme = lightThemeTools.includes(activeTool)
           
           return (

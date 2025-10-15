@@ -54,7 +54,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
   return (
     <div 
-      className="px-4 py-4 flex-shrink-0" 
+      className="dark px-4 py-4 flex-shrink-0" 
       style={{ 
         backgroundColor: 'var(--bg-primary)',
         paddingBottom: isMobile ? 'max(env(safe-area-inset-bottom), 16px)' : undefined 
