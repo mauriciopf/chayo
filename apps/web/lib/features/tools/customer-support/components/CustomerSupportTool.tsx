@@ -239,110 +239,58 @@ export default function CustomerSupportTool({
         </div>
       </div>
 
-      <div className="flex flex-1 overflow-hidden">
-        {/* Conversations List */}
-        <div className="w-1/3 border-r flex flex-col" style={{ borderColor: 'var(--border-primary)', backgroundColor: 'var(--bg-secondary)' }}>
-          <div className="p-4 border-b" style={{ borderColor: 'var(--border-primary)' }}>
-            <h3 className="text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>{t('conversations')}</h3>
-            <div className="flex gap-2">
-              <button className="px-3 py-1 text-xs rounded-full" style={{ backgroundColor: 'var(--accent-secondary)', color: 'white' }}>
-                {t('filters.all', { count: conversations.length })}
-              </button>
-              <button className="px-3 py-1 text-xs rounded-full" style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-secondary)' }}>
-                {t('filters.unread', { count: conversations.filter(c => c.unread_count > 0).length })}
-              </button>
-            </div>
+      {/* Conversations Tabs - Horizontal Scrollable */}
+      <div className="border-b" style={{ borderColor: 'var(--border-primary)', backgroundColor: 'var(--bg-secondary)' }}>
+        <div className="flex items-center gap-2 px-4 py-3 overflow-x-auto">
+          <div className="flex gap-2 flex-shrink-0">
+            <button className="px-3 py-1.5 text-xs rounded-full whitespace-nowrap" style={{ backgroundColor: 'var(--accent-secondary)', color: 'white' }}>
+              {t('filters.all', { count: conversations.length })}
+            </button>
+            <button className="px-3 py-1.5 text-xs rounded-full whitespace-nowrap" style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-secondary)' }}>
+              {t('filters.unread', { count: conversations.filter(c => c.unread_count > 0).length })}
+            </button>
           </div>
-          
-          <div className="flex-1 overflow-y-auto">
+          <div className="h-6 w-px bg-gray-300 mx-2"></div>
+          <div className="flex gap-2 overflow-x-auto">
             {loading ? (
-              <div className="p-4 text-center" style={{ color: 'var(--text-secondary)' }}>{t('loading')}</div>
+              <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>{t('loading')}</div>
             ) : conversations.length === 0 ? (
-              <div className="p-4 text-center" style={{ color: 'var(--text-secondary)' }}>
-                <div className="w-12 h-12 mx-auto mb-3 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
-                  <svg className="w-6 h-6" style={{ color: 'var(--text-muted)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                  </svg>
-                </div>
-                <p className="text-sm">{t('noConversations')}</p>
-                <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
-                  {t('emptyDescription')}
-                </p>
+              <div className="text-sm py-1" style={{ color: 'var(--text-secondary)' }}>
+                {t('noConversations')}
               </div>
             ) : (
               conversations.map((conversation) => (
-                <div
+                <button
                   key={conversation.id}
                   onClick={() => setSelectedConversation(conversation)}
-                  className="p-4 border-b cursor-pointer transition-colors"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-all whitespace-nowrap"
                   style={{
-                    borderColor: selectedConversation?.id === conversation.id ? 'var(--accent-secondary)' : 'var(--border-secondary)',
-                    backgroundColor: selectedConversation?.id === conversation.id ? 'var(--bg-hover)' : 'transparent'
-                  }}
-                  onMouseEnter={(e) => {
-                    if (selectedConversation?.id !== conversation.id) {
-                      e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (selectedConversation?.id !== conversation.id) {
-                      e.currentTarget.style.backgroundColor = 'transparent';
-                    }
+                    borderColor: selectedConversation?.id === conversation.id ? 'var(--accent-secondary)' : 'var(--border-primary)',
+                    backgroundColor: selectedConversation?.id === conversation.id ? 'var(--accent-secondary)' : 'var(--bg-tertiary)',
+                    color: selectedConversation?.id === conversation.id ? 'white' : 'var(--text-primary)'
                   }}
                 >
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <h4 className="text-sm font-medium truncate" style={{ color: 'var(--text-primary)' }}>
-                          {conversation.customer_name}
-                        </h4>
-                        {conversation.unread_count > 0 && (
-                          <span className="px-2 py-0.5 text-xs text-white rounded-full" style={{ backgroundColor: 'var(--accent-secondary)' }}>
-                            {conversation.unread_count}
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-xs truncate" style={{ color: 'var(--text-muted)' }}>
-                        {conversation.customer_email}
-                      </p>
-                    </div>
-                    <div className="flex flex-col items-end gap-1">
-                     <span className="px-2 py-0.5 text-xs rounded-full" style={{
-                        backgroundColor: conversation.status === 'open' ? 'var(--bg-tertiary)' :
-                        conversation.status === 'in_progress' ? 'var(--bg-hover)' :
-                        conversation.status === 'resolved' ? 'var(--accent-secondary)' :
-                        'var(--bg-secondary)',
-                        color: conversation.status === 'resolved' ? 'white' : 'var(--text-secondary)'
-                      }}>
-                        {statusLabel(conversation.status)}
-                      </span>
-                      <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
-                        {new Date(conversation.last_message_at).toLocaleTimeString([], { 
-                          hour: '2-digit', 
-                          minute: '2-digit' 
-                        })}
-                      </span>
-                    </div>
-                  </div>
-                  <p className="text-sm truncate" style={{ color: 'var(--text-secondary)' }}>
-                    <span className="font-medium" style={{
-                      color: conversation.last_message_sender_type === 'customer' ? 'var(--accent-secondary)' : 'var(--text-primary)'
-                    }}>
-                      {conversation.last_message_sender_type === 'customer' ? `${t('customerPrefix')} ` : `${t('agentPrefix')} `}
+                  <span className="text-sm font-medium">{conversation.customer_name}</span>
+                  {conversation.unread_count > 0 && (
+                    <span className="px-1.5 py-0.5 text-xs bg-red-500 text-white rounded-full">
+                      {conversation.unread_count}
                     </span>
-                    {conversation.last_message_content}
-                  </p>
-                  <p className="text-xs mt-1 font-medium" style={{ color: 'var(--text-muted)' }}>
-                    {conversation.subject}
-                  </p>
-                </div>
+                  )}
+                  <span className="text-xs opacity-75">
+                    {new Date(conversation.last_message_at).toLocaleTimeString([], { 
+                      hour: '2-digit', 
+                      minute: '2-digit' 
+                    })}
+                  </span>
+                </button>
               ))
             )}
           </div>
         </div>
+      </div>
 
-        {/* Chat Area */}
-        <div className="flex-1 flex flex-col" style={{ backgroundColor: 'var(--bg-primary)' }}>
+      {/* Full-Size Chat Area */}
+      <div className="flex-1 flex flex-col overflow-hidden" style={{ backgroundColor: 'var(--bg-primary)' }}>
           {selectedConversation ? (
             <>
               {/* Chat Header */}
@@ -431,21 +379,20 @@ export default function CustomerSupportTool({
                 <div ref={messagesEndRef} />
               </div>
 
-              {/* Message Input */}
-              <div className="border-t p-4" style={{ borderColor: 'var(--border-primary)', backgroundColor: 'var(--bg-secondary)' }}>
+              {/* Message Input - Dark Theme */}
+              <div className="border-t p-4" style={{ borderColor: '#374151', backgroundColor: '#1f2937' }}>
                 <div className="flex gap-3">
                   <textarea
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     placeholder={t('typing')}
-                    className="flex-1 px-3 py-2 border rounded-lg focus:ring-2 resize-none"
+                    className="flex-1 px-4 py-3 border-0 rounded-xl focus:ring-2 resize-none placeholder-gray-500"
                     style={{ 
-                      backgroundColor: 'var(--bg-tertiary)', 
-                      borderColor: 'var(--border-primary)', 
-                      color: 'var(--text-primary)',
+                      backgroundColor: '#374151', 
+                      color: '#ffffff',
                       '--tw-ring-color': 'var(--accent-secondary)'
                     } as React.CSSProperties}
-                    rows={3}
+                    rows={1}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
@@ -456,7 +403,7 @@ export default function CustomerSupportTool({
                   <button
                     onClick={sendMessage}
                     disabled={!newMessage.trim() || sending}
-                    className="px-4 py-2 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="px-4 py-2 text-white rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-colors self-end"
                     style={{ backgroundColor: 'var(--accent-secondary)' }}
                   >
                     {sending ? (
@@ -485,7 +432,6 @@ export default function CustomerSupportTool({
               </div>
             </div>
           )}
-        </div>
       </div>
     </div>
   );
