@@ -44,6 +44,8 @@ interface ChatContainerProps {
   modalEvent: ModalEvent | null;
   statusEvent: StateEvent | null;
   progressEvent: ProgressEvent | null;
+  // Flag to indicate if chat is in a flex container (tool wrapper)
+  inFlexContainer?: boolean;
 }
 
 export default function ChatContainer({
@@ -78,7 +80,8 @@ export default function ChatContainer({
   onModeSwitch,
   modalEvent,
   statusEvent,
-  progressEvent
+  progressEvent,
+  inFlexContainer = false
 }: ChatContainerProps) {
   // Chat mode state - default to business mode, but allow override via props
   const [internalChatMode, setInternalChatMode] = useState<ChatMode>('business')
@@ -102,8 +105,13 @@ export default function ChatContainer({
       style={{
         backgroundColor: 'var(--bg-secondary)',
         borderColor: 'var(--border-primary)',
-        height: isMobile ? 'calc(100dvh - 60px - 3rem)' : 'calc(100vh - 2rem - 3rem)', // Account for mobile header, desktop padding, and beta banner
-        maxHeight: isMobile ? 'calc(100dvh - 60px - 3rem)' : 'calc(100vh - 2rem - 3rem)',
+        // When in flex container, use flex-1 to fill space. Otherwise, use fixed heights
+        ...(inFlexContainer ? {
+          height: '100%'
+        } : {
+          height: isMobile ? 'calc(100dvh - 60px - 3rem)' : 'calc(100vh - 2rem - 3rem)',
+          maxHeight: isMobile ? 'calc(100dvh - 60px - 3rem)' : 'calc(100vh - 2rem - 3rem)'
+        }),
         position: 'relative',
         overflow: 'hidden' // Prevent any overflow issues
       }}

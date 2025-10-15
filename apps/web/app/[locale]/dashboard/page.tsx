@@ -295,10 +295,10 @@ function DashboardContent() {
           
           return (
             <div className={`${isLightTheme ? 'light' : ''} h-full w-full flex flex-col ${isLightTheme ? 'bg-gray-50' : ''}`} style={!isLightTheme ? { backgroundColor: 'var(--bg-primary)' } : {}}>
-              <div className={`px-6 py-4 border-b ${isLightTheme ? 'bg-white border-gray-200' : ''}`} style={!isLightTheme ? { backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-primary)' } : {}}>
+              <div className={`px-6 py-4 border-b flex-shrink-0 ${isLightTheme ? 'bg-white border-gray-200' : ''}`} style={!isLightTheme ? { backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-primary)' } : {}}>
                 <BackToDashboardButton onClick={() => setActiveTool(null)} />
               </div>
-              <div className="flex-1 overflow-auto p-6">
+              <div className={`flex-1 min-h-0 ${activeTool === 'chat' ? 'flex flex-col' : 'overflow-auto p-6'}`}>
                 {activeTool === 'chat' && (
                   <ChatContainer
                       messages={chat.messages}
@@ -331,6 +331,7 @@ function DashboardContent() {
                       agent={auth.agents[0]}
                       organization={auth.currentOrganization}
                       locale={locale}
+                      inFlexContainer={true}
                     />
                 )}
                 
