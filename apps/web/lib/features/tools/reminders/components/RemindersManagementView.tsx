@@ -18,7 +18,9 @@ interface Customer {
 interface Reminder {
   id: string
   organization_id: string
-  customer_id: string
+  customer_id: string | null
+  manual_email?: string | null
+  manual_name?: string | null
   original_message: string
   ai_generated_html: string | null
   subject: string
@@ -151,7 +153,9 @@ export default function RemindersManagementView({
     const matchesSearch = !searchQuery || 
       reminder.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
       reminder.customer?.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      reminder.customer?.email.toLowerCase().includes(searchQuery.toLowerCase())
+      reminder.customer?.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      reminder.manual_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      reminder.manual_email?.toLowerCase().includes(searchQuery.toLowerCase())
     
     return matchesStatus && matchesSearch
   })
@@ -314,7 +318,7 @@ export default function RemindersManagementView({
                   <div className="space-y-1 text-xs opacity-90">
                     <p className="flex items-center gap-1">
                       <User className="h-3 w-3" />
-                      {reminder.customer?.full_name || reminder.customer?.email || 'Cliente desconocido'}
+                      {reminder.customer?.full_name || reminder.customer?.email || reminder.manual_name || reminder.manual_email || 'Cliente desconocido'}
                     </p>
                     <p className="flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
@@ -387,15 +391,17 @@ export default function RemindersManagementView({
                         style={{ backgroundColor: 'var(--accent-secondary)', color: 'white' }}
                       >
                         {selectedReminder.customer?.full_name?.[0]?.toUpperCase() || 
-                         selectedReminder.customer?.email[0].toUpperCase() || 'C'}
+                         selectedReminder.customer?.email[0].toUpperCase() ||
+                         selectedReminder.manual_name?.[0]?.toUpperCase() ||
+                         selectedReminder.manual_email?.[0].toUpperCase() || 'C'}
                       </div>
                       <div>
                         <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-                          {selectedReminder.customer?.full_name || selectedReminder.customer?.email || 'Cliente desconocido'}
+                          {selectedReminder.customer?.full_name || selectedReminder.customer?.email || selectedReminder.manual_name || selectedReminder.manual_email || 'Cliente desconocido'}
                         </p>
-                        {selectedReminder.customer?.full_name && (
+                        {(selectedReminder.customer?.full_name || selectedReminder.manual_name) && (
                           <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-                            {selectedReminder.customer.email}
+                            {selectedReminder.customer?.email || selectedReminder.manual_email}
                           </p>
                         )}
                       </div>

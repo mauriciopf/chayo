@@ -118,59 +118,42 @@ export async function POST(
       )
     }
 
-    let finalCustomerId = customer_id
-
-    // If manual email is provided, create or find customer
-    if (manual_email && !customer_id) {
-      // Check if customer already exists with this email
-      const { data: existingCustomer } = await supabase
-        .from('customers')
-        .select('id')
-        .eq('email', manual_email.toLowerCase().trim())
-        .contains('organization_ids', [organizationId])
-        .maybeSingle()
-
-      if (existingCustomer) {
-        finalCustomerId = existingCustomer.id
-      } else {
-        // Create new customer
-        const { data: newCustomer, error: customerError } = await supabase
-          .from('customers')
-          .insert({
-            email: manual_email.toLowerCase().trim(),
-            full_name: manual_name || null,
-            organization_ids: [organizationId]
-          })
-          .select('id')
-          .single()
-
-        if (customerError) {
-          console.error('Error creating customer:', customerError)
-          return NextResponse.json({ error: 'Failed to create customer' }, { status: 500 })
-        }
-
-        finalCustomerId = newCustomer.id
-      }
+    // Validate email format if using manual email
+    if (manual_email && !manual_email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+      return NextResponse.json(
+        { error: 'Invalid email format' },
+        { status: 400 }
+      )
     }
 
     // Calculate next_send_at for recurring reminders
     const nextSendAt = recurrence === 'once' ? null : scheduled_at
 
+    // Build reminder data
+    const reminderData: any = {
+      organization_id: organizationId,
+      original_message,
+      ai_generated_html,
+      subject,
+      scheduled_at,
+      recurrence,
+      next_send_at: nextSendAt,
+      status: 'pending',
+      created_by: user.id
+    }
+
+    // Add either customer_id OR manual email fields
+    if (customer_id) {
+      reminderData.customer_id = customer_id
+    } else if (manual_email) {
+      reminderData.manual_email = manual_email.toLowerCase().trim()
+      reminderData.manual_name = manual_name || null
+    }
+
     // Create reminder
     const { data: reminder, error } = await supabase
       .from('reminders_tool')
-      .insert({
-        organization_id: organizationId,
-        customer_id: finalCustomerId,
-        original_message,
-        ai_generated_html,
-        subject,
-        scheduled_at,
-        recurrence,
-        next_send_at: nextSendAt,
-        status: 'pending',
-        created_by: user.id
-      })
+      .insert(reminderData)
       .select(`
         *,
         customer:customers(id, email, full_name, avatar_url)
