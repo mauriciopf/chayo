@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
-import { Calendar, Clock, User, Mail, Loader2, RefreshCw, Eye, Repeat } from 'lucide-react'
+import { Calendar, Clock, User, Mail, Loader2, RefreshCw, Repeat } from 'lucide-react'
 import MultiStepWizard, { WizardStep } from '@/lib/shared/components/MultiStepWizard'
 
 interface Customer {
@@ -30,7 +30,6 @@ export default function RemindersToolConfigWizard({ organizationId, businessName
   const [scheduledTime, setScheduledTime] = useState('')
   const [recurrence, setRecurrence] = useState<'once' | 'daily' | 'weekly' | 'monthly'>('once')
   const [aiGeneratedHtml, setAiGeneratedHtml] = useState<string | null>(null)
-  const [showPreview, setShowPreview] = useState(false)
   
   // Multi-step wizard
   const [currentStep, setCurrentStep] = useState(1)
@@ -165,7 +164,6 @@ export default function RemindersToolConfigWizard({ organizationId, businessName
     setScheduledTime('')
     setRecurrence('once')
     setAiGeneratedHtml(null)
-    setShowPreview(false)
     setCurrentStep(1)
     setSearchQuery('')
   }
@@ -414,61 +412,32 @@ export default function RemindersToolConfigWizard({ organizationId, businessName
       title: 'Plantilla',
       description: 'Genera una plantilla profesional con IA',
       isValid: !!aiGeneratedHtml,
-      onNext: async () => {
-        if (!aiGeneratedHtml) {
-          return await handleGenerateTemplate(false)
+      onEnter: async () => {
+        // Auto-generate template when entering this step if not already generated
+        if (!aiGeneratedHtml && !generatingTemplate) {
+          await handleGenerateTemplate(false)
         }
-        return true
       },
       content: (
         <div className="space-y-4">
-          {!aiGeneratedHtml ? (
-            <div className="text-center py-8">
-              <Mail className="h-12 w-12 mx-auto mb-4" style={{ color: 'var(--accent-secondary)' }} />
-              <p className="mb-4" style={{ color: 'var(--text-secondary)' }}>
-                Genera una plantilla HTML profesional con IA
+          {generatingTemplate && !aiGeneratedHtml ? (
+            <div className="text-center py-12">
+              <Loader2 className="h-12 w-12 mx-auto mb-4 animate-spin" style={{ color: 'var(--accent-secondary)' }} />
+              <p className="text-lg font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
+                Generando plantilla...
               </p>
-              <button
-                onClick={() => handleGenerateTemplate(false)}
-                disabled={generatingTemplate}
-                className="px-6 py-3 rounded-lg font-semibold flex items-center gap-2 mx-auto disabled:opacity-50"
-                style={{
-                  backgroundColor: 'var(--accent-secondary)',
-                  color: 'white'
-                }}
-              >
-                {generatingTemplate ? (
-                  <>
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                    Generando...
-                  </>
-                ) : (
-                  <>
-                    <Mail className="h-5 w-5" />
-                    Generar Plantilla
-                  </>
-                )}
-              </button>
+              <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                La IA está creando un email profesional para ti
+              </p>
             </div>
-          ) : (
+          ) : aiGeneratedHtml ? (
             <div className="space-y-3">
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setShowPreview(!showPreview)}
-                  className="flex-1 py-2 px-4 rounded-lg border font-medium flex items-center justify-center gap-2"
-                  style={{
-                    backgroundColor: 'var(--bg-tertiary)',
-                    borderColor: 'var(--border-secondary)',
-                    color: 'var(--text-primary)'
-                  }}
-                >
-                  <Eye className="h-4 w-4" />
-                  {showPreview ? 'Ocultar' : 'Ver'} Vista Previa
-                </button>
+              {/* Regenerate Button */}
+              <div className="flex justify-end">
                 <button
                   onClick={() => handleGenerateTemplate(true)}
                   disabled={generatingTemplate}
-                  className="flex-1 py-2 px-4 rounded-lg border font-medium flex items-center justify-center gap-2"
+                  className="py-2 px-4 rounded-lg border font-medium flex items-center gap-2 disabled:opacity-50"
                   style={{
                     backgroundColor: 'var(--bg-tertiary)',
                     borderColor: 'var(--border-secondary)',
@@ -476,22 +445,21 @@ export default function RemindersToolConfigWizard({ organizationId, businessName
                   }}
                 >
                   <RefreshCw className="h-4 w-4" />
-                  Regenerar
+                  {generatingTemplate ? 'Regenerando...' : 'Regenerar'}
                 </button>
               </div>
 
-              {showPreview && (
-                <div 
-                  className="p-4 rounded-lg border max-h-96 overflow-y-auto"
-                  style={{
-                    backgroundColor: 'white',
-                    borderColor: 'var(--border-secondary)'
-                  }}
-                  dangerouslySetInnerHTML={{ __html: aiGeneratedHtml }}
-                />
-              )}
+              {/* Always show preview */}
+              <div 
+                className="p-4 rounded-lg border max-h-96 overflow-y-auto"
+                style={{
+                  backgroundColor: 'white',
+                  borderColor: 'var(--border-secondary)'
+                }}
+                dangerouslySetInnerHTML={{ __html: aiGeneratedHtml }}
+              />
             </div>
-          )}
+          ) : null}
         </div>
       )
     },
@@ -615,7 +583,7 @@ export default function RemindersToolConfigWizard({ organizationId, businessName
         </div>
       )
     }
-  ], [selectedCustomer, useManualEmail, manualEmail, manualName, subject, message, aiGeneratedHtml, recurrence, scheduledDate, scheduledTime, searchQuery, customersLoading, filteredCustomers, generatingTemplate, showPreview, today])
+  ], [selectedCustomer, useManualEmail, manualEmail, manualName, subject, message, aiGeneratedHtml, recurrence, scheduledDate, scheduledTime, searchQuery, customersLoading, filteredCustomers, generatingTemplate, today])
 
   return (
     <div className="space-y-6">

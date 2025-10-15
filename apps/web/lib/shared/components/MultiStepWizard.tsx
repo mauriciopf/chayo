@@ -1,6 +1,6 @@
 'use client'
 
-import React, { ReactNode } from 'react'
+import React, { ReactNode, useEffect } from 'react'
 import { ChevronLeft, ChevronRight, Check } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -11,6 +11,7 @@ export interface WizardStep {
   content: ReactNode
   isValid?: boolean
   onNext?: () => Promise<boolean> | boolean
+  onEnter?: () => Promise<void> | void
 }
 
 interface MultiStepWizardProps {
@@ -39,6 +40,13 @@ export default function MultiStepWizard({
   const isFirstStep = currentStep === 1
   const isLastStep = currentStep === totalSteps
   const progress = (currentStep / totalSteps) * 100
+
+  // Call onEnter when step changes
+  useEffect(() => {
+    if (currentStepData?.onEnter) {
+      currentStepData.onEnter()
+    }
+  }, [currentStep, currentStepData])
 
   const handleNext = async () => {
     // Run custom validation if provided
