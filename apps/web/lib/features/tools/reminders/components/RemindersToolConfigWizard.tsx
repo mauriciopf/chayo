@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
-import { Calendar, Clock, User, Mail, Loader2, Sparkles, RefreshCw, Eye, Repeat } from 'lucide-react'
+import { Calendar, Clock, User, Mail, Loader2, RefreshCw, Eye, Repeat } from 'lucide-react'
 import MultiStepWizard, { WizardStep } from '@/lib/shared/components/MultiStepWizard'
 
 interface Customer {
@@ -31,7 +31,6 @@ export default function RemindersToolConfigWizard({ organizationId, businessName
   
   // Multi-step wizard
   const [currentStep, setCurrentStep] = useState(1)
-  const [showWizard, setShowWizard] = useState(false)
   
   // Loading states
   const [generatingTemplate, setGeneratingTemplate] = useState(false)
@@ -127,7 +126,6 @@ export default function RemindersToolConfigWizard({ organizationId, businessName
       if (response.ok) {
         // Reset form
         resetWizard()
-        setShowWizard(false)
         
         alert('✅ Recordatorio programado exitosamente! Ve a la sección de Recordatorios en el menú lateral para administrarlo.')
       } else {
@@ -176,6 +174,22 @@ export default function RemindersToolConfigWizard({ organizationId, businessName
       isValid: !!selectedCustomer,
       content: (
         <div className="space-y-4">
+          {/* Explanation */}
+          <div 
+            className="p-4 rounded-lg border"
+            style={{ 
+              backgroundColor: 'var(--bg-tertiary)',
+              borderColor: 'var(--border-secondary)'
+            }}
+          >
+            <p className="text-sm mb-2" style={{ color: 'var(--text-secondary)' }}>
+              Sigue los pasos para crear un recordatorio personalizado con plantilla generada por IA
+            </p>
+            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+              💡 Una vez creado, podrás administrarlo desde la sección de Recordatorios en el menú lateral
+            </p>
+          </div>
+          
           <input
             type="text"
             placeholder="Buscar cliente..."
@@ -314,7 +328,7 @@ export default function RemindersToolConfigWizard({ organizationId, businessName
         <div className="space-y-4">
           {!aiGeneratedHtml ? (
             <div className="text-center py-8">
-              <Sparkles className="h-12 w-12 mx-auto mb-4" style={{ color: 'var(--accent-secondary)' }} />
+              <Mail className="h-12 w-12 mx-auto mb-4" style={{ color: 'var(--accent-secondary)' }} />
               <p className="mb-4" style={{ color: 'var(--text-secondary)' }}>
                 Genera una plantilla HTML profesional con IA
               </p>
@@ -334,7 +348,7 @@ export default function RemindersToolConfigWizard({ organizationId, businessName
                   </>
                 ) : (
                   <>
-                    <Sparkles className="h-5 w-5" />
+                    <Mail className="h-5 w-5" />
                     Generar Plantilla
                   </>
                 )}
@@ -527,44 +541,18 @@ export default function RemindersToolConfigWizard({ organizationId, businessName
             borderColor: 'var(--border-primary)'
           }}
         >
-          {!showWizard ? (
-            <div className="flex flex-col items-center justify-center h-full text-center py-12">
-              <Sparkles className="h-16 w-16 mb-4" style={{ color: 'var(--accent-secondary)' }} />
-              <h4 className="text-xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
-                Crear Nuevo Recordatorio
-              </h4>
-              <p className="text-sm mb-4 max-w-md" style={{ color: 'var(--text-secondary)' }}>
-                Sigue los pasos para crear un recordatorio personalizado con plantilla generada por IA
-              </p>
-              <p className="text-xs mb-6 max-w-md" style={{ color: 'var(--text-muted)' }}>
-                💡 Una vez creado, podrás administrarlo desde la sección de Recordatorios en el menú lateral
-              </p>
-              <button
-                onClick={() => setShowWizard(true)}
-                className="px-6 py-3 rounded-lg font-semibold"
-                style={{
-                  backgroundColor: 'var(--accent-secondary)',
-                  color: 'white'
-                }}
-              >
-                Comenzar
-              </button>
-            </div>
-          ) : (
-            <MultiStepWizard
-              steps={wizardSteps}
-              currentStep={currentStep}
-              onStepChange={setCurrentStep}
-              onComplete={handleSendReminder}
-              onCancel={() => {
-                resetWizard()
-                setShowWizard(false)
-              }}
-              isSubmitting={sendingReminder}
-              submitLabel="Programar Recordatorio"
-              cancelLabel="Cancelar"
-            />
-          )}
+          <MultiStepWizard
+            steps={wizardSteps}
+            currentStep={currentStep}
+            onStepChange={setCurrentStep}
+            onComplete={handleSendReminder}
+            onCancel={() => {
+              resetWizard()
+            }}
+            isSubmitting={sendingReminder}
+            submitLabel="Programar Recordatorio"
+            cancelLabel="Cancelar"
+          />
         </div>
       </div>
     </div>
