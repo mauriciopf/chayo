@@ -167,7 +167,7 @@ export default function ChatMessage({ role, content, timestamp, appointmentLink,
     <div className="py-4">
       <div className="w-full px-4">
         <div className={`flex ${role === "user" ? "justify-end" : "justify-start"}`}>
-          <div className={`flex ${role === "user" ? "flex-row-reverse" : "flex-row"} items-start gap-3 ${role === "user" ? "max-w-[75%]" : "w-full max-w-full"}`}>
+          <div className={`flex ${role === "user" ? "flex-row-reverse" : "flex-row"} items-start gap-3 max-w-[75%]`}>
             {/* Avatar */}
             <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
               role === "user" 

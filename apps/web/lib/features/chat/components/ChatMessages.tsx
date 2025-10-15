@@ -54,25 +54,23 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, chatLoading, chat
           )
         })}
         {chatLoading && (
-          <div className="py-6" style={{ backgroundColor: 'var(--bg-primary)' }}>
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="py-4">
+            <div className="w-full px-4">
               <div className="flex justify-start">
-                <div className="flex items-start space-x-4 max-w-3xl">
+                <div className="flex items-start gap-3 max-w-[75%]">
                   <div 
-                    className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center"
-                    style={{ backgroundColor: 'var(--accent-primary)' }}
+                    className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center bg-gradient-to-r from-green-500 to-blue-500 text-white"
                   >
-                    <svg className="w-5 h-5" style={{ color: 'var(--text-primary)' }} fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clipRule="evenodd" />
                     </svg>
                   </div>
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     <div 
-                      className="inline-block rounded-2xl px-4 py-3 shadow-sm border"
+                      className="px-4 py-3"
                       style={{ 
-                        backgroundColor: 'var(--bg-tertiary)',
-                        color: 'var(--text-primary)',
-                        borderColor: 'var(--border-secondary)'
+                        backgroundColor: 'transparent',
+                        color: 'var(--text-primary)'
                       }}
                     >
                       <div className="flex items-center space-x-1">
