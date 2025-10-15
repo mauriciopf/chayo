@@ -249,14 +249,19 @@ function SimpleFormBuilder({ formDefinition, onChange, onFieldClick }: SimpleFor
                           
                           {/* Label */}
                           <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                            <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
                               Etiqueta *
                             </label>
                             <input
                               type="text"
                               value={fieldConfig.label}
                               onChange={(e) => setFieldConfig({ ...fieldConfig, label: e.target.value })}
-                              className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-purple-500"
+                              className="w-full px-2 py-1 text-sm border rounded focus:outline-none focus:ring-1 focus:ring-purple-500"
+                              style={{
+                                borderColor: 'var(--border-primary)',
+                                backgroundColor: 'var(--bg-tertiary)',
+                                color: 'var(--text-primary)'
+                              }}
                               placeholder="Ej: Nombre completo"
                             />
                           </div>
@@ -264,14 +269,19 @@ function SimpleFormBuilder({ formDefinition, onChange, onFieldClick }: SimpleFor
                           {/* Placeholder for text fields */}
                           {['textfield', 'email', 'number', 'phoneNumber', 'textarea'].includes(field.type) && (
                             <div>
-                              <label className="block text-xs font-medium text-gray-700 mb-1">
+                              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
                                 Texto de ejemplo
                               </label>
                               <input
                                 type="text"
                                 value={fieldConfig.placeholder}
                                 onChange={(e) => setFieldConfig({ ...fieldConfig, placeholder: e.target.value })}
-                                className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-purple-500"
+                                className="w-full px-2 py-1 text-sm border rounded focus:outline-none focus:ring-1 focus:ring-purple-500"
+                                style={{
+                                  borderColor: 'var(--border-primary)',
+                                  backgroundColor: 'var(--bg-tertiary)',
+                                  color: 'var(--text-primary)'
+                                }}
                                 placeholder="Ej: Ingresa tu nombre"
                               />
                             </div>
@@ -280,7 +290,7 @@ function SimpleFormBuilder({ formDefinition, onChange, onFieldClick }: SimpleFor
                           {/* Options for select/radio/checkboxes */}
                           {['select', 'radio', 'selectboxes'].includes(field.type) && (
                             <div>
-                              <label className="block text-xs font-medium text-gray-700 mb-1">
+                              <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
                                 Opciones
                               </label>
                               {fieldConfig.options.map((option, optIndex) => (
@@ -293,7 +303,12 @@ function SimpleFormBuilder({ formDefinition, onChange, onFieldClick }: SimpleFor
                                       newOptions[optIndex] = e.target.value
                                       setFieldConfig({ ...fieldConfig, options: newOptions })
                                     }}
-                                    className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-purple-500"
+                                    className="flex-1 px-2 py-1 text-sm border rounded focus:outline-none focus:ring-1 focus:ring-purple-500"
+                                    style={{
+                                      borderColor: 'var(--border-primary)',
+                                      backgroundColor: 'var(--bg-tertiary)',
+                                      color: 'var(--text-primary)'
+                                    }}
                                     placeholder={`Opción ${optIndex + 1}`}
                                   />
                                   {fieldConfig.options.length > 1 && (
@@ -330,7 +345,7 @@ function SimpleFormBuilder({ formDefinition, onChange, onFieldClick }: SimpleFor
                               onChange={(e) => setFieldConfig({ ...fieldConfig, required: e.target.checked })}
                               className="mr-2"
                             />
-                            <label htmlFor={`required-${field.id}`} className="text-xs text-gray-700">
+                            <label htmlFor={`required-${field.id}`} className="text-xs" style={{ color: 'var(--text-secondary)' }}>
                               Campo obligatorio
                             </label>
                           </div>
@@ -350,10 +365,16 @@ function SimpleFormBuilder({ formDefinition, onChange, onFieldClick }: SimpleFor
                         // Normal field display
                         <div>
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="text-sm font-medium text-gray-900">
+                            <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
                               {field.label || getFieldTypeName(field.type)}
                             </span>
-                            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                            <span 
+                              className="text-xs px-2 py-1 rounded" 
+                              style={{ 
+                                color: 'var(--text-muted)', 
+                                backgroundColor: 'var(--bg-hover)' 
+                              }}
+                            >
                               {getFieldTypeName(field.type)}
                             </span>
                             {field.validate?.required && (
@@ -361,12 +382,12 @@ function SimpleFormBuilder({ formDefinition, onChange, onFieldClick }: SimpleFor
                             )}
                           </div>
                           {field.placeholder && (
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
                               Placeholder: {field.placeholder}
                             </p>
                           )}
                           {(field.values && Array.isArray(field.values) && field.values.length > 0) && (
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
                               Opciones: {field.values.map((v: any) => v.label || v).join(', ')}
                             </p>
                           )}
@@ -435,6 +456,13 @@ export default function IntakeFormsToolConfig({ organizationId, isEnabled, onSet
       loadForms()
     }
   }, [isEnabled, organizationId])
+
+  // Auto-open form builder when there are no forms
+  useEffect(() => {
+    if (!loading && forms.length === 0 && !showFormBuilder) {
+      handleCreateForm()
+    }
+  }, [loading, forms.length, showFormBuilder])
 
   const loadForms = async () => {
     try {
@@ -574,15 +602,28 @@ export default function IntakeFormsToolConfig({ organizationId, isEnabled, onSet
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold">
+          <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
             {editingForm ? 'Editar Formulario' : 'Crear Formulario'}
           </h3>
           <div className="flex items-center gap-2">
+            {forms.length > 0 && (
+              <button
+                onClick={handleCreateForm}
+                className="flex items-center px-3 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
+                title="Crear nuevo formulario"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+            )}
             <button
               onClick={() => setIsPreview(!isPreview)}
               disabled={!formDefinition}
               className="flex items-center px-3 py-2 border rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{ borderColor: 'var(--border-primary)', color: 'var(--text-primary)' }}
+              style={{ 
+                borderColor: 'var(--border-primary)', 
+                color: 'var(--text-primary)',
+                backgroundColor: 'transparent'
+              }}
               onMouseEnter={(e) => !e.currentTarget.disabled && (e.currentTarget.style.backgroundColor = 'var(--bg-hover)')}
               onMouseLeave={(e) => !e.currentTarget.disabled && (e.currentTarget.style.backgroundColor = 'transparent')}
             >
@@ -597,7 +638,11 @@ export default function IntakeFormsToolConfig({ organizationId, isEnabled, onSet
                 setFormDefinition(null)
               }}
               className="px-3 py-2 border rounded-md transition-colors"
-              style={{ borderColor: 'var(--border-primary)', color: 'var(--text-primary)' }}
+              style={{ 
+                borderColor: 'var(--border-primary)', 
+                color: 'var(--text-primary)',
+                backgroundColor: 'transparent'
+              }}
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
             >
@@ -607,22 +652,27 @@ export default function IntakeFormsToolConfig({ organizationId, isEnabled, onSet
         </div>
 
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
             Nombre del Formulario *
           </label>
           <input
             type="text"
             value={formName}
             onChange={(e) => setFormName(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+            style={{
+              borderColor: 'var(--border-primary)',
+              backgroundColor: 'var(--bg-tertiary)',
+              color: 'var(--text-primary)'
+            }}
             placeholder="Ej: Formulario de Admisión"
             required
           />
         </div>
 
         {isPreview ? (
-          <div className="border border-gray-200 rounded-lg p-4">
-            <h4 className="text-md font-medium mb-4">Vista Previa del Formulario</h4>
+          <div className="border rounded-lg p-4" style={{ borderColor: 'var(--border-primary)' }}>
+            <h4 className="text-md font-medium mb-4" style={{ color: 'var(--text-primary)' }}>Vista Previa del Formulario</h4>
             {formDefinition && (
               <Form 
                 src={undefined as any}
@@ -682,13 +732,13 @@ export default function IntakeFormsToolConfig({ organizationId, isEnabled, onSet
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">{t('intakeForms.title')}</h3>
+        <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>{t('intakeForms.title')}</h3>
       </div>
 
       {loading ? (
         <div className="flex items-center justify-center py-8">
           <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
-          <span className="ml-2 text-gray-600">Cargando formularios...</span>
+          <span className="ml-2" style={{ color: 'var(--text-secondary)' }}>Cargando formularios...</span>
         </div>
       ) : forms.length === 0 ? (
         <button
@@ -708,14 +758,14 @@ export default function IntakeFormsToolConfig({ organizationId, isEnabled, onSet
       ) : (
         <div className="space-y-4">
           {forms.map((form) => (
-            <div key={form.id} className="border border-gray-200 rounded-lg p-4">
+            <div key={form.id} className="border rounded-lg p-4" style={{ borderColor: 'var(--border-primary)' }}>
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="font-medium text-gray-900">{form.name}</h4>
+                  <h4 className="font-medium" style={{ color: 'var(--text-primary)' }}>{form.name}</h4>
                   {form.description && (
-                    <p className="text-sm text-gray-600 mt-1">{form.description}</p>
+                    <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>{form.description}</p>
                   )}
-                  <p className="text-xs text-gray-500 mt-2">
+                  <p className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>
                     {form.formio_definition ? 'Formulario construido' : 'Sin definición'}
                   </p>
                 </div>
@@ -723,7 +773,11 @@ export default function IntakeFormsToolConfig({ organizationId, isEnabled, onSet
                   <button
                     onClick={() => copyFormLink(form.id)}
                     className="flex items-center px-3 py-1 text-sm border rounded transition-colors"
-                    style={{ borderColor: 'var(--border-primary)', color: 'var(--text-primary)' }}
+                    style={{ 
+                      borderColor: 'var(--border-primary)', 
+                      color: 'var(--text-primary)',
+                      backgroundColor: 'transparent'
+                    }}
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                   >
@@ -733,7 +787,11 @@ export default function IntakeFormsToolConfig({ organizationId, isEnabled, onSet
                   <button
                     onClick={() => handleEditForm(form)}
                     className="flex items-center px-3 py-1 text-sm border rounded transition-colors"
-                    style={{ borderColor: 'var(--border-primary)', color: 'var(--text-primary)' }}
+                    style={{ 
+                      borderColor: 'var(--border-primary)', 
+                      color: 'var(--text-primary)',
+                      backgroundColor: 'transparent'
+                    }}
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                   >
@@ -743,7 +801,11 @@ export default function IntakeFormsToolConfig({ organizationId, isEnabled, onSet
                   <button
                     onClick={() => handleDeleteForm(form.id)}
                     className="flex items-center px-3 py-1 text-sm border rounded transition-colors"
-                    style={{ borderColor: 'var(--border-primary)', color: 'var(--text-danger)' }}
+                    style={{ 
+                      borderColor: 'var(--border-primary)', 
+                      color: 'var(--text-danger)',
+                      backgroundColor: 'transparent'
+                    }}
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-danger-hover)'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                   >

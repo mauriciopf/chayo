@@ -290,7 +290,7 @@ function DashboardContent() {
         // If a tool is active, render it inline
         if (activeTool) {
           return (
-            <div className="h-full w-full flex flex-col bg-gray-50">
+            <div className="light h-full w-full flex flex-col bg-gray-50">
               <div className="px-6 py-4 bg-white border-b border-gray-200">
                 <BackToDashboardButton onClick={() => setActiveTool(null)} />
               </div>
