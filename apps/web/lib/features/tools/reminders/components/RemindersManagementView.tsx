@@ -38,12 +38,16 @@ interface RemindersManagementViewProps {
   organizationId: string
   businessName: string
   onCreateNew: () => void
+  onBack?: () => void
+  onNoReminders?: () => void
 }
 
 export default function RemindersManagementView({ 
   organizationId, 
   businessName,
-  onCreateNew 
+  onCreateNew,
+  onBack,
+  onNoReminders
 }: RemindersManagementViewProps) {
   const [reminders, setReminders] = useState<Reminder[]>([])
   const [customers, setCustomers] = useState<Customer[]>([])
@@ -91,6 +95,13 @@ export default function RemindersManagementView({
       loadData()
     }
   }, [organizationId])
+
+  // Switch to create view when no reminders
+  useEffect(() => {
+    if (!loading && reminders.length === 0 && onNoReminders) {
+      onNoReminders()
+    }
+  }, [loading, reminders.length, onNoReminders])
 
   // Delete reminder
   const handleDeleteReminder = async (reminderId: string) => {

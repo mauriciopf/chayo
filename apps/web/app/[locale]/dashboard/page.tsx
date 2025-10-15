@@ -19,7 +19,7 @@ import { useOnboardingCompletion } from '@/lib/features/onboarding/hooks/useOnbo
 import ChatContainer from '@/lib/features/chat/components/ChatContainer'
 import ClientQRCode from '@/lib/features/chat/components/ClientQRCode'
 import AgentsView from '@/lib/features/dashboard/components/agents/AgentsView'
-import RemindersManagementView from '@/lib/features/tools/reminders/components/RemindersManagementView'
+import RemindersToolMain from '@/lib/features/tools/reminders/components/RemindersToolMain'
 import DashboardCardGrid from '@/lib/features/dashboard/components/DashboardCardGrid'
 import BackToDashboardButton from '@/lib/features/dashboard/components/BackToDashboardButton'
 
@@ -29,7 +29,6 @@ import PaymentToolConfig from '@/lib/features/tools/payments/components/PaymentT
 import ProductsManager from '@/components/products/ProductsManager'
 import IntakeFormsToolConfig from '@/lib/features/tools/intake-forms/components/IntakeFormsToolConfig'
 import CustomerSupportTool from '@/lib/features/tools/customer-support/components/CustomerSupportTool'
-import RemindersToolConfigWizard from '@/lib/features/tools/reminders/components/RemindersToolConfigWizard'
 import ReservationsManagementView from '@/lib/features/tools/reservations/components/ReservationsManagementView'
 
 import BusinessSummary from '@/lib/features/dashboard/components/overview/BusinessSummary'
@@ -348,7 +347,7 @@ function DashboardContent() {
                 )}
                 
                 {activeTool === 'reminders' && auth.currentOrganization && (
-                  <RemindersToolConfigWizard
+                  <RemindersToolMain
                     organizationId={auth.currentOrganization.id}
                     businessName={auth.currentOrganization.name}
                   />
@@ -481,23 +480,6 @@ function DashboardContent() {
               // Handle user update if needed
             }} 
           />
-        ) : null
-      case 'reminders':
-        return auth.currentOrganization ? (
-          <div className="h-full flex flex-col">
-            <div className="px-4 py-3">
-              <BackToDashboardButton onClick={() => setActiveView('dashboard')} />
-            </div>
-            <RemindersManagementView
-              organizationId={auth.currentOrganization.id}
-              businessName={auth.currentOrganization.name}
-              onCreateNew={() => {
-                // Switch to chat view to open the reminders modal
-                setActiveView('chat')
-                // TODO: Trigger the reminders modal from ActionableHintChips
-              }}
-            />
-          </div>
         ) : null
       default:
         return null
