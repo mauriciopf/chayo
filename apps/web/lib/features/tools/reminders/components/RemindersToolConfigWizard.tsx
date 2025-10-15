@@ -21,6 +21,9 @@ export default function RemindersToolConfigWizard({ organizationId, businessName
   // State
   const [customers, setCustomers] = useState<Customer[]>([])
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
+  const [manualEmail, setManualEmail] = useState('')
+  const [manualName, setManualName] = useState('')
+  const [useManualEmail, setUseManualEmail] = useState(false)
   const [subject, setSubject] = useState('')
   const [message, setMessage] = useState('')
   const [scheduledDate, setScheduledDate] = useState('')
@@ -101,8 +104,17 @@ export default function RemindersToolConfigWizard({ organizationId, businessName
 
   // Send reminder
   const handleSendReminder = async () => {
-    if (!selectedCustomer || !subject || !message || !scheduledDate || !scheduledTime) {
+    // Validate: either customer selected or manual email provided
+    const hasRecipient = useManualEmail ? manualEmail : selectedCustomer
+    
+    if (!hasRecipient || !subject || !message || !scheduledDate || !scheduledTime) {
       alert('Por favor completa todos los campos requeridos')
+      return
+    }
+
+    // Validate email format if using manual email
+    if (useManualEmail && !manualEmail.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+      alert('Por favor ingresa un email válido')
       return
     }
 
@@ -114,7 +126,9 @@ export default function RemindersToolConfigWizard({ organizationId, businessName
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          customer_id: selectedCustomer.id,
+          customer_id: selectedCustomer?.id,
+          manual_email: useManualEmail ? manualEmail : undefined,
+          manual_name: useManualEmail ? manualName : undefined,
           original_message: message,
           ai_generated_html: aiGeneratedHtml,
           subject,
@@ -142,6 +156,9 @@ export default function RemindersToolConfigWizard({ organizationId, businessName
   // Reset wizard
   const resetWizard = () => {
     setSelectedCustomer(null)
+    setManualEmail('')
+    setManualName('')
+    setUseManualEmail(false)
     setSubject('')
     setMessage('')
     setScheduledDate('')
@@ -170,8 +187,8 @@ export default function RemindersToolConfigWizard({ organizationId, businessName
     {
       id: 'customer',
       title: 'Cliente',
-      description: 'Selecciona el cliente que recibirá el recordatorio',
-      isValid: !!selectedCustomer,
+      description: 'Selecciona un cliente o ingresa un email manualmente',
+      isValid: useManualEmail ? !!manualEmail : !!selectedCustomer,
       content: (
         <div className="space-y-4">
           {/* Explanation */}
@@ -189,77 +206,156 @@ export default function RemindersToolConfigWizard({ organizationId, businessName
               💡 Una vez creado, podrás administrarlo desde la sección de Recordatorios en el menú lateral
             </p>
           </div>
-          
-          <input
-            type="text"
-            placeholder="Buscar cliente..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-4 py-2 rounded-lg border"
-            style={{
-              backgroundColor: 'var(--bg-tertiary)',
-              borderColor: 'var(--border-secondary)',
-              color: 'var(--text-primary)'
-            }}
-          />
 
-          <div 
-            className="max-h-96 overflow-y-auto space-y-2 p-2 rounded-lg border"
-            style={{ 
-              backgroundColor: 'var(--bg-tertiary)',
-              borderColor: 'var(--border-secondary)'
-            }}
-          >
-            {customersLoading ? (
-              <div className="text-center py-8">
-                <Loader2 className="h-6 w-6 animate-spin mx-auto" style={{ color: 'var(--text-muted)' }} />
-              </div>
-            ) : filteredCustomers.length === 0 ? (
-              <p className="text-center py-8" style={{ color: 'var(--text-muted)' }}>
-                No hay clientes disponibles
-              </p>
-            ) : (
-              filteredCustomers.map((customer) => (
-                <button
-                  key={customer.id}
-                  onClick={() => setSelectedCustomer(customer)}
-                  className={`w-full text-left p-3 rounded-lg transition-all ${
-                    selectedCustomer?.id === customer.id ? 'ring-2 ring-purple-500' : ''
-                  }`}
+          {/* Toggle between customer list and manual email */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => {
+                setUseManualEmail(false)
+                setManualEmail('')
+                setManualName('')
+              }}
+              className={`flex-1 py-2 px-4 rounded-lg font-medium transition-all ${
+                !useManualEmail ? 'ring-2 ring-purple-500' : ''
+              }`}
+              style={{
+                backgroundColor: !useManualEmail ? 'var(--accent-secondary)' : 'var(--bg-tertiary)',
+                color: !useManualEmail ? 'white' : 'var(--text-primary)'
+              }}
+            >
+              Seleccionar Cliente
+            </button>
+            <button
+              onClick={() => {
+                setUseManualEmail(true)
+                setSelectedCustomer(null)
+              }}
+              className={`flex-1 py-2 px-4 rounded-lg font-medium transition-all ${
+                useManualEmail ? 'ring-2 ring-purple-500' : ''
+              }`}
+              style={{
+                backgroundColor: useManualEmail ? 'var(--accent-secondary)' : 'var(--bg-tertiary)',
+                color: useManualEmail ? 'white' : 'var(--text-primary)'
+              }}
+            >
+              Ingresar Email
+            </button>
+          </div>
+
+          {/* Manual Email Input */}
+          {useManualEmail ? (
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
+                  <Mail className="inline h-4 w-4 mr-1" />
+                  Email del Cliente *
+                </label>
+                <input
+                  type="email"
+                  value={manualEmail}
+                  onChange={(e) => setManualEmail(e.target.value)}
+                  placeholder="ejemplo@email.com"
+                  className="w-full px-4 py-2 rounded-lg border"
                   style={{
-                    backgroundColor: selectedCustomer?.id === customer.id 
-                      ? 'var(--accent-secondary)' 
-                      : 'var(--bg-secondary)',
-                    color: selectedCustomer?.id === customer.id 
-                      ? 'white' 
-                      : 'var(--text-primary)'
+                    backgroundColor: 'var(--bg-tertiary)',
+                    borderColor: 'var(--border-secondary)',
+                    color: 'var(--text-primary)'
                   }}
-                >
-                  <div className="flex items-center gap-3">
-                    <div 
-                      className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold"
-                      style={{ 
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
+                  <User className="inline h-4 w-4 mr-1" />
+                  Nombre del Cliente (opcional)
+                </label>
+                <input
+                  type="text"
+                  value={manualName}
+                  onChange={(e) => setManualName(e.target.value)}
+                  placeholder="Juan Pérez"
+                  className="w-full px-4 py-2 rounded-lg border"
+                  style={{
+                    backgroundColor: 'var(--bg-tertiary)',
+                    borderColor: 'var(--border-secondary)',
+                    color: 'var(--text-primary)'
+                  }}
+                />
+              </div>
+            </div>
+          ) : (
+            <>
+              <input
+                type="text"
+                placeholder="Buscar cliente..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-4 py-2 rounded-lg border"
+                style={{
+                  backgroundColor: 'var(--bg-tertiary)',
+                  borderColor: 'var(--border-secondary)',
+                  color: 'var(--text-primary)'
+                }}
+              />
+
+              <div 
+                className="max-h-96 overflow-y-auto space-y-2 p-2 rounded-lg border"
+                style={{ 
+                  backgroundColor: 'var(--bg-tertiary)',
+                  borderColor: 'var(--border-secondary)'
+                }}
+              >
+                {customersLoading ? (
+                  <div className="text-center py-8">
+                    <Loader2 className="h-6 w-6 animate-spin mx-auto" style={{ color: 'var(--text-muted)' }} />
+                  </div>
+                ) : filteredCustomers.length === 0 ? (
+                  <p className="text-center py-8" style={{ color: 'var(--text-muted)' }}>
+                    No hay clientes disponibles
+                  </p>
+                ) : (
+                  filteredCustomers.map((customer) => (
+                    <button
+                      key={customer.id}
+                      onClick={() => setSelectedCustomer(customer)}
+                      className={`w-full text-left p-3 rounded-lg transition-all ${
+                        selectedCustomer?.id === customer.id ? 'ring-2 ring-purple-500' : ''
+                      }`}
+                      style={{
                         backgroundColor: selectedCustomer?.id === customer.id 
-                          ? 'rgba(255,255,255,0.2)' 
-                          : 'var(--accent-secondary)',
-                        color: 'white'
+                          ? 'var(--accent-secondary)' 
+                          : 'var(--bg-secondary)',
+                        color: selectedCustomer?.id === customer.id 
+                          ? 'white' 
+                          : 'var(--text-primary)'
                       }}
                     >
-                      {customer.full_name?.[0]?.toUpperCase() || customer.email[0].toUpperCase()}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate">
-                        {customer.full_name || customer.email}
-                      </p>
-                      {customer.full_name && (
-                        <p className="text-sm truncate opacity-80">{customer.email}</p>
-                      )}
-                    </div>
-                  </div>
-                </button>
-              ))
-            )}
-          </div>
+                      <div className="flex items-center gap-3">
+                        <div 
+                          className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold"
+                          style={{ 
+                            backgroundColor: selectedCustomer?.id === customer.id 
+                              ? 'rgba(255,255,255,0.2)' 
+                              : 'var(--accent-secondary)',
+                            color: 'white'
+                          }}
+                        >
+                          {customer.full_name?.[0]?.toUpperCase() || customer.email[0].toUpperCase()}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium truncate">
+                            {customer.full_name || customer.email}
+                          </p>
+                          {customer.full_name && (
+                            <p className="text-sm truncate opacity-80">{customer.email}</p>
+                          )}
+                        </div>
+                      </div>
+                    </button>
+                  ))
+                )}
+              </div>
+            </>
+          )}
         </div>
       )
     },
@@ -519,7 +615,7 @@ export default function RemindersToolConfigWizard({ organizationId, businessName
         </div>
       )
     }
-  ], [selectedCustomer, subject, message, aiGeneratedHtml, recurrence, scheduledDate, scheduledTime, searchQuery, customersLoading, filteredCustomers, generatingTemplate, showPreview, today])
+  ], [selectedCustomer, useManualEmail, manualEmail, manualName, subject, message, aiGeneratedHtml, recurrence, scheduledDate, scheduledTime, searchQuery, customersLoading, filteredCustomers, generatingTemplate, showPreview, today])
 
   return (
     <div className="space-y-6">

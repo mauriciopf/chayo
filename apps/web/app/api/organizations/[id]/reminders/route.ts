@@ -101,6 +101,8 @@ export async function POST(
     const body = await request.json()
     const {
       customer_id,
+      manual_email,
+      manual_name,
       original_message,
       ai_generated_html,
       subject,
@@ -109,11 +111,46 @@ export async function POST(
     } = body
 
     // Validate required fields
-    if (!customer_id || !original_message || !subject || !scheduled_at) {
+    if ((!customer_id && !manual_email) || !original_message || !subject || !scheduled_at) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: 'Missing required fields. Provide either customer_id or manual_email.' },
         { status: 400 }
       )
+    }
+
+    let finalCustomerId = customer_id
+
+    // If manual email is provided, create or find customer
+    if (manual_email && !customer_id) {
+      // Check if customer already exists with this email
+      const { data: existingCustomer } = await supabase
+        .from('customers')
+        .select('id')
+        .eq('email', manual_email.toLowerCase().trim())
+        .contains('organization_ids', [organizationId])
+        .maybeSingle()
+
+      if (existingCustomer) {
+        finalCustomerId = existingCustomer.id
+      } else {
+        // Create new customer
+        const { data: newCustomer, error: customerError } = await supabase
+          .from('customers')
+          .insert({
+            email: manual_email.toLowerCase().trim(),
+            full_name: manual_name || null,
+            organization_ids: [organizationId]
+          })
+          .select('id')
+          .single()
+
+        if (customerError) {
+          console.error('Error creating customer:', customerError)
+          return NextResponse.json({ error: 'Failed to create customer' }, { status: 500 })
+        }
+
+        finalCustomerId = newCustomer.id
+      }
     }
 
     // Calculate next_send_at for recurring reminders
@@ -124,7 +161,7 @@ export async function POST(
       .from('reminders_tool')
       .insert({
         organization_id: organizationId,
-        customer_id,
+        customer_id: finalCustomerId,
         original_message,
         ai_generated_html,
         subject,

@@ -160,9 +160,9 @@ export default function DashboardCardGrid({
                   onClick={() => handleCardClick(card)}
                   disabled={!isAccessible}
                   className={`
-                    w-full p-6 rounded-2xl text-left transition-all duration-200
+                    group w-full p-6 rounded-2xl text-left transition-all duration-300 ease-out
                     ${isAccessible
-                      ? 'bg-white hover:shadow-lg hover:scale-[1.02] cursor-pointer'
+                      ? 'bg-white hover:!bg-purple-50 hover:shadow-2xl hover:-translate-y-2 hover:border-purple-300 cursor-pointer'
                       : 'bg-gray-100 cursor-not-allowed opacity-60'
                     }
                     ${isActive && isAccessible
