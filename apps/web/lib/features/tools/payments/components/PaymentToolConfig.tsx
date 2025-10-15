@@ -109,6 +109,13 @@ export default function PaymentToolConfig({
     }
   }, [isEnabled, organizationId])
 
+  // Auto-show provider selection when no providers exist
+  useEffect(() => {
+    if (!loading && paymentProviders.length === 0) {
+      setShowAddProvider(true)
+    }
+  }, [loading, paymentProviders.length])
+
   const loadPaymentProviders = async () => {
     try {
       setLoading(true)
@@ -304,49 +311,7 @@ export default function PaymentToolConfig({
 
       {/* Payment Providers Section */}
       <div className="space-y-6">
-        {paymentProviders.length === 0 && !showAddProvider ? (
-          // Empty state - clickable container
-          <button
-            onClick={() => setShowAddProvider(true)}
-            className="w-full text-center py-8 rounded-lg border-2 border-dashed transition-all group"
-            style={{ 
-              borderColor: 'var(--border-secondary)',
-              backgroundColor: 'var(--bg-secondary)'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = 'var(--accent-secondary)'
-              e.currentTarget.style.backgroundColor = 'var(--bg-hover)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = 'var(--border-secondary)'
-              e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'
-            }}
-          >
-            <CreditCard 
-              className="w-12 h-12 mx-auto mb-4 transition-colors" 
-              style={{ color: 'var(--text-muted)' }}
-            />
-            <h4 
-              className="text-lg font-medium mb-2"
-              style={{ color: 'var(--text-primary)' }}
-            >
-              Conectar Proveedor de Pagos
-            </h4>
-            <p 
-              className="mb-4"
-              style={{ color: 'var(--text-secondary)' }}
-            >
-              Conecta proveedores de pago (Stripe, PayPal, Square) para cobrar a tus clientes a través del chat.
-            </p>
-            <div 
-              className="flex items-center justify-center px-4 py-2 text-white rounded-lg transition-colors mx-auto w-fit"
-              style={{ backgroundColor: 'var(--accent-secondary)' }}
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Agregar Proveedor de Pagos
-            </div>
-          </button>
-        ) : paymentProviders.length > 0 ? (
+        {paymentProviders.length > 0 && !showAddProvider ? (
           // Connected providers list
           <div className="space-y-4">
             <div className="flex items-center justify-between">

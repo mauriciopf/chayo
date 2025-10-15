@@ -81,7 +81,7 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
   const loadOffers = async () => {
     try {
       setOffersLoading(true)
-      const response = await fetch(`/api/organizations/${organizationId}/offers`)
+      const response = await fetch(`/api/offers?organizationId=${organizationId}`)
       if (response.ok) {
         const data = await response.json()
         setOffers(data.offers || [])
@@ -320,8 +320,19 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
                   offer.status === 'active' ? 'border-teal-500' : 'border-gray-200'
                 }`}
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
+                <div className="flex items-start gap-4 justify-between">
+                  {/* Banner Image */}
+                  {offer.ai_banner_url && (
+                    <div className="flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden bg-gray-200">
+                      <img 
+                        src={offer.ai_banner_url} 
+                        alt={offer.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  
+                  <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <h4 className="font-semibold text-gray-900">
                         {offer.name}
@@ -348,9 +359,10 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
                       </span>
                     </div>
                   </div>
+                  
                   <button
                     onClick={() => handleEditOffer(offer)}
-                    className="p-2 rounded-lg transition-colors ml-2 bg-gray-100 text-gray-600 hover:bg-gray-200"
+                    className="flex-shrink-0 p-2 rounded-lg transition-colors bg-gray-100 text-gray-600 hover:bg-gray-200"
                   >
                     <Eye className="h-4 w-4" />
                   </button>
