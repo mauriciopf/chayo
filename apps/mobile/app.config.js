@@ -31,7 +31,6 @@ export default {
     plugins: ['expo-updates'],
     updates: {
       url: 'https://u.expo.dev/74f0a115-1928-4581-86d2-a81a2f76d355',
-      channel: 'production',
     },
     runtimeVersion: '1.1.9',
     extra: {

@@ -35,7 +35,7 @@
     "@supabase/supabase-js": "^2.57.0",
     "base64-js": "^1.5.1",
     "buffer": "^6.0.3",
-    "expo": "^53.0.20",
+    "expo": "^53.0.23",
     "expo-updates": "^0.28.17",
     "i18next": "^25.5.2",
     "js-sha256": "^0.11.1",
@@ -80,5 +80,13 @@
   },
   "engines": {
     "node": ">=18"
+  },
+  "expo": {
+    "autolinking": {
+      "searchPaths": [
+        "../../node_modules",
+        "./node_modules"
+      ]
+    }
   }
 }

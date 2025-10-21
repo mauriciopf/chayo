@@ -5,8 +5,17 @@ require Pod::Executable.execute_command('node', ['-p',
     {paths: [process.argv[1]]},
   )', __dir__]).strip
 
-# Explicit requires for monorepo
-require_relative '../node_modules/react-native/scripts/react_native_pods'
+# Resolve Expo autolinking from monorepo root
+def node_require(script)
+  # Resolve the package first, then append the script path
+  package_json_path = Pod::Executable.execute_command('node', ['-p',
+    "require.resolve('#{script}/package.json', {paths: [process.argv[1]]})",
+    File.join(__dir__, '../../..')]).strip
+  File.join(File.dirname(package_json_path), 'scripts/autolinking')
+end
+
+# Load Expo autolinking from the monorepo root node_modules
+require node_require('expo')
 
 platform :ios, '15.1'
 prepare_react_native_project!
@@ -18,6 +27,10 @@ if linkage != nil
 end
 
 target 'ChayoMobile' do
+  # Call use_expo_modules! to generate the module provider
+  # This will auto-link all Expo modules from the monorepo root
+  use_expo_modules!(searchPaths: ['../../../node_modules'])
+  
   config = use_native_modules!
 
   use_react_native!(
