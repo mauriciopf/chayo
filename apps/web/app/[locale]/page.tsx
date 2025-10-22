@@ -1,7 +1,6 @@
 'use client'
 
 import { Suspense, useState, useEffect } from 'react'
-import ChayoAIHome from '@/components/marketing/ChayoAIHome'
 import MobileLandingPage from '@/components/marketing/MobileLandingPage'
 import { isMobileDevice } from '@/lib/utils/deviceDetection'
 
@@ -15,8 +14,14 @@ export default function HomePage() {
     const forceDesktop = params.get('forceDesktop') === 'true'
     
     // Detect device on client side (but respect forceDesktop override)
-    setIsMobile(!forceDesktop && isMobileDevice())
+    const mobile = !forceDesktop && isMobileDevice()
+    setIsMobile(mobile)
     setIsLoading(false)
+
+    // Redirect desktop users directly to dashboard (always Spanish)
+    if (!mobile) {
+      window.location.href = '/es/dashboard'
+    }
   }, [])
 
   // Show loading state while detecting device
@@ -34,7 +39,7 @@ export default function HomePage() {
     )
   }
 
-  // Show mobile experience for mobile devices (unless forceDesktop is set)
+  // Show mobile experience for mobile devices only
   if (isMobile) {
     return (
       <Suspense fallback={<div>Cargando...</div>}>
@@ -43,10 +48,6 @@ export default function HomePage() {
     )
   }
 
-  // Show desktop experience for desktop/tablet
-  return (
-    <Suspense fallback={<div>Cargando...</div>}>
-      <ChayoAIHome />
-    </Suspense>
-  )
+  // Desktop users are redirected to dashboard
+  return null
 }
