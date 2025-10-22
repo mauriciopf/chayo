@@ -13,11 +13,13 @@ export async function POST(request: NextRequest) {
     }
 
     const formData = await request.formData()
-    const file = formData.get('file') as File
+    const fileEntry = (formData as any).get('file')
 
-    if (!file) {
+    if (!fileEntry || !(fileEntry instanceof File)) {
       return NextResponse.json({ error: 'File is required' }, { status: 400 })
     }
+
+    const file = fileEntry
 
     // Validate file type
     if (file.type !== 'application/pdf') {
