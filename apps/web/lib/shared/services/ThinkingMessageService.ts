@@ -45,7 +45,7 @@ interface MessageStream {
 
 export class ThinkingMessageService {
   private static instance: ThinkingMessageService
-  private messageIntervals = new Map<string, NodeJS.Timeout>()
+  private messageIntervals = new Map<string, ReturnType<typeof setInterval>>()
   private currentMessages = new Map<string, string>()
   private currentIndices = new Map<string, number>()
   private messageArrays = new Map<string, string[]>()

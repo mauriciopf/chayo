@@ -26,10 +26,10 @@ export async function POST(
 
     // Parse form data
     const formData = await request.formData()
-    const signedPdf = formData.get('signedPdf') as File
-    const signerName = formData.get('signerName') as string
-    const signerEmail = formData.get('signerEmail') as string
-    const anonymousUserId = formData.get('anonymousUserId') as string
+    const signedPdf = (formData as any).get('signedPdf') as File
+    const signerName = (formData as any).get('signerName') as string
+    const signerEmail = (formData as any).get('signerEmail') as string
+    const anonymousUserId = (formData as any).get('anonymousUserId') as string
 
     if (!signedPdf || !signerName || !signerEmail) {
       return NextResponse.json(

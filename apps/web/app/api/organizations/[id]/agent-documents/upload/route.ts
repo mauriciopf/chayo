@@ -50,7 +50,7 @@ export async function POST(
 
     const { id: organizationId } = await params;
     const formData = await request.formData()
-    const file = formData.get('file') as File
+    const file = (formData as any).get('file') as File
 
     if (!file) {
       return NextResponse.json({ error: 'Se requiere archivo' }, { status: 400 })
