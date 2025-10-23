@@ -183,6 +183,24 @@ export async function signOut(): Promise<void> {
   }
 }
 
+// Delete Account
+export async function deleteAccount(): Promise<void> {
+  const { error } = await supabase.rpc('delete_user_account');
+  if (error) {
+    throw new Error(error.message || 'No se pudo eliminar la cuenta');
+  }
+
+  // Sign out from Google if signed in
+  try {
+    const isSignedIn = await GoogleSignin.getCurrentUser();
+    if (isSignedIn) {
+      await GoogleSignin.signOut();
+    }
+  } catch (e) {
+    // Ignore Google sign-out errors
+  }
+}
+
 // Get current session
 export async function getCurrentSession() {
   const { data: { session }, error } = await supabase.auth.getSession();

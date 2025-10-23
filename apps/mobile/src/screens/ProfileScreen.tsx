@@ -20,6 +20,7 @@ import {
   signInWithGoogle,
   signInWithEmail,
   signUpWithEmail,
+  deleteAccount,
 } from '../services/authService';
 import { SkeletonBox } from '../components/SkeletonLoader';
 import Icon from 'react-native-vector-icons/Feather';
@@ -104,6 +105,34 @@ export const ProfileScreen: React.FC = () => {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    Alert.alert(
+      'Eliminar cuenta',
+      '¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer y se eliminarán todos tus datos.',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: async () => {
+            setLoading(true);
+            try {
+              await deleteAccount();
+              Alert.alert('Éxito', 'Tu cuenta ha sido eliminada correctamente');
+            } catch (error: any) {
+              Alert.alert('Error', error.message || 'No se pudo eliminar la cuenta');
+            } finally {
+              setLoading(false);
+            }
+          },
+        },
+      ]
+    );
+  };
+
   if (loading) {
     return (
       <View style={[styles.container, themedStyles.container]}>
@@ -138,6 +167,16 @@ export const ProfileScreen: React.FC = () => {
             >
               <Icon name="log-out" size={20} color="#FFFFFF" style={styles.buttonIcon} />
               <Text style={[styles.signOutButtonText, { fontSize: fontSizes.base }]}>Cerrar sesión</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.deleteButton, { backgroundColor: theme.backgroundColor, borderColor: theme.errorColor }]}
+              onPress={handleDeleteAccount}
+            >
+              <Icon name="trash-2" size={20} color={theme.errorColor} style={styles.buttonIcon} />
+              <Text style={[styles.deleteButtonText, { color: theme.errorColor, fontSize: fontSizes.base }]}>
+                Eliminar cuenta
+              </Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -441,6 +480,23 @@ const styles = StyleSheet.create({
   },
   signOutButtonText: {
     color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  deleteButton: {
+    backgroundColor: 'transparent',
+    borderWidth: 2,
+    borderColor: '#FF6B6B',
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    marginTop: 12,
+  },
+  deleteButtonText: {
+    color: '#FF6B6B',
     fontSize: 16,
     fontWeight: '600',
   },
