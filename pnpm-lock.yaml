@@ -71,9 +71,6 @@ importers:
       i18next:
         specifier: ^25.5.2
         version: 25.5.2(typescript@5.0.4)
-      js-sha256:
-        specifier: ^0.11.1
-        version: 0.11.1
       pdf-lib:
         specifier: ^1.17.1
         version: 1.17.1
@@ -4522,9 +4519,6 @@ packages:
 
   jose@4.15.9:
     resolution: {integrity: sha512-1vUQX+IdDMVPj4k8kOxgUqlcK518yluMuGZwqlr44FS1ppZB/5GWh4rZG89erpOBOJjU/OBsnCVFfapsRz6nEA==}
-
-  js-sha256@0.11.1:
-    resolution: {integrity: sha512-o6WSo/LUvY2uC4j7mO50a2ms7E/EAdbP0swigLV+nzHKTTaYnaLIWJ02VdXrsJX0vGedDESQnLsOekr94ryfjg==}
 
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
@@ -12958,8 +12952,6 @@ snapshots:
       '@sideway/pinpoint': 2.0.0
 
   jose@4.15.9: {}
-
-  js-sha256@0.11.1: {}
 
   js-tokens@4.0.0: {}
 
