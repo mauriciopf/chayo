@@ -41,7 +41,6 @@ export default function MainDashboardLayout({
         user={auth.user}
         subscription={auth.subscription}
         businessName={auth.currentOrganization?.name || ''}
-        hasReminders={hasReminders}
         isOnboardingCompleted={true}
       />
 
