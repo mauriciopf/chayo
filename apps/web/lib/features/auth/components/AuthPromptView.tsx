@@ -36,6 +36,7 @@ export default function AuthPromptView({
         user={auth.user}
         subscription={auth.subscription}
         businessName={auth.currentOrganization?.name || ''}
+        isOnboardingCompleted={false}
       />
 
       {/* Main Content Area */}

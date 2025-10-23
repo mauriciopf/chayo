@@ -148,7 +148,7 @@ function DashboardContent() {
   const { isCompleted: isOnboardingCompleted, loading: onboardingLoading } = useOnboardingCompletion(auth.currentOrganization?.id)
 
   // Dashboard UI state
-  const [activeView, setActiveView] = useState<ActiveView>(mobile.isMobile ? 'agents' : 'dashboard')
+  const [activeView, setActiveView] = useState<ActiveView>('dashboard')
   const [activeTool, setActiveTool] = useState<string | null>(null) // For inline tool rendering
   const [showPlansModal, setShowPlansModal] = useState(false)
   const [showManageDocsModal, setShowManageDocsModal] = useState(false)
@@ -235,6 +235,13 @@ function DashboardContent() {
     chat.messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [chat.messages, chat.chatLoading])
 
+  // Redirect to chat view when user needs to authenticate
+  useEffect(() => {
+    if (dashboardInit.shouldShowAuthPrompt && activeView !== 'chat') {
+      setActiveView('chat')
+    }
+  }, [dashboardInit.shouldShowAuthPrompt, activeView])
+
 
 
 
@@ -286,6 +293,7 @@ function DashboardContent() {
 
     switch (activeView) {
       case 'dashboard':
+        // For authenticated users, show the regular dashboard
         // If a tool is active, render it inline
         if (activeTool) {
           // Determine if tool should use light theme

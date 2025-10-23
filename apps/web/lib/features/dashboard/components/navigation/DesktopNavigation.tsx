@@ -13,6 +13,7 @@ interface DesktopNavigationProps {
   subscription: any
   businessName: string
   hasReminders?: boolean
+  isOnboardingCompleted?: boolean
 }
 
 export default function DesktopNavigation({
@@ -24,6 +25,7 @@ export default function DesktopNavigation({
   subscription,
   businessName,
   hasReminders,
+  isOnboardingCompleted = true,
 }: DesktopNavigationProps) {
   const t = useTranslations('dashboard')
   const [copied, setCopied] = useState(false)
@@ -176,36 +178,45 @@ export default function DesktopNavigation({
 
         {/* Navigation Menu */}
         <nav className="p-2 space-y-1">
-        {menuItems.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => onViewChange(item.id)}
-            className={`w-full flex items-center rounded-lg transition-all duration-200 ${isExpanded ? 'px-4 py-3 space-x-3' : 'p-3 justify-center'}`}
-            style={{
-              backgroundColor: activeView === item.id ? 'var(--bg-active)' : 'transparent',
-              border: activeView === item.id ? '1px solid var(--border-focus)' : '1px solid transparent',
-              color: activeView === item.id ? 'var(--accent-primary)' : 'var(--text-secondary)'
-            }}
-            onMouseEnter={(e) => {
-              if (activeView !== item.id) {
-                e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
-                e.currentTarget.style.color = 'var(--text-primary)';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (activeView !== item.id) {
-                e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.color = 'var(--text-secondary)';
-              }
-            }}
-            title={!isExpanded ? item.label : undefined}
-          >
-            <span className="flex-shrink-0" style={{ color: activeView === item.id ? 'var(--accent-primary)' : 'var(--text-muted)' }}>
-              {item.icon}
-            </span>
-            {isExpanded && <span className="font-medium whitespace-nowrap">{item.label}</span>}
-          </button>
-        ))}
+        {menuItems.map((item) => {
+          const isDisabled = !isOnboardingCompleted && item.id !== 'dashboard'
+          const isActive = activeView === item.id
+          
+          return (
+            <button
+              key={item.id}
+              onClick={() => !isDisabled && onViewChange(item.id)}
+              disabled={isDisabled}
+              className={`w-full flex items-center rounded-lg transition-all duration-200 ${isExpanded ? 'px-4 py-3 space-x-3' : 'p-3 justify-center'} ${
+                isDisabled ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'
+              }`}
+              style={{
+                backgroundColor: isActive ? 'var(--bg-active)' : 'transparent',
+                border: isActive ? '1px solid var(--border-focus)' : '1px solid transparent'
+              }}
+              onMouseEnter={(e) => {
+                if (!isActive && !isDisabled) {
+                  e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
+                  const textSpan = e.currentTarget.querySelector('span:last-child') as HTMLElement;
+                  if (textSpan) textSpan.style.color = 'var(--text-primary)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive && !isDisabled) {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  const textSpan = e.currentTarget.querySelector('span:last-child') as HTMLElement;
+                  if (textSpan) textSpan.style.color = 'var(--text-secondary)';
+                }
+              }}
+              title={!isExpanded ? (isDisabled ? `${item.label} (Completar onboarding primero)` : item.label) : isDisabled ? 'Completar onboarding primero' : undefined}
+            >
+              <span className="flex-shrink-0" style={{ color: isActive ? 'var(--accent-primary)' : 'var(--text-muted)' }}>
+                {item.icon}
+              </span>
+              {isExpanded && <span className="font-medium whitespace-nowrap" style={{ color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)' }}>{item.label}</span>}
+            </button>
+          )
+        })}
         </nav>
       </div>
 
