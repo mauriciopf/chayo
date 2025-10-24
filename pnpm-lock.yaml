@@ -83,6 +83,9 @@ importers:
       react-native:
         specifier: 0.79.1
         version: 0.79.1(@babel/core@7.28.3)(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0)
+      react-native-appsflyer:
+        specifier: ^6.14.3
+        version: 6.17.7
       react-native-gesture-handler:
         specifier: ^2.28.0
         version: 2.28.0(react-native@0.79.1(@babel/core@7.28.3)(@react-native-community/cli@20.0.1(typescript@5.0.4))(@types/react@19.1.12)(react@19.0.0))(react@19.0.0)
@@ -5588,6 +5591,9 @@ packages:
 
   react-is@19.1.1:
     resolution: {integrity: sha512-tr41fA15Vn8p4X9ntI+yCyeGSf1TlYaY5vlTZfQmeLBrFo3psOPX6HhTDnFNL9uj3EhP0KAQ80cugCl4b4BERA==}
+
+  react-native-appsflyer@6.17.7:
+    resolution: {integrity: sha512-w4+1kUpzxpYq6ZvauCUleX5FJ4zqvsf4lbe6h9YjCI79IROrqonu7FO4XEXa22YF5DQsmetlJVHeGsqaZv7zQg==}
 
   react-native-dotenv@3.4.11:
     resolution: {integrity: sha512-6vnIE+WHABSeHCaYP6l3O1BOEhWxKH6nHAdV7n/wKn/sciZ64zPPp2NUdEUf1m7g4uuzlLbjgr+6uDt89q2DOg==}
@@ -14053,6 +14059,8 @@ snapshots:
   react-is@18.3.1: {}
 
   react-is@19.1.1: {}
+
+  react-native-appsflyer@6.17.7: {}
 
   react-native-dotenv@3.4.11(@babel/runtime@7.28.3):
     dependencies:

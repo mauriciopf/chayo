@@ -40,9 +40,12 @@ function App(): React.JSX.Element {
 
   // App initialization - check for stored business and updates
   useEffect(() => {
+    // Initialize AppsFlyer for deferred deep linking
+    DeepLinkService.initializeAppsFlyer();
+
     async function initializeApp() {
       try {
-        // Check if user has a stored organization slug (from QR code)
+        // Check if user has a stored organization slug (from QR code or deep link)
         const storedSlug = await StorageService.getOrganizationSlug();
 
         if (storedSlug) {
@@ -90,6 +93,11 @@ function App(): React.JSX.Element {
     }
 
     initializeApp();
+
+    // Cleanup AppsFlyer on unmount
+    return () => {
+      DeepLinkService.cleanupAppsFlyer();
+    };
   }, []);
 
   // Set up deep link listener
