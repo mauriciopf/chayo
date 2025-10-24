@@ -96,6 +96,14 @@ export default function DashboardCardGrid({
       enabled: true, // Always available
       category: 'support',
     },
+    {
+      id: 'quick-links',
+      title: 'Links Rápidos',
+      description: 'Crea enlaces directos para compartir con clientes',
+      icon: '🔗',
+      enabled: true, // Always enabled
+      category: 'quick-links',
+    },
   ]
 
   const handleCardClick = (card: ToolCard) => {

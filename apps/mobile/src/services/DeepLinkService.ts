@@ -7,6 +7,12 @@ export interface DeepLinkData {
   action?: string;
   campaignId?: string;
   mediaSource?: string;
+  // Specific destination parameters
+  productId?: string;
+  formId?: string;
+  documentId?: string;
+  paymentId?: string;
+  reservationDate?: string;
   [key: string]: any; // Allow additional AppsFlyer params
 }
 
@@ -104,7 +110,6 @@ export class DeepLinkService {
     // Priority: deep_link_value (UDL) > deep_link_sub1 > organizationSlug > af_dp > link
     const organizationSlug = 
       data.deep_link_value || 
-      data.deep_link_sub1 ||
       data.organizationSlug || 
       data.af_dp || // AppsFlyer deep link parameter
       data.link;
@@ -112,12 +117,31 @@ export class DeepLinkService {
     const campaignId = data.campaign || data.af_campaign;
     const mediaSource = data.media_source || data.af_media_source;
     
-    // Extract additional UDL parameters (deep_link_sub2..10 available if needed)
-    const action = data.deep_link_sub2 || data.action;
+    // Extract action and destination parameters from UDL deep_link_sub fields
+    const action = data.deep_link_sub1 || data.action; // 'product', 'form', 'reservation', etc.
+    const productId = data.deep_link_sub2;
+    const formId = data.deep_link_sub3;
+    const documentId = data.deep_link_sub4;
+    const paymentId = data.deep_link_sub5;
+    const reservationDate = data.deep_link_sub6;
 
     if (organizationSlug) {
       console.log('AppsFlyer: Organization slug detected:', organizationSlug);
       await StorageService.setOrganizationSlug(organizationSlug);
+
+      // Store destination parameters if present
+      const deepLinkData: DeepLinkData = {
+        organizationSlug,
+        action,
+        productId,
+        formId,
+        documentId,
+        paymentId,
+        reservationDate,
+      };
+
+      // Store deep link data for navigation handling
+      await StorageService.setDeepLinkData(JSON.stringify(deepLinkData));
 
       if (campaignId) {
         console.log('AppsFlyer: Campaign:', campaignId);
@@ -142,21 +166,140 @@ export class DeepLinkService {
       campaignId?: string;
       mediaSource?: string;
       channel?: string;
+      // Specific destination options
+      action?: 'chat' | 'product' | 'form' | 'reservation' | 'document' | 'payment';
+      productId?: string;
+      formId?: string;
+      documentId?: string;
+      paymentId?: string;
+      reservationDate?: string;
     }
   ): string {
     // AppsFlyer OneLink template: Chayo Business Links
     const oneLinkUrl = 'https://chayo.onelink.me/SB63';
     
-    const params = new URLSearchParams({
+    const params: Record<string, string> = {
       af_dp: `chayo://business/${organizationSlug}`,
       deep_link_value: organizationSlug,
       organizationSlug,
-      ...(options?.campaignId && { campaign: options.campaignId }),
-      ...(options?.mediaSource && { media_source: options.mediaSource }),
-      ...(options?.channel && { af_channel: options.channel }),
-    });
+    };
 
-    return `${oneLinkUrl}?${params.toString()}`;
+    // Add action and specific destination parameters
+    if (options?.action) {
+      params.deep_link_sub1 = options.action;
+    }
+    if (options?.productId) {
+      params.deep_link_sub2 = options.productId;
+    }
+    if (options?.formId) {
+      params.deep_link_sub3 = options.formId;
+    }
+    if (options?.documentId) {
+      params.deep_link_sub4 = options.documentId;
+    }
+    if (options?.paymentId) {
+      params.deep_link_sub5 = options.paymentId;
+    }
+    if (options?.reservationDate) {
+      params.deep_link_sub6 = options.reservationDate;
+    }
+
+    // Add campaign tracking
+    if (options?.campaignId) {
+      params.campaign = options.campaignId;
+    }
+    if (options?.mediaSource) {
+      params.media_source = options.mediaSource;
+    }
+    if (options?.channel) {
+      params.af_channel = options.channel;
+    }
+
+    const searchParams = new URLSearchParams(params);
+    return `${oneLinkUrl}?${searchParams.toString()}`;
+  }
+
+  /**
+   * Generate link to specific product
+   */
+  static generateProductLink(organizationSlug: string, productId: string, options?: {
+    campaignId?: string;
+    mediaSource?: string;
+  }): string {
+    return this.generateAppsFlyerLink(organizationSlug, {
+      action: 'product',
+      productId,
+      ...options,
+    });
+  }
+
+  /**
+   * Generate link to specific form
+   */
+  static generateFormLink(organizationSlug: string, formId: string, options?: {
+    campaignId?: string;
+    mediaSource?: string;
+  }): string {
+    return this.generateAppsFlyerLink(organizationSlug, {
+      action: 'form',
+      formId,
+      ...options,
+    });
+  }
+
+  /**
+   * Generate link to reservation calendar
+   */
+  static generateReservationLink(organizationSlug: string, productId?: string, options?: {
+    campaignId?: string;
+    mediaSource?: string;
+  }): string {
+    return this.generateAppsFlyerLink(organizationSlug, {
+      action: 'reservation',
+      productId, // Optional: link to specific reservation product
+      ...options,
+    });
+  }
+
+  /**
+   * Generate link to specific document
+   */
+  static generateDocumentLink(organizationSlug: string, documentId: string, options?: {
+    campaignId?: string;
+    mediaSource?: string;
+  }): string {
+    return this.generateAppsFlyerLink(organizationSlug, {
+      action: 'document',
+      documentId,
+      ...options,
+    });
+  }
+
+  /**
+   * Generate link to payment
+   */
+  static generatePaymentLink(organizationSlug: string, paymentId: string, options?: {
+    campaignId?: string;
+    mediaSource?: string;
+  }): string {
+    return this.generateAppsFlyerLink(organizationSlug, {
+      action: 'payment',
+      paymentId,
+      ...options,
+    });
+  }
+
+  /**
+   * Generate link to business chat (default behavior)
+   */
+  static generateChatLink(organizationSlug: string, options?: {
+    campaignId?: string;
+    mediaSource?: string;
+  }): string {
+    return this.generateAppsFlyerLink(organizationSlug, {
+      action: 'chat',
+      ...options,
+    });
   }
 
   /**

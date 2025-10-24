@@ -4,6 +4,7 @@ const STORAGE_KEYS = {
   ORGANIZATION_ID: '@chayo:organization_id',
   ORGANIZATION_SLUG: '@chayo:organization_slug',
   USER_EMAIL: '@chayo:user_email',
+  DEEP_LINK_DATA: '@chayo:deep_link_data',
 } as const;
 
 export class StorageService {
@@ -115,6 +116,42 @@ export class StorageService {
     }
   }
 
+  /**
+   * Store deep link data
+   */
+  static async setDeepLinkData(data: string): Promise<void> {
+    try {
+      await AsyncStorage.setItem(STORAGE_KEYS.DEEP_LINK_DATA, data);
+    } catch (error) {
+      console.error('Error storing deep link data:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get stored deep link data
+   */
+  static async getDeepLinkData(): Promise<string | null> {
+    try {
+      return await AsyncStorage.getItem(STORAGE_KEYS.DEEP_LINK_DATA);
+    } catch (error) {
+      console.error('Error retrieving deep link data:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Clear deep link data
+   */
+  static async clearDeepLinkData(): Promise<void> {
+    try {
+      await AsyncStorage.removeItem(STORAGE_KEYS.DEEP_LINK_DATA);
+    } catch (error) {
+      console.error('Error clearing deep link data:', error);
+      throw error;
+    }
+  }
+
 
 
   /**
@@ -126,6 +163,7 @@ export class StorageService {
         STORAGE_KEYS.ORGANIZATION_ID,
         STORAGE_KEYS.ORGANIZATION_SLUG,
         STORAGE_KEYS.USER_EMAIL,
+        STORAGE_KEYS.DEEP_LINK_DATA,
       ]);
     } catch (error) {
       console.error('Error clearing all storage:', error);

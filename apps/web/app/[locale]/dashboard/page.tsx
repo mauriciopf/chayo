@@ -30,6 +30,7 @@ import ProductsManager from '@/components/products/ProductsManager'
 import IntakeFormsToolConfig from '@/lib/features/tools/intake-forms/components/IntakeFormsToolConfig'
 import CustomerSupportTool from '@/lib/features/tools/customer-support/components/CustomerSupportTool'
 import ReservationsManagementView from '@/lib/features/tools/reservations/components/ReservationsManagementView'
+import QuickLinksManager from '@/lib/features/tools/quick-links/components/QuickLinksManager'
 
 import BusinessSummary from '@/lib/features/dashboard/components/overview/BusinessSummary'
 import { ActiveView } from '@/lib/shared/types'
@@ -388,6 +389,13 @@ function DashboardContent() {
                     organizationId={auth.currentOrganization.id}
                     isEnabled={true}
                     onSettingsChange={() => {}}
+                  />
+                )}
+
+                {activeTool === 'quick-links' && auth.currentOrganization && dashboardInit.initData?.business && (
+                  <QuickLinksManager
+                    organizationSlug={dashboardInit.initData.business.slug}
+                    organizationId={auth.currentOrganization.id}
                   />
                 )}
               </div>
