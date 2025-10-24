@@ -24,6 +24,40 @@ export class DeepLinkService {
       return;
     }
 
+    // IMPORTANT: Register listeners BEFORE initializing SDK
+    // This ensures we don't miss the deferred deep link payload on first launch
+    
+    // Handle deferred deep linking (install attribution) - FIRST OPEN ONLY
+    this.onInstallConversionDataListener = appsFlyer.onInstallConversionData((data) => {
+      console.log('AppsFlyer: onInstallConversionData', data);
+      
+      // Check for first launch (handle both boolean and string types)
+      const isFirstLaunch = 
+        data?.data?.is_first_launch === true || 
+        data?.data?.is_first_launch === 'true';
+      
+      if (isFirstLaunch) {
+        console.log('AppsFlyer: First launch - deferred deep link detected');
+        this.handleAppsFlyerData(data.data);
+      }
+    });
+
+    // Handle Unified Deep Linking (UDL) - BOTH DIRECT + DEFERRED
+    this.onDeepLinkListener = appsFlyer.onDeepLink((res) => {
+      console.log('AppsFlyer: onDeepLink (UDL)', res);
+      
+      // Only process if deep link was found successfully
+      if (res?.deepLinkStatus === 'FOUND' && res?.data) {
+        console.log('AppsFlyer: Deep link found, isDeferred:', res.isDeferred);
+        this.handleAppsFlyerData(res.data);
+      } else if (res?.deepLinkStatus === 'NOT_FOUND') {
+        console.log('AppsFlyer: Deep link not found');
+      } else if (res?.deepLinkStatus === 'ERROR') {
+        console.error('AppsFlyer: Deep link error');
+      }
+    });
+
+    // NOW initialize the SDK (listeners are already registered)
     const options = {
       devKey: 'jTd7SWWPyXcbcjNjScR2Ki',
       appId: 'id6751903645', // iOS App ID
@@ -43,25 +77,6 @@ export class DeepLinkService {
         console.error('AppsFlyer: SDK initialization error', error);
       }
     );
-
-    // Handle deferred deep linking (install attribution)
-    this.onInstallConversionDataListener = appsFlyer.onInstallConversionData((data) => {
-      console.log('AppsFlyer: onInstallConversionData', data);
-      
-      if (data?.data?.is_first_launch === 'true') {
-        console.log('AppsFlyer: First launch - deferred deep link');
-        this.handleAppsFlyerData(data.data);
-      }
-    });
-
-    // Handle deep linking (direct deep link)
-    this.onDeepLinkListener = appsFlyer.onDeepLink((deepLinkData) => {
-      console.log('AppsFlyer: onDeepLink', deepLinkData);
-      
-      if (deepLinkData?.data) {
-        this.handleAppsFlyerData(deepLinkData.data);
-      }
-    });
   }
 
   /**
@@ -80,20 +95,25 @@ export class DeepLinkService {
   }
 
   /**
-   * Handle AppsFlyer attribution data
+   * Handle AppsFlyer attribution data (from both onInstallConversionData and UDL)
    */
   private static async handleAppsFlyerData(data: any) {
     console.log('AppsFlyer: Processing attribution data', data);
 
     // Extract organization slug from deep link data
+    // Priority: deep_link_value (UDL) > deep_link_sub1 > organizationSlug > af_dp > link
     const organizationSlug = 
       data.deep_link_value || 
+      data.deep_link_sub1 ||
       data.organizationSlug || 
       data.af_dp || // AppsFlyer deep link parameter
       data.link;
 
     const campaignId = data.campaign || data.af_campaign;
     const mediaSource = data.media_source || data.af_media_source;
+    
+    // Extract additional UDL parameters (deep_link_sub2..10 available if needed)
+    const action = data.deep_link_sub2 || data.action;
 
     if (organizationSlug) {
       console.log('AppsFlyer: Organization slug detected:', organizationSlug);
@@ -105,6 +125,11 @@ export class DeepLinkService {
       if (mediaSource) {
         console.log('AppsFlyer: Media Source:', mediaSource);
       }
+      if (action) {
+        console.log('AppsFlyer: Action:', action);
+      }
+    } else {
+      console.log('AppsFlyer: No organization slug found in attribution data');
     }
   }
 
