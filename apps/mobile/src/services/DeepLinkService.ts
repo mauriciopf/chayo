@@ -144,9 +144,8 @@ export class DeepLinkService {
       channel?: string;
     }
   ): string {
-    // AppsFlyer OneLink template
-    // Replace with your actual OneLink URL from AppsFlyer dashboard
-    const oneLinkUrl = 'https://chayo.onelink.me/XXXX'; // Update with your OneLink ID
+    // AppsFlyer OneLink template: Chayo Business Links
+    const oneLinkUrl = 'https://chayo.onelink.me/SB63';
     
     const params = new URLSearchParams({
       af_dp: `chayo://business/${organizationSlug}`,

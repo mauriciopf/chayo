@@ -26,8 +26,9 @@ export default function ClientQRCode({
 
   useEffect(() => {
     if (organizationSlug) {
-      // Generate mobile app deep link for business
-      const chatUrl = `chayo://business/${organizationSlug}`
+      // Generate AppsFlyer OneLink for deferred deep linking
+      // This link works for both installed and new users!
+      const chatUrl = `https://chayo.onelink.me/SB63?deep_link_value=${organizationSlug}`
       setClientChatUrl(chatUrl)
       // Generate QR code with better error handling
       QRCode.toDataURL(chatUrl, {
