@@ -294,8 +294,7 @@ function DashboardContent() {
 
     switch (activeView) {
       case 'dashboard':
-        // For authenticated users, show the regular dashboard
-        // If a tool is active, render it inline
+        // For authenticated users, show the new Quick Share Hero
         if (activeTool) {
           // Determine if tool should use light theme
           const lightThemeTools = ['products', 'payments', 'forms', 'documents', 'reminders', 'reservations', 'chat', 'support']
