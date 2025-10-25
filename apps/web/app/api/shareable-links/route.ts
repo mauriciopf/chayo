@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/shared/supabase/server'
+import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
 
 // GET /api/shareable-links - Get link for specific content or all links for an organization
 export async function GET(request: Request) {
   try {
-    const supabase = await createClient()
+    const supabase = await getSupabaseServerClient()
     const { searchParams } = new URL(request.url)
     
     const contentType = searchParams.get('contentType')
@@ -56,7 +56,7 @@ export async function GET(request: Request) {
 // POST /api/shareable-links - Create or update a shareable link
 export async function POST(request: Request) {
   try {
-    const supabase = await createClient()
+    const supabase = await getSupabaseServerClient()
     const body = await request.json()
     
     const { organizationId, contentType, contentId, contentName } = body
@@ -104,7 +104,7 @@ export async function POST(request: Request) {
 // PATCH /api/shareable-links - Increment click count
 export async function PATCH(request: Request) {
   try {
-    const supabase = await createClient()
+    const supabase = await getSupabaseServerClient()
     const body = await request.json()
     
     const { linkId } = body
@@ -133,7 +133,7 @@ export async function PATCH(request: Request) {
 // DELETE /api/shareable-links - Deactivate a link
 export async function DELETE(request: Request) {
   try {
-    const supabase = await createClient()
+    const supabase = await getSupabaseServerClient()
     const { searchParams } = new URL(request.url)
     
     const linkId = searchParams.get('linkId')
