@@ -178,26 +178,33 @@ export default function DashboardCardGrid({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="flex items-start justify-between mb-8"
+          className="mb-8"
         >
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
-            <p className="text-gray-600">
-              {isOnboardingComplete 
-                ? 'Selecciona una herramienta para comenzar'
-                : 'Completa tu configuración para acceder a todas las herramientas'}
-            </p>
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <h1 className="text-4xl font-bold text-gray-900 mb-3">
+                Todo tu negocio, a un link de distancia
+              </h1>
+              <p className="text-xl text-gray-600 mb-2">
+                Comparte por WhatsApp, SMS o email en segundos
+              </p>
+              {!isOnboardingComplete && (
+                <p className="text-sm text-orange-600 font-medium">
+                  💡 Completa tu configuración para acceder a todas las herramientas
+                </p>
+              )}
+            </div>
+            
+            <button
+              onClick={onStartTutorial}
+              className="flex-shrink-0 flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold rounded-lg hover:from-emerald-600 hover:to-teal-600 transition-all duration-200 shadow-lg hover:shadow-xl whitespace-nowrap"
+            >
+              Comenzar Tutorial
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
           </div>
-          
-          <button
-            onClick={onStartTutorial}
-            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold rounded-lg hover:from-emerald-600 hover:to-teal-600 transition-all duration-200 shadow-lg hover:shadow-xl whitespace-nowrap"
-          >
-            Comenzar Tutorial
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
         </motion.div>
 
         {/* 3 Column Grid */}

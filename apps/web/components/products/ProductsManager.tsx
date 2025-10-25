@@ -173,13 +173,22 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
       {/* 📦 PRODUCTS & SERVICES SECTION */}
       <div className="space-y-6">
         {/* Products Header */}
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">
-            Productos y Servicios
-          </h2>
-          <p className="text-gray-600">
-            Gestiona tu catálogo de productos y servicios
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">
+              Productos y Servicios
+            </h2>
+            <p className="text-gray-600">
+              Gestiona tu catálogo de productos y servicios
+            </p>
+          </div>
+          <button
+            onClick={() => setShowProductForm(true)}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors bg-purple-600 text-white hover:bg-purple-700"
+          >
+            <Plus className="h-5 w-5" />
+            Agregar Producto
+          </button>
         </div>
 
         {/* Search */}
