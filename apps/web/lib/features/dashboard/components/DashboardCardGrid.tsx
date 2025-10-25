@@ -183,7 +183,7 @@ export default function DashboardCardGrid({
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <h1 className="text-4xl font-bold text-gray-900 mb-3">
-                Comparte tu negocio con un link
+                Comparte tu negocio por un link
               </h1>
               <p className="text-xl text-gray-600 mb-2">
                 Comparte a tu clientes productos, documentos, pagos y más por WhatsApp, SMS o email
