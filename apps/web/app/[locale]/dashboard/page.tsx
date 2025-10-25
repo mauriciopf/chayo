@@ -413,6 +413,7 @@ function DashboardContent() {
             }}
             enabledTools={agentToolsSettings}
             isOnboardingComplete={isOnboardingCompleted}
+            organizationSlug={dashboardInit.initData?.business?.slug || ''}
           />
         )
       case 'chat':

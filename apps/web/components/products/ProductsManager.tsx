@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { 
   Package, Plus, Edit, Trash2, Search, Sparkles, 
   DollarSign, Tag, Image, Calendar, Percent, 
-  CheckCircle, Clock, AlertCircle, Eye
+  CheckCircle, Clock, AlertCircle, Eye, Copy, Share2
 } from 'lucide-react'
 import ProductForm from './ProductForm'
 import CreateOfferForm from '@/components/offers/CreateOfferForm'
@@ -18,6 +18,7 @@ interface Product {
   payment_transaction_id?: string
   supports_reservations?: boolean
   has_active_offer?: boolean
+  shareable_link?: string
   created_at: string
   updated_at: string
 }
@@ -48,6 +49,7 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
   const [search, setSearch] = useState('')
   const [showProductForm, setShowProductForm] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
+  const [copiedLink, setCopiedLink] = useState<string | null>(null)
 
   // Offers state
   const [offers, setOffers] = useState<Offer[]>([])
@@ -69,7 +71,18 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
       const response = await fetch(`/api/products?organizationId=${organizationId}&limit=100`)
       if (response.ok) {
         const data = await response.json()
-        setProducts(data.products || [])
+        // Fetch shareable links for all products
+        const productsWithLinks = await Promise.all(
+          (data.products || []).map(async (product: Product) => {
+            const linkResponse = await fetch(`/api/shareable-links?contentType=product&contentId=${product.id}`)
+            if (linkResponse.ok) {
+              const linkData = await linkResponse.json()
+              return { ...product, shareable_link: linkData.link?.full_url }
+            }
+            return product
+          })
+        )
+        setProducts(productsWithLinks)
       }
     } catch (error) {
       console.error('Error loading products:', error)
@@ -106,6 +119,21 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
     } catch (error) {
       console.error('Error deleting product:', error)
     }
+  }
+
+  const handleCopyLink = async (link: string, productId: string) => {
+    try {
+      await navigator.clipboard.writeText(link)
+      setCopiedLink(productId)
+      setTimeout(() => setCopiedLink(null), 2000)
+    } catch (error) {
+      console.error('Error copying link:', error)
+    }
+  }
+
+  const handleShareWhatsApp = (link: string, productName: string) => {
+    const message = encodeURIComponent(`Hola! 👋 Mira este producto: ${productName}\n\n${link}`)
+    window.open(`https://wa.me/?text=${message}`, '_blank')
   }
 
   const handleCreateOffer = () => {
@@ -246,6 +274,56 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
                             </span>
                           )}
                         </div>
+                        
+                        {/* Shareable Link Section */}
+                        {product.shareable_link && (
+                          <div className="mt-4 pt-4 border-t border-gray-200">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-xs font-medium text-gray-500">
+                                🔗 Link compartible:
+                              </span>
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleCopyLink(product.shareable_link!, product.id)
+                                  }}
+                                  className="p-1.5 rounded-md transition-all hover:scale-110"
+                                  style={{
+                                    backgroundColor: copiedLink === product.id ? '#10b981' : '#8b5cf6',
+                                    color: 'white',
+                                  }}
+                                  title="Copiar link"
+                                >
+                                  {copiedLink === product.id ? (
+                                    <CheckCircle className="h-3.5 w-3.5" />
+                                  ) : (
+                                    <Copy className="h-3.5 w-3.5" />
+                                  )}
+                                </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleShareWhatsApp(product.shareable_link!, product.name)
+                                  }}
+                                  className="p-1.5 rounded-md transition-all hover:scale-110"
+                                  style={{
+                                    backgroundColor: '#25D366',
+                                    color: 'white',
+                                  }}
+                                  title="Compartir por WhatsApp"
+                                >
+                                  <Share2 className="h-3.5 w-3.5" />
+                                </button>
+                              </div>
+                            </div>
+                            <div 
+                              className="text-xs px-3 py-2 rounded-md font-mono truncate bg-gray-50 text-gray-600 border border-gray-200"
+                            >
+                              {product.shareable_link}
+                            </div>
+                          </div>
+                        )}
                       </div>
                       <div className="flex gap-2 ml-4">
                         <button
