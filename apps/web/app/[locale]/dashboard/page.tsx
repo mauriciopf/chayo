@@ -297,7 +297,7 @@ function DashboardContent() {
         // For authenticated users, show the new Quick Share Hero
         if (activeTool) {
           // Determine if tool should use light theme
-          const lightThemeTools = ['products', 'payments', 'forms', 'documents', 'reminders', 'reservations', 'chat', 'support']
+          const lightThemeTools = ['products', 'payments', 'forms', 'documents', 'reminders', 'reservations', 'support']
           const isLightTheme = lightThemeTools.includes(activeTool)
           
           return (
