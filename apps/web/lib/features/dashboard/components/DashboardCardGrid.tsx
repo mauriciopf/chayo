@@ -50,20 +50,11 @@ export default function DashboardCardGrid({
     {
       id: 'products',
       title: 'Productos y Servicios',
-      description: 'Gestiona tu catálogo y ofertas',
+      description: 'Gestiona tu catálogo, ofertas y pagos',
       icon: '🛍️',
       enabled: enabledTools.products,
       category: 'products',
       // No linkSlug - each product gets its own link inside the tool
-    },
-    {
-      id: 'payments',
-      title: 'Cobrar Pago',
-      description: 'Envía enlaces de pago a tus clientes',
-      icon: '💳',
-      enabled: enabledTools.payments,
-      category: 'payments',
-      linkSlug: 'payment', // General payment link makes sense
     },
     {
       id: 'reminders',
@@ -113,7 +104,7 @@ export default function DashboardCardGrid({
     {
       id: 'quick-links',
       title: 'Links Rápidos',
-      description: 'Crea enlaces directos para compartir con clientes',
+      description: 'Todos tus links auto-generados',
       icon: '🔗',
       enabled: true,
       category: 'quick-links',

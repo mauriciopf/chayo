@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { X, Upload, DollarSign, Package, Image as ImageIcon, Calendar } from 'lucide-react'
+import { X, Upload, DollarSign, Package, Image as ImageIcon, Calendar, CreditCard } from 'lucide-react'
+import PaymentProviderSelector from '@/components/payments/PaymentProviderSelector'
+import PaymentProviderConfigModal from '@/components/payments/PaymentProviderConfigModal'
 
 interface Product {
   id: string
@@ -9,7 +11,8 @@ interface Product {
   description?: string
   image_url?: string
   price?: number
-  payment_transaction_id?: string
+  payment_enabled?: boolean
+  payment_provider_id?: string
   supports_reservations?: boolean
 }
 
@@ -26,15 +29,17 @@ export default function ProductForm({ organizationId, product, onSave, onCancel 
     description: product?.description || '',
     imageUrl: product?.image_url || '',
     price: product?.price?.toString() || '',
-    paymentTransactionId: product?.payment_transaction_id || '',
+    paymentEnabled: product?.payment_enabled || false,
+    paymentProviderId: product?.payment_provider_id || null,
     supportsReservations: product?.supports_reservations || false
   })
   
   const [uploading, setUploading] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [showProviderConfigModal, setShowProviderConfigModal] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const handleInputChange = (field: string, value: string | boolean) => {
+  const handleInputChange = (field: string, value: string | boolean | null) => {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 
@@ -97,7 +102,8 @@ export default function ProductForm({ organizationId, product, onSave, onCancel 
         description: formData.description.trim() || undefined,
         imageUrl: formData.imageUrl || undefined,
         price: formData.price ? parseFloat(formData.price) : undefined,
-        paymentTransactionId: formData.paymentTransactionId || undefined,
+        paymentEnabled: formData.paymentEnabled,
+        paymentProviderId: formData.paymentProviderId || undefined,
         supportsReservations: formData.supportsReservations
       }
 
@@ -128,11 +134,14 @@ export default function ProductForm({ organizationId, product, onSave, onCancel 
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+    <>
       <div 
-        className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-xl shadow-2xl"
-        style={{ backgroundColor: 'var(--bg-secondary)' }}
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
       >
+        <div 
+          className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-xl shadow-2xl"
+          style={{ backgroundColor: 'var(--bg-secondary)' }}
+        >
         {/* Header */}
         <div 
           className="flex items-center justify-between p-6 border-b"
@@ -280,26 +289,53 @@ export default function ProductForm({ organizationId, product, onSave, onCancel 
             </div>
           </div>
 
-          {/* Payment Link */}
-          <div className="space-y-2">
-            <label className="block text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-              Enlace de Pago (Opcional)
+          {/* Payment Configuration */}
+          <div 
+            className="p-4 rounded-lg border space-y-4"
+            style={{ 
+              backgroundColor: 'var(--bg-tertiary)',
+              borderColor: 'var(--border-secondary)'
+            }}
+          >
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={formData.paymentEnabled}
+                onChange={(e) => {
+                  const enabled = e.target.checked
+                  handleInputChange('paymentEnabled', enabled)
+                  // If disabling payment, clear provider
+                  if (!enabled) {
+                    handleInputChange('paymentProviderId', null)
+                  }
+                }}
+                className="w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                style={{ accentColor: 'var(--accent-secondary)' }}
+              />
+              <CreditCard className="h-5 w-5" style={{ color: 'var(--accent-secondary)' }} />
+              <div>
+                <span className="block text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
+                  Habilitar Pago Online
+                </span>
+                <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
+                  Permite a los clientes pagar este producto/servicio en línea
+                </p>
+              </div>
             </label>
-            <input
-              type="text"
-              value={formData.paymentTransactionId}
-              onChange={(e) => handleInputChange('paymentTransactionId', e.target.value)}
-              placeholder="Enlace al pago creado por la Herramienta de Pagos"
-              className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 transition-colors"
-              style={{ 
-                backgroundColor: 'var(--bg-tertiary)',
-                borderColor: 'var(--border-secondary)',
-                color: 'var(--text-primary)'
-              }}
-            />
-            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-              Conecta este producto/servicio a un enlace de pago creado por la Herramienta de Pagos
-            </p>
+
+            {/* Payment Provider Selector - only shown if payment is enabled */}
+            {formData.paymentEnabled && (
+              <div className="pt-3 border-t" style={{ borderColor: 'var(--border-secondary)' }}>
+                <PaymentProviderSelector
+                  organizationId={organizationId}
+                  selectedProviderId={formData.paymentProviderId}
+                  onProviderSelected={(providerId) => handleInputChange('paymentProviderId', providerId)}
+                  onConfigureClick={() => setShowProviderConfigModal(true)}
+                  showLabel={true}
+                  compact={true}
+                />
+              </div>
+            )}
           </div>
 
           {/* Supports Reservations Toggle */}
@@ -366,5 +402,17 @@ export default function ProductForm({ organizationId, product, onSave, onCancel 
         </form>
       </div>
     </div>
+
+      {/* Payment Provider Config Modal */}
+      <PaymentProviderConfigModal
+        organizationId={organizationId}
+        isOpen={showProviderConfigModal}
+        onClose={() => setShowProviderConfigModal(false)}
+        onProviderAdded={() => {
+          // Refresh will happen automatically when modal closes
+          // The PaymentProviderSelector will reload providers
+        }}
+      />
+    </>
   )
 }

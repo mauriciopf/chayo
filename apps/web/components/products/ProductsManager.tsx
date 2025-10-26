@@ -15,7 +15,8 @@ interface Product {
   description?: string
   image_url?: string
   price?: number
-  payment_transaction_id?: string
+  payment_enabled?: boolean
+  payment_provider_id?: string
   supports_reservations?: boolean
   has_active_offer?: boolean
   shareable_link?: string
