@@ -204,14 +204,20 @@ export default function PaymentProviderConfigModal({
                 const isConnecting = connecting === provider.id
 
                 return (
-                  <motion.div
+                  <motion.button
                     key={provider.id}
+                    type="button"
+                    onClick={() => !connected && !isConnecting && handleConnectProvider(provider.id)}
+                    disabled={connected || isConnecting}
                     whileHover={{ scale: connected ? 1 : 1.02 }}
+                    whileTap={{ scale: connected ? 1 : 0.98 }}
                     className={`
-                      relative p-6 rounded-xl border-2 transition-all
+                      w-full relative p-6 rounded-xl border-2 transition-all text-left
                       ${connected 
-                        ? 'border-green-500 bg-green-50' 
-                        : 'border-gray-200 bg-white hover:border-purple-300 hover:shadow-md'
+                        ? 'border-green-500 bg-green-50 cursor-default' 
+                        : isConnecting
+                        ? 'border-purple-400 bg-purple-50 cursor-wait'
+                        : 'border-gray-200 bg-white hover:border-purple-400 hover:shadow-lg cursor-pointer'
                       }
                     `}
                   >
@@ -236,47 +242,27 @@ export default function PaymentProviderConfigModal({
                               Conectado
                             </span>
                           )}
+                          {isConnecting && (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                              <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                              Conectando...
+                            </span>
+                          )}
                         </div>
-                        <p className="text-sm text-gray-600 mb-4">
+                        <p className="text-sm text-gray-600">
                           {provider.description}
                         </p>
-
-                        {/* Action Button */}
-                        <button
-                          type="button"
-                          onClick={() => !connected && !isConnecting && handleConnectProvider(provider.id)}
-                          disabled={connected || isConnecting}
-                          className={`
-                            inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold
-                            transition-all duration-200
-                            ${connected
-                              ? 'bg-green-100 text-green-700 cursor-default'
-                              : isConnecting
-                              ? 'bg-purple-400 text-white cursor-wait'
-                              : 'bg-purple-600 text-white hover:bg-purple-700 shadow-lg hover:shadow-xl'
-                            }
-                          `}
-                        >
-                          {isConnecting ? (
-                            <>
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                              Conectando...
-                            </>
-                          ) : connected ? (
-                            <>
-                              <Check className="h-4 w-4" />
-                              Conectado
-                            </>
-                          ) : (
-                            <>
-                              Conectar {provider.name}
-                              <ExternalLink className="h-4 w-4" />
-                            </>
-                          )}
-                        </button>
+                        
+                        {/* Status indicator */}
+                        {!connected && !isConnecting && (
+                          <div className="flex items-center gap-2 mt-3 text-purple-600">
+                            <ExternalLink className="h-4 w-4" />
+                            <span className="text-sm font-medium">Haz clic para conectar</span>
+                          </div>
+                        )}
                       </div>
                     </div>
-                  </motion.div>
+                  </motion.button>
                 )
               })}
             </div>
