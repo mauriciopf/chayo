@@ -317,10 +317,33 @@ Generate a complete vibe profile that will make this business irresistible to th
       // Update organization name if business_name was collected
       if (vibeCardData.business_name && vibeCardData.business_name !== 'Business') {
         try {
+          // Generate slug from business name (handles accents and special chars)
+          let slugifiedName = vibeCardData.business_name
+            .toLowerCase()
+            .trim()
+          
+          // Remove accents: á→a, é→e, í→i, ó→o, ú→u, ñ→n
+          slugifiedName = slugifiedName
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+          
+          // Remove special characters (keep only letters, numbers, spaces, hyphens)
+          slugifiedName = slugifiedName.replace(/[^a-z0-9\s-]/g, '')
+          
+          // Replace spaces with hyphens
+          slugifiedName = slugifiedName.replace(/\s+/g, '-')
+          
+          // Replace multiple hyphens with single hyphen
+          slugifiedName = slugifiedName.replace(/-+/g, '-')
+          
+          // Remove leading/trailing hyphens
+          slugifiedName = slugifiedName.replace(/^-+|-+$/g, '')
+          
           const { error: orgUpdateError } = await this.supabaseClient
             .from('organizations')
             .update({
               name: vibeCardData.business_name,
+              slug: slugifiedName,
               updated_at: new Date().toISOString()
             })
             .eq('id', organizationId)
@@ -328,7 +351,7 @@ Generate a complete vibe profile that will make this business irresistible to th
           if (orgUpdateError) {
             console.warn('⚠️ Failed to update organization name:', orgUpdateError)
           } else {
-            console.log('✅ Updated organization name to:', vibeCardData.business_name)
+            console.log('✅ Updated organization name to:', vibeCardData.business_name, 'with slug:', slugifiedName)
           }
         } catch (orgError) {
           console.warn('⚠️ Error updating organization name:', orgError)

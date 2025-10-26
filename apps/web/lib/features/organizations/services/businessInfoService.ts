@@ -123,10 +123,33 @@ export class BusinessInfoService {
    */
   private async updateOrganizationName(organizationId: string, businessName: string): Promise<void> {
     try {
+      // Generate slug from business name (handles accents and special chars)
+      let slugifiedName = businessName
+        .toLowerCase()
+        .trim()
+      
+      // Remove accents: á→a, é→e, í→i, ó→o, ú→u, ñ→n
+      slugifiedName = slugifiedName
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+      
+      // Remove special characters (keep only letters, numbers, spaces, hyphens)
+      slugifiedName = slugifiedName.replace(/[^a-z0-9\s-]/g, '')
+      
+      // Replace spaces with hyphens
+      slugifiedName = slugifiedName.replace(/\s+/g, '-')
+      
+      // Replace multiple hyphens with single hyphen
+      slugifiedName = slugifiedName.replace(/-+/g, '-')
+      
+      // Remove leading/trailing hyphens
+      slugifiedName = slugifiedName.replace(/^-+|-+$/g, '')
+      
       const { error } = await this.supabaseClient
         .from('organizations')
         .update({
           name: businessName,
+          slug: slugifiedName,
           updated_at: new Date().toISOString()
         })
         .eq('id', organizationId)
@@ -136,7 +159,7 @@ export class BusinessInfoService {
         throw error
       }
 
-      console.log('✅ Successfully updated organization name to:', businessName)
+      console.log('✅ Successfully updated organization name to:', businessName, 'with slug:', slugifiedName)
     } catch (error) {
       console.error('Error updating organization name:', error)
       // Don't throw error here - organization name update shouldn't fail the entire onboarding
