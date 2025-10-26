@@ -35,12 +35,6 @@ export default function PaymentProviderConfigModal({
   const [loading, setLoading] = useState(false)
   const [connecting, setConnecting] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-    return () => setMounted(false)
-  }, [])
 
   // Provider configurations
   const providerTypes = [
@@ -146,11 +140,17 @@ export default function PaymentProviderConfigModal({
     return providers.some(p => p.provider_type === providerType && p.is_active)
   }
 
-  if (!isOpen || !mounted) return null
+  if (!isOpen) return null
 
   const modalContent = (
     <div 
       className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[9999]"
+      onClick={(e) => {
+        // Close when clicking backdrop
+        if (e.target === e.currentTarget) {
+          onClose()
+        }
+      }}
     >
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
@@ -243,6 +243,7 @@ export default function PaymentProviderConfigModal({
 
                         {/* Action Button */}
                         <button
+                          type="button"
                           onClick={() => !connected && !isConnecting && handleConnectProvider(provider.id)}
                           disabled={connected || isConnecting}
                           className={`
@@ -308,6 +309,7 @@ export default function PaymentProviderConfigModal({
               }
             </p>
             <button
+              type="button"
               onClick={() => {
                 onProviderAdded?.()
                 onClose()

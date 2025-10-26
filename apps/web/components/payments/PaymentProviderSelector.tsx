@@ -130,6 +130,7 @@ export default function PaymentProviderSelector({
           Para habilitar pagos en tus productos, primero conecta un proveedor de pago como Stripe, PayPal, o Square.
         </p>
         <button
+          type="button"
           onClick={onConfigureClick}
           className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors shadow-lg hover:shadow-xl"
         >
@@ -237,6 +238,7 @@ export default function PaymentProviderSelector({
 
         {/* Add new provider option */}
         <motion.button
+          type="button"
           onClick={onConfigureClick}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
