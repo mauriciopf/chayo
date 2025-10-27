@@ -23,7 +23,8 @@ interface Product {
   description?: string;
   image_url?: string;
   price?: number;
-  payment_transaction_id?: string;
+  payment_link_url?: string;
+  payment_provider_id?: string;
   supports_reservations?: boolean;
   created_at: string;
   updated_at: string;
@@ -71,8 +72,13 @@ export const ProductDetailScreen: React.FC = () => {
   const [startColor, endColor] = getProductGradient(product.name);
 
   const handlePurchase = () => {
-    // TODO: Implement purchase flow
-    console.log('Purchase product:', product.id);
+    if (product.payment_link_url) {
+      // Open payment link in browser
+      const { Linking } = require('react-native');
+      Linking.openURL(product.payment_link_url).catch((err: any) => {
+        console.error('Failed to open payment link:', err);
+      });
+    }
   };
 
   const handleReservation = () => {
@@ -193,31 +199,25 @@ export const ProductDetailScreen: React.FC = () => {
             </TouchableOpacity>
           )}
 
-          {/* Purchase Button */}
-          {product.price && (
+          {/* Purchase Button - Only show if product has payment link */}
+          {product.payment_link_url && (
             <TouchableOpacity
               style={[
                 styles.purchaseButton,
                 {
-                  backgroundColor: product.payment_transaction_id
-                    ? theme.primaryColor
-                    : theme.placeholderColor,
+                  backgroundColor: theme.primaryColor,
                 },
               ]}
-              onPress={product.payment_transaction_id ? handlePurchase : undefined}
-              disabled={!product.payment_transaction_id}
-              activeOpacity={product.payment_transaction_id ? 0.8 : 1}
+              onPress={handlePurchase}
+              activeOpacity={0.8}
             >
               <Icon
-                name={product.payment_transaction_id ? 'shopping-cart' : 'lock'}
+                name="shopping-cart"
                 size={20}
                 color="#FFFFFF"
               />
               <Text style={[styles.purchaseButtonText, { fontSize: fontSizes.base }]}>
-                {product.payment_transaction_id
-                  ? `${t('products.detail.purchase')} $${product.price}`
-                  : t('products.detail.paymentNotConfigured')
-                }
+                {`${t('products.detail.purchase')} $${product.price}`}
               </Text>
             </TouchableOpacity>
           )}
@@ -235,7 +235,7 @@ export const ProductDetailScreen: React.FC = () => {
               </Text>
             </View>
 
-            {product.payment_transaction_id && (
+            {product.payment_link_url && (
               <View style={styles.infoRow}>
                 <Icon name="credit-card" size={16} color={theme.placeholderColor} />
                 <Text style={[styles.infoText, { color: theme.placeholderColor, fontSize: fontSizes.sm }]}>

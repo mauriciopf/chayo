@@ -75,7 +75,7 @@ export interface PaymentCreationResult {
     provider_transaction_id?: string
     payment_type: string
     checkout_session_id?: string
-    payment_link_id?: string
+    payment_link_id?: string  // Stored in payment_transactions, not products
     invoice_number?: string
     preference_id?: string
   }

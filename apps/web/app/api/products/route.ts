@@ -11,14 +11,10 @@ export async function GET(request: NextRequest) {
     const offset = (page - 1) * limit
 
     if (!organizationId) {
-      return NextResponse.json(
-        { error: 'Organization ID is required' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Organization ID is required' }, { status: 400 })
     }
 
     const supabase = await getSupabaseServerClient()
-
     let query = supabase
       .from('products_list_tool')
       .select('*', { count: 'exact' })
@@ -26,7 +22,6 @@ export async function GET(request: NextRequest) {
       .order('updated_at', { ascending: false })
       .range(offset, offset + limit - 1)
 
-    // Apply search filter
     if (search) {
       query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`)
     }
@@ -35,49 +30,26 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       console.error('Error fetching products:', error)
-      return NextResponse.json(
-        { error: 'Failed to fetch products' },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 })
     }
 
     return NextResponse.json({
       products,
-      pagination: {
-        page,
-        limit,
-        total: count || 0,
-        totalPages: Math.ceil((count || 0) / limit)
-      }
+      pagination: { page, limit, total: count || 0, totalPages: Math.ceil((count || 0) / limit) }
     })
-
   } catch (error) {
     console.error('Products API error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const {
-      organizationId,
-      name,
-      description,
-      imageUrl,
-      price,
-      paymentTransactionId,
-      supportsReservations
-    } = body
+    const { organizationId, name, description, imageUrl, price, paymentEnabled, paymentProviderId, supportsReservations } = body
 
     if (!organizationId || !name) {
-      return NextResponse.json(
-        { error: 'Organization ID and name are required' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Organization ID and name are required' }, { status: 400 })
     }
 
     const supabase = await getSupabaseServerClient()
@@ -90,7 +62,7 @@ export async function POST(request: NextRequest) {
         description,
         image_url: imageUrl,
         price,
-        payment_transaction_id: paymentTransactionId,
+        payment_provider_id: paymentEnabled ? paymentProviderId : null,
         supports_reservations: supportsReservations || false
       })
       .select()
@@ -98,19 +70,41 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error('Error creating product:', error)
-      return NextResponse.json(
-        { error: 'Failed to create product' },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: 'Failed to create product' }, { status: 500 })
+    }
+
+    // Auto-generate payment link if payment enabled
+    if (paymentEnabled && paymentProviderId && price) {
+      try {
+        const linkRes = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/payments/create-link`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            organizationId,
+            amount: Math.round(price * 100),
+            description: name
+          })
+        })
+
+        if (linkRes.ok) {
+          const { paymentUrl } = await linkRes.json()
+          const { data: updated } = await supabase
+            .from('products_list_tool')
+            .update({ payment_link_url: paymentUrl })
+            .eq('id', product.id)
+            .select()
+            .single()
+          
+          return NextResponse.json({ product: updated || product })
+        }
+      } catch (linkError) {
+        console.error('Failed to generate payment link:', linkError)
+      }
     }
 
     return NextResponse.json({ product })
-
   } catch (error) {
     console.error('Products POST API error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
