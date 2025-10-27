@@ -88,7 +88,7 @@ export async function POST(
     } = await request.json()
 
     // Validate required fields
-    if (!provider_type || !['stripe', 'paypal', 'square'].includes(provider_type)) {
+    if (!provider_type || !['mercadopago', 'stripe', 'paypal'].includes(provider_type)) {
       return NextResponse.json({ error: 'Valid provider_type is required' }, { status: 400 })
     }
 

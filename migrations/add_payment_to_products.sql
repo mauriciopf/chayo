@@ -7,14 +7,18 @@
 -- Add payment columns to products_list_tool
 ALTER TABLE products_list_tool 
 ADD COLUMN IF NOT EXISTS payment_enabled BOOLEAN DEFAULT FALSE,
-ADD COLUMN IF NOT EXISTS payment_provider_id UUID REFERENCES payment_providers(id) ON DELETE SET NULL;
+ADD COLUMN IF NOT EXISTS payment_provider_id UUID REFERENCES payment_providers(id) ON DELETE SET NULL,
+ADD COLUMN IF NOT EXISTS payment_link_url TEXT,
+ADD COLUMN IF NOT EXISTS payment_link_id TEXT;
 
 -- Add index for performance
 CREATE INDEX IF NOT EXISTS idx_products_payment_provider ON products_list_tool(payment_provider_id) WHERE payment_enabled = TRUE;
 
 -- Add comments
 COMMENT ON COLUMN products_list_tool.payment_enabled IS 'Whether this product can be purchased with online payment';
-COMMENT ON COLUMN products_list_tool.payment_provider_id IS 'Reference to payment provider (agnostic: Stripe, PayPal, Square, or any future provider)';
+COMMENT ON COLUMN products_list_tool.payment_provider_id IS 'Reference to payment provider (agnostic: Mercado Pago, Stripe, PayPal, or any future provider)';
+COMMENT ON COLUMN products_list_tool.payment_link_url IS 'Auto-generated payment link URL from the configured provider';
+COMMENT ON COLUMN products_list_tool.payment_link_id IS 'Provider-specific payment link/preference ID for tracking';
 
 -- Create function to get products with payment info (provider-agnostic)
 CREATE OR REPLACE FUNCTION get_products_with_payment_info(org_id UUID)

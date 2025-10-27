@@ -39,6 +39,15 @@ export default function PaymentProviderConfigModal({
   // Provider configurations
   const providerTypes = [
     {
+      id: 'mercadopago',
+      name: 'Mercado Pago',
+      icon: <DollarSign className="w-8 h-8" />,
+      description: 'El método de pago líder en América Latina',
+      color: 'from-blue-400 to-blue-600',
+      authUrl: '/api/mercadopago/oauth',
+      emoji: '💵'
+    },
+    {
       id: 'stripe',
       name: 'Stripe',
       icon: <CreditCard className="w-8 h-8" />,
@@ -55,15 +64,6 @@ export default function PaymentProviderConfigModal({
       color: 'from-blue-600 to-blue-800',
       authUrl: '/api/paypal/oauth',
       emoji: '💰'
-    },
-    {
-      id: 'square',
-      name: 'Square',
-      icon: <Settings className="w-8 h-8" />,
-      description: 'Procesa pagos con Square',
-      color: 'from-gray-700 to-gray-900',
-      authUrl: '/api/square/oauth',
-      emoji: '⬛'
     }
   ]
 
