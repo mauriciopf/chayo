@@ -15,9 +15,19 @@ interface ChatMessagesProps {
   thinkingContext?: ThinkingContext
   organizationId?: string
   currentPhase?: string | null
+  otpLoading?: string
 }
 
-const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, chatLoading, chatError, onOptionSelect, thinkingContext = 'default', organizationId, currentPhase }) => {
+const ChatMessages: React.FC<ChatMessagesProps> = ({ 
+  messages, 
+  chatLoading, 
+  chatError, 
+  onOptionSelect, 
+  thinkingContext = 'default', 
+  organizationId, 
+  currentPhase,
+  otpLoading = 'none'
+}) => {
     const t = useTranslations('chat')
   
 
@@ -53,7 +63,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, chatLoading, chat
             </div>
           )
         })}
-        {chatLoading && (
+        {(chatLoading || otpLoading !== 'none') && (
           <div className="py-4">
             <div className="w-full px-4">
               <div className="flex justify-start">
@@ -95,7 +105,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, chatLoading, chat
                           ></div>
                         </div>
                         <ThinkingMessage 
-                          context={thinkingContext} 
+                          context={otpLoading === 'sending' ? 'otp_sending' : otpLoading === 'verifying' ? 'otp_verifying' : thinkingContext} 
                           isVisible={true}
                           className="text-sm ml-2"
                           organizationId={organizationId}

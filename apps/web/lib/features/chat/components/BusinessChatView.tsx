@@ -147,6 +147,7 @@ export default function BusinessChatView({
               thinkingContext={getThinkingContext()}
               organizationId={organizationId}
               currentPhase={statusEvent?.change || null}
+              otpLoading={otpLoading}
             />
           )
         })()}

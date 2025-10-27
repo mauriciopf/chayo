@@ -9,6 +9,8 @@ export type ThinkingContext =
   | 'service_details'
   | 'customer_workflow'
   | 'setup_finalization'
+  | 'otp_sending'
+  | 'otp_verifying'
 
 export type ThinkingPhase =
   | 'initializing'
@@ -70,8 +72,74 @@ export class ThinkingMessageService {
 
   private getContextualMessages(context: ThinkingContext): string[] {
     // Simple fallback messages for when real data isn't available
-    const defaultMessages = {
+    const contextMessages: Record<ThinkingContext, string[]> = {
       default: [
+        "🤖 La IA está pensando...",
+        "💭 Procesando tu solicitud...",
+        "⚡ Trabajando en ello...",
+        "🔄 Analizando la información..."
+      ],
+      otp_sending: [
+        "📧 Enviando código de verificación...",
+        "✉️ Preparando tu código...",
+        "🔐 Generando código de acceso...",
+        "📮 Enviando email de verificación..."
+      ],
+      otp_verifying: [
+        "🔍 Verificando código...",
+        "✅ Validando tu código...",
+        "🔐 Confirmando acceso...",
+        "⏳ Procesando verificación..."
+      ],
+      onboarding_in_progress: [
+        "🤖 La IA está pensando...",
+        "💭 Procesando tu solicitud...",
+        "⚡ Trabajando en ello...",
+        "🔄 Analizando la información..."
+      ],
+      business_name: [
+        "🤖 La IA está pensando...",
+        "💭 Procesando tu solicitud...",
+        "⚡ Trabajando en ello...",
+        "🔄 Analizando la información..."
+      ],
+      business_type: [
+        "🤖 La IA está pensando...",
+        "💭 Procesando tu solicitud...",
+        "⚡ Trabajando en ello...",
+        "🔄 Analizando la información..."
+      ],
+      business_hours: [
+        "🤖 La IA está pensando...",
+        "💭 Procesando tu solicitud...",
+        "⚡ Trabajando en ello...",
+        "🔄 Analizando la información..."
+      ],
+      contact_preferences: [
+        "🤖 La IA está pensando...",
+        "💭 Procesando tu solicitud...",
+        "⚡ Trabajando en ello...",
+        "🔄 Analizando la información..."
+      ],
+      industry_analysis: [
+        "🤖 La IA está pensando...",
+        "💭 Procesando tu solicitud...",
+        "⚡ Trabajando en ello...",
+        "🔄 Analizando la información..."
+      ],
+      service_details: [
+        "🤖 La IA está pensando...",
+        "💭 Procesando tu solicitud...",
+        "⚡ Trabajando en ello...",
+        "🔄 Analizando la información..."
+      ],
+      customer_workflow: [
+        "🤖 La IA está pensando...",
+        "💭 Procesando tu solicitud...",
+        "⚡ Trabajando en ello...",
+        "🔄 Analizando la información..."
+      ],
+      setup_finalization: [
         "🤖 La IA está pensando...",
         "💭 Procesando tu solicitud...",
         "⚡ Trabajando en ello...",
@@ -79,7 +147,7 @@ export class ThinkingMessageService {
       ]
     }
 
-    return defaultMessages.default
+    return contextMessages[context] || contextMessages.default
   }
 
   private getMessagesForContext(context: ThinkingContext): string[] {
