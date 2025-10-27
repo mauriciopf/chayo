@@ -5,7 +5,7 @@ import { CreditCard, ExternalLink, Settings, DollarSign, Zap, Code, Check, X, Pl
 
 interface PaymentProvider {
   id: string
-  provider_type: 'stripe' | 'paypal' | 'square'
+  provider_type: 'stripe' | 'paypal' | 'mercadopago'
   provider_account_id: string | null
   payment_type: 'dynamic' | 'manual_price_id' | 'custom_ui'
   price_id: string | null
@@ -35,7 +35,7 @@ export default function PaymentToolConfig({
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(false)
   const [showAddProvider, setShowAddProvider] = useState(false)
-  const [selectedProviderType, setSelectedProviderType] = useState<'stripe' | 'paypal' | 'square'>('stripe')
+  const [selectedProviderType, setSelectedProviderType] = useState<'stripe' | 'paypal' | 'mercadopago'>('mercadopago')
   
   // Manual Price ID form
   const [priceId, setPriceId] = useState('')
@@ -49,6 +49,14 @@ export default function PaymentToolConfig({
 
   // Provider type configurations
   const providerTypes = [
+    {
+      id: 'mercadopago',
+      name: 'Mercado Pago',
+      icon: <DollarSign className="w-6 h-6" />,
+      description: 'El método de pago líder en América Latina',
+      color: 'from-blue-400 to-blue-600',
+      authUrl: '/api/mercadopago/oauth'
+    },
     {
       id: 'stripe',
       name: 'Stripe',
@@ -64,14 +72,6 @@ export default function PaymentToolConfig({
       description: 'Generate PayPal invoices and payment links',
       color: 'from-blue-600 to-blue-800',
       authUrl: '/api/paypal/oauth'
-    },
-    {
-      id: 'square',
-      name: 'Square',
-      icon: <Settings className="w-6 h-6" />,
-      description: 'Create Square checkout links and payments',
-      color: 'from-gray-700 to-gray-900',
-      authUrl: '/api/square/oauth'
     }
   ]
 
@@ -157,7 +157,7 @@ export default function PaymentToolConfig({
     }
   }
 
-  const handleConnectProvider = async (providerType: 'stripe' | 'paypal' | 'square') => {
+  const handleConnectProvider = async (providerType: 'stripe' | 'paypal' | 'mercadopago') => {
     try {
       setSaving(true)
       
@@ -305,7 +305,7 @@ export default function PaymentToolConfig({
       <div>
         <h3 className="text-lg font-medium text-gray-900 mb-2">Payment Collection</h3>
         <p className="text-sm text-gray-600">
-          Connect payment providers (Stripe, PayPal, Square) to collect payments from clients through the chat.
+          Connect payment providers (Mercado Pago, Stripe, PayPal) to collect payments from clients through the chat.
         </p>
       </div>
 

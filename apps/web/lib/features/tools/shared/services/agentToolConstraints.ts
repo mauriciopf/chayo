@@ -135,7 +135,7 @@ export class AgentToolConstraintsService {
         return {
           canEnable: false,
           reason: 'No payment provider configured',
-          missingConfig: ['Connect a payment provider (Stripe, PayPal, or Square)']
+          missingConfig: ['Connect a payment provider (Mercado Pago, Stripe, or PayPal)']
         }
       }
 

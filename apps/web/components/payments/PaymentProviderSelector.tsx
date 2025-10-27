@@ -75,11 +75,9 @@ export default function PaymentProviderSelector({
   const getProviderIcon = (providerType: string) => {
     // Provider-agnostic icons - uses first letter as fallback
     const icons: Record<string, string> = {
+      mercadopago: '💵',
       stripe: '💳',
       paypal: '💰',
-      square: '⬛',
-      mercadopago: '💵',
-      razorpay: '⚡',
     }
     return icons[providerType.toLowerCase()] || '💳'
   }
@@ -127,7 +125,7 @@ export default function PaymentProviderSelector({
           Configura un Método de Pago
         </h3>
         <p className="text-sm text-gray-600 mb-4 max-w-md mx-auto">
-          Para habilitar pagos en tus productos, primero conecta un proveedor de pago como Stripe, PayPal, o Square.
+          Para habilitar pagos en tus productos, primero conecta un proveedor de pago como Mercado Pago, Stripe, o PayPal.
         </p>
         <button
           type="button"

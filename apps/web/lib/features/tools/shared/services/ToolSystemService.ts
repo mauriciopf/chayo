@@ -331,7 +331,7 @@ export class ToolSystemService {
     if (error || !data || data.length === 0) {
       return {
         canEnable: false,
-        reason: 'Debes configurar un proveedor de pagos (Stripe, PayPal, o Square) antes de habilitar esta herramienta.',
+        reason: 'Debes configurar un proveedor de pagos (Mercado Pago, Stripe, o PayPal) antes de habilitar esta herramienta.',
         missingConfig: ['payment_provider'],
       };
     }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
+import { isValidEmail, isValidDescription, sanitizeInput } from '@/lib/utils/payment-validation'
 
 // POST - Create payment link
 export async function POST(request: NextRequest) {
@@ -21,6 +22,26 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
+
+    // Validate email format if provided
+    if (customerEmail && !isValidEmail(customerEmail)) {
+      return NextResponse.json(
+        { error: 'Invalid email format' },
+        { status: 400 }
+      )
+    }
+
+    // Validate description length
+    if (description && !isValidDescription(description, 500)) {
+      return NextResponse.json(
+        { error: 'Description is too long (max 500 characters)' },
+        { status: 400 }
+      )
+    }
+
+    // Sanitize inputs
+    const sanitizedDescription = description ? sanitizeInput(description) : undefined
+    const sanitizedCustomerName = customerName ? sanitizeInput(customerName) : undefined
 
     // Get organization and verify it exists
     const { data: organization, error: orgError } = await supabase
@@ -58,17 +79,17 @@ export async function POST(request: NextRequest) {
 
     // Handle different payment providers and types
     if (paymentProvider.provider_type === 'stripe') {
-      const result = await createStripePayment(paymentProvider, amount, description, customerEmail, organization)
+      const result = await createStripePayment(paymentProvider, amount, sanitizedDescription, customerEmail, organization)
       paymentLinkUrl = result.url
       paymentAmount = result.amount
       transactionData = result.transactionData
     } else if (paymentProvider.provider_type === 'paypal') {
-      const result = await createPayPalPayment(paymentProvider, amount, description, customerEmail, organization)
+      const result = await createPayPalPayment(paymentProvider, amount, sanitizedDescription, customerEmail, organization)
       paymentLinkUrl = result.url
       paymentAmount = result.amount
       transactionData = result.transactionData
-    } else if (paymentProvider.provider_type === 'square') {
-      const result = await createSquarePayment(paymentProvider, amount, description, customerEmail, organization)
+    } else if (paymentProvider.provider_type === 'mercadopago') {
+      const result = await createMercadoPagoPayment(paymentProvider, amount, sanitizedDescription, customerEmail, organization)
       paymentLinkUrl = result.url
       paymentAmount = result.amount
       transactionData = result.transactionData
@@ -88,8 +109,8 @@ export async function POST(request: NextRequest) {
         provider_type: paymentProvider.provider_type,
         amount: paymentAmount,
         currency: paymentProvider.service_currency || 'usd',
-        description: description || `Payment for ${organization.name}`,
-        customer_name: customerName || null,
+        description: sanitizedDescription || `Payment for ${organization.name}`,
+        customer_name: sanitizedCustomerName || null,
         customer_email: customerEmail || null,
         status: 'pending',
         ...transactionData
@@ -371,104 +392,89 @@ async function createPayPalPayment(provider: any, amount: number, description: s
   return { url: paymentLinkUrl, amount: paymentAmount, transactionData }
 }
 
-async function createSquarePayment(provider: any, amount: number, description: string, customerEmail: string, organization: any) {
-  const environment = provider.provider_settings?.environment || 'sandbox'
-  const baseUrl = environment === 'production' 
-    ? 'https://connect.squareup.com' 
-    : 'https://connect.squareupsandbox.com'
+// Mercado Pago payment creation
+async function createMercadoPagoPayment(provider: any, amount: number, description: string, customerEmail: string, organization: any) {
+  const baseUrl = provider.provider_settings?.base_url || 'https://api.mercadopago.com'
   
-  let paymentAmount: number | null = null
-  let checkoutData: any
+  let paymentAmount: number
+  let preferenceData: any
 
+  // Calculate payment amount based on payment type
   if (provider.payment_type === 'dynamic') {
     // Dynamic pricing
     if (!amount || amount <= 0) {
       throw new Error('Amount is required for dynamic pricing')
     }
-    paymentAmount = Math.round(amount * 100) // Convert to cents
-    
-    checkoutData = {
-      idempotency_key: `checkout-${Date.now()}-${Math.random().toString(36).substring(2)}`,
-      checkout_options: {
-        redirect_url: `${process.env.NEXT_PUBLIC_APP_URL}/payment-success`,
-        ask_for_shipping_address: false,
-        accepted_payment_methods: {
-          apple_pay: false,
-          google_pay: false
-        }
-      },
-      order: {
-        location_id: provider.provider_settings?.merchant_info?.main_location_id,
-        line_items: [{
-          name: description || 'Service Payment',
-          quantity: '1',
-          item_type: 'ITEM',
-          base_price_money: {
-            amount: paymentAmount,
-            currency: provider.service_currency?.toUpperCase() || 'USD'
-          }
-        }]
-      }
-    }
+    paymentAmount = Math.round(amount * 100) // Convert to cents for consistency
   } else if (provider.payment_type === 'manual_price_id' || provider.payment_type === 'custom_ui') {
     // Fixed pricing
     if (!provider.service_amount || provider.service_amount <= 0) {
       throw new Error('Service amount is required for fixed pricing')
     }
     paymentAmount = provider.service_amount
-    
-    checkoutData = {
-      idempotency_key: `checkout-${Date.now()}-${Math.random().toString(36).substring(2)}`,
-      checkout_options: {
-        redirect_url: `${process.env.NEXT_PUBLIC_APP_URL}/payment-success`,
-        ask_for_shipping_address: false,
-        accepted_payment_methods: {
-          apple_pay: false,
-          google_pay: false
-        }
-      },
-      order: {
-        location_id: provider.provider_settings?.merchant_info?.main_location_id,
-        line_items: [{
-          name: provider.service_name || description || 'Service Payment',
-          quantity: '1',
-          item_type: 'ITEM',
-          base_price_money: {
-            amount: paymentAmount,
-            currency: provider.service_currency?.toUpperCase() || 'USD'
-          }
-        }]
-      }
-    }
   } else {
     throw new Error('Invalid payment type configuration')
   }
 
-  // Create Square payment link
-  const response = await fetch(`${baseUrl}/v2/online-checkout/payment-links`, {
+  // Mercado Pago uses decimal amounts (not cents) in their API
+  const amountInDecimal = paymentAmount / 100
+
+  // Create Mercado Pago Preference (payment link)
+  preferenceData = {
+    items: [{
+      title: provider.service_name || description || `Payment for ${organization.name}`,
+      quantity: 1,
+      unit_price: amountInDecimal,
+      currency_id: provider.service_currency?.toUpperCase() || 'USD'
+    }],
+    back_urls: {
+      success: `${process.env.NEXT_PUBLIC_APP_URL}/payment-success`,
+      failure: `${process.env.NEXT_PUBLIC_APP_URL}/payment-cancelled`,
+      pending: `${process.env.NEXT_PUBLIC_APP_URL}/payment-pending`
+    },
+    auto_return: 'approved',
+    external_reference: `${organization.id}_${Date.now()}`,
+    notification_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/mercadopago`
+  }
+
+  // Add payer information if available
+  if (customerEmail) {
+    preferenceData.payer = {
+      email: customerEmail
+    }
+  }
+
+  // Create Mercado Pago preference
+  const response = await fetch(`${baseUrl}/checkout/preferences`, {
     method: 'POST',
     headers: {
-      'Square-Version': '2024-12-18',
-      'Authorization': `Bearer ${provider.access_token}`,
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${provider.access_token}`
     },
-    body: JSON.stringify(checkoutData)
+    body: JSON.stringify(preferenceData)
   })
 
   if (!response.ok) {
     const errorText = await response.text()
-    console.error('Square payment link creation failed:', errorText)
-    throw new Error('Failed to create Square payment link')
+    console.error('Mercado Pago preference creation failed:', errorText)
+    throw new Error('Failed to create Mercado Pago payment link')
   }
 
-  const paymentLinkResponse = await response.json()
-  const paymentLink = paymentLinkResponse.payment_link
+  const preference = await response.json()
+
+  // Mercado Pago returns init_point which is the payment link
+  if (!preference.init_point) {
+    console.error('Mercado Pago preference missing init_point:', preference)
+    throw new Error('Mercado Pago did not return a valid payment link')
+  }
+
+  const paymentLinkUrl = preference.init_point
 
   const transactionData = {
-    provider_transaction_id: paymentLink.id,
+    provider_transaction_id: preference.id,
     payment_type: provider.payment_type,
-    checkout_page_url: paymentLink.checkout_page_url
+    preference_id: preference.id
   }
 
-  return { url: paymentLink.url, amount: paymentAmount, transactionData }
+  return { url: paymentLinkUrl, amount: paymentAmount, transactionData }
 }
