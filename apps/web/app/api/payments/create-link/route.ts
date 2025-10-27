@@ -40,8 +40,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Sanitize inputs
-    const sanitizedDescription = description ? sanitizeInput(description) : undefined
-    const sanitizedCustomerName = customerName ? sanitizeInput(customerName) : undefined
+    const sanitizedDescription = description ? sanitizeInput(description) : ''
+    const sanitizedCustomerName = customerName ? sanitizeInput(customerName) : ''
 
     // Get organization and verify it exists
     const { data: organization, error: orgError } = await supabase

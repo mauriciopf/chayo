@@ -155,7 +155,7 @@ export class StripeLinkGenerator implements IPaymentLinkGenerator {
       
       // Initialize Stripe with the access token (secret key from OAuth)
       const stripe = new Stripe(credentials.access_token, {
-        apiVersion: '2024-10-28' // Latest stable version as of 2024
+        apiVersion: '2025-08-27.basil' // Latest stable version
       })
 
       // Step 1: Create a price (inline product creation)
@@ -164,8 +164,6 @@ export class StripeLinkGenerator implements IPaymentLinkGenerator {
         unit_amount: Math.round(request.price * 100), // Convert to cents/minor units
         product_data: {
           name: request.productName,
-          description: request.productDescription,
-          images: request.imageUrl ? [request.imageUrl] : undefined,
           metadata: {
             product_id: request.productId,
             organization_id: request.organizationId

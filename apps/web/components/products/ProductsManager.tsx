@@ -277,7 +277,7 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
                               Reservaciones habilitadas
                             </span>
                           )}
-                          {product.payment_enabled && product.payment_provider_id && (
+                          {product.payment_link_url && (
                             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border border-purple-500 bg-purple-50 text-purple-700">
                               <DollarSign className="h-3 w-3" />
                               Pago online habilitado
