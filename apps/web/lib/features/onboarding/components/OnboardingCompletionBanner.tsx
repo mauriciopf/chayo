@@ -3,14 +3,16 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslations } from 'next-intl'
-import { CheckCircle, AlertCircle, Play, X } from 'lucide-react'
+import { CheckCircle, AlertCircle, Play, X, LogIn } from 'lucide-react'
 
 interface OnboardingCompletionBannerProps {
   isOnboardingCompleted: boolean
+  isAuthenticated: boolean
 }
 
 export default function OnboardingCompletionBanner({
-  isOnboardingCompleted
+  isOnboardingCompleted,
+  isAuthenticated
 }: OnboardingCompletionBannerProps) {
   const tOnboarding = useTranslations('onboarding')
   const [showVideoModal, setShowVideoModal] = useState(false)
@@ -50,6 +52,36 @@ export default function OnboardingCompletionBanner({
     }
   }, [showVideoModal])
 
+  // Determine banner state
+  const getBannerState = () => {
+    if (!isAuthenticated) {
+      return {
+        icon: <LogIn className="w-5 h-5 flex-shrink-0" style={{ color: '#3b82f6' }} />,
+        title: '¡Bienvenido a Chayo!',
+        description: 'Mira el video de introducción e inicia sesión para configurar tu negocio y crear tu asistente digital con IA.',
+        showVideoButton: true
+      }
+    }
+    
+    if (!isOnboardingCompleted) {
+      return {
+        icon: <AlertCircle className="w-5 h-5 flex-shrink-0" style={{ color: 'var(--accent-primary)' }} />,
+        title: tOnboarding('onboardingInProgressTitle'),
+        description: tOnboarding('onboardingInProgressDescription'),
+        showVideoButton: true
+      }
+    }
+    
+    return {
+      icon: <CheckCircle className="w-5 h-5 flex-shrink-0" style={{ color: 'var(--accent-secondary)' }} />,
+      title: tOnboarding('completionBannerTitle'),
+      description: tOnboarding('completionBannerDescription'),
+      showVideoButton: true
+    }
+  }
+
+  const bannerState = getBannerState()
+
   return (
     <>
       <motion.div
@@ -61,44 +93,30 @@ export default function OnboardingCompletionBanner({
           borderColor: 'var(--border-secondary)'
         }}
       >
-        {/* Video Button - Top Right */}
-        <button
-          onClick={handleOpenVideo}
-          className="absolute top-3 right-3 flex items-center gap-2 px-3 py-2 rounded-lg transition-all hover:scale-105 active:scale-95"
-          style={{ 
-            backgroundColor: 'var(--accent-primary)',
-            color: 'white'
-          }}
-          title="Ver Video de Introducción"
-        >
-          <Play className="w-4 h-4" />
-          <span className="text-xs font-medium">Ver Video de Introducción</span>
-        </button>
+        {/* Video Button - Top Right (only show if authenticated) */}
+        {bannerState.showVideoButton && (
+          <button
+            onClick={handleOpenVideo}
+            className="absolute top-3 right-3 flex items-center gap-2 px-3 py-2 rounded-lg transition-all hover:scale-105 active:scale-95"
+            style={{ 
+              backgroundColor: 'var(--accent-primary)',
+              color: 'white'
+            }}
+            title="Ver Video de Introducción"
+          >
+            <Play className="w-4 h-4" />
+            <span className="text-xs font-medium">Ver Video de Introducción</span>
+          </button>
+        )}
 
         <div className="flex items-center space-x-3 pr-12">
-          {isOnboardingCompleted ? (
-            <CheckCircle 
-              className="w-5 h-5 flex-shrink-0" 
-              style={{ color: 'var(--accent-secondary)' }}
-            />
-          ) : (
-            <AlertCircle 
-              className="w-5 h-5 flex-shrink-0" 
-              style={{ color: 'var(--accent-primary)' }}
-            />
-          )}
+          {bannerState.icon}
           <div>
             <p className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>
-              {isOnboardingCompleted 
-                ? tOnboarding('completionBannerTitle')
-                : tOnboarding('onboardingInProgressTitle')
-              }
+              {bannerState.title}
             </p>
             <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
-              {isOnboardingCompleted 
-                ? tOnboarding('completionBannerDescription')
-                : tOnboarding('onboardingInProgressDescription')
-              }
+              {bannerState.description}
             </p>
           </div>
         </div>
@@ -121,7 +139,7 @@ export default function OnboardingCompletionBanner({
               exit={{ scale: 0.9, opacity: 0 }}
               transition={{ type: 'spring', damping: 25 }}
               className="relative w-full max-w-2xl"
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e: React.MouseEvent) => e.stopPropagation()}
             >
               {/* Close Button */}
               <button

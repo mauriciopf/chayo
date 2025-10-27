@@ -419,9 +419,11 @@ function DashboardContent() {
       case 'chat':
         return (
           <div className="w-full max-w-7xl mx-auto h-full flex flex-col">
-            <div className="px-4 py-3">
-              <BackToDashboardButton onClick={() => setActiveView('dashboard')} />
-            </div>
+            {auth.authState === 'authenticated' && (
+              <div className="px-4 py-3">
+                <BackToDashboardButton onClick={() => setActiveView('dashboard')} />
+              </div>
+            )}
             <ChatContainer
               messages={chat.messages}
               setMessages={chat.setMessages}

@@ -111,6 +111,7 @@ export default function BusinessChatView({
         {/* Always show banner at top - shows progress during onboarding or completion after */}
         <OnboardingCompletionBanner
           isOnboardingCompleted={isOnboardingCompleted}
+          isAuthenticated={authState === 'authenticated'}
         />
         
         {messages.length === 0 && !chatLoading && <ChatEmptyState />}
