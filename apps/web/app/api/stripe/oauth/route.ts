@@ -1,14 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
-import Stripe from 'stripe'
 
-// Initialize Stripe
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
-
-// POST - Initialize Stripe Connect Onboarding flow
+// POST - Initialize Stripe OAuth flow
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await getSupabaseServerClient();
+    const supabase = await getSupabaseServerClient()
     
     // Get the current user
     const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -35,58 +31,50 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if Stripe is already connected for this organization
-    const { data: existingSettings } = await supabase
-      .from('stripe_settings')
+    const { data: existingProvider } = await supabase
+      .from('payment_providers')
       .select('*')
       .eq('organization_id', organizationId)
+      .eq('provider_type', 'stripe')
       .single()
 
-    let accountId: string
-
-    if (existingSettings?.stripe_user_id && !existingSettings.is_active) {
-      // Use existing account if onboarding wasn't completed
-      accountId = existingSettings.stripe_user_id
-    } else if (!existingSettings) {
-      // Create new connected account
-      const account = await stripe.accounts.create({
-        type: 'express',
-        metadata: {
-          organization_id: organizationId,
-          user_id: user.id
-        }
-      })
-      accountId = account.id
-
-      // Save account to database
-      await supabase
-        .from('stripe_settings')
-        .insert({
-          organization_id: organizationId,
-          stripe_user_id: accountId,
-          is_active: false // Will be true after onboarding completion
-        })
-    } else {
+    if (existingProvider?.is_active) {
       return NextResponse.json({ 
         error: 'Stripe already connected',
         message: 'This organization already has an active Stripe connection.' 
       }, { status: 400 })
     }
 
-    // Generate onboarding link
-    const accountLink = await stripe.accountLinks.create({
-      account: accountId,
-      refresh_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/stripe/connect/refresh?organization_id=${organizationId}`,
-      return_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/stripe/connect/success?organization_id=${organizationId}`,
-      type: 'account_onboarding',
-    })
+    // Stripe OAuth configuration
+    const clientId = process.env.STRIPE_CLIENT_ID
+    
+    if (!clientId) {
+      return NextResponse.json({ 
+        error: 'Stripe configuration missing',
+        message: 'Stripe credentials are not configured on the server.' 
+      }, { status: 500 })
+    }
+
+    // Generate state for security
+    const state = `${organizationId}_${Date.now()}_${Math.random().toString(36).substring(2)}`
+    
+    // Stripe OAuth parameters
+    const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/stripe/callback`
+    
+    const authUrl = new URL('https://connect.stripe.com/oauth/authorize')
+    authUrl.searchParams.set('response_type', 'code')
+    authUrl.searchParams.set('client_id', clientId)
+    authUrl.searchParams.set('scope', 'read_write')
+    authUrl.searchParams.set('redirect_uri', redirectUri)
+    authUrl.searchParams.set('state', state)
 
     return NextResponse.json({
-      onboardingUrl: accountLink.url,
-      accountId: accountId
+      authUrl: authUrl.toString(),
+      state
     })
 
   } catch (error) {
-    console.error('Stripe Connect initialization error:', error)
+    console.error('Stripe OAuth initialization error:', error)
     return NextResponse.json(
       { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }

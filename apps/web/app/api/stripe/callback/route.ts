@@ -1,49 +1,63 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
 
-// DEPRECATED: This file is for the old OAuth flow
-// New implementation uses Connect Onboarding in /api/stripe/connect/
-// This file is kept for backward compatibility only
-
 const STRIPE_CONFIG = {
   clientId: process.env.STRIPE_CLIENT_ID,
-  clientSecret: process.env.STRIPE_CLIENT_SECRET,
+  clientSecret: process.env.STRIPE_SECRET_KEY,
   tokenUrl: 'https://connect.stripe.com/oauth/token',
   redirectUri: `${process.env.NEXT_PUBLIC_APP_URL}/api/stripe/callback`
 }
 
+export const dynamic = 'force-dynamic'
+
+// GET - Handle Stripe OAuth callback
 export async function GET(request: NextRequest) {
-  // Handle OAuth callback from Stripe
-  const { searchParams } = new URL(request.url)
-  const code = searchParams.get('code')
-  const state = searchParams.get('state')
-  const error = searchParams.get('error')
-
-  if (error) {
-    console.error('Stripe OAuth error:', error)
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/dashboard?error=stripe_oauth_denied`)
-  }
-
-  if (!code || !state) {
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/dashboard?error=stripe_oauth_invalid`)
-  }
-
   try {
-    const supabase = await getSupabaseServerClient();
+    const supabase = await getSupabaseServerClient()
+    const { searchParams } = new URL(request.url)
+    
+    const code = searchParams.get('code')
+    const state = searchParams.get('state')
+    const error = searchParams.get('error')
 
-    // Verify state parameter
-    const stateData = JSON.parse(Buffer.from(state, 'base64url').toString())
-    const { organizationId, userId } = stateData
+    // Handle OAuth error
+    if (error) {
+      console.error('Stripe OAuth error:', error)
+      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/dashboard?error=stripe_oauth_denied`)
+    }
 
-    // Verify user still has access to this organization
+    // Validate required parameters
+    if (!code || !state) {
+      console.error('Stripe OAuth callback missing code or state')
+      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/dashboard?error=stripe_oauth_invalid`)
+    }
+
+    // Parse state to get organization ID
+    const stateParts = state.split('_')
+    if (stateParts.length < 3) {
+      console.error('Invalid Stripe OAuth state format')
+      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/dashboard?error=stripe_oauth_invalid`)
+    }
+
+    const organizationId = stateParts[0]
+
+    // Get the current user
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
+      console.error('Stripe OAuth callback - user not authenticated')
+      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/dashboard?error=access_denied`)
+    }
+
+    // Check if user has access to this organization
     const { data: membership, error: membershipError } = await supabase
       .from('team_members')
       .select('*')
       .eq('organization_id', organizationId)
-      .eq('user_id', userId)
+      .eq('user_id', user.id)
       .single()
 
     if (membershipError || !membership) {
+      console.error('Stripe OAuth callback - user access denied')
       return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/dashboard?error=access_denied`)
     }
 
@@ -64,34 +78,73 @@ export async function GET(request: NextRequest) {
     if (!tokenResponse.ok) {
       const errorText = await tokenResponse.text()
       console.error('Stripe token exchange failed:', errorText)
-      throw new Error('Failed to exchange code for token')
+      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/dashboard?error=stripe_token_failed`)
     }
 
     const tokenData = await tokenResponse.json()
 
-    // Store the Stripe connection in database
-    const { error: updateError } = await supabase
-      .from('stripe_settings')
-      .upsert({
-        organization_id: organizationId,
-        stripe_user_id: tokenData.stripe_user_id,
-        access_token: tokenData.access_token,
-        refresh_token: tokenData.refresh_token,
-        scope: tokenData.scope,
-        payment_type: 'manual_price_id', // Default to manual price ID option
-        is_active: true,
-        settings: {
-          livemode: tokenData.livemode || false,
-          stripe_publishable_key: tokenData.stripe_publishable_key || null
-        },
-        updated_at: new Date().toISOString()
-      }, {
-        onConflict: 'organization_id'
-      })
+    // Check if provider already exists (shouldn't happen, but just in case)
+    const { data: existingProvider } = await supabase
+      .from('payment_providers')
+      .select('id')
+      .eq('organization_id', organizationId)
+      .eq('provider_type', 'stripe')
+      .single()
 
-    if (updateError) {
-      console.error('Database error:', updateError)
-      throw new Error('Failed to save Stripe settings')
+    if (existingProvider) {
+      // Update existing provider
+      const { error: updateError } = await supabase
+        .from('payment_providers')
+        .update({
+          provider_account_id: tokenData.stripe_user_id,
+          access_token: tokenData.access_token,
+          refresh_token: tokenData.refresh_token,
+          scope: tokenData.scope,
+          provider_settings: {
+            livemode: tokenData.livemode || false,
+            stripe_publishable_key: tokenData.stripe_publishable_key || null
+          },
+          is_active: true,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', existingProvider.id)
+
+      if (updateError) {
+        console.error('Database update error:', updateError)
+        return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/dashboard?error=stripe_save_failed`)
+      }
+    } else {
+      // Check if this is the first provider for this organization
+      const { data: existingProviders } = await supabase
+        .from('payment_providers')
+        .select('id')
+        .eq('organization_id', organizationId)
+
+      const isFirstProvider = !existingProviders || existingProviders.length === 0
+
+      // Create new provider
+      const { error: insertError } = await supabase
+        .from('payment_providers')
+        .insert({
+          organization_id: organizationId,
+          provider_type: 'stripe',
+          provider_account_id: tokenData.stripe_user_id,
+          access_token: tokenData.access_token,
+          refresh_token: tokenData.refresh_token,
+          scope: tokenData.scope,
+          provider_settings: {
+            livemode: tokenData.livemode || false,
+            stripe_publishable_key: tokenData.stripe_publishable_key || null
+          },
+          payment_type: 'manual_price_id',
+          is_active: true,
+          is_default: isFirstProvider // Make default if first provider
+        })
+
+      if (insertError) {
+        console.error('Database insert error:', insertError)
+        return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/dashboard?error=stripe_save_failed`)
+      }
     }
 
     // Redirect back to dashboard with success
