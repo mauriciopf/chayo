@@ -247,6 +247,14 @@ async function updateProductPricing(offerId: string) {
   try {
     const supabase = await getSupabaseServerClient()
     
+    // Get products affected by this offer BEFORE updating prices
+    const { data: productOffers } = await supabase
+      .from('product_offers')
+      .select('product_id')
+      .eq('offer_id', offerId)
+    
+    const productIds = productOffers?.map(po => po.product_id) || []
+    
     // Call the database function to update product discounted prices
     const { error } = await supabase.rpc('update_product_discounted_prices', {
       offer_uuid: offerId
@@ -254,6 +262,12 @@ async function updateProductPricing(offerId: string) {
 
     if (error) {
       console.error('Error updating product pricing:', error)
+    }
+
+    // Regenerate payment links for affected products
+    if (productIds.length > 0) {
+      const { regeneratePaymentLinksForProducts } = await import('@/lib/shared/services/PaymentLinkRegenerationService')
+      await regeneratePaymentLinksForProducts(productIds)
     }
   } catch (error) {
     console.error('Error in updateProductPricing:', error)
@@ -265,6 +279,14 @@ async function removeProductPricing(offerId: string) {
   try {
     const supabase = await getSupabaseServerClient()
     
+    // Get products affected by this offer BEFORE removing prices
+    const { data: productOffers } = await supabase
+      .from('product_offers')
+      .select('product_id')
+      .eq('offer_id', offerId)
+    
+    const productIds = productOffers?.map(po => po.product_id) || []
+    
     // Call the database function to remove product discounted prices
     const { error } = await supabase.rpc('remove_product_discounted_prices', {
       offer_uuid: offerId
@@ -272,6 +294,12 @@ async function removeProductPricing(offerId: string) {
 
     if (error) {
       console.error('Error removing product pricing:', error)
+    }
+
+    // Regenerate payment links for affected products (back to regular price)
+    if (productIds.length > 0) {
+      const { regeneratePaymentLinksForProducts } = await import('@/lib/shared/services/PaymentLinkRegenerationService')
+      await regeneratePaymentLinksForProducts(productIds)
     }
   } catch (error) {
     console.error('Error in removeProductPricing:', error)
