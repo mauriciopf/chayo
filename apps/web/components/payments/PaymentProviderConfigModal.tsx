@@ -39,15 +39,6 @@ export default function PaymentProviderConfigModal({
   // Provider configurations
   const providerTypes = [
     {
-      id: 'mercadopago',
-      name: 'Mercado Pago',
-      icon: <DollarSign className="w-8 h-8" />,
-      description: 'El método de pago líder en América Latina',
-      color: 'from-blue-400 to-blue-600',
-      authUrl: '/api/mercadopago/oauth',
-      emoji: '💵'
-    },
-    {
       id: 'stripe',
       name: 'Stripe',
       icon: <CreditCard className="w-8 h-8" />,
@@ -64,6 +55,16 @@ export default function PaymentProviderConfigModal({
       color: 'from-blue-600 to-blue-800',
       authUrl: '/api/paypal/oauth',
       emoji: '💰'
+    },
+    {
+      id: 'mercadopago',
+      name: 'Mercado Pago',
+      icon: <DollarSign className="w-8 h-8" />,
+      description: 'El método de pago líder en América Latina',
+      color: 'from-blue-400 to-blue-600',
+      authUrl: '/api/mercadopago/oauth',
+      emoji: '💵',
+      comingSoon: true // Coming soon - displayed at the end
     }
   ]
 
@@ -202,21 +203,24 @@ export default function PaymentProviderConfigModal({
               {providerTypes.map((provider) => {
                 const connected = isProviderConnected(provider.id)
                 const isConnecting = connecting === provider.id
+                const comingSoon = provider.comingSoon || false
 
                 return (
                   <motion.button
                     key={provider.id}
                     type="button"
-                    onClick={() => !connected && !isConnecting && handleConnectProvider(provider.id)}
-                    disabled={connected || isConnecting}
-                    whileHover={{ scale: connected ? 1 : 1.02 }}
-                    whileTap={{ scale: connected ? 1 : 0.98 }}
+                    onClick={() => !connected && !isConnecting && !comingSoon && handleConnectProvider(provider.id)}
+                    disabled={connected || isConnecting || comingSoon}
+                    whileHover={{ scale: connected || comingSoon ? 1 : 1.02 }}
+                    whileTap={{ scale: connected || comingSoon ? 1 : 0.98 }}
                     className={`
                       w-full relative p-6 rounded-xl border-2 transition-all text-left
                       ${connected 
                         ? 'border-green-500 bg-green-50 cursor-default' 
                         : isConnecting
                         ? 'border-purple-400 bg-purple-50 cursor-wait'
+                        : comingSoon
+                        ? 'border-gray-300 bg-gray-100 cursor-not-allowed opacity-60'
                         : 'border-gray-200 bg-white hover:border-purple-400 hover:shadow-lg cursor-pointer'
                       }
                     `}
@@ -226,6 +230,7 @@ export default function PaymentProviderConfigModal({
                       <div className={`
                         flex-shrink-0 w-16 h-16 rounded-xl bg-gradient-to-br ${provider.color}
                         flex items-center justify-center text-white shadow-lg
+                        ${comingSoon ? 'opacity-60' : ''}
                       `}>
                         {provider.icon}
                       </div>
@@ -248,13 +253,18 @@ export default function PaymentProviderConfigModal({
                               Conectando...
                             </span>
                           )}
+                          {comingSoon && (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                              🚀 Próximamente
+                            </span>
+                          )}
                         </div>
                         <p className="text-sm text-gray-600">
                           {provider.description}
                         </p>
                         
                         {/* Status indicator */}
-                        {!connected && !isConnecting && (
+                        {!connected && !isConnecting && !comingSoon && (
                           <div className="flex items-center gap-2 mt-3 text-purple-600">
                             <ExternalLink className="h-4 w-4" />
                             <span className="text-sm font-medium">Haz clic para conectar</span>

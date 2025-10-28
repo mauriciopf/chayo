@@ -1,6 +1,7 @@
 /**
  * PayPal Payment Provider
- * Handles PayPal Invoice creation for payment links
+ * Uses PayPal Orders API v2 to create checkout orders with approval URLs
+ * API Docs: https://developer.paypal.com/docs/api/orders/v2/
  */
 
 import { PaymentProvider, Organization, PaymentResult, calculatePaymentAmount, PaymentProviderError } from './types'
@@ -18,82 +19,77 @@ export async function createPayPalPayment(
   try {
     const baseUrl = provider.provider_settings?.base_url || 'https://api-m.sandbox.paypal.com'
     const paymentAmount = calculatePaymentAmount(provider, amount)
+    const currency = provider.service_currency?.toUpperCase() || 'USD'
+    const amountValue = (paymentAmount / 100).toFixed(2)
 
-    // Create PayPal invoice data
-    const invoiceData = {
-      detail: {
-        invoice_number: `INV-${Date.now()}`,
-        reference: `Payment for ${organization.name}`,
-        invoice_date: new Date().toISOString().split('T')[0],
-        currency_code: provider.service_currency?.toUpperCase() || 'USD',
-        note: description || provider.service_name || `Payment for ${organization.name}`
-      },
-      invoicer: {
-        name: { given_name: organization.name },
-        email_address: customerEmail || 'noreply@example.com'
-      },
-      primary_recipients: [{
-        billing_info: {
-          name: { given_name: 'Customer' },
-          email_address: customerEmail || 'customer@example.com'
-        }
+    // PayPal Orders API request body
+    const orderData = {
+      intent: 'CAPTURE', // or 'AUTHORIZE' if you want to authorize first, capture later
+      purchase_units: [{
+        reference_id: `${organization.id}-${Date.now()}`,
+        description: description || `Payment for ${organization.name}`,
+        amount: {
+          currency_code: currency,
+          value: amountValue,
+          breakdown: {
+            item_total: {
+              currency_code: currency,
+              value: amountValue
+            }
+          }
+        },
+        items: [{
+          name: description || provider.service_name || 'Payment',
+          description: `Payment for ${organization.name}`,
+          quantity: '1',
+          unit_amount: {
+            currency_code: currency,
+            value: amountValue
+          }
+        }]
       }],
-      items: [{
-        name: provider.service_name || description || 'Service Payment',
-        quantity: '1',
-        unit_amount: {
-          currency_code: provider.service_currency?.toUpperCase() || 'USD',
-          value: (paymentAmount / 100).toFixed(2)
-        }
-      }]
+      application_context: {
+        brand_name: organization.name,
+        landing_page: 'NO_PREFERENCE', // or 'LOGIN', 'BILLING'
+        user_action: 'PAY_NOW', // Shows "Pay Now" button instead of "Continue"
+        return_url: `${process.env.NEXT_PUBLIC_APP_URL}/payment-success`,
+        cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/payment-cancelled`
+      }
     }
 
-    // Create PayPal invoice
-    const createResponse = await fetch(`${baseUrl}/v2/invoicing/invoices`, {
+    // Create PayPal Order
+    const response = await fetch(`${baseUrl}/v2/checkout/orders`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${provider.access_token}`,
-        'PayPal-Request-Id': `invoice-${Date.now()}`
+        'PayPal-Request-Id': `order-${Date.now()}`
       },
-      body: JSON.stringify(invoiceData)
+      body: JSON.stringify(orderData)
     })
 
-    if (!createResponse.ok) {
-      const errorText = await createResponse.text()
-      throw new PaymentProviderError('paypal', errorText, `Failed to create PayPal invoice: ${errorText}`)
+    if (!response.ok) {
+      const errorText = await response.text()
+      throw new PaymentProviderError('paypal', errorText, `Failed to create PayPal order: ${errorText}`)
     }
 
-    const invoice = await createResponse.json()
+    const order = await response.json()
 
-    // Send the invoice to generate payment link
-    const sendResponse = await fetch(`${baseUrl}/v2/invoicing/invoices/${invoice.id}/send`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${provider.access_token}`
-      },
-      body: JSON.stringify({
-        send_to_recipient: true,
-        send_to_invoicer: false
-      })
-    })
+    // Extract the approval URL (this is the payment link customers use)
+    const approvalLink = order.links?.find((link: any) => link.rel === 'approve')
 
-    if (!sendResponse.ok) {
-      const errorText = await sendResponse.text()
-      throw new PaymentProviderError('paypal', errorText, `Failed to send PayPal invoice: ${errorText}`)
+    if (!approvalLink) {
+      throw new PaymentProviderError('paypal', order, 'No approval URL in PayPal order response')
     }
-
-    // The invoice href contains the payment link
-    const paymentLinkUrl = invoice.href || `${baseUrl.replace('api-m', 'www')}/invoice/p/#${invoice.id}`
 
     const transactionData = {
-      provider_transaction_id: invoice.id,
+      provider_transaction_id: order.id,
       payment_type: provider.payment_type,
-      invoice_number: invoiceData.detail.invoice_number
+      order_id: order.id,
+      status: order.status // Usually "CREATED"
     }
 
-    return { url: paymentLinkUrl, amount: paymentAmount, transactionData }
+    return { url: approvalLink.href, amount: paymentAmount, transactionData }
   } catch (error) {
     if (error instanceof PaymentProviderError) {
       throw error
