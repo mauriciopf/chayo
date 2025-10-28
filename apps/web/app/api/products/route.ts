@@ -54,6 +54,7 @@ export async function POST(request: NextRequest) {
 
     const supabase = await getSupabaseServerClient()
 
+    // Create product with payment_enabled flag
     const { data: product, error } = await supabase
       .from('products_list_tool')
       .insert({
@@ -62,7 +63,8 @@ export async function POST(request: NextRequest) {
         description,
         image_url: imageUrl,
         price,
-        payment_provider_id: paymentEnabled ? paymentProviderId : null,
+        payment_enabled: paymentEnabled || false,
+        payment_provider_id: paymentEnabled && paymentProviderId ? paymentProviderId : null,
         supports_reservations: supportsReservations || false
       })
       .select()
@@ -73,15 +75,26 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to create product' }, { status: 500 })
     }
 
-    // Auto-generate payment link if payment enabled
-    if (paymentEnabled && paymentProviderId && price) {
+    // Generate payment link if checkbox is checked AND provider is configured AND price exists
+    if (paymentEnabled && paymentProviderId && price && price > 0) {
       try {
+        // Check if product has active offer with discounted price
+        const { data: productWithOffer } = await supabase
+          .from('products_list_tool')
+          .select('discounted_price, has_active_offer')
+          .eq('id', product.id)
+          .single()
+
+        const finalPrice = productWithOffer?.has_active_offer && productWithOffer?.discounted_price
+          ? productWithOffer.discounted_price
+          : price
+
         const linkRes = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/payments/create-link`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             organizationId,
-            amount: Math.round(price * 100),
+            amount: Math.round(finalPrice * 100),
             description: name
           })
         })
@@ -96,9 +109,14 @@ export async function POST(request: NextRequest) {
             .single()
           
           return NextResponse.json({ product: updated || product })
+        } else {
+          const errorText = await linkRes.text()
+          console.error('Failed to generate payment link:', errorText)
+          // Return product anyway, link can be generated later
         }
       } catch (linkError) {
         console.error('Failed to generate payment link:', linkError)
+        // Return product anyway, link can be generated later
       }
     }
 

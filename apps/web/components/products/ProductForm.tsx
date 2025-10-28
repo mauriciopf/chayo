@@ -310,10 +310,7 @@ export default function ProductForm({ organizationId, product, onSave, onCancel 
                 onChange={(e) => {
                   const enabled = e.target.checked
                   handleInputChange('paymentEnabled', enabled)
-                  // If disabling payment, clear provider
-                  if (!enabled) {
-                    handleInputChange('paymentProviderId', null)
-                  }
+                  // Don't clear provider - let user's selection persist
                 }}
                 className="w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
                 style={{ accentColor: 'var(--accent-secondary)' }}

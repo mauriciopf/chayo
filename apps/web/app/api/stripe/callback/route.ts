@@ -114,10 +114,7 @@ export async function GET(request: NextRequest) {
         return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/dashboard?error=stripe_save_failed`)
       }
 
-      // Generate payment links for existing products (async, don't wait)
-      generatePaymentLinksForExistingProducts(organizationId, existingProvider.id).catch(err => 
-        console.error('Background task failed:', err)
-      )
+      console.log(`✅ Stripe provider updated for organization: ${organizationId}`)
     } else {
       // Check if this is the first provider for this organization
       const { data: existingProviders } = await supabase
@@ -153,10 +150,7 @@ export async function GET(request: NextRequest) {
         return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/dashboard?error=stripe_save_failed`)
       }
 
-      // Generate payment links for existing products (async, don't wait)
-      generatePaymentLinksForExistingProducts(organizationId, insertedProvider.id).catch(err => 
-        console.error('Background task failed:', err)
-      )
+      console.log(`✅ Stripe provider created for organization: ${organizationId}`)
     }
 
     // Redirect back to dashboard with success
@@ -165,84 +159,5 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Stripe OAuth callback error:', error)
     return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/dashboard?error=stripe_oauth_failed`)
-  }
-}
-
-// Helper function to generate payment links for existing products
-async function generatePaymentLinksForExistingProducts(organizationId: string, providerId: string) {
-  try {
-    const supabase = await getSupabaseServerClient()
-    
-    // Get all products for this organization that don't have payment links
-    const { data: products, error: productsError } = await supabase
-      .from('products_list_tool')
-      .select('id, name, price, discounted_price, has_active_offer, organization_id')
-      .eq('organization_id', organizationId)
-      .is('payment_link_url', null)
-      .not('price', 'is', null)
-      .gt('price', 0)
-
-    if (productsError) {
-      console.error('Error fetching products:', productsError)
-      return
-    }
-
-    if (!products || products.length === 0) {
-      console.log('No products to generate payment links for')
-      return
-    }
-
-    console.log(`Generating payment links for ${products.length} products...`)
-
-    // Limit to 50 products to avoid timeout (can be adjusted)
-    const productsToProcess = products.slice(0, 50)
-    
-    if (products.length > 50) {
-      console.log(`⚠️ Warning: ${products.length} products found, processing first 50. Run again for remaining.`)
-    }
-
-    // Generate payment links for each product
-    for (const product of productsToProcess) {
-      try {
-        // Use discounted_price if active offer, otherwise use regular price
-        const finalPrice = product.has_active_offer && product.discounted_price 
-          ? product.discounted_price 
-          : product.price
-
-        const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/payments/create-link`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            organizationId: product.organization_id,
-            amount: Math.round(finalPrice * 100),
-            description: product.name
-          })
-        })
-
-        if (response.ok) {
-          const { paymentUrl } = await response.json()
-          
-          // Update product with payment link
-          await supabase
-            .from('products_list_tool')
-            .update({
-              payment_link_url: paymentUrl,
-              payment_provider_id: providerId
-            })
-            .eq('id', product.id)
-
-          console.log(`✅ Generated payment link for product: ${product.name}`)
-        } else {
-          const errorText = await response.text()
-          console.error(`Failed to generate payment link for product ${product.name}:`, errorText)
-        }
-      } catch (productError) {
-        console.error(`Error generating payment link for product ${product.id}:`, productError)
-      }
-    }
-
-    console.log('Finished generating payment links for existing products')
-  } catch (error) {
-    console.error('Error in generatePaymentLinksForExistingProducts:', error)
   }
 }
