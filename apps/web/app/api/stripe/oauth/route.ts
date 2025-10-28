@@ -48,12 +48,6 @@ export async function POST(request: NextRequest) {
     // Stripe OAuth configuration
     const clientId = process.env.STRIPE_CLIENT_ID
     
-    console.log('STRIPE_CLIENT_ID check:', {
-      exists: !!clientId,
-      length: clientId?.length,
-      prefix: clientId?.substring(0, 3)
-    })
-    
     if (!clientId) {
       return NextResponse.json({ 
         error: 'Stripe configuration missing',
