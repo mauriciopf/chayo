@@ -30,11 +30,11 @@ export async function createMercadoPagoPayment(
         unit_price: amountInDecimal,
         currency_id: provider.service_currency?.toUpperCase() || 'USD'
       }],
-      back_urls: {
-        success: `${process.env.NEXT_PUBLIC_APP_URL}/payment-success`,
-        failure: `${process.env.NEXT_PUBLIC_APP_URL}/payment-cancelled`,
-        pending: `${process.env.NEXT_PUBLIC_APP_URL}/payment-pending`
-      },
+    back_urls: {
+      success: `${process.env.NEXT_PUBLIC_APP_URL}/es/payment-success`,
+      failure: `${process.env.NEXT_PUBLIC_APP_URL}/es/payment-cancelled`,
+      pending: `${process.env.NEXT_PUBLIC_APP_URL}/es/payment-pending`
+    },
       auto_return: 'approved',
       external_reference: `${organization.id}_${Date.now()}`,
       notification_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/mercadopago`,

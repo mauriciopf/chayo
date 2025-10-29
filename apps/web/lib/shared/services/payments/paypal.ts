@@ -52,8 +52,8 @@ export async function createPayPalPayment(
         brand_name: organization.name,
         landing_page: 'NO_PREFERENCE', // or 'LOGIN', 'BILLING'
         user_action: 'PAY_NOW', // Shows "Pay Now" button instead of "Continue"
-        return_url: `${process.env.NEXT_PUBLIC_APP_URL}/payment-success`,
-        cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/payment-cancelled`
+        return_url: `${process.env.NEXT_PUBLIC_APP_URL}/es/payment-success`,
+        cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/es/payment-cancelled`
       }
     }
 

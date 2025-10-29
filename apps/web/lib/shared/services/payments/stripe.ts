@@ -105,8 +105,8 @@ export async function createStripePayment(
         provider.service_currency || 'usd',
         description || `Payment for ${organization.name}`,
         customerEmail,
-        `${process.env.NEXT_PUBLIC_APP_URL}/payment-success`,
-        `${process.env.NEXT_PUBLIC_APP_URL}/payment-cancelled`
+        `${process.env.NEXT_PUBLIC_APP_URL}/es/payment-success`,
+        `${process.env.NEXT_PUBLIC_APP_URL}/es/payment-cancelled`
       )
 
       paymentLinkUrl = checkoutSession.url
