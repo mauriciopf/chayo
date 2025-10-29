@@ -1,10 +1,18 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { CheckCircle, ArrowLeft, Receipt } from 'lucide-react'
 
 export default function PaymentSuccessPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Cargando...</div>}>
+      <PaymentSuccessContent />
+    </Suspense>
+  )
+}
+
+function PaymentSuccessContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const [countdown, setCountdown] = useState(10)

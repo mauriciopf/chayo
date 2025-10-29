@@ -1,10 +1,18 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { XCircle, ArrowLeft, HelpCircle } from 'lucide-react'
 
 export default function PaymentCancelledPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Cargando...</div>}>
+      <PaymentCancelledContent />
+    </Suspense>
+  )
+}
+
+function PaymentCancelledContent() {
   const searchParams = useSearchParams()
   const [countdown, setCountdown] = useState(10)
 
