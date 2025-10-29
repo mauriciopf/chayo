@@ -59,7 +59,8 @@ export async function regeneratePaymentLinksForProducts(productIds: string[]): P
               body: JSON.stringify({
                 organizationId: product.organization_id,
                 amount: Math.round(finalPrice * 100),
-                description: product.name
+                description: product.name,
+                paymentProviderId: product.payment_provider_id // Use the product's selected provider
               })
             })
 

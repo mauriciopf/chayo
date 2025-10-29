@@ -101,7 +101,8 @@ export async function PUT(
           body: JSON.stringify({
             organizationId: organizationId || current.organization_id,
             amount: Math.round(finalPrice * 100),
-            description: name
+            description: name,
+            paymentProviderId // Pass the selected provider ID
           })
         })
 

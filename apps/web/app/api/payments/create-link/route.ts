@@ -13,7 +13,8 @@ export async function POST(request: NextRequest) {
       amount, // For dynamic pricing only
       customerEmail,
       customerName,
-      description
+      description,
+      paymentProviderId // Optional: specific provider to use (otherwise uses default)
     } = await request.json()
 
     // Validate required fields
@@ -58,18 +59,42 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get default payment provider for this organization
-    const { data: paymentProvider, error: providerError } = await supabase
-      .from('payment_providers')
-      .select('*')
-      .eq('organization_id', organizationId)
-      .eq('is_active', true)
-      .eq('is_default', true)
-      .single()
+    // Get payment provider - use specific one if provided, otherwise use default
+    let paymentProvider
+    let providerError
+    
+    if (paymentProviderId) {
+      // Use the specific provider requested
+      const result = await supabase
+        .from('payment_providers')
+        .select('*')
+        .eq('id', paymentProviderId)
+        .eq('organization_id', organizationId)
+        .eq('is_active', true)
+        .single()
+      
+      paymentProvider = result.data
+      providerError = result.error
+    } else {
+      // Fall back to default provider
+      const result = await supabase
+        .from('payment_providers')
+        .select('*')
+        .eq('organization_id', organizationId)
+        .eq('is_active', true)
+        .eq('is_default', true)
+        .single()
+      
+      paymentProvider = result.data
+      providerError = result.error
+    }
 
     if (providerError || !paymentProvider) {
       return NextResponse.json(
-        { error: 'No payment provider configured for this organization' },
+        { error: paymentProviderId 
+          ? 'Selected payment provider not found or inactive' 
+          : 'No default payment provider configured for this organization' 
+        },
         { status: 400 }
       )
     }

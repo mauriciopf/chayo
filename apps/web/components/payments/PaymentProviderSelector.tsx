@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { CheckCircle, CreditCard, AlertCircle, ExternalLink, ChevronRight } from 'lucide-react'
+import { CheckCircle, CreditCard, AlertCircle, ExternalLink, ChevronRight, Edit2 } from 'lucide-react'
 
 interface PaymentProvider {
   id: string
@@ -140,28 +140,79 @@ export default function PaymentProviderSelector({
     )
   }
 
-  // Compact mode - dropdown style
+  // Compact mode - show connected state with edit button
   if (compact) {
+    // Find the selected provider or default
+    const selectedProvider = providers.find(p => p.id === selectedProviderId) || 
+                            providers.find(p => p.is_default) || 
+                            providers[0]
+
     return (
-      <div>
+      <div className="space-y-2">
         {showLabel && (
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
             Proveedor de Pago
           </label>
         )}
-        <select
-          value={selectedProviderId || ''}
-          onChange={(e) => onProviderSelected(e.target.value || null)}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+        
+        {/* Connected Provider Display */}
+        <div 
+          className="flex items-center justify-between p-3 rounded-lg border"
+          style={{ 
+            backgroundColor: 'var(--bg-secondary)',
+            borderColor: 'var(--border-secondary)'
+          }}
         >
-          <option value="">Sin proveedor</option>
-          {providers.map((provider) => (
-            <option key={provider.id} value={provider.id}>
-              {getProviderDisplayName(provider.provider_type)}
-              {provider.is_default && ' (Predeterminado)'}
-            </option>
-          ))}
-        </select>
+          <div className="flex items-center gap-3">
+            <div 
+              className="w-10 h-10 rounded-lg flex items-center justify-center text-xl"
+              style={{ backgroundColor: 'rgba(139, 92, 246, 0.1)' }}
+            >
+              {getProviderIcon(selectedProvider.provider_type)}
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+                  {getProviderDisplayName(selectedProvider.provider_type)}
+                </span>
+                <span 
+                  className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
+                  style={{ 
+                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                    color: '#16a34a'
+                  }}
+                >
+                  ✓ Conectado
+                </span>
+              </div>
+              {selectedProvider.is_default && (
+                <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                  Predeterminado
+                </span>
+              )}
+            </div>
+          </div>
+          
+          {/* Edit Button */}
+          <button
+            type="button"
+            onClick={onConfigureClick}
+            className="p-2 rounded-lg transition-all hover:scale-110"
+            style={{ 
+              backgroundColor: 'var(--bg-tertiary)',
+              color: 'var(--text-secondary)'
+            }}
+            title="Configurar proveedores de pago"
+          >
+            <Edit2 className="h-4 w-4" />
+          </button>
+        </div>
+        
+        {/* Helpful hint */}
+        <p className="text-xs flex items-start gap-1" style={{ color: 'var(--text-muted)' }}>
+          <AlertCircle className="h-3.5 w-3.5 flex-shrink-0 mt-0.5" />
+          <span>Haz clic en el lápiz para cambiar de proveedor</span>
+        </p>
       </div>
     )
   }

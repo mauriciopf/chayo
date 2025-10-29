@@ -95,7 +95,8 @@ export async function POST(request: NextRequest) {
           body: JSON.stringify({
             organizationId,
             amount: Math.round(finalPrice * 100),
-            description: name
+            description: name,
+            paymentProviderId // Pass the selected provider ID
           })
         })
 
