@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { X, Upload, DollarSign, Package, Image as ImageIcon, Calendar, CreditCard } from 'lucide-react'
+import { X, Upload, DollarSign, Package, Image as ImageIcon, Calendar, CreditCard, AlertCircle } from 'lucide-react'
 import PaymentProviderSelector from '@/components/payments/PaymentProviderSelector'
 import PaymentProviderConfigModal from '@/components/payments/PaymentProviderConfigModal'
 
@@ -37,6 +37,7 @@ export default function ProductForm({ organizationId, product, onSave, onCancel 
   const [uploading, setUploading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [showProviderConfigModal, setShowProviderConfigModal] = useState(false)
+  const [warningMessage, setWarningMessage] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleInputChange = (field: string, value: string | boolean | null) => {
@@ -95,6 +96,7 @@ export default function ProductForm({ organizationId, product, onSave, onCancel 
 
     try {
       setSaving(true)
+      setWarningMessage(null) // Clear previous warnings
 
       const productData = {
         organizationId,
@@ -118,10 +120,17 @@ export default function ProductForm({ organizationId, product, onSave, onCancel 
         body: JSON.stringify(productData)
       })
 
+      const data = await response.json()
+
       if (response.ok) {
+        // Check if there's a warning (e.g., Stripe account incomplete)
+        if (data.warning) {
+          setWarningMessage(data.warning)
+          // Don't close the form - let user see the warning
+          return
+        }
         onSave()
       } else {
-        const data = await response.json()
         console.error('Save failed:', data.error)
         alert('Error al guardar el producto')
       }
@@ -172,6 +181,56 @@ export default function ProductForm({ organizationId, product, onSave, onCancel 
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          {/* Stripe Warning Message */}
+          {warningMessage && (
+            <div 
+              className="p-4 rounded-lg border-l-4 flex gap-3"
+              style={{ 
+                backgroundColor: 'var(--bg-warning)',
+                borderColor: '#f59e0b',
+                borderLeftColor: '#f59e0b'
+              }}
+            >
+              <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" style={{ color: '#f59e0b' }} />
+              <div className="flex-1">
+                <p className="font-medium mb-1" style={{ color: 'var(--text-primary)' }}>
+                  Configuración de Stripe Incompleta
+                </p>
+                <p className="text-sm mb-3" style={{ color: 'var(--text-secondary)' }}>
+                  {warningMessage.includes('business name') 
+                    ? 'Tu cuenta de Stripe necesita completar información básica para generar enlaces de pago.'
+                    : warningMessage
+                  }
+                </p>
+                {warningMessage.includes('business name') && (
+                  <div className="text-sm space-y-2" style={{ color: 'var(--text-secondary)' }}>
+                    <p className="font-medium">Cómo solucionarlo:</p>
+                    <ol className="list-decimal list-inside space-y-1 pl-2">
+                      <li>Ve al Dashboard de Stripe: <a href="https://dashboard.stripe.com" target="_blank" rel="noopener noreferrer" className="underline hover:opacity-80" style={{ color: '#6366f1' }}>dashboard.stripe.com</a></li>
+                      <li>Navega a: <strong>Ajustes → Detalles del negocio</strong></li>
+                      <li>Completa: <strong>Nombre del negocio</strong> (y opcionalmente URL del sitio web)</li>
+                      <li>Guarda los cambios y vuelve a intentar</li>
+                    </ol>
+                  </div>
+                )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setWarningMessage(null)
+                    onSave() // Close and refresh
+                  }}
+                  className="mt-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                  style={{ 
+                    backgroundColor: '#f59e0b',
+                    color: 'white'
+                  }}
+                >
+                  Entendido, lo configuraré después
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Image Upload */}
           <div className="space-y-3">
             <label className="block text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
