@@ -199,6 +199,8 @@ export default function ProductForm({ organizationId, product, onSave, onCancel 
                 <p className="text-sm mb-3" style={{ color: 'var(--text-secondary)' }}>
                   {warningMessage.includes('business name') 
                     ? 'Tu cuenta de Stripe necesita completar información básica para generar enlaces de pago.'
+                    : warningMessage.includes('payment method')
+                    ? 'Tu cuenta de Stripe necesita activar métodos de pago compatibles con tu moneda.'
                     : warningMessage
                   }
                 </p>
@@ -209,6 +211,17 @@ export default function ProductForm({ organizationId, product, onSave, onCancel 
                       <li>Ve al Dashboard de Stripe: <a href="https://dashboard.stripe.com" target="_blank" rel="noopener noreferrer" className="underline hover:opacity-80" style={{ color: '#6366f1' }}>dashboard.stripe.com</a></li>
                       <li>Navega a: <strong>Ajustes → Detalles del negocio</strong></li>
                       <li>Completa: <strong>Nombre del negocio</strong> (y opcionalmente URL del sitio web)</li>
+                      <li>Guarda los cambios y vuelve a intentar</li>
+                    </ol>
+                  </div>
+                )}
+                {warningMessage.includes('payment method') && (
+                  <div className="text-sm space-y-2" style={{ color: 'var(--text-secondary)' }}>
+                    <p className="font-medium">Cómo solucionarlo:</p>
+                    <ol className="list-decimal list-inside space-y-1 pl-2">
+                      <li>Ve al Dashboard de Stripe: <a href="https://dashboard.stripe.com/settings/payment_methods" target="_blank" rel="noopener noreferrer" className="underline hover:opacity-80" style={{ color: '#6366f1' }}>dashboard.stripe.com/settings/payment_methods</a></li>
+                      <li>Navega a: <strong>Ajustes → Métodos de pago</strong></li>
+                      <li>Activa al menos un método de pago compatible con tu moneda (ej: tarjetas de crédito/débito)</li>
                       <li>Guarda los cambios y vuelve a intentar</li>
                     </ol>
                   </div>

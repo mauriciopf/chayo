@@ -130,14 +130,20 @@ export async function POST(request: NextRequest) {
           let errorMessage = 'Failed to generate payment link'
           try {
             const errorJson = JSON.parse(errorText)
-            if (errorJson.error?.includes('business name')) {
+            const errorContent = errorJson.error || ''
+            
+            if (errorContent.includes('business name')) {
               errorMessage = 'Stripe account setup incomplete: Please add a business name in your Stripe Dashboard under Settings > Business details'
+            } else if (errorContent.includes('payment method types') || errorContent.includes('payment_methods')) {
+              errorMessage = 'Stripe payment methods not configured: Please activate payment methods compatible with your currency in your Stripe Dashboard'
             } else {
               errorMessage = errorJson.error || errorMessage
             }
           } catch (e) {
             if (errorText.includes('business name')) {
               errorMessage = 'Stripe account setup incomplete: Please add a business name in your Stripe Dashboard'
+            } else if (errorText.includes('payment method types') || errorText.includes('payment_methods')) {
+              errorMessage = 'Stripe payment methods not configured: Please activate payment methods in your Stripe Dashboard'
             }
           }
           
