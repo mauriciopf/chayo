@@ -264,11 +264,15 @@ export function useAuth() {
       if (!isMounted) return
       
       console.log('🔄 handleAuthenticatedUser - Starting for user:', user.id)
+      
+      // CRITICAL: Set user and auth state IMMEDIATELY to unblock dashboard
+      // But keep loading TRUE while we fetch organization data
       setUser(user)
       setAuthState('authenticated')
       setLoading(true)
       
       try {
+        // Fetch all related data
         await Promise.allSettled([
           ensureUserHasOrganization(user),
           fetchAgents(),
@@ -276,12 +280,15 @@ export function useAuth() {
           fetchCurrentOrganization(user.id)
         ])
 
+        // Data fetching complete
+        if (isMounted) {
+          setLoading(false)
+          console.log('✅ handleAuthenticatedUser - Complete, organization data loaded')
+        }
       } catch (error) {
         console.error('Error handling authenticated user:', error)
-      } finally {
-        // Always set loading to false, regardless of success or failure
+        // Even on error, stop loading
         if (isMounted) {
-          console.log('✅ handleAuthenticatedUser - Complete, setting loading to false')
           setLoading(false)
         }
       }

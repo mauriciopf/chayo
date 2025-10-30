@@ -46,8 +46,9 @@ export function useDashboardInit(
       setInitialMessage(null)
       setShouldShowAuthPrompt(false)
       
-      // Only initialize if user is authenticated, present, and auth loading is complete
-      if (authState === 'authenticated' && user && !authLoading) {
+      // Only initialize if user is authenticated and present
+      // Note: We don't wait for auth.loading because dashboardInitService fetches its own data
+      if (authState === 'authenticated' && user) {
         console.log('✅ All conditions met - proceeding with dashboard initialization')
         const data = await dashboardInitService.initializeDashboard(locale)
         setInitData(data)
@@ -125,7 +126,7 @@ export function useDashboardInit(
         }
         console.log('✅ Dashboard initialization complete')
         setIsLoading(false)
-      } else if (authState !== 'loading' && !user && !authLoading) {
+      } else if (authState !== 'loading' && !user) {
         console.log('🔐 User not authenticated, showing auth prompt')
         // Only show auth prompt if not loading and no user
         setShouldShowAuthPrompt(true)
@@ -136,8 +137,7 @@ export function useDashboardInit(
       } else {
         console.log('⏳ Conditions not met for initialization:', { 
           authState, 
-          hasUser: !!user, 
-          authLoading 
+          hasUser: !!user
         })
         // Still loading
         setIsLoading(true)
@@ -151,7 +151,7 @@ export function useDashboardInit(
 
   useEffect(() => {
     initializeDashboard()
-  }, [locale, authState, user, authLoading])
+  }, [locale, authState, user]) // Removed authLoading dependency
 
   const retryInit = () => {
     initializeDashboard()
