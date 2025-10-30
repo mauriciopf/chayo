@@ -95,6 +95,13 @@ export async function PUT(
           ? current.discounted_price
           : price
 
+        console.log('🔗 Generating payment link:', {
+          productId: id,
+          finalPrice,
+          paymentProviderId,
+          organizationId: organizationId || current.organization_id
+        })
+
         const linkRes = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/payments/create-link`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -109,6 +116,8 @@ export async function PUT(
 
         if (linkRes.ok) {
           const { paymentUrl, transaction } = await linkRes.json()
+          console.log('✅ Payment link created:', paymentUrl)
+          
           const { data: updated } = await supabase
             .from('products_list_tool')
             .update({ 
@@ -122,12 +131,37 @@ export async function PUT(
           return NextResponse.json({ product: updated || product })
         } else {
           const errorText = await linkRes.text()
-          console.error('Failed to regenerate payment link:', errorText)
-          // Return product anyway, link can be generated later
+          console.error('❌ Failed to generate payment link:', errorText)
+          
+          // Parse error for better user feedback
+          let errorMessage = 'Failed to generate payment link'
+          try {
+            const errorJson = JSON.parse(errorText)
+            if (errorJson.error?.includes('business name')) {
+              errorMessage = 'Stripe account setup incomplete: Please add a business name in your Stripe Dashboard under Settings > Business details'
+            } else {
+              errorMessage = errorJson.error || errorMessage
+            }
+          } catch (e) {
+            // Use raw error text if not JSON
+            if (errorText.includes('business name')) {
+              errorMessage = 'Stripe account setup incomplete: Please add a business name in your Stripe Dashboard'
+            }
+          }
+          
+          // Return product with error message
+          return NextResponse.json({ 
+            product,
+            warning: errorMessage 
+          })
         }
       } catch (linkError) {
-        console.error('Failed to regenerate payment link:', linkError)
+        console.error('❌ Exception generating payment link:', linkError)
         // Return product anyway, link can be generated later
+        return NextResponse.json({ 
+          product,
+          warning: 'Failed to generate payment link. Please try again.' 
+        })
       }
     }
 
