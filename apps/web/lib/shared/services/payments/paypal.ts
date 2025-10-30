@@ -8,13 +8,17 @@ import { PaymentProvider, Organization, PaymentResult, calculatePaymentAmount, P
 
 /**
  * Main PayPal payment creation function
+ * 
+ * Note: PayPal Orders are temporary (not reusable like Stripe Payment Links)
+ * Each order generates a unique approval URL that expires after use
  */
 export async function createPayPalPayment(
   provider: PaymentProvider,
   amount: number,
   description: string,
   customerEmail: string,
-  organization: Organization
+  organization: Organization,
+  oldPaymentLinkId?: string // Not applicable for PayPal - orders are recreated each time
 ): Promise<PaymentResult> {
   try {
     const baseUrl = provider.provider_settings?.base_url || 'https://api-m.sandbox.paypal.com'
@@ -39,7 +43,7 @@ export async function createPayPalPayment(
           }
         },
         items: [{
-          name: description || provider.service_name || 'Payment',
+          name: description || 'Payment',
           description: `Payment for ${organization.name}`,
           quantity: '1',
           unit_amount: {
@@ -83,8 +87,7 @@ export async function createPayPalPayment(
     }
 
     const transactionData = {
-      provider_transaction_id: order.id,
-      payment_type: provider.payment_type,
+      payment_link_id: order.id, // PayPal Order ID (used for tracking, not deactivation)
       order_id: order.id,
       status: order.status // Usually "CREATED"
     }

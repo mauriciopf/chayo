@@ -19,7 +19,7 @@ export async function PUT(
     // Get current state to detect changes
     const { data: current } = await supabase
       .from('products_list_tool')
-      .select('price, payment_enabled, payment_link_url, payment_provider_id, organization_id, discounted_price, has_active_offer')
+      .select('price, payment_enabled, payment_link_url, payment_link_id, payment_provider_id, organization_id, discounted_price, has_active_offer')
       .eq('id', id)
       .single()
 
@@ -100,17 +100,21 @@ export async function PUT(
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             organizationId: organizationId || current.organization_id,
-            amount: Math.round(finalPrice * 100),
+            amount: finalPrice, // Send in dollars, will be converted to cents by calculatePaymentAmount
             description: name,
-            paymentProviderId // Pass the selected provider ID
+            paymentProviderId, // Pass the selected provider ID
+            oldPaymentLinkId: current.payment_link_id // Pass old link ID for deactivation
           })
         })
 
         if (linkRes.ok) {
-          const { paymentUrl } = await linkRes.json()
+          const { paymentUrl, transaction } = await linkRes.json()
           const { data: updated } = await supabase
             .from('products_list_tool')
-            .update({ payment_link_url: paymentUrl })
+            .update({ 
+              payment_link_url: paymentUrl,
+              payment_link_id: transaction?.payment_link_id || null // Store new payment_link_id
+            })
             .eq('id', id)
             .select()
             .single()

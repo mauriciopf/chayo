@@ -64,29 +64,3 @@ export function sanitizeInput(input: string): string {
     .slice(0, 1000) // Limit length
 }
 
-/**
- * Calculates payment amount based on payment type
- * @param provider - Payment provider configuration
- * @param amount - Amount for dynamic pricing (in cents)
- * @returns Payment amount in cents
- * @throws Error if configuration is invalid
- */
-export function calculatePaymentAmount(
-  provider: { payment_type: string; service_amount?: number },
-  amount?: number
-): number {
-  if (provider.payment_type === 'dynamic') {
-    if (!amount || !isValidAmount(amount)) {
-      throw new Error('Valid amount is required for dynamic pricing')
-    }
-    return Math.round(amount)
-  } else if (provider.payment_type === 'manual_price_id' || provider.payment_type === 'custom_ui') {
-    if (!provider.service_amount || !isValidAmount(provider.service_amount)) {
-      throw new Error('Service amount is required for fixed pricing')
-    }
-    return provider.service_amount
-  } else {
-    throw new Error('Invalid payment type configuration')
-  }
-}
-

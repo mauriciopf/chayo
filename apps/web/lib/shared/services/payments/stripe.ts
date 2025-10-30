@@ -1,156 +1,175 @@
 /**
  * Stripe Payment Provider
- * Handles Stripe Checkout Session and Payment Link creation
+ * Uses Stripe Payment Links for permanent, reusable payment URLs
+ * When price changes, old links are deactivated and new ones created
  */
 
 import { PaymentProvider, Organization, PaymentResult, calculatePaymentAmount, PaymentProviderError } from './types'
 
 /**
- * Create Stripe Checkout Session (for dynamic pricing)
+ * Deactivate an existing Stripe Payment Link
+ * (Stripe doesn't support deletion, so we deactivate instead)
  */
-async function createStripeCheckoutSession(
+async function deactivateStripePaymentLink(
+  accessToken: string,
+  paymentLinkId: string
+) {
+  try {
+    const response = await fetch(`https://api.stripe.com/v1/payment_links/${paymentLinkId}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: new URLSearchParams({
+        active: 'false'
+      })
+    })
+
+    if (!response.ok) {
+      console.error('Failed to deactivate Stripe payment link:', paymentLinkId)
+      // Don't throw - continue with creating new link even if deactivation fails
+    }
+  } catch (error) {
+    console.error('Error deactivating payment link:', error)
+    // Don't throw - continue with creating new link
+  }
+}
+
+/**
+ * Create Stripe Payment Link
+ * Creates: Product → Price → Payment Link (all reusable)
+ * Docs: https://stripe.com/docs/api/payment_links
+ */
+async function createStripePaymentLink(
   accessToken: string,
   amount: number,
   currency: string,
   description: string,
-  customerEmail?: string,
-  successUrl?: string,
-  cancelUrl?: string
+  successUrl: string,
+  cancelUrl: string
 ) {
-  const params: any = {
-    payment_method_types: ['card'],
-    line_items: [{
-      price_data: {
-        currency,
-        product_data: {
-          name: description
-        },
-        unit_amount: amount
-      },
-      quantity: 1
-    }],
-    mode: 'payment',
-    success_url: successUrl || `${process.env.NEXT_PUBLIC_APP_URL}/payment-success`,
-    cancel_url: cancelUrl || `${process.env.NEXT_PUBLIC_APP_URL}/payment-cancelled`
-  }
-
-  if (customerEmail) {
-    params.customer_email = customerEmail
-  }
-
-  const response = await fetch('https://api.stripe.com/v1/checkout/sessions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${accessToken}`,
-      'Content-Type': 'application/x-www-form-urlencoded'
-    },
-    body: new URLSearchParams(params)
-  })
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: { message: 'Unknown error' } }))
-    throw new PaymentProviderError('stripe', error, `Failed to create Stripe checkout session: ${error.error?.message || 'Unknown error'}`)
-  }
-
-  return await response.json()
-}
-
-/**
- * Create Stripe Payment Link (for fixed prices)
- */
-async function createStripePaymentLink(
-  accessToken: string,
-  priceId: string
-) {
-  const response = await fetch('https://api.stripe.com/v1/payment_links', {
+  // Step 1: Create a Product (represents the item being sold)
+  const productResponse = await fetch('https://api.stripe.com/v1/products', {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${accessToken}`,
       'Content-Type': 'application/x-www-form-urlencoded'
     },
     body: new URLSearchParams({
-      'line_items[0][price]': priceId,
-      'line_items[0][quantity]': '1'
+      name: description,
+      description: description
     })
   })
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: { message: 'Unknown error' } }))
+  if (!productResponse.ok) {
+    const error = await productResponse.json().catch(() => ({ error: { message: 'Unknown error' } }))
+    throw new PaymentProviderError('stripe', error, `Failed to create Stripe product: ${error.error?.message || 'Unknown error'}`)
+  }
+
+  const product = await productResponse.json()
+
+  // Step 2: Create a Price (the cost for this product)
+  const priceResponse = await fetch('https://api.stripe.com/v1/prices', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: new URLSearchParams({
+      product: product.id,
+      unit_amount: amount.toString(),
+      currency: currency.toLowerCase(),
+      nickname: `${description} - ${(amount / 100).toFixed(2)} ${currency.toUpperCase()}`
+    })
+  })
+
+  if (!priceResponse.ok) {
+    const error = await priceResponse.json().catch(() => ({ error: { message: 'Unknown error' } }))
+    throw new PaymentProviderError('stripe', error, `Failed to create Stripe price: ${error.error?.message || 'Unknown error'}`)
+  }
+
+  const price = await priceResponse.json()
+
+  // Step 3: Create Payment Link (permanent, shareable URL)
+  const paymentLinkParams = new URLSearchParams({
+    'line_items[0][price]': price.id,
+    'line_items[0][quantity]': '1'
+  })
+
+  // Add success redirect if provided
+  if (successUrl) {
+    paymentLinkParams.append('after_completion[type]', 'redirect')
+    paymentLinkParams.append('after_completion[redirect][url]', successUrl)
+  }
+
+  const paymentLinkResponse = await fetch('https://api.stripe.com/v1/payment_links', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: paymentLinkParams
+  })
+
+  if (!paymentLinkResponse.ok) {
+    const error = await paymentLinkResponse.json().catch(() => ({ error: { message: 'Unknown error' } }))
     throw new PaymentProviderError('stripe', error, `Failed to create Stripe payment link: ${error.error?.message || 'Unknown error'}`)
   }
 
-  return await response.json()
+  const paymentLink = await paymentLinkResponse.json()
+
+  return {
+    url: paymentLink.url, // https://buy.stripe.com/...
+    paymentLinkId: paymentLink.id,
+    priceId: price.id,
+    productId: product.id
+  }
 }
 
 /**
  * Main Stripe payment creation function
+ * Creates permanent Payment Links for product payments
+ * 
+ * If oldPaymentLinkId is provided, it will be deactivated before creating new link
+ * This happens when price changes or offers are activated/deactivated
  */
 export async function createStripePayment(
   provider: PaymentProvider,
   amount: number,
   description: string,
   customerEmail: string,
-  organization: Organization
+  organization: Organization,
+  oldPaymentLinkId?: string
 ): Promise<PaymentResult> {
   try {
     const paymentAmount = calculatePaymentAmount(provider, amount)
 
-    let paymentLinkUrl: string
-    let transactionData: any
-
-    if (provider.payment_type === 'dynamic') {
-      const checkoutSession = await createStripeCheckoutSession(
-        provider.access_token,
-        paymentAmount,
-        provider.service_currency || 'usd',
-        description || `Payment for ${organization.name}`,
-        customerEmail,
-        `${process.env.NEXT_PUBLIC_APP_URL}/es/payment-success`,
-        `${process.env.NEXT_PUBLIC_APP_URL}/es/payment-cancelled`
-      )
-
-      paymentLinkUrl = checkoutSession.url
-      transactionData = {
-        checkout_session_id: checkoutSession.id,
-        payment_type: 'dynamic'
-      }
-
-    } else if (provider.payment_type === 'manual_price_id') {
-      if (!provider.price_id) {
-        throw new Error('Price ID not configured')
-      }
-
-      const paymentLink = await createStripePaymentLink(
-        provider.access_token,
-        provider.price_id
-      )
-
-      paymentLinkUrl = paymentLink.url
-      transactionData = {
-        payment_link_id: paymentLink.id,
-        payment_type: 'manual_price_id'
-      }
-
-    } else if (provider.payment_type === 'custom_ui') {
-      if (!provider.default_price_id) {
-        throw new Error('Default price not configured')
-      }
-
-      const paymentLink = await createStripePaymentLink(
-        provider.access_token,
-        provider.default_price_id
-      )
-
-      paymentLinkUrl = paymentLink.url
-      transactionData = {
-        payment_link_id: paymentLink.id,
-        payment_type: 'custom_ui'
-      }
-    } else {
-      throw new Error(`Invalid payment type configuration: ${provider.payment_type}`)
+    // If there's an old payment link, deactivate it first
+    if (oldPaymentLinkId) {
+      console.log(`Deactivating old Stripe payment link: ${oldPaymentLinkId}`)
+      await deactivateStripePaymentLink(provider.access_token, oldPaymentLinkId)
     }
 
-    return { url: paymentLinkUrl, amount: paymentAmount, transactionData }
+    // Create new permanent Stripe Payment Link
+    const result = await createStripePaymentLink(
+      provider.access_token,
+      paymentAmount,
+      provider.service_currency || 'usd',
+      description || `Payment for ${organization.name}`,
+      `${process.env.NEXT_PUBLIC_APP_URL}/es/payment-success`,
+      `${process.env.NEXT_PUBLIC_APP_URL}/es/payment-cancelled`
+    )
+
+    return { 
+      url: result.url, 
+      amount: paymentAmount, 
+      transactionData: {
+        payment_link_id: result.paymentLinkId,
+        price_id: result.priceId,
+        product_id: result.productId
+      }
+    }
   } catch (error) {
     if (error instanceof PaymentProviderError) {
       throw error

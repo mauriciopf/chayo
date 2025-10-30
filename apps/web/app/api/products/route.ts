@@ -94,17 +94,20 @@ export async function POST(request: NextRequest) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             organizationId,
-            amount: Math.round(finalPrice * 100),
+            amount: finalPrice, // Send in dollars, will be converted to cents by calculatePaymentAmount
             description: name,
             paymentProviderId // Pass the selected provider ID
           })
         })
 
         if (linkRes.ok) {
-          const { paymentUrl } = await linkRes.json()
+          const { paymentUrl, transaction } = await linkRes.json()
           const { data: updated } = await supabase
             .from('products_list_tool')
-            .update({ payment_link_url: paymentUrl })
+            .update({ 
+              payment_link_url: paymentUrl,
+              payment_link_id: transaction?.payment_link_id || null // Store for future deactivation
+            })
             .eq('id', product.id)
             .select()
             .single()

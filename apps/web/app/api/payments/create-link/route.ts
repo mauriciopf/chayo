@@ -14,7 +14,8 @@ export async function POST(request: NextRequest) {
       customerEmail,
       customerName,
       description,
-      paymentProviderId // Optional: specific provider to use (otherwise uses default)
+      paymentProviderId, // Optional: specific provider to use (otherwise uses default)
+      oldPaymentLinkId // Optional: old payment link ID to deactivate before creating new one
     } = await request.json()
 
     // Validate required fields
@@ -105,17 +106,17 @@ export async function POST(request: NextRequest) {
 
     // Handle different payment providers
     if (paymentProvider.provider_type === 'stripe') {
-      const result = await createStripePayment(paymentProvider, amount, sanitizedDescription, customerEmail, organization)
+      const result = await createStripePayment(paymentProvider, amount, sanitizedDescription, customerEmail, organization, oldPaymentLinkId)
       paymentLinkUrl = result.url
       paymentAmount = result.amount
       transactionData = result.transactionData
     } else if (paymentProvider.provider_type === 'paypal') {
-      const result = await createPayPalPayment(paymentProvider, amount, sanitizedDescription, customerEmail, organization)
+      const result = await createPayPalPayment(paymentProvider, amount, sanitizedDescription, customerEmail, organization, oldPaymentLinkId)
       paymentLinkUrl = result.url
       paymentAmount = result.amount
       transactionData = result.transactionData
     } else if (paymentProvider.provider_type === 'mercadopago') {
-      const result = await createMercadoPagoPayment(paymentProvider, amount, sanitizedDescription, customerEmail, organization)
+      const result = await createMercadoPagoPayment(paymentProvider, amount, sanitizedDescription, customerEmail, organization, oldPaymentLinkId)
       paymentLinkUrl = result.url
       paymentAmount = result.amount
       transactionData = result.transactionData

@@ -129,7 +129,6 @@ export async function GET(request: NextRequest) {
           refresh_token,
           token_expires_at: tokenExpiresAt,
           provider_settings: { public_key },
-          payment_type: 'manual_price_id',
           is_active: true,
           is_default: false
         })

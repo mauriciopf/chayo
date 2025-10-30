@@ -18,7 +18,7 @@ export async function regeneratePaymentLinksForProducts(productIds: string[]): P
     // Get products with their current prices and payment provider
     const { data: products, error: productsError } = await supabase
       .from('products_list_tool')
-      .select('id, name, price, discounted_price, has_active_offer, organization_id, payment_provider_id, payment_link_url')
+      .select('id, name, price, discounted_price, has_active_offer, organization_id, payment_provider_id, payment_link_url, payment_link_id')
       .in('id', productIds)
 
     if (productsError || !products) {
@@ -58,19 +58,23 @@ export async function regeneratePaymentLinksForProducts(productIds: string[]): P
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 organizationId: product.organization_id,
-                amount: Math.round(finalPrice * 100),
+                amount: finalPrice, // Send in dollars, will be converted to cents by calculatePaymentAmount
                 description: product.name,
-                paymentProviderId: product.payment_provider_id // Use the product's selected provider
+                paymentProviderId: product.payment_provider_id, // Use the product's selected provider
+                oldPaymentLinkId: product.payment_link_id // Pass old link ID for deactivation
               })
             })
 
             if (response.ok) {
-              const { paymentUrl } = await response.json()
+              const { paymentUrl, transaction } = await response.json()
 
               // Update product with new payment link
               await supabase
                 .from('products_list_tool')
-                .update({ payment_link_url: paymentUrl })
+                .update({ 
+                  payment_link_url: paymentUrl,
+                  payment_link_id: transaction?.payment_link_id || null // Store new payment_link_id
+                })
                 .eq('id', product.id)
 
               updatedCount++

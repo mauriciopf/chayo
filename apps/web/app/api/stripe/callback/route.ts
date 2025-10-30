@@ -138,7 +138,6 @@ export async function GET(request: NextRequest) {
             livemode: tokenData.livemode || false,
             stripe_publishable_key: tokenData.stripe_publishable_key || null
           },
-          payment_type: 'manual_price_id',
           is_active: true,
           is_default: isFirstProvider // Make default if first provider
         })

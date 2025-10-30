@@ -129,7 +129,6 @@ export async function GET(request: NextRequest) {
         app_id: tokenData.app_id,
         nonce: tokenData.nonce
       },
-      payment_type: 'manual_price_id',
       is_active: true,
       is_default: false
     }

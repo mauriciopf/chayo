@@ -7,13 +7,17 @@ import { PaymentProvider, Organization, PaymentResult, calculatePaymentAmount, P
 
 /**
  * Main Mercado Pago payment creation function
+ * 
+ * Note: Mercado Pago Preferences are temporary (not reusable like Stripe Payment Links)
+ * Each preference generates a unique init_point URL that expires after use
  */
 export async function createMercadoPagoPayment(
   provider: PaymentProvider,
   amount: number,
   description: string,
   customerEmail: string,
-  organization: Organization
+  organization: Organization,
+  oldPaymentLinkId?: string // Not applicable for Mercado Pago - preferences are recreated each time
 ): Promise<PaymentResult> {
   try {
     const baseUrl = provider.provider_settings?.base_url || 'https://api.mercadopago.com'
@@ -25,7 +29,7 @@ export async function createMercadoPagoPayment(
     // Create Mercado Pago Preference (payment link)
     const preferenceData = {
       items: [{
-        title: provider.service_name || description || `Payment for ${organization.name}`,
+        title: description || `Payment for ${organization.name}`,
         quantity: 1,
         unit_price: amountInDecimal,
         currency_id: provider.service_currency?.toUpperCase() || 'USD'
@@ -66,8 +70,7 @@ export async function createMercadoPagoPayment(
     const paymentLinkUrl = preference.init_point
 
     const transactionData = {
-      provider_transaction_id: preference.id,
-      payment_type: provider.payment_type,
+      payment_link_id: preference.id, // Mercado Pago Preference ID (used for tracking, not deactivation)
       preference_id: preference.id
     }
 
