@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import QRCode from 'qrcode'
+import WhatsAppSetupModal from '@/components/whatsapp/WhatsAppSetupModal'
 
 interface QuickLink {
   id: string
@@ -29,10 +30,25 @@ export default function QuickLinksManager({ organizationSlug, organizationId }: 
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('')
   const [copied, setCopied] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [showWhatsAppModal, setShowWhatsAppModal] = useState(false)
+  const [whatsAppConnected, setWhatsAppConnected] = useState(false)
 
   useEffect(() => {
     loadLinks()
+    checkWhatsAppConnection()
   }, [organizationId])
+
+  const checkWhatsAppConnection = async () => {
+    try {
+      const response = await fetch(`/api/whatsapp/status?organizationId=${organizationId}`)
+      if (response.ok) {
+        const data = await response.json()
+        setWhatsAppConnected(data.connected)
+      }
+    } catch (error) {
+      console.error('Error checking WhatsApp connection:', error)
+    }
+  }
 
   const loadLinks = async () => {
     try {
@@ -107,18 +123,11 @@ export default function QuickLinksManager({ organizationSlug, organizationId }: 
     }
   }
 
-  const handleSMS = (link: string) => {
-    const message = encodeURIComponent(`Hola! 👋 Aquí está el link: ${link}`)
-    window.open(`sms:?body=${message}`, '_blank')
-  }
-
-  const handleEmail = (link: string, name: string) => {
-    const subject = encodeURIComponent(`Link: ${name}`)
-    const body = encodeURIComponent(`Hola! 👋\n\nAquí está el link que te prometí:\n\n${link}\n\n¡Saludos!`)
-    window.open(`mailto:?subject=${subject}&body=${body}`, '_blank')
-  }
-
   const handleWhatsApp = (link: string) => {
+    if (!whatsAppConnected) {
+      setShowWhatsAppModal(true)
+      return
+    }
     const message = encodeURIComponent(`Hola! 👋 Aquí está el link: ${link}`)
     window.open(`https://wa.me/?text=${message}`, '_blank')
   }
@@ -242,7 +251,7 @@ export default function QuickLinksManager({ organizationSlug, organizationId }: 
                       </div>
 
                       {/* Quick Share Buttons */}
-                      <div className="grid grid-cols-4 gap-2">
+                      <div className="grid grid-cols-2 gap-2">
                         <button
                           onClick={(e) => {
                             e.stopPropagation()
@@ -256,34 +265,6 @@ export default function QuickLinksManager({ organizationSlug, organizationId }: 
                           title="Copiar"
                         >
                           <span>{copied ? '✓' : '📋'}</span>
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleSMS(link.full_url)
-                          }}
-                          className="flex items-center justify-center gap-1 px-3 py-2 rounded-md text-sm border transition-all hover:scale-105"
-                          style={{
-                            borderColor: 'var(--border-primary)',
-                            color: 'var(--text-primary)',
-                          }}
-                          title="SMS"
-                        >
-                          <span>📱</span>
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleEmail(link.full_url, link.content_name || '')
-                          }}
-                          className="flex items-center justify-center gap-1 px-3 py-2 rounded-md text-sm border transition-all hover:scale-105"
-                          style={{
-                            borderColor: 'var(--border-primary)',
-                            color: 'var(--text-primary)',
-                          }}
-                          title="Email"
-                        >
-                          <span>📧</span>
                         </button>
                         <button
                           onClick={(e) => {
@@ -342,6 +323,17 @@ export default function QuickLinksManager({ organizationSlug, organizationId }: 
       )}
 
       {/* Removed: Quick Action Modal - links are auto-generated, not manually created */}
+
+      {/* WhatsApp Setup Modal */}
+      <WhatsAppSetupModal
+        isOpen={showWhatsAppModal}
+        onClose={() => setShowWhatsAppModal(false)}
+        organizationId={organizationId}
+        onSuccess={() => {
+          setWhatsAppConnected(true)
+          setShowWhatsAppModal(false)
+        }}
+      />
 
       {/* View Link Modal */}
       {selectedLink && (

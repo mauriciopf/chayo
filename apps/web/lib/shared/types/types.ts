@@ -57,4 +57,4 @@ export interface Organization {
 
 export type AuthState = 'loading' | 'authenticated' | 'awaitingName' | 'awaitingEmail' | 'awaitingOTP'
 export type OtpLoadingState = 'none' | 'sending' | 'verifying'
-export type ActiveView = 'dashboard' | 'chat' | 'agents' | 'performance' | 'users' | 'profile' | 'qrcode' | 'business-summary' | 'customer-support' | 'reservations' | 'reminders' 
+export type ActiveView = 'dashboard' | 'chat' | 'agents' | 'performance' | 'users' | 'profile' | 'business-summary' | 'customer-support' | 'reservations' | 'reminders' 

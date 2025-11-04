@@ -17,7 +17,6 @@ import { useLogout } from '@/lib/features/auth/hooks/useLogout'
 import { useOnboardingCompletion } from '@/lib/features/onboarding/hooks/useOnboardingCompletion'
 
 import ChatContainer from '@/lib/features/chat/components/ChatContainer'
-import ClientQRCode from '@/lib/features/chat/components/ClientQRCode'
 import AgentsView from '@/lib/features/dashboard/components/agents/AgentsView'
 import RemindersToolMain from '@/lib/features/tools/reminders/components/RemindersToolMain'
 import DashboardCardGrid from '@/lib/features/dashboard/components/DashboardCardGrid'
@@ -456,19 +455,6 @@ function DashboardContent() {
               organization={auth.currentOrganization}
               locale={locale}
             />
-          </div>
-        )
-      case 'qrcode':
-        return auth.currentOrganization ? (
-          <div className="w-full max-w-4xl mx-auto">
-            <ClientQRCode 
-              organizationSlug={auth.currentOrganization.slug}
-              isOnboardingCompleted={isOnboardingCompleted}
-            />
-          </div>
-        ) : (
-          <div className="text-center py-8">
-            <p className="text-gray-500">No business available. Please go to Business Summary to set up your business.</p>
           </div>
         )
       case 'agents':
