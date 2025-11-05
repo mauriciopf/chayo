@@ -3,7 +3,6 @@ import MobileHeader from '../../dashboard/components/navigation/MobileHeader'
 import MobileNavigation from '../../dashboard/components/navigation/MobileNavigation'
 import SubscriptionPlans from '../../dashboard/components/overview/SubscriptionPlans'
 import ManageDocumentsModal from '../../tools/documents/components/ManageDocumentsModal'
-import ClientQRCode from '../../chat/components/ClientQRCode'
 import React from 'react'
 
 export default function AuthPromptView({
