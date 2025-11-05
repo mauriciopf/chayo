@@ -7,7 +7,7 @@ interface WhatsAppSetupModalProps {
   isOpen: boolean
   onClose: () => void
   organizationId: string
-  onSuccess?: () => void
+  onSuccess?: (data: { wabaId: string; phoneNumberId: string }) => void
 }
 
 export default function WhatsAppSetupModal({
@@ -17,6 +17,16 @@ export default function WhatsAppSetupModal({
   onSuccess
 }: WhatsAppSetupModalProps) {
   if (!isOpen) return null
+
+  const handleSuccess = async (data: { wabaId: string; phoneNumberId: string }) => {
+    console.log('WhatsApp connected successfully:', data)
+    
+    // Template will be created by webhook (PARTNER_APP_INSTALLED)
+    // Status will be PENDING for ~24 hours
+    // User will be redirected to fallback modal (wa.me link)
+    
+    onSuccess?.(data)
+  }
 
   return (
     <div
@@ -57,10 +67,7 @@ export default function WhatsAppSetupModal({
 
           <WhatsAppEmbeddedSignup
             organizationId={organizationId}
-            onSuccess={(data) => {
-              console.log('WhatsApp connected successfully:', data)
-              onSuccess?.()
-            }}
+            onSuccess={handleSuccess}
             onError={(error) => {
               console.error('WhatsApp connection error:', error)
             }}
@@ -70,4 +77,3 @@ export default function WhatsAppSetupModal({
     </div>
   )
 }
-

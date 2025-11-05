@@ -16,6 +16,7 @@ interface ToolCard {
 interface DashboardCardGridProps {
   onCardClick: (category: string) => void
   onStartTutorial: () => void
+  onWhatsAppShare: (toolLink: string, toolName: string) => void
   enabledTools: {
     products: boolean
     payments: boolean
@@ -30,6 +31,7 @@ interface DashboardCardGridProps {
 export default function DashboardCardGrid({
   onCardClick,
   onStartTutorial,
+  onWhatsAppShare,
   enabledTools,
   isOnboardingComplete,
   organizationSlug,
@@ -130,8 +132,9 @@ export default function DashboardCardGrid({
     if (!card.linkSlug) return
     
     const link = `https://chayo.onelink.me/SB63?deep_link_value=${organizationSlug}&deep_link_sub1=${card.linkSlug}`
-    const message = encodeURIComponent(`Hola! 👋 Mira esto: ${link}`)
-    window.open(`https://wa.me/?text=${message}`, '_blank')
+    
+    // Notify parent to open WhatsApp flow
+    onWhatsAppShare(link, card.title)
   }
 
   const generateShortLink = (linkSlug?: string) => {
@@ -148,7 +151,6 @@ export default function DashboardCardGrid({
 
   return (
     <div className="h-full w-full overflow-auto bg-gray-50 p-8">
-      <div className="w-full">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -329,7 +331,6 @@ export default function DashboardCardGrid({
             </p>
           </motion.div>
         )}
-      </div>
     </div>
   )
 }

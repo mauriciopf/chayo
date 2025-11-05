@@ -40,6 +40,7 @@ import SimpleInsightsDashboard from '@/lib/features/insights/components/SimpleIn
 import TeamManagement from '@/lib/features/organizations/components/TeamManagement'
 import ProfileSettings from '@/lib/features/dashboard/components/agents/ProfileSettings'
 import MainDashboardLayout from '@/lib/features/dashboard/components/layout/MainDashboardLayout'
+import WhatsAppFlowOrchestrator from '@/components/whatsapp/WhatsAppFlowOrchestrator'
 
 
 
@@ -156,6 +157,12 @@ function DashboardContent() {
   const [showHamburgerMenu, setShowHamburgerMenu] = useState(false)
   const [hasReminders, setHasReminders] = useState(false)
   const [showTutorial, setShowTutorial] = useState(false)
+  
+  // WhatsApp flow state
+  const [whatsAppFlowOpen, setWhatsAppFlowOpen] = useState(false)
+  const [whatsAppLink, setWhatsAppLink] = useState('')
+  const [whatsAppToolName, setWhatsAppToolName] = useState('')
+  
   const [agentToolsSettings, setAgentToolsSettings] = useState<{
     products: boolean
     payments: boolean
@@ -410,6 +417,11 @@ function DashboardContent() {
             onStartTutorial={() => {
               setShowTutorial(true)
             }}
+            onWhatsAppShare={(link, toolName) => {
+              setWhatsAppLink(link)
+              setWhatsAppToolName(toolName)
+              setWhatsAppFlowOpen(true)
+            }}
             enabledTools={agentToolsSettings}
             isOnboardingComplete={isOnboardingCompleted}
             organizationSlug={dashboardInit.initData?.business?.slug || ''}
@@ -568,6 +580,21 @@ function DashboardContent() {
         isOpen={showTutorial}
         onClose={() => setShowTutorial(false)}
       />
+
+      {/* WhatsApp Flow Orchestrator - Only opens when WhatsApp icons are clicked */}
+      {auth.currentOrganization?.id && (
+        <WhatsAppFlowOrchestrator
+          isOpen={whatsAppFlowOpen}
+          onClose={() => {
+            setWhatsAppFlowOpen(false)
+            setWhatsAppLink('')
+            setWhatsAppToolName('')
+          }}
+          organizationId={auth.currentOrganization.id}
+          linkToSend={whatsAppLink}
+          toolName={whatsAppToolName}
+        />
+      )}
     </>
   )
 }

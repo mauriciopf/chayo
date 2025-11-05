@@ -144,11 +144,128 @@ async function handlePartnerAppInstalled(value: any) {
   const { waba_id, owner_business_id, partner_app_id } = wabaInfo
   console.log('✅ Partner app installed:', { waba_id, owner_business_id, partner_app_id })
 
-  // Note: We don't have organizationId in the webhook
-  // The actual linking happens in /api/whatsapp/signup when the user completes the flow
-  // This webhook is mainly for logging and monitoring
-  
-  console.log('📝 WABA installed - awaiting user signup completion to link to organization')
+  // Query WhatsApp API to get phone numbers for this WABA
+  try {
+    const phoneNumbers = await fetchWhatsAppPhoneNumbers(waba_id)
+    console.log('📱 Phone numbers retrieved:', phoneNumbers)
+    
+    // Auto-create default template for this WABA if it doesn't exist
+    await ensureDefaultTemplateExists(waba_id)
+    
+  } catch (error) {
+    console.error('❌ Error in partner app installed handler:', error)
+  }
+}
+
+/**
+ * Ensure default Chayo template exists
+ */
+async function ensureDefaultTemplateExists(wabaId: string) {
+  const systemUserToken = process.env.FACEBOOK_SYSTEM_USER_TOKEN
+  if (!systemUserToken) {
+    console.warn('⚠️ System user token not configured, skipping template creation')
+    return
+  }
+
+  try {
+    // Check if template already exists
+    const listResponse = await fetch(
+      `https://graph.facebook.com/v21.0/${wabaId}/message_templates?name=chayo_tool_link`,
+      {
+        headers: {
+          'Authorization': `Bearer ${systemUserToken}`
+        }
+      }
+    )
+
+    if (listResponse.ok) {
+      const data = await listResponse.json()
+      if (data.data && data.data.length > 0) {
+        console.log('✅ Template chayo_tool_link already exists')
+        return
+      }
+    }
+
+    // Create the template (following official WhatsApp docs structure)
+    const createResponse = await fetch(
+      `https://graph.facebook.com/v21.0/${wabaId}/message_templates`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${systemUserToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: 'chayo_tool_link',
+          language: 'es',
+          category: 'UTILITY',
+          components: [
+            {
+              type: 'BODY',
+              text: 'Hola! 👋\n\nAquí está el enlace que solicitaste:\n\n{{1}}\n\n¿Necesitas ayuda? Responde a este mensaje y te atenderemos.\n\nGracias,\nEquipo Chayo',
+              example: {
+                body_text: [
+                  [
+                    'https://chayo.onelink.me/SB63?deep_link_value=example&deep_link_sub1=chat'
+                  ]
+                ]
+              }
+            },
+            {
+              type: 'BUTTONS',
+              buttons: [
+                {
+                  type: 'URL',
+                  text: 'Abrir Enlace',
+                  url: '{{1}}',
+                  example: [
+                    'https://chayo.onelink.me/SB63'
+                  ]
+                }
+              ]
+            }
+          ]
+        })
+      }
+    )
+
+    if (createResponse.ok) {
+      const result = await createResponse.json()
+      console.log('✅ Default template created:', result)
+    } else {
+      const error = await createResponse.json()
+      console.error('❌ Failed to create template:', error)
+    }
+  } catch (error) {
+    console.error('❌ Error ensuring template exists:', error)
+  }
+}
+
+/**
+ * Fetch phone numbers associated with a WABA
+ */
+async function fetchWhatsAppPhoneNumbers(wabaId: string) {
+  const systemUserToken = process.env.FACEBOOK_SYSTEM_USER_TOKEN
+  if (!systemUserToken) {
+    throw new Error('FACEBOOK_SYSTEM_USER_TOKEN not configured')
+  }
+
+  const response = await fetch(
+    `https://graph.facebook.com/v21.0/${wabaId}/phone_numbers`,
+    {
+      headers: {
+        'Authorization': `Bearer ${systemUserToken}`
+      }
+    }
+  )
+
+  if (!response.ok) {
+    const error = await response.text()
+    throw new Error(`Failed to fetch phone numbers: ${error}`)
+  }
+
+  const data = await response.json()
+  return data.data || []
 }
 
 /**
@@ -191,19 +308,81 @@ async function handleAccountDeleted(value: any) {
 async function handleMessages(value: any) {
   console.log('💬 Incoming message webhook:', value)
   
-  // TODO: Implement message handling
-  // - Parse incoming message
-  // - Store in database
-  // - Trigger any automated responses
-  // - Notify relevant users
-  
   const messages = value.messages || []
+  const metadata = value.metadata
+  
+  // Get phone_number_id from metadata to identify which WhatsApp account received the message
+  const phoneNumberId = metadata?.phone_number_id
+  
+  if (!phoneNumberId) {
+    console.error('❌ No phone_number_id in message webhook')
+    return
+  }
+  
+  const supabase = await getSupabaseServerClient()
+  
+  // Find the WhatsApp account this message belongs to
+  const { data: whatsappAccount } = await supabase
+    .from('whatsapp_business_accounts')
+    .select('organization_id, waba_id')
+    .eq('phone_number_id', phoneNumberId)
+    .eq('is_active', true)
+    .maybeSingle()
+  
+  if (!whatsappAccount) {
+    console.error('❌ WhatsApp account not found for phone_number_id:', phoneNumberId)
+    return
+  }
+  
+  // Process each message and store customer contact
   for (const message of messages) {
+    const customerPhone = message.from
+    const customerName = message.profile?.name || null
+    const messageId = message.id
+    const messageType = message.type
+    
     console.log('📩 Message received:', {
-      from: message.from,
-      type: message.type,
-      id: message.id
+      from: customerPhone,
+      name: customerName,
+      type: messageType,
+      id: messageId,
+      organizationId: whatsappAccount.organization_id
     })
+    
+    // Store/update customer contact in database
+    const { error: contactError } = await supabase
+      .from('whatsapp_contacts')
+      .upsert({
+        organization_id: whatsappAccount.organization_id,
+        phone_number: customerPhone,
+        name: customerName,
+        last_message_at: new Date().toISOString()
+      }, {
+        onConflict: 'organization_id,phone_number',
+        ignoreDuplicates: false
+      })
+    
+    if (contactError) {
+      console.error('❌ Error storing contact:', contactError)
+    } else {
+      console.log('✅ Customer contact saved:', customerPhone)
+    }
+    
+    // TODO: Store full message content in database
+    // TODO: Trigger any automated responses
+    // TODO: Notify organization about new message
+  }
+  
+  // Handle message status updates (delivered, read, etc.)
+  const statuses = value.statuses || []
+  for (const status of statuses) {
+    console.log('📊 Message status update:', {
+      id: status.id,
+      status: status.status,
+      timestamp: status.timestamp
+    })
+    
+    // TODO: Update message delivery status in database
   }
 }
 
