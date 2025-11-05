@@ -122,7 +122,7 @@ export default function WhatsAppEmbeddedSignup({
     }
   }, [onError])
 
-  // Handle Facebook login callback
+  // Handle Facebook login callback (async function)
   const handleFBLoginCallback = async (response: FBAuthResponse) => {
     console.log('📝 Facebook login response:', response)
 
@@ -190,7 +190,10 @@ export default function WhatsAppEmbeddedSignup({
 
     console.log('🚀 Launching WhatsApp Embedded Signup...')
 
-    window.FB.login(handleFBLoginCallback, {
+    // Wrap async callback in regular function for FB SDK compatibility
+    window.FB.login((response) => {
+      handleFBLoginCallback(response)
+    }, {
       config_id: FB_CONFIG_ID,
       response_type: 'code',
       override_default_response_type: true,
