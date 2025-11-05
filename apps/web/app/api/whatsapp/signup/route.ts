@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
 
 const FB_APP_ID = '1401599064442227'
 const FB_APP_SECRET = process.env.FACEBOOK_APP_SECRET || ''
@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
 
     // Step 4: Store WhatsApp configuration in database
     console.log('🔄 Step 4: Storing configuration in database...')
-    const supabase = await createClient()
+    const supabase = await getSupabaseServerClient()
 
     // Check if WhatsApp config already exists for this organization
     const { data: existingConfig } = await supabase
@@ -107,8 +107,7 @@ export async function POST(request: NextRequest) {
           waba_id: wabaId,
           phone_number_id: phoneNumberId,
           access_token: businessAccessToken,
-          is_active: true,
-          updated_at: new Date().toISOString()
+          is_active: true
         })
         .eq('organization_id', organizationId)
 
