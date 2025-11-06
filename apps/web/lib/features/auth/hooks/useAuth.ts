@@ -122,6 +122,7 @@ export function useAuth() {
   useEffect(() => {
     console.log('🔄 Main auth setup effect - Starting')
     let isMounted = true
+    let isInitializing = false // Prevent duplicate initialization
     let hasInitialized = false
     let isTabSwitching = false
     let authSubscription: any = null
@@ -261,8 +262,12 @@ export function useAuth() {
     }
 
     const handleAuthenticatedUser = async (user: User) => {
-      if (!isMounted) return
+      if (!isMounted || isInitializing) {
+        console.log('⏭️ Skipping duplicate initialization')
+        return
+      }
       
+      isInitializing = true
       console.log('🔄 handleAuthenticatedUser - Starting for user:', user.id)
       
       // CRITICAL: Set user and auth state IMMEDIATELY to unblock dashboard
@@ -283,6 +288,8 @@ export function useAuth() {
         // Data fetching complete
         if (isMounted) {
           setLoading(false)
+          isInitializing = false
+          hasInitialized = true
           console.log('✅ handleAuthenticatedUser - Complete, organization data loaded')
         }
       } catch (error) {
@@ -290,9 +297,31 @@ export function useAuth() {
         // Even on error, stop loading
         if (isMounted) {
           setLoading(false)
+          isInitializing = false
+          hasInitialized = true
         }
       }
     }
+    
+    // Initialize auth state synchronously
+    const initializeAuth = async () => {
+      console.log('🚀 initializeAuth - Checking session')
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      if (session?.user && isMounted) {
+        console.log('✅ Session found - initializing authenticated user')
+        await handleAuthenticatedUser(session.user)
+      } else if (isMounted) {
+        console.log('🔐 No session - showing auth prompt')
+        setUser(null)
+        setAuthState('awaitingName')
+        setLoading(false)
+        hasInitialized = true
+      }
+    }
+    
+    // Start initialization immediately
+    initializeAuth()
 
     authSubscription = supabase.auth.onAuthStateChange(
       async (event, session) => {
@@ -315,7 +344,6 @@ export function useAuth() {
           const userChanged = !user || user.id !== session.user.id
           if (!hasInitialized || userChanged) {
             await handleAuthenticatedUser(session.user)
-            hasInitialized = true
           } else {
             // Just update user data without expensive operations
             setUser(session.user)
@@ -330,28 +358,14 @@ export function useAuth() {
           setOrganizations([])
           setCurrentOrganization(null)
           hasInitialized = false
+          isInitializing = false
         } else if (event === 'TOKEN_REFRESHED' && session?.user) {
           // Only update user and auth state, don't refetch data unless needed
           setUser(session.user)
           setAuthState('authenticated')
           // Don't set loading to true here to avoid infinite loading
-        } else if (event === 'INITIAL_SESSION') {
-          // Handle initial session state - only do full flow once
-          if (session?.user && !hasInitialized) {
-            await handleAuthenticatedUser(session.user)
-            hasInitialized = true
-          } else if (session?.user && hasInitialized) {
-            // Already initialized, just update user
-            setUser(session.user)
-            setAuthState('authenticated')
-            setLoading(false)
-          } else {
-            setUser(null)
-            setAuthState('awaitingName')
-            setLoading(false)
-            hasInitialized = true
-          }
         }
+        // REMOVED: INITIAL_SESSION handler - we now handle it in initializeAuth()
       }
     )
 
