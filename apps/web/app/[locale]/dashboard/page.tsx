@@ -92,7 +92,7 @@ function DashboardContent() {
     }
   })
 
-  const dashboardInit = useDashboardInit(locale, auth.authState, auth.user, t('authPrompt'), auth.loading)
+  const dashboardInit = useDashboardInit(locale, auth.authState, auth.user, t('authPrompt'))
 
 
   // Use billing management hook
@@ -142,11 +142,10 @@ function DashboardContent() {
   }, [dashboardInit.shouldShowAuthPrompt, dashboardInit.initialMessage, chat.messages.length])
 
   // Use onboarding progress hook (read-only, no manual refresh needed - SSE handles updates)
-  console.log('🔄 Dashboard onboarding hook setup:', {
-    organizationId: auth.currentOrganization?.id,
-    hasOrganization: !!auth.currentOrganization
-  })
-  const { isCompleted: isOnboardingCompleted, loading: onboardingLoading } = useOnboardingCompletion(auth.currentOrganization?.id)
+  // Only call this hook for authenticated users with an organization
+  const { isCompleted: isOnboardingCompleted, loading: onboardingLoading } = useOnboardingCompletion(
+    auth.authState === 'authenticated' && auth.currentOrganization?.id ? auth.currentOrganization.id : undefined
+  )
 
   // Dashboard UI state
   const [activeView, setActiveView] = useState<ActiveView>('dashboard')
