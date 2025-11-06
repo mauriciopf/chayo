@@ -92,6 +92,15 @@ export async function POST(request: NextRequest) {
       console.log('✅ Webhooks subscribed')
     }
 
+    // Step 2.5: Ensure default template exists for this WABA
+    console.log('🔄 Step 2.5: Creating default template if needed...')
+    try {
+      await ensureDefaultTemplateExists(wabaId)
+    } catch (templateError) {
+      // Non-blocking - template can be created later
+      console.error('⚠️ Template creation failed, but continuing:', templateError)
+    }
+
     // Step 3: Store in database
     console.log('🔄 Step 3: Storing WABA configuration in database...')
     const supabase = await getSupabaseServerClient()
@@ -162,6 +171,96 @@ export async function POST(request: NextRequest) {
       },
       { status: 500 }
     )
+  }
+}
+
+/**
+ * Ensure default Chayo template exists
+ * Same logic as in webhooks/route.ts - creates template if it doesn't exist
+ */
+async function ensureDefaultTemplateExists(wabaId: string) {
+  const systemUserToken = process.env.FACEBOOK_SYSTEM_USER_TOKEN
+  if (!systemUserToken) {
+    console.warn('⚠️ System user token not configured, skipping template creation')
+    return
+  }
+
+  try {
+    // Check if template already exists
+    const listResponse = await fetch(
+      `https://graph.facebook.com/v21.0/${wabaId}/message_templates?name=chayo_tool_link`,
+      {
+        headers: {
+          'Authorization': `Bearer ${systemUserToken}`
+        }
+      }
+    )
+
+    if (listResponse.ok) {
+      const data = await listResponse.json()
+      if (data.data && data.data.length > 0) {
+        console.log('✅ Template chayo_tool_link already exists for this WABA')
+        return
+      }
+    }
+
+    console.log('📝 Creating default template chayo_tool_link...')
+
+    // Create the template (following official WhatsApp docs structure)
+    const createResponse = await fetch(
+      `https://graph.facebook.com/v21.0/${wabaId}/message_templates`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${systemUserToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: 'chayo_tool_link',
+          language: 'es',
+          category: 'UTILITY',
+          components: [
+            {
+              type: 'BODY',
+              text: 'Hola! 👋\n\nAquí está el enlace que solicitaste:\n\n{{1}}\n\n¿Necesitas ayuda? Responde a este mensaje y te atenderemos.\n\nGracias,\nEquipo Chayo',
+              example: {
+                body_text: [
+                  [
+                    'https://chayo.onelink.me/SB63?deep_link_value=example&deep_link_sub1=chat'
+                  ]
+                ]
+              }
+            },
+            {
+              type: 'BUTTONS',
+              buttons: [
+                {
+                  type: 'URL',
+                  text: 'Abrir Enlace',
+                  url: '{{1}}',
+                  example: [
+                    'https://chayo.onelink.me/SB63'
+                  ]
+                }
+              ]
+            }
+          ]
+        })
+      }
+    )
+
+    if (createResponse.ok) {
+      const result = await createResponse.json()
+      console.log('✅ Default template created and submitted for approval:', result)
+      console.log('ℹ️ Template status: PENDING - waiting for Meta approval')
+    } else {
+      const error = await createResponse.json()
+      console.error('❌ Failed to create template:', error)
+      throw new Error(`Template creation failed: ${JSON.stringify(error)}`)
+    }
+  } catch (error) {
+    console.error('❌ Error ensuring template exists:', error)
+    throw error
   }
 }
 
