@@ -19,7 +19,16 @@ interface WhatsAppSessionData {
 interface FBAuthResponse {
   authResponse?: {
     code: string
+    accessToken?: string
   }
+  status?: string
+}
+
+interface ExistingWABA {
+  id: string
+  name?: string
+  business_id: string
+  business_name?: string
 }
 
 // Extend Window interface to include FB
@@ -44,6 +53,9 @@ export default function WhatsAppEmbeddedSignup({
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [sessionData, setSessionData] = useState<WhatsAppSessionData | null>(null)
+  const [existingWABAs, setExistingWABAs] = useState<ExistingWABA[]>([])
+  const [showingExisting, setShowingExisting] = useState(false)
+  const [userAccessToken, setUserAccessToken] = useState<string | null>(null)
   const sdkLoadedRef = useRef(false)
 
   // Facebook App Configuration
@@ -122,6 +134,86 @@ export default function WhatsAppEmbeddedSignup({
     }
   }, [onError])
 
+  // Handle preflight Facebook login callback (async function)
+  const handlePreflightCallback = async (response: FBAuthResponse) => {
+    console.log('📝 Preflight Facebook login response:', response)
+
+    if (response.authResponse && response.authResponse.accessToken) {
+      const accessToken = response.authResponse.accessToken
+      setUserAccessToken(accessToken)
+
+      try {
+        // Step 2: Check backend for existing WABAs
+        const checkResponse = await fetch('/api/whatsapp/check-existing', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userAccessToken: accessToken })
+        })
+
+        const checkResult = await checkResponse.json()
+
+        if (!checkResponse.ok) {
+          throw new Error(checkResult.error || 'Error al verificar cuentas existentes')
+        }
+
+        console.log('📊 Preflight check result:', checkResult)
+
+        if (checkResult.hasExistingWABA) {
+          // User already has WABA(s)
+          console.log('✅ Found existing WABA(s):', checkResult.wabas)
+          
+          if (checkResult.wabas.length === 1) {
+            // Only one WABA - auto-connect it
+            console.log('🔗 Auto-connecting single WABA:', checkResult.wabas[0])
+            await connectExistingWABA(checkResult.wabas[0])
+          } else {
+            // Multiple WABAs - show selection UI
+            console.log('📋 Multiple WABAs found - showing selection')
+            setExistingWABAs(checkResult.wabas)
+            setShowingExisting(true)
+            setLoading(false)
+          }
+        } else {
+          // No existing WABA - proceed to Embedded Signup
+          console.log('📭 No existing WABA - launching Embedded Signup')
+          launchWhatsAppEmbeddedSignup()
+        }
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : 'Error al verificar cuentas existentes'
+        console.error('❌ Preflight check error:', errorMsg)
+        setError(errorMsg)
+        setLoading(false)
+        onError?.(errorMsg)
+      }
+    } else {
+      setError('No se recibió autorización de Facebook')
+      setLoading(false)
+    }
+  }
+
+  // Preflight Facebook login to check for existing WABAs
+  const doPreflightCheck = () => {
+    if (!window.FB) {
+      setError('SDK de Facebook no está cargado. Por favor recarga la página.')
+      return
+    }
+
+    setLoading(true)
+    setError(null)
+    setSuccess(false)
+
+    console.log('🔍 Starting preflight check for existing WABAs...')
+
+    // Step 1: Request basic Facebook login with business permissions
+    // Wrap async callback in regular function for FB SDK compatibility
+    window.FB.login((response) => {
+      handlePreflightCallback(response)
+    }, {
+      scope: 'business_management,whatsapp_business_management',
+      auth_type: 'rerequest'
+    })
+  }
+
   // Handle Facebook login callback (async function)
   const handleFBLoginCallback = async (response: FBAuthResponse) => {
     console.log('📝 Facebook login response:', response)
@@ -176,14 +268,17 @@ export default function WhatsAppEmbeddedSignup({
     }
   }
 
-  // Launch WhatsApp signup flow
-  const launchWhatsAppSignup = () => {
+  // Launch WhatsApp Embedded Signup flow (only if no existing WABA)
+  const launchWhatsAppEmbeddedSignup = () => {
     if (!window.FB) {
       setError('SDK de Facebook no está cargado. Por favor recarga la página.')
       return
     }
 
-    setLoading(true)
+    // Keep loading state from preflight check
+    if (!loading) {
+      setLoading(true)
+    }
     setError(null)
     setSuccess(false)
     setSessionData(null)
@@ -199,6 +294,48 @@ export default function WhatsAppEmbeddedSignup({
       override_default_response_type: true,
       extras: { version: 'v3' }
     })
+  }
+
+  // Connect an existing WABA selected by the user
+  const connectExistingWABA = async (waba: ExistingWABA) => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      console.log('🔗 Connecting existing WABA:', waba)
+
+      // Call the link-existing API route
+      const linkResponse = await fetch('/api/whatsapp/link-existing', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          wabaId: waba.id,
+          businessId: waba.business_id,
+          organizationId,
+          userAccessToken: userAccessToken // Used to fetch phone numbers
+        })
+      })
+
+      const result = await linkResponse.json()
+
+      if (linkResponse.ok) {
+        console.log('✅ Existing WABA linked:', result)
+        setSuccess(true)
+        setLoading(false)
+        onSuccess?.({ 
+          wabaId: waba.id, 
+          phoneNumberId: result.phoneNumberId 
+        })
+      } else {
+        throw new Error(result.error || 'Error al conectar cuenta existente')
+      }
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Error al conectar cuenta existente'
+      console.error('❌ Error connecting existing WABA:', errorMsg)
+      setError(errorMsg)
+      setLoading(false)
+      onError?.(errorMsg)
+    }
   }
 
   return (
@@ -244,54 +381,127 @@ export default function WhatsAppEmbeddedSignup({
         </div>
       )}
 
-      {/* Signup Button */}
-      <button
-        onClick={launchWhatsAppSignup}
-        disabled={loading || success}
-        className={buttonClassName || "w-full px-6 py-3 rounded-lg font-medium transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"}
-        style={{
-          backgroundColor: success ? '#22c55e' : '#25D366',
-          color: 'white',
-        }}
-      >
-        {loading ? (
-          <>
-            <Loader2 className="h-5 w-5 animate-spin" />
-            <span>Conectando...</span>
-          </>
-        ) : success ? (
-          <>
-            <CheckCircle className="h-5 w-5" />
-            <span>Conectado</span>
-          </>
-        ) : (
-          <>
-            <span>💬</span>
-            <span>{buttonText}</span>
-          </>
-        )}
-      </button>
+      {/* Existing WABAs Selection */}
+      {showingExisting && existingWABAs.length > 0 && (
+        <div className="space-y-3">
+          <div className="p-4 rounded-lg border-l-4" style={{ 
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            borderColor: '#3b82f6'
+          }}>
+            <p className="font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
+              ✅ Tienes {existingWABAs.length} cuentas de WhatsApp Business
+            </p>
+            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+              Selecciona la cuenta que deseas conectar a Chayo:
+            </p>
+          </div>
 
-      {/* Info Box */}
-      {!success && (
-        <div 
-          className="p-4 rounded-lg border text-sm"
-          style={{ 
-            backgroundColor: 'var(--bg-tertiary)', 
-            borderColor: 'var(--border-primary)',
-            color: 'var(--text-secondary)'
-          }}
-        >
-          <p className="mb-2">
-            <strong>¿Qué sucederá al conectar?</strong>
-          </p>
-          <ul className="list-disc list-inside space-y-1">
-            <li>Se abrirá una ventana para autenticarte con Facebook</li>
-            <li>Seleccionarás o crearás tu cuenta de WhatsApp Business</li>
-            <li>Configurarás tu número de teléfono de negocio</li>
-            <li>Podrás enviar mensajes automáticamente desde Chayo</li>
-          </ul>
+          {existingWABAs.map((waba) => (
+            <div
+              key={waba.id}
+              className="p-4 rounded-lg border hover:border-green-500 transition-colors cursor-pointer"
+              style={{ 
+                backgroundColor: 'var(--bg-tertiary)', 
+                borderColor: 'var(--border-primary)'
+              }}
+              onClick={() => connectExistingWABA(waba)}
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <p className="font-medium" style={{ color: 'var(--text-primary)' }}>
+                    {waba.name || `WhatsApp Business ${waba.id.slice(0, 8)}...`}
+                  </p>
+                  <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
+                    Negocio: {waba.business_name || waba.business_id}
+                  </p>
+                  <p className="text-xs mt-1" style={{ color: 'var(--text-tertiary)' }}>
+                    ID: {waba.id}
+                  </p>
+                </div>
+                <button
+                  className="ml-4 px-4 py-2 rounded-lg text-sm font-medium text-white"
+                  style={{ backgroundColor: '#25D366' }}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    connectExistingWABA(waba)
+                  }}
+                  disabled={loading}
+                >
+                  {loading ? 'Conectando...' : 'Conectar'}
+                </button>
+              </div>
+            </div>
+          ))}
+
+          <button
+            onClick={() => {
+              setShowingExisting(false)
+              launchWhatsAppEmbeddedSignup()
+            }}
+            className="w-full px-4 py-2 rounded-lg border text-sm font-medium"
+            style={{ 
+              borderColor: 'var(--border-primary)',
+              color: 'var(--text-secondary)'
+            }}
+            disabled={loading}
+          >
+            O crear una nueva cuenta de WhatsApp Business
+          </button>
         </div>
+      )}
+
+      {/* Signup Button (only show if not showing existing WABAs) */}
+      {!showingExisting && (
+        <>
+          <button
+            onClick={doPreflightCheck}
+            disabled={loading || success}
+            className={buttonClassName || "w-full px-6 py-3 rounded-lg font-medium transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"}
+            style={{
+              backgroundColor: success ? '#22c55e' : '#25D366',
+              color: 'white',
+            }}
+          >
+            {loading ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" />
+                <span>Conectando...</span>
+              </>
+            ) : success ? (
+              <>
+                <CheckCircle className="h-5 w-5" />
+                <span>Conectado</span>
+              </>
+            ) : (
+              <>
+                <span>💬</span>
+                <span>{buttonText}</span>
+              </>
+            )}
+          </button>
+
+          {/* Info Box */}
+          {!success && (
+            <div 
+              className="p-4 rounded-lg border text-sm"
+              style={{ 
+                backgroundColor: 'var(--bg-tertiary)', 
+                borderColor: 'var(--border-primary)',
+                color: 'var(--text-secondary)'
+              }}
+            >
+              <p className="mb-2">
+                <strong>¿Qué sucederá al conectar?</strong>
+              </p>
+              <ul className="list-disc list-inside space-y-1">
+                <li>Verificaremos si ya tienes una cuenta de WhatsApp Business</li>
+                <li>Si ya tienes una, podrás conectarla directamente</li>
+                <li>Si no, te ayudaremos a crear una nueva cuenta</li>
+                <li>Podrás enviar mensajes automáticamente desde Chayo</li>
+              </ul>
+            </div>
+          )}
+        </>
       )}
     </div>
   )

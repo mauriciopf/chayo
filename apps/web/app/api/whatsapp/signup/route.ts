@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
       .from('whatsapp_business_accounts')
       .select('*')
       .eq('organization_id', organizationId)
-      .single()
+      .maybeSingle()
 
     if (existingConfig) {
       // Update existing config
