@@ -1,6 +1,6 @@
 import type { Organization, TeamMember } from './organization/types'
 import { getOrganizationById, updateOrganizationName } from './organization/OrganizationManager'
-import { getUserOrganizations, ensureUserHasOrganization } from './organization/UserOrganizationManager'
+import { getUserOrganizations } from './organization/UserOrganizationManager'
 
 export class OrganizationService {
   async getOrganizationById(id: string): Promise<Organization | null> {
@@ -13,10 +13,6 @@ export class OrganizationService {
 
   async getUserOrganizations(userId: string): Promise<Organization[]> {
     return getUserOrganizations(userId)
-  }
-
-  async ensureUserHasOrganization(userId: string): Promise<Organization | null> {
-    return ensureUserHasOrganization(userId)
   }
 }
 

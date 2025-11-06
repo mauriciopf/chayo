@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/shared/supabase/client'
 import type { User } from '@supabase/supabase-js'
 import { AuthState, OtpLoadingState, Agent, UserSubscription, Organization, Message } from '@/lib/shared/types'
-import { organizationService } from '@/lib/features/organizations/services/organizationService'
 import { agentService } from '@/lib/features/organizations/services/agentService'
 import { OTPService, OTPTranslations } from '@/lib/features/auth/services/otpService'
 
@@ -100,15 +99,6 @@ export function useAuth() {
     }
   }
 
-
-  // Ensure user has organization
-  const ensureUserHasOrganization = async (user: User) => {
-    try {
-      await organizationService.ensureUserHasOrganization(user.id)
-    } catch (error) {
-      console.error('Error ensuring user has organization:', error)
-    }
-  }
 
   // Resend cooldown timer
   useEffect(() => {
@@ -249,6 +239,8 @@ export function useAuth() {
 
     // Fetch current organization
     const fetchCurrentOrganization = async (userId: string) => {
+      console.log('🔄 [ORG] fetchCurrentOrganization - Start', { userId })
+      
       try {
         const { data: membership, error } = await supabase
           .from('team_members')
@@ -268,14 +260,33 @@ export function useAuth() {
           .limit(1)
           .maybeSingle()
 
-        if (error || !membership?.organizations) {
+        if (error) {
+          console.error('❌ [ORG] Error fetching organization:', error)
+          setCurrentOrganization(null)
+          return
+        }
+        
+        if (!membership) {
+          console.warn('⚠️ [ORG] No team_members entry found for user')
+          setCurrentOrganization(null)
+          return
+        }
+        
+        if (!membership.organizations) {
+          console.warn('⚠️ [ORG] team_members found but no organization data')
           setCurrentOrganization(null)
           return
         }
 
         const organization = membership.organizations as unknown as Organization
+        console.log('✅ [ORG] Organization found:', {
+          id: organization.id,
+          name: organization.name,
+          slug: organization.slug
+        })
         setCurrentOrganization(organization)
       } catch (error) {
+        console.error('❌ [ORG] Fatal error in fetchCurrentOrganization:', error)
         setCurrentOrganization(null)
       }
     }
@@ -319,15 +330,17 @@ export function useAuth() {
       // ═══════════════════════════════════════════════════════════════════════════
       // Fetch all required data in parallel for performance
       // Use allSettled to continue even if individual fetches fail
+      //
+      // Note: Organization is created by database trigger on user signup
+      // We just fetch it here along with other user data
       console.log('🔄 [AUTH] Phase 2: Fetching organization data')
       const startTime = Date.now()
       
       try {
         const results = await Promise.allSettled([
-          ensureUserHasOrganization(user),
+          fetchCurrentOrganization(user.id),  // Fetches org (created by DB trigger)
           fetchAgents(),
-          fetchSubscription(user.id),
-          fetchCurrentOrganization(user.id)
+          fetchSubscription(user.id)
         ])
         
         const elapsed = Date.now() - startTime
@@ -336,7 +349,7 @@ export function useAuth() {
         // Log any failures (but don't block)
         results.forEach((result, index) => {
           if (result.status === 'rejected') {
-            const labels = ['ensureOrg', 'fetchAgents', 'fetchSub', 'fetchCurrentOrg']
+            const labels = ['fetchCurrentOrg', 'fetchAgents', 'fetchSub']
             console.warn(`⚠️ [AUTH] ${labels[index]} failed:`, result.reason)
           }
         })
@@ -565,9 +578,6 @@ export function useAuth() {
     setOrganizations,
     currentOrganization,
     setCurrentOrganization,
-    
-    // Methods
-    ensureUserHasOrganization,
     
     // OTP Flow factory
     createOTPFlow,
