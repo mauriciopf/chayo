@@ -252,13 +252,24 @@ export function useAuth() {
         } catch (timeoutError) {
           // Session call timed out - likely stale session causing refresh loop
           console.warn('🔐 useAuth: getSession() timed out - clearing stale session')
-          await supabase.auth.signOut({ scope: 'local' }) // Clear local storage only
           
-          // Try again after clearing
-          const retry = await supabase.auth.getSession()
-          session = retry.data?.session
-          error = retry.error
-          console.log('🔐 useAuth: Retry after clearing:', { hasSession: !!session, hasUser: !!session?.user })
+          try {
+            // Clear local storage directly - faster than signOut
+            localStorage.removeItem('supabase.auth.token')
+            // Also try signOut with timeout
+            const signOutPromise = supabase.auth.signOut({ scope: 'local' })
+            const signOutTimeout = new Promise((resolve) => setTimeout(resolve, 1000))
+            await Promise.race([signOutPromise, signOutTimeout])
+            console.log('🔐 useAuth: Cleared stale session')
+          } catch (clearError) {
+            console.error('🔐 useAuth: Error clearing session:', clearError)
+            // Continue anyway
+          }
+          
+          // Force no session state immediately
+          session = null
+          error = null
+          console.log('🔐 useAuth: Forcing no-session state after timeout')
         }
         
         if (error || !session?.user) {
@@ -279,12 +290,8 @@ export function useAuth() {
       } catch (err) {
         console.error('🔐 useAuth: Error during initialization:', err)
         if (isMounted) {
-          // On any error, clear session and set to awaitingName
-          try {
-            await supabase.auth.signOut({ scope: 'local' })
-          } catch (signOutError) {
-            console.error('🔐 useAuth: Error signing out:', signOutError)
-          }
+          // On any error, force awaitingName state
+          console.log('🔐 useAuth: Forcing awaitingName due to error')
           setUser(null)
           setAuthState('awaitingName')
           setLoading(false)
