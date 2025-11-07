@@ -104,8 +104,11 @@ export function useAuth() {
 
   useEffect(() => {
     let isMounted = true
-    let isInitializing = false
     let hasInitialized = false
+
+    // ─────────────────────────────────────────────────────────────────
+    // Data fetching helpers
+    // ─────────────────────────────────────────────────────────────────
 
     const fetchAgents = async () => {
       try {
@@ -211,106 +214,101 @@ export function useAuth() {
       }
     }
 
-    const handleAuthenticatedUser = async (user: User) => {
-      if (!isMounted || isInitializing) return
-      
-      isInitializing = true
+    // ─────────────────────────────────────────────────────────────────
+    // Auth state setters
+    // ─────────────────────────────────────────────────────────────────
+
+    const setAuthenticatedState = async (user: User) => {
       setUser(user)
       setAuthState('authenticated')
-
-      try {
-        await Promise.allSettled([
-          fetchCurrentOrganization(user.id),
-          fetchAgents(),
-          fetchSubscription(user.id)
-        ])
-      } finally {
-        if (isMounted) {
-          setLoading(false)
-          isInitializing = false
-          hasInitialized = true
-        }
-      }
-    }
-
-    const initializeAuth = async () => {
-      console.log('🔐 useAuth: Starting auth initialization...')
+      setLoading(false)
       
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession()
-        console.log('🔐 useAuth: Got session result:', { 
-          hasSession: !!session, 
-          hasUser: !!session?.user, 
-          error: error?.message 
-        })
-        
-        if (error) {
-          console.error('🔐 useAuth: Session error:', error)
-          // Clear any corrupted session on error
-          try {
-            await supabase.auth.signOut({ scope: 'local' })
-          } catch (signOutError) {
-            console.error('🔐 useAuth: Error clearing session:', signOutError)
-          }
-        }
-        
-        if (error || !session?.user) {
-          if (isMounted) {
-            console.log('🔐 useAuth: No valid session - setting awaitingName')
-            setUser(null)
-            setAuthState('awaitingName')
-            setLoading(false)
-            hasInitialized = true
-          }
-          return
-        }
-
-        if (isMounted) {
-          console.log('🔐 useAuth: Valid session found - authenticating user')
-          await handleAuthenticatedUser(session.user)
-        }
-      } catch (err) {
-        console.error('🔐 useAuth: Unexpected error during initialization:', err)
-        if (isMounted) {
-          setUser(null)
-          setAuthState('awaitingName')
-          setLoading(false)
-          hasInitialized = true
-        }
-      }
+      // Fetch user data in parallel
+      await Promise.allSettled([
+        fetchCurrentOrganization(user.id),
+        fetchAgents(),
+        fetchSubscription(user.id)
+      ])
+      
+      hasInitialized = true
     }
 
-    initializeAuth()
+    const setUnauthenticatedState = () => {
+      setUser(null)
+      setAuthState('awaitingName')
+      setLoading(false)
+      setAgents([])
+      setSubscription(null)
+      setOrganizations([])
+      setCurrentOrganization(null)
+      hasInitialized = true
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    // 1. Initial session check (one-time on mount)
+    // ─────────────────────────────────────────────────────────────────
+
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (!isMounted || hasInitialized) return
+
+      if (error) {
+        console.error('🔐 Session error:', error)
+        supabase.auth.signOut({ scope: 'local' }).catch(console.error)
+      }
+
+      if (session?.user) {
+        console.log('✅ Initial session found')
+        setAuthenticatedState(session.user)
+      } else {
+        console.log('🔓 No initial session')
+        setUnauthenticatedState()
+      }
+    })
+
+    // ─────────────────────────────────────────────────────────────────
+    // 2. Listen to auth changes (ongoing)
+    // ─────────────────────────────────────────────────────────────────
 
     const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (!isMounted) return
 
-        if (event === 'SIGNED_IN' && session?.user) {
-          const userChanged = !user || user.id !== session.user.id
-          
-          if (!hasInitialized || userChanged) {
-            await handleAuthenticatedUser(session.user)
+        console.log('🔐 Auth event:', event)
+
+        // Fallback: Use INITIAL_SESSION if getSession() hasn't completed yet
+        if (event === 'INITIAL_SESSION' && !hasInitialized) {
+          if (session?.user) {
+            await setAuthenticatedState(session.user)
           } else {
-            setUser(session.user)
-            setAuthState('authenticated')
+            setUnauthenticatedState()
           }
-        } else if (event === 'SIGNED_OUT') {
-          setUser(null)
-          setAuthState('awaitingName')
-          setLoading(false)
-          setAgents([])
-          setSubscription(null)
-          setOrganizations([])
-          setCurrentOrganization(null)
+          return
+        }
+
+        // User just logged in
+        if (event === 'SIGNED_IN' && session?.user) {
+          await setAuthenticatedState(session.user)
+          return
+        }
+
+        // User logged out
+        if (event === 'SIGNED_OUT') {
+          setUnauthenticatedState()
           hasInitialized = false
-          isInitializing = false
-        } else if (event === 'TOKEN_REFRESHED' && session?.user) {
+          return
+        }
+
+        // Token refreshed - just update user object
+        if (event === 'TOKEN_REFRESHED' && session?.user) {
           setUser(session.user)
           setAuthState('authenticated')
         }
       }
     )
+
+    // ─────────────────────────────────────────────────────────────────
+    // 3. Cleanup
+    // ─────────────────────────────────────────────────────────────────
 
     return () => {
       isMounted = false
