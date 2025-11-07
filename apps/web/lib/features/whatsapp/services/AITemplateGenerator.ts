@@ -12,9 +12,9 @@
  * - Validation and error handling
  */
 
-import OpenAI from 'openai'
 import { TemplateComponent } from '../types/template.types'
 import { ToolType, TOOL_CONFIGS } from '@/lib/features/tools/shared/services/ToolSystemService'
+import { openAIService } from '@/lib/shared/services/OpenAIService'
 
 export interface TemplateGenerationOptions {
   toolType: ToolType
@@ -24,50 +24,156 @@ export interface TemplateGenerationOptions {
   language: 'es' | 'en'
 }
 
+// JSON Schema for WhatsApp template structure (Meta API v23.0)
+// Based on official docs: https://developers.facebook.com/docs/whatsapp/business-management-api/message-templates
+const WhatsAppTemplateSchema = {
+  type: 'json_schema',
+  json_schema: {
+    name: 'whatsapp_template',
+    strict: true,
+    schema: {
+      type: 'object',
+      properties: {
+        components: {
+          type: 'array',
+          description: 'Array of template components (HEADER, BODY, FOOTER, BUTTONS)',
+          items: {
+            type: 'object',
+            properties: {
+              type: {
+                type: 'string',
+                enum: ['HEADER', 'BODY', 'FOOTER', 'BUTTONS'],
+                description: 'Component type'
+              },
+              format: {
+                type: 'string',
+                enum: ['TEXT', 'IMAGE', 'VIDEO', 'DOCUMENT'],
+                description: 'Format for HEADER component only'
+              },
+              text: {
+                type: 'string',
+                description: 'Text content for TEXT headers, BODY, and FOOTER. Use {{1}}, {{2}} for POSITIONAL parameters.'
+              },
+              example: {
+                type: 'object',
+                description: 'Required examples for components with parameters',
+                properties: {
+                  header_handle: {
+                    type: 'array',
+                    description: 'URL for IMAGE/VIDEO/DOCUMENT headers',
+                    items: { type: 'string' }
+                  },
+                  header_text: {
+                    type: 'array',
+                    description: 'Example values for TEXT header parameters',
+                    items: { type: 'string' }
+                  },
+                  body_text: {
+                    type: 'array',
+                    description: 'Example values for BODY POSITIONAL parameters {{1}}, {{2}}',
+                    items: {
+                      type: 'array',
+                      items: { type: 'string' }
+                    }
+                  },
+                  body_text_named_params: {
+                    type: 'array',
+                    description: 'Example values for BODY NAMED parameters {{name}}',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        param_name: { type: 'string' },
+                        example: { type: 'string' }
+                      },
+                      required: ['param_name', 'example'],
+                      additionalProperties: false
+                    }
+                  }
+                },
+                additionalProperties: false
+              },
+              buttons: {
+                type: 'array',
+                description: 'Array of buttons for BUTTONS component',
+                items: {
+                  type: 'object',
+                  properties: {
+                    type: {
+                      type: 'string',
+                      enum: ['URL', 'PHONE_NUMBER', 'QUICK_REPLY'],
+                      description: 'Button type'
+                    },
+                    text: {
+                      type: 'string',
+                      description: 'Button text (max 25 chars)'
+                    },
+                    url: {
+                      type: 'string',
+                      description: 'URL for URL button. Use {{1}} for dynamic parameter.'
+                    },
+                    phone_number: {
+                      type: 'string',
+                      description: 'Phone number for PHONE_NUMBER button'
+                    },
+                    example: {
+                      type: 'array',
+                      description: 'Required if URL contains parameters',
+                      items: { type: 'string' }
+                    }
+                  },
+                  required: ['type', 'text'],
+                  additionalProperties: false
+                }
+              }
+            },
+            required: ['type'],
+            additionalProperties: false
+          }
+        }
+      },
+      required: ['components'],
+      additionalProperties: false
+    }
+  }
+}
+
 export class AITemplateGenerator {
   
   /**
-   * Generate a WhatsApp template using OpenAI
+   * Generate a WhatsApp template using OpenAI with structured outputs
    * Returns components array ready for Meta API submission
    */
   static async generateTemplate(
     options: TemplateGenerationOptions
   ): Promise<TemplateComponent[]> {
     
-    const openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY
-    })
-
     const toolConfig = TOOL_CONFIGS[options.toolType]
     const systemPrompt = this.buildSystemPrompt(options)
     const userPrompt = this.buildUserPrompt(options, toolConfig)
 
     try {
-      const response = await openai.chat.completions.create({
-        model: 'gpt-4o',
-        messages: [
+      // Use OpenAIService with structured outputs (JSON schema)
+      const result = await openAIService.callStructuredCompletion<{ components: TemplateComponent[] }>(
+        [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
-        temperature: 0.7,
-        response_format: { type: 'json_object' }
-      })
+        WhatsAppTemplateSchema,
+        {
+          model: 'gpt-4o',
+          temperature: 0.7,
+          maxTokens: 1500
+        }
+      )
 
-      const content = response.choices[0].message.content
-      if (!content) {
-        throw new Error('Empty response from OpenAI')
-      }
-
-      const generated = JSON.parse(content)
-      
-      if (!generated.components || !Array.isArray(generated.components)) {
+      if (!result.components || !Array.isArray(result.components)) {
         throw new Error('Invalid template structure from AI')
       }
 
       // Validate generated template
-      this.validateTemplate(generated.components)
+      this.validateTemplate(result.components)
       
-      return generated.components
+      return result.components
       
     } catch (error) {
       console.error('❌ Failed to generate template:', error)
@@ -204,7 +310,7 @@ Generate the template now. Return ONLY the JSON, nothing else.`
         es: 'ver nuestro catálogo de productos',
         en: 'view our product catalog'
       },
-      forms: {
+      intake_forms: {
         es: 'completar un formulario',
         en: 'fill out a form'
       },
@@ -223,10 +329,6 @@ Generate the template now. Return ONLY the JSON, nothing else.`
       faqs: {
         es: 'ver preguntas frecuentes',
         en: 'view FAQs'
-      },
-      intake_forms: {
-        es: 'completar formulario de ingreso',
-        en: 'complete intake form'
       },
       payments: {
         es: 'realizar un pago',
