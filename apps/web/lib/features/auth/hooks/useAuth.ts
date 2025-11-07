@@ -237,65 +237,26 @@ export function useAuth() {
       console.log('🔐 useAuth: Starting auth initialization...')
       
       try {
-        // Try to get session with timeout protection
-        const sessionPromise = supabase.auth.getSession()
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Session timeout')), 5000)
-        )
+        const { data: { session }, error } = await supabase.auth.getSession()
+        console.log('🔐 useAuth: Got session result:', { 
+          hasSession: !!session, 
+          hasUser: !!session?.user, 
+          error: error?.message 
+        })
         
-        let session, error
-        try {
-          const result = await Promise.race([sessionPromise, timeoutPromise]) as any
-          session = result.data?.session
-          error = result.error
-          console.log('🔐 useAuth: Got session result:', { hasSession: !!session, hasUser: !!session?.user, error: error?.message })
-        } catch (timeoutError) {
-          // Session call timed out
-          console.warn('🔐 useAuth: getSession() timed out - setting temporary fallback state')
-          
-          // Set temporary unauthenticated state so UI isn't blank
-          // BUT keep trying to get session in background
-          if (isMounted) {
-            setUser(null)
-            setAuthState('awaitingName')
-            setLoading(false)
-            hasInitialized = true
-          }
-          
-          // Continue trying to get session in background for valid but slow sessions
+        if (error) {
+          console.error('🔐 useAuth: Session error:', error)
+          // Clear any corrupted session on error
           try {
-            console.log('🔐 useAuth: Attempting to retrieve session in background...')
-            const backgroundResult = await sessionPromise
-            session = backgroundResult.data?.session
-            error = backgroundResult.error
-            
-            console.log('🔐 useAuth: Background session result:', { hasSession: !!session, hasUser: !!session?.user })
-            
-            // If we got a valid session, onAuthStateChange will handle the update
-            if (session?.user && isMounted) {
-              console.log('🔐 useAuth: Valid session found after timeout - user will be authenticated via onAuthStateChange')
-              // Don't do anything here - let onAuthStateChange handle it
-              return
-            }
-          } catch (bgError) {
-            console.error('🔐 useAuth: Background session retrieval failed:', bgError)
-            // Clear potentially corrupted session
-            try {
-              localStorage.removeItem('supabase.auth.token')
-              await supabase.auth.signOut({ scope: 'local' })
-              console.log('🔐 useAuth: Cleared corrupted session')
-            } catch (clearError) {
-              console.error('🔐 useAuth: Error clearing session:', clearError)
-            }
+            await supabase.auth.signOut({ scope: 'local' })
+          } catch (signOutError) {
+            console.error('🔐 useAuth: Error clearing session:', signOutError)
           }
-          
-          // Already set awaitingName state above, just return
-          return
         }
         
         if (error || !session?.user) {
           if (isMounted) {
-            console.log('🔐 useAuth: No session - setting awaitingName')
+            console.log('🔐 useAuth: No valid session - setting awaitingName')
             setUser(null)
             setAuthState('awaitingName')
             setLoading(false)
@@ -305,13 +266,12 @@ export function useAuth() {
         }
 
         if (isMounted) {
-          console.log('🔐 useAuth: Session found - authenticating user')
+          console.log('🔐 useAuth: Valid session found - authenticating user')
           await handleAuthenticatedUser(session.user)
         }
       } catch (err) {
-        console.error('🔐 useAuth: Error during initialization:', err)
+        console.error('🔐 useAuth: Unexpected error during initialization:', err)
         if (isMounted) {
-          console.log('🔐 useAuth: Forcing awaitingName due to error')
           setUser(null)
           setAuthState('awaitingName')
           setLoading(false)
