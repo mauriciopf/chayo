@@ -235,9 +235,31 @@ export function useAuth() {
 
     const initializeAuth = async () => {
       console.log('🔐 useAuth: Starting auth initialization...')
+      
       try {
-        const { data: { session }, error } = await supabase.auth.getSession()
-        console.log('🔐 useAuth: Got session result:', { hasSession: !!session, hasUser: !!session?.user, error: error?.message })
+        // Try to get session with timeout protection
+        const sessionPromise = supabase.auth.getSession()
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Session timeout')), 3000)
+        )
+        
+        let session, error
+        try {
+          const result = await Promise.race([sessionPromise, timeoutPromise]) as any
+          session = result.data?.session
+          error = result.error
+          console.log('🔐 useAuth: Got session result:', { hasSession: !!session, hasUser: !!session?.user, error: error?.message })
+        } catch (timeoutError) {
+          // Session call timed out - likely stale session causing refresh loop
+          console.warn('🔐 useAuth: getSession() timed out - clearing stale session')
+          await supabase.auth.signOut({ scope: 'local' }) // Clear local storage only
+          
+          // Try again after clearing
+          const retry = await supabase.auth.getSession()
+          session = retry.data?.session
+          error = retry.error
+          console.log('🔐 useAuth: Retry after clearing:', { hasSession: !!session, hasUser: !!session?.user })
+        }
         
         if (error || !session?.user) {
           if (isMounted) {
@@ -257,6 +279,12 @@ export function useAuth() {
       } catch (err) {
         console.error('🔐 useAuth: Error during initialization:', err)
         if (isMounted) {
+          // On any error, clear session and set to awaitingName
+          try {
+            await supabase.auth.signOut({ scope: 'local' })
+          } catch (signOutError) {
+            console.error('🔐 useAuth: Error signing out:', signOutError)
+          }
           setUser(null)
           setAuthState('awaitingName')
           setLoading(false)
