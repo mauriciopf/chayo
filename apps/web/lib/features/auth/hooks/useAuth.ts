@@ -240,7 +240,7 @@ export function useAuth() {
         // Try to get session with timeout protection
         const sessionPromise = supabase.auth.getSession()
         const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Session timeout')), 3000)
+          setTimeout(() => reject(new Error('Session timeout')), 5000)
         )
         
         let session, error
@@ -250,26 +250,47 @@ export function useAuth() {
           error = result.error
           console.log('🔐 useAuth: Got session result:', { hasSession: !!session, hasUser: !!session?.user, error: error?.message })
         } catch (timeoutError) {
-          // Session call timed out - likely stale session causing refresh loop
-          console.warn('🔐 useAuth: getSession() timed out - clearing stale session')
+          // Session call timed out
+          console.warn('🔐 useAuth: getSession() timed out - setting temporary fallback state')
           
-          try {
-            // Clear local storage directly - faster than signOut
-            localStorage.removeItem('supabase.auth.token')
-            // Also try signOut with timeout
-            const signOutPromise = supabase.auth.signOut({ scope: 'local' })
-            const signOutTimeout = new Promise((resolve) => setTimeout(resolve, 1000))
-            await Promise.race([signOutPromise, signOutTimeout])
-            console.log('🔐 useAuth: Cleared stale session')
-          } catch (clearError) {
-            console.error('🔐 useAuth: Error clearing session:', clearError)
-            // Continue anyway
+          // Set temporary unauthenticated state so UI isn't blank
+          // BUT keep trying to get session in background
+          if (isMounted) {
+            setUser(null)
+            setAuthState('awaitingName')
+            setLoading(false)
+            hasInitialized = true
           }
           
-          // Force no session state immediately
-          session = null
-          error = null
-          console.log('🔐 useAuth: Forcing no-session state after timeout')
+          // Continue trying to get session in background for valid but slow sessions
+          try {
+            console.log('🔐 useAuth: Attempting to retrieve session in background...')
+            const backgroundResult = await sessionPromise
+            session = backgroundResult.data?.session
+            error = backgroundResult.error
+            
+            console.log('🔐 useAuth: Background session result:', { hasSession: !!session, hasUser: !!session?.user })
+            
+            // If we got a valid session, onAuthStateChange will handle the update
+            if (session?.user && isMounted) {
+              console.log('🔐 useAuth: Valid session found after timeout - user will be authenticated via onAuthStateChange')
+              // Don't do anything here - let onAuthStateChange handle it
+              return
+            }
+          } catch (bgError) {
+            console.error('🔐 useAuth: Background session retrieval failed:', bgError)
+            // Clear potentially corrupted session
+            try {
+              localStorage.removeItem('supabase.auth.token')
+              await supabase.auth.signOut({ scope: 'local' })
+              console.log('🔐 useAuth: Cleared corrupted session')
+            } catch (clearError) {
+              console.error('🔐 useAuth: Error clearing session:', clearError)
+            }
+          }
+          
+          // Already set awaitingName state above, just return
+          return
         }
         
         if (error || !session?.user) {
@@ -290,7 +311,6 @@ export function useAuth() {
       } catch (err) {
         console.error('🔐 useAuth: Error during initialization:', err)
         if (isMounted) {
-          // On any error, force awaitingName state
           console.log('🔐 useAuth: Forcing awaitingName due to error')
           setUser(null)
           setAuthState('awaitingName')
