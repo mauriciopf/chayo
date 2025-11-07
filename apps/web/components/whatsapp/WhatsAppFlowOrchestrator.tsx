@@ -2,32 +2,34 @@
 
 import { useState, useEffect } from 'react'
 import WhatsAppSetupModal from './WhatsAppSetupModal'
-import WhatsAppSendModal from './WhatsAppSendModal'
-import WhatsAppFallbackModal from './WhatsAppFallbackModal'
+import WhatsAppTemplateSelector from './WhatsAppTemplateSelector'
+import { ToolType } from '@/lib/features/tools/shared/services/ToolSystemService'
 
 interface WhatsAppFlowOrchestratorProps {
   isOpen: boolean
   onClose: () => void
   organizationId: string
+  organizationName?: string
   linkToSend: string
   toolName: string
+  toolType: ToolType  // NEW: Tool type for template filtering
 }
 
 export default function WhatsAppFlowOrchestrator({
   isOpen,
   onClose,
   organizationId,
+  organizationName,
   linkToSend,
-  toolName
+  toolName,
+  toolType
 }: WhatsAppFlowOrchestratorProps) {
   const [whatsappConnected, setWhatsappConnected] = useState<boolean | null>(null)
-  const [templateApproved, setTemplateApproved] = useState<boolean | null>(null)
   const [loading, setLoading] = useState(true)
   const [showSetupModal, setShowSetupModal] = useState(false)
-  const [showSendModal, setShowSendModal] = useState(false)
-  const [showFallbackModal, setShowFallbackModal] = useState(false)
+  const [showTemplateSelector, setShowTemplateSelector] = useState(false)
 
-  // Check WhatsApp connection and template status when modal opens
+  // Check WhatsApp connection when modal opens
   useEffect(() => {
     if (isOpen && organizationId) {
       checkWhatsAppStatus()
@@ -37,7 +39,7 @@ export default function WhatsAppFlowOrchestrator({
   const checkWhatsAppStatus = async () => {
     setLoading(true)
     try {
-      // Step 1: Check WhatsApp connection
+      // Check WhatsApp connection
       const statusResponse = await fetch(`/api/whatsapp/status?organizationId=${organizationId}`)
       const statusData = await statusResponse.json()
       
@@ -48,27 +50,14 @@ export default function WhatsAppFlowOrchestrator({
         // Not connected → Show setup modal
         setShowSetupModal(true)
       } else {
-        // Step 2: Check if template is approved
-        const templatesResponse = await fetch(`/api/whatsapp/templates?organizationId=${organizationId}&name=chayo_tool_link`)
-        const templatesData = await templatesResponse.json()
-        
-        const template = templatesData.templates?.find((t: any) => t.name === 'chayo_tool_link')
-        const approved = template?.status === 'APPROVED'
-        setTemplateApproved(approved)
-
-        if (approved) {
-          // Template approved → Use Business API
-          setShowSendModal(true)
-        } else {
-          // Template pending/not approved → Use fallback (wa.me link)
-          setShowFallbackModal(true)
-        }
+        // Connected → Show template selector (it will handle template logic)
+        setShowTemplateSelector(true)
       }
     } catch (error) {
       console.error('Error checking WhatsApp status:', error)
-      // On error, default to fallback
+      // On error, show setup modal
       setWhatsappConnected(false)
-      setShowFallbackModal(true)
+      setShowSetupModal(true)
     } finally {
       setLoading(false)
     }
@@ -77,23 +66,20 @@ export default function WhatsAppFlowOrchestrator({
   const handleSetupSuccess = () => {
     setWhatsappConnected(true)
     setShowSetupModal(false)
-    // After setup, template will be pending, so show fallback
-    setShowFallbackModal(true)
+    // After setup, show template selector
+    setShowTemplateSelector(true)
   }
   
   const handleSwitchAccount = () => {
     // User disconnected current WABA, restart the flow
     setWhatsappConnected(false)
-    setTemplateApproved(null)
-    setShowFallbackModal(false)
-    setShowSendModal(false)
+    setShowTemplateSelector(false)
     setShowSetupModal(true)
   }
 
   const handleCloseAll = () => {
     setShowSetupModal(false)
-    setShowSendModal(false)
-    setShowFallbackModal(false)
+    setShowTemplateSelector(false)
     onClose()
   }
 
@@ -125,27 +111,16 @@ export default function WhatsAppFlowOrchestrator({
         />
       )}
 
-      {/* Send Modal - Show if connected AND template approved */}
-      {showSendModal && (
-        <WhatsAppSendModal
-          isOpen={showSendModal}
+      {/* Template Selector - Show if connected (handles all template logic) */}
+      {showTemplateSelector && (
+        <WhatsAppTemplateSelector
+          isOpen={showTemplateSelector}
           onClose={handleCloseAll}
-          organizationId={organizationId}
-          linkToSend={linkToSend}
+          toolType={toolType}
           toolName={toolName}
-        />
-      )}
-
-      {/* Fallback Modal - Show if connected BUT template NOT approved */}
-      {showFallbackModal && (
-        <WhatsAppFallbackModal
-          isOpen={showFallbackModal}
-          onClose={handleCloseAll}
           linkToSend={linkToSend}
-          toolName={toolName}
-          templateStatus={templateApproved === null ? 'pending' : 'not_approved'}
           organizationId={organizationId}
-          onSwitchAccount={handleSwitchAccount}
+          organizationName={organizationName}
         />
       )}
     </>

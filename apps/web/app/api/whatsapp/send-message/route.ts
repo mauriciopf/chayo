@@ -122,7 +122,7 @@ async function sendWhatsAppTemplate({
   })
 
   const response = await fetch(
-    `https://graph.facebook.com/v21.0/${phoneNumberId}/messages`,
+    `https://graph.facebook.com/v23.0/${phoneNumberId}/messages`,
     {
       method: 'POST',
       headers: {

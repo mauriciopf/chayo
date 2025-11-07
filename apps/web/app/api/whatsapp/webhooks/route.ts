@@ -170,7 +170,7 @@ async function ensureDefaultTemplateExists(wabaId: string) {
   try {
     // Check if template already exists
     const listResponse = await fetch(
-      `https://graph.facebook.com/v21.0/${wabaId}/message_templates?name=chayo_tool_link`,
+      `https://graph.facebook.com/v23.0/${wabaId}/message_templates?name=chayo_tool_link`,
       {
         headers: {
           'Authorization': `Bearer ${systemUserToken}`
@@ -188,7 +188,7 @@ async function ensureDefaultTemplateExists(wabaId: string) {
 
     // Create the template (following official WhatsApp docs structure)
     const createResponse = await fetch(
-      `https://graph.facebook.com/v21.0/${wabaId}/message_templates`,
+      `https://graph.facebook.com/v23.0/${wabaId}/message_templates`,
       {
         method: 'POST',
         headers: {
@@ -251,7 +251,7 @@ async function fetchWhatsAppPhoneNumbers(wabaId: string) {
   }
 
   const response = await fetch(
-    `https://graph.facebook.com/v21.0/${wabaId}/phone_numbers`,
+    `https://graph.facebook.com/v23.0/${wabaId}/phone_numbers`,
     {
       headers: {
         'Authorization': `Bearer ${systemUserToken}`

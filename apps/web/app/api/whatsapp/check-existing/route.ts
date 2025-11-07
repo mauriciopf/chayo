@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
 
     // Step 1: Get all businesses the user can manage
     const businessesResponse = await fetch(
-      `https://graph.facebook.com/v21.0/me/businesses?access_token=${userAccessToken}`
+      `https://graph.facebook.com/v23.0/me/businesses?access_token=${userAccessToken}`
     )
 
     if (!businessesResponse.ok) {
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
     for (const business of businesses) {
       try {
         const wabaResponse = await fetch(
-          `https://graph.facebook.com/v21.0/${business.id}/owned_whatsapp_business_accounts?access_token=${userAccessToken}`
+          `https://graph.facebook.com/v23.0/${business.id}/owned_whatsapp_business_accounts?access_token=${userAccessToken}`
         )
 
         if (wabaResponse.ok) {

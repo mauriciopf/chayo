@@ -41,6 +41,7 @@ import TeamManagement from '@/lib/features/organizations/components/TeamManageme
 import ProfileSettings from '@/lib/features/dashboard/components/agents/ProfileSettings'
 import MainDashboardLayout from '@/lib/features/dashboard/components/layout/MainDashboardLayout'
 import WhatsAppFlowOrchestrator from '@/components/whatsapp/WhatsAppFlowOrchestrator'
+import { ToolType } from '@/lib/features/tools/shared/services/ToolSystemService'
 
 
 
@@ -161,6 +162,7 @@ function DashboardContent() {
   const [whatsAppFlowOpen, setWhatsAppFlowOpen] = useState(false)
   const [whatsAppLink, setWhatsAppLink] = useState('')
   const [whatsAppToolName, setWhatsAppToolName] = useState('')
+  const [whatsAppToolType, setWhatsAppToolType] = useState<ToolType>('vibe_card')
   
   const [agentToolsSettings, setAgentToolsSettings] = useState<{
     products: boolean
@@ -416,9 +418,10 @@ function DashboardContent() {
             onStartTutorial={() => {
               setShowTutorial(true)
             }}
-            onWhatsAppShare={(link, toolName) => {
+            onWhatsAppShare={(link, toolName, toolType) => {
               setWhatsAppLink(link)
               setWhatsAppToolName(toolName)
+              setWhatsAppToolType(toolType)
               setWhatsAppFlowOpen(true)
             }}
             enabledTools={agentToolsSettings}
@@ -600,10 +603,13 @@ function DashboardContent() {
             setWhatsAppFlowOpen(false)
             setWhatsAppLink('')
             setWhatsAppToolName('')
+            setWhatsAppToolType('vibe_card')
           }}
           organizationId={auth.currentOrganization.id}
+          organizationName={auth.currentOrganization.name}
           linkToSend={whatsAppLink}
           toolName={whatsAppToolName}
+          toolType={whatsAppToolType}
         />
       )}
     </>

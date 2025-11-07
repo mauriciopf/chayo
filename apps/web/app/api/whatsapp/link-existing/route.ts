@@ -37,14 +37,14 @@ export async function POST(request: NextRequest) {
     
     // Try user access token first, fallback to system token if it fails (e.g., expired)
     let phoneNumbersResponse = await fetch(
-      `https://graph.facebook.com/v21.0/${wabaId}/phone_numbers?access_token=${userAccessToken}`
+      `https://graph.facebook.com/v23.0/${wabaId}/phone_numbers?access_token=${userAccessToken}`
     )
 
     // If user token failed (expired, revoked, etc.), try system token
     if (!phoneNumbersResponse.ok && SYSTEM_USER_ACCESS_TOKEN) {
       console.log('⚠️ User token failed, trying system token...')
       phoneNumbersResponse = await fetch(
-        `https://graph.facebook.com/v21.0/${wabaId}/phone_numbers?access_token=${SYSTEM_USER_ACCESS_TOKEN}`
+        `https://graph.facebook.com/v23.0/${wabaId}/phone_numbers?access_token=${SYSTEM_USER_ACCESS_TOKEN}`
       )
     }
 
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
 
     // Step 2: Subscribe app to webhooks for this WABA
     console.log('🔄 Step 2: Subscribing to webhooks...')
-    const webhookUrl = `https://graph.facebook.com/v21.0/${wabaId}/subscribed_apps`
+    const webhookUrl = `https://graph.facebook.com/v23.0/${wabaId}/subscribed_apps`
     
     const webhookResponse = await fetch(webhookUrl, {
       method: 'POST',
@@ -188,7 +188,7 @@ async function ensureDefaultTemplateExists(wabaId: string) {
   try {
     // Check if template already exists
     const listResponse = await fetch(
-      `https://graph.facebook.com/v21.0/${wabaId}/message_templates?name=chayo_tool_link`,
+      `https://graph.facebook.com/v23.0/${wabaId}/message_templates?name=chayo_tool_link`,
       {
         headers: {
           'Authorization': `Bearer ${systemUserToken}`
@@ -208,7 +208,7 @@ async function ensureDefaultTemplateExists(wabaId: string) {
 
     // Create the template (following official WhatsApp docs structure)
     const createResponse = await fetch(
-      `https://graph.facebook.com/v21.0/${wabaId}/message_templates`,
+      `https://graph.facebook.com/v23.0/${wabaId}/message_templates`,
       {
         method: 'POST',
         headers: {

@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
+import { ToolType } from '@/lib/features/tools/shared/services/ToolSystemService'
 
 interface ToolCard {
   id: string
@@ -16,7 +17,7 @@ interface ToolCard {
 interface DashboardCardGridProps {
   onCardClick: (category: string) => void
   onStartTutorial: () => void
-  onWhatsAppShare: (toolLink: string, toolName: string) => void
+  onWhatsAppShare: (toolLink: string, toolName: string, toolType: ToolType) => void
   enabledTools: {
     products: boolean
     payments: boolean
@@ -133,8 +134,21 @@ export default function DashboardCardGrid({
     
     const link = `https://chayo.onelink.me/SB63?deep_link_value=${organizationSlug}&deep_link_sub1=${card.linkSlug}`
     
-    // Notify parent to open WhatsApp flow
-    onWhatsAppShare(link, card.title)
+    // Map category to ToolType
+    const toolTypeMap: Record<string, ToolType> = {
+      'chat': 'vibe_card',
+      'products': 'products',
+      'reservations': 'reservations',
+      'forms': 'intake_forms',
+      'documents': 'documents',
+      'support': 'customer_support',
+      'quick-links': 'vibe_card'  // Fallback to vibe_card
+    }
+    
+    const toolType = toolTypeMap[card.category] || 'vibe_card'
+    
+    // Notify parent to open WhatsApp flow with toolType
+    onWhatsAppShare(link, card.title, toolType)
   }
 
   const generateShortLink = (linkSlug?: string) => {

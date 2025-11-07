@@ -12,6 +12,7 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams
     const organizationId = searchParams.get('organizationId')
     const templateName = searchParams.get('name')
+    const toolType = searchParams.get('toolType')  // NEW: Filter by tool type
 
     if (!organizationId) {
       return NextResponse.json(
@@ -46,7 +47,8 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch templates from WhatsApp API
-    let url = `https://graph.facebook.com/v21.0/${waba_id}/message_templates?fields=name,status,category,language,components`
+    // Using v23.0 (latest stable version as per Meta docs)
+    let url = `https://graph.facebook.com/v23.0/${waba_id}/message_templates?fields=name,status,category,sub_category,language,components`
     
     if (templateName) {
       url += `&name=${encodeURIComponent(templateName)}`
@@ -68,14 +70,24 @@ export async function GET(request: NextRequest) {
     }
 
     const data = await response.json()
-    const templates = data.data || []
+    let templates = data.data || []
+
+    // Filter by tool type if specified (using sub_category or name pattern)
+    if (toolType) {
+      templates = templates.filter((template: any) => 
+        template.sub_category === toolType || 
+        template.name.includes(toolType)
+      )
+    }
 
     return NextResponse.json({
       success: true,
       templates: templates.map((template: any) => ({
+        id: template.id,
         name: template.name,
         status: template.status,
         category: template.category,
+        sub_category: template.sub_category,
         language: template.language,
         components: template.components
       }))

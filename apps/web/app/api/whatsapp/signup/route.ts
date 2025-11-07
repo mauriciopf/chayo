@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
 
     // Step 1: Exchange code for access token
     console.log('🔄 Step 1: Exchanging code for access token...')
-    const tokenUrl = `https://graph.facebook.com/v21.0/oauth/access_token?client_id=${FB_APP_ID}&client_secret=${FB_APP_SECRET}&code=${code}`
+    const tokenUrl = `https://graph.facebook.com/v23.0/oauth/access_token?client_id=${FB_APP_ID}&client_secret=${FB_APP_SECRET}&code=${code}`
     
     const tokenResponse = await fetch(tokenUrl, {
       method: 'GET',
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
 
     // Step 2: Register phone number for Cloud API
     console.log('🔄 Step 2: Registering phone number for Cloud API...')
-    const registerUrl = `https://graph.facebook.com/v21.0/${phoneNumberId}/register`
+    const registerUrl = `https://graph.facebook.com/v23.0/${phoneNumberId}/register`
     
     const registerResponse = await fetch(registerUrl, {
       method: 'POST',
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
 
     // Step 3: Subscribe app to webhooks
     console.log('🔄 Step 3: Subscribing to webhooks...')
-    const webhookUrl = `https://graph.facebook.com/v21.0/${wabaId}/subscribed_apps`
+    const webhookUrl = `https://graph.facebook.com/v23.0/${wabaId}/subscribed_apps`
     
     const webhookResponse = await fetch(webhookUrl, {
       method: 'POST',

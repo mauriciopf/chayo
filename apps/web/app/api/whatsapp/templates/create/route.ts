@@ -9,11 +9,18 @@ const SYSTEM_USER_TOKEN = process.env.FACEBOOK_SYSTEM_USER_TOKEN
  */
 export async function POST(request: NextRequest) {
   try {
-    const { organizationId, templateName, category, language, components } = await request.json()
+    const { 
+      organizationId, 
+      templateName, 
+      category, 
+      subCategory,  // NEW: Tool type as subcategory
+      language, 
+      components 
+    } = await request.json()
 
     if (!organizationId || !templateName || !category || !components) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: 'Missing required fields: organizationId, templateName, category, components' },
         { status: 400 }
       )
     }
@@ -44,21 +51,44 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Validate template name (lowercase, numbers, underscores only)
+    if (!/^[a-z0-9_]{1,512}$/.test(templateName)) {
+      return NextResponse.json(
+        { error: 'Template name must be lowercase letters, numbers, and underscores only (max 512 chars)' },
+        { status: 400 }
+      )
+    }
+
+    // Build template payload
+    const templatePayload: any = {
+      name: templateName,
+      language: language || 'es',
+      category: category || 'UTILITY',
+      components
+    }
+
+    // Add sub_category if provided (tool type)
+    if (subCategory) {
+      templatePayload.sub_category = subCategory
+    }
+
+    console.log('📤 Creating template:', { 
+      name: templateName, 
+      category: templatePayload.category,
+      sub_category: templatePayload.sub_category,
+      language: templatePayload.language
+    })
+
     // Create template via WhatsApp API
     const response = await fetch(
-      `https://graph.facebook.com/v21.0/${waba_id}/message_templates`,
+      `https://graph.facebook.com/v23.0/${waba_id}/message_templates`,
       {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${SYSTEM_USER_TOKEN}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          name: templateName,
-          language: language || 'es',
-          category: category || 'UTILITY',
-          components
-        })
+        body: JSON.stringify(templatePayload)
       }
     )
 
@@ -126,7 +156,7 @@ async function createDefaultToolLinkTemplate(wabaId: string) {
   ]
 
   const response = await fetch(
-    `https://graph.facebook.com/v21.0/${wabaId}/message_templates`,
+    `https://graph.facebook.com/v23.0/${wabaId}/message_templates`,
     {
       method: 'POST',
       headers: {

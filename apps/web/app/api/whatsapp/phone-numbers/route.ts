@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
 
     // Fetch phone numbers from WhatsApp API
     const response = await fetch(
-      `https://graph.facebook.com/v21.0/${waba_id}/phone_numbers`,
+      `https://graph.facebook.com/v23.0/${waba_id}/phone_numbers`,
       {
         headers: {
           'Authorization': `Bearer ${access_token}`
