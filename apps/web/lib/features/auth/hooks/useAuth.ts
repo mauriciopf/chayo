@@ -234,11 +234,14 @@ export function useAuth() {
     }
 
     const initializeAuth = async () => {
+      console.log('🔐 useAuth: Starting auth initialization...')
       try {
         const { data: { session }, error } = await supabase.auth.getSession()
+        console.log('🔐 useAuth: Got session result:', { hasSession: !!session, hasUser: !!session?.user, error: error?.message })
         
         if (error || !session?.user) {
           if (isMounted) {
+            console.log('🔐 useAuth: No session - setting awaitingName')
             setUser(null)
             setAuthState('awaitingName')
             setLoading(false)
@@ -248,9 +251,11 @@ export function useAuth() {
         }
 
         if (isMounted) {
+          console.log('🔐 useAuth: Session found - authenticating user')
           await handleAuthenticatedUser(session.user)
         }
-      } catch {
+      } catch (err) {
+        console.error('🔐 useAuth: Error during initialization:', err)
         if (isMounted) {
           setUser(null)
           setAuthState('awaitingName')

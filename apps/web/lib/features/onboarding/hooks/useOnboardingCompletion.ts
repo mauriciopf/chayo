@@ -7,7 +7,7 @@ export function useOnboardingCompletion(organizationId?: string, currentPhase?: 
   // 1. Initial database check when component mounts or organizationId changes
   useEffect(() => {
     if (!organizationId) {
-      console.log('⚠️ [ONBOARDING] No organizationId provided')
+      // Silently return for unauthenticated users
       setIsCompleted(false)
       return
     }

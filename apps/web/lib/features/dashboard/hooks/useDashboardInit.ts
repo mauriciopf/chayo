@@ -111,8 +111,9 @@ export function useDashboardInit(
   }
 
   useEffect(() => {
+    console.log('🔄 useDashboardInit effect triggered:', { authState, userId: user?.id, locale })
     initializeDashboard()
-  }, [locale, authState, user]) // Removed authLoading dependency
+  }, [locale, authState, user])
 
   const retryInit = () => {
     initializeDashboard()
