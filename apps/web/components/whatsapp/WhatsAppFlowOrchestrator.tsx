@@ -80,6 +80,15 @@ export default function WhatsAppFlowOrchestrator({
     // After setup, template will be pending, so show fallback
     setShowFallbackModal(true)
   }
+  
+  const handleSwitchAccount = () => {
+    // User disconnected current WABA, restart the flow
+    setWhatsappConnected(false)
+    setTemplateApproved(null)
+    setShowFallbackModal(false)
+    setShowSendModal(false)
+    setShowSetupModal(true)
+  }
 
   const handleCloseAll = () => {
     setShowSetupModal(false)
@@ -135,6 +144,8 @@ export default function WhatsAppFlowOrchestrator({
           linkToSend={linkToSend}
           toolName={toolName}
           templateStatus={templateApproved === null ? 'pending' : 'not_approved'}
+          organizationId={organizationId}
+          onSwitchAccount={handleSwitchAccount}
         />
       )}
     </>

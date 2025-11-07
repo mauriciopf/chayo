@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 
 interface WhatsAppFallbackModalProps {
@@ -8,6 +9,8 @@ interface WhatsAppFallbackModalProps {
   linkToSend: string
   toolName: string
   templateStatus: 'pending' | 'not_approved'
+  organizationId?: string
+  onSwitchAccount?: () => void
 }
 
 export default function WhatsAppFallbackModal({
@@ -15,9 +18,45 @@ export default function WhatsAppFallbackModal({
   onClose,
   linkToSend,
   toolName,
-  templateStatus
+  templateStatus,
+  organizationId,
+  onSwitchAccount
 }: WhatsAppFallbackModalProps) {
   if (!isOpen) return null
+  
+  const [disconnecting, setDisconnecting] = useState(false)
+  
+  const handleSwitchAccount = async () => {
+    if (!organizationId) return
+    
+    const confirmed = window.confirm(
+      '¿Estás seguro de que quieres desconectar la cuenta actual de WhatsApp Business? Podrás conectar una cuenta diferente después.'
+    )
+    
+    if (!confirmed) return
+    
+    setDisconnecting(true)
+    try {
+      const response = await fetch('/api/whatsapp/disconnect', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ organizationId })
+      })
+      
+      if (response.ok) {
+        // Success - trigger account switch flow
+        onSwitchAccount?.()
+      } else {
+        const error = await response.json()
+        alert(`Error al desconectar: ${error.error}`)
+      }
+    } catch (error) {
+      console.error('Error disconnecting WABA:', error)
+      alert('Error al desconectar la cuenta de WhatsApp Business')
+    } finally {
+      setDisconnecting(false)
+    }
+  }
 
   const handleSendViaWhatsApp = () => {
     // Use WhatsApp's direct link API (doesn't require templates or approval)
@@ -153,6 +192,22 @@ export default function WhatsAppFallbackModal({
           >
             Cancelar
           </button>
+          
+          {/* Switch account button */}
+          {organizationId && onSwitchAccount && (
+            <button
+              onClick={handleSwitchAccount}
+              disabled={disconnecting}
+              className="w-full p-2 text-sm rounded-lg transition-all hover:opacity-80"
+              style={{
+                backgroundColor: 'transparent',
+                color: 'var(--text-secondary)',
+                textDecoration: 'underline'
+              }}
+            >
+              {disconnecting ? 'Desconectando...' : '🔄 Conectar a otro negocio'}
+            </button>
+          )}
         </div>
       </motion.div>
     </div>

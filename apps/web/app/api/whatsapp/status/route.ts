@@ -19,14 +19,15 @@ export async function GET(request: NextRequest) {
       .from('whatsapp_business_accounts')
       .select('id, waba_id, phone_number_id, is_active')
       .eq('organization_id', organizationId)
-      .single()
+      .eq('is_active', true)  // Only get active accounts
+      .maybeSingle()  // Changed from .single() to handle no results gracefully
 
     if (error || !data) {
       return NextResponse.json({ connected: false })
     }
 
     return NextResponse.json({
-      connected: data.is_active,
+      connected: true,  // If we have data, it's connected
       wabaId: data.waba_id,
       phoneNumberId: data.phone_number_id
     })
