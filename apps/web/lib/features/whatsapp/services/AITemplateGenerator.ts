@@ -96,11 +96,11 @@ export class AITemplateGenerator {
 
     // For other tools: Standard structure with static body
     return [
-      // HEADER
+      // HEADER - NO EMOJIS ALLOWED by Meta
       {
         type: 'HEADER',
         format: 'TEXT',
-        text: `${toolConfig.icon} ${toolConfig.displayName}`
+        text: toolConfig.displayName // Just the name, no emoji
       },
       // BODY with AI-generated text (static)
       {
@@ -112,15 +112,16 @@ export class AITemplateGenerator {
         type: 'FOOTER',
         text: options.businessName
       },
-      // BUTTONS with dynamic link
+      // BUTTONS with dynamic parameter appended to URL
+      // Meta allows 1 variable at the END of the URL
       {
         type: 'BUTTONS',
         buttons: [
           {
             type: 'URL',
             text: isSpanish ? 'Ver Enlace' : 'View Link',
-            url: 'https://chayo.onelink.me/SB63?deep_link_value={{1}}',
-            example: ['mi-negocio']
+            url: 'https://chayo.onelink.me/SB63?deep_link_value={{1}}', // Variable at the end
+            example: ['mi-negocio'] // Just the variable value, not full URL
           }
         ]
       }
@@ -142,11 +143,11 @@ export class AITemplateGenerator {
     const isSpanish = options.language === 'es'
 
     return [
-      // HEADER
+      // HEADER - NO EMOJIS ALLOWED by Meta
       {
         type: 'HEADER',
         format: 'TEXT',
-        text: isSpanish ? '⏰ Recordatorio' : '⏰ Reminder'
+        text: isSpanish ? 'Recordatorio' : 'Reminder' // No emoji
       },
       // BODY with dynamic message parameter
       {
