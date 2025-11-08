@@ -11,10 +11,10 @@ import { getSupabaseServerClient } from '@/lib/shared/supabase/server'
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const organizationId = params.id
+    const { id: organizationId } = await params
     const searchParams = request.nextUrl.searchParams
     const searchTerm = searchParams.get('search')
 
@@ -76,10 +76,10 @@ export async function GET(
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const organizationId = params.id
+    const { id: organizationId } = await params
     const { name, phone } = await request.json()
 
     if (!organizationId || !name || !phone) {

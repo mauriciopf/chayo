@@ -58,12 +58,19 @@ export async function POST(request: NextRequest) {
       language
     })
 
-    // Generate template using AI
-    const components = await AITemplateGenerator.generateTemplate({
+    // Generate message text using AI
+    const messageText = await AITemplateGenerator.generateTemplateText({
       toolType: toolType as ToolType,
       businessName: organization.name,
       businessType: organization.description || undefined,
       tone: tone as 'formal' | 'casual' | 'friendly',
+      language: language as 'es' | 'en'
+    })
+
+    // Build complete template structure
+    const components = AITemplateGenerator.buildTemplateComponents(messageText, {
+      toolType: toolType as ToolType,
+      businessName: organization.name,
       language: language as 'es' | 'en'
     })
 
@@ -72,6 +79,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       components,
+      messageText, // Return the raw text too for preview
       metadata: {
         toolType,
         language,

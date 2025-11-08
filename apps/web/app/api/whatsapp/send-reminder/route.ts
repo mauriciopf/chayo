@@ -135,16 +135,8 @@ export async function POST(request: NextRequest) {
     // ✅ Template is APPROVED - send via WhatsApp Business API
     console.log('✅ Template is approved, sending via WhatsApp Business API...')
 
-    // Build template parameters from message
-    // Template format: "Hola {{1}}! 👋\n\n📅 Recordatorio: {{2}}\n\n{{3}}\n\nGracias,\n{{4}}"
-    // Parameters: [customerName, subject, message, businessName]
-    const templateParameters = buildTemplateParameters(template, {
-      customerName: customerName || 'Cliente',
-      subject: 'Recordatorio',
-      message,
-      businessName: businessName || 'Nuestro Equipo'
-    })
-
+    // Build message payload
+    // Reminder template format: Body has {{1}} parameter for the reminder message
     const messagePayload = {
       messaging_product: 'whatsapp',
       to: phone,
@@ -154,7 +146,17 @@ export async function POST(request: NextRequest) {
         language: {
           code: template.language || 'es'
         },
-        components: templateParameters
+        components: [
+          {
+            type: 'body',
+            parameters: [
+              {
+                type: 'text',
+                text: message // The actual reminder message
+              }
+            ]
+          }
+        ]
       }
     }
 
@@ -229,56 +231,3 @@ function generateWaMeFallbackLink(
   
   return `https://wa.me/${cleanPhone}?text=${encodedMessage}`
 }
-
-/**
- * Build template parameters from reminder data
- */
-function buildTemplateParameters(
-  template: any,
-  data: {
-    customerName: string
-    subject: string
-    message: string
-    businessName: string
-  }
-): any[] {
-  const components: any[] = []
-  
-  // Find BODY component and build parameters
-  const bodyComponent = template.components?.find((c: any) => c.type === 'BODY')
-  if (bodyComponent?.text) {
-    // Check if template uses POSITIONAL ({{1}}) or NAMED ({{name}}) parameters
-    const isPositional = bodyComponent.text.includes('{{1}}')
-    
-    if (isPositional) {
-      // Count number of parameters in template
-      const paramCount = (bodyComponent.text.match(/\{\{\d+\}\}/g) || []).length
-      
-      // Build parameters array based on template
-      const parameters = []
-      if (paramCount >= 1) parameters.push({ type: 'text', text: data.customerName })
-      if (paramCount >= 2) parameters.push({ type: 'text', text: data.subject })
-      if (paramCount >= 3) parameters.push({ type: 'text', text: data.message })
-      if (paramCount >= 4) parameters.push({ type: 'text', text: data.businessName })
-      
-      components.push({
-        type: 'body',
-        parameters
-      })
-    } else {
-      // Named parameters
-      components.push({
-        type: 'body',
-        parameters: [
-          { type: 'text', text: data.customerName },
-          { type: 'text', text: data.subject },
-          { type: 'text', text: data.message },
-          { type: 'text', text: data.businessName }
-        ]
-      })
-    }
-  }
-  
-  return components
-}
-
