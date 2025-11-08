@@ -119,8 +119,8 @@ export class AITemplateGenerator {
           {
             type: 'URL',
             text: isSpanish ? 'Ver Enlace' : 'View Link',
-            url: '{{1}}',
-            example: ['https://chayo.onelink.me/example']
+            url: 'https://chayo.onelink.me/SB63?deep_link_value={{1}}',
+            example: ['mi-negocio']
           }
         ]
       }
