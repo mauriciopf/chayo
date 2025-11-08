@@ -4,10 +4,19 @@ export function useOnboardingCompletion(organizationId?: string, currentPhase?: 
   const [isCompleted, setIsCompleted] = useState(false)
   const [loading, setLoading] = useState(false)
 
+  console.log('🔍 [ONBOARDING] Hook called with:', { 
+    organizationId, 
+    currentPhase, 
+    isCompleted, 
+    loading 
+  })
+
   // 1. Initial database check when component mounts or organizationId changes
   useEffect(() => {
+    console.log('🔄 [ONBOARDING] Effect triggered with organizationId:', organizationId)
+    
     if (!organizationId) {
-      // Silently return for unauthenticated users
+      console.log('⚠️ [ONBOARDING] No organizationId - setting completed to false')
       setIsCompleted(false)
       return
     }
@@ -58,6 +67,8 @@ export function useOnboardingCompletion(organizationId?: string, currentPhase?: 
     // Note: Vibe card phases (analyzingBusiness, craftingStory, etc.) are handled 
     // by the VibeCardGenerationModal for progress display, not for completion detection
   }, [currentPhase, organizationId])
+
+  console.log('📤 [ONBOARDING] Hook returning:', { isCompleted, loading })
 
   return { isCompleted, loading }
 }
