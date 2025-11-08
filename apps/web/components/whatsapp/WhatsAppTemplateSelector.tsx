@@ -144,7 +144,7 @@ export default function WhatsAppTemplateSelector({
     setError(null)
     
     try {
-      const templateName = WhatsAppTemplateManager.generateTemplateName(toolType, 'ai')
+      const templateName = WhatsAppTemplateManager.generateTemplateName(toolType, 'es')
       
       const response = await fetch('/api/whatsapp/templates/create', {
         method: 'POST',

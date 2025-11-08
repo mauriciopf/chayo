@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
       organizationId, 
       templateName, 
       category, 
-      subCategory,  // NEW: Tool type as subcategory
+      subCategory,  // Accept but don't use for Meta API (only for our internal tracking via template name)
       language, 
       components 
     } = await request.json()
@@ -60,22 +60,19 @@ export async function POST(request: NextRequest) {
     }
 
     // Build template payload
+    // Template naming: {toolType}_{language}_{timestamp}
+    // Examples: reservations_es_1762626736366, products_en_1762626800123
+    // This allows multiple templates per tool (different languages, A/B testing, etc.)
     const templatePayload: any = {
-      name: templateName,
+      name: templateName,  // e.g., "reservations_es_1762626736366"
       language: language || 'es',
-      category: category || 'UTILITY',
+      category: 'UTILITY', // Always UTILITY for business tools
       components
-    }
-
-    // Add sub_category if provided (tool type)
-    if (subCategory) {
-      templatePayload.sub_category = subCategory
     }
 
     console.log('📤 Creating template:', { 
       name: templateName, 
       category: templatePayload.category,
-      sub_category: templatePayload.sub_category,
       language: templatePayload.language
     })
 

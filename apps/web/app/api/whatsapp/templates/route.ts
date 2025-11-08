@@ -72,11 +72,12 @@ export async function GET(request: NextRequest) {
     const data = await response.json()
     let templates = data.data || []
 
-    // Filter by tool type if specified (using sub_category or name pattern)
+    // Filter by tool type if specified
+    // Template naming convention: {toolType}_{language}_{timestamp}
+    // e.g., "reservations_es_1762626736366"
     if (toolType) {
       templates = templates.filter((template: any) => 
-        template.sub_category === toolType || 
-        template.name.includes(toolType)
+        template.name.startsWith(`${toolType}_`)
       )
     }
 

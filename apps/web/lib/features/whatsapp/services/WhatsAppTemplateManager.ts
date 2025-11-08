@@ -116,10 +116,14 @@ export class WhatsAppTemplateManager {
   /**
    * Generate a unique template name for a tool type
    */
-  static generateTemplateName(toolType: ToolType, variant?: string): string {
+  /**
+   * Generate a unique template name following our convention
+   * Pattern: {toolType}_{language}_{timestamp}
+   * Example: reservations_es_1762626736366
+   */
+  static generateTemplateName(toolType: ToolType, language: string = 'es'): string {
     const timestamp = Date.now()
-    const suffix = variant ? `_${variant}` : ''
-    return `chayo_${toolType}${suffix}_${timestamp}`
+    return `${toolType}_${language}_${timestamp}`
   }
 
   /**
