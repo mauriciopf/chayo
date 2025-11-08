@@ -19,6 +19,7 @@ export type ToolType =
   | 'intake_forms'    // Customer intake forms
   | 'faqs'            // Frequently asked questions
   | 'customer_support' // Customer support tickets
+  | 'reminders'       // Email and WhatsApp reminders
   | 'vibe_card';      // Vibe card (always enabled, not stored in DB)
 
 // Tool configuration interface
@@ -124,6 +125,15 @@ export const TOOL_CONFIGS: Record<ToolType, ToolConfig> = {
     isCore: false,
     category: 'support',
   },
+  reminders: {
+    type: 'reminders',
+    name: 'reminders',
+    displayName: 'Recordatorios',
+    description: 'Envía recordatorios automáticos por email o WhatsApp',
+    icon: '⏰',
+    isCore: false,
+    category: 'support',
+  },
 };
 
 /**
@@ -197,6 +207,7 @@ export class ToolSystemService {
       intake_forms: false,
       faqs: false,
       customer_support: false,
+      reminders: false,
     };
 
     try {

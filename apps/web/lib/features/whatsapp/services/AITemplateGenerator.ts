@@ -333,6 +333,10 @@ Generate the template now. Return ONLY the JSON, nothing else.`
       payments: {
         es: 'realizar un pago',
         en: 'make a payment'
+      },
+      reminders: {
+        es: 'recibir recordatorios',
+        en: 'receive reminders'
       }
     }
     

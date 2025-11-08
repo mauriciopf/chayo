@@ -100,9 +100,12 @@ export async function POST(
     // Parse request body
     const body = await request.json()
     const {
+      channel = 'email',
       customer_id,
       manual_email,
       manual_name,
+      whatsapp_phone,
+      whatsapp_template_name,
       original_message,
       ai_generated_html,
       subject,
@@ -110,20 +113,45 @@ export async function POST(
       recurrence = 'once'
     } = body
 
-    // Validate required fields
-    if ((!customer_id && !manual_email) || !original_message || !subject || !scheduled_at) {
+    // Validate channel
+    if (!['email', 'whatsapp'].includes(channel)) {
       return NextResponse.json(
-        { error: 'Missing required fields. Provide either customer_id or manual_email.' },
+        { error: 'Invalid channel. Must be "email" or "whatsapp".' },
         { status: 400 }
       )
     }
 
-    // Validate email format if using manual email
-    if (manual_email && !manual_email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-      return NextResponse.json(
-        { error: 'Invalid email format' },
-        { status: 400 }
-      )
+    // Validate required fields based on channel
+    if (channel === 'email') {
+      if ((!customer_id && !manual_email) || !original_message || !subject || !scheduled_at) {
+        return NextResponse.json(
+          { error: 'Missing required fields for email reminder. Provide customer_id or manual_email, original_message, subject, and scheduled_at.' },
+          { status: 400 }
+        )
+      }
+
+      // Validate email format if using manual email
+      if (manual_email && !manual_email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+        return NextResponse.json(
+          { error: 'Invalid email format' },
+          { status: 400 }
+        )
+      }
+    } else if (channel === 'whatsapp') {
+      if (!whatsapp_phone || !original_message || !scheduled_at) {
+        return NextResponse.json(
+          { error: 'Missing required fields for WhatsApp reminder. Provide whatsapp_phone, original_message, and scheduled_at.' },
+          { status: 400 }
+        )
+      }
+
+      // Validate phone format (E.164)
+      if (!whatsapp_phone.startsWith('+')) {
+        return NextResponse.json(
+          { error: 'WhatsApp phone number must be in E.164 format (e.g. +52XXXXXXXXXX)' },
+          { status: 400 }
+        )
+      }
     }
 
     // Calculate next_send_at for recurring reminders
@@ -132,9 +160,8 @@ export async function POST(
     // Build reminder data
     const reminderData: any = {
       organization_id: organizationId,
+      channel,
       original_message,
-      ai_generated_html,
-      subject,
       scheduled_at,
       recurrence,
       next_send_at: nextSendAt,
@@ -142,12 +169,26 @@ export async function POST(
       created_by: user.id
     }
 
-    // Add either customer_id OR manual email fields
-    if (customer_id) {
-      reminderData.customer_id = customer_id
-    } else if (manual_email) {
-      reminderData.manual_email = manual_email.toLowerCase().trim()
-      reminderData.manual_name = manual_name || null
+    // Add channel-specific fields
+    if (channel === 'email') {
+      reminderData.subject = subject
+      reminderData.ai_generated_html = ai_generated_html
+
+      // Add either customer_id OR manual email fields
+      if (customer_id) {
+        reminderData.customer_id = customer_id
+      } else if (manual_email) {
+        reminderData.manual_email = manual_email.toLowerCase().trim()
+        reminderData.manual_name = manual_name || null
+      }
+    } else if (channel === 'whatsapp') {
+      reminderData.whatsapp_phone = whatsapp_phone
+      reminderData.whatsapp_template_name = whatsapp_template_name || null
+
+      // Optionally link to customer if provided
+      if (customer_id) {
+        reminderData.customer_id = customer_id
+      }
     }
 
     // Create reminder
