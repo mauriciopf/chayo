@@ -184,6 +184,7 @@ export function useAuth() {
     }
 
     const fetchCurrentOrganization = async (userId: string) => {
+      console.log('🏢 [AUTH] fetchCurrentOrganization called for userId:', userId)
       try {
         const { data: membership, error } = await supabase
           .from('team_members')
@@ -203,13 +204,22 @@ export function useAuth() {
           .limit(1)
           .maybeSingle()
 
+        console.log('🏢 [AUTH] fetchCurrentOrganization result:', {
+          error: error?.message,
+          hasMembership: !!membership,
+          hasOrganizations: !!membership?.organizations,
+          organizationId: membership?.organizations?.[0]?.id,
+        })
+
         if (error || !membership?.organizations) {
+          console.warn('⚠️ [AUTH] No organization found or error occurred')
           setCurrentOrganization(null)
           return
         }
 
         setCurrentOrganization(membership.organizations as unknown as Organization)
-      } catch {
+      } catch (err) {
+        console.error('❌ [AUTH] fetchCurrentOrganization error:', err)
         setCurrentOrganization(null)
       }
     }
@@ -224,11 +234,17 @@ export function useAuth() {
       setLoading(false)
       
       // Fetch user data in parallel
-      await Promise.allSettled([
+      const results = await Promise.allSettled([
         fetchCurrentOrganization(user.id),
         fetchAgents(),
         fetchSubscription(user.id)
       ])
+      
+      console.log('✅ [AUTH] Parallel fetch complete:', {
+        organization: results[0].status,
+        agents: results[1].status,
+        subscription: results[2].status
+      })
       
       hasInitialized = true
     }

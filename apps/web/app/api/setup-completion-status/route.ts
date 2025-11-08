@@ -8,8 +8,11 @@ export async function POST(req: NextRequest) {
     const { organizationId } = await req.json()
     
     if (!organizationId) {
+      console.error('❌ [SETUP-COMPLETION-API] No organizationId provided')
       return NextResponse.json({ error: 'Organization ID is required' }, { status: 400 })
     }
+
+    console.log('🔍 [SETUP-COMPLETION-API] Checking completion for organizationId:', organizationId)
 
     // Create server-side Supabase client
     const supabase = await getSupabaseServerClient()
