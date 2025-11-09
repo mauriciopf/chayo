@@ -33,19 +33,86 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'WhatsApp not connected' }, { status: 404 })
     }
 
-    if (!whatsappAccount.catalog_id) {
-      return NextResponse.json({ error: 'No catalog configured' }, { status: 404 })
+    // Check if catalog_id exists, if not, try to create or get one
+    let catalogId = whatsappAccount.catalog_id
+
+    if (!catalogId) {
+      console.log('📦 No catalog found - attempting to create or fetch existing catalog')
+      
+      // Try to get existing catalogs first
+      const catalogsResponse = await fetch(
+        `${request.nextUrl.origin}/api/whatsapp/catalogs?organizationId=${organizationId}`,
+        {
+          headers: {
+            'Cookie': request.headers.get('cookie') || ''
+          }
+        }
+      )
+
+      if (catalogsResponse.ok) {
+        const catalogsData = await catalogsResponse.json()
+        
+        if (catalogsData.catalogs && catalogsData.catalogs.length > 0) {
+          // Use first existing catalog
+          catalogId = catalogsData.catalogs[0].id
+          console.log(`✅ Found existing catalog: ${catalogId}`)
+          
+          // Update WABA with catalog_id
+          await supabase
+            .from('whatsapp_business_accounts')
+            .update({ catalog_id: catalogId })
+            .eq('organization_id', organizationId)
+        } else {
+          // No catalogs exist - create one
+          console.log('📦 No existing catalogs - creating new catalog')
+          
+          const createResponse = await fetch(
+            `${request.nextUrl.origin}/api/whatsapp/catalogs`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Cookie': request.headers.get('cookie') || ''
+              },
+              body: JSON.stringify({
+                organizationId,
+                catalogName: 'Chayo Products'
+              })
+            }
+          )
+
+          if (createResponse.ok) {
+            const createData = await createResponse.json()
+            catalogId = createData.catalogId
+            console.log(`✅ Created new catalog: ${catalogId}`)
+          } else {
+            const error = await createResponse.json()
+            console.error('❌ Failed to create catalog:', error)
+            return NextResponse.json({
+              error: 'Failed to create Meta catalog automatically. Please create one in Commerce Manager.',
+              details: error.error
+            }, { status: 500 })
+          }
+        }
+      }
+    }
+
+    if (!catalogId) {
+      console.warn('⚠️ Could not get or create catalog_id')
+      return NextResponse.json({ 
+        error: 'No catalog configured. Please create one in Meta Commerce Manager.' 
+      }, { status: 404 })
     }
 
     if (!SYSTEM_USER_TOKEN) {
       return NextResponse.json({ error: 'System user token not configured' }, { status: 500 })
     }
 
-    console.log('📦 Fetching products from Meta catalog:', whatsappAccount.catalog_id)
+    console.log('📦 Fetching products from Meta catalog:', catalogId)
 
     // Fetch products from Meta Commerce catalog
     const response = await fetch(
-      `https://graph.facebook.com/v23.0/${whatsappAccount.catalog_id}/products?fields=id,retailer_id,name,description,price,availability,image_url,url&limit=100`,
+      `https://graph.facebook.com/v23.0/${catalogId}/products?fields=id,retailer_id,name,description,price,availability,image_url,url&limit=100`,
       {
         headers: {
           'Authorization': `Bearer ${SYSTEM_USER_TOKEN}`
