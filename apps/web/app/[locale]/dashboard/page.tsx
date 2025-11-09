@@ -41,6 +41,7 @@ import TeamManagement from '@/lib/features/organizations/components/TeamManageme
 import ProfileSettings from '@/lib/features/dashboard/components/agents/ProfileSettings'
 import MainDashboardLayout from '@/lib/features/dashboard/components/layout/MainDashboardLayout'
 import WhatsAppFlowOrchestrator from '@/components/whatsapp/WhatsAppFlowOrchestrator'
+import WhatsAppSetupModal from '@/components/whatsapp/WhatsAppSetupModal'
 import { ToolType } from '@/lib/features/tools/shared/services/ToolSystemService'
 
 
@@ -158,11 +159,14 @@ function DashboardContent() {
   const [hasReminders, setHasReminders] = useState(false)
   const [showTutorial, setShowTutorial] = useState(false)
   
-  // WhatsApp flow state
+  // WhatsApp flow state (for sharing links with templates)
   const [whatsAppFlowOpen, setWhatsAppFlowOpen] = useState(false)
   const [whatsAppLink, setWhatsAppLink] = useState('')
   const [whatsAppToolName, setWhatsAppToolName] = useState('')
   const [whatsAppToolType, setWhatsAppToolType] = useState<ToolType>('vibe_card')
+  
+  // WhatsApp setup modal (connection only, no templates)
+  const [whatsAppSetupOpen, setWhatsAppSetupOpen] = useState(false)
   
   const [agentToolsSettings, setAgentToolsSettings] = useState<{
     products: boolean
@@ -425,11 +429,8 @@ function DashboardContent() {
               setWhatsAppFlowOpen(true)
             }}
             onWhatsAppSetup={() => {
-              // Open WhatsApp setup flow with no link (just setup)
-              setWhatsAppLink('')
-              setWhatsAppToolName('Configuración de WhatsApp')
-              setWhatsAppToolType('vibe_card')
-              setWhatsAppFlowOpen(true)
+              // Open WhatsApp setup modal (connection only, no template flow)
+              setWhatsAppSetupOpen(true)
             }}
             enabledTools={agentToolsSettings}
             isOnboardingComplete={isOnboardingCompleted}
@@ -603,7 +604,7 @@ function DashboardContent() {
         onClose={() => setShowTutorial(false)}
       />
 
-      {/* WhatsApp Flow Orchestrator - Only opens when WhatsApp icons are clicked */}
+      {/* WhatsApp Flow Orchestrator - Only opens when WhatsApp share icons are clicked on cards */}
       {auth.currentOrganization?.id && (
         <WhatsAppFlowOrchestrator
           isOpen={whatsAppFlowOpen}
@@ -618,6 +619,20 @@ function DashboardContent() {
           linkToSend={whatsAppLink}
           toolName={whatsAppToolName}
           toolType={whatsAppToolType}
+        />
+      )}
+
+      {/* WhatsApp Setup Modal - Only for connection, no template flow */}
+      {auth.currentOrganization?.id && (
+        <WhatsAppSetupModal
+          isOpen={whatsAppSetupOpen}
+          onClose={() => setWhatsAppSetupOpen(false)}
+          organizationId={auth.currentOrganization.id}
+          onSuccess={(data) => {
+            console.log('✅ WhatsApp connected successfully:', data)
+            // Optionally show a success message or refresh data
+            setWhatsAppSetupOpen(false)
+          }}
         />
       )}
     </>

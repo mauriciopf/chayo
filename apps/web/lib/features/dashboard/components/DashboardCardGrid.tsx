@@ -183,12 +183,12 @@ export default function DashboardCardGrid({
                 {onWhatsAppSetup ? (
                   <button
                     onClick={onWhatsAppSetup}
-                    className="text-green-600 hover:text-green-700 font-semibold underline decoration-green-400 decoration-2 underline-offset-2 transition-colors"
+                    className="text-green-600 hover:text-green-700 font-medium underline hover:no-underline transition-all inline-block"
                   >
                     WhatsApp
                   </button>
                 ) : (
-                  <span className="text-green-600 font-semibold">WhatsApp</span>
+                  <span className="text-green-600 font-medium">WhatsApp</span>
                 )}
               </p>
               {!isOnboardingComplete && (
