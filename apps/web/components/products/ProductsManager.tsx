@@ -47,6 +47,8 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
   // Products state
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
+  const [syncing, setSyncing] = useState(false)
+  const [syncMessage, setSyncMessage] = useState<string | null>(null)
   const [search, setSearch] = useState('')
   const [showProductForm, setShowProductForm] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
@@ -61,14 +63,48 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
   // Load products
   useEffect(() => {
     if (organizationId) {
-      loadProducts()
+      syncProductsFromMeta()
       loadOffers()
     }
   }, [organizationId])
 
-  const loadProducts = async () => {
+  const syncProductsFromMeta = async () => {
     try {
       setLoading(true)
+      setSyncing(true)
+      setSyncMessage('Sincronizando con WhatsApp Business...')
+
+      // First, sync from Meta Commerce
+      const syncResponse = await fetch(`/api/whatsapp/products?organizationId=${organizationId}`)
+      
+      if (syncResponse.ok) {
+        const syncData = await syncResponse.json()
+        if (syncData.imported > 0) {
+          setSyncMessage(`✅ ${syncData.imported} productos importados desde WhatsApp`)
+        } else if (syncData.totalMetaProducts > 0) {
+          setSyncMessage('✅ Productos ya sincronizados')
+        } else {
+          setSyncMessage(null)
+        }
+      } else {
+        console.log('No WhatsApp catalog to sync from')
+        setSyncMessage(null)
+      }
+
+      // Then load all products
+      await loadProducts()
+    } catch (error) {
+      console.error('Error syncing products:', error)
+      setSyncMessage(null)
+      await loadProducts() // Load anyway
+    } finally {
+      setSyncing(false)
+      setTimeout(() => setSyncMessage(null), 3000)
+    }
+  }
+
+  const loadProducts = async () => {
+    try {
       const response = await fetch(`/api/products?organizationId=${organizationId}&limit=100`)
       if (response.ok) {
         const data = await response.json()
@@ -206,11 +242,24 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
           </div>
         </div>
 
+        {/* Sync Message */}
+        {syncMessage && (
+          <div className="p-4 rounded-lg bg-green-50 border border-green-200">
+            <p className="text-sm text-green-800 flex items-center gap-2">
+              {syncing && <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600"></div>}
+              {syncMessage}
+            </p>
+          </div>
+        )}
+
         {/* Products Display */}
         {loading ? (
-          <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2" 
+          <div className="flex flex-col items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 mb-4" 
                  style={{ borderColor: 'var(--accent-secondary)' }}></div>
+            <p className="text-sm text-gray-600">
+              {syncing ? 'Sincronizando con WhatsApp Business...' : 'Cargando productos...'}
+            </p>
           </div>
         ) : (
           <>

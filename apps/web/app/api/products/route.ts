@@ -75,6 +75,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to create product' }, { status: 500 })
     }
 
+    // Sync to Meta Commerce in background (don't block response)
+    fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/products/${product.id}/sync-to-meta`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    }).catch(err => console.log('Background Meta sync failed:', err))
+
     // Generate payment link if checkbox is checked AND provider is configured AND price exists
     if (paymentEnabled && paymentProviderId && price && price > 0) {
       try {

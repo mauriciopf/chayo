@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
 
     const { data, error } = await supabase
       .from('whatsapp_business_accounts')
-      .select('id, waba_id, phone_number_id, is_active')
+      .select('id, waba_id, phone_number_id, is_active, catalog_id')
       .eq('organization_id', organizationId)
       .eq('is_active', true)  // Only get active accounts
       .maybeSingle()  // Changed from .single() to handle no results gracefully
@@ -29,7 +29,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       connected: true,  // If we have data, it's connected
       wabaId: data.waba_id,
-      phoneNumberId: data.phone_number_id
+      phoneNumberId: data.phone_number_id,
+      catalogId: data.catalog_id || null // Include catalog_id for Meta Commerce
     })
 
   } catch (error) {
