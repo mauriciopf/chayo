@@ -60,25 +60,40 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
   const [showCreateOffer, setShowCreateOffer] = useState(false)
   const [editingOffer, setEditingOffer] = useState<Offer | null>(null)
 
+  console.log('📦 [ProductsManager] Mounted with organizationId:', organizationId)
+
   // Load products
   useEffect(() => {
+    console.log('📦 [ProductsManager] useEffect triggered, organizationId:', organizationId)
     if (organizationId) {
+      console.log('✅ [ProductsManager] Starting sync...')
       syncProductsFromMeta()
       loadOffers()
+    } else {
+      console.warn('⚠️ [ProductsManager] No organizationId, skipping sync')
     }
   }, [organizationId])
 
   const syncProductsFromMeta = async () => {
+    console.log('🔄 [ProductsManager] syncProductsFromMeta called')
     try {
       setLoading(true)
       setSyncing(true)
       setSyncMessage('Sincronizando con WhatsApp Business...')
 
       // First, sync from Meta Commerce
+      console.log('📡 [ProductsManager] Fetching from /api/whatsapp/products...')
       const syncResponse = await fetch(`/api/whatsapp/products?organizationId=${organizationId}`)
+      
+      console.log('📡 [ProductsManager] Sync response:', {
+        ok: syncResponse.ok,
+        status: syncResponse.status,
+        statusText: syncResponse.statusText
+      })
       
       if (syncResponse.ok) {
         const syncData = await syncResponse.json()
+        console.log('📊 [ProductsManager] Sync data:', syncData)
         if (syncData.imported > 0) {
           setSyncMessage(`✅ ${syncData.imported} productos importados desde WhatsApp`)
         } else if (syncData.totalMetaProducts > 0) {
@@ -87,14 +102,15 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
           setSyncMessage(null)
         }
       } else {
-        console.log('No WhatsApp catalog to sync from')
+        const errorText = await syncResponse.text()
+        console.log('⚠️ [ProductsManager] No WhatsApp catalog to sync from:', errorText)
         setSyncMessage(null)
       }
 
       // Then load all products
       await loadProducts()
     } catch (error) {
-      console.error('Error syncing products:', error)
+      console.error('❌ [ProductsManager] Error syncing products:', error)
       setSyncMessage(null)
       await loadProducts() // Load anyway
     } finally {

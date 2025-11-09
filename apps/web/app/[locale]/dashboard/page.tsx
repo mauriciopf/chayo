@@ -424,6 +424,13 @@ function DashboardContent() {
               setWhatsAppToolType(toolType)
               setWhatsAppFlowOpen(true)
             }}
+            onWhatsAppSetup={() => {
+              // Open WhatsApp setup flow with no link (just setup)
+              setWhatsAppLink('')
+              setWhatsAppToolName('Configuración de WhatsApp')
+              setWhatsAppToolType('vibe_card')
+              setWhatsAppFlowOpen(true)
+            }}
             enabledTools={agentToolsSettings}
             isOnboardingComplete={isOnboardingCompleted}
             organizationSlug={dashboardInit.initData?.business?.slug || ''}

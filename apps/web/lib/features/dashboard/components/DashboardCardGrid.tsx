@@ -18,6 +18,7 @@ interface DashboardCardGridProps {
   onCardClick: (category: string) => void
   onStartTutorial: () => void
   onWhatsAppShare: (toolLink: string, toolName: string, toolType: ToolType) => void
+  onWhatsAppSetup?: () => void // NEW: Open WhatsApp setup flow
   enabledTools: {
     products: boolean
     payments: boolean
@@ -33,6 +34,7 @@ export default function DashboardCardGrid({
   onCardClick,
   onStartTutorial,
   onWhatsAppShare,
+  onWhatsAppSetup, // NEW
   enabledTools,
   isOnboardingComplete,
   organizationSlug,
@@ -177,7 +179,17 @@ export default function DashboardCardGrid({
                 Comparte tu negocio con un link
               </h1>
               <p className="text-xl text-gray-600 mb-2">
-                Comparte a tu clientes productos, documentos, pagos y más por WhatsApp
+                Comparte a tu clientes productos, documentos, pagos y más por{' '}
+                {onWhatsAppSetup ? (
+                  <button
+                    onClick={onWhatsAppSetup}
+                    className="text-green-600 hover:text-green-700 font-semibold underline decoration-green-400 decoration-2 underline-offset-2 transition-colors"
+                  >
+                    WhatsApp
+                  </button>
+                ) : (
+                  <span className="text-green-600 font-semibold">WhatsApp</span>
+                )}
               </p>
               {!isOnboardingComplete && (
                 <p className="text-sm text-orange-600 font-medium">
