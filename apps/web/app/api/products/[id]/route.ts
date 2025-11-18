@@ -8,7 +8,11 @@ export async function PUT(
   try {
     const { id } = await params
     const body = await request.json()
-    const { name, description, imageUrl, price, paymentEnabled, paymentProviderId, supportsReservations, organizationId } = body
+    const { 
+      name, description, imageUrl, price, 
+      paymentEnabled, paymentProviderId, supportsReservations, organizationId,
+      address, bedrooms, bathrooms, property_type
+    } = body
 
     if (!name) {
       return NextResponse.json({ error: 'Name is required' }, { status: 400 })
@@ -41,7 +45,11 @@ export async function PUT(
       image_url: imageUrl,
       price,
       payment_enabled: nowEnabled,
-      supports_reservations: supportsReservations
+      supports_reservations: supportsReservations,
+      address,
+      bedrooms,
+      bathrooms,
+      property_type
     }
 
     // Handle payment link based on payment_enabled state

@@ -53,9 +53,9 @@ export default function DashboardCardGrid({
     },
     {
       id: 'products',
-      title: 'Productos y Servicios',
-      description: 'Gestiona tu catálogo, ofertas y pagos',
-      icon: '🛍️',
+      title: 'Propiedades',
+      description: 'Gestiona tus inmuebles en renta o venta',
+      icon: '🏠',
       enabled: enabledTools.products,
       category: 'products',
       // No linkSlug - each product gets its own link inside the tool
@@ -63,7 +63,7 @@ export default function DashboardCardGrid({
     {
       id: 'reminders',
       title: 'Recordatorios',
-      description: 'Programa recordatorios por email',
+      description: 'Envía recordatorios de pago',
       icon: '📧',
       enabled: enabledTools.reminders,
       category: 'reminders',
@@ -72,7 +72,7 @@ export default function DashboardCardGrid({
     {
       id: 'forms',
       title: 'Formularios',
-      description: 'Crea formularios personalizados',
+      description: 'Solicitudes de arrendamiento',
       icon: '📋',
       enabled: enabledTools.forms,
       category: 'forms',
@@ -80,8 +80,8 @@ export default function DashboardCardGrid({
     },
     {
       id: 'reservations',
-      title: 'Reservaciones',
-      description: 'Gestiona citas y reservaciones',
+      title: 'Citas y Visitas',
+      description: 'Gestiona visitas a tus propiedades',
       icon: '📅',
       enabled: enabledTools.reservations,
       category: 'reservations',
@@ -176,10 +176,10 @@ export default function DashboardCardGrid({
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <h1 className="text-4xl font-bold text-gray-900 mb-3">
-                Comparte tu negocio con un link
+                Gestión de Propiedades
               </h1>
               <p className="text-xl text-gray-600 mb-2">
-                Comparte a tu clientes productos, documentos, pagos y más por{' '}
+                Administra y comparte tus propiedades, contratos y cobros por{' '}
                 {onWhatsAppSetup ? (
                   <button
                     onClick={onWhatsAppSetup}

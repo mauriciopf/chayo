@@ -2,14 +2,15 @@
 
 import React, { useState, useEffect } from 'react'
 import { 
-  Package, Plus, Edit, Trash2, Search, Sparkles, 
+  Plus, Edit, Trash2, Search, Sparkles, 
   DollarSign, Tag, Image, Calendar, Percent, 
-  CheckCircle, Clock, AlertCircle, Eye, Copy, Share2
+  CheckCircle, Clock, AlertCircle, Eye, Copy, Share2,
+  Home, MapPin, Bed, Bath
 } from 'lucide-react'
-import ProductForm from './ProductForm'
+import PropertyForm from './PropertyForm'
 import CreateOfferForm from '@/components/offers/CreateOfferForm'
 
-interface Product {
+interface Property {
   id: string
   name: string
   description?: string
@@ -22,6 +23,11 @@ interface Product {
   shareable_link?: string
   created_at: string
   updated_at: string
+  // New fields
+  address?: string
+  bedrooms?: number
+  bathrooms?: number
+  property_type?: string
 }
 
 interface Offer {
@@ -39,19 +45,19 @@ interface Offer {
   updated_at: string
 }
 
-interface ProductsManagerProps {
+interface PropertiesManagerProps {
   organizationId: string
 }
 
-const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => {
-  // Products state
-  const [products, setProducts] = useState<Product[]>([])
+const PropertiesManager: React.FC<PropertiesManagerProps> = ({ organizationId }) => {
+  // Properties state
+  const [properties, setProperties] = useState<Property[]>([])
   const [loading, setLoading] = useState(true)
   const [syncing, setSyncing] = useState(false)
   const [syncMessage, setSyncMessage] = useState<string | null>(null)
   const [search, setSearch] = useState('')
-  const [showProductForm, setShowProductForm] = useState(false)
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null)
+  const [showPropertyForm, setShowPropertyForm] = useState(false)
+  const [editingProperty, setEditingProperty] = useState<Property | null>(null)
   const [copiedLink, setCopiedLink] = useState<string | null>(null)
 
   // Offers state
@@ -60,85 +66,67 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
   const [showCreateOffer, setShowCreateOffer] = useState(false)
   const [editingOffer, setEditingOffer] = useState<Offer | null>(null)
 
-  console.log('📦 [ProductsManager] Mounted with organizationId:', organizationId)
-
-  // Load products
+  // Load properties
   useEffect(() => {
-    console.log('📦 [ProductsManager] useEffect triggered, organizationId:', organizationId)
     if (organizationId) {
-      console.log('✅ [ProductsManager] Starting sync...')
-      syncProductsFromMeta()
+      syncPropertiesFromMeta()
       loadOffers()
-    } else {
-      console.warn('⚠️ [ProductsManager] No organizationId, skipping sync')
     }
   }, [organizationId])
 
-  const syncProductsFromMeta = async () => {
-    console.log('🔄 [ProductsManager] syncProductsFromMeta called')
+  const syncPropertiesFromMeta = async () => {
     try {
       setLoading(true)
       setSyncing(true)
-      setSyncMessage('Sincronizando con WhatsApp Business...')
+      setSyncMessage('Sincronizando...')
 
-      // First, sync from Meta Commerce
-      console.log('📡 [ProductsManager] Fetching from /api/whatsapp/products...')
+      // First, sync from Meta Commerce (renaming to properties internally but API keeps products for now)
       const syncResponse = await fetch(`/api/whatsapp/products?organizationId=${organizationId}`)
-      
-      console.log('📡 [ProductsManager] Sync response:', {
-        ok: syncResponse.ok,
-        status: syncResponse.status,
-        statusText: syncResponse.statusText
-      })
       
       if (syncResponse.ok) {
         const syncData = await syncResponse.json()
-        console.log('📊 [ProductsManager] Sync data:', syncData)
         if (syncData.imported > 0) {
-          setSyncMessage(`✅ ${syncData.imported} productos importados desde WhatsApp`)
+          setSyncMessage(`✅ ${syncData.imported} propiedades importadas`)
         } else if (syncData.totalMetaProducts > 0) {
-          setSyncMessage('✅ Productos ya sincronizados')
+          setSyncMessage('✅ Sincronizado con WhatsApp')
         } else {
           setSyncMessage(null)
         }
       } else {
-        const errorText = await syncResponse.text()
-        console.log('⚠️ [ProductsManager] No WhatsApp catalog to sync from:', errorText)
         setSyncMessage(null)
       }
 
-      // Then load all products
-      await loadProducts()
+      await loadProperties()
     } catch (error) {
-      console.error('❌ [ProductsManager] Error syncing products:', error)
+      console.error('Error syncing properties:', error)
       setSyncMessage(null)
-      await loadProducts() // Load anyway
+      await loadProperties()
     } finally {
       setSyncing(false)
       setTimeout(() => setSyncMessage(null), 3000)
     }
   }
 
-  const loadProducts = async () => {
+  const loadProperties = async () => {
     try {
       const response = await fetch(`/api/products?organizationId=${organizationId}&limit=100`)
       if (response.ok) {
         const data = await response.json()
-        // Fetch shareable links for all products
-        const productsWithLinks = await Promise.all(
-          (data.products || []).map(async (product: Product) => {
-            const linkResponse = await fetch(`/api/shareable-links?contentType=product&contentId=${product.id}`)
+        // Fetch shareable links
+        const propertiesWithLinks = await Promise.all(
+          (data.products || []).map(async (property: Property) => {
+            const linkResponse = await fetch(`/api/shareable-links?contentType=product&contentId=${property.id}`)
             if (linkResponse.ok) {
               const linkData = await linkResponse.json()
-              return { ...product, shareable_link: linkData.link?.full_url }
+              return { ...property, shareable_link: linkData.link?.full_url }
             }
-            return product
+            return property
           })
         )
-        setProducts(productsWithLinks)
+        setProperties(propertiesWithLinks)
       }
     } catch (error) {
-      console.error('Error loading products:', error)
+      console.error('Error loading properties:', error)
     } finally {
       setLoading(false)
     }
@@ -159,33 +147,33 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
     }
   }
 
-  const handleDeleteProduct = async (productId: string) => {
-    if (!confirm('¿Estás seguro de que deseas eliminar este producto?')) return
+  const handleDeleteProperty = async (propertyId: string) => {
+    if (!confirm('¿Estás seguro de que deseas eliminar esta propiedad?')) return
 
     try {
-      const response = await fetch(`/api/products/${productId}`, {
+      const response = await fetch(`/api/products/${propertyId}`, {
         method: 'DELETE',
       })
       if (response.ok) {
-        loadProducts()
+        loadProperties()
       }
     } catch (error) {
-      console.error('Error deleting product:', error)
+      console.error('Error deleting property:', error)
     }
   }
 
-  const handleCopyLink = async (link: string, productId: string) => {
+  const handleCopyLink = async (link: string, propertyId: string) => {
     try {
       await navigator.clipboard.writeText(link)
-      setCopiedLink(productId)
+      setCopiedLink(propertyId)
       setTimeout(() => setCopiedLink(null), 2000)
     } catch (error) {
       console.error('Error copying link:', error)
     }
   }
 
-  const handleShareWhatsApp = (link: string, productName: string) => {
-    const message = encodeURIComponent(`Hola! 👋 Mira este producto: ${productName}\n\n${link}`)
+  const handleShareWhatsApp = (link: string, propertyName: string) => {
+    const message = encodeURIComponent(`¡Hola! 👋 Te comparto esta propiedad: ${propertyName}\n\n${link}`)
     window.open(`https://wa.me/?text=${message}`, '_blank')
   }
 
@@ -199,9 +187,10 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
     setShowCreateOffer(true)
   }
 
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(search.toLowerCase()) ||
-    product.description?.toLowerCase().includes(search.toLowerCase())
+  const filteredProperties = properties.filter(p =>
+    p.name.toLowerCase().includes(search.toLowerCase()) ||
+    p.description?.toLowerCase().includes(search.toLowerCase()) ||
+    p.address?.toLowerCase().includes(search.toLowerCase())
   )
 
   const formatDate = (dateString: string) => {
@@ -221,26 +210,37 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
     }
   }
 
+  const translatePropertyType = (type?: string) => {
+    switch(type) {
+      case 'house': return 'Casa';
+      case 'apartment': return 'Departamento';
+      case 'commercial': return 'Local';
+      case 'land': return 'Terreno';
+      case 'office': return 'Oficina';
+      default: return 'Propiedad';
+    }
+  }
+
   return (
     <div className="space-y-8">
-      {/* 📦 PRODUCTS & SERVICES SECTION */}
+      {/* 🏘️ PROPERTIES SECTION */}
       <div className="space-y-6">
-        {/* Products Header */}
+        {/* Header */}
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">
-              Productos y Servicios
+              Gestión de Inmuebles
             </h2>
             <p className="text-gray-600">
-              Gestiona tu catálogo de productos y servicios
+              Administra tus propiedades en renta o venta
             </p>
           </div>
           <button
-            onClick={() => setShowProductForm(true)}
+            onClick={() => setShowPropertyForm(true)}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors bg-purple-600 text-white hover:bg-purple-700"
           >
             <Plus className="h-5 w-5" />
-            Agregar Producto
+            Agregar Propiedad
           </button>
         </div>
 
@@ -250,7 +250,7 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <input
               type="text"
-              placeholder="Buscar productos y servicios..."
+              placeholder="Buscar por nombre, descripción o dirección..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors"
@@ -268,109 +268,136 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
           </div>
         )}
 
-        {/* Products Display */}
+        {/* Properties Display */}
         {loading ? (
           <div className="flex flex-col items-center justify-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 mb-4" 
                  style={{ borderColor: 'var(--accent-secondary)' }}></div>
             <p className="text-sm text-gray-600">
-              {syncing ? 'Sincronizando con WhatsApp Business...' : 'Cargando productos...'}
+              Cargando propiedades...
             </p>
           </div>
         ) : (
           <>
-            {filteredProducts.length === 0 ? (
+            {filteredProperties.length === 0 ? (
               <div className="text-center py-12 rounded-xl border-2 border-dashed border-gray-300 bg-white">
-                <Package className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                <Home className="h-12 w-12 mx-auto mb-4 text-gray-400" />
                 <h3 className="text-lg font-semibold mb-2 text-gray-900">
-                  {search ? 'No se encontraron productos' : 'Aún no hay productos'}
+                  {search ? 'No se encontraron propiedades' : 'Aún no hay propiedades registradas'}
                 </h3>
                 <p className="mb-6 text-gray-600">
-                  {search ? 'Intenta con otro término de búsqueda' : 'Crea tu primer producto o servicio'}
+                  {search ? 'Intenta con otros términos' : 'Registra tu primera propiedad para comenzar'}
                 </p>
                 {!search && (
                   <button
-                    onClick={() => setShowProductForm(true)}
+                    onClick={() => setShowPropertyForm(true)}
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors bg-purple-600 text-white hover:bg-purple-700"
                   >
                     <Plus className="h-5 w-5" />
-                    Agregar Producto
+                    Agregar Propiedad
                   </button>
                 )}
               </div>
             ) : (
               <div className="grid gap-6">
-                {filteredProducts.map((product) => (
+                {filteredProperties.map((property) => (
                   <div
-                    key={product.id}
+                    key={property.id}
                     className="p-6 rounded-xl border border-gray-200 bg-white transition-all duration-200 hover:shadow-lg"
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          {product.image_url ? (
+                          {property.image_url ? (
                             <img 
-                              src={product.image_url} 
-                              alt={product.name}
-                              className="w-16 h-16 rounded-lg object-cover"
+                              src={property.image_url} 
+                              alt={property.name}
+                              className="w-20 h-20 rounded-lg object-cover"
                             />
                           ) : (
-                            <div className="w-16 h-16 rounded-lg flex items-center justify-center bg-gray-100">
-                              <Package className="h-8 w-8 text-gray-400" />
+                            <div className="w-20 h-20 rounded-lg flex items-center justify-center bg-gray-100">
+                              <Home className="h-8 w-8 text-gray-400" />
                             </div>
                           )}
                           <div>
-                            <h3 className="text-lg font-semibold text-gray-900">
-                              {product.name}
-                            </h3>
-                            {product.price && (
+                            <div className="flex items-center gap-2">
+                              <span className="px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
+                                {translatePropertyType(property.property_type)}
+                              </span>
+                              <h3 className="text-lg font-semibold text-gray-900">
+                                {property.name}
+                              </h3>
+                            </div>
+                            
+                            {property.price && (
                               <p className="text-lg font-bold text-purple-600">
-                                ${product.price.toFixed(2)}
+                                ${property.price.toFixed(2)} <span className="text-sm font-normal text-gray-500">/ mes</span>
                               </p>
                             )}
+
+                            {/* Property Details (Beds/Baths/Address) */}
+                            <div className="flex flex-wrap items-center gap-4 mt-1 text-sm text-gray-600">
+                              {property.bedrooms !== undefined && (
+                                <span className="flex items-center gap-1" title="Recámaras">
+                                  <Bed className="h-4 w-4" /> {property.bedrooms}
+                                </span>
+                              )}
+                              {property.bathrooms !== undefined && (
+                                <span className="flex items-center gap-1" title="Baños">
+                                  <Bath className="h-4 w-4" /> {property.bathrooms}
+                                </span>
+                              )}
+                              {property.address && (
+                                <span className="flex items-center gap-1 truncate max-w-md" title={property.address}>
+                                  <MapPin className="h-4 w-4" /> {property.address}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
-                        {product.description && (
-                          <p className="text-sm mb-3 text-gray-600">
-                            {product.description}
+
+                        {property.description && (
+                          <p className="text-sm mb-3 text-gray-600 line-clamp-2">
+                            {property.description}
                           </p>
                         )}
+
                         <div className="flex flex-wrap gap-2">
-                          {product.supports_reservations && (
+                          {property.supports_reservations && (
                             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border border-teal-500 bg-teal-50 text-teal-700">
                               <Calendar className="h-3 w-3" />
-                              Reservaciones habilitadas
+                              Visitas Habilitadas
                             </span>
                           )}
-                          {product.payment_link_url && (
+                          {property.payment_link_url && (
                             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border border-purple-500 bg-purple-50 text-purple-700">
                               <DollarSign className="h-3 w-3" />
-                              Pago online habilitado
+                              Pagos Online Activos
                             </span>
                           )}
                         </div>
                         
                         {/* Shareable Link Section */}
-                        {product.shareable_link && (
+                        {property.shareable_link && (
                           <div className="mt-4 pt-4 border-t border-gray-200">
                             <div className="flex items-center justify-between mb-2">
                               <span className="text-xs font-medium text-gray-500">
-                                🔗 Link compartible:
+                                🔗 Link para compartir:
                               </span>
                               <div className="flex gap-2">
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation()
-                                    handleCopyLink(product.shareable_link!, product.id)
+                                    handleCopyLink(property.shareable_link!, property.id)
                                   }}
                                   className="p-1.5 rounded-md transition-all hover:scale-110"
                                   style={{
-                                    backgroundColor: copiedLink === product.id ? '#10b981' : '#8b5cf6',
+                                    backgroundColor: copiedLink === property.id ? '#10b981' : '#8b5cf6',
                                     color: 'white',
                                   }}
                                   title="Copiar link"
                                 >
-                                  {copiedLink === product.id ? (
+                                  {copiedLink === property.id ? (
                                     <CheckCircle className="h-3.5 w-3.5" />
                                   ) : (
                                     <Copy className="h-3.5 w-3.5" />
@@ -379,7 +406,7 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation()
-                                    handleShareWhatsApp(product.shareable_link!, product.name)
+                                    handleShareWhatsApp(property.shareable_link!, property.name)
                                   }}
                                   className="p-1.5 rounded-md transition-all hover:scale-110"
                                   style={{
@@ -395,7 +422,7 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
                             <div 
                               className="text-xs px-3 py-2 rounded-md font-mono truncate bg-gray-50 text-gray-600 border border-gray-200"
                             >
-                              {product.shareable_link}
+                              {property.shareable_link}
                             </div>
                           </div>
                         )}
@@ -403,16 +430,18 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
                       <div className="flex gap-2 ml-4">
                         <button
                           onClick={() => {
-                            setEditingProduct(product)
-                            setShowProductForm(true)
+                            setEditingProperty(property)
+                            setShowPropertyForm(true)
                           }}
                           className="p-2 rounded-lg transition-colors bg-gray-100 text-gray-600 hover:bg-gray-200"
+                          title="Editar"
                         >
                           <Edit className="h-4 w-4" />
                         </button>
                         <button
-                          onClick={() => handleDeleteProduct(product.id)}
+                          onClick={() => handleDeleteProperty(property.id)}
                           className="p-2 rounded-lg transition-colors bg-gray-100 text-gray-600 hover:bg-red-50 hover:text-red-600"
+                          title="Eliminar"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
@@ -426,7 +455,7 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
         )}
       </div>
 
-      {/* 🎯 PROMOTIONAL OFFERS - SIMPLIFIED SECTION */}
+      {/* 🏷️ PROMOTIONS (Offers) */}
       <div className="p-6 rounded-xl border border-gray-200 bg-white">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
@@ -435,10 +464,10 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
             </div>
             <div>
               <h3 className="text-lg font-bold text-gray-900">
-                Ofertas Promocionales
+                Promociones
               </h3>
               <p className="text-sm text-gray-600">
-                Crea ofertas con IA y banners impresionantes
+                Crea ofertas especiales (Ej: Mes gratis, Descuentos)
               </p>
             </div>
           </div>
@@ -447,11 +476,11 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
             className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors text-sm bg-teal-500 text-white hover:bg-teal-600"
           >
             <Plus className="h-4 w-4" />
-            Crear Oferta
+            Crear Promoción
           </button>
         </div>
 
-        {/* Offers List - Compact */}
+        {/* Offers List */}
         {offersLoading ? (
           <div className="flex justify-center py-4">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2" 
@@ -461,7 +490,7 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
           <div className="text-center py-6">
             <Tag className="h-8 w-8 mx-auto mb-2 text-gray-400" />
             <p className="text-sm text-gray-600">
-              Aún no hay ofertas. ¡Crea tu primera oferta promocional para impulsar tus ventas! 🚀
+              Aún no hay promociones activas.
             </p>
           </div>
         ) : (
@@ -474,7 +503,6 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
                 }`}
               >
                 <div className="flex items-start gap-4 justify-between">
-                  {/* Banner Image */}
                   {offer.ai_banner_url && (
                     <div className="flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden bg-gray-200">
                       <img 
@@ -506,10 +534,6 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
                         <Calendar className="h-3 w-3" />
                         {formatDate(offer.start_date)} - {formatDate(offer.end_date)}
                       </span>
-                      <span className="flex items-center gap-1">
-                        <Package className="h-3 w-3" />
-                        {offer.product_count} products
-                      </span>
                     </div>
                   </div>
                   
@@ -526,19 +550,19 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
         )}
       </div>
 
-      {/* Product Form Modal */}
-      {showProductForm && (
-        <ProductForm
+      {/* Property Form Modal */}
+      {showPropertyForm && (
+        <PropertyForm
           organizationId={organizationId}
-          product={editingProduct}
+          property={editingProperty}
           onSave={() => {
-            loadProducts()
-            setShowProductForm(false)
-            setEditingProduct(null)
+            loadProperties()
+            setShowPropertyForm(false)
+            setEditingProperty(null)
           }}
           onCancel={() => {
-            setShowProductForm(false)
-            setEditingProduct(null)
+            setShowPropertyForm(false)
+            setEditingProperty(null)
           }}
         />
       )}
@@ -547,7 +571,10 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
       {showCreateOffer && (
         <CreateOfferForm
           organizationId={organizationId}
-          products={products.map(p => ({ ...p, has_active_offer: p.has_active_offer ?? false }))}
+          products={properties.map(p => ({ 
+            ...p, 
+            has_active_offer: p.has_active_offer ?? false 
+          }))}
           offer={editingOffer}
           onSave={() => {
             loadOffers()
@@ -564,5 +591,5 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ organizationId }) => 
   )
 }
 
-export default ProductsManager
+export default PropertiesManager
 

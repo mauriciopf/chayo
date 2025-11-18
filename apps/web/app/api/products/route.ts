@@ -46,7 +46,11 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { organizationId, name, description, imageUrl, price, paymentEnabled, paymentProviderId, supportsReservations } = body
+    const { 
+      organizationId, name, description, imageUrl, price, 
+      paymentEnabled, paymentProviderId, supportsReservations,
+      address, bedrooms, bathrooms, property_type
+    } = body
 
     if (!organizationId || !name) {
       return NextResponse.json({ error: 'Organization ID and name are required' }, { status: 400 })
@@ -65,7 +69,11 @@ export async function POST(request: NextRequest) {
         price,
         payment_enabled: paymentEnabled || false,
         payment_provider_id: paymentEnabled && paymentProviderId ? paymentProviderId : null,
-        supports_reservations: supportsReservations || false
+        supports_reservations: supportsReservations || false,
+        address,
+        bedrooms,
+        bathrooms,
+        property_type
       })
       .select()
       .single()

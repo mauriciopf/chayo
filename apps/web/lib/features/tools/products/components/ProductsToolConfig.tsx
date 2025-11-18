@@ -1,9 +1,8 @@
 'use client'
 
-import React, { useState } from 'react'
-import { useTranslations } from 'next-intl'
-import ProductsManager from '@/components/products/ProductsManager'
-import { Package } from 'lucide-react'
+import React from 'react'
+import PropertiesManager from '@/components/products/PropertiesManager'
+import { Home } from 'lucide-react'
 
 interface ProductsToolConfigProps {
   organizationId: string
@@ -16,8 +15,6 @@ const ProductsToolConfig: React.FC<ProductsToolConfigProps> = ({
   isEnabled,
   onSettingsChange
 }) => {
-  const t = useTranslations('agentTools')
-
   if (!isEnabled) {
     return (
       <div 
@@ -27,19 +24,19 @@ const ProductsToolConfig: React.FC<ProductsToolConfigProps> = ({
           borderColor: 'var(--border-primary)'
         }}
       >
-        <Package className="h-12 w-12 mx-auto mb-3" style={{ color: 'var(--text-muted)' }} />
+        <Home className="h-12 w-12 mx-auto mb-3" style={{ color: 'var(--text-muted)' }} />
         <h4 className="font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
-          Herramienta de Productos y Servicios
+          Herramienta de Propiedades
         </h4>
         <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-          Habilita esta herramienta de agente arriba para gestionar tu catálogo de productos y servicios que se puede compartir con los clientes.
+          Habilita esta herramienta para gestionar tus propiedades que se pueden compartir con los clientes.
         </p>
       </div>
     )
   }
 
   return (
-    <ProductsManager organizationId={organizationId} />
+    <PropertiesManager organizationId={organizationId} />
   )
 }
 

@@ -25,7 +25,7 @@ import BackToDashboardButton from '@/lib/features/dashboard/components/BackToDas
 // Import inline tool configuration components
 import DocumentToolConfig from '@/lib/features/tools/documents/components/DocumentToolConfig'
 import PaymentToolConfig from '@/lib/features/tools/payments/components/PaymentToolConfig'
-import ProductsManager from '@/components/products/ProductsManager'
+import PropertiesManager from '@/components/products/PropertiesManager'
 import IntakeFormsToolConfig from '@/lib/features/tools/intake-forms/components/IntakeFormsToolConfig'
 import CustomerSupportTool from '@/lib/features/tools/customer-support/components/CustomerSupportTool'
 import ReservationsManagementView from '@/lib/features/tools/reservations/components/ReservationsManagementView'
@@ -354,7 +354,7 @@ function DashboardContent() {
                 )}
                 
                 {activeTool === 'products' && auth.currentOrganization && (
-                  <ProductsManager organizationId={auth.currentOrganization.id} />
+                  <PropertiesManager organizationId={auth.currentOrganization.id} />
                 )}
                 
                 {activeTool === 'payments' && auth.currentOrganization && (

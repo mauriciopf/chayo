@@ -361,7 +361,7 @@ export default function CreateOfferForm({
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
                   <Package className="h-5 w-5" />
-                  Seleccionar Productos y Servicios ({formData.selectedProducts.length} seleccionados)
+                  Seleccionar Propiedades ({formData.selectedProducts.length} seleccionadas)
                 </h3>
                 <div className="flex gap-2">
                   <button
@@ -399,7 +399,7 @@ export default function CreateOfferForm({
                 >
                   <Package className="h-8 w-8 mx-auto mb-2" style={{ color: 'var(--text-muted)' }} />
                   <p style={{ color: 'var(--text-secondary)' }}>
-                    No hay productos disponibles. Crea primero algunos productos para agregarlos a las ofertas.
+                    No hay propiedades disponibles. Crea primero algunas propiedades para agregarlas a las ofertas.
                   </p>
                 </div>
               ) : (
