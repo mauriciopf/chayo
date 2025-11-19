@@ -176,10 +176,10 @@ export default function DashboardCardGrid({
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <h1 className="text-4xl font-bold text-gray-900 mb-3">
-                Gestión de Propiedades
+                Crea tu propio agente inmobiliario IA
               </h1>
               <p className="text-xl text-gray-600 mb-2">
-                Administra y comparte tus propiedades, contratos y cobros por{' '}
+                Atiende leads 24/7, agenda citas, firma documentos y recibe pagos por{' '}
                 {onWhatsAppSetup ? (
                   <button
                     onClick={onWhatsAppSetup}
