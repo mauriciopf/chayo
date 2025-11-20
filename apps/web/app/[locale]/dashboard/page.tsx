@@ -34,6 +34,7 @@ import QuickLinksManager from '@/lib/features/tools/quick-links/components/Quick
 import BusinessSummary from '@/lib/features/dashboard/components/overview/BusinessSummary'
 import { ActiveView } from '@/lib/shared/types'
 import Tutorial from '@/lib/features/onboarding/components/Tutorial'
+import { Property } from '@/lib/features/products/hooks/useProperties'
 
 // Import existing dashboard components
 import SimpleInsightsDashboard from '@/lib/features/insights/components/SimpleInsightsDashboard'
@@ -152,6 +153,7 @@ function DashboardContent() {
   // Dashboard UI state
   const [activeView, setActiveView] = useState<ActiveView>('dashboard')
   const [activeTool, setActiveTool] = useState<string | null>(null) // For inline tool rendering
+  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null) // Lifted state for property context
   const [showPlansModal, setShowPlansModal] = useState(false)
   const [showManageDocsModal, setShowManageDocsModal] = useState(false)
   const [targetPlan, setTargetPlan] = useState<string | null>(null)
@@ -369,6 +371,7 @@ function DashboardContent() {
                   <RemindersToolMain
                     organizationId={auth.currentOrganization.id}
                     businessName={auth.currentOrganization.name}
+                    propertyId={selectedProperty?.id}
                   />
                 )}
                 
@@ -435,6 +438,9 @@ function DashboardContent() {
             enabledTools={agentToolsSettings}
             isOnboardingComplete={isOnboardingCompleted}
             organizationSlug={dashboardInit.initData?.business?.slug || ''}
+            organizationId={auth.currentOrganization?.id}
+            selectedProperty={selectedProperty}
+            onSelectProperty={setSelectedProperty}
           />
         )
       case 'chat':

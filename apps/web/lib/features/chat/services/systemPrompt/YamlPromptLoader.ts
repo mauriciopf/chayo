@@ -10,49 +10,29 @@ export interface SystemPromptConfig {
   identity: string
   objective: string
   behavior: string
-  onboarding_stages: {
-    stage_1: {
-      title: string
-      description: string
-      questions: Array<{
-        name: string
-        type: 'open_ended' | 'multiple_choice'
-        question: string
-        field_name: string
-        options?: string[]
-        multiple?: boolean
-        other?: boolean
-      }>
+  response_format?: {
+    type: string
+    structure: any
+    field_name?: {
+      enum: string[]
     }
-    stage_2: {
-      title: string
-      description: string
-      industry_questions: Record<string, string[]>
-      format_note: string
-    }
-    stage_3: {
-      title: string
-      description: string
-      questions: Array<{
-        name: string
-        type: 'multiple_choice'
-        question: string
-        field_name: string
-        options: string[]
-        multiple: boolean
-        other: boolean
-      }>
-    }
+    validation?: string
+    examples?: string
   }
-  completion: string
-  refinement_mode: string
+  completion?: {
+    criteria?: string
+    celebration_message?: string
+  }
   rules: string
-  dynamics: string
-  completion_signal: string
   language: {
-    es: string
+    es?: string
   }
   fallback_prompt: string
+  // Legacy fields for backward compatibility with business prompt
+  onboarding_stages?: any
+  refinement_mode?: string
+  dynamics?: string
+  completion_signal?: string
 }
 
 export class YamlPromptLoader {
@@ -92,18 +72,21 @@ export class YamlPromptLoader {
     // 🎯 STRUCTURED OUTPUTS: No longer need complex JSON formatting instructions
     // OpenAI's response_format parameter guarantees proper JSON structure
     
+    // Build dynamic sections (optional fields)
+    const refinementSection = config.refinement_mode ? `\n${config.refinement_mode}\n` : ''
+    const dynamicsSection = config.dynamics ? `\n${config.dynamics}\n` : ''
+    const completionSection = config.completion 
+      ? `\n## COMPLETION\n${typeof config.completion === 'string' ? config.completion : JSON.stringify(config.completion, null, 2)}\n`
+      : ''
+    
     return `${config.identity}
 
 ${config.objective}
 
 ${config.behavior}
-
-${config.refinement_mode || ''}
-
+${refinementSection}
 ${config.rules}
-
-${config.dynamics}
-
+${dynamicsSection}${completionSection}
 ## 🌍 LANGUAGE INSTRUCTIONS
 ${localeInstructions.responseLanguage}
 

@@ -38,7 +38,7 @@ export const OnboardingSchema = {
               properties: {
                 field_name: {
                   type: "string",
-                  enum: ["business_name", "business_type", "origin_story", "value_badges", "perfect_for"]
+                  enum: ["agent_name", "coverage_location", "services", "online_presence", "unique_value"]
                 },
                 field_type: { type: "string", enum: ["text"] },
                 question_template: { type: "string" }
@@ -52,7 +52,7 @@ export const OnboardingSchema = {
               properties: {
                 field_name: {
                   type: "string",
-                  enum: ["business_name", "business_type", "origin_story", "value_badges", "perfect_for"]
+                  enum: ["agent_name", "coverage_location", "services", "online_presence", "unique_value"]
                 },
                 field_type: { type: "string", enum: ["array"] },
                 question_template: { type: "string" }
@@ -66,7 +66,7 @@ export const OnboardingSchema = {
               properties: {
                 field_name: {
                   type: "string",
-                  enum: ["business_name", "business_type", "origin_story", "value_badges", "perfect_for"]
+                  enum: ["agent_name", "coverage_location", "services", "online_presence", "unique_value"]
                 },
                 field_type: { type: "string", enum: ["multiple_choice"] },
                 question_template: { type: "string" },

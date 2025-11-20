@@ -46,12 +46,21 @@ export async function GET(request: NextRequest) {
     }
 
     // Transform data to marketplace vibe card format
+    // Map old database columns to new real estate VibeCardData structure
     const vibeCards: MarketplaceVibeCard[] = data?.map(item => ({
       organization_id: item.organization_id,
       slug: item.slug,
       setup_status: 'completed' as const,
       completed_at: item.created_at,
       vibe_data: {
+        // New real estate fields (mapped from old columns)
+        agent_name: item.business_name,
+        coverage_location: item.location || '',
+        services: item.value_badges || [],
+        online_presence: item.website || '',
+        unique_value: item.why_different || '',
+        
+        // Legacy fields for backward compatibility
         business_name: item.business_name,
         business_type: item.business_type,
         origin_story: item.origin_story,

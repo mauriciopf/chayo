@@ -8,11 +8,12 @@ import RemindersToolConfigWizard from './RemindersToolConfigWizard'
 interface RemindersToolMainProps {
   organizationId: string
   businessName: string
+  propertyId?: string
 }
 
 type View = 'loading' | 'create' | 'manage'
 
-export default function RemindersToolMain({ organizationId, businessName }: RemindersToolMainProps) {
+export default function RemindersToolMain({ organizationId, businessName, propertyId }: RemindersToolMainProps) {
   const [currentView, setCurrentView] = useState<View>('loading')
   const [hasReminders, setHasReminders] = useState(false)
 
