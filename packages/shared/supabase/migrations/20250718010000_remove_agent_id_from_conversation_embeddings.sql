@@ -1,2 +1,0 @@
--- Migration: Remove agent_id from conversation_embeddings
--- ALTER TABLE conversation_embeddings DROP COLUMN IF EXISTS agent_id; 

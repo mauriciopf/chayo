@@ -1,4 +1,0 @@
-User-agent: *
-Disallow:
-
-Sitemap: https://chayo.ai/sitemap.xml
