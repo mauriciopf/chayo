@@ -21,7 +21,7 @@ export function SocialProof() {
           {['Weekly Delivery', 'TikTok & Reels Ready', 'Brand-First AI', 'Fast Turnaround'].map((chip) => (
             <span
               key={chip}
-              className="px-4 py-2 border border-chayo-border text-chayo-muted text-xs tracking-[0.15em] uppercase font-sans rounded-sm"
+              className="px-4 py-2 border border-chayo-border text-chayo-muted text-sm tracking-[0.12em] uppercase font-sans font-medium rounded-sm"
             >
               {chip}
             </span>
@@ -41,7 +41,7 @@ export function SocialProof() {
             <div className="w-10 h-10 rounded-full bg-chayo-border" />
             <div>
               <p className="text-chayo-text text-sm font-sans font-medium">Brand Partner</p>
-              <p className="text-chayo-muted text-xs font-sans">Founder, [Brand Name]</p>
+              <p className="text-chayo-muted text-sm font-sans font-medium">Founder, [Brand Name]</p>
             </div>
           </div>
         </div>

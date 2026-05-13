@@ -18,7 +18,7 @@ export function Positioning() {
             <h2 className="font-display text-display-lg text-chayo-text text-balance mb-6">
               Not another marketing agency.
             </h2>
-            <p className="font-display text-display-md text-chayo-muted italic text-balance">
+            <p className="font-display text-display-md text-chayo-muted italic text-balance font-medium">
               A content production machine for modern brands.
             </p>
 
@@ -30,7 +30,7 @@ export function Positioning() {
             {pillars.map((p) => (
               <div key={p.label} className="py-8 flex flex-col gap-2">
                 <h3 className="font-display text-xl text-chayo-text">{p.label}</h3>
-                <p className="text-chayo-muted text-sm leading-relaxed font-sans">{p.desc}</p>
+                <p className="text-chayo-muted text-base leading-relaxed font-sans font-medium">{p.desc}</p>
               </div>
             ))}
           </div>

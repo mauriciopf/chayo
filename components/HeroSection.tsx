@@ -45,7 +45,7 @@ export function HeroSection() {
 
       {/* Content */}
       <div className="relative z-10 max-w-5xl mx-auto px-5 sm:px-8 text-center pt-24 pb-16">
-        <p className="animate-fade-in text-chayo-accent text-xs sm:text-sm tracking-[0.25em] uppercase mb-6 font-sans">
+        <p className="animate-fade-in text-chayo-accent text-sm sm:text-sm tracking-[0.22em] uppercase mb-6 font-sans font-medium">
           AI Video Production for Brands
         </p>
 
@@ -55,7 +55,7 @@ export function HeroSection() {
           <em className="not-italic text-chayo-accent"> people remember.</em>
         </h1>
 
-        <p className="animate-fade-up delay-200 text-chayo-muted text-lg sm:text-xl max-w-2xl mx-auto text-balance leading-relaxed mb-10 font-sans">
+        <p className="animate-fade-up delay-200 text-chayo-muted text-xl sm:text-xl max-w-2xl mx-auto text-balance leading-relaxed mb-10 font-sans font-medium">
           Upload your brand, references, products, and ideas.
           <br className="hidden sm:block" />
           We create weekly AI-powered branded videos for your business.
@@ -64,13 +64,13 @@ export function HeroSection() {
         <div className="animate-fade-up delay-300 flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link
             href="#pricing"
-            className="w-full sm:w-auto px-8 py-4 bg-chayo-accent text-chayo-bg font-sans font-semibold text-sm tracking-wide rounded-sm hover:bg-chayo-accent-hover active:scale-[0.98] transition-all duration-150 min-h-[52px] flex items-center justify-center"
+            className="w-full sm:w-auto px-8 py-4 bg-chayo-accent text-chayo-bg font-sans font-semibold text-base tracking-wide rounded-sm hover:bg-chayo-accent-hover active:scale-[0.98] transition-all duration-150 min-h-[52px] flex items-center justify-center"
           >
             Start Membership
           </Link>
           <a
             href="#examples"
-            className="w-full sm:w-auto px-8 py-4 border border-chayo-border text-chayo-text font-sans text-sm tracking-wide rounded-sm hover:border-chayo-accent hover:text-chayo-accent active:scale-[0.98] transition-all duration-150 min-h-[52px] flex items-center justify-center"
+            className="w-full sm:w-auto px-8 py-4 border border-chayo-border text-chayo-text font-sans text-base tracking-wide rounded-sm hover:border-chayo-accent hover:text-chayo-accent active:scale-[0.98] transition-all duration-150 min-h-[52px] flex items-center justify-center"
           >
             See Examples
           </a>

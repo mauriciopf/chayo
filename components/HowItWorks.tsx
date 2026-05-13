@@ -42,7 +42,7 @@ export function HowItWorks() {
               <span className="font-display text-5xl text-chayo-border select-none">{step.number}</span>
               <div>
                 <h3 className="font-display text-xl text-chayo-text mb-3">{step.title}</h3>
-                <p className="text-chayo-muted text-sm leading-relaxed font-sans">{step.body}</p>
+                <p className="text-chayo-muted text-base leading-relaxed font-sans font-medium">{step.body}</p>
               </div>
             </div>
           ))}
