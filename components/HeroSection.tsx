@@ -25,7 +25,7 @@ export function HeroSection() {
       <div className="absolute inset-0">
         <video
           ref={videoRef}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover z-0"
           autoPlay
           muted
           loop
@@ -40,11 +40,11 @@ export function HeroSection() {
           <source src="/hero-reel.MOV" type="video/quicktime" />
         </video>
         {/* Softer scrim so the poster/video keeps detail while text stays readable */}
-        <div className="absolute inset-0 bg-gradient-to-b from-chayo-bg/35 via-chayo-bg/20 to-chayo-bg/55" />
+        <div className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-b from-chayo-bg/35 via-chayo-bg/20 to-chayo-bg/55" />
       </div>
 
       {/* Content */}
-      <div className="relative z-10 max-w-5xl mx-auto px-5 sm:px-8 text-center pt-24 pb-16">
+      <div className="relative z-20 pointer-events-none max-w-5xl mx-auto px-5 sm:px-8 text-center pt-24 pb-16">
         <p className="animate-fade-in text-chayo-accent text-sm sm:text-sm tracking-[0.22em] uppercase mb-6 font-sans font-medium">
           AI Video Production for Brands
         </p>
@@ -61,7 +61,7 @@ export function HeroSection() {
           We create weekly AI-powered branded videos for your business.
         </p>
 
-        <div className="animate-fade-up delay-300 flex flex-col sm:flex-row items-center justify-center gap-4">
+        <div className="animate-fade-up delay-300 pointer-events-auto flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link
             href="#pricing"
             className="w-full sm:w-auto px-8 py-4 bg-chayo-accent text-chayo-bg font-sans font-semibold text-base tracking-wide rounded-sm hover:bg-chayo-accent-hover active:scale-[0.98] transition-all duration-150 min-h-[52px] flex items-center justify-center"
@@ -78,7 +78,7 @@ export function HeroSection() {
       </div>
 
       {/* Scroll cue */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-fade-in delay-500">
+      <div className="absolute z-20 bottom-8 left-1/2 -translate-x-1/2 pointer-events-none flex flex-col items-center gap-2 animate-fade-in delay-500">
         <span className="text-chayo-text/80 text-xs tracking-[0.2em] uppercase font-sans">Scroll</span>
         <div className="w-px h-8 bg-gradient-to-b from-chayo-muted to-transparent" />
       </div>
