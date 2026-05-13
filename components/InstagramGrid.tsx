@@ -5,7 +5,11 @@ import { IGMedia, IGMediaResponse } from '@/lib/instagram/types';
 import { InstagramPost } from './InstagramPost';
 import { LoadingGrid } from './LoadingGrid';
 
-export function InstagramGrid() {
+interface InstagramGridProps {
+  limit?: number;
+}
+
+export function InstagramGrid({ limit = 50 }: InstagramGridProps) {
   const [posts, setPosts] = useState<IGMedia[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -16,7 +20,7 @@ export function InstagramGrid() {
         setLoading(true);
         setError(null);
 
-        const response = await fetch('/api/instagram/feed?limit=50');
+        const response = await fetch(`/api/instagram/feed?limit=${limit}`);
         
         if (!response.ok) {
           const errorData = await response.json();
