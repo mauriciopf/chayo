@@ -39,8 +39,8 @@ export function HeroSection() {
           {/* Fallback source */}
           <source src="/hero-reel.MOV" type="video/quicktime" />
         </video>
-        {/* Dark gradient scrim over video */}
-        <div className="absolute inset-0 bg-gradient-to-b from-chayo-bg/60 via-chayo-bg/30 to-chayo-bg/80" />
+        {/* Softer scrim so the poster/video keeps detail while text stays readable */}
+        <div className="absolute inset-0 bg-gradient-to-b from-chayo-bg/35 via-chayo-bg/20 to-chayo-bg/55" />
       </div>
 
       {/* Content */}
@@ -55,7 +55,7 @@ export function HeroSection() {
           <em className="not-italic text-chayo-accent"> people remember.</em>
         </h1>
 
-        <p className="animate-fade-up delay-200 text-chayo-muted text-xl sm:text-xl max-w-2xl mx-auto text-balance leading-relaxed mb-10 font-sans font-medium">
+        <p className="animate-fade-up delay-200 text-chayo-text/90 text-xl sm:text-xl max-w-2xl mx-auto text-balance leading-relaxed mb-10 font-sans font-medium">
           Upload your brand, references, products, and ideas.
           <br className="hidden sm:block" />
           We create weekly AI-powered branded videos for your business.
@@ -79,7 +79,7 @@ export function HeroSection() {
 
       {/* Scroll cue */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-fade-in delay-500">
-        <span className="text-chayo-muted text-xs tracking-[0.2em] uppercase font-sans">Scroll</span>
+        <span className="text-chayo-text/80 text-xs tracking-[0.2em] uppercase font-sans">Scroll</span>
         <div className="w-px h-8 bg-gradient-to-b from-chayo-muted to-transparent" />
       </div>
     </section>
