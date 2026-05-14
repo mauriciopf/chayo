@@ -1,5 +1,3 @@
-import crypto from 'crypto';
-
 import { NextResponse } from 'next/server';
 
 const XAI_BASE_URL = 'https://api.x.ai/v1';
@@ -21,6 +19,10 @@ type XaiBatchResponse = {
     num_error: number;
     num_cancelled: number;
   };
+};
+
+type XaiVideoExtensionStartResponse = {
+  request_id: string;
 };
 
 function jsonError(message: string, status: number) {
@@ -73,72 +75,57 @@ export async function POST(request: Request) {
     return jsonError('A prompt is required.', 400);
   }
 
-  const requestIds = Array.from({ length: batchSize }, (_, index) => {
-    const suffix = crypto.randomUUID().slice(0, 8);
+  let requestResponses: XaiVideoExtensionStartResponse[];
 
-    return `grok-imagine-extend-${String(index + 1).padStart(2, '0')}-${suffix}`;
-  });
-
-  // Create an empty batch first, then add structured requests.
-  const createBatchResponse = await fetch(`${XAI_BASE_URL}/batches`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      name: `grok-imagine-extend-batch-${new Date().toISOString()}`,
-    }),
-  });
-
-  if (!createBatchResponse.ok) {
-    return jsonError(`Failed to create xAI batch: ${await readResponseText(createBatchResponse)}`, createBatchResponse.status);
-  }
-
-  const createdBatch = (await createBatchResponse.json()) as XaiBatchResponse;
-
-  if (!createdBatch.batch_id) {
-    return jsonError('xAI did not return a batch_id for the created batch.', 502);
-  }
-
-  const addRequestsResponse = await fetch(`${XAI_BASE_URL}/batches/${createdBatch.batch_id}/requests`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      // Extension batches send exactly one request shape per item: batch_request.video_extension.
-      batch_requests: requestIds.map((batchRequestId) => ({
-        batch_request_id: batchRequestId,
-        batch_request: {
-          video_extension: {
+  try {
+    requestResponses = await Promise.all(
+      Array.from({ length: batchSize }, async () => {
+        const extensionResponse = await fetch(`${XAI_BASE_URL}/videos/extensions`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
             model: 'grok-imagine-video',
             prompt,
             video: { url: videoUrl },
             duration,
-          },
-        },
-      })),
-    }),
-  });
+          }),
+        });
 
-  if (!addRequestsResponse.ok) {
-    return jsonError(`Failed to add extension requests to xAI batch: ${await readResponseText(addRequestsResponse)}`, addRequestsResponse.status);
+        if (!extensionResponse.ok) {
+          throw new Error(`Failed to start extension request: ${await readResponseText(extensionResponse)}`);
+        }
+
+        return (await extensionResponse.json()) as XaiVideoExtensionStartResponse;
+      }),
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to start extension request.';
+    return jsonError(message, 502);
   }
 
-  const batchResponse = await fetch(`${XAI_BASE_URL}/batches/${createdBatch.batch_id}`, {
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
+  const requestIds = requestResponses.map((item) => item.request_id).filter(Boolean);
+
+  if (requestIds.length !== batchSize) {
+    return jsonError('xAI did not return request_id for all extension requests.', 502);
+  }
+
+  const nowIso = new Date().toISOString();
+  const batch: XaiBatchResponse = {
+    batch_id: `extension-${nowIso}`,
+    name: `grok-imagine-extend-requests-${nowIso}`,
+    create_time: nowIso,
+    expire_time: null,
+    state: {
+      num_requests: batchSize,
+      num_pending: batchSize,
+      num_success: 0,
+      num_error: 0,
+      num_cancelled: 0,
     },
-    cache: 'no-store',
-  });
-
-  if (!batchResponse.ok) {
-    return jsonError(`Failed to read xAI batch status: ${await readResponseText(batchResponse)}`, batchResponse.status);
-  }
-
-  const batch = (await batchResponse.json()) as XaiBatchResponse;
+  };
 
   return NextResponse.json({
     batch,

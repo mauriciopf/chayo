@@ -163,19 +163,29 @@ export default function GrokImagineVideoBatchPage() {
     }
   };
 
-  const loadExtensionStatus = async (level: number, batchId: string) => {
+  const loadExtensionStatus = async (level: number, requestIds: string[]) => {
     setIsRefreshingExtend(true);
     setExtendError(null);
 
+    if (requestIds.length === 0) {
+      setExtendError('No extension request IDs were returned for polling.');
+      setIsRefreshingExtend(false);
+      return;
+    }
+
     try {
-      const response = await fetch(`/api/xai/batches/${batchId}`, {
-        cache: 'no-store',
+      const response = await fetch('/api/xai/videos/status', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ requestIds }),
       });
 
       const data = (await response.json()) as BatchStatusResponse & { error?: string };
 
       if (!response.ok) {
-        setExtendError(data.error ?? 'Failed to read extension batch status.');
+        setExtendError(data.error ?? 'Failed to read extension request status.');
         return;
       }
 
@@ -312,7 +322,7 @@ export default function GrokImagineVideoBatchPage() {
     setExtendError(null);
 
     if (!composer) {
-      setExtendError('Select a video before creating an extension batch.');
+      setExtendError('Select a video before creating extension requests.');
       return;
     }
 
@@ -345,7 +355,7 @@ export default function GrokImagineVideoBatchPage() {
       const data = (await response.json()) as StartBatchResponse & { error?: string };
 
       if (!response.ok) {
-        throw new Error(data.error ?? 'Failed to start extension batch.');
+        throw new Error(data.error ?? 'Failed to start extension requests.');
       }
 
       const nextLevel: ExtensionLevelState = {
@@ -370,9 +380,9 @@ export default function GrokImagineVideoBatchPage() {
         return updated;
       });
 
-      await loadExtensionStatus(composer.level, data.batch.batch_id);
+      await loadExtensionStatus(composer.level, data.requestIds);
     } catch (submitError) {
-      setExtendError(submitError instanceof Error ? submitError.message : 'Failed to start extension batch.');
+      setExtendError(submitError instanceof Error ? submitError.message : 'Failed to start extension requests.');
     } finally {
       setIsSubmittingExtend(false);
     }
@@ -546,7 +556,7 @@ export default function GrokImagineVideoBatchPage() {
 
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <label htmlFor="extend-batch-size" className="block text-sm font-medium text-stone-200">Extension batch size</label>
+                    <label htmlFor="extend-batch-size" className="block text-sm font-medium text-stone-200">Extension request count</label>
                     <span className="rounded-full bg-white/10 px-2 py-0.5 text-xs text-stone-200">{extendBatchSize} requests</span>
                   </div>
                   <input
@@ -570,7 +580,7 @@ export default function GrokImagineVideoBatchPage() {
                   disabled={isSubmittingExtend}
                   className="inline-flex w-full items-center justify-center rounded-full bg-[linear-gradient(135deg,#f5d27a,#c98d2e)] px-6 py-4 text-sm font-semibold text-black transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {isSubmittingExtend ? 'Starting extension batch…' : `Start ${extendBatchSize}-request extension batch`}
+                  {isSubmittingExtend ? 'Starting extension requests…' : `Start ${extendBatchSize} extension requests`}
                 </button>
               </form>
             </div>
@@ -686,10 +696,10 @@ export default function GrokImagineVideoBatchPage() {
                   <button
                     type="button"
                     disabled={isRefreshingExtend}
-                    onClick={() => loadExtensionStatus(levelItem.level, levelItem.startResponse.batch.batch_id)}
+                    onClick={() => loadExtensionStatus(levelItem.level, levelItem.startResponse.requestIds)}
                     className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-4 py-2 text-xs font-medium text-stone-200 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    {isRefreshingExtend ? 'Refreshing...' : 'Refresh extension status'}
+                    {isRefreshingExtend ? 'Refreshing...' : 'Refresh extension requests'}
                   </button>
 
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -799,14 +809,13 @@ function VideoCard({
             style={{ aspectRatio: '16 / 9' }}
           />
           {/* download footer */}
-          <div className="flex items-center justify-between gap-3 border-t border-white/10 px-4 py-3">
-            <p className="text-xs text-amber-300/80">⚠ Signed URL — download before it expires (~1 h)</p>
-            <div className="flex items-center gap-2">
+          <div className="border-t border-white/10 px-4 py-3">
+            <div className="flex flex-wrap items-center justify-end gap-2">
               {onSelectForExtension ? (
                 <button
                   type="button"
                   onClick={onSelectForExtension}
-                  className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition ${isSelected ? 'bg-[#d3a54a] text-black hover:bg-[#f5d27a]' : 'border border-white/15 bg-white/[0.06] text-stone-200 hover:bg-white/10'}`}
+                  className={`inline-flex w-full items-center justify-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition sm:w-auto ${isSelected ? 'bg-[#d3a54a] text-black hover:bg-[#f5d27a]' : 'border border-white/15 bg-white/[0.06] text-stone-200 hover:bg-white/10'}`}
                 >
                   {isSelected ? '✓ Selected' : '↗ Select for extension'}
                 </button>
@@ -815,7 +824,7 @@ function VideoCard({
                 type="button"
                 onClick={handleDownload}
                 disabled={isDownloading}
-                className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#d3a54a] px-3 py-1.5 text-xs font-semibold text-black transition hover:bg-[#f5d27a] disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-[#d3a54a] px-3 py-1.5 text-xs font-semibold text-black transition hover:bg-[#f5d27a] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
               >
                 {isDownloading ? 'Downloading…' : downloadFailed ? 'Download failed — retry' : '↓ Download .mp4'}
               </button>
