@@ -2,6 +2,8 @@
 
 import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from 'react';
 
+type InputMode = 'generate' | 'upload-extend';
+
 type BatchSummary = {
   batch_id: string;
   name: string;
@@ -37,7 +39,7 @@ type StartBatchResponse = {
   duration: number;
 };
 
-type SourceType = 'generation' | `extension_${number}`;
+type SourceType = 'generation' | 'upload' | `extension_${number}`;
 
 type ExtensionComposer = {
   level: number;
@@ -69,9 +71,11 @@ function ProgressBar({ completed, total }: { completed: number; total: number })
 }
 
 export default function GrokImagineVideoBatchPage() {
+  const [inputMode, setInputMode] = useState<InputMode>('generate');
   const [prompt, setPrompt] = useState('A cinematic slow-motion shot with warm highlights and a polished luxury feel, NO DIALOGUE.');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploadVideoFile, setUploadVideoFile] = useState<File | null>(null);
   const [duration, setDuration] = useState(15);
   const [batchSize, setBatchSize] = useState(10);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -130,6 +134,10 @@ export default function GrokImagineVideoBatchPage() {
   const getComposerLabel = () => {
     if (!composer) {
       return '';
+    }
+
+    if (composer.sourceType === 'upload') {
+      return `Uploaded source video ${composer.sourceVideoId}`;
     }
 
     if (composer.sourceType === 'generation') {
@@ -208,6 +216,60 @@ export default function GrokImagineVideoBatchPage() {
     setError(null);
     const file = event.target.files?.[0] ?? null;
     setImageFile(file);
+  };
+
+  const handleUploadVideoChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setExtendError(null);
+    const file = event.target.files?.[0] ?? null;
+    setUploadVideoFile(file);
+  };
+
+  const startExtensionRequests = async ({
+    sourceVideoUrl,
+    sourceVideoFile,
+    nextPrompt,
+    nextDuration,
+    nextRequestCount,
+  }: {
+    sourceVideoUrl?: string;
+    sourceVideoFile?: File | null;
+    nextPrompt: string;
+    nextDuration: number;
+    nextRequestCount: number;
+  }) => {
+    const hasFile = Boolean(sourceVideoFile);
+
+    const response = await fetch('/api/xai/grok-imagine-video-extend', {
+      method: 'POST',
+      headers: hasFile
+        ? undefined
+        : {
+            'Content-Type': 'application/json',
+          },
+      body: hasFile
+        ? (() => {
+            const formData = new FormData();
+            formData.append('video', sourceVideoFile as File);
+            formData.append('prompt', nextPrompt);
+            formData.append('duration', String(nextDuration));
+            formData.append('batchSize', String(nextRequestCount));
+            return formData;
+          })()
+        : JSON.stringify({
+            videoUrl: sourceVideoUrl,
+            prompt: nextPrompt,
+            duration: nextDuration,
+            batchSize: nextRequestCount,
+          }),
+    });
+
+    const data = (await response.json()) as StartBatchResponse & { error?: string };
+
+    if (!response.ok) {
+      throw new Error(data.error ?? 'Failed to start extension requests.');
+    }
+
+    return data;
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -339,24 +401,13 @@ export default function GrokImagineVideoBatchPage() {
     setIsSubmittingExtend(true);
 
     try {
-      const response = await fetch('/api/xai/grok-imagine-video-extend', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          videoUrl: composer.sourceVideoUrl,
-          prompt: extendPrompt.trim(),
-          duration: extendDuration,
-          batchSize: extendBatchSize,
-        }),
+      const data = await startExtensionRequests({
+        sourceVideoUrl: composer.sourceVideoUrl,
+        sourceVideoFile: composer.sourceType === 'upload' ? uploadVideoFile : null,
+        nextPrompt: extendPrompt.trim(),
+        nextDuration: extendDuration,
+        nextRequestCount: extendBatchSize,
       });
-
-      const data = (await response.json()) as StartBatchResponse & { error?: string };
-
-      if (!response.ok) {
-        throw new Error(data.error ?? 'Failed to start extension requests.');
-      }
 
       const nextLevel: ExtensionLevelState = {
         level: composer.level,
@@ -388,16 +439,70 @@ export default function GrokImagineVideoBatchPage() {
     }
   };
 
+  const handleUploadExtendSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setExtendError(null);
+
+    if (!uploadVideoFile) {
+      setExtendError('Upload a source video before creating extension requests.');
+      return;
+    }
+
+    if (!extendPrompt.trim()) {
+      setExtendError('Add an extension prompt before starting extension requests.');
+      return;
+    }
+
+    if (extendDuration < 2 || extendDuration > 10) {
+      setExtendError('Extension duration must be between 2 and 10 seconds.');
+      return;
+    }
+
+    setIsSubmittingExtend(true);
+
+    try {
+      const data = await startExtensionRequests({
+        sourceVideoFile: uploadVideoFile,
+        nextPrompt: extendPrompt.trim(),
+        nextDuration: extendDuration,
+        nextRequestCount: extendBatchSize,
+      });
+
+      const nextLevel: ExtensionLevelState = {
+        level: 1,
+        sourceType: 'upload',
+        sourceVideoId: uploadVideoFile.name,
+        sourceVideoUrl: '',
+        accumulatedBefore: 0,
+        configuredDuration: extendDuration,
+        startResponse: data,
+        statusResponse: {
+          batch: data.batch,
+          results: [],
+          paginationToken: null,
+        },
+      };
+
+      setComposer(null);
+      setExtensionLevels([nextLevel]);
+      await loadExtensionStatus(1, data.requestIds);
+    } catch (submitError) {
+      setExtendError(submitError instanceof Error ? submitError.message : 'Failed to start extension requests.');
+    } finally {
+      setIsSubmittingExtend(false);
+    }
+  };
+
   return (
     <main className="min-h-screen bg-[#050505] text-stone-100">
       <section className="relative overflow-hidden border-b border-white/10">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(245,210,122,0.18),_transparent_35%),radial-gradient(circle_at_top_right,_rgba(211,165,74,0.14),_transparent_30%),linear-gradient(180deg,_rgba(13,13,13,0.98),_rgba(5,5,5,1))]" />
         <div className="relative mx-auto max-w-6xl px-6 py-16 sm:px-8 lg:px-10 lg:py-20">
           <div className="max-w-3xl space-y-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.4em] text-[#d3a54a]">xAI batch tool</p>
-            <h1 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl">Grok Imagine video batch</h1>
+            <p className="text-xs font-semibold uppercase tracking-[0.4em] text-[#d3a54a]">xAI video tool</p>
+            <h1 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl">Grok Imagine video studio</h1>
             <p className="max-w-2xl text-base leading-7 text-stone-300 sm:text-lg">
-              Write a prompt, upload a source image, and fan out ten Grok Imagine image-to-video requests in a single xAI batch. Refresh status on demand and download each video before its signed URL expires.
+              Choose how to start: generate from a still image, or upload a video and extend it immediately. You can keep extending by selecting any successful result.
             </p>
           </div>
         </div>
@@ -407,10 +512,36 @@ export default function GrokImagineVideoBatchPage() {
         <div className="space-y-6">
           <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-[0_24px_120px_rgba(0,0,0,0.4)] backdrop-blur sm:p-8">
             <div className="space-y-3">
-              <h2 className="text-2xl font-semibold text-white">Start a batch</h2>
-              <p className="text-sm leading-6 text-stone-400">Configure a prompt, source image, duration, and batch size, then send all requests in one xAI batch job.</p>
+              <h2 className="text-2xl font-semibold text-white">Choose a starting point</h2>
+              <p className="text-sm leading-6 text-stone-400">Generate a new video from image, or upload a video and start extension requests right away.</p>
             </div>
 
+            <div className="grid grid-cols-2 gap-2 rounded-2xl border border-white/10 bg-black/30 p-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setInputMode('generate');
+                  setError(null);
+                  setExtendError(null);
+                }}
+                className={`rounded-xl px-3 py-2 text-sm font-medium transition ${inputMode === 'generate' ? 'bg-[#d3a54a] text-black' : 'text-stone-300 hover:bg-white/10'}`}
+              >
+                Generate from image
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setInputMode('upload-extend');
+                  setError(null);
+                  setExtendError(null);
+                }}
+                className={`rounded-xl px-3 py-2 text-sm font-medium transition ${inputMode === 'upload-extend' ? 'bg-[#d3a54a] text-black' : 'text-stone-300 hover:bg-white/10'}`}
+              >
+                Upload to extend
+              </button>
+            </div>
+
+            {inputMode === 'generate' ? (
             <form onSubmit={handleSubmit} className="space-y-5">
             {/* Prompt */}
             <div className="space-y-2">
@@ -504,6 +635,83 @@ export default function GrokImagineVideoBatchPage() {
               {isSubmitting ? 'Starting batch…' : `Start ${batchSize}-request batch`}
             </button>
             </form>
+            ) : (
+            <form onSubmit={handleUploadExtendSubmit} className="space-y-5">
+              <div className="space-y-2">
+                <label htmlFor="upload-video" className="block text-sm font-medium text-stone-200">
+                  Source video <span className="text-stone-500">(required)</span>
+                </label>
+                <div className="rounded-2xl border border-dashed border-white/15 bg-black/20 p-4">
+                  <input
+                    id="upload-video"
+                    type="file"
+                    accept="video/mp4,video/*"
+                    onChange={handleUploadVideoChange}
+                    required
+                    className="block w-full text-sm text-stone-300 file:mr-4 file:cursor-pointer file:rounded-full file:border-0 file:bg-[#d3a54a] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-black hover:file:bg-[#f5d27a]"
+                  />
+                  <p className="mt-2 text-xs leading-5 text-stone-500">Upload any source clip you want to continue from.</p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="upload-extend-prompt" className="block text-sm font-medium text-stone-200">
+                  Extension prompt <span className="text-stone-500">(required)</span>
+                </label>
+                <textarea
+                  id="upload-extend-prompt"
+                  value={extendPrompt}
+                  onChange={(event) => setExtendPrompt(event.target.value)}
+                  rows={4}
+                  required
+                  className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm leading-6 text-white outline-none transition placeholder:text-stone-500 focus:border-[#d3a54a] focus:ring-2 focus:ring-[#d3a54a]/20"
+                  placeholder="Describe what should happen next in the uploaded video..."
+                />
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label htmlFor="upload-extend-duration" className="block text-sm font-medium text-stone-200">Extension duration</label>
+                  <span className="rounded-full bg-white/10 px-2 py-0.5 text-xs text-stone-200">{extendDuration}s</span>
+                </div>
+                <input
+                  id="upload-extend-duration"
+                  type="range"
+                  min={2}
+                  max={10}
+                  value={extendDuration}
+                  onChange={(e) => setExtendDuration(Number(e.target.value))}
+                  className="w-full accent-[#d3a54a]"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label htmlFor="upload-extend-request-count" className="block text-sm font-medium text-stone-200">Extension request count</label>
+                  <span className="rounded-full bg-white/10 px-2 py-0.5 text-xs text-stone-200">{extendBatchSize} requests</span>
+                </div>
+                <input
+                  id="upload-extend-request-count"
+                  type="range"
+                  min={1}
+                  max={50}
+                  value={extendBatchSize}
+                  onChange={(e) => setExtendBatchSize(Number(e.target.value))}
+                  className="w-full accent-[#d3a54a]"
+                />
+              </div>
+
+              {extendError ? <div className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-100">{extendError}</div> : null}
+
+              <button
+                type="submit"
+                disabled={isSubmittingExtend}
+                className="inline-flex w-full items-center justify-center rounded-full bg-[linear-gradient(135deg,#f5d27a,#c98d2e)] px-6 py-4 text-sm font-semibold text-black transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isSubmittingExtend ? 'Starting extension requests…' : `Start ${extendBatchSize} extension requests`}
+              </button>
+            </form>
+            )}
           </div>
 
           {composer ? (
@@ -663,7 +871,9 @@ export default function GrokImagineVideoBatchPage() {
                 ))
               ) : (
                 <div className="rounded-3xl border border-dashed border-white/10 bg-black/20 px-6 py-10 text-sm leading-6 text-stone-400">
-                  Enter a prompt, upload a source image, and click «Start 10-request batch». Video results will appear here once xAI processes each request — hit «Refresh status» to load them.
+                  {inputMode === 'generate'
+                    ? 'Enter a prompt, upload a source image, and click start. Video results appear here once xAI processes each request.'
+                    : 'Upload a source video, add an extension prompt, and click start. Extension results appear here after request polling.'}
                 </div>
               )}
             </div>
@@ -756,6 +966,7 @@ function VideoCard({
 }) {
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadFailed, setDownloadFailed] = useState(false);
+  const isModerationBlocked = result.error === 'Blocked by content moderation; try a safer prompt.';
 
   const handleDownload = async () => {
     if (!result.videoUrl) return;
@@ -834,7 +1045,12 @@ function VideoCard({
       ) : (
         <div className="flex h-44 items-center justify-center px-6 text-center text-sm text-stone-400">
           {result.error ? (
-            <span className="text-red-300">{result.error}</span>
+            <div className="space-y-1">
+              <p className="text-red-300">{result.error}</p>
+              {isModerationBlocked ? (
+                <p className="text-xs text-stone-400">Try a neutral continuation prompt without sensitive themes, explicit violence, or sexual content.</p>
+              ) : null}
+            </div>
           ) : (
             'Waiting for video URL — refresh status when the batch completes.'
           )}

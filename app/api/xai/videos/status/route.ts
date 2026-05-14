@@ -4,7 +4,10 @@ const XAI_BASE_URL = 'https://api.x.ai/v1';
 
 type XaiVideoResult = {
   status?: 'pending' | 'done' | 'failed' | 'expired' | string;
+  code?: string;
+  block_reason?: string;
   error?: {
+    code?: string;
     message?: string;
   };
   video?: {
@@ -12,6 +15,18 @@ type XaiVideoResult = {
     duration?: number;
   };
 };
+
+function isModerationBlock(result: XaiVideoResult) {
+  const code = (result.code ?? result.error?.code ?? '').toLowerCase();
+  const blockReason = (result.block_reason ?? '').toLowerCase();
+  const message = (result.error?.message ?? '').toLowerCase();
+
+  return (
+    blockReason.includes('content_policy_violation') ||
+    message.includes('content moderation') ||
+    (code.includes('invalid_argument') && message.includes('rejected'))
+  );
+}
 
 function jsonError(message: string, status: number) {
   return NextResponse.json({ error: message }, { status });
@@ -112,11 +127,16 @@ export async function POST(request: Request) {
 
     if (status === 'failed' || status === 'expired') {
       numError += 1;
+
+      const errorMessage = isModerationBlock(result)
+        ? 'Blocked by content moderation; try a safer prompt.'
+        : result.error?.message ?? `Request ${status}.`;
+
       return {
         batchRequestId: requestId,
         videoUrl: null,
         duration: null,
-        error: result.error?.message ?? `Request ${status}.`,
+        error: errorMessage,
         status: 'failed' as const,
       };
     }

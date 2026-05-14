@@ -25,6 +25,20 @@ type XaiVideoExtensionStartResponse = {
   request_id: string;
 };
 
+type XaiUploadedFileResponse = {
+  id?: string;
+};
+
+function isFileEntry(value: FormDataEntryValue | null): value is File {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'arrayBuffer' in value &&
+    'size' in value &&
+    'type' in value
+  );
+}
+
 function jsonError(message: string, status: number) {
   return NextResponse.json({ error: message }, { status });
 }
@@ -41,33 +55,78 @@ export async function POST(request: Request) {
     return jsonError('Missing XAI_API_KEY environment variable.', 500);
   }
 
-  let body: unknown;
+  const contentType = request.headers.get('content-type') ?? '';
+  const isMultipart = contentType.includes('multipart/form-data');
 
-  try {
-    body = await request.json();
-  } catch {
-    return jsonError('Request body must be valid JSON.', 400);
+  let videoUrl = '';
+  let videoFileId = '';
+  let prompt = '';
+  let durationValue = Number.NaN;
+  let batchSizeValue = Number.NaN;
+
+  if (isMultipart) {
+    const formData = await request.formData();
+    prompt = String(formData.get('prompt') ?? '').trim();
+    durationValue = Number(formData.get('duration'));
+    batchSizeValue = Number(formData.get('batchSize'));
+    const videoEntry = formData.get('video');
+
+    if (!isFileEntry(videoEntry) || videoEntry.size === 0) {
+      return jsonError('A valid video upload is required.', 400);
+    }
+
+    const uploadBody = new FormData();
+    uploadBody.append('file', videoEntry, videoEntry.name || 'source-video.mp4');
+
+    const uploadResponse = await fetch(`${XAI_BASE_URL}/files`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: uploadBody,
+    });
+
+    if (!uploadResponse.ok) {
+      return jsonError(`Failed to upload source video to xAI: ${await readResponseText(uploadResponse)}`, uploadResponse.status);
+    }
+
+    const uploadedFile = (await uploadResponse.json()) as XaiUploadedFileResponse;
+
+    if (!uploadedFile.id) {
+      return jsonError('xAI did not return a file id for the uploaded source video.', 502);
+    }
+
+    videoFileId = uploadedFile.id;
+  } else {
+    let body: unknown;
+
+    try {
+      body = await request.json();
+    } catch {
+      return jsonError('Request body must be valid JSON.', 400);
+    }
+
+    const bodyObj = body as Record<string, unknown>;
+    videoUrl = String(bodyObj.videoUrl ?? '').trim();
+    prompt = String(bodyObj.prompt ?? '').trim();
+    durationValue = Number(bodyObj.duration);
+    batchSizeValue = Number(bodyObj.batchSize);
   }
 
-  const bodyObj = body as Record<string, unknown>;
-  const videoUrl = String(bodyObj.videoUrl ?? '').trim();
-  const prompt = String(bodyObj.prompt ?? '').trim();
-  const durationValue = Number(bodyObj.duration);
   const duration =
     Number.isFinite(durationValue) && durationValue >= MIN_DURATION && durationValue <= MAX_DURATION
       ? durationValue
       : DEFAULT_DURATION;
-  const batchSizeValue = Number(bodyObj.batchSize);
   const batchSize =
     Number.isFinite(batchSizeValue) && batchSizeValue >= 1 && batchSizeValue <= MAX_BATCH_SIZE
       ? Math.round(batchSizeValue)
       : DEFAULT_BATCH_SIZE;
 
-  if (!videoUrl) {
+  if (!videoUrl && !videoFileId) {
     return jsonError('A video URL is required.', 400);
   }
 
-  if (!videoUrl.startsWith('https://')) {
+  if (videoUrl && !videoUrl.startsWith('https://')) {
     return jsonError('Video URL must be HTTPS.', 400);
   }
 
@@ -89,7 +148,7 @@ export async function POST(request: Request) {
           body: JSON.stringify({
             model: 'grok-imagine-video',
             prompt,
-            video: { url: videoUrl },
+            video: videoFileId ? { file_id: videoFileId } : { url: videoUrl },
             duration,
           }),
         });
