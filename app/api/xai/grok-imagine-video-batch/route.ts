@@ -6,6 +6,8 @@ const XAI_BASE_URL = 'https://api.x.ai/v1';
 const DEFAULT_BATCH_SIZE = 10;
 const MAX_BATCH_SIZE = 50;
 const DEFAULT_DURATION = 15;
+const DEFAULT_ASPECT_RATIO = '9:16';
+const DEFAULT_RESOLUTION = '720p';
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
 
@@ -98,6 +100,8 @@ export async function POST(request: Request) {
           prompt,
           image: { url: imageDataUri },
           duration,
+          aspect_ratio: DEFAULT_ASPECT_RATIO,
+          resolution: DEFAULT_RESOLUTION,
         },
       }),
     )
