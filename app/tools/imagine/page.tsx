@@ -26,6 +26,10 @@ type BatchResult = {
   status: 'pending' | 'succeeded' | 'failed';
 };
 
+type BatchSucceededResult = BatchResult & {
+  videoUrl: string;
+};
+
 type BatchStatusResponse = {
   batch: BatchSummary;
   results: BatchResult[];
@@ -37,7 +41,15 @@ type StartBatchResponse = {
   requestIds: string[];
   requestCount: number;
   duration: number;
+  sourceProcessing?: {
+    strategy: 'passthrough' | 'trim-last-15s';
+    originalDurationSeconds: number;
+    preparedDurationSeconds: number;
+    trimStartSeconds: number;
+  } | null;
 };
+
+type UploadPipelineStage = 'idle' | 'preparing' | 'extending' | 'finalizing' | 'ready';
 
 type SourceType = 'generation' | 'upload' | `extension_${number}`;
 
@@ -59,6 +71,10 @@ type ExtensionLevelState = {
   startResponse: StartBatchResponse;
   statusResponse: BatchStatusResponse | null;
 };
+
+function isSucceededWithVideo(result: BatchResult): result is BatchSucceededResult {
+  return result.status === 'succeeded' && Boolean(result.videoUrl);
+}
 
 function ProgressBar({ completed, total }: { completed: number; total: number }) {
   const percentage = total === 0 ? 0 : Math.min(100, Math.round((completed / total) * 100));
@@ -92,6 +108,13 @@ export default function GrokImagineVideoBatchPage() {
   const [extendError, setExtendError] = useState<string | null>(null);
   const [isSubmittingExtend, setIsSubmittingExtend] = useState(false);
   const [isRefreshingExtend, setIsRefreshingExtend] = useState(false);
+  const [uploadPipelineStage, setUploadPipelineStage] = useState<UploadPipelineStage>('idle');
+  const [uploadProcessingSummary, setUploadProcessingSummary] = useState<StartBatchResponse['sourceProcessing'] | null>(null);
+  const [isComposingFinalVideo, setIsComposingFinalVideo] = useState(false);
+  const [autoComposeStartedByRequestId, setAutoComposeStartedByRequestId] = useState<Set<string>>(new Set());
+  const [composeStateByRequestId, setComposeStateByRequestId] = useState<Map<string, 'composing' | 'ready' | 'failed'>>(new Map());
+  const [composeError, setComposeError] = useState<string | null>(null);
+  const [composedVideosByRequestId, setComposedVideosByRequestId] = useState<Map<string, string>>(new Map());
 
   useEffect(() => {
     if (!imageFile) {
@@ -105,6 +128,23 @@ export default function GrokImagineVideoBatchPage() {
     return () => URL.revokeObjectURL(nextPreview);
   }, [imageFile]);
 
+  useEffect(() => {
+    return () => {
+      composedVideosByRequestId.forEach((objectUrl) => {
+        URL.revokeObjectURL(objectUrl);
+      });
+    };
+  }, [composedVideosByRequestId]);
+
+  useEffect(() => {
+    if (composedVideosByRequestId.size > 0) {
+      console.log(`📹 Composed videos available: ${composedVideosByRequestId.size} total`);
+      composedVideosByRequestId.forEach((url, requestId) => {
+        console.log(`  - Request ${requestId}: ${url.substring(0, 50)}...`);
+      });
+    }
+  }, [composedVideosByRequestId]);
+
   const completedCount = useMemo(() => {
     if (!statusResponse) {
       return 0;
@@ -116,6 +156,15 @@ export default function GrokImagineVideoBatchPage() {
   const totalCount = statusResponse?.batch.state.num_requests ?? startResponse?.requestCount ?? 0;
   const pendingCount = statusResponse?.batch.state.num_pending ?? 0;
   const isDone = totalCount > 0 && pendingCount === 0;
+  const uploadSucceededCount = extensionLevels[0]?.statusResponse?.results.filter(isSucceededWithVideo).length ?? 0;
+  const composedReadyCount = Array.from(composeStateByRequestId.values()).filter((value) => value === 'ready').length;
+  const bestUploadSuccessResult = extensionLevels[0]?.statusResponse?.results.find(isSucceededWithVideo) ?? null;
+  const bestUploadSuccessRequestId = bestUploadSuccessResult?.batchRequestId ?? null;
+  const bestUploadComposeState = bestUploadSuccessRequestId ? composeStateByRequestId.get(bestUploadSuccessRequestId) : undefined;
+  const isBestUploadAlreadyComposed = Boolean(
+    bestUploadSuccessRequestId &&
+      (bestUploadComposeState === 'ready' || composedVideosByRequestId.has(bestUploadSuccessRequestId))
+  );
 
   const getOrdinal = (value: number) => {
     if (value === 1) {
@@ -207,6 +256,68 @@ export default function GrokImagineVideoBatchPage() {
             : item,
         ),
       );
+
+      // Incrementally auto-compose each newly succeeded extension result.
+      if (level === 1 && inputMode === 'upload-extend' && uploadVideoFile) {
+        const succeededResults = data.results.filter(isSucceededWithVideo);
+        const pendingCompositions = succeededResults.filter((result) => {
+          const requestId = result.batchRequestId;
+          if (!requestId) {
+            return false;
+          }
+
+          if (autoComposeStartedByRequestId.has(requestId)) {
+            return false;
+          }
+
+          if (composedVideosByRequestId.has(requestId)) {
+            return false;
+          }
+
+          const composeState = composeStateByRequestId.get(requestId);
+          return composeState !== 'composing' && composeState !== 'ready';
+        });
+
+        if (pendingCompositions.length > 0) {
+          setComposeError(null);
+          setUploadPipelineStage('finalizing');
+          setAutoComposeStartedByRequestId((current) => {
+            const next = new Set(current);
+            pendingCompositions.forEach((result) => {
+              next.add(result.batchRequestId);
+            });
+            return next;
+          });
+
+          setIsComposingFinalVideo(true);
+
+          const results = await Promise.allSettled(
+            pendingCompositions.map((result) => composeUploadResult(result.batchRequestId, result.videoUrl))
+          );
+
+          const failedCount = results.filter((result) => result.status === 'rejected').length;
+          if (failedCount > 0) {
+            setComposeError(
+              `${failedCount} of ${pendingCompositions.length} new composition(s) failed. You can retry manually.`
+            );
+          }
+
+          setIsComposingFinalVideo(false);
+        }
+
+        const succeededCount = succeededResults.length;
+        const readyCount = succeededResults.filter(
+          (result) => composeStateByRequestId.get(result.batchRequestId) === 'ready' || composedVideosByRequestId.has(result.batchRequestId)
+        ).length;
+
+        if (succeededCount === 0) {
+          setUploadPipelineStage('extending');
+        } else if (readyCount >= succeededCount) {
+          setUploadPipelineStage('ready');
+        } else {
+          setUploadPipelineStage('finalizing');
+        }
+      }
     } finally {
       setIsRefreshingExtend(false);
     }
@@ -270,6 +381,62 @@ export default function GrokImagineVideoBatchPage() {
     }
 
     return data;
+  };
+
+  const composeUploadResult = async (requestId: string, extensionVideoUrl: string) => {
+    if (!uploadVideoFile) {
+      throw new Error('Original uploaded video is no longer available for final composition.');
+    }
+
+    setComposeStateByRequestId((current) => {
+      const next = new Map(current);
+      next.set(requestId, 'composing');
+      return next;
+    });
+
+    try {
+      const formData = new FormData();
+      formData.append('originalVideo', uploadVideoFile);
+      formData.append('extensionVideoUrl', extensionVideoUrl);
+
+      const response = await fetch('/api/xai/video-compose', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(errorData?.error ?? 'Failed to compose final video.');
+      }
+
+      const blob = await response.blob();
+      const nextObjectUrl = URL.createObjectURL(blob);
+
+      setComposedVideosByRequestId((current) => {
+        const next = new Map(current);
+        const existing = next.get(requestId);
+        if (existing) {
+          URL.revokeObjectURL(existing);
+        }
+        next.set(requestId, nextObjectUrl);
+        return next;
+      });
+
+      setComposeStateByRequestId((current) => {
+        const next = new Map(current);
+        next.set(requestId, 'ready');
+        return next;
+      });
+    } catch (composeErr) {
+      const message = composeErr instanceof Error ? composeErr.message : 'Failed to compose final video.';
+      setComposeError(message);
+      setComposeStateByRequestId((current) => {
+        const next = new Map(current);
+        next.set(requestId, 'failed');
+        return next;
+      });
+      throw composeErr;
+    }
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -442,19 +609,33 @@ export default function GrokImagineVideoBatchPage() {
   const handleUploadExtendSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setExtendError(null);
+    setComposeError(null);
+    setUploadPipelineStage('preparing');
+
+    setComposedVideosByRequestId((current) => {
+      current.forEach((objectUrl) => {
+        URL.revokeObjectURL(objectUrl);
+      });
+      return new Map();
+    });
+    setAutoComposeStartedByRequestId(new Set());
+    setComposeStateByRequestId(new Map());
 
     if (!uploadVideoFile) {
       setExtendError('Upload a source video before creating extension requests.');
+      setUploadPipelineStage('idle');
       return;
     }
 
     if (!extendPrompt.trim()) {
       setExtendError('Add an extension prompt before starting extension requests.');
+      setUploadPipelineStage('idle');
       return;
     }
 
     if (extendDuration < 2 || extendDuration > 10) {
       setExtendError('Extension duration must be between 2 and 10 seconds.');
+      setUploadPipelineStage('idle');
       return;
     }
 
@@ -467,6 +648,9 @@ export default function GrokImagineVideoBatchPage() {
         nextDuration: extendDuration,
         nextRequestCount: extendBatchSize,
       });
+
+      setUploadProcessingSummary(data.sourceProcessing ?? null);
+      setUploadPipelineStage('extending');
 
       const nextLevel: ExtensionLevelState = {
         level: 1,
@@ -488,6 +672,7 @@ export default function GrokImagineVideoBatchPage() {
       await loadExtensionStatus(1, data.requestIds);
     } catch (submitError) {
       setExtendError(submitError instanceof Error ? submitError.message : 'Failed to start extension requests.');
+      setUploadPipelineStage('idle');
     } finally {
       setIsSubmittingExtend(false);
     }
@@ -650,7 +835,7 @@ export default function GrokImagineVideoBatchPage() {
                     required
                     className="block w-full text-sm text-stone-300 file:mr-4 file:cursor-pointer file:rounded-full file:border-0 file:bg-[#d3a54a] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-black hover:file:bg-[#f5d27a]"
                   />
-                  <p className="mt-2 text-xs leading-5 text-stone-500">Upload any source clip you want to continue from.</p>
+                  <p className="mt-2 text-xs leading-5 text-stone-500">Upload any source clip. We automatically use the last 15 seconds as extension input and keep your full original for final composition.</p>
                 </div>
               </div>
 
@@ -702,6 +887,32 @@ export default function GrokImagineVideoBatchPage() {
               </div>
 
               {extendError ? <div className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-100">{extendError}</div> : null}
+              {composeError ? <div className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-100">{composeError}</div> : null}
+
+              {(uploadPipelineStage !== 'idle' || uploadProcessingSummary) ? (
+                <div className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-xs text-stone-300">
+                  <p className="font-medium uppercase tracking-[0.18em] text-stone-400">Pipeline stage</p>
+                  <p className="mt-2 text-sm text-white">
+                    {uploadPipelineStage === 'preparing'
+                      ? 'Preparing source (auto trim to last 15s)...'
+                      : uploadPipelineStage === 'extending'
+                        ? 'Extending with xAI requests...'
+                        : uploadPipelineStage === 'finalizing'
+                          ? `Composing full videos ${composedReadyCount}/${uploadSucceededCount || 0}...`
+                          : uploadPipelineStage === 'ready'
+                            ? `Composed ${composedReadyCount} full video(s) from succeeded extensions.`
+                            : 'Idle'}
+                  </p>
+                  {uploadProcessingSummary ? (
+                    <p className="mt-2 leading-5 text-stone-400">
+                      Source duration: {uploadProcessingSummary.originalDurationSeconds.toFixed(1)}s. Prepared input: {uploadProcessingSummary.preparedDurationSeconds.toFixed(1)}s
+                      {uploadProcessingSummary.strategy === 'trim-last-15s'
+                        ? ` (trimmed from ${uploadProcessingSummary.trimStartSeconds.toFixed(1)}s to end).`
+                        : ' (no trim required).'}
+                    </p>
+                  ) : null}
+                </div>
+              ) : null}
 
               <button
                 type="submit"
@@ -710,6 +921,32 @@ export default function GrokImagineVideoBatchPage() {
               >
                 {isSubmittingExtend ? 'Starting extension requests…' : `Start ${extendBatchSize} extension requests`}
               </button>
+
+              {bestUploadSuccessResult ? (
+                <button
+                  type="button"
+                  disabled={
+                    !uploadVideoFile ||
+                    isBestUploadAlreadyComposed ||
+                    bestUploadComposeState === 'composing'
+                  }
+                  onClick={() => {
+                    if (bestUploadSuccessResult?.videoUrl) {
+                      setIsComposingFinalVideo(true);
+                      void composeUploadResult(bestUploadSuccessResult.batchRequestId, bestUploadSuccessResult.videoUrl).finally(() => {
+                        setIsComposingFinalVideo(false);
+                      });
+                    }
+                  }}
+                  className="inline-flex w-full items-center justify-center rounded-full border border-white/15 bg-white/[0.08] px-6 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/12 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {bestUploadComposeState === 'composing'
+                    ? 'Composing best result…'
+                    : isBestUploadAlreadyComposed
+                      ? 'Best result already composed'
+                      : 'Create seamless final from best result'}
+                </button>
+              ) : null}
             </form>
             )}
           </div>
@@ -879,6 +1116,38 @@ export default function GrokImagineVideoBatchPage() {
             </div>
           </div>
 
+          {composedVideosByRequestId.size > 0 ? (
+            <div className="rounded-[2rem] border border-emerald-300/30 bg-emerald-300/[0.05] p-6 sm:p-8">
+              <div className="space-y-2">
+                <h2 className="text-xl font-semibold text-white">
+                  {composedVideosByRequestId.size === 1 ? 'Composed video' : 'Composed videos'}
+                </h2>
+                <p className="text-sm text-stone-300">
+                  {composedVideosByRequestId.size === 1
+                    ? 'This combines the original upload and the extension result into one continuous output.'
+                    : `Generated ${composedVideosByRequestId.size} composition${composedVideosByRequestId.size > 1 ? 's' : ''} combining the original upload with each successful extension.`}
+                </p>
+              </div>
+
+              <div className="mt-4 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {Array.from(composedVideosByRequestId.entries()).map(([requestId, objectUrl], index) => (
+                  <div key={requestId || `composed-${index}`} className="overflow-hidden rounded-2xl border border-white/10 bg-black/40">
+                    <video controls preload="metadata" src={objectUrl} className="w-full bg-black" style={{ aspectRatio: '16 / 9' }} />
+                    <div className="p-3">
+                      <a
+                        href={objectUrl}
+                        download={`composed-${requestId && requestId.length > 8 ? requestId.slice(0, 8) : `result-${index + 1}`}.mp4`}
+                        className="inline-flex items-center justify-center rounded-lg bg-emerald-300/20 px-3 py-1.5 text-xs font-semibold text-emerald-200 transition hover:bg-emerald-300/30"
+                      >
+                        Download
+                      </a>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
           {extensionLevels.map((levelItem) => {
             const levelStatus = levelItem.statusResponse;
             const levelTotal = levelStatus?.batch.state.num_requests ?? levelItem.startResponse.requestCount;
@@ -906,7 +1175,9 @@ export default function GrokImagineVideoBatchPage() {
                   <button
                     type="button"
                     disabled={isRefreshingExtend}
-                    onClick={() => loadExtensionStatus(levelItem.level, levelItem.startResponse.requestIds)}
+                    onClick={() => {
+                      void loadExtensionStatus(levelItem.level, levelItem.startResponse.requestIds);
+                    }}
                     className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-4 py-2 text-xs font-medium text-stone-200 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {isRefreshingExtend ? 'Refreshing...' : 'Refresh extension requests'}

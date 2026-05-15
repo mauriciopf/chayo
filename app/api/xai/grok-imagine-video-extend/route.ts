@@ -1,4 +1,15 @@
 import { NextResponse } from 'next/server';
+import { promises as fs } from 'node:fs';
+
+import {
+  createTmpFilePath,
+  downloadToPath,
+  ensureTmpDir,
+  probeVideoDurationSeconds,
+  safeUnlink,
+  trimVideoSegment,
+  writeUploadedFileToPath,
+} from '@/lib/video/ffmpeg';
 
 const XAI_BASE_URL = 'https://api.x.ai/v1';
 const DEFAULT_BATCH_SIZE = 5;
@@ -6,6 +17,12 @@ const MAX_BATCH_SIZE = 50;
 const MIN_DURATION = 2;
 const DEFAULT_DURATION = 10;
 const MAX_DURATION = 10;
+const MAX_EXTENSION_INPUT_SECONDS = 15;
+const INTER_REQUEST_DELAY_MS = 1100;
+const RATE_LIMIT_RETRY_BASE_DELAY_MS = 1200;
+const MAX_RATE_LIMIT_RETRIES = 5;
+
+export const runtime = 'nodejs';
 
 type XaiBatchResponse = {
   batch_id: string;
@@ -29,6 +46,13 @@ type XaiUploadedFileResponse = {
   id?: string;
 };
 
+type SourceProcessing = {
+  strategy: 'passthrough' | 'trim-last-15s';
+  originalDurationSeconds: number;
+  preparedDurationSeconds: number;
+  trimStartSeconds: number;
+};
+
 function isFileEntry(value: FormDataEntryValue | null): value is File {
   return (
     typeof value === 'object' &&
@@ -39,6 +63,83 @@ function isFileEntry(value: FormDataEntryValue | null): value is File {
   );
 }
 
+/**
+ * Prepare a video file for xAI extension by probing, trimming if necessary,
+ * and uploading to xAI's file storage.
+ * Returns the file ID and metadata about the preparation process.
+ */
+async function prepareVideoSourceForExtension(
+  inputPath: string,
+  apiKey: string,
+  originalFileName: string = 'source-video.mp4'
+): Promise<{ fileId: string; sourceProcessing: SourceProcessing }> {
+  const originalDurationSeconds = await probeVideoDurationSeconds(inputPath);
+
+  let uploadPath = inputPath;
+  let trimStartSeconds = 0;
+  let strategy: SourceProcessing['strategy'] = 'passthrough';
+  let preparedDurationSeconds = originalDurationSeconds;
+
+  if (originalDurationSeconds > MAX_EXTENSION_INPUT_SECONDS) {
+    trimStartSeconds = Math.max(0, originalDurationSeconds - MAX_EXTENSION_INPUT_SECONDS);
+    strategy = 'trim-last-15s';
+    preparedDurationSeconds = MAX_EXTENSION_INPUT_SECONDS;
+
+    const preparedPath = createTmpFilePath('prepared.mp4');
+
+    try {
+      await trimVideoSegment({
+        inputPath,
+        outputPath: preparedPath,
+        startSeconds: trimStartSeconds,
+        durationSeconds: MAX_EXTENSION_INPUT_SECONDS,
+      });
+      uploadPath = preparedPath;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to trim video.';
+      throw new Error(`Failed to prepare video: ${message}`);
+    }
+  }
+
+  const preparedBuffer = await fs.readFile(uploadPath);
+
+  const uploadBody = new FormData();
+  uploadBody.append('file', new Blob([preparedBuffer], { type: 'video/mp4' }), originalFileName);
+
+  const uploadResponse = await fetch(`${XAI_BASE_URL}/files`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: uploadBody,
+  });
+
+  if (!uploadResponse.ok) {
+    const errorText = await readResponseText(uploadResponse);
+    throw new Error(`Failed to upload source video to xAI: ${errorText}`);
+  }
+
+  const uploadedFile = (await uploadResponse.json()) as XaiUploadedFileResponse;
+
+  if (!uploadedFile.id) {
+    throw new Error('xAI did not return a file id for the uploaded source video.');
+  }
+
+  const sourceProcessing: SourceProcessing = {
+    strategy,
+    originalDurationSeconds,
+    preparedDurationSeconds,
+    trimStartSeconds,
+  };
+
+  // Clean up any temporary prepared file (not the original input path)
+  if (uploadPath !== inputPath) {
+    await safeUnlink(uploadPath);
+  }
+
+  return { fileId: uploadedFile.id, sourceProcessing };
+}
+
 function jsonError(message: string, status: number) {
   return NextResponse.json({ error: message }, { status });
 }
@@ -46,6 +147,23 @@ function jsonError(message: string, status: number) {
 async function readResponseText(response: Response) {
   const text = await response.text();
   return text || 'Unknown xAI error';
+}
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function isRateLimitedResponse(status: number, text: string) {
+  if (status === 429) {
+    return true;
+  }
+
+  const normalized = text.toLowerCase();
+  return (
+    normalized.includes('too many requests') ||
+    normalized.includes('rate limit') ||
+    normalized.includes('resource has been exhausted')
+  );
 }
 
 export async function POST(request: Request) {
@@ -63,8 +181,10 @@ export async function POST(request: Request) {
   let prompt = '';
   let durationValue = Number.NaN;
   let batchSizeValue = Number.NaN;
+  let sourceProcessing: SourceProcessing | null = null;
 
   if (isMultipart) {
+    await ensureTmpDir();
     const formData = await request.formData();
     prompt = String(formData.get('prompt') ?? '').trim();
     durationValue = Number(formData.get('duration'));
@@ -75,28 +195,25 @@ export async function POST(request: Request) {
       return jsonError('A valid video upload is required.', 400);
     }
 
-    const uploadBody = new FormData();
-    uploadBody.append('file', videoEntry, videoEntry.name || 'source-video.mp4');
+    const originalPath = createTmpFilePath('upload-original.mp4');
 
-    const uploadResponse = await fetch(`${XAI_BASE_URL}/files`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: uploadBody,
-    });
+    try {
+      await writeUploadedFileToPath(videoEntry, originalPath);
 
-    if (!uploadResponse.ok) {
-      return jsonError(`Failed to upload source video to xAI: ${await readResponseText(uploadResponse)}`, uploadResponse.status);
+      const result = await prepareVideoSourceForExtension(
+        originalPath,
+        apiKey,
+        videoEntry.name || 'source-video.mp4'
+      );
+
+      videoFileId = result.fileId;
+      sourceProcessing = result.sourceProcessing;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to prepare uploaded source video.';
+      return jsonError(`Failed to prepare uploaded source video: ${message}`, 500);
+    } finally {
+      await safeUnlink(originalPath);
     }
-
-    const uploadedFile = (await uploadResponse.json()) as XaiUploadedFileResponse;
-
-    if (!uploadedFile.id) {
-      return jsonError('xAI did not return a file id for the uploaded source video.', 502);
-    }
-
-    videoFileId = uploadedFile.id;
   } else {
     let body: unknown;
 
@@ -107,10 +224,36 @@ export async function POST(request: Request) {
     }
 
     const bodyObj = body as Record<string, unknown>;
-    videoUrl = String(bodyObj.videoUrl ?? '').trim();
+    const requestVideoUrl = String(bodyObj.videoUrl ?? '').trim();
     prompt = String(bodyObj.prompt ?? '').trim();
     durationValue = Number(bodyObj.duration);
     batchSizeValue = Number(bodyObj.batchSize);
+
+    if (!requestVideoUrl) {
+      return jsonError('A video URL is required.', 400);
+    }
+
+    if (!requestVideoUrl.startsWith('https://')) {
+      return jsonError('Video URL must be HTTPS.', 400);
+    }
+
+    // Download, probe, trim if needed, and upload the video source
+    await ensureTmpDir();
+    const downloadedPath = createTmpFilePath('downloaded-source.mp4');
+
+    try {
+      await downloadToPath(requestVideoUrl, downloadedPath);
+
+      const result = await prepareVideoSourceForExtension(downloadedPath, apiKey, 'extension-source.mp4');
+
+      videoFileId = result.fileId;
+      sourceProcessing = result.sourceProcessing;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to prepare video from URL.';
+      return jsonError(`Failed to prepare video from URL: ${message}`, 500);
+    } finally {
+      await safeUnlink(downloadedPath);
+    }
   }
 
   const duration =
@@ -122,23 +265,21 @@ export async function POST(request: Request) {
       ? Math.round(batchSizeValue)
       : DEFAULT_BATCH_SIZE;
 
-  if (!videoUrl && !videoFileId) {
-    return jsonError('A video URL is required.', 400);
-  }
-
-  if (videoUrl && !videoUrl.startsWith('https://')) {
-    return jsonError('Video URL must be HTTPS.', 400);
+  if (!videoFileId) {
+    return jsonError('Failed to prepare video source.', 400);
   }
 
   if (!prompt) {
     return jsonError('A prompt is required.', 400);
   }
 
-  let requestResponses: XaiVideoExtensionStartResponse[];
+  const requestResponses: XaiVideoExtensionStartResponse[] = [];
 
   try {
-    requestResponses = await Promise.all(
-      Array.from({ length: batchSize }, async () => {
+    for (let index = 0; index < batchSize; index += 1) {
+      let started = false;
+
+      for (let attempt = 0; attempt <= MAX_RATE_LIMIT_RETRIES; attempt += 1) {
         const extensionResponse = await fetch(`${XAI_BASE_URL}/videos/extensions`, {
           method: 'POST',
           headers: {
@@ -148,18 +289,37 @@ export async function POST(request: Request) {
           body: JSON.stringify({
             model: 'grok-imagine-video',
             prompt,
-            video: videoFileId ? { file_id: videoFileId } : { url: videoUrl },
+            video: { file_id: videoFileId },
             duration,
           }),
         });
 
-        if (!extensionResponse.ok) {
-          throw new Error(`Failed to start extension request: ${await readResponseText(extensionResponse)}`);
+        if (extensionResponse.ok) {
+          requestResponses.push((await extensionResponse.json()) as XaiVideoExtensionStartResponse);
+          started = true;
+          break;
         }
 
-        return (await extensionResponse.json()) as XaiVideoExtensionStartResponse;
-      }),
-    );
+        const errorText = await readResponseText(extensionResponse);
+        const isRateLimited = isRateLimitedResponse(extensionResponse.status, errorText);
+
+        if (isRateLimited && attempt < MAX_RATE_LIMIT_RETRIES) {
+          const retryDelay = RATE_LIMIT_RETRY_BASE_DELAY_MS * (attempt + 1);
+          await sleep(retryDelay);
+          continue;
+        }
+
+        throw new Error(`Failed to start extension request: ${errorText}`);
+      }
+
+      if (!started) {
+        throw new Error('Failed to start extension request after retrying rate limits.');
+      }
+
+      if (index < batchSize - 1) {
+        await sleep(INTER_REQUEST_DELAY_MS);
+      }
+    }
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to start extension request.';
     return jsonError(message, 502);
@@ -191,5 +351,6 @@ export async function POST(request: Request) {
     requestIds,
     requestCount: batchSize,
     duration,
+    sourceProcessing,
   });
 }
