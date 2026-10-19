@@ -50,6 +50,7 @@ export async function POST(request: Request) {
   const useImage = image.length > 0;
   const endpoint = useImage ? I2V_ENDPOINT : T2V_ENDPOINT;
   const requestedSize = String(bodyObj.size ?? (useImage ? '1280*720' : '720*1280'));
+  const shotType = String(bodyObj.shotType ?? 'single');
   const allowedSizes = useImage ? I2V_SIZES : T2V_SIZES;
 
   if (!prompt) {
@@ -66,6 +67,10 @@ export async function POST(request: Request) {
 
   if (!Number.isInteger(durationValue) || !DURATIONS.has(durationValue)) {
     return jsonError('Duration must be 5, 10, or 15 seconds.', 400);
+  }
+
+  if (shotType !== 'single' && shotType !== 'multi') {
+    return jsonError('Shot type must be single or multi.', 400);
   }
 
   if (!allowedSizes.has(requestedSize)) {
@@ -87,7 +92,7 @@ export async function POST(request: Request) {
         ...(audio ? { audio } : {}),
         duration: durationValue,
         size: requestedSize,
-        shot_type: 'single',
+        shot_type: shotType,
         seed: -1,
         enable_prompt_expansion: false,
         ...(useImage ? { enable_safety_checker: true } : {}),
