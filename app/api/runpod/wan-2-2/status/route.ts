@@ -13,6 +13,30 @@ function jsonError(message: string, status: number) {
   return NextResponse.json({ error: message }, { status });
 }
 
+function findVideoUrl(value: unknown): string | null {
+  if (typeof value === 'string' && /^https?:\/\//.test(value)) {
+    if (value.includes('video.runpod.ai') || /\.(mp4|webm|mov)(\?|$)/i.test(value)) {
+      return value;
+    }
+  }
+
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const found = findVideoUrl(item);
+      if (found) return found;
+    }
+  }
+
+  if (value && typeof value === 'object') {
+    for (const nested of Object.values(value as Record<string, unknown>)) {
+      const found = findVideoUrl(nested);
+      if (found) return found;
+    }
+  }
+
+  return null;
+}
+
 export async function GET(request: Request) {
   const apiKey = getRunpodApiKey();
 
@@ -40,8 +64,9 @@ export async function GET(request: Request) {
   return NextResponse.json({
     id: data.id ?? id,
     status: data.status ?? 'UNKNOWN',
-    videoUrl: data.output?.video_url ?? null,
+    videoUrl: data.output?.video_url ?? findVideoUrl(data.output) ?? null,
     cost: data.output?.cost ?? null,
+    output: data.output ?? null,
     error: data.error == null ? null : runpodErrorMessage(data.error, 'Runpod job failed.'),
   });
 }
