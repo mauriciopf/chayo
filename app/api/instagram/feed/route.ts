@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic'; // Disable static optimization for API r
 export async function GET(request: Request) {
   try {
     // Get account ID from environment
-    const accountId = process.env.NEXT_PUBLIC_INSTAGRAM_BUSINESS_ACCOUNT_ID;
+    const accountId = process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID ?? process.env.NEXT_PUBLIC_INSTAGRAM_BUSINESS_ACCOUNT_ID;
 
     if (!accountId) {
       return NextResponse.json(

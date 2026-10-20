@@ -38,7 +38,9 @@ function isPublicHttpsUrl(value: string) {
 
 function credentials() {
   const accessToken = process.env.INSTAGRAM_ACCESS_TOKEN?.trim();
-  const accountId = process.env.NEXT_PUBLIC_INSTAGRAM_BUSINESS_ACCOUNT_ID?.trim();
+  const accountId = (
+    process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID ?? process.env.NEXT_PUBLIC_INSTAGRAM_BUSINESS_ACCOUNT_ID
+  )?.trim();
 
   if (!accessToken || !accountId) {
     return null;

@@ -47,7 +47,7 @@ cp .env.example .env.local
 
 ```env
 INSTAGRAM_ACCESS_TOKEN=your_long_lived_access_token
-NEXT_PUBLIC_INSTAGRAM_BUSINESS_ACCOUNT_ID=your_business_account_id
+INSTAGRAM_BUSINESS_ACCOUNT_ID=your_business_account_id
 ```
 
 4. Run the development server:
@@ -90,7 +90,7 @@ pnpm dev
 | Variable | Description | Required |
 |----------|-------------|----------|
 | `INSTAGRAM_ACCESS_TOKEN` | Long-lived Instagram User Access Token | Yes |
-| `NEXT_PUBLIC_INSTAGRAM_BUSINESS_ACCOUNT_ID` | Instagram Business Account ID | Yes |
+| `INSTAGRAM_BUSINESS_ACCOUNT_ID` | Instagram professional account id | Yes |
 
 ## API Routes
 
@@ -118,7 +118,7 @@ Deploy to [Vercel](https://vercel.com/new) with one click:
 3. Add environment variables in Vercel dashboard
 4. Deploy!
 
-Remember to add your environment variables (`INSTAGRAM_ACCESS_TOKEN` and `NEXT_PUBLIC_INSTAGRAM_BUSINESS_ACCOUNT_ID`) in the Vercel dashboard.
+Remember to add your environment variables (`INSTAGRAM_ACCESS_TOKEN` and `INSTAGRAM_BUSINESS_ACCOUNT_ID`) in the Vercel dashboard.
 
 ## Learn More
 
