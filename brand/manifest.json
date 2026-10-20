@@ -10,11 +10,17 @@
   ],
   "opening": "Aventura and Sunny Isles, Miami",
   "places": ["Aventura", "Sunny Isles"],
+  "world": "A Greek fantasy lifestyle on the Miami coast. Stone, olive, sea light, linen, deep blue and warm white. Someone is living in the scene, and the frozen yogurt is why they stay. News can spark the episode. The post is never a catalog photo of a cup.",
+  "imagePosts": "Carousels of 3 or 4 slides and one caption. One short story. The real logo goes on the last slide only.",
+  "videoPosts": "One 15 second vertical scene in that same life. No logo and no words.",
   "rules": [
-    "Open these files before writing a video prompt.",
+    "Open these files before writing a post.",
     "The opening is around Aventura and Sunny Isles. Do not use Westchester or any other city.",
+    "Use the week's frozen yogurt idea only as a spark, then set it inside this Greek lifestyle.",
+    "Every post invites someone to step into the scene and try the yogurt.",
     "Match the blue, white, olive, and thick white yogurt.",
     "The cart is optional. Use it only for a shop episode.",
+    "Image posts are carousels. Put the real logo on the last slide only, copied from the logo file.",
     "Do not ask the video model to draw the logo or the word Títi.",
     "Do not name other frozen yogurt brands."
   ],
