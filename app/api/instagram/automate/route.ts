@@ -25,6 +25,27 @@ function asString(value: unknown) {
   return typeof value === 'string' ? value.trim() : '';
 }
 
+async function publishMedia(origin: string, body: Record<string, unknown>, extra: Record<string, unknown>) {
+  const createResponse = await fetch(`${origin}/api/instagram/publish`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+    cache: 'no-store',
+  });
+  const created = await readJson(createResponse);
+
+  if (!createResponse.ok) {
+    return NextResponse.json(created, { status: createResponse.status });
+  }
+
+  return NextResponse.json({
+    stage: 'processing',
+    containerId: created.containerId ?? null,
+    status: created.status ?? 'IN_PROGRESS',
+    ...extra,
+  });
+}
+
 export async function POST(request: Request) {
   const origin = new URL(request.url).origin;
 
@@ -39,8 +60,11 @@ export async function POST(request: Request) {
   const input = body && typeof body === 'object' ? (body as Record<string, unknown>) : {};
   const prompt = asString(input.prompt);
   const caption = asString(input.caption);
+  const kind = asString(input.kind) || 'video';
   const videoUrl = asString(input.videoUrl);
+  const imageUrl = asString(input.imageUrl);
   const videoJobId = asString(input.videoJobId);
+  const imageJobId = asString(input.imageJobId);
   const containerId = asString(input.containerId);
   const duration = input.duration == null || input.duration === '' ? 15 : Number(input.duration);
   const size = asString(input.size) || '1080*1920';
@@ -136,33 +160,75 @@ export async function POST(request: Request) {
     });
   }
 
-  if (videoUrl) {
+  if (imageJobId) {
+    const statusResponse = await fetch(
+      `${origin}/api/runpod/flux-dev/status?id=${encodeURIComponent(imageJobId)}`,
+      { cache: 'no-store' },
+    );
+    const status = await readJson(statusResponse);
+
+    if (!statusResponse.ok) {
+      return NextResponse.json(status, { status: statusResponse.status });
+    }
+
+    const readyUrl = asString(status.imageUrl);
+
+    if (status.status !== 'COMPLETED' || !readyUrl) {
+      return NextResponse.json({
+        stage: 'generating',
+        kind: 'image',
+        imageJobId,
+        status: status.status ?? 'UNKNOWN',
+        error: status.error ?? null,
+      });
+    }
+
+    if (!caption) {
+      return jsonError('A caption is required to publish the finished image.', 400);
+    }
+
+    return publishMedia(origin, { imageUrl: readyUrl, caption }, { imageJobId, imageUrl: readyUrl });
+  }
+
+  if (videoUrl || imageUrl) {
     if (!caption) {
       return jsonError('A caption is required.', 400);
     }
 
-    const createResponse = await fetch(`${origin}/api/instagram/publish`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ videoUrl, caption, shareToFeed: true }),
-      cache: 'no-store',
-    });
-    const created = await readJson(createResponse);
-
-    if (!createResponse.ok) {
-      return NextResponse.json(created, { status: createResponse.status });
-    }
-
-    return NextResponse.json({
-      stage: 'processing',
-      videoUrl,
-      containerId: created.containerId ?? null,
-      status: created.status ?? 'IN_PROGRESS',
-    });
+    return publishMedia(
+      origin,
+      videoUrl ? { videoUrl, caption, shareToFeed: true } : { imageUrl, caption },
+      videoUrl ? { videoUrl } : { imageUrl },
+    );
   }
 
   if (!prompt) {
-    return jsonError('Send a prompt, a video URL, a video job id, or a container id.', 400);
+    return jsonError('Send a prompt, a media URL, a job id, or a container id.', 400);
+  }
+
+  if (kind === 'image') {
+    const startResponse = await fetch(`${origin}/api/runpod/flux-dev`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, width: 1024, height: 1280 }),
+      cache: 'no-store',
+    });
+    const started = await readJson(startResponse);
+
+    if (!startResponse.ok) {
+      return NextResponse.json(started, { status: startResponse.status });
+    }
+
+    return NextResponse.json({
+      stage: 'generating',
+      kind: 'image',
+      imageJobId: started.id ?? null,
+      status: started.status ?? 'IN_QUEUE',
+    });
+  }
+
+  if (kind !== 'video') {
+    return jsonError('Kind must be image or video.', 400);
   }
 
   const startResponse = await fetch(`${origin}/api/runpod/wan-2-6`, {
@@ -179,6 +245,7 @@ export async function POST(request: Request) {
 
   return NextResponse.json({
     stage: 'generating',
+    kind: 'video',
     videoJobId: started.id ?? null,
     status: started.status ?? 'IN_QUEUE',
   });
