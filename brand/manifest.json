@@ -8,13 +8,15 @@
     "no added sugar",
     "sugar free on the bowl artwork"
   ],
-  "places": ["Sunny Isles", "Westchester, Miami"],
+  "opening": "Aventura and Sunny Isles, Miami",
+  "places": ["Aventura", "Sunny Isles"],
   "rules": [
     "Open these files before writing a video prompt.",
+    "The opening is around Aventura and Sunny Isles. Do not use Westchester or any other city.",
     "Match the blue, white, olive, and thick white yogurt.",
     "The cart is optional. Use it only for a shop episode.",
     "Do not ask the video model to draw the logo or the word Títi.",
-    "Do not name other frozen yogurt brands or cities outside Miami."
+    "Do not name other frozen yogurt brands."
   ],
   "images": [
     {
@@ -31,7 +33,7 @@
     },
     {
       "file": "brand/bowl.png",
-      "shows": "Hero swirl in a blue-and-white Greek key bowl with blueberries, pistachio, and honey. Coming soon to Westchester, Miami."
+      "shows": "Hero swirl in a blue-and-white Greek key bowl with blueberries, pistachio, and honey. Use the bowl. Ignore the Westchester line on this artwork. The opening is Aventura and Sunny Isles."
     },
     {
       "file": "brand/toppings.jpg",
