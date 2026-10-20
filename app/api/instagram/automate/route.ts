@@ -162,7 +162,7 @@ export async function POST(request: Request) {
 
   if (imageJobId) {
     const statusResponse = await fetch(
-      `${origin}/api/runpod/flux-dev/status?id=${encodeURIComponent(imageJobId)}`,
+      `${origin}/api/runpod/nano-banana-2/status?id=${encodeURIComponent(imageJobId)}`,
       { cache: 'no-store' },
     );
     const status = await readJson(statusResponse);
@@ -207,10 +207,23 @@ export async function POST(request: Request) {
   }
 
   if (kind === 'image') {
-    const startResponse = await fetch(`${origin}/api/runpod/flux-dev`, {
+    const references = Array.isArray(input.references)
+      ? input.references.filter((item): item is string => typeof item === 'string')
+      : ['logo', 'bowl'];
+    const allowed = new Set(['logo', 'cart', 'uniforms', 'bowl', 'toppings']);
+    const images = references
+      .filter((name) => allowed.has(name))
+      .slice(0, 3)
+      .map((name) => `${origin}/brand/${name === 'toppings' ? 'toppings.jpg' : `${name}.png`}`);
+    const startResponse = await fetch(`${origin}/api/runpod/nano-banana-2`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt, width: 1024, height: 1280 }),
+      body: JSON.stringify({
+        prompt,
+        images: images.length > 0 ? images : [`${origin}/brand/logo.png`, `${origin}/brand/bowl.png`],
+        resolution: '2k',
+        aspectRatio: '4:5',
+      }),
       cache: 'no-store',
     });
     const started = await readJson(startResponse);

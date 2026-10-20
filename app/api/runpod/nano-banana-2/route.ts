@@ -6,7 +6,9 @@ import {
   runpodHeaders,
 } from '@/lib/runpod/wan';
 
-const ENDPOINT = 'black-forest-labs-flux-1-dev';
+const ENDPOINT = 'google-nano-banana-2-edit';
+const RESOLUTIONS = new Set(['1k', '2k', '4k']);
+const ASPECT_RATIOS = new Set(['1:1', '3:2', '2:3', '4:5', '5:4', '16:9', '9:16']);
 
 export const dynamic = 'force-dynamic';
 
@@ -14,9 +16,12 @@ function jsonError(message: string, status: number) {
   return NextResponse.json({ error: message }, { status });
 }
 
-function dimension(value: unknown, fallback: number) {
-  const size = value == null || value === '' ? fallback : Number(value);
-  return Number.isInteger(size) && size >= 256 && size <= 1536 && size % 64 === 0 ? size : null;
+function isPublicHttpsUrl(value: string) {
+  try {
+    return new URL(value).protocol === 'https:';
+  } catch {
+    return false;
+  }
 }
 
 export async function POST(request: Request) {
@@ -36,15 +41,24 @@ export async function POST(request: Request) {
 
   const input = body && typeof body === 'object' ? (body as Record<string, unknown>) : {};
   const prompt = typeof input.prompt === 'string' ? input.prompt.trim() : '';
-  const width = dimension(input.width, 1024);
-  const height = dimension(input.height, 1280);
+  const resolution = typeof input.resolution === 'string' ? input.resolution : '2k';
+  const aspectRatio = typeof input.aspectRatio === 'string' ? input.aspectRatio : '4:5';
+  const images = Array.isArray(input.images) ? input.images.filter((item): item is string => typeof item === 'string') : [];
 
   if (!prompt) {
     return jsonError('A prompt is required.', 400);
   }
 
-  if (width == null || height == null) {
-    return jsonError('Width and height must be multiples of 64 between 256 and 1536.', 400);
+  if (!RESOLUTIONS.has(resolution)) {
+    return jsonError('Resolution must be 1k, 2k, or 4k.', 400);
+  }
+
+  if (!ASPECT_RATIOS.has(aspectRatio)) {
+    return jsonError('Aspect ratio must be 1:1, 3:2, 2:3, 4:5, 5:4, 16:9, or 9:16.', 400);
+  }
+
+  if (images.length < 1 || images.length > 3 || images.some((image) => !isPublicHttpsUrl(image))) {
+    return jsonError('Send 1 to 3 public https reference images.', 400);
   }
 
   const response = await fetch(`https://api.runpod.ai/v2/${ENDPOINT}/run`, {
@@ -53,14 +67,11 @@ export async function POST(request: Request) {
     body: JSON.stringify({
       input: {
         prompt,
-        negative_prompt:
-          'text, letters, words, logo, watermark, signature, blurry, low quality, distorted',
-        width,
-        height,
-        num_inference_steps: 28,
-        guidance: 7.5,
-        seed: -1,
-        image_format: 'jpeg',
+        images,
+        resolution,
+        aspect_ratio: aspectRatio,
+        output_format: 'jpeg',
+        enable_base64_output: false,
       },
     }),
     cache: 'no-store',
@@ -76,7 +87,7 @@ export async function POST(request: Request) {
     id: data.id,
     status: data.status ?? 'IN_QUEUE',
     endpoint: ENDPOINT,
-    width,
-    height,
+    resolution,
+    aspectRatio,
   });
 }

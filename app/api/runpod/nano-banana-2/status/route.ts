@@ -6,7 +6,7 @@ import {
   runpodHeaders,
 } from '@/lib/runpod/wan';
 
-const ENDPOINT = 'black-forest-labs-flux-1-dev';
+const ENDPOINT = 'google-nano-banana-2-edit';
 
 export const dynamic = 'force-dynamic';
 
