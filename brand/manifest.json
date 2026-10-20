@@ -1,0 +1,41 @@
+{
+  "brand": "Títi",
+  "product": "Greek frozen yogurt",
+  "colors": ["deep blue", "warm white", "cream"],
+  "facts": [
+    "real Greek yogurt",
+    "high protein",
+    "no added sugar",
+    "sugar free on the bowl artwork"
+  ],
+  "places": ["Sunny Isles", "Westchester, Miami"],
+  "rules": [
+    "Open these files before writing a video prompt.",
+    "Match the blue, white, olive, and thick white yogurt.",
+    "The cart is optional. Use it only for a shop episode.",
+    "Do not ask the video model to draw the logo or the word Títi.",
+    "Do not name other frozen yogurt brands or cities outside Miami."
+  ],
+  "images": [
+    {
+      "file": "brand/logo.png",
+      "shows": "Circular blue logo. Olive branch, Títi script, Greek frozen yogurt, Greek key."
+    },
+    {
+      "file": "brand/cart.png",
+      "shows": "White and deep-blue frozen yogurt cart with olive branches, a topping case, and palms. Sign reads Sunny Isles."
+    },
+    {
+      "file": "brand/uniforms.png",
+      "shows": "Opening uniforms: deep-blue apron, cream hoodie, cream t-shirt, two-tone cap, blue sweatpants, all with the olive logo."
+    },
+    {
+      "file": "brand/bowl.png",
+      "shows": "Hero swirl in a blue-and-white Greek key bowl with blueberries, pistachio, and honey. Coming soon to Westchester, Miami."
+    },
+    {
+      "file": "brand/toppings.jpg",
+      "shows": "Topping bar. Ceramic bowls, pink crumble, chocolate, nuts, wooden spoons, blue and white."
+    }
+  ]
+}
