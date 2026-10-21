@@ -6,9 +6,9 @@ const SLIDE_MIN = 2;
 const SLIDE_MAX = 10;
 const REFERENCES = new Set(['logo', 'cart', 'uniforms', 'toppings']);
 const VIDEO_DIRECTION =
-  'The Greek Hour in Aventura or Sunny Isles. Fast cinematic cuts, a myth colliding with a real night, the frozen yogurt as the reason to stay. Surprise in the first second. No logo and no written words.';
+  'Save them a seat in Aventura or Sunny Isles. The seat is pulled out in the first second. Two people, a laugh, frozen yogurt passed between them. Fast cuts. Greek sea light, linen, deep blue, warm white. No logo and no written words.';
 const SUNNY_VIDEO_DIRECTION =
-  'Everyday Done in Sunny Isles Beach. Fast cuts, navy and gold, one piece of life going from tangled to finished. A person in motion. No logo and no written words.';
+  'The part we can finish in Sunny Isles Beach. Open on the life that got stuck, one specific object, then the person walking out into gold light with the day back. Fast cuts, navy and gold. No logo and no written words.';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -135,7 +135,7 @@ function sunnyPrompt(slide: Slide, drawLogo: boolean) {
 
   return [
     slide.prompt,
-    'Campaign frame from Everyday Done. Sunny Isles Beach, navy, gold, and white. One sharp gesture, a specific object, and a sense that something just got finished. Motion and contrast.',
+    'The part we can finish. Sunny Isles Beach, navy, gold, and white. One specific object from that life, a person in motion, then the feeling of walking out into the light with the day back.',
     logo,
   ].join('\n');
 }
@@ -147,7 +147,7 @@ function directedPrompt(slide: Slide) {
 
   return [
     slide.prompt,
-    'Campaign frame from The Greek Hour. Aventura or Sunny Isles slipping into a Greek fantasy: stone, olive, sea light, linen, deep blue, warm white. A person mid-gesture. The frozen yogurt belongs inside the life, not as a product photo.',
+    'Save them a seat. Aventura or Sunny Isles. A hand on a chair, someone about to arrive or just arriving, frozen yogurt passed between two people and small in the frame. Greek hospitality: stone, olive, sea light, linen, deep blue, warm white.',
     logo,
   ].join('\n');
 }
