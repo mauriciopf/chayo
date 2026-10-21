@@ -18,17 +18,17 @@
     "Local to Sunny Isles Beach."
   ],
   "colors": ["navy", "gold", "white"],
-  "campaign": "The part we can finish",
-  "belief": "The decision is already theirs. We finish the filing.",
-  "world": "Each post is one service and one sentence the customer has already said in their head. Slide 1 is that life, specific and in motion: an untouched plate, a suitcase at a curb, a lamp still on. Slide 2 is the day given back, the person leaving toward the light. Slide 3 is the real logo in that same place. Navy, gold, white, Sunny Isles Beach. The caption is that sentence, then the line that Sunny Isles One organizes, prepares, and files that part. Filing help, not legal advice, and not the court or the agency.",
-  "imagePosts": "Carousels of 3 or 4 slides. The life that got stuck, the day given back, then the real logo in that same place. One caption.",
-  "videoPosts": "One 15 second vertical scene. Open on the stuck moment, then the person walking out into gold light. Fast cuts. No logo and no words.",
+  "campaign": "What we file",
+  "belief": "Say the services. We organize, prepare, and file the paperwork.",
+  "world": "Every post tells a stranger what Sunny Isles One sells. The services are forms and filing, divorce and family forms, immigration forms, tax forms, business forms, applications, translation, and insurance. The words are on the post, spelled exactly. Navy, gold, and white. The real logo is copied from the file. People are not the ad. Filing help, not legal advice, and not the court or the agency. Sunny Isles Beach, 100% online across Florida.",
+  "imagePosts": "Carousels of 3 or 4 slides. The offer in words, the service list, then the real logo copied from the file. One caption that names the services.",
+  "videoPosts": "One 15 second vertical scene of the paperwork being handled. Words on screen only if they name a real service and are spelled exactly.",
   "rules": [
     "Open brand/sunny-isles-one/manifest.json and brand/sunny-isles-one/logo.png before writing a post.",
     "The only reference is logo. The file has the circular ONE mark and the horizontal Sunny Isles One lockup. Copy them. Do not invent letters.",
-    "Pick one service and write the sentence the customer has already said.",
-    "Put the real logo on the last carousel slide only.",
-    "Show a specific life, then the person leaving with the day back. A closed folder in a portrait is not the campaign.",
+    "Name the services in the picture and in the caption.",
+    "Copy the real logo from the logo file. Do not let the model invent the letters.",
+    "You bring the paperwork. We organize, prepare, and file it.",
     "Do not name other paperwork brands."
   ],
   "images": [

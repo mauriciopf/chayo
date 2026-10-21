@@ -6,9 +6,9 @@ const SLIDE_MIN = 2;
 const SLIDE_MAX = 10;
 const REFERENCES = new Set(['logo', 'cart', 'uniforms', 'toppings']);
 const VIDEO_DIRECTION =
-  'Save them a seat in Aventura or Sunny Isles. The seat is pulled out in the first second. Two people, a laugh, frozen yogurt passed between them. Fast cuts. Greek sea light, linen, deep blue, warm white. No logo and no written words.';
+  'A Greek frozen yogurt shop in Aventura or Sunny Isles. The cup is large in the frame: thick white yogurt, pistachio, honey, blue and white. A stranger can tell this is frozen yogurt. Fast cuts. Any words on screen are only these, spelled exactly: Greek frozen yogurt. High protein. Low sugar.';
 const SUNNY_VIDEO_DIRECTION =
-  'The part we can finish in Sunny Isles Beach. Open on the life that got stuck, one specific object, then the person walking out into gold light with the day back. Fast cuts, navy and gold. No logo and no written words.';
+  'Sunny Isles One, a paperwork shop in Sunny Isles Beach. Navy, gold, and white. Show the work being filed, not a portrait. Any words on screen name a real service and are spelled exactly: forms, divorce, immigration, taxes, business, translation, or insurance.';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -130,24 +130,24 @@ function prepareSlides(slides: Slide[], page: Page) {
 
 function sunnyPrompt(slide: Slide, drawLogo: boolean) {
   const logo = drawLogo
-    ? 'Use the Sunny Isles One logo from the reference exactly as it is, same ONE letters, gold sun, and waves. No other text.'
-    : 'Use only the navy and gold from the logo reference. No logo, no letters, and no watermark.';
+    ? 'Use the Sunny Isles One logo from the reference exactly as it is, same ONE letters, gold sun, and waves.'
+    : 'Use the navy and gold from the logo reference. Do not redraw the logo.';
 
   return [
     slide.prompt,
-    'The part we can finish. Sunny Isles Beach, navy, gold, and white. One specific object from that life, a person in motion, then the feeling of walking out into the light with the day back.',
+    'This is an ad for a paperwork shop. The customer has to see what is being sold. Name the service in large correct words: forms, divorce and family, immigration, taxes, business, applications, translation, or insurance. Navy, gold, and white. No stranger posing as the subject.',
     logo,
   ].join('\n');
 }
 
 function directedPrompt(slide: Slide) {
   const logo = slide.references.includes('logo')
-    ? 'Use the circular logo from the logo reference exactly as it is, same letters and olive branch, small and clean. No other text.'
-    : 'No logo, no letters, and no watermark.';
+    ? 'Use the circular logo from the logo reference exactly as it is, same letters and olive branch.'
+    : 'Do not invent a logo.';
 
   return [
     slide.prompt,
-    'Save them a seat. Aventura or Sunny Isles. A hand on a chair, someone about to arrive or just arriving, frozen yogurt passed between two people and small in the frame. Greek hospitality: stone, olive, sea light, linen, deep blue, warm white.',
+    'This is an ad for a Greek frozen yogurt shop. The cup or the topping bar is large. A stranger can tell it is frozen yogurt. The words, if shown, are only these and spelled exactly: Greek frozen yogurt. High protein. Low sugar. Aventura and Sunny Isles. Deep blue, warm white, cream.',
     logo,
   ].join('\n');
 }
