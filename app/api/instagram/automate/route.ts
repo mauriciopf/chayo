@@ -4,7 +4,7 @@ import { instagramCredentials, missingAccountMessage, readAccountName } from '@/
 const CAPTION_LIMIT = 2200;
 const SLIDE_MIN = 2;
 const SLIDE_MAX = 10;
-const REFERENCES = new Set(['logo', 'cart', 'uniforms', 'bowl', 'toppings']);
+const REFERENCES = new Set(['logo', 'cart', 'uniforms', 'toppings']);
 const VIDEO_DIRECTION =
   'Greek fantasy lifestyle in Aventura or Sunny Isles, cinematic, a life that invites you to taste the yogurt. Not a product close-up. No logo and no written words.';
 
@@ -138,16 +138,12 @@ function directedPrompt(slide: Slide) {
   const logo = slide.references.includes('logo')
     ? 'Use the circular logo from the logo reference exactly as it is, same letters and olive branch, small and clean. No other text.'
     : 'No logo, no letters, and no watermark.';
-  const place = slide.references.includes('bowl') ? 'Ignore any city name on the bowl. The place is Aventura or Sunny Isles.' : '';
 
   return [
     slide.prompt,
     'Greek fantasy lifestyle in Aventura or Sunny Isles. A person is living in the picture. The frozen yogurt is why they stay. Not a catalog photo of a cup.',
-    place,
     logo,
-  ]
-    .filter(Boolean)
-    .join('\n');
+  ].join('\n');
 }
 
 async function publishMedia(origin: string, body: Record<string, unknown>, extra: Record<string, unknown>, page: Page) {
