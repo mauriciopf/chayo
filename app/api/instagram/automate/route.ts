@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { instagramCredentials, missingAccountMessage, readAccountName } from '@/lib/instagram/accounts';
 
 const CAPTION_LIMIT = 2200;
 const SLIDE_MIN = 2;
@@ -13,8 +14,14 @@ export const maxDuration = 60;
 type Slide = {
   prompt: string;
   references: string[];
+  images: string[];
   imageJobId: string;
   imageUrl: string;
+};
+
+type Page = {
+  account: string;
+  titi: boolean;
 };
 
 function jsonError(message: string, status: number) {
@@ -37,6 +44,22 @@ function asString(value: unknown) {
   return typeof value === 'string' ? value.trim() : '';
 }
 
+function pageFields(page: Page) {
+  return page.account ? { account: page.account } : {};
+}
+
+function usesTiti(account: string) {
+  return account === '' || account === 'titi';
+}
+
+function isPublicHttpsUrl(value: string) {
+  try {
+    return new URL(value).protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
 function stringList(value: unknown) {
   if (!Array.isArray(value)) return [];
   return value.map((item) => asString(item)).filter(Boolean);
@@ -52,6 +75,7 @@ function parseSlides(value: unknown): Slide[] {
     return {
       prompt: asString(slide.prompt),
       references,
+      images: stringList(slide.images).filter(isPublicHttpsUrl).slice(0, 3),
       imageJobId: asString(slide.imageJobId),
       imageUrl: asString(slide.imageUrl),
     };
@@ -79,6 +103,10 @@ function referenceUrls(origin: string, references: string[]) {
   return references.map((name) => `${origin}/brand/${name === 'toppings' ? 'toppings.jpg' : `${name}.png`}`);
 }
 
+function slideImages(origin: string, slide: Slide) {
+  return slide.images.length > 0 ? slide.images : referenceUrls(origin, slide.references);
+}
+
 function directedPrompt(slide: Slide) {
   const logo = slide.references.includes('logo')
     ? 'Use the circular logo from the logo reference exactly as it is, same letters and olive branch, small and clean. No other text.'
@@ -95,17 +123,17 @@ function directedPrompt(slide: Slide) {
     .join('\n');
 }
 
-async function publishMedia(origin: string, body: Record<string, unknown>, extra: Record<string, unknown>) {
+async function publishMedia(origin: string, body: Record<string, unknown>, extra: Record<string, unknown>, page: Page) {
   const createResponse = await fetch(`${origin}/api/instagram/publish`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
+    body: JSON.stringify({ ...body, ...pageFields(page) }),
     cache: 'no-store',
   });
   const created = await readJson(createResponse);
 
   if (!createResponse.ok) {
-    return NextResponse.json(created, { status: createResponse.status });
+    return NextResponse.json({ ...extra, ...created, ...pageFields(page) }, { status: createResponse.status });
   }
 
   return NextResponse.json({
@@ -113,6 +141,7 @@ async function publishMedia(origin: string, body: Record<string, unknown>, extra
     containerId: created.containerId ?? null,
     status: created.status ?? 'IN_PROGRESS',
     ...extra,
+    ...pageFields(page),
   });
 }
 
@@ -121,17 +150,21 @@ async function advanceCarousel(
   childContainerIds: string[],
   caption: string,
   extra: Record<string, unknown>,
+  page: Page,
 ) {
   const response = await fetch(`${origin}/api/instagram/publish`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ childContainerIds, caption }),
+    body: JSON.stringify({ childContainerIds, caption, ...pageFields(page) }),
     cache: 'no-store',
   });
   const body = await readJson(response);
 
   if (!response.ok) {
-    return NextResponse.json({ ...extra, ...body, childContainerIds, caption }, { status: response.status });
+    return NextResponse.json(
+      { ...extra, ...body, childContainerIds, caption, ...pageFields(page) },
+      { status: response.status },
+    );
   }
 
   const containerId = asString(body.containerId);
@@ -146,10 +179,17 @@ async function advanceCarousel(
     ...(body.children ? { children: body.children } : {}),
     status: body.status ?? 'IN_PROGRESS',
     caption,
+    ...pageFields(page),
   });
 }
 
-async function openCarousel(origin: string, imageUrls: string[], caption: string, extra: Record<string, unknown>) {
+async function openCarousel(
+  origin: string,
+  imageUrls: string[],
+  caption: string,
+  extra: Record<string, unknown>,
+  page: Page,
+) {
   if (!caption) {
     return jsonError('A caption is required to publish the carousel.', 400);
   }
@@ -157,7 +197,7 @@ async function openCarousel(origin: string, imageUrls: string[], caption: string
   const createResponse = await fetch(`${origin}/api/instagram/publish`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ imageUrls, caption }),
+    body: JSON.stringify({ imageUrls, caption, ...pageFields(page) }),
     cache: 'no-store',
   });
   const created = await readJson(createResponse);
@@ -165,21 +205,21 @@ async function openCarousel(origin: string, imageUrls: string[], caption: string
 
   if (!createResponse.ok) {
     return NextResponse.json(
-      { ...extra, ...created, childContainerIds, caption },
+      { ...extra, ...created, childContainerIds, caption, ...pageFields(page) },
       { status: createResponse.status },
     );
   }
 
-  return advanceCarousel(origin, childContainerIds, caption, { ...extra, imageUrls });
+  return advanceCarousel(origin, childContainerIds, caption, { ...extra, imageUrls }, page);
 }
 
-async function startSlide(origin: string, slide: Slide) {
+async function startSlide(origin: string, slide: Slide, page: Page) {
   const response = await fetch(`${origin}/api/runpod/nano-banana-2`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      prompt: directedPrompt(slide),
-      images: referenceUrls(origin, slide.references),
+      prompt: page.titi ? directedPrompt(slide) : slide.prompt,
+      images: slideImages(origin, slide),
       resolution: '2k',
       aspectRatio: '4:5',
     }),
@@ -190,7 +230,7 @@ async function startSlide(origin: string, slide: Slide) {
   return { response, started };
 }
 
-async function continueSlides(origin: string, slides: Slide[], caption: string) {
+async function continueSlides(origin: string, slides: Slide[], caption: string, page: Page) {
   if (slides.length < SLIDE_MIN || slides.length > SLIDE_MAX) {
     return jsonError(`A carousel needs ${SLIDE_MIN} to ${SLIDE_MAX} images.`, 400);
   }
@@ -199,7 +239,12 @@ async function continueSlides(origin: string, slides: Slide[], caption: string) 
     return jsonError('Each carousel slide needs its own prompt.', 400);
   }
 
-  const branded = brandSlides(slides);
+  const branded = page.titi ? brandSlides(slides) : slides;
+
+  if (branded.some((slide) => !slide.imageUrl && slideImages(origin, slide).length === 0)) {
+    return jsonError('Each slide needs brand references or 1 to 3 public https reference images.', 400);
+  }
+
   const missing = branded.filter((slide) => !slide.imageUrl);
 
   if (missing.length === 0) {
@@ -208,6 +253,7 @@ async function continueSlides(origin: string, slides: Slide[], caption: string) 
       branded.map((slide) => slide.imageUrl),
       caption,
       { slides: branded },
+      page,
     );
   }
 
@@ -216,7 +262,7 @@ async function continueSlides(origin: string, slides: Slide[], caption: string) 
       branded.map(async (slide) => {
         if (slide.imageUrl || slide.imageJobId) return { slide, ok: true as const, started: {}, status: 200 };
 
-        const { response, started } = await startSlide(origin, slide);
+        const { response, started } = await startSlide(origin, slide, page);
         const imageJobId = asString(started.id);
 
         if (!response.ok || !imageJobId) {
@@ -238,6 +284,7 @@ async function continueSlides(origin: string, slides: Slide[], caption: string) 
           mediaType: 'CAROUSEL',
           slides: startedSlides.map((item) => item.slide),
           caption,
+          ...pageFields(page),
         },
         { status: failed.status },
       );
@@ -250,6 +297,7 @@ async function continueSlides(origin: string, slides: Slide[], caption: string) 
       status: 'IN_QUEUE',
       slides: startedSlides.map((item) => item.slide),
       caption,
+      ...pageFields(page),
     });
   }
 
@@ -305,6 +353,7 @@ async function continueSlides(origin: string, slides: Slide[], caption: string) 
         status: failed.state,
         slides: polled.map((item) => item.slide),
         caption,
+        ...pageFields(page),
       },
       { status: failed.statusCode },
     );
@@ -318,6 +367,7 @@ async function continueSlides(origin: string, slides: Slide[], caption: string) 
       ready.map((slide) => slide.imageUrl),
       caption,
       { slides: ready },
+      page,
     );
   }
 
@@ -328,6 +378,7 @@ async function continueSlides(origin: string, slides: Slide[], caption: string) 
     status: polled.some((item) => item.state === 'IN_PROGRESS') ? 'IN_PROGRESS' : 'IN_QUEUE',
     slides: ready,
     caption,
+    ...pageFields(page),
   });
 }
 
@@ -357,13 +408,27 @@ export async function POST(request: Request) {
   const duration = input.duration == null || input.duration === '' ? 15 : Number(input.duration);
   const size = asString(input.size) || '1080*1920';
   const shotType = asString(input.shotType) || 'multi';
+  const parsedAccount = readAccountName(input.account ?? input.business);
+
+  if ('error' in parsedAccount) {
+    return jsonError(parsedAccount.error, 400);
+  }
+
+  const page: Page = { account: parsedAccount.account, titi: usesTiti(parsedAccount.account) };
+
+  if (!instagramCredentials(page.account)) {
+    return jsonError(missingAccountMessage(page.account), 500);
+  }
 
   if (caption.length > CAPTION_LIMIT) {
     return jsonError(`Caption must be ${CAPTION_LIMIT} characters or fewer.`, 400);
   }
 
   if (containerId) {
-    const statusResponse = await fetch(`${origin}/api/instagram/publish?id=${encodeURIComponent(containerId)}`, {
+    const statusUrl = new URL(`${origin}/api/instagram/publish`);
+    statusUrl.searchParams.set('id', containerId);
+    if (page.account) statusUrl.searchParams.set('account', page.account);
+    const statusResponse = await fetch(statusUrl, {
       cache: 'no-store',
     });
     const status = await readJson(statusResponse);
@@ -378,13 +443,14 @@ export async function POST(request: Request) {
         containerId,
         status: status.status ?? 'UNKNOWN',
         detail: status.detail ?? null,
+        ...pageFields(page),
       });
     }
 
     const publishResponse = await fetch(`${origin}/api/instagram/publish`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ containerId }),
+      body: JSON.stringify({ containerId, ...pageFields(page) }),
       cache: 'no-store',
     });
     const published = await readJson(publishResponse);
@@ -398,18 +464,25 @@ export async function POST(request: Request) {
       containerId,
       mediaId: published.mediaId ?? null,
       permalink: published.permalink ?? null,
+      ...pageFields(page),
     });
   }
 
   if (childContainerIds.length > 0) {
-    return advanceCarousel(origin, childContainerIds, caption, {
-      ...(slides.length > 0 ? { slides } : {}),
-      ...(imageUrls.length > 0 ? { imageUrls } : {}),
-    });
+    return advanceCarousel(
+      origin,
+      childContainerIds,
+      caption,
+      {
+        ...(slides.length > 0 ? { slides } : {}),
+        ...(imageUrls.length > 0 ? { imageUrls } : {}),
+      },
+      page,
+    );
   }
 
   if (slides.length > 0) {
-    return continueSlides(origin, slides, caption);
+    return continueSlides(origin, slides, caption, page);
   }
 
   if (imageJobId) {
@@ -432,6 +505,7 @@ export async function POST(request: Request) {
         imageJobId,
         status: status.status ?? 'UNKNOWN',
         error: status.error ?? null,
+        ...pageFields(page),
       });
     }
 
@@ -439,7 +513,7 @@ export async function POST(request: Request) {
       return jsonError('A caption is required to publish the finished image.', 400);
     }
 
-    return publishMedia(origin, { imageUrl: readyUrl, caption }, { imageJobId, imageUrl: readyUrl });
+    return publishMedia(origin, { imageUrl: readyUrl, caption }, { imageJobId, imageUrl: readyUrl }, page);
   }
 
   if (videoJobId) {
@@ -461,6 +535,7 @@ export async function POST(request: Request) {
         videoJobId,
         status: status.status ?? 'UNKNOWN',
         error: status.error ?? null,
+        ...pageFields(page),
       });
     }
 
@@ -471,7 +546,7 @@ export async function POST(request: Request) {
     const createResponse = await fetch(`${origin}/api/instagram/publish`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ videoUrl: readyUrl, caption, shareToFeed: true }),
+      body: JSON.stringify({ videoUrl: readyUrl, caption, shareToFeed: true, ...pageFields(page) }),
       cache: 'no-store',
     });
     const created = await readJson(createResponse);
@@ -486,6 +561,7 @@ export async function POST(request: Request) {
       videoUrl: readyUrl,
       containerId: created.containerId ?? null,
       status: created.status ?? 'IN_PROGRESS',
+      ...pageFields(page),
     });
   }
 
@@ -496,7 +572,7 @@ export async function POST(request: Request) {
   }
 
   if (imageUrls.length > 0) {
-    return openCarousel(origin, imageUrls, caption, { imageUrls });
+    return openCarousel(origin, imageUrls, caption, { imageUrls }, page);
   }
 
   if (videoUrl || imageUrl) {
@@ -508,6 +584,7 @@ export async function POST(request: Request) {
       origin,
       videoUrl ? { videoUrl, caption, shareToFeed: true } : { imageUrl, caption },
       videoUrl ? { videoUrl } : { imageUrl },
+      page,
     );
   }
 
@@ -530,7 +607,12 @@ export async function POST(request: Request) {
   const startResponse = await fetch(`${origin}/api/runpod/wan-2-6`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ prompt: `${prompt}\n${VIDEO_DIRECTION}`, duration, size, shotType }),
+    body: JSON.stringify({
+      prompt: page.titi ? `${prompt}\n${VIDEO_DIRECTION}` : prompt,
+      duration,
+      size,
+      shotType,
+    }),
     cache: 'no-store',
   });
   const started = await readJson(startResponse);
@@ -544,5 +626,6 @@ export async function POST(request: Request) {
     kind: 'video',
     videoJobId: started.id ?? null,
     status: started.status ?? 'IN_QUEUE',
+    ...pageFields(page),
   });
 }

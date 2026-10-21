@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { instagramCredentials, missingAccountMessage, readAccountName } from '@/lib/instagram/accounts';
 
 const GRAPH_BASE = 'https://graph.instagram.com/v23.0';
 const CAPTION_LIMIT = 2200;
@@ -48,17 +49,20 @@ function carouselReady(statusCode: string, detail: string | null) {
   return statusCode === 'FINISHED' || /^finished/i.test(detail ?? '');
 }
 
-function credentials() {
-  const accessToken = process.env.INSTAGRAM_ACCESS_TOKEN?.trim();
-  const accountId = (
-    process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID ?? process.env.NEXT_PUBLIC_INSTAGRAM_BUSINESS_ACCOUNT_ID
-  )?.trim();
+function resolveAccount(value: unknown) {
+  const parsed = readAccountName(value);
 
-  if (!accessToken || !accountId) {
-    return null;
+  if ('error' in parsed) {
+    return { error: jsonError(parsed.error, 400) };
   }
 
-  return { accessToken, accountId };
+  const auth = instagramCredentials(parsed.account);
+
+  if (!auth) {
+    return { error: jsonError(missingAccountMessage(parsed.account), 500) };
+  }
+
+  return { auth };
 }
 
 async function graphRequest(path: string, accessToken: string, params: Record<string, string>, method: 'GET' | 'POST') {
@@ -87,12 +91,6 @@ async function graphRequest(path: string, accessToken: string, params: Record<st
 }
 
 export async function POST(request: Request) {
-  const auth = credentials();
-
-  if (!auth) {
-    return jsonError('Instagram account credentials are not configured.', 500);
-  }
-
   let body: unknown;
 
   try {
@@ -102,6 +100,13 @@ export async function POST(request: Request) {
   }
 
   const input = body && typeof body === 'object' ? (body as Record<string, unknown>) : {};
+  const resolved = resolveAccount(input.account ?? input.business);
+
+  if ('error' in resolved) {
+    return resolved.error;
+  }
+
+  const auth = resolved.auth;
   const containerId = typeof input.containerId === 'string' ? input.containerId.trim() : '';
   const caption = typeof input.caption === 'string' ? input.caption.trim() : '';
   const videoUrl = typeof input.videoUrl === 'string' ? input.videoUrl.trim() : '';
@@ -300,13 +305,15 @@ export async function POST(request: Request) {
 }
 
 export async function GET(request: Request) {
-  const auth = credentials();
+  const url = new URL(request.url);
+  const resolved = resolveAccount(url.searchParams.get('account'));
 
-  if (!auth) {
-    return jsonError('Instagram account credentials are not configured.', 500);
+  if ('error' in resolved) {
+    return resolved.error;
   }
 
-  const containerId = new URL(request.url).searchParams.get('id')?.trim();
+  const auth = resolved.auth;
+  const containerId = url.searchParams.get('id')?.trim();
 
   if (!containerId) {
     return jsonError('Container id is required.', 400);
