@@ -18,10 +18,16 @@
     "Local to Sunny Isles Beach."
   ],
   "colors": ["navy", "gold", "white"],
+  "campaign": "Everyday done",
+  "world": "Each post is one service, played as a short film in Sunny Isles Beach. Navy, gold, white, ocean light. Slide 1 is the tangle in motion. Slide 2 is the moment it is finished. Slide 3 is the real logo in that same place. The person is doing something specific. The caption sounds like a text to a friend, then says we organize, prepare, and file. Filing help, not legal advice, and not the court or the agency.",
+  "imagePosts": "Carousels of 3 or 4 slides and one caption. The slides are a sequence, not three similar stills.",
+  "videoPosts": "One 15 second vertical scene with fast cuts. No logo and no words.",
   "rules": [
-    "Open brand/sunny-isles-one/logo.png before writing a post.",
-    "The logo file has the circular ONE mark and the horizontal Sunny Isles One lockup. Copy them. Do not invent letters.",
+    "Open brand/sunny-isles-one/manifest.json and brand/sunny-isles-one/logo.png before writing a post.",
+    "The only reference is logo. The file has the circular ONE mark and the horizontal Sunny Isles One lockup. Copy them. Do not invent letters.",
+    "Pick one service for the post.",
     "Put the real logo on the last carousel slide only.",
+    "Do not repeat a person standing still with a closed folder.",
     "Do not name other paperwork brands."
   ],
   "images": [

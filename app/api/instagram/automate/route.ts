@@ -6,7 +6,9 @@ const SLIDE_MIN = 2;
 const SLIDE_MAX = 10;
 const REFERENCES = new Set(['logo', 'cart', 'uniforms', 'toppings']);
 const VIDEO_DIRECTION =
-  'Greek fantasy lifestyle in Aventura or Sunny Isles, cinematic, a life that invites you to taste the yogurt. Not a product close-up. No logo and no written words.';
+  'The Greek Hour in Aventura or Sunny Isles. Fast cinematic cuts, a myth colliding with a real night, the frozen yogurt as the reason to stay. Surprise in the first second. No logo and no written words.';
+const SUNNY_VIDEO_DIRECTION =
+  'Everyday Done in Sunny Isles Beach. Fast cuts, navy and gold, one piece of life going from tangled to finished. A person in motion. No logo and no written words.';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -131,7 +133,11 @@ function sunnyPrompt(slide: Slide, drawLogo: boolean) {
     ? 'Use the Sunny Isles One logo from the reference exactly as it is, same ONE letters, gold sun, and waves. No other text.'
     : 'Use only the navy and gold from the logo reference. No logo, no letters, and no watermark.';
 
-  return [slide.prompt, logo].join('\n');
+  return [
+    slide.prompt,
+    'Campaign frame from Everyday Done. Sunny Isles Beach, navy, gold, and white. One sharp gesture, a specific object, and a sense that something just got finished. Motion and contrast.',
+    logo,
+  ].join('\n');
 }
 
 function directedPrompt(slide: Slide) {
@@ -141,9 +147,15 @@ function directedPrompt(slide: Slide) {
 
   return [
     slide.prompt,
-    'Greek fantasy lifestyle in Aventura or Sunny Isles. A person is living in the picture. The frozen yogurt is why they stay. Not a catalog photo of a cup.',
+    'Campaign frame from The Greek Hour. Aventura or Sunny Isles slipping into a Greek fantasy: stone, olive, sea light, linen, deep blue, warm white. A person mid-gesture. The frozen yogurt belongs inside the life, not as a product photo.',
     logo,
   ].join('\n');
+}
+
+function videoDirection(page: Page) {
+  if (page.titi) return VIDEO_DIRECTION;
+  if (page.account === 'sunny-isles-one') return SUNNY_VIDEO_DIRECTION;
+  return '';
 }
 
 async function publishMedia(origin: string, body: Record<string, unknown>, extra: Record<string, unknown>, page: Page) {
@@ -632,7 +644,7 @@ export async function POST(request: Request) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      prompt: page.titi ? `${prompt}\n${VIDEO_DIRECTION}` : prompt,
+      prompt: [prompt, videoDirection(page)].filter(Boolean).join('\n'),
       duration,
       size,
       shotType,
