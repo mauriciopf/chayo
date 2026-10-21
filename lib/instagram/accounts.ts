@@ -9,8 +9,8 @@ export type InstagramCredentials = {
 export function readAccountName(value: unknown): { account: string } | { error: string } {
   const raw = typeof value === 'string' ? value.trim().toLowerCase() : '';
 
-  if (!raw || raw === 'default') {
-    return { account: '' };
+  if (!raw) {
+    return { error: 'An account is required. Use "titi" or "sunny-isles-one".' };
   }
 
   if (!ACCOUNT_NAME.test(raw)) {
@@ -25,12 +25,13 @@ export function accountEnvSuffix(account: string) {
 }
 
 export function instagramCredentials(account: string): InstagramCredentials | null {
-  const accessToken = account
-    ? process.env[`INSTAGRAM_ACCESS_TOKEN_${accountEnvSuffix(account)}`]?.trim()
-    : process.env.INSTAGRAM_ACCESS_TOKEN?.trim();
-  const accountId = account
-    ? process.env[`INSTAGRAM_BUSINESS_ACCOUNT_ID_${accountEnvSuffix(account)}`]?.trim()
-    : (process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID ?? process.env.NEXT_PUBLIC_INSTAGRAM_BUSINESS_ACCOUNT_ID)?.trim();
+  const original = account === 'titi';
+  const accessToken = original
+    ? process.env.INSTAGRAM_ACCESS_TOKEN?.trim()
+    : process.env[`INSTAGRAM_ACCESS_TOKEN_${accountEnvSuffix(account)}`]?.trim();
+  const accountId = original
+    ? (process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID ?? process.env.NEXT_PUBLIC_INSTAGRAM_BUSINESS_ACCOUNT_ID)?.trim()
+    : process.env[`INSTAGRAM_BUSINESS_ACCOUNT_ID_${accountEnvSuffix(account)}`]?.trim();
 
   if (!accessToken || !accountId) {
     return null;
@@ -40,8 +41,8 @@ export function instagramCredentials(account: string): InstagramCredentials | nu
 }
 
 export function missingAccountMessage(account: string) {
-  if (!account) {
-    return 'Instagram account credentials are not configured.';
+  if (account === 'titi') {
+    return 'Instagram account "titi" is not configured. Set INSTAGRAM_ACCESS_TOKEN and INSTAGRAM_BUSINESS_ACCOUNT_ID.';
   }
 
   const suffix = accountEnvSuffix(account);

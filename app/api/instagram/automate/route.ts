@@ -49,7 +49,7 @@ function pageFields(page: Page) {
 }
 
 function usesTiti(account: string) {
-  return account === '' || account === 'titi';
+  return account === 'titi';
 }
 
 function isPublicHttpsUrl(value: string) {
