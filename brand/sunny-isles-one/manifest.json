@@ -1,0 +1,33 @@
+{
+  "brand": "Sunny Isles One",
+  "line": "One place. One solution. Everyday done.",
+  "place": "Sunny Isles Beach, Florida",
+  "services": [
+    "forms and filing",
+    "divorce and family forms",
+    "immigration forms",
+    "tax-related forms",
+    "business forms",
+    "applications and other paperwork",
+    "translation",
+    "insurance"
+  ],
+  "facts": [
+    "We make paperwork easier.",
+    "100% online across Florida.",
+    "Local to Sunny Isles Beach."
+  ],
+  "colors": ["navy", "gold", "white"],
+  "rules": [
+    "Open brand/sunny-isles-one/logo.png before writing a post.",
+    "The logo file has the circular ONE mark and the horizontal Sunny Isles One lockup. Copy them. Do not invent letters.",
+    "Put the real logo on the last carousel slide only.",
+    "Do not name other paperwork brands."
+  ],
+  "images": [
+    {
+      "file": "brand/sunny-isles-one/logo.png",
+      "shows": "Circular navy ONE mark with a gold sun and waves, and the horizontal Sunny Isles One lockup with the line One place. One solution. Everyday done."
+    }
+  ]
+}

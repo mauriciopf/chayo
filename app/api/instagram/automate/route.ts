@@ -99,12 +99,39 @@ function brandSlides(slides: Slide[]) {
   });
 }
 
-function referenceUrls(origin: string, references: string[]) {
+function referenceUrls(origin: string, references: string[], page: Page) {
+  if (page.account === 'sunny-isles-one') {
+    return references.filter((name) => name === 'logo').map(() => `${origin}/brand/sunny-isles-one/logo.png`);
+  }
+
   return references.map((name) => `${origin}/brand/${name === 'toppings' ? 'toppings.jpg' : `${name}.png`}`);
 }
 
-function slideImages(origin: string, slide: Slide) {
-  return slide.images.length > 0 ? slide.images : referenceUrls(origin, slide.references);
+function slideImages(origin: string, slide: Slide, page: Page) {
+  return slide.images.length > 0 ? slide.images : referenceUrls(origin, slide.references, page);
+}
+
+function prepareSlides(slides: Slide[], page: Page) {
+  if (page.account === 'sunny-isles-one') {
+    return slides.map((slide, index) => {
+      const last = index === slides.length - 1;
+      const references = slide.references.includes('logo') || !last ? slide.references : ['logo', ...slide.references];
+      const withLogo = last && !references.includes('logo') ? ['logo', ...references].slice(0, 3) : references.slice(0, 3);
+      const chosen = withLogo.length > 0 ? withLogo : ['logo'];
+
+      return { ...slide, references: last ? Array.from(new Set(['logo', ...chosen])).slice(0, 3) : chosen };
+    });
+  }
+
+  return page.titi ? brandSlides(slides) : slides;
+}
+
+function sunnyPrompt(slide: Slide, drawLogo: boolean) {
+  const logo = drawLogo
+    ? 'Use the Sunny Isles One logo from the reference exactly as it is, same ONE letters, gold sun, and waves. No other text.'
+    : 'Use only the navy and gold from the logo reference. No logo, no letters, and no watermark.';
+
+  return [slide.prompt, logo].join('\n');
 }
 
 function directedPrompt(slide: Slide) {
@@ -213,13 +240,14 @@ async function openCarousel(
   return advanceCarousel(origin, childContainerIds, caption, { ...extra, imageUrls }, page);
 }
 
-async function startSlide(origin: string, slide: Slide, page: Page) {
+async function startSlide(origin: string, slide: Slide, page: Page, drawLogo: boolean) {
+  const prompt = page.titi ? directedPrompt(slide) : page.account === 'sunny-isles-one' ? sunnyPrompt(slide, drawLogo) : slide.prompt;
   const response = await fetch(`${origin}/api/runpod/nano-banana-2`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      prompt: page.titi ? directedPrompt(slide) : slide.prompt,
-      images: slideImages(origin, slide),
+      prompt,
+      images: slideImages(origin, slide, page),
       resolution: '2k',
       aspectRatio: '4:5',
     }),
@@ -239,9 +267,9 @@ async function continueSlides(origin: string, slides: Slide[], caption: string, 
     return jsonError('Each carousel slide needs its own prompt.', 400);
   }
 
-  const branded = page.titi ? brandSlides(slides) : slides;
+  const branded = prepareSlides(slides, page);
 
-  if (branded.some((slide) => !slide.imageUrl && slideImages(origin, slide).length === 0)) {
+  if (branded.some((slide) => !slide.imageUrl && slideImages(origin, slide, page).length === 0)) {
     return jsonError('Each slide needs brand references or 1 to 3 public https reference images.', 400);
   }
 
@@ -262,7 +290,7 @@ async function continueSlides(origin: string, slides: Slide[], caption: string, 
       branded.map(async (slide) => {
         if (slide.imageUrl || slide.imageJobId) return { slide, ok: true as const, started: {}, status: 200 };
 
-        const { response, started } = await startSlide(origin, slide, page);
+        const { response, started } = await startSlide(origin, slide, page, page.account === 'sunny-isles-one' && branded.indexOf(slide) === branded.length - 1);
         const imageJobId = asString(started.id);
 
         if (!response.ok || !imageJobId) {
