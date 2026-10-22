@@ -11,9 +11,9 @@ const SLIDE_MIN = 2;
 const SLIDE_MAX = 10;
 const REFERENCES = new Set(['logo', 'cart', 'uniforms', 'toppings']);
 const VIDEO_DIRECTION =
-  'A Greek frozen yogurt shop in Aventura or Sunny Isles. The cup is large in the frame: thick white yogurt, pistachio, honey, blue and white. A stranger can tell this is frozen yogurt. Fast cuts. Any words on screen are only these, spelled exactly: Greek frozen yogurt. High protein. Low sugar.';
+  'A Greek frozen yogurt shop in Aventura or Sunny Isles. Follow the story in the prompt. The cup stays large: thick white yogurt, blue and white. A stranger can tell this is frozen yogurt. Fast cuts. Any words on screen are only these, spelled exactly: Greek frozen yogurt. High protein. Low sugar.';
 const SUNNY_VIDEO_DIRECTION =
-  'Sunny Isles One, a paperwork shop in Sunny Isles Beach. Navy, gold, and white. Show the work being filed, not a portrait. Any words on screen name a real service and are spelled exactly: forms, divorce, immigration, taxes, business, translation, or insurance.';
+  'Sunny Isles One, a paperwork shop in Sunny Isles Beach. Follow the story in the prompt. Navy, gold, and white. Show the work being filed, not a portrait. Any words on screen name a real service and are spelled exactly: forms, divorce, immigration, taxes, business, translation, or insurance.';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -214,14 +214,14 @@ function prepareSlides(slides: Slide[], page: Page) {
 
 function clipDirection(page: Page) {
   if (page.titi) {
-    return 'The cup of Greek frozen yogurt is large: thick white yogurt, pistachio, honey, blue and white. One short motion. No words, no letters, and no logo.';
+    return 'Follow the story beat in the prompt. The cup of Greek frozen yogurt stays large: thick white yogurt, blue and white. One short motion. No words, no letters, and no logo.';
   }
 
   if (page.account === 'sunny-isles-one') {
-    return 'A paperwork desk in navy, gold, and white. The forms are in the frame. One short motion. No words, no letters, and no logo.';
+    return 'Follow the story beat in the prompt. The forms stay in the frame, navy, gold, and white. One short motion. No words, no letters, and no logo.';
   }
 
-  return 'One short motion. No words and no letters.';
+  return 'Follow the story beat in the prompt. One short motion. No words and no letters.';
 }
 
 function overlayTheme(page: Page): OverlayTheme {
@@ -237,7 +237,7 @@ function sunnyPrompt(slide: Slide, drawLogo: boolean) {
 
   return [
     slide.prompt,
-    'This is an ad for a paperwork shop. The customer has to see what is being sold. Name the service in large correct words: forms, divorce and family, immigration, taxes, business, applications, translation, or insurance. Navy, gold, and white. No stranger posing as the subject.',
+    'This beat is part of one funny story. The paperwork is the subject. Name the service in large correct words: forms, divorce and family, immigration, taxes, business, applications, translation, or insurance. Navy, gold, and white. No stranger posing as the subject.',
     logo,
   ].join('\n');
 }
@@ -249,7 +249,7 @@ function directedPrompt(slide: Slide) {
 
   return [
     slide.prompt,
-    'This is an ad for a Greek frozen yogurt shop. The cup or the topping bar is large. A stranger can tell it is frozen yogurt. The words, if shown, are only these and spelled exactly: Greek frozen yogurt. High protein. Low sugar. Aventura and Sunny Isles. Deep blue, warm white, cream.',
+    'This beat is part of one funny story. The cup or the topping bar stays large enough that a stranger knows it is Greek frozen yogurt. Any words are only these, spelled exactly: Greek frozen yogurt. High protein. Low sugar. Aventura and Sunny Isles. Deep blue, warm white, cream.',
     logo,
   ].join('\n');
 }
