@@ -1,5 +1,6 @@
 # Dependencies
 node_modules
+/lib/video/bin/ffmpeg
 /.pnp
 .pnp.js
 

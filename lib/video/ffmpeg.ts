@@ -1,28 +1,14 @@
 import { spawn } from 'node:child_process';
 import { promises as fs } from 'node:fs';
 import { accessSync, chmodSync, constants, existsSync } from 'node:fs';
-import { createRequire } from 'node:module';
 import os from 'node:os';
 import path from 'node:path';
 
-import ffmpegPath from 'ffmpeg-static';
-
 const TMP_DIR = path.join(os.tmpdir(), 'chayo-video-pipeline');
-const require = createRequire(import.meta.url);
 
 function ffmpegCandidates() {
-  const candidates = [process.env.FFMPEG_PATH, ffmpegPath];
-
-  try {
-    const resolved = require('ffmpeg-static') as string | null;
-    if (resolved) candidates.push(resolved);
-  } catch {
-    // The package is absent from this bundle.
-  }
-
-  candidates.push(path.join(process.cwd(), 'node_modules/ffmpeg-static/ffmpeg'));
-
-  return candidates.filter((candidate): candidate is string => Boolean(candidate));
+  const bundled = path.join(process.cwd(), 'lib/video/bin/ffmpeg');
+  return [process.env.FFMPEG_PATH, bundled].filter((candidate): candidate is string => Boolean(candidate));
 }
 
 function getFfmpegPath(): string {

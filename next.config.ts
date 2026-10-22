@@ -1,14 +1,10 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ['ffmpeg-static'],
   outputFileTracingIncludes: {
-    '/api/instagram/automate': [
-      './lib/video/fonts/**/*',
-      './node_modules/ffmpeg-static/ffmpeg',
-      './node_modules/ffmpeg-static/**/*',
-      './node_modules/.pnpm/ffmpeg-static@*/node_modules/ffmpeg-static/**/*',
-    ],
+    '/api/instagram/automate': ['./lib/video/fonts/**/*', './lib/video/bin/ffmpeg'],
+    '/api/xai/grok-imagine-video-extend': ['./lib/video/bin/ffmpeg'],
+    '/api/xai/video-compose': ['./lib/video/bin/ffmpeg'],
   },
   images: {
     remotePatterns: [
