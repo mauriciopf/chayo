@@ -2,6 +2,9 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   serverExternalPackages: ['ffmpeg-static'],
+  outputFileTracingIncludes: {
+    '/api/instagram/automate': ['./lib/video/fonts/**/*'],
+  },
   images: {
     remotePatterns: [
       {
