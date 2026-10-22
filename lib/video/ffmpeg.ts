@@ -35,7 +35,7 @@ export function createTmpFilePath(name: string) {
   return path.join(TMP_DIR, `${token}-${name}`);
 }
 
-async function runFfmpeg(args: string[]) {
+export async function runFfmpeg(args: string[]) {
   const ffmpeg = getFfmpegPath();
 
   return await new Promise<{ stdout: string; stderr: string }>((resolve, reject) => {

@@ -1,5 +1,10 @@
+import { promises as fs } from 'node:fs';
+
 import { NextResponse } from 'next/server';
 import { instagramCredentials, missingAccountMessage, readAccountName } from '@/lib/instagram/accounts';
+import { hostCarouselClip } from '@/lib/instagram/clip-host';
+import { overlayLineError, parseOverlayLines, renderCarouselClip, type OverlayTheme } from '@/lib/video/carousel-clip';
+import { createTmpFilePath, downloadToPath, ensureTmpDir, safeUnlink } from '@/lib/video/ffmpeg';
 
 const CAPTION_LIMIT = 2200;
 const SLIDE_MIN = 2;
@@ -19,6 +24,18 @@ type Slide = {
   images: string[];
   imageJobId: string;
   imageUrl: string;
+  media: 'image' | 'video';
+  lines: string[];
+  videoJobId: string;
+  sourceUrl: string;
+  videoUrl: string;
+  prepared: boolean;
+  duration: number;
+};
+
+type CarouselItem = {
+  type: 'image' | 'video';
+  url: string;
 };
 
 type Page = {
@@ -74,31 +91,90 @@ function parseSlides(value: unknown): Slide[] {
     const slide = item && typeof item === 'object' ? (item as Record<string, unknown>) : {};
     const references = stringList(slide.references).filter((name) => REFERENCES.has(name)).slice(0, 3);
 
+    const media = asString(slide.media) === 'video' ? 'video' : 'image';
+    const prepared = slide.prepared === true;
+    const videoUrl = asString(slide.videoUrl);
+    const durationValue = slide.duration == null || slide.duration === '' ? (media === 'video' ? 5 : 0) : Number(slide.duration);
+
     return {
       prompt: asString(slide.prompt),
       references,
       images: stringList(slide.images).filter(isPublicHttpsUrl).slice(0, 3),
       imageJobId: asString(slide.imageJobId),
       imageUrl: asString(slide.imageUrl),
+      media,
+      lines: media === 'video' ? parseOverlayLines(slide.text, slide.lines) : [],
+      videoJobId: asString(slide.videoJobId),
+      sourceUrl: asString(slide.sourceUrl) || (media === 'video' && !prepared ? videoUrl : ''),
+      videoUrl: media === 'video' && prepared ? videoUrl : '',
+      prepared: media === 'video' && prepared,
+      duration: durationValue === 5 || durationValue === 10 || durationValue === 15 ? durationValue : 0,
     };
   });
 }
 
-function brandSlides(slides: Slide[]) {
-  return slides.map((slide, index) => {
-    const last = index === slides.length - 1;
-    let references = slide.references.slice(0, 3);
+function publicSlide(slide: Slide) {
+  return {
+    prompt: slide.prompt,
+    ...(slide.references.length > 0 ? { references: slide.references } : {}),
+    ...(slide.images.length > 0 ? { images: slide.images } : {}),
+    ...(slide.imageJobId ? { imageJobId: slide.imageJobId } : {}),
+    ...(slide.imageUrl ? { imageUrl: slide.imageUrl } : {}),
+    ...(slide.media === 'video'
+      ? {
+          media: 'video' as const,
+          text: slide.lines.join('\n'),
+          duration: slide.duration,
+          ...(slide.videoJobId ? { videoJobId: slide.videoJobId } : {}),
+          ...(slide.sourceUrl ? { sourceUrl: slide.sourceUrl } : {}),
+          ...(slide.videoUrl ? { videoUrl: slide.videoUrl } : {}),
+          ...(slide.prepared ? { prepared: true } : {}),
+        }
+      : {}),
+  };
+}
 
-    if (references.length === 0) {
-      references = last ? ['logo', 'uniforms'] : ['uniforms'];
-    }
+function parseItems(value: unknown): CarouselItem[] {
+  if (!Array.isArray(value)) return [];
 
-    if (last && !references.includes('logo')) {
-      references = ['logo', ...references].slice(0, 3);
-    }
+  return value.flatMap((item) => {
+    if (!item || typeof item !== 'object') return [];
 
-    return { ...slide, references };
+    const record = item as Record<string, unknown>;
+    const type = record.type === 'video' || record.media === 'video' ? 'video' : 'image';
+    const url = asString(record.url) || (type === 'video' ? asString(record.videoUrl) : asString(record.imageUrl));
+
+    return url ? [{ type, url }] : [];
   });
+}
+
+function isFetchableUrl(value: string) {
+  try {
+    const url = new URL(value);
+    const host = url.hostname.toLowerCase();
+
+    if (url.protocol !== 'https:') return false;
+    if (host === 'localhost' || host.endsWith('.local') || host.endsWith('.internal') || host === 'metadata.google.internal') return false;
+    if (/^(127\.|10\.|0\.|169\.254\.|192\.168\.|172\.(1[6-9]|2\d|3[0-1])\.)/.test(host)) return false;
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function brandImage(slide: Slide, last: boolean) {
+  let references = slide.references.slice(0, 3);
+
+  if (references.length === 0) {
+    references = last ? ['logo', 'uniforms'] : ['uniforms'];
+  }
+
+  if (last && !references.includes('logo')) {
+    references = ['logo', ...references].slice(0, 3);
+  }
+
+  return { ...slide, references };
 }
 
 function referenceUrls(origin: string, references: string[], page: Page) {
@@ -113,19 +189,45 @@ function slideImages(origin: string, slide: Slide, page: Page) {
   return slide.images.length > 0 ? slide.images : referenceUrls(origin, slide.references, page);
 }
 
-function prepareSlides(slides: Slide[], page: Page) {
-  if (page.account === 'sunny-isles-one') {
-    return slides.map((slide, index) => {
-      const last = index === slides.length - 1;
-      const references = slide.references.includes('logo') || !last ? slide.references : ['logo', ...slide.references];
-      const withLogo = last && !references.includes('logo') ? ['logo', ...references].slice(0, 3) : references.slice(0, 3);
-      const chosen = withLogo.length > 0 ? withLogo : ['logo'];
+function sunnyImage(slide: Slide, last: boolean) {
+  const references = slide.references.includes('logo') || !last ? slide.references : ['logo', ...slide.references];
+  const withLogo = last && !references.includes('logo') ? ['logo', ...references].slice(0, 3) : references.slice(0, 3);
+  const chosen = withLogo.length > 0 ? withLogo : ['logo'];
 
-      return { ...slide, references: last ? Array.from(new Set(['logo', ...chosen])).slice(0, 3) : chosen };
-    });
+  return { ...slide, references: last ? Array.from(new Set(['logo', ...chosen])).slice(0, 3) : chosen };
+}
+
+function prepareSlides(slides: Slide[], page: Page) {
+  const lastImage = slides.reduce((found, slide, index) => (slide.media === 'video' ? found : index), -1);
+
+  return slides.map((slide, index) => {
+    if (slide.media === 'video') return slide;
+
+    const last = index === lastImage;
+
+    if (page.account === 'sunny-isles-one') return sunnyImage(slide, last);
+    if (page.titi) return brandImage(slide, last);
+
+    return slide;
+  });
+}
+
+function clipDirection(page: Page) {
+  if (page.titi) {
+    return 'The cup of Greek frozen yogurt is large: thick white yogurt, pistachio, honey, blue and white. One short motion. No words, no letters, and no logo.';
   }
 
-  return page.titi ? brandSlides(slides) : slides;
+  if (page.account === 'sunny-isles-one') {
+    return 'A paperwork desk in navy, gold, and white. The forms are in the frame. One short motion. No words, no letters, and no logo.';
+  }
+
+  return 'One short motion. No words and no letters.';
+}
+
+function overlayTheme(page: Page): OverlayTheme {
+  if (page.titi) return 'titi';
+  if (page.account === 'sunny-isles-one') return 'sunny';
+  return 'plain';
 }
 
 function sunnyPrompt(slide: Slide, drawLogo: boolean) {
@@ -220,7 +322,7 @@ async function advanceCarousel(
 
 async function openCarousel(
   origin: string,
-  imageUrls: string[],
+  items: CarouselItem[],
   caption: string,
   extra: Record<string, unknown>,
   page: Page,
@@ -232,7 +334,7 @@ async function openCarousel(
   const createResponse = await fetch(`${origin}/api/instagram/publish`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ imageUrls, caption, ...pageFields(page) }),
+    body: JSON.stringify({ items, caption, ...pageFields(page) }),
     cache: 'no-store',
   });
   const created = await readJson(createResponse);
@@ -245,7 +347,70 @@ async function openCarousel(
     );
   }
 
-  return advanceCarousel(origin, childContainerIds, caption, { ...extra, imageUrls }, page);
+  return advanceCarousel(origin, childContainerIds, caption, { ...extra, items }, page);
+}
+
+function slideItems(slides: Slide[]): CarouselItem[] {
+  return slides.map((slide) => (
+    slide.media === 'video'
+      ? { type: 'video', url: slide.videoUrl }
+      : { type: 'image', url: slide.imageUrl }
+  ));
+}
+
+function carouselBody(slides: Slide[], caption: string, page: Page, extra: Record<string, unknown> = {}) {
+  return {
+    ...extra,
+    kind: 'image' as const,
+    mediaType: 'CAROUSEL' as const,
+    slides: slides.map(publicSlide),
+    caption,
+    ...pageFields(page),
+  };
+}
+
+async function startClip(origin: string, slide: Slide, page: Page) {
+  const response = await fetch(`${origin}/api/runpod/wan-2-6`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      prompt: [slide.prompt, clipDirection(page)].filter(Boolean).join('\n'),
+      duration: slide.duration,
+      size: '1080*1920',
+      shotType: 'single',
+    }),
+    cache: 'no-store',
+  });
+  const started = await readJson(response);
+
+  return { response, started };
+}
+
+async function prepareClip(slide: Slide, page: Page) {
+  if (!isFetchableUrl(slide.sourceUrl)) {
+    throw new Error('The clip source must be a public https link.');
+  }
+
+  await ensureTmpDir();
+  const sourcePath = createTmpFilePath('clip-source.mp4');
+  const outputPath = createTmpFilePath('clip-carousel.mp4');
+
+  try {
+    await downloadToPath(slide.sourceUrl, sourcePath);
+    await renderCarouselClip({
+      sourcePath,
+      outputPath,
+      lines: slide.lines,
+      theme: overlayTheme(page),
+    });
+    const bytes = new Uint8Array(await fs.readFile(outputPath));
+    const videoUrl = await hostCarouselClip(bytes);
+
+    return { ...slide, videoUrl, prepared: true };
+  } finally {
+    await safeUnlink(sourcePath);
+    await safeUnlink(outputPath);
+  }
 }
 
 async function startSlide(origin: string, slide: Slide, page: Page, drawLogo: boolean) {
@@ -266,39 +431,82 @@ async function startSlide(origin: string, slide: Slide, page: Page, drawLogo: bo
   return { response, started };
 }
 
+function slideReady(slide: Slide) {
+  return slide.media === 'video' ? slide.prepared && Boolean(slide.videoUrl) : Boolean(slide.imageUrl);
+}
+
 async function continueSlides(origin: string, slides: Slide[], caption: string, page: Page) {
   if (slides.length < SLIDE_MIN || slides.length > SLIDE_MAX) {
-    return jsonError(`A carousel needs ${SLIDE_MIN} to ${SLIDE_MAX} images.`, 400);
+    return jsonError(`A carousel needs ${SLIDE_MIN} to ${SLIDE_MAX} slides.`, 400);
   }
 
-  if (slides.some((slide) => !slide.prompt && !slide.imageUrl)) {
-    return jsonError('Each carousel slide needs its own prompt.', 400);
+  for (const slide of slides) {
+    if (slide.media === 'video') {
+      if (!slide.duration) {
+        return jsonError('A video slide must be 5, 10, or 15 seconds.', 400);
+      }
+
+      if (slide.prepared) {
+        if (!isPublicHttpsUrl(slide.videoUrl)) {
+          return jsonError('A prepared video slide needs a public https link.', 400);
+        }
+        continue;
+      }
+
+      const lineError = overlayLineError(slide.lines);
+      if (lineError) return jsonError(lineError, 400);
+
+      if (!slide.prompt && !slide.sourceUrl && !slide.videoJobId) {
+        return jsonError('Each video slide needs a prompt.', 400);
+      }
+
+      continue;
+    }
+
+    if (!slide.prompt && !slide.imageUrl) {
+      return jsonError('Each carousel slide needs its own prompt.', 400);
+    }
   }
 
   const branded = prepareSlides(slides, page);
+  const lastImage = branded.reduce((found, slide, index) => (slide.media === 'video' ? found : index), -1);
 
-  if (branded.some((slide) => !slide.imageUrl && slideImages(origin, slide, page).length === 0)) {
-    return jsonError('Each slide needs brand references or 1 to 3 public https reference images.', 400);
+  if (branded.some((slide) => slide.media !== 'video' && !slide.imageUrl && slideImages(origin, slide, page).length === 0)) {
+    return jsonError('Each still slide needs brand references or 1 to 3 public https reference images.', 400);
   }
 
-  const missing = branded.filter((slide) => !slide.imageUrl);
+  const needsStart = branded.some((slide) => (
+    slide.media === 'video'
+      ? !slide.prepared && !slide.sourceUrl && !slide.videoJobId
+      : !slide.imageUrl && !slide.imageJobId
+  ));
 
-  if (missing.length === 0) {
-    return openCarousel(
-      origin,
-      branded.map((slide) => slide.imageUrl),
-      caption,
-      { slides: branded },
-      page,
-    );
-  }
-
-  if (missing.some((slide) => !slide.imageJobId)) {
+  if (needsStart) {
     const startedSlides = await Promise.all(
-      branded.map(async (slide) => {
+      branded.map(async (slide, index) => {
+        if (slide.media === 'video') {
+          if (slide.prepared || slide.sourceUrl || slide.videoJobId) {
+            return { slide, ok: true as const, started: {}, status: 200 };
+          }
+
+          const { response, started } = await startClip(origin, slide, page);
+          const videoJobId = asString(started.id);
+
+          if (!response.ok || !videoJobId) {
+            return { slide, ok: false as const, started, status: response.ok ? 502 : response.status };
+          }
+
+          return { slide: { ...slide, videoJobId }, ok: true as const, started, status: response.status };
+        }
+
         if (slide.imageUrl || slide.imageJobId) return { slide, ok: true as const, started: {}, status: 200 };
 
-        const { response, started } = await startSlide(origin, slide, page, page.account === 'sunny-isles-one' && branded.indexOf(slide) === branded.length - 1);
+        const { response, started } = await startSlide(
+          origin,
+          slide,
+          page,
+          page.account === 'sunny-isles-one' && index === lastImage,
+        );
         const imageJobId = asString(started.id);
 
         if (!response.ok || !imageJobId) {
@@ -309,18 +517,15 @@ async function continueSlides(origin: string, slides: Slide[], caption: string, 
       }),
     );
     const failed = startedSlides.find((item) => !item.ok);
+    const nextSlides = startedSlides.map((item) => item.slide);
 
     if (failed) {
       return NextResponse.json(
         {
           ...failed.started,
-          error: asString(failed.started.error) || 'Image generation did not start.',
+          error: asString(failed.started.error) || 'Generation did not start.',
           stage: 'generating',
-          kind: 'image',
-          mediaType: 'CAROUSEL',
-          slides: startedSlides.map((item) => item.slide),
-          caption,
-          ...pageFields(page),
+          ...carouselBody(nextSlides, caption, page),
         },
         { status: failed.status },
       );
@@ -328,17 +533,58 @@ async function continueSlides(origin: string, slides: Slide[], caption: string, 
 
     return NextResponse.json({
       stage: 'generating',
-      kind: 'image',
-      mediaType: 'CAROUSEL',
       status: 'IN_QUEUE',
-      slides: startedSlides.map((item) => item.slide),
-      caption,
-      ...pageFields(page),
+      ...carouselBody(nextSlides, caption, page),
     });
   }
 
   const polled = await Promise.all(
     branded.map(async (slide) => {
+      if (slide.media === 'video') {
+        if (slide.prepared || slide.sourceUrl) {
+          return { slide, state: 'COMPLETED', error: '', failed: false, statusCode: 200 };
+        }
+
+        const statusResponse = await fetch(
+          `${origin}/api/runpod/wan-2-6/status?id=${encodeURIComponent(slide.videoJobId)}&endpoint=wan-2-6-t2v`,
+          { cache: 'no-store' },
+        );
+        const status = await readJson(statusResponse);
+
+        if (!statusResponse.ok) {
+          return {
+            slide,
+            state: 'FAILED',
+            error: asString(status.error) || 'Video status could not be read.',
+            failed: true,
+            statusCode: statusResponse.status,
+          };
+        }
+
+        const state = asString(status.status) || 'UNKNOWN';
+        const sourceUrl = asString(status.videoUrl);
+
+        if (state === 'COMPLETED' && sourceUrl) {
+          if (!isFetchableUrl(sourceUrl)) {
+            return { slide, state, error: 'The clip source must be a public https link.', failed: true, statusCode: 502 };
+          }
+
+          return { slide: { ...slide, sourceUrl }, state, error: '', failed: false, statusCode: 200 };
+        }
+
+        if (state !== 'IN_QUEUE' && state !== 'IN_PROGRESS') {
+          return {
+            slide,
+            state,
+            error: asString(status.error) || `Video generation ${state.toLowerCase()}.`,
+            failed: true,
+            statusCode: 502,
+          };
+        }
+
+        return { slide, state, error: '', failed: false, statusCode: 200 };
+      }
+
       if (slide.imageUrl) return { slide, state: 'COMPLETED', error: '', failed: false, statusCode: 200 };
 
       const statusResponse = await fetch(
@@ -384,37 +630,48 @@ async function continueSlides(origin: string, slides: Slide[], caption: string, 
       {
         error: failed.error,
         stage: 'generating',
-        kind: 'image',
-        mediaType: 'CAROUSEL',
         status: failed.state,
-        slides: polled.map((item) => item.slide),
-        caption,
-        ...pageFields(page),
+        ...carouselBody(polled.map((item) => item.slide), caption, page),
       },
       { status: failed.statusCode },
     );
   }
 
   const ready = polled.map((item) => item.slide);
+  const pending = ready.find((slide) => slide.media === 'video' && !slide.prepared && Boolean(slide.sourceUrl));
 
-  if (ready.every((slide) => slide.imageUrl)) {
-    return openCarousel(
-      origin,
-      ready.map((slide) => slide.imageUrl),
-      caption,
-      { slides: ready },
-      page,
-    );
+  if (pending) {
+    try {
+      const prepared = await prepareClip(pending, page);
+      const nextSlides = ready.map((slide) => (slide === pending ? prepared : slide));
+
+      return NextResponse.json({
+        stage: 'preparing',
+        status: 'IN_PROGRESS',
+        ...carouselBody(nextSlides, caption, page),
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message.split('\n').filter(Boolean).at(-1) : '';
+
+      return NextResponse.json(
+        {
+          error: (message || 'The clip could not be prepared.').slice(0, 300),
+          stage: 'preparing',
+          ...carouselBody(ready, caption, page),
+        },
+        { status: 502 },
+      );
+    }
+  }
+
+  if (ready.every(slideReady)) {
+    return openCarousel(origin, slideItems(ready), caption, carouselBody(ready, caption, page), page);
   }
 
   return NextResponse.json({
     stage: 'generating',
-    kind: 'image',
-    mediaType: 'CAROUSEL',
     status: polled.some((item) => item.state === 'IN_PROGRESS') ? 'IN_PROGRESS' : 'IN_QUEUE',
-    slides: ready,
-    caption,
-    ...pageFields(page),
+    ...carouselBody(ready, caption, page),
   });
 }
 
@@ -441,6 +698,7 @@ export async function POST(request: Request) {
   const childContainerIds = stringList(input.childContainerIds);
   const containerId = asString(input.containerId);
   const slides = parseSlides(input.slides);
+  const items = parseItems(input.items);
   const duration = input.duration == null || input.duration === '' ? 15 : Number(input.duration);
   const size = asString(input.size) || '1080*1920';
   const shotType = asString(input.shotType) || 'multi';
@@ -510,11 +768,20 @@ export async function POST(request: Request) {
       childContainerIds,
       caption,
       {
-        ...(slides.length > 0 ? { slides } : {}),
+        ...(slides.length > 0 ? { slides: slides.map(publicSlide) } : {}),
         ...(imageUrls.length > 0 ? { imageUrls } : {}),
+        ...(items.length > 0 ? { items } : {}),
       },
       page,
     );
+  }
+
+  if (Array.isArray(input.slides) && input.slides.some((item) => {
+    const slide = item && typeof item === 'object' ? (item as Record<string, unknown>) : {};
+    const media = asString(slide.media);
+    return media !== '' && media !== 'image' && media !== 'video';
+  })) {
+    return jsonError('A slide medium must be image or video.', 400);
   }
 
   if (slides.length > 0) {
@@ -601,14 +868,24 @@ export async function POST(request: Request) {
     });
   }
 
-  const directModes = [Boolean(videoUrl), Boolean(imageUrl), imageUrls.length > 0].filter(Boolean).length;
+  const directModes = [Boolean(videoUrl), Boolean(imageUrl), imageUrls.length > 0, items.length > 0].filter(Boolean).length;
 
   if (directModes > 1) {
-    return jsonError('Send one video, one image, or a list of carousel images.', 400);
+    return jsonError('Send one video, one image, or one carousel.', 400);
+  }
+
+  if (items.length > 0) {
+    return openCarousel(origin, items, caption, { items }, page);
   }
 
   if (imageUrls.length > 0) {
-    return openCarousel(origin, imageUrls, caption, { imageUrls }, page);
+    return openCarousel(
+      origin,
+      imageUrls.map((url) => ({ type: 'image', url })),
+      caption,
+      { imageUrls },
+      page,
+    );
   }
 
   if (videoUrl || imageUrl) {

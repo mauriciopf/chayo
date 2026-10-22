@@ -45,6 +45,26 @@ function stringList(value: unknown) {
   return value.filter((item): item is string => typeof item === 'string').map((item) => item.trim()).filter(Boolean);
 }
 
+function parseItems(value: unknown) {
+  if (!Array.isArray(value)) return [];
+
+  return value.flatMap((item) => {
+    if (!item || typeof item !== 'object') return [];
+
+    const record = item as Record<string, unknown>;
+    const type = record.type === 'video' || record.media === 'video' ? 'video' : 'image';
+    const url = typeof record.url === 'string'
+      ? record.url.trim()
+      : type === 'video' && typeof record.videoUrl === 'string'
+        ? record.videoUrl.trim()
+        : typeof record.imageUrl === 'string'
+          ? record.imageUrl.trim()
+          : '';
+
+    return url ? [{ type, url }] : [];
+  });
+}
+
 function carouselReady(statusCode: string, detail: string | null) {
   return statusCode === 'FINISHED' || /^finished/i.test(detail ?? '');
 }
@@ -112,6 +132,7 @@ export async function POST(request: Request) {
   const videoUrl = typeof input.videoUrl === 'string' ? input.videoUrl.trim() : '';
   const imageUrl = typeof input.imageUrl === 'string' ? input.imageUrl.trim() : '';
   const imageUrls = stringList(input.imageUrls);
+  const items = parseItems(input.items);
   const childContainerIds = stringList(input.childContainerIds);
   const coverUrl = typeof input.coverUrl === 'string' ? input.coverUrl.trim() : '';
   const shareToFeed = input.shareToFeed !== false;
@@ -157,7 +178,7 @@ export async function POST(request: Request) {
 
   if (childContainerIds.length > 0) {
     if (childContainerIds.length < CAROUSEL_MIN || childContainerIds.length > CAROUSEL_MAX) {
-      return jsonError(`A carousel needs ${CAROUSEL_MIN} to ${CAROUSEL_MAX} images.`, 400);
+      return jsonError(`A carousel needs ${CAROUSEL_MIN} to ${CAROUSEL_MAX} items.`, 400);
     }
 
     const checks = await Promise.all(
@@ -169,7 +190,7 @@ export async function POST(request: Request) {
     const failed = checks.find((check) => !check.status.ok);
 
     if (failed) {
-      return jsonError(graphMessage(failed.status.data, 'Instagram could not read a carousel image.'), failed.status.status);
+      return jsonError(graphMessage(failed.status.data, 'Instagram could not read a carousel item.'), failed.status.status);
     }
 
     const children = checks.map((check) => ({
@@ -180,7 +201,7 @@ export async function POST(request: Request) {
     const broken = children.find((child) => child.status === 'ERROR' || child.status === 'EXPIRED');
 
     if (broken) {
-      return jsonError(`Instagram could not prepare one carousel image (${broken.status}).`, 502);
+      return jsonError(`Instagram could not prepare one carousel item (${broken.status}).`, 502);
     }
 
     if (children.some((child) => !carouselReady(child.status, child.detail))) {
@@ -215,6 +236,53 @@ export async function POST(request: Request) {
     return NextResponse.json({
       containerId: parent.data.id,
       childContainerIds,
+      status: 'IN_PROGRESS',
+      mediaType: 'CAROUSEL',
+      published: false,
+    });
+  }
+
+  if (items.length > 0) {
+    if (imageUrls.length > 0 || videoUrl || imageUrl) {
+      return jsonError('Send carousel items on their own.', 400);
+    }
+
+    if (items.length < CAROUSEL_MIN || items.length > CAROUSEL_MAX) {
+      return jsonError(`A carousel needs ${CAROUSEL_MIN} to ${CAROUSEL_MAX} items.`, 400);
+    }
+
+    if (items.some((item) => !isPublicHttpsUrl(item.url))) {
+      return jsonError('Carousel items must be public https links.', 400);
+    }
+
+    const createdIds: string[] = [];
+
+    for (const item of items) {
+      const created = await graphRequest(
+        `${auth.accountId}/media`,
+        auth.accessToken,
+        item.type === 'video'
+          ? { media_type: 'VIDEO', video_url: item.url, is_carousel_item: 'true' }
+          : { image_url: item.url, is_carousel_item: 'true' },
+        'POST',
+      );
+
+      if (!created.ok || !created.data.id) {
+        return NextResponse.json(
+          {
+            error: graphMessage(created.data, 'Instagram could not prepare a carousel item.'),
+            childContainerIds: createdIds,
+          },
+          { status: created.ok ? 502 : created.status },
+        );
+      }
+
+      createdIds.push(created.data.id);
+    }
+
+    return NextResponse.json({
+      childContainerIds: createdIds,
+      items,
       status: 'IN_PROGRESS',
       mediaType: 'CAROUSEL',
       published: false,

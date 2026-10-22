@@ -21,13 +21,14 @@
   "campaign": "What we file",
   "belief": "Say the services. We organize, prepare, and file the paperwork.",
   "world": "Every post tells a stranger what Sunny Isles One sells. The services are forms and filing, divorce and family forms, immigration forms, tax forms, business forms, applications, translation, and insurance. The words are on the post, spelled exactly. Navy, gold, and white. The real logo is copied from the file. People are not the ad. Filing help, not legal advice, and not the court or the agency. Sunny Isles Beach, 100% online across Florida.",
-  "imagePosts": "Carousels of 3 or 4 slides. The offer in words, the service list, then the real logo copied from the file. One caption that names the services.",
+  "imagePosts": "Carousels of 3 or 4 slides. Mix stills with one or two 5 second clips. Each clip is 4:5 and the words burned on name a real service, spelled exactly. One still carries the real logo copied from the file. One caption names the services.",
   "videoPosts": "One 15 second vertical scene of the paperwork being handled. Words on screen only if they name a real service and are spelled exactly.",
   "rules": [
     "Open brand/sunny-isles-one/manifest.json and brand/sunny-isles-one/logo.png before writing a post.",
     "The only reference is logo. The file has the circular ONE mark and the horizontal Sunny Isles One lockup. Copy them. Do not invent letters.",
     "Name the services in the picture and in the caption.",
-    "Copy the real logo from the logo file. Do not let the model invent the letters.",
+    "Image posts are carousels. A slide can be a still or a 5 second clip. Copy the real logo from the logo file onto a still. Do not let the model invent the letters.",
+    "A clip is too short to tell the story with motion. Burn the service name on it, spelled exactly.",
     "You bring the paperwork. We organize, prepare, and file it.",
     "Do not name other paperwork brands."
   ],
