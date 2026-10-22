@@ -11,7 +11,7 @@ const SLIDE_MIN = 2;
 const SLIDE_MAX = 10;
 const REFERENCES = new Set(['logo', 'cart', 'uniforms', 'toppings']);
 const VIDEO_DIRECTION =
-  'A Greek frozen yogurt shop in Aventura or Sunny Isles. Follow the story in the prompt. The cup stays large: thick white yogurt, blue and white. A stranger can tell this is frozen yogurt. Fast cuts. Any words on screen are only these, spelled exactly: Greek frozen yogurt. High protein. Low sugar.';
+  'A Greek frozen yogurt shop in Aventura or Sunny Isles. Follow the story in the prompt. The cup stays large: thick white yogurt, blue and white. A stranger can tell this is frozen yogurt. Fast cuts. Any words on screen are only these, spelled exactly: Greek frozen yogurt. High protein. Sugar free.';
 const SUNNY_VIDEO_DIRECTION =
   'Sunny Isles One, a paperwork shop in Sunny Isles Beach. Follow the story in the prompt. Navy, gold, and white. Show the work being filed, not a portrait. Any words on screen name a real service and are spelled exactly: forms, divorce, immigration, taxes, business, translation, or insurance.';
 
@@ -249,7 +249,7 @@ function directedPrompt(slide: Slide) {
 
   return [
     slide.prompt,
-    'This beat is part of one funny story. The cup or the topping bar stays large enough that a stranger knows it is Greek frozen yogurt. Any words are only these, spelled exactly: Greek frozen yogurt. High protein. Low sugar. Aventura and Sunny Isles. Deep blue, warm white, cream.',
+    'This beat is part of one funny story. The cup or the topping bar stays large enough that a stranger knows it is Greek frozen yogurt. Any words are only these, spelled exactly: Greek frozen yogurt. High protein. Sugar free. Aventura and Sunny Isles. Deep blue, warm white, cream.',
     logo,
   ].join('\n');
 }
