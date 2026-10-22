@@ -1,26 +1,46 @@
 import { spawn } from 'node:child_process';
 import { promises as fs } from 'node:fs';
-import { accessSync, constants } from 'node:fs';
+import { accessSync, chmodSync, constants, existsSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import os from 'node:os';
 import path from 'node:path';
 
 import ffmpegPath from 'ffmpeg-static';
 
 const TMP_DIR = path.join(os.tmpdir(), 'chayo-video-pipeline');
+const require = createRequire(import.meta.url);
 
-function getFfmpegPath(): string {
-  const envPath = process.env.FFMPEG_PATH;
-  if (envPath) {
-    return envPath;
+function ffmpegCandidates() {
+  const candidates = [process.env.FFMPEG_PATH, ffmpegPath];
+
+  try {
+    const resolved = require('ffmpeg-static') as string | null;
+    if (resolved) candidates.push(resolved);
+  } catch {
+    // The package is absent from this bundle.
   }
 
-  if (ffmpegPath) {
+  candidates.push(path.join(process.cwd(), 'node_modules/ffmpeg-static/ffmpeg'));
+
+  return candidates.filter((candidate): candidate is string => Boolean(candidate));
+}
+
+function getFfmpegPath(): string {
+  for (const candidate of ffmpegCandidates()) {
+    if (!existsSync(candidate)) continue;
+
     try {
-      accessSync(ffmpegPath, constants.X_OK);
-      return ffmpegPath;
+      accessSync(candidate, constants.X_OK);
     } catch {
-      // Fall back to the system ffmpeg command when bundled static path is invalid.
+      try {
+        chmodSync(candidate, 0o755);
+        accessSync(candidate, constants.X_OK);
+      } catch {
+        continue;
+      }
     }
+
+    return candidate;
   }
 
   return 'ffmpeg';
@@ -52,7 +72,7 @@ export async function runFfmpeg(args: string[]) {
     });
 
     child.on('error', (error) => {
-      reject(error);
+      reject(new Error(`${error.message} (${ffmpeg})`));
     });
 
     child.on('close', (code) => {
@@ -83,7 +103,7 @@ export async function probeVideoDurationSeconds(inputPath: string) {
     });
 
     child.on('error', (error) => {
-      reject(error);
+      reject(new Error(`${error.message} (${ffmpeg})`));
     });
 
     child.on('close', () => {
